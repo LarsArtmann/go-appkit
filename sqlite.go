@@ -2,6 +2,7 @@ package appkit
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,13 +10,13 @@ import (
 )
 
 var allowedPRAGMAs = map[string]bool{
-	"journal_mode":      true,
-	"busy_timeout":      true,
-	"foreign_keys":      true,
-	"synchronous":       true,
-	"cache_size":        true,
-	"temp_store":        true,
-	"mmap_size":         true,
+	"journal_mode":       true,
+	"busy_timeout":       true,
+	"foreign_keys":       true,
+	"synchronous":        true,
+	"cache_size":         true,
+	"temp_store":         true,
+	"mmap_size":          true,
 	"journal_size_limit": true,
 	"wal_autocheckpoint": true,
 }
@@ -41,7 +42,7 @@ func DefaultSQLitePRAGMAs() map[string]string {
 // OpenSQLite opens a SQLite connection with sensible defaults.
 func OpenSQLite(cfg SQLiteConfig) (*sql.DB, error) {
 	if cfg.Path == "" {
-		return nil, fmt.Errorf("sqlite path is required")
+		return nil, errors.New("sqlite path is required")
 	}
 
 	db, err := sql.Open("sqlite", cfg.Path)

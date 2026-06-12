@@ -102,6 +102,7 @@ func TestLogLevel_SlogLevel_UnknownValue(t *testing.T) {
 	t.Parallel()
 
 	l := LogLevel("unknown")
+
 	_, err := l.slogLevel()
 	if err == nil {
 		t.Fatal("expected error for unknown log level")

@@ -146,8 +146,7 @@ func TestServer_Shutdown(t *testing.T) {
 	mux := http.NewServeMux()
 	srv := NewServer(ServerConfig{Port: port, RegisterHealth: false}, mux)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	errCh := make(chan error, 1)
 
@@ -160,7 +159,8 @@ func TestServer_Shutdown(t *testing.T) {
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer shutdownCancel()
 
-	if err := srv.Shutdown(shutdownCtx); err != nil {
+	err := srv.Shutdown(shutdownCtx)
+	if err != nil {
 		t.Fatalf("shutdown failed: %v", err)
 	}
 
@@ -177,7 +177,8 @@ func TestServer_ShutdownBeforeStart(t *testing.T) {
 	mux := http.NewServeMux()
 	srv := NewServer(DefaultServerConfig(), mux)
 
-	if err := srv.Shutdown(context.Background()); err != nil {
+	err := srv.Shutdown(context.Background())
+	if err != nil {
 		t.Fatalf("shutdown on unstarted server should be nil, got: %v", err)
 	}
 }

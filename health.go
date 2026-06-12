@@ -8,10 +8,10 @@ import (
 type HealthStatus string
 
 const (
-	HealthStatusOK       HealthStatus = "ok"
-	HealthStatusReady    HealthStatus = "ready"
+	HealthStatusOK        HealthStatus = "ok"
+	HealthStatusReady     HealthStatus = "ready"
 	HealthStatusUnhealthy HealthStatus = "unhealthy"
-	HealthStatusDegraded HealthStatus = "degraded"
+	HealthStatusDegraded  HealthStatus = "degraded"
 )
 
 func (s HealthStatus) HTTPStatus() int {

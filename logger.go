@@ -71,6 +71,7 @@ func InitLogger(cfg LoggerConfig) (*slog.Logger, error) {
 	}
 
 	var handler slog.Handler
+
 	opts := &slog.HandlerOptions{Level: level}
 
 	if useJSON {

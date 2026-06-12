@@ -11,11 +11,11 @@ import (
 )
 
 type ServerConfig struct {
-	Port          int
-	ReadTimeout   time.Duration
-	WriteTimeout  time.Duration
-	IdleTimeout   time.Duration
-	HealthHandler http.HandlerFunc
+	Port           int
+	ReadTimeout    time.Duration
+	WriteTimeout   time.Duration
+	IdleTimeout    time.Duration
+	HealthHandler  http.HandlerFunc
 	RegisterHealth bool
 }
 
@@ -93,7 +93,8 @@ func (s *Server) Start(ctx context.Context) error {
 	errCh := make(chan error, 1)
 
 	go func() {
-		if err := s.server.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		err := s.server.Serve(ln)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- fmt.Errorf("serve: %w", err)
 
 			return

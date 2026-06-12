@@ -35,6 +35,7 @@ func WaitForSignal(ctx context.Context, cfg ShutdownConfig, onShutdown func(cont
 	}
 
 	sigCh := make(chan os.Signal, 1)
+
 	signal.Notify(sigCh, cfg.Signals...)
 	defer signal.Stop(sigCh)
 
