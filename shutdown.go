@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const defaultShutdownTimeout = 15 * time.Second
+
 // ShutdownConfig controls graceful shutdown behavior.
 type ShutdownConfig struct {
 	Timeout time.Duration
@@ -18,7 +20,7 @@ type ShutdownConfig struct {
 // DefaultShutdownConfig returns a config that waits for SIGINT/SIGTERM with a 15s timeout.
 func DefaultShutdownConfig() ShutdownConfig {
 	return ShutdownConfig{
-		Timeout: 15 * time.Second,
+		Timeout: defaultShutdownTimeout,
 		Signals: []os.Signal{syscall.SIGINT, syscall.SIGTERM},
 	}
 }
@@ -41,16 +43,16 @@ func WaitForSignal(ctx context.Context, cfg ShutdownConfig, onShutdown func(cont
 
 	select {
 	case <-ctx.Done():
-		return shutdown(cfg.Timeout, onShutdown)
+		return runShutdown(ctx, cfg.Timeout, onShutdown)
 	case sig := <-sigCh:
 		slog.Info("received signal, shutting down", "signal", sig)
 
-		return shutdown(cfg.Timeout, onShutdown)
+		return runShutdown(ctx, cfg.Timeout, onShutdown)
 	}
 }
 
-func shutdown(timeout time.Duration, onShutdown func(context.Context) error) error {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+func runShutdown(parent context.Context, timeout time.Duration, onShutdown func(context.Context) error) error {
+	ctx, cancel := context.WithTimeout(parent, timeout)
 	defer cancel()
 
 	return onShutdown(ctx)

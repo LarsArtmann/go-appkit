@@ -1,6 +1,7 @@
 package appkit
 
 import (
+	"context"
 	"path/filepath"
 	"testing"
 	"time"
@@ -12,21 +13,22 @@ func TestOpenSQLite(t *testing.T) {
 	dir := t.TempDir()
 	dbPath := filepath.Join(dir, "test.db")
 
-	db, err := OpenSQLite(SQLiteConfig{Path: dbPath})
+	database, err := OpenSQLite(context.Background(), SQLiteConfig{Path: dbPath})
 	if err != nil {
 		t.Fatalf("OpenSQLite failed: %v", err)
 	}
-	defer func() { _ = db.Close() }()
+	defer func() { _ = database.Close() }()
 
-	if err := db.Ping(); err != nil {
-		t.Fatalf("ping failed: %v", err)
+	pingErr := database.PingContext(context.Background())
+	if pingErr != nil {
+		t.Fatalf("ping failed: %v", pingErr)
 	}
 }
 
 func TestOpenSQLite_EmptyPath(t *testing.T) {
 	t.Parallel()
 
-	_, err := OpenSQLite(SQLiteConfig{Path: ""})
+	_, err := OpenSQLite(context.Background(), SQLiteConfig{Path: ""})
 	if err == nil {
 		t.Fatal("expected error for empty path")
 	}
@@ -38,7 +40,7 @@ func TestOpenSQLite_DisallowedPRAGMA(t *testing.T) {
 	dir := t.TempDir()
 	dbPath := filepath.Join(dir, "test.db")
 
-	_, err := OpenSQLite(SQLiteConfig{
+	_, err := OpenSQLite(context.Background(), SQLiteConfig{
 		Path:    dbPath,
 		PRAGMAs: map[string]string{"drop_table_users": "1"},
 	})
@@ -53,7 +55,7 @@ func TestOpenSQLite_CustomAllowedPRAGMAs(t *testing.T) {
 	dir := t.TempDir()
 	dbPath := filepath.Join(dir, "test.db")
 
-	db, err := OpenSQLite(SQLiteConfig{
+	database, err := OpenSQLite(context.Background(), SQLiteConfig{
 		Path: dbPath,
 		PRAGMAs: map[string]string{
 			"journal_mode": "WAL",
@@ -63,10 +65,11 @@ func TestOpenSQLite_CustomAllowedPRAGMAs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenSQLite with custom pragmas failed: %v", err)
 	}
-	defer func() { _ = db.Close() }()
+	defer func() { _ = database.Close() }()
 
-	if err := db.Ping(); err != nil {
-		t.Fatalf("ping failed: %v", err)
+	pingErr := database.PingContext(context.Background())
+	if pingErr != nil {
+		t.Fatalf("ping failed: %v", pingErr)
 	}
 }
 
@@ -76,7 +79,7 @@ func TestOpenSQLite_PoolSettings(t *testing.T) {
 	dir := t.TempDir()
 	dbPath := filepath.Join(dir, "test.db")
 
-	db, err := OpenSQLite(SQLiteConfig{
+	database, err := OpenSQLite(context.Background(), SQLiteConfig{
 		Path:            dbPath,
 		MaxOpenConns:    5,
 		MaxIdleConns:    3,
@@ -85,17 +88,18 @@ func TestOpenSQLite_PoolSettings(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenSQLite with pool settings failed: %v", err)
 	}
-	defer func() { _ = db.Close() }()
+	defer func() { _ = database.Close() }()
 
-	if err := db.Ping(); err != nil {
-		t.Fatalf("ping failed: %v", err)
+	pingErr := database.PingContext(context.Background())
+	if pingErr != nil {
+		t.Fatalf("ping failed: %v", pingErr)
 	}
 }
 
 func TestOpenSQLite_OpenError(t *testing.T) {
 	t.Parallel()
 
-	_, err := OpenSQLite(SQLiteConfig{Path: "/nonexistent/dir/test.db"})
+	_, err := OpenSQLite(context.Background(), SQLiteConfig{Path: "/nonexistent/dir/test.db"})
 	if err == nil {
 		t.Fatal("expected error for nonexistent path")
 	}

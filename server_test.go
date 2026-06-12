@@ -30,7 +30,14 @@ func TestNewServer_RegistersHealthEndpoint(t *testing.T) {
 
 	addr := waitForAddr(t, srv)
 
-	resp, err := http.Get("http://" + addr.String() + "/health")
+	client := &http.Client{Timeout: 5 * time.Second}
+
+	req, reqErr := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+addr.String()+"/health", nil)
+	if reqErr != nil {
+		t.Fatalf("build request: %v", reqErr)
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatalf("health request failed: %v", err)
 	}
@@ -66,7 +73,7 @@ func TestNewServer_CustomHealthHandler(t *testing.T) {
 
 	srv := NewServer(cfg, mux)
 
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 	rec := httptest.NewRecorder()
 
 	srv.server.Handler.ServeHTTP(rec, req)
@@ -85,7 +92,7 @@ func TestNewServer_HealthOptOut(t *testing.T) {
 
 	NewServer(cfg, mux)
 
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 	rec := httptest.NewRecorder()
 
 	mux.ServeHTTP(rec, req)
@@ -186,13 +193,22 @@ func TestServer_ShutdownBeforeStart(t *testing.T) {
 func freePort(t *testing.T) int {
 	t.Helper()
 
-	ln, err := net.Listen("tcp", ":0")
+	listenConfig := &net.ListenConfig{}
+
+	listener, err := listenConfig.Listen(t.Context(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("get free port: %v", err)
 	}
 
-	port := ln.Addr().(*net.TCPAddr).Port
-	_ = ln.Close()
+	tcpAddr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok {
+		_ = listener.Close()
+
+		t.Fatalf("listener addr is not *net.TCPAddr: %T", listener.Addr())
+	}
+
+	port := tcpAddr.Port
+	_ = listener.Close()
 
 	return port
 }

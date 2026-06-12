@@ -1,6 +1,7 @@
 package appkit
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -24,6 +25,11 @@ const (
 	LogFormatAuto LogFormat = "auto"
 )
 
+var (
+	errUnsupportedLogLevel  = errors.New("unsupported log level")
+	errUnsupportedLogFormat = errors.New("unsupported log format")
+)
+
 func (l LogLevel) slogLevel() (slog.Level, error) {
 	switch l {
 	case LogLevelDebug:
@@ -35,20 +41,20 @@ func (l LogLevel) slogLevel() (slog.Level, error) {
 	case LogLevelError:
 		return slog.LevelError, nil
 	default:
-		return 0, fmt.Errorf("unsupported log level %q", l)
+		return 0, fmt.Errorf("%w: %q", errUnsupportedLogLevel, l)
 	}
 }
 
-func (f LogFormat) isJSON(w io.Writer) (bool, error) {
+func (f LogFormat) isJSON(writer io.Writer) (bool, error) {
 	switch f {
 	case LogFormatJSON:
 		return true, nil
 	case LogFormatText, "":
 		return false, nil
 	case LogFormatAuto:
-		return !isTerminal(w), nil
+		return !isTerminal(writer), nil
 	default:
-		return false, fmt.Errorf("unsupported log format %q", f)
+		return false, fmt.Errorf("%w: %q", errUnsupportedLogFormat, f)
 	}
 }
 
@@ -63,33 +69,37 @@ func InitLogger(cfg LoggerConfig) (*slog.Logger, error) {
 		return nil, err
 	}
 
-	w := os.Stderr
+	writer := os.Stderr
 
-	useJSON, err := cfg.Format.isJSON(w)
+	useJSON, err := cfg.Format.isJSON(writer)
 	if err != nil {
 		return nil, err
 	}
 
 	var handler slog.Handler
 
-	opts := &slog.HandlerOptions{Level: level}
+	opts := &slog.HandlerOptions{
+		Level:       level,
+		AddSource:   false,
+		ReplaceAttr: nil,
+	}
 
 	if useJSON {
-		handler = slog.NewJSONHandler(w, opts)
+		handler = slog.NewJSONHandler(writer, opts)
 	} else {
-		handler = slog.NewTextHandler(w, opts)
+		handler = slog.NewTextHandler(writer, opts)
 	}
 
 	return slog.New(handler), nil
 }
 
-func isTerminal(w io.Writer) bool {
-	f, ok := w.(*os.File)
+func isTerminal(writer io.Writer) bool {
+	file, ok := writer.(*os.File)
 	if !ok {
 		return false
 	}
 
-	info, err := f.Stat()
+	info, err := file.Stat()
 	if err != nil {
 		return false
 	}

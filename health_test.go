@@ -9,7 +9,7 @@ import (
 func TestDefaultHealthHandler(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 	rec := httptest.NewRecorder()
 
 	DefaultHealthHandler(rec, req)
@@ -26,7 +26,7 @@ func TestDefaultHealthHandler(t *testing.T) {
 func TestNewHealthHandler_Ready(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 	rec := httptest.NewRecorder()
 
 	NewHealthHandler(HealthStatusReady)(rec, req)
@@ -43,7 +43,7 @@ func TestNewHealthHandler_Ready(t *testing.T) {
 func TestNewHealthHandler_Unhealthy(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 	rec := httptest.NewRecorder()
 
 	NewHealthHandler(HealthStatusUnhealthy)(rec, req)
@@ -56,7 +56,7 @@ func TestNewHealthHandler_Unhealthy(t *testing.T) {
 func TestNewHealthHandler_Degraded(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 	rec := httptest.NewRecorder()
 
 	NewHealthHandler(HealthStatusDegraded)(rec, req)

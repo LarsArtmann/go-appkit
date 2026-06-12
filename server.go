@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+const (
+	defaultPort         = 8080
+	defaultReadTimeout  = 30 * time.Second
+	defaultWriteTimeout = 30 * time.Second
+	defaultIdleTimeout  = 120 * time.Second
+	defaultKeepAlive    = 30 * time.Second
+)
+
 type ServerConfig struct {
 	Port           int
 	ReadTimeout    time.Duration
@@ -21,10 +29,11 @@ type ServerConfig struct {
 
 func DefaultServerConfig() ServerConfig {
 	return ServerConfig{
-		Port:           8080,
-		ReadTimeout:    30 * time.Second,
-		WriteTimeout:   30 * time.Second,
-		IdleTimeout:    120 * time.Second,
+		Port:           defaultPort,
+		ReadTimeout:    defaultReadTimeout,
+		WriteTimeout:   defaultWriteTimeout,
+		IdleTimeout:    defaultIdleTimeout,
+		HealthHandler:  DefaultHealthHandler,
 		RegisterHealth: true,
 	}
 }
@@ -69,11 +78,25 @@ func NewServer(cfg ServerConfig, mux *http.ServeMux) *Server {
 
 	return &Server{
 		cfg: cfg,
+		ln:  nil,
+		mu:  sync.RWMutex{},
 		server: &http.Server{
-			Handler:      mux,
-			ReadTimeout:  cfg.ReadTimeout,
-			WriteTimeout: cfg.WriteTimeout,
-			IdleTimeout:  cfg.IdleTimeout,
+			Addr:                         "",
+			Handler:                      mux,
+			ReadTimeout:                  cfg.ReadTimeout,
+			WriteTimeout:                 cfg.WriteTimeout,
+			IdleTimeout:                  cfg.IdleTimeout,
+			ReadHeaderTimeout:            cfg.ReadTimeout,
+			DisableGeneralOptionsHandler: false,
+			TLSConfig:                    nil,
+			MaxHeaderBytes:               http.DefaultMaxHeaderBytes,
+			TLSNextProto:                 nil,
+			ConnState:                    nil,
+			ErrorLog:                     nil,
+			BaseContext:                  nil,
+			ConnContext:                  nil,
+			HTTP2:                        nil,
+			Protocols:                    nil,
 		},
 	}
 }
@@ -81,19 +104,25 @@ func NewServer(cfg ServerConfig, mux *http.ServeMux) *Server {
 func (s *Server) Start(ctx context.Context) error {
 	addr := fmt.Sprintf(":%d", s.cfg.Port)
 
-	ln, err := net.Listen("tcp", addr)
+	listenConfig := &net.ListenConfig{
+		Control:         nil,
+		KeepAlive:       defaultKeepAlive,
+		KeepAliveConfig: net.KeepAliveConfig{Enable: false, Idle: 0, Interval: 0, Count: 0},
+	}
+
+	listener, err := listenConfig.Listen(ctx, "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("listen on %s: %w", addr, err)
 	}
 
 	s.mu.Lock()
-	s.ln = ln
+	s.ln = listener
 	s.mu.Unlock()
 
 	errCh := make(chan error, 1)
 
 	go func() {
-		err := s.server.Serve(ln)
+		err := s.server.Serve(listener)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- fmt.Errorf("serve: %w", err)
 
@@ -116,7 +145,12 @@ func (s *Server) Shutdown(ctx context.Context) error {
 		return nil
 	}
 
-	return s.server.Shutdown(ctx)
+	err := s.server.Shutdown(ctx)
+	if err != nil {
+		return fmt.Errorf("server shutdown: %w", err)
+	}
+
+	return nil
 }
 
 func (s *Server) Addr() net.Addr {

@@ -114,7 +114,7 @@ err := appkit.WaitForSignal(ctx, appkit.DefaultShutdownConfig(), func(shutdownCt
 `OpenSQLite` opens a SQLite database with sensible defaults: WAL mode, `busy_timeout = 5000`, and `foreign_keys = ON`. You can override pragmas or connection limits via `SQLiteConfig`.
 
 ```go
-db, err := appkit.OpenSQLite(appkit.SQLiteConfig{
+db, err := appkit.OpenSQLite(ctx, appkit.SQLiteConfig{
     Path:         "app.db",
     MaxOpenConns: 10,
 })

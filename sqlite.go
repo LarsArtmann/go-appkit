@@ -1,6 +1,7 @@
 package appkit
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -9,17 +10,40 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-var allowedPRAGMAs = map[string]bool{
-	"journal_mode":       true,
-	"busy_timeout":       true,
-	"foreign_keys":       true,
-	"synchronous":        true,
-	"cache_size":         true,
-	"temp_store":         true,
-	"mmap_size":          true,
-	"journal_size_limit": true,
-	"wal_autocheckpoint": true,
+const (
+	pragmaJournalMode       = "journal_mode"
+	pragmaBusyTimeout       = "busy_timeout"
+	pragmaForeignKeys       = "foreign_keys"
+	pragmaSynchronous       = "synchronous"
+	pragmaCacheSize         = "cache_size"
+	pragmaTempStore         = "temp_store"
+	pragmaMmapSize          = "mmap_size"
+	pragmaJournalSizeLimit  = "journal_size_limit"
+	pragmaWalAutocheckpoint = "wal_autocheckpoint"
+
+	pragWAL = "WAL"
+	prag5s  = "5000"
+	pragOn  = "ON"
+)
+
+func allowedPRAGMAKeys() map[string]struct{} {
+	return map[string]struct{}{
+		pragmaJournalMode:       {},
+		pragmaBusyTimeout:       {},
+		pragmaForeignKeys:       {},
+		pragmaSynchronous:       {},
+		pragmaCacheSize:         {},
+		pragmaTempStore:         {},
+		pragmaMmapSize:          {},
+		pragmaJournalSizeLimit:  {},
+		pragmaWalAutocheckpoint: {},
+	}
 }
+
+var (
+	errSQLitePathRequired = errors.New("sqlite path is required")
+	errPRAGMAAllowlist    = errors.New("unsupported PRAGMA: not in allowlist")
+)
 
 // SQLiteConfig controls the SQLite connection opened by OpenSQLite.
 type SQLiteConfig struct {
@@ -33,33 +57,33 @@ type SQLiteConfig struct {
 // DefaultSQLitePRAGMAs returns a conservative set of SQLite pragmas.
 func DefaultSQLitePRAGMAs() map[string]string {
 	return map[string]string{
-		"journal_mode": "WAL",
-		"busy_timeout": "5000",
-		"foreign_keys": "ON",
+		pragmaJournalMode: pragWAL,
+		pragmaBusyTimeout: prag5s,
+		pragmaForeignKeys: pragOn,
 	}
 }
 
 // OpenSQLite opens a SQLite connection with sensible defaults.
-func OpenSQLite(cfg SQLiteConfig) (*sql.DB, error) {
+func OpenSQLite(ctx context.Context, cfg SQLiteConfig) (*sql.DB, error) {
 	if cfg.Path == "" {
-		return nil, errors.New("sqlite path is required")
+		return nil, fmt.Errorf("%w", errSQLitePathRequired)
 	}
 
-	db, err := sql.Open("sqlite", cfg.Path)
+	database, err := sql.Open("sqlite", cfg.Path)
 	if err != nil {
 		return nil, fmt.Errorf("open sqlite %s: %w", cfg.Path, err)
 	}
 
 	if cfg.MaxOpenConns > 0 {
-		db.SetMaxOpenConns(cfg.MaxOpenConns)
+		database.SetMaxOpenConns(cfg.MaxOpenConns)
 	}
 
 	if cfg.MaxIdleConns > 0 {
-		db.SetMaxIdleConns(cfg.MaxIdleConns)
+		database.SetMaxIdleConns(cfg.MaxIdleConns)
 	}
 
 	if cfg.ConnMaxLifetime > 0 {
-		db.SetConnMaxLifetime(cfg.ConnMaxLifetime)
+		database.SetConnMaxLifetime(cfg.ConnMaxLifetime)
 	}
 
 	pragmas := cfg.PRAGMAs
@@ -68,18 +92,20 @@ func OpenSQLite(cfg SQLiteConfig) (*sql.DB, error) {
 	}
 
 	for key, value := range pragmas {
-		if !allowedPRAGMAs[key] {
-			_ = db.Close()
+		allowed := allowedPRAGMAKeys()
+		if _, ok := allowed[key]; !ok {
+			_ = database.Close()
 
-			return nil, fmt.Errorf("unsupported PRAGMA %q: not in allowlist", key)
+			return nil, fmt.Errorf("%w: %q", errPRAGMAAllowlist, key)
 		}
 
-		if _, err := db.Exec(fmt.Sprintf("PRAGMA %s = %s;", key, value)); err != nil {
-			_ = db.Close()
+		_, execErr := database.ExecContext(ctx, fmt.Sprintf("PRAGMA %s = %s;", key, value))
+		if execErr != nil {
+			_ = database.Close()
 
-			return nil, fmt.Errorf("set PRAGMA %s: %w", key, err)
+			return nil, fmt.Errorf("set PRAGMA %s: %w", key, execErr)
 		}
 	}
 
-	return db, nil
+	return database, nil
 }

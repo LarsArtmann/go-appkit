@@ -136,6 +136,7 @@ linters:
                     allow:
                         - $gostd
                         - $module
+                        - modernc.org/sqlite
         exhaustruct:
             exclude:
                 - os/exec.Cmd
@@ -178,6 +179,8 @@ linters:
                 - a
                 - b
                 - v
+                - w
+                - r
             ignore-type-assert-ok: true
     exclusions:
         generated: lax

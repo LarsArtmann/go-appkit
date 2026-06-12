@@ -27,7 +27,7 @@ Each file owns one self-contained concern:
 - `health.go` — `HealthStatus` typed enum, `DefaultHealthHandler`, `NewHealthHandler(status)`, shared `writeHealthResponse`.
 - `shutdown.go` — `WaitForSignal` for SIGINT/SIGTERM handling, logs via `slog`.
 - `logger.go` — `LogLevel`/`LogFormat` typed strings, `InitLogger` returns `(*slog.Logger, error)`.
-- `sqlite.go` — `OpenSQLite` with WAL-mode pragmas, PRAGMA key allowlist for injection safety.
+- `sqlite.go` — `OpenSQLite(ctx, cfg)` with WAL-mode pragmas, PRAGMA key allowlist (`allowedPRAGMAKeys()` function) for injection safety.
 
 Tests mirror source files: `*_test.go` for each module.
 
@@ -49,7 +49,8 @@ Tests mirror source files: `*_test.go` for each module.
 - Error wrapping style: `fmt.Errorf("...: %w", err)`.
 - Logging uses `log/slog`; `InitLogger` returns errors for invalid config.
 - SQLite uses `modernc.org/sqlite` (CGO-free), default pragmas include WAL mode, busy timeout, and foreign keys.
-- PRAGMA keys validated against `allowedPRAGMAs` allowlist to prevent SQL injection.
+- `OpenSQLite(ctx, cfg)` takes a `context.Context` so PRAGMAs can be applied via `db.ExecContext` (also satisfies `noctx`).
+- PRAGMA keys validated against `allowedPRAGMAKeys()` set (function, not a global) to prevent SQL injection.
 
 ## Testing
 

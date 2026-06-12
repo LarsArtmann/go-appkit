@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var errShutdownFailed = errors.New("shutdown failed")
+
 func TestWaitForSignal_CallsShutdownOnContextCancel(t *testing.T) {
 	t.Parallel()
 
@@ -39,7 +41,7 @@ func TestWaitForSignal_ShutdownErrorReturned(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	wantErr := errors.New("shutdown failed")
+	wantErr := errShutdownFailed
 
 	errCh := make(chan error, 1)
 
@@ -79,7 +81,10 @@ func TestWaitForSignal_SignalDelivery(t *testing.T) {
 
 	time.Sleep(50 * time.Millisecond)
 
-	syscall.Kill(syscall.Getpid(), syscall.SIGUSR1)
+	killErr := syscall.Kill(syscall.Getpid(), syscall.SIGUSR1)
+	if killErr != nil {
+		t.Fatalf("syscall.Kill failed: %v", killErr)
+	}
 
 	select {
 	case <-called:

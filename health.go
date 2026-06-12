@@ -41,5 +41,8 @@ func writeHealthResponse(w http.ResponseWriter, status HealthStatus) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status.HTTPStatus())
 
-	_ = json.NewEncoder(w).Encode(map[string]string{"status": string(status)})
+	encodeErr := json.NewEncoder(w).Encode(map[string]string{"status": string(status)})
+	if encodeErr != nil {
+		http.Error(w, encodeErr.Error(), http.StatusInternalServerError)
+	}
 }
