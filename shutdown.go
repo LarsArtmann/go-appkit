@@ -2,7 +2,7 @@ package appkit
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -42,7 +42,7 @@ func WaitForSignal(ctx context.Context, cfg ShutdownConfig, onShutdown func(cont
 	case <-ctx.Done():
 		return shutdown(cfg.Timeout, onShutdown)
 	case sig := <-sigCh:
-		fmt.Fprintf(os.Stderr, "received signal %v, shutting down\n", sig)
+		slog.Info("received signal, shutting down", "signal", sig)
 
 		return shutdown(cfg.Timeout, onShutdown)
 	}

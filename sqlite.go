@@ -8,6 +8,18 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+var allowedPRAGMAs = map[string]bool{
+	"journal_mode":      true,
+	"busy_timeout":      true,
+	"foreign_keys":      true,
+	"synchronous":       true,
+	"cache_size":        true,
+	"temp_store":        true,
+	"mmap_size":         true,
+	"journal_size_limit": true,
+	"wal_autocheckpoint": true,
+}
+
 // SQLiteConfig controls the SQLite connection opened by OpenSQLite.
 type SQLiteConfig struct {
 	Path            string
@@ -55,6 +67,12 @@ func OpenSQLite(cfg SQLiteConfig) (*sql.DB, error) {
 	}
 
 	for key, value := range pragmas {
+		if !allowedPRAGMAs[key] {
+			_ = db.Close()
+
+			return nil, fmt.Errorf("unsupported PRAGMA %q: not in allowlist", key)
+		}
+
 		if _, err := db.Exec(fmt.Sprintf("PRAGMA %s = %s;", key, value)); err != nil {
 			_ = db.Close()
 

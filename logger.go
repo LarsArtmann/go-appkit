@@ -7,41 +7,79 @@ import (
 	"os"
 )
 
-// LoggerConfig controls how InitLogger builds the application logger.
-type LoggerConfig struct {
-	Level  string // "debug", "info", "warn", "error"
-	Format string // "text", "json", "auto" (auto = text if output is a terminal, else json)
-}
+type LogLevel string
 
-// InitLogger creates a structured slog.Logger using the supplied config.
-// It panics if Level is not one of the supported values.
-func InitLogger(cfg LoggerConfig) *slog.Logger {
-	level := parseLevel(cfg.Level)
-	w := os.Stderr
-	var handler slog.Handler
+const (
+	LogLevelDebug LogLevel = "debug"
+	LogLevelInfo  LogLevel = "info"
+	LogLevelWarn  LogLevel = "warn"
+	LogLevelError LogLevel = "error"
+)
 
-	if cfg.Format == "json" || (cfg.Format == "auto" && !isTerminal(w)) {
-		handler = slog.NewJSONHandler(w, &slog.HandlerOptions{Level: level})
-	} else {
-		handler = slog.NewTextHandler(w, &slog.HandlerOptions{Level: level})
-	}
+type LogFormat string
 
-	return slog.New(handler)
-}
+const (
+	LogFormatText LogFormat = "text"
+	LogFormatJSON LogFormat = "json"
+	LogFormatAuto LogFormat = "auto"
+)
 
-func parseLevel(s string) slog.Level {
-	switch s {
-	case "debug":
-		return slog.LevelDebug
-	case "info", "":
-		return slog.LevelInfo
-	case "warn":
-		return slog.LevelWarn
-	case "error":
-		return slog.LevelError
+func (l LogLevel) slogLevel() (slog.Level, error) {
+	switch l {
+	case LogLevelDebug:
+		return slog.LevelDebug, nil
+	case LogLevelInfo, "":
+		return slog.LevelInfo, nil
+	case LogLevelWarn:
+		return slog.LevelWarn, nil
+	case LogLevelError:
+		return slog.LevelError, nil
 	default:
-		panic(fmt.Sprintf("unsupported log level %q", s))
+		return 0, fmt.Errorf("unsupported log level %q", l)
 	}
+}
+
+func (f LogFormat) isJSON(w io.Writer) (bool, error) {
+	switch f {
+	case LogFormatJSON:
+		return true, nil
+	case LogFormatText, "":
+		return false, nil
+	case LogFormatAuto:
+		return !isTerminal(w), nil
+	default:
+		return false, fmt.Errorf("unsupported log format %q", f)
+	}
+}
+
+type LoggerConfig struct {
+	Level  LogLevel
+	Format LogFormat
+}
+
+func InitLogger(cfg LoggerConfig) (*slog.Logger, error) {
+	level, err := cfg.Level.slogLevel()
+	if err != nil {
+		return nil, err
+	}
+
+	w := os.Stderr
+
+	useJSON, err := cfg.Format.isJSON(w)
+	if err != nil {
+		return nil, err
+	}
+
+	var handler slog.Handler
+	opts := &slog.HandlerOptions{Level: level}
+
+	if useJSON {
+		handler = slog.NewJSONHandler(w, opts)
+	} else {
+		handler = slog.NewTextHandler(w, opts)
+	}
+
+	return slog.New(handler), nil
 }
 
 func isTerminal(w io.Writer) bool {

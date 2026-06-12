@@ -3,13 +3,18 @@ package appkit
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"testing"
 )
 
 func TestInitLogger_DefaultLevel(t *testing.T) {
 	t.Parallel()
 
-	logger := InitLogger(LoggerConfig{})
+	logger, err := InitLogger(LoggerConfig{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
 	if logger == nil {
 		t.Fatal("expected non-nil logger")
 	}
@@ -28,20 +33,81 @@ func TestInitLogger_DefaultLevel(t *testing.T) {
 func TestInitLogger_DebugLevel(t *testing.T) {
 	t.Parallel()
 
-	logger := InitLogger(LoggerConfig{Level: "debug"})
+	logger, err := InitLogger(LoggerConfig{Level: LogLevelDebug})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
 	if !logger.Enabled(context.TODO(), slog.LevelDebug) {
 		t.Error("expected debug level to be enabled")
 	}
 }
 
-func TestInitLogger_InvalidLevelPanics(t *testing.T) {
+func TestInitLogger_InvalidLevel(t *testing.T) {
 	t.Parallel()
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("expected panic for invalid level")
-		}
-	}()
+	_, err := InitLogger(LoggerConfig{Level: LogLevel("banana")})
+	if err == nil {
+		t.Fatal("expected error for invalid level")
+	}
+}
 
-	InitLogger(LoggerConfig{Level: "banana"})
+func TestInitLogger_InvalidFormat(t *testing.T) {
+	t.Parallel()
+
+	_, err := InitLogger(LoggerConfig{Format: LogFormat("xml")})
+	if err == nil {
+		t.Fatal("expected error for invalid format")
+	}
+}
+
+func TestInitLogger_JSONFormat(t *testing.T) {
+	t.Parallel()
+
+	logger, err := InitLogger(LoggerConfig{Level: LogLevelInfo, Format: LogFormatJSON})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if logger == nil {
+		t.Fatal("expected non-nil logger")
+	}
+}
+
+func TestInitLogger_TextFormat(t *testing.T) {
+	t.Parallel()
+
+	logger, err := InitLogger(LoggerConfig{Level: LogLevelInfo, Format: LogFormatText})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if logger == nil {
+		t.Fatal("expected non-nil logger")
+	}
+}
+
+func TestInitLogger_AllLevels(t *testing.T) {
+	t.Parallel()
+
+	for _, level := range []LogLevel{LogLevelDebug, LogLevelInfo, LogLevelWarn, LogLevelError} {
+		_, err := InitLogger(LoggerConfig{Level: level})
+		if err != nil {
+			t.Errorf("level %q: unexpected error: %v", level, err)
+		}
+	}
+}
+
+func TestLogLevel_SlogLevel_UnknownValue(t *testing.T) {
+	t.Parallel()
+
+	l := LogLevel("unknown")
+	_, err := l.slogLevel()
+	if err == nil {
+		t.Fatal("expected error for unknown log level")
+	}
+
+	if !strings.Contains(err.Error(), "unknown") {
+		t.Errorf("error should mention the invalid level, got: %v", err)
+	}
 }
