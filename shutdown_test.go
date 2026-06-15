@@ -19,20 +19,12 @@ func TestWaitForSignal_CallsShutdownOnContextCancel(t *testing.T) {
 	called := make(chan struct{})
 
 	go func() {
-		_ = WaitForSignal(ctx, ShutdownConfig{Timeout: time.Second}, func(_ context.Context) error {
-			close(called)
-
-			return nil
-		})
+		_ = WaitForSignal(ctx, ShutdownConfig{Timeout: time.Second}, newMockShutdown(called))
 	}()
 
 	cancel()
 
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("shutdown callback was not called")
-	}
+	assertShutdownCalled(t, called, "shutdown callback was not called")
 }
 
 func TestWaitForSignal_ShutdownErrorReturned(t *testing.T) {
@@ -53,14 +45,7 @@ func TestWaitForSignal_ShutdownErrorReturned(t *testing.T) {
 
 	cancel()
 
-	select {
-	case err := <-errCh:
-		if !errors.Is(err, wantErr) {
-			t.Fatalf("err = %v, want %v", err, wantErr)
-		}
-	case <-time.After(2 * time.Second):
-		t.Fatal("shutdown did not return")
-	}
+	assertErrorWithin(t, errCh, wantErr)
 }
 
 func TestWaitForSignal_SignalDelivery(t *testing.T) {
@@ -72,11 +57,7 @@ func TestWaitForSignal_SignalDelivery(t *testing.T) {
 		_ = WaitForSignal(context.Background(), ShutdownConfig{
 			Timeout: time.Second,
 			Signals: []os.Signal{syscall.SIGUSR1},
-		}, func(_ context.Context) error {
-			close(called)
-
-			return nil
-		})
+		}, newMockShutdown(called))
 	}()
 
 	time.Sleep(50 * time.Millisecond)
@@ -86,11 +67,7 @@ func TestWaitForSignal_SignalDelivery(t *testing.T) {
 		t.Fatalf("syscall.Kill failed: %v", killErr)
 	}
 
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("shutdown callback was not called after signal")
-	}
+	assertShutdownCalled(t, called, "shutdown callback was not called after signal")
 }
 
 func TestWaitForSignal_DefaultConfig(t *testing.T) {
@@ -101,20 +78,12 @@ func TestWaitForSignal_DefaultConfig(t *testing.T) {
 	called := make(chan struct{})
 
 	go func() {
-		_ = WaitForSignal(ctx, ShutdownConfig{}, func(_ context.Context) error {
-			close(called)
-
-			return nil
-		})
+		_ = WaitForSignal(ctx, ShutdownConfig{}, newMockShutdown(called))
 	}()
 
 	cancel()
 
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("shutdown callback was not called with default config")
-	}
+	assertShutdownCalled(t, called, "shutdown callback was not called with default config")
 }
 
 func TestWaitForSignal_DefaultTimeout(t *testing.T) {

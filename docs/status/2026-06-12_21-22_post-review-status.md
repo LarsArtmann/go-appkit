@@ -12,14 +12,17 @@
 ## a) FULLY DONE
 
 ### Security
+
 - [x] **PRAGMA SQL injection fixed** — `allowedPRAGMAs` allowlist validates all keys before interpolation in `sqlite.go`. Unsupported keys return error immediately and close the DB connection.
 
 ### Type Safety
+
 - [x] **`LogLevel` typed string** — `"debug"`, `"info"`, `"warn"`, `"error"` constants. Zero-value defaults to info. Invalid values return compile-time-friendly errors instead of runtime panics.
 - [x] **`LogFormat` typed string** — `"text"`, `"json"`, `"auto"` constants. Unknown formats return errors.
 - [x] **`HealthStatus` typed enum** — `"ok"`, `"ready"`, `"unhealthy"`, `"degraded"` with `HTTPStatus()` method that maps to correct HTTP status codes (200/503).
 
 ### API Correctness
+
 - [x] **`InitLogger` returns `(*slog.Logger, error)`** — No more panics. Library-safe error handling.
 - [x] **`ServerConfig.applyDefaults()`** — Called once, not 4 times. DRY.
 - [x] **`ServerConfig.RegisterHealth`** — Boolean flag to opt out of auto-registering `GET /health`.
@@ -27,11 +30,13 @@
 - [x] **`Server.ln` protected by `sync.RWMutex`** — `Addr()` and `Running()` use `RLock`/`RUnlock`.
 
 ### Code Quality
+
 - [x] **DRY health handler** — `writeHealthResponse()` shared between `DefaultHealthHandler` and `NewHealthHandler`.
 - [x] **`shutdown.go` uses `slog.Info`** — Replaced `fmt.Fprintf(os.Stderr)`.
 - [x] **`sqlite.go` uses `errors.New`** — For static error messages (lint fix).
 
 ### Test Coverage (31 tests, 88.7% coverage)
+
 - [x] Health: default handler, ready, unhealthy, degraded, unknown status code mapping (5 tests)
 - [x] Logger: default level, debug, invalid level, invalid format, JSON, text, all levels, unknown value (8 tests)
 - [x] Server: health endpoint registration, custom health handler, health opt-out, addr nil before start, running after start, shutdown, shutdown before start (7 tests)
@@ -39,6 +44,7 @@
 - [x] SQLite: basic open, empty path, disallowed PRAGMA, custom allowed PRAGMAs, pool settings, open error (6 tests)
 
 ### Infrastructure
+
 - [x] **Race-free test helpers** — `freePort()`, `waitForAddr()`, `waitForRunning()` replace `time.Sleep` in server tests.
 - [x] **golangci-lint config** — `.golangci.yml` added with formatting rules applied.
 - [x] **Project docs** — `doc.go`, `AUTHORS`, `CONTRIBUTING.md`, `LICENSE`, `.gitattributes`, `docs/DOMAIN_LANGUAGE.md` added.
@@ -50,14 +56,17 @@
 ## b) PARTIALLY DONE
 
 ### doc.go Package Documentation
+
 - `doc.go` exists but has placeholder content: `// Package appkit provides ...`
 - Should have a proper package doc comment describing the library's purpose and usage.
 
 ### docs/DOMAIN_LANGUAGE.md
+
 - Template exists but has no domain-specific terms filled in (still has placeholder "Example Term" entries).
 - For a utility library like appkit, the domain language is about infrastructure concepts (server, health check, shutdown, logging, database connection).
 
 ### README.md
+
 - Still references old API (`InitLogger` returning `*slog.Logger` directly, not `(*slog.Logger, error)`).
 - Still references old `HealthHandler` as `http.HandlerFunc` not `HealthStatus` type.
 - Usage examples need updating for the new typed API.
@@ -90,18 +99,21 @@ The closest thing to "fucked up" is the **uncommitted lint/formatting changes** 
 ## e) WHAT WE SHOULD IMPROVE
 
 ### High Impact
+
 1. **Update README.md** — The public-facing docs are stale; users will see wrong API signatures
 2. **Fix `doc.go`** — Package documentation is a placeholder
 3. **PRAGMA value sanitization** — Keys are validated but values are not; sophisticated injection is still possible
 4. **Error sentinel values** — `errors.Is()` matching is impossible without exported sentinel errors
 
 ### Medium Impact
+
 5. **Inject logger into `WaitForSignal`** — Global `slog` makes testing noisy
 6. **Support `Port: 0`** — OS-assigned ports are a real use case for testing and service mesh sidecars
 7. **Add `example_test.go`** — Go convention for package examples; helps godoc and new users
 8. **Fill `DOMAIN_LANGUAGE.md`** — Define the infrastructure domain vocabulary
 
 ### Lower Impact
+
 9. **CI pipeline** — GitHub Actions for automated test + lint on push
 10. **Benchmarks** — No performance benchmarks for server start/shutdown cycle
 11. **Fuzz testing** — `OpenSQLite` PRAGMA values, `parseLevel`, health status are good fuzz targets
@@ -112,33 +124,33 @@ The closest thing to "fucked up" is the **uncommitted lint/formatting changes** 
 
 Sorted by impact × effort (highest first):
 
-| # | Task | Impact | Effort | Category |
-|---|------|--------|--------|----------|
-| 1 | Update README.md usage examples for new API | High | 15min | Docs |
-| 2 | Fix `doc.go` package documentation | High | 10min | Docs |
-| 3 | Sanitize PRAGMA values (not just keys) | High | 20min | Security |
-| 4 | Add error sentinel values (`ErrPathRequired`, etc.) | Medium | 20min | Correctness |
-| 5 | Inject `*slog.Logger` into `WaitForSignal` / `ShutdownConfig` | Medium | 15min | Testability |
-| 6 | Add `example_test.go` with end-to-end usage | Medium | 20min | DX |
-| 7 | Update CHANGELOG.md for v0.2.0 | Medium | 10min | Docs |
-| 8 | Support `Port: 0` for OS-assigned ports | Medium | 15min | Feature |
-| 9 | Fill `docs/DOMAIN_LANGUAGE.md` with actual terms | Low | 15min | Docs |
-| 10 | Add GitHub Actions CI (test + vet + lint) | Medium | 30min | Infra |
-| 11 | `go mod tidy` to clean unused indirect deps | Low | 5min | Housekeeping |
-| 12 | Add `ServerConfig.Addr` string field (support unix sockets) | Low | 20min | Feature |
-| 13 | Add `Server.Start()` returns actual listener address in error channel | Low | 10min | DX |
-| 14 | Add `SQLiteConfig.DefaultPath` for in-memory default | Low | 10min | Feature |
-| 15 | Add `WithLogger` option pattern for Server | Low | 30min | Feature |
-| 16 | Add benchmarks for server start/shutdown | Low | 20min | Testing |
-| 17 | Add fuzz tests for PRAGMA values and log level parsing | Low | 30min | Testing |
-| 18 | Add `ShutdownConfig.OnSignal` callback hook | Low | 15min | Feature |
-| 19 | Add `Server.ServeMux()` accessor to retrieve the mux | Low | 5min | DX |
-| 20 | Add `SQLiteConfig.Validate()` method | Low | 10min | Correctness |
-| 21 | Consider `errors.Join` for multi-PRAGMA failures | Low | 10min | Correctness |
-| 22 | Add `IsTerminal()` test with mock file | Low | 10min | Testing |
-| 23 | Add middleware support (request logging, recovery) | Low | 45min | Feature |
-| 24 | Add graceful restart support via `SIGUSR2` | Low | 30min | Feature |
-| 25 | Add `VERSION` constant for embedding in health checks | Low | 5min | Feature |
+| #   | Task                                                                  | Impact | Effort | Category     |
+| --- | --------------------------------------------------------------------- | ------ | ------ | ------------ |
+| 1   | Update README.md usage examples for new API                           | High   | 15min  | Docs         |
+| 2   | Fix `doc.go` package documentation                                    | High   | 10min  | Docs         |
+| 3   | Sanitize PRAGMA values (not just keys)                                | High   | 20min  | Security     |
+| 4   | Add error sentinel values (`ErrPathRequired`, etc.)                   | Medium | 20min  | Correctness  |
+| 5   | Inject `*slog.Logger` into `WaitForSignal` / `ShutdownConfig`         | Medium | 15min  | Testability  |
+| 6   | Add `example_test.go` with end-to-end usage                           | Medium | 20min  | DX           |
+| 7   | Update CHANGELOG.md for v0.2.0                                        | Medium | 10min  | Docs         |
+| 8   | Support `Port: 0` for OS-assigned ports                               | Medium | 15min  | Feature      |
+| 9   | Fill `docs/DOMAIN_LANGUAGE.md` with actual terms                      | Low    | 15min  | Docs         |
+| 10  | Add GitHub Actions CI (test + vet + lint)                             | Medium | 30min  | Infra        |
+| 11  | `go mod tidy` to clean unused indirect deps                           | Low    | 5min   | Housekeeping |
+| 12  | Add `ServerConfig.Addr` string field (support unix sockets)           | Low    | 20min  | Feature      |
+| 13  | Add `Server.Start()` returns actual listener address in error channel | Low    | 10min  | DX           |
+| 14  | Add `SQLiteConfig.DefaultPath` for in-memory default                  | Low    | 10min  | Feature      |
+| 15  | Add `WithLogger` option pattern for Server                            | Low    | 30min  | Feature      |
+| 16  | Add benchmarks for server start/shutdown                              | Low    | 20min  | Testing      |
+| 17  | Add fuzz tests for PRAGMA values and log level parsing                | Low    | 30min  | Testing      |
+| 18  | Add `ShutdownConfig.OnSignal` callback hook                           | Low    | 15min  | Feature      |
+| 19  | Add `Server.ServeMux()` accessor to retrieve the mux                  | Low    | 5min   | DX           |
+| 20  | Add `SQLiteConfig.Validate()` method                                  | Low    | 10min  | Correctness  |
+| 21  | Consider `errors.Join` for multi-PRAGMA failures                      | Low    | 10min  | Correctness  |
+| 22  | Add `IsTerminal()` test with mock file                                | Low    | 10min  | Testing      |
+| 23  | Add middleware support (request logging, recovery)                    | Low    | 45min  | Feature      |
+| 24  | Add graceful restart support via `SIGUSR2`                            | Low    | 30min  | Feature      |
+| 25  | Add `VERSION` constant for embedding in health checks                 | Low    | 5min   | Feature      |
 
 ---
 
@@ -158,18 +170,18 @@ This decision shapes whether items #1-25 are "nice to have" or "critical before 
 
 ## Project Metrics
 
-| Metric | Value |
-|--------|-------|
-| Source files | 6 (.go) |
-| Test files | 5 (_test.go) |
-| Other files | doc.go, go.mod, go.sum |
-| Total lines | 1,076 |
-| Total bytes | 21,398 |
-| Test count | 31 |
-| Test pass rate | 100% |
-| Race detector | Clean |
-| Coverage | 88.7% |
-| Dependencies | 1 direct (`modernc.org/sqlite`), 7 indirect |
-| Go version | 1.26.3 |
-| Commits on master | 4 |
-| Uncommitted changes | Formatting/lint fixes + new project files |
+| Metric              | Value                                       |
+| ------------------- | ------------------------------------------- |
+| Source files        | 6 (.go)                                     |
+| Test files          | 5 (\_test.go)                               |
+| Other files         | doc.go, go.mod, go.sum                      |
+| Total lines         | 1,076                                       |
+| Total bytes         | 21,398                                      |
+| Test count          | 31                                          |
+| Test pass rate      | 100%                                        |
+| Race detector       | Clean                                       |
+| Coverage            | 88.7%                                       |
+| Dependencies        | 1 direct (`modernc.org/sqlite`), 7 indirect |
+| Go version          | 1.26.3                                      |
+| Commits on master   | 4                                           |
+| Uncommitted changes | Formatting/lint fixes + new project files   |

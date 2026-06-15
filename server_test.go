@@ -5,7 +5,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -54,14 +53,7 @@ func TestNewServer_RegistersHealthEndpoint(t *testing.T) {
 
 	cancel()
 
-	select {
-	case err := <-errCh:
-		if err != nil {
-			t.Fatalf("start returned error: %v", err)
-		}
-	case <-time.After(2 * time.Second):
-		t.Fatal("server did not stop")
-	}
+	assertServerStopped(t, errCh)
 }
 
 func TestNewServer_CustomHealthHandler(t *testing.T) {
@@ -73,14 +65,10 @@ func TestNewServer_CustomHealthHandler(t *testing.T) {
 
 	srv := NewServer(cfg, mux)
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
-	rec := httptest.NewRecorder()
+	rec := httptestNewRecorder()
+	srv.server.Handler.ServeHTTP(rec, newHealthRequest(t))
 
-	srv.server.Handler.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusServiceUnavailable {
-		t.Errorf("status = %d, want %d", rec.Code, http.StatusServiceUnavailable)
-	}
+	assertStatus(t, rec, http.StatusServiceUnavailable)
 }
 
 func TestNewServer_HealthOptOut(t *testing.T) {
@@ -92,10 +80,8 @@ func TestNewServer_HealthOptOut(t *testing.T) {
 
 	NewServer(cfg, mux)
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
-	rec := httptest.NewRecorder()
-
-	mux.ServeHTTP(rec, req)
+	rec := httptestNewRecorder()
+	mux.ServeHTTP(rec, newHealthRequest(t))
 
 	if rec.Code != http.StatusNotFound {
 		t.Errorf("expected /health to not be registered, got status %d", rec.Code)
@@ -138,11 +124,7 @@ func TestServer_RunningAfterStart(t *testing.T) {
 
 	cancel()
 
-	select {
-	case <-errCh:
-	case <-time.After(2 * time.Second):
-		t.Fatal("server did not stop")
-	}
+	assertServerStopped(t, errCh)
 }
 
 func TestServer_Shutdown(t *testing.T) {
@@ -171,11 +153,7 @@ func TestServer_Shutdown(t *testing.T) {
 		t.Fatalf("shutdown failed: %v", err)
 	}
 
-	select {
-	case <-errCh:
-	case <-time.After(2 * time.Second):
-		t.Fatal("server did not stop after shutdown")
-	}
+	assertServerStopped(t, errCh)
 }
 
 func TestServer_ShutdownBeforeStart(t *testing.T) {

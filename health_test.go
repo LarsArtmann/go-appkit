@@ -2,68 +2,45 @@ package appkit
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 )
 
 func TestDefaultHealthHandler(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
-	rec := httptest.NewRecorder()
+	rec := httptestNewRecorder()
+	DefaultHealthHandler(rec, newHealthRequest(t))
 
-	DefaultHealthHandler(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Errorf("status = %d, want %d", rec.Code, http.StatusOK)
-	}
-
-	if body := rec.Body.String(); body != `{"status":"ok"}`+"\n" {
-		t.Errorf("body = %q, want %q", body, `{"status":"ok"}`+"\n")
-	}
+	assertStatus(t, rec, http.StatusOK)
+	assertHealthBody(t, rec, `{"status":"ok"}`)
 }
 
 func TestNewHealthHandler_Ready(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
-	rec := httptest.NewRecorder()
+	rec := httptestNewRecorder()
+	NewHealthHandler(HealthStatusReady)(rec, newHealthRequest(t))
 
-	NewHealthHandler(HealthStatusReady)(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Errorf("status = %d, want %d", rec.Code, http.StatusOK)
-	}
-
-	if body := rec.Body.String(); body != `{"status":"ready"}`+"\n" {
-		t.Errorf("body = %q, want %q", body, `{"status":"ready"}`+"\n")
-	}
+	assertStatus(t, rec, http.StatusOK)
+	assertHealthBody(t, rec, `{"status":"ready"}`)
 }
 
 func TestNewHealthHandler_Unhealthy(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
-	rec := httptest.NewRecorder()
+	rec := httptestNewRecorder()
+	NewHealthHandler(HealthStatusUnhealthy)(rec, newHealthRequest(t))
 
-	NewHealthHandler(HealthStatusUnhealthy)(rec, req)
-
-	if rec.Code != http.StatusServiceUnavailable {
-		t.Errorf("status = %d, want %d", rec.Code, http.StatusServiceUnavailable)
-	}
+	assertStatus(t, rec, http.StatusServiceUnavailable)
 }
 
 func TestNewHealthHandler_Degraded(t *testing.T) {
 	t.Parallel()
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
-	rec := httptest.NewRecorder()
+	rec := httptestNewRecorder()
+	NewHealthHandler(HealthStatusDegraded)(rec, newHealthRequest(t))
 
-	NewHealthHandler(HealthStatusDegraded)(rec, req)
-
-	if rec.Code != http.StatusServiceUnavailable {
-		t.Errorf("status = %d, want %d", rec.Code, http.StatusServiceUnavailable)
-	}
+	assertStatus(t, rec, http.StatusServiceUnavailable)
 }
 
 func TestHealthStatus_HTTPStatus_Unknown(t *testing.T) {
