@@ -1,55 +1,156 @@
 direction: down
 
-t1: Tier 1 — The 1% that delivers 51% {
-  style.fill: "#1a3a1a"
-  style.font-color: "#f4d35e"
-  t1_core: "Service type + NewService + Run\n(THE identity change)" {
-    style.fill: "#2a5a2a"
-    style.font-color: "#f4f4f0"
-  }
-}
-
-t2: Tier 2 — The 4% that delivers 64% {
-  style.fill: "#1a2a3a"
-  t2_deps: "Add httputil + error-family\nto go.mod"
-  t2_server: "Delegate server.go -> httputil"
-  t2_health: "Delegate health.go -> httputil"
-  t2_mw: "Default middleware stack\n(Recovery ReqID Log Timeout Sec)"
-}
-
-t3: Tier 3 — The 20% that delivers 80% {
-  style.fill: "#3a2a1a"
-  t3_shutdown: "Coordinated graceful\nshutdown (signal srv db)"
-  t3_errors: "Adopt go-error-family\nfor classified errors"
-  t3_validate: "Config validation\n+ DefaultServiceConfig"
-}
-
-t4: Tier 4 — Polish to 100% {
-  style.fill: "#2a1a2a"
-  t4_readme: "README rewrite\nprod-ready in 15 lines"
-  t4_example: "Example service"
-  t4_tests: "Full test suite"
-  t4_docs: "doc.go + AGENTS.md"
-}
-
-vision: "VISION: Production-ready Go service in 15 lines\nappkit.NewService(cfg) -> svc.Run(ctx)" {
+# Vision
+vision: "VISION: Production-ready Go service in 15 lines" {
   shape: rectangle
   style.fill: "#f4d35e"
   style.font-color: "#0e0e10"
   style.bold: true
 }
 
-vision -> t1.t1_core
-t1.t1_core -> t2.t2_deps
-t2.t2_deps -> t2.t2_server
-t2.t2_deps -> t2.t2_health
-t2.t2_server -> t2.t2_mw
-t2.t2_health -> t2.t2_mw
-t2.t2_mw -> t3.t3_shutdown
-t2.t2_mw -> t3.t3_errors
-t2.t2_mw -> t3.t3_validate
-t3.t3_shutdown -> t4.t4_readme
-t3.t3_errors -> t4.t4_readme
-t3.t3_validate -> t4.t4_example
-t4.t4_example -> t4.t4_tests
-t4.t4_tests -> t4.t4_docs
+# Existential justification
+why: "WHY: httputil is HTTP-only (depguard: gostd + error-family only).\nappkit owns logger+sqlite+signal = the layer ABOVE httputil." {
+  shape: rectangle
+  style.fill: "#2a5a2a"
+  style.font-color: "#f4f4f0"
+  style.font-size: "14"
+}
+
+# Decision diamonds
+d1: "DECISION 1:\nService owns mux?" {
+  shape: diamond
+  style.fill: "#3a3a1a"
+  style.font-color: "#f4d35e"
+}
+d2: "DECISION 2:\nRun blocks + handles signals?" {
+  shape: diamond
+  style.fill: "#3a3a1a"
+  style.font-color: "#f4d35e"
+}
+d3: "DECISION 3:\nMiddleware extendable only?" {
+  shape: diamond
+  style.fill: "#3a3a1a"
+  style.font-color: "#f4d35e"
+}
+
+# Phase 1: Foundation (critical path)
+p1: Phase 1 — Foundation (1% to 51%) {
+  style.fill: "#1a3a1a"
+  style.stroke: "#2a5a2a"
+  f1: "ServiceConfig struct\n+ Validate()" {
+    style.fill: "#2a5a2a"
+    style.font-color: "#f4f4f0"
+  }
+  f2: "NewService()\nlogger + sqlite + mux + server" {
+    style.fill: "#2a5a2a"
+    style.font-color: "#f4f4f0"
+  }
+  f3: "Service.Run()\nstart + signal + shutdown" {
+    style.fill: "#2a5a2a"
+    style.font-color: "#f4f4f0"
+  }
+  f4: "Accessors:\nMux, Logger, DB, Addr" {
+    style.fill: "#2a5a2a"
+    style.font-color: "#f4f4f0"
+  }
+}
+
+# Phase 2: httputil composition (4% to 64%)
+p2: Phase 2 — httputil Composition (4% to 64%) {
+  style.fill: "#1a2a3a"
+  style.stroke: "#2a4a6a"
+  h1: "Add httputil + error-family\nto go.mod" {
+    style.fill: "#2a4a6a"
+    style.font-color: "#f4f4f0"
+  }
+  h2: "Delegate server.go -> httputil.Server\n(addr string, Start returns chan)" {
+    style.fill: "#2a4a6a"
+    style.font-color: "#f4f4f0"
+  }
+  h3: "Delegate health.go -> httputil.RegisterHealth\n(up/down not ok/degraded)" {
+    style.fill: "#2a4a6a"
+    style.font-color: "#f4f4f0"
+  }
+  h4: "Default middleware stack:\nRecovery -> ReqID -> Logging -> Timeout -> Sec" {
+    style.fill: "#2a4a6a"
+    style.font-color: "#f4f4f0"
+  }
+}
+
+# Phase 3: Production-grade (20% to 80%)
+p3: Phase 3 — Production-grade (20% to 80%) {
+  style.fill: "#3a2a1a"
+  style.stroke: "#5a4a2a"
+  g1: "Coordinated Shutdown:\nserver -> db with sync.Once" {
+    style.fill: "#5a4a2a"
+    style.font-color: "#f4f4f0"
+  }
+  g2: "errors.go:\nclassify sentinels + sqlite.Error" {
+    style.fill: "#5a4a2a"
+    style.font-color: "#f4f4f0"
+  }
+  g3: "DefaultServiceConfig()\n+ zero-value fill" {
+    style.fill: "#5a4a2a"
+    style.font-color: "#f4f4f0"
+  }
+  g4: "Optional SQLite\n(path empty = no DB)" {
+    style.fill: "#5a4a2a"
+    style.font-color: "#f4f4f0"
+  }
+}
+
+# Phase 4: Ship it (100%)
+p4: Phase 4 — Ship It (100%) {
+  style.fill: "#2a1a2a"
+  style.stroke: "#4a2a4a"
+  s1: "README: prod-ready pitch" {
+    style.fill: "#4a2a4a"
+    style.font-color: "#f4f4f0"
+  }
+  s2: "example/main.go" {
+    style.fill: "#4a2a4a"
+    style.font-color: "#f4f4f0"
+  }
+  s3: "Full test suite\n+ httpspec validation" {
+    style.fill: "#4a2a4a"
+    style.font-color: "#f4f4f0"
+  }
+  s4: "flake.nix + AGENTS.md\n+ doc.go" {
+    style.fill: "#4a2a4a"
+    style.font-color: "#f4f4f0"
+  }
+  s5: "Tag v1.0.0" {
+    style.fill: "#4a2a4a"
+    style.font-color: "#f4f4f0"
+    style.bold: true
+  }
+}
+
+# Flow
+vision -> why
+why -> d1
+d1 -> p1.f1
+p1.f1 -> d2
+d2 -> p1.f2
+p1.f2 -> p1.f3
+p1.f3 -> p1.f4
+p1.f4 -> p2.h1: "critical path"
+
+p2.h1 -> p2.h2
+p2.h1 -> p2.h3
+p2.h2 -> p2.h4
+p2.h3 -> p2.h4
+p2.h4 -> d3
+d3 -> p3.g1
+
+p3.g1 -> p3.g2: "parallel"
+p3.g1 -> p3.g3: "parallel"
+p3.g1 -> p3.g4: "parallel"
+
+p3.g2 -> p4.s1
+p3.g3 -> p4.s2
+p3.g4 -> p4.s2
+p4.s1 -> p4.s3
+p4.s2 -> p4.s3
+p4.s3 -> p4.s4
+p4.s4 -> p4.s5
