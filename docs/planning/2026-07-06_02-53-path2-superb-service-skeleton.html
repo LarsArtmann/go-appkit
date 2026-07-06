@@ -1,0 +1,1443 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Path 2 Plan — Superb Service Skeleton</title>
+    <style>
+      :root {
+        /* --- Primitive palette (Bauhaus Dark) --- */
+        --color-graphite: #0e0e10;
+        --color-graphite-2: #18181d;
+        --color-graphite-3: #16161a;
+        --color-bone: #f4f4f0;
+        --color-red: #ff6b6b;
+        --color-blue: #6eb5ff;
+        --color-yellow: #f4d35e;
+        --color-amber: #ffb347;
+        --color-hairline: rgba(244, 244, 240, 0.12);
+        --color-hairline-strong: rgba(244, 244, 240, 0.25);
+
+        /* --- Semantic layer (shared vocabulary with editorial template) --- */
+        --surface: var(--color-graphite);
+        --surface-raised: var(--color-graphite-2);
+        --surface-sunken: var(--color-graphite-3);
+        --text: var(--color-bone);
+        --text-muted: rgba(244, 244, 240, 0.72);
+        --text-faint: rgba(244, 244, 240, 0.45);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-amber);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Backward-compatible aliases (do not break consumer skills) --- */
+        --bg: var(--surface);
+        --bg-elevated: var(--surface-raised);
+        --bg-sunken: var(--surface-sunken);
+        --bg-card: var(--surface-raised);
+        --bg-code: var(--surface-sunken);
+        --ink: var(--text);
+        --ink-secondary: var(--text-muted);
+        --ink-muted: var(--text-faint);
+        --rose: var(--problem);
+        --rose-glow: color-mix(in srgb, var(--problem) 15%, transparent);
+        --emerald: var(--solution);
+        --emerald-glow: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-glow: color-mix(in srgb, var(--warning) 15%, transparent);
+        --coral: var(--problem);
+        --coral-light: color-mix(in srgb, var(--problem) 15%, transparent);
+        --teal: var(--solution);
+        --teal-light: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-light: color-mix(in srgb, var(--warning) 20%, transparent);
+
+        /* --- Shape --- */
+        --radius: 0px; /* Bauhaus default: sharp corners */
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
+          monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      /* Sticky-header offset for anchor jumps */
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Accessibility: keyboard focus --- */
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      a:focus-visible {
+        outline-offset: -1px;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout: optional sticky sidebar TOC --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .sidebar a {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.45rem 0.75rem;
+        border-left: 2px solid transparent;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.1;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      h3 {
+        font-size: 1.1rem;
+        margin: 0 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 0.98rem;
+        margin: 0 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .hero-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--surface);
+        background: var(--accent);
+        padding: 0.3rem 0.7rem;
+        margin-bottom: 0.9rem;
+      }
+      .hero-subtitle {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        max-width: 70ch;
+        margin: 0;
+      }
+
+      /* Bauhaus signature: geometric shape cluster (optional) */
+      .hero-shapes {
+        position: relative;
+        height: 80px;
+        margin-bottom: 1rem;
+      }
+      .hero-shapes .circle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 56px;
+        height: 56px;
+        background: var(--problem);
+        border-radius: 50%;
+      }
+      .hero-shapes .square {
+        position: absolute;
+        top: 24px;
+        left: 72px;
+        width: 48px;
+        height: 48px;
+        background: var(--solution);
+      }
+      .hero-shapes .tri {
+        position: absolute;
+        top: 8px;
+        left: 140px;
+        width: 0;
+        height: 0;
+        border-left: 28px solid transparent;
+        border-right: 28px solid transparent;
+        border-bottom: 48px solid var(--warning);
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised));
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised));
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised));
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised));
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges (used inside issue cards) --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Inline badges (used in tables) --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.18rem 0.5rem;
+        border: 1px solid var(--border-strong);
+        color: var(--text-muted);
+      }
+      .badge-critical {
+        color: var(--problem);
+        border-color: var(--problem);
+      }
+      .badge-high {
+        color: var(--warning);
+        border-color: var(--warning);
+      }
+      .badge-medium {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .badge-low {
+        color: var(--text-muted);
+      }
+      .badge-fixed {
+        color: var(--solution);
+        border-color: var(--solution);
+      }
+
+      /* --- Callouts (used inside issues or standalone) --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.7rem 0.9rem;
+        border-left: 3px solid var(--border-strong);
+        background: color-mix(in srgb, var(--text) 5%, transparent);
+        font-size: 0.9rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 10%, transparent);
+      }
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 10%, transparent);
+      }
+
+      /* --- Stat cards / scorecards (aliased vocabulary) --- */
+      .stat-grid,
+      .scorecard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .stat-card,
+      .score-card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1rem;
+        position: relative;
+      }
+      .stat-card::before,
+      .score-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-strong);
+      }
+      .stat-bad,
+      .score-bad {
+        /* default top bar already set */
+      }
+      .stat-bad::before,
+      .score-bad::before {
+        background: var(--problem);
+      }
+      .stat-good::before,
+      .score-good::before {
+        background: var(--solution);
+      }
+      .stat-warn::before,
+      .score-warn::before {
+        background: var(--warning);
+      }
+      .stat-value,
+      .score {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: var(--text);
+      }
+      .stat-bad .stat-value,
+      .score-bad .score {
+        color: var(--problem);
+      }
+      .stat-good .stat-value,
+      .score-good .score {
+        color: var(--solution);
+      }
+      .stat-warn .stat-value,
+      .score-warn .score {
+        color: var(--warning);
+      }
+      .stat-label,
+      .score-card .label {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-faint);
+        margin-top: 0.5rem;
+      }
+
+      /* --- Strengths list --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--solution);
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* --- Tables --- */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.9rem;
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--surface-raised);
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-strong);
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+      }
+      tr:hover td {
+        background: var(--surface-raised);
+      }
+
+      /* --- Before/After comparison --- */
+      .compare-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+      .compare-before,
+      .compare-after {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 0.7rem;
+        color: var(--surface);
+      }
+      .compare-before {
+        background: var(--problem);
+      }
+      .compare-after {
+        background: var(--solution);
+      }
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .compare-row pre {
+        margin: 0;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+      }
+      code {
+        font-family: var(--font-mono);
+      }
+      p code,
+      li code,
+      td code {
+        font-size: 0.88em;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+      }
+      .tok-keyword {
+        color: var(--accent);
+      } /* func, type, struct, if, return */
+      .tok-type {
+        color: var(--warning);
+      } /* int, string, bool, error */
+      .tok-string {
+        color: var(--solution);
+      } /* "quoted strings" */
+      .tok-comment {
+        color: var(--text-faint);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #74a9ff;
+      } /* function names */
+      .tok-number {
+        color: var(--accent);
+      } /* 42, 3.14 */
+      .tok-generic {
+        color: var(--problem);
+      } /* T, ID in generics */
+      .tok-builtin {
+        color: #4dd9ff;
+      } /* make, len, append */
+      .tok-punct {
+        color: var(--text-muted);
+      } /* { } ( ) ; = : */
+      .tok-attr {
+        color: var(--accent);
+      } /* Nix attribute names */
+
+      /* --- Dependency tree / ASCII diagrams --- */
+      .dep-tree {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .dep-tree .root {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .dep-tree .ok {
+        color: var(--solution);
+      }
+      .dep-tree .unwanted {
+        color: var(--problem);
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.35rem 0.7rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: var(--surface-sunken);
+        border: 1px solid var(--border-strong);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+        border-color: var(--accent);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+        border-color: var(--problem);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+        border-color: var(--solution);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Grids (responsive) --- */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* --- Inline TOC (alternative to sidebar) --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Migration / numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-header,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .stat-grid,
+        .scorecard {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <span>PARETO PLAN &middot; PATH 2</span>
+      <span>2026-07-06</span>
+      <span>go-appkit &rarr; Service Skeleton</span>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#vision">The Vision</a>
+          <a href="#pareto">Pareto Breakdown</a>
+          <a href="#before-after">Before / After</a>
+          <a href="#medium">Execution Plan (27 tasks)</a>
+          <a href="#graph">Execution Graph</a>
+          <a href="#fine">Detailed Breakdown</a>
+          <a href="#risks">Risks &amp; Tradeoffs</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <div class="hero">
+          <div class="hero-shapes">
+            <div class="circle"></div>
+            <div class="square"></div>
+            <div class="tri"></div>
+          </div>
+          <div class="hero-badge">Pareto Plan</div>
+          <h1>Path 2: Make go-appkit a Superb Service Skeleton</h1>
+          <p class="hero-subtitle">From "5 random helpers nobody should import" to "production-ready Go service in 15 lines." This plan transforms go-appkit into the one-import skeleton that wires server + middleware + health + logging + DB + shutdown with opinionated defaults.</p>
+        </div>
+
+        <h2 id="vision"><span class="num">00</span>The Vision</h2>
+        <div class="card card-problem">
+          <h4>The Problem Today</h4>
+          <p>go-appkit provides ~150 lines of value spread across 5 files, of which 60% duplicate httputil. No consumer should import it. It's "too big to be a copypaste snippet, too small to justify an import, too overlapping with httputil to have a defensible niche."</p>
+        </div>
+        <div class="card card-solution">
+          <h4>The Solution: The Service Type</h4>
+          <p>A single <code>Service</code> type + <code>NewService(cfg)</code> + <code>svc.Run(ctx)</code> that gives you a production-ready HTTP service in 15 lines. It composes httputil (server + middleware + health), keeps appkit's unique logger/sqlite/shutdown, adopts go-error-family for classified errors, and orchestrates graceful shutdown.</p>
+        </div>
+
+        <div class="compare-header">
+          <div class="compare-before">Before (today — ~40 lines of wiring)</div>
+          <div class="compare-after">After (Path 2 — ~15 lines)</div>
+        </div>
+        <div class="compare-row">
+          <div>
+            <pre><code><span class="tok-comment">// Today: consumer wires everything</span>
+<span class="tok-keyword">func</span> <span class="tok-func">main</span>() {
+    logger, _ := appkit.<span class="tok-func">InitLogger</span>(appkit.<span class="tok-func">LoggerConfig</span>{})
+    db, _ := appkit.<span class="tok-func">OpenSQLite</span>(ctx, appkit.<span class="tok-func">SQLiteConfig</span>{Path: <span class="tok-string">"app.db"</span>})
+    mux := http.<span class="tok-func">NewServeMux</span>()
+    srv := appkit.<span class="tok-func">NewServer</span>(appkit.<span class="tok-func">DefaultServerConfig</span>(), mux)
+    <span class="tok-keyword">go</span> srv.<span class="tok-func">Start</span>(ctx)
+    <span class="tok-comment">// no middleware, no recovery, no request-id</span>
+    <span class="tok-comment">// manually wire signal handling</span>
+    appkit.<span class="tok-func">WaitForSignal</span>(ctx, cfg, <span class="tok-keyword">func</span>(ctx) <span class="tok-type">error</span> {
+        srv.<span class="tok-func">Shutdown</span>(ctx)
+        db.<span class="tok-func">Close</span>()
+        <span class="tok-keyword">return</span> <span class="tok-keyword">nil</span>
+    })
+}</code></pre>
+          </div>
+          <div>
+            <pre><code><span class="tok-comment">// Path 2: appkit does it all</span>
+<span class="tok-keyword">func</span> <span class="tok-func">main</span>() {
+    svc, err := appkit.<span class="tok-func">NewService</span>(appkit.<span class="tok-func">ServiceConfig</span>{
+        Port:       <span class="tok-number">8080</span>,
+        SQLitePath: <span class="tok-string">"app.db"</span>,
+        LogLevel:   appkit.<span class="tok-func">LogLevelInfo</span>,
+    })
+    <span class="tok-keyword">if</span> err != <span class="tok-keyword">nil</span> { log.<span class="tok-func">Fatal</span>(err) }
+    <span class="tok-keyword">defer</span> svc.<span class="tok-func">Close</span>()
+
+    <span class="tok-comment">// recovery, request-id, logging, timeout already wired</span>
+    svc.Mux.<span class="tok-func">HandleFunc</span>(<span class="tok-string">"GET /"</span>, handler)
+
+    <span class="tok-comment">// serves until signal, then graceful shutdown</span>
+    svc.<span class="tok-func">Run</span>(ctx)
+}</code></pre>
+          </div>
+        </div>
+
+        <h2 id="pareto"><span class="num">01</span>Pareto Breakdown</h2>
+        <div class="stat-grid">
+          <div class="stat-card stat-good">
+            <div class="stat-value">1</div>
+            <div class="stat-label">Tier 1 (1% → 51%)</div>
+          </div>
+          <div class="stat-card stat-warn">
+            <div class="stat-value">4</div>
+            <div class="stat-label">Tier 2 (4% → 64%)</div>
+          </div>
+          <div class="stat-card stat-bad">
+            <div class="stat-value">8</div>
+            <div class="stat-label">Tier 3 (20% → 80%)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">14</div>
+            <div class="stat-label">Tier 4 (Polish → 100%)</div>
+          </div>
+        </div>
+
+        <div class="card card-solution">
+          <h4>Tier 1 — The 1% that delivers 51%</h4>
+          <p><strong>The <code>Service</code> type + <code>NewService</code> + <code>Run</code>.</strong> One type, one constructor, one method. Even with internals still duplicating httputil underneath, this alone transforms the value proposition from "helpers" to "skeleton." The identity change happens here.</p>
+        </div>
+        <div class="card">
+          <h4>Tier 2 — The 4% that delivers 64%</h4>
+          <p><strong>httputil delegation + default middleware stack.</strong> Stop duplicating server.go/health.go. Wire Recovery → RequestID → Logging → Timeout → SecurityHeaders as defaults. Now it's not just a convenience wrapper — it's a <em>production</em> convenience wrapper with the middlewares consumers always forget.</p>
+        </div>
+        <div class="card card-warning">
+          <h4>Tier 3 — The 20% that delivers 80%</h4>
+          <p><strong>Graceful shutdown orchestration + error-family adoption + config validation.</strong> Signal → server.Shutdown → db.Close with timeout. Classify SQLite/listen/PRAGMA errors. Validate configs at startup. These are the things that make "production-ready" an honest claim.</p>
+        </div>
+        <div class="card">
+          <h4>Tier 4 — Polish to 100%</h4>
+          <p><strong>README, example, tests, docs, optional extras.</strong> The "production-ready in 15 lines" pitch. A runnable example. Full test suite. Updated AGENTS.md. Optional: Postgres, /metrics, env-config.</p>
+        </div>
+
+        <h2 id="before-after"><span class="num">02</span>What Changes Architecturally</h2>
+        <div class="dep-tree">
+<span class="root">BEFORE: go-appkit</span>
+├── server.go      <span class="unwanted">(duplicates httputil.Server)</span>
+├── health.go      <span class="unwanted">(duplicates httputil.Health)</span>
+├── shutdown.go    <span class="ok">(unique — keep)</span>
+├── logger.go      <span class="ok">(unique — keep)</span>
+└── sqlite.go      <span class="ok">(unique — keep)</span>
+        </div>
+        <div class="dep-tree">
+<span class="root">AFTER: go-appkit</span>
+├── service.go     <span class="ok">(NEW — Service type, the identity)</span>
+├── errors.go      <span class="ok">(NEW — error-family classification)</span>
+├── middleware.go  <span class="ok">(NEW — default stack via httputil)</span>
+├── server.go      <span class="ok">(delegates to httputil.Server)</span>
+├── health.go      <span class="ok">(delegates to httputil.RegisterHealth)</span>
+├── shutdown.go    <span class="ok">(kept — elevated into Service.Run)</span>
+├── logger.go      <span class="ok">(kept — called by NewService)</span>
+├── sqlite.go      <span class="ok">(kept — called by NewService)</span>
+└── example/
+    └── main.go    <span class="ok">(NEW — runnable demo)</span>
+        </div>
+
+        <h2 id="medium"><span class="num">03</span>Execution Plan — 27 Tasks (30-100 min each)</h2>
+        <p>Sorted by Pareto tier, then by impact within tier. All tasks must keep <code>go test ./... -race</code> and <code>go vet ./...</code> green.</p>
+
+        <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tier</th>
+              <th>Task</th>
+              <th>Impact</th>
+              <th>Effort</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><span class="badge badge-fixed">T1</span></td>
+              <td><strong>Define <code>Service</code> + <code>ServiceConfig</code> types</strong> in new <code>service.go</code>. Fields: logger, server, db (optional), mux, shutdown timeout. The single struct that owns the lifecycle.</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td><span class="badge badge-medium">45m</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><span class="badge badge-fixed">T1</span></td>
+              <td><strong>Implement <code>NewService(cfg ServiceConfig) (*Service, error)</code></strong> — validates config, inits logger, opens SQLite (if configured), creates mux, creates server.</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td><span class="badge badge-medium">60m</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><span class="badge badge-fixed">T1</span></td>
+              <td><strong>Implement <code>Service.Run(ctx)</code></strong> — the one-liner: start server → wait for signal/context → graceful shutdown (server + db). Returns error.</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td><span class="badge badge-medium">60m</span></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><span class="badge badge-fixed">T1</span></td>
+              <td><strong>Expose <code>Service.Mux</code></strong> accessor so consumers register routes. Also expose <code>Service.Logger</code>, <code>Service.DB</code>, <code>Service.Addr()</code>.</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-low">15m</span></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><span class="badge badge-high">T2</span></td>
+              <td><strong>Add <code>httputil</code> + <code>go-error-family</code></strong> to <code>go.mod</code>. Run <code>go mod tidy</code>. Verify build.</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td><span class="badge badge-low">15m</span></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><span class="badge badge-high">T2</span></td>
+              <td><strong>Rewrite <code>server.go</code></strong> internals to delegate to <code>httputil.Server</code>. Keep public API (<code>NewServer</code>, <code>Start</code>, <code>Shutdown</code>, <code>Addr</code>, <code>Running</code>) stable as a thin adapter.</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-medium">60m</span></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><span class="badge badge-high">T2</span></td>
+              <td><strong>Rewrite <code>health.go</code></strong> to delegate to <code>httputil.RegisterHealth</code>. Map <code>HealthStatus</code> enum to httputil's ready-probe pattern. Keep <code>DefaultHealthHandler</code> as alias.</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-medium">45m</span></td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><span class="badge badge-high">T2</span></td>
+              <td><strong>Implement <code>defaultMiddlewareStack()</code></strong> in new <code>middleware.go</code>. Uses httputil: <code>Recovery(logger)</code> → <code>RequestID()</code> → <code>Logging(logger)</code> → <code>Timeout(writeTimeout)</code> → <code>SecurityHeaders(default)</code>. Returns <code>[]httputil.Middleware</code>.</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td><span class="badge badge-medium">60m</span></td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><span class="badge badge-high">T2</span></td>
+              <td><strong>Wire middleware stack</strong> into <code>Service</code>'s handler chain via <code>httputil.Chain</code>. Make the stack configurable (<code>ServiceConfig.ExtraMiddlewares</code>).</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td><span class="badge badge-medium">T3</span></td>
+              <td><strong>Implement <code>Service.Shutdown(ctx)</code></strong> — coordinated: server.Shutdown → db.Close. Logs each step. Returns first error. Idempotent.</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-medium">45m</span></td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td><span class="badge badge-medium">T3</span></td>
+              <td><strong>Integrate <code>WaitForSignal</code> into <code>Service.Run</code></strong> — replace the standalone function as the default signal handler. Keep <code>WaitForSignal</code> exported for standalone use.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td><span class="badge badge-medium">T3</span></td>
+              <td><strong>Create <code>errors.go</code></strong> — register appkit's sentinels (<code>errSQLitePathRequired</code>, <code>errPRAGMAAllowlist</code>, <code>errUnsupportedLogLevel</code>, <code>errUnsupportedLogFormat</code>) with go-error-family via <code>RegisterClassifications</code>. All → <code>Rejection</code> family.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td><span class="badge badge-medium">T3</span></td>
+              <td><strong>Add SQLite error classifier</strong> — <code>RegisterClassifier</code> for <code>*sqlite.Error</code> → Transient (busy/locked retry) or Infrastructure. Enables <code>errorfamily.IsRetryable(err)</code> for consumers.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td><span class="badge badge-medium">T3</span></td>
+              <td><strong>Implement <code>ServiceConfig.Validate() error</code></strong> — startup checks: port range, log level valid, SQLite path non-empty if configured, timeout positive.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>15</td>
+              <td><span class="badge badge-medium">T3</span></td>
+              <td><strong>Implement <code>DefaultServiceConfig()</code></strong> — opinionated defaults: port 8080, info level, text format (auto in TTY), WAL SQLite, 15s shutdown timeout, default middleware stack.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>16</td>
+              <td><span class="badge badge-medium">T3</span></td>
+              <td><strong>Make SQLite optional</strong> in <code>ServiceConfig</code>. <code>SQLitePath == ""</code> → no DB opened. Not all services need persistence.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-low">15m</span></td>
+            </tr>
+            <tr>
+              <td>17</td>
+              <td><span class="badge badge-medium">T3</span></td>
+              <td><strong>Implement <code>Service.Close()</code></strong> — synchronous cleanup for <code>defer svc.Close()</code> pattern. Calls <code>Shutdown</code> with background context.</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td><span class="badge badge-low">15m</span></td>
+            </tr>
+            <tr>
+              <td>18</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Rewrite README</strong> — "Production-ready Go service in 15 lines." Show before/after. Document <code>ServiceConfig</code> fields. Link to httputil for advanced middleware. Link to cqrs-htmx for full app framework.</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-medium">60m</span></td>
+            </tr>
+            <tr>
+              <td>19</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Create <code>example/main.go</code></strong> — minimal service: 15 lines, registers one handler, runs. Runnable with <code>go run ./example</code>.</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>20</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Test: Service construction</strong> — <code>NewService</code> with defaults, with custom config, with invalid config (expect error). Verify all fields populated.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">45m</span></td>
+            </tr>
+            <tr>
+              <td>21</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Test: Service.Run + health endpoint</strong> — start service on free port, hit <code>/health</code>, assert 200. Use <code>httputil.httpspec.Run</code> for standard spec validation.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">45m</span></td>
+            </tr>
+            <tr>
+              <td>22</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Test: graceful shutdown</strong> — start service, cancel context, verify server stopped + DB closed. Assert <code>Run</code> returns nil.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">45m</span></td>
+            </tr>
+            <tr>
+              <td>23</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Test: config validation</strong> — bad port, bad log level, empty path with DB enabled. Each returns expected error.</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>24</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Test: middleware stack</strong> — verify recovery catches panic → 500, request-id header present, logging output captured.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">45m</span></td>
+            </tr>
+            <tr>
+              <td>25</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Update <code>doc.go</code></strong> — package purpose statement: "appkit provides a production-ready service skeleton for Go services."</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td><span class="badge badge-low">15m</span></td>
+            </tr>
+            <tr>
+              <td>26</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Update <code>AGENTS.md</code></strong> — new architecture: Service type, httputil delegation, error-family adoption, middleware defaults, file ownership map.</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+            <tr>
+              <td>27</td>
+              <td><span class="badge badge-low">T4</span></td>
+              <td><strong>Full lint/vet/test/race green</strong> — <code>go test ./... -race</code>, <code>go vet ./...</code>, <code>go build ./...</code>. Clean up dead code from old tests.</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-medium">30m</span></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2 id="graph"><span class="num">04</span>Execution Graph</h2>
+        <div class="card">
+          <p>Dependencies between Pareto tiers. Within each tier, tasks are parallelizable.</p>
+        </div>
+<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-d2-version="v0.7.1" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1011 2072"><svg class="d2-2874902637 d2-svg" width="1011" height="2072" viewBox="-91 -101 1011 2072"><rect x="-91.000000" y="-101.000000" width="1011.000000" height="2072.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><style type="text/css"><![CDATA[
+.d2-2874902637 .text {
+	font-family: "d2-2874902637-font-regular";
+}
+@font-face {
+	font-family: d2-2874902637-font-regular;
+	src: url("data:application/font-woff;base64,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");
+}
+.d2-2874902637 .text-bold {
+	font-family: "d2-2874902637-font-bold";
+}
+@font-face {
+	font-family: d2-2874902637-font-bold;
+	src: url("data:application/font-woff;base64,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");
+}]]></style><style type="text/css"><![CDATA[.shape {
+  shape-rendering: geometricPrecision;
+  stroke-linejoin: round;
+}
+.connection {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.blend {
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+		.d2-2874902637 .fill-N1{fill:#0A0F25;}
+		.d2-2874902637 .fill-N2{fill:#676C7E;}
+		.d2-2874902637 .fill-N3{fill:#9499AB;}
+		.d2-2874902637 .fill-N4{fill:#CFD2DD;}
+		.d2-2874902637 .fill-N5{fill:#DEE1EB;}
+		.d2-2874902637 .fill-N6{fill:#EEF1F8;}
+		.d2-2874902637 .fill-N7{fill:#FFFFFF;}
+		.d2-2874902637 .fill-B1{fill:#0D32B2;}
+		.d2-2874902637 .fill-B2{fill:#0D32B2;}
+		.d2-2874902637 .fill-B3{fill:#E3E9FD;}
+		.d2-2874902637 .fill-B4{fill:#E3E9FD;}
+		.d2-2874902637 .fill-B5{fill:#EDF0FD;}
+		.d2-2874902637 .fill-B6{fill:#F7F8FE;}
+		.d2-2874902637 .fill-AA2{fill:#4A6FF3;}
+		.d2-2874902637 .fill-AA4{fill:#EDF0FD;}
+		.d2-2874902637 .fill-AA5{fill:#F7F8FE;}
+		.d2-2874902637 .fill-AB4{fill:#EDF0FD;}
+		.d2-2874902637 .fill-AB5{fill:#F7F8FE;}
+		.d2-2874902637 .stroke-N1{stroke:#0A0F25;}
+		.d2-2874902637 .stroke-N2{stroke:#676C7E;}
+		.d2-2874902637 .stroke-N3{stroke:#9499AB;}
+		.d2-2874902637 .stroke-N4{stroke:#CFD2DD;}
+		.d2-2874902637 .stroke-N5{stroke:#DEE1EB;}
+		.d2-2874902637 .stroke-N6{stroke:#EEF1F8;}
+		.d2-2874902637 .stroke-N7{stroke:#FFFFFF;}
+		.d2-2874902637 .stroke-B1{stroke:#0D32B2;}
+		.d2-2874902637 .stroke-B2{stroke:#0D32B2;}
+		.d2-2874902637 .stroke-B3{stroke:#E3E9FD;}
+		.d2-2874902637 .stroke-B4{stroke:#E3E9FD;}
+		.d2-2874902637 .stroke-B5{stroke:#EDF0FD;}
+		.d2-2874902637 .stroke-B6{stroke:#F7F8FE;}
+		.d2-2874902637 .stroke-AA2{stroke:#4A6FF3;}
+		.d2-2874902637 .stroke-AA4{stroke:#EDF0FD;}
+		.d2-2874902637 .stroke-AA5{stroke:#F7F8FE;}
+		.d2-2874902637 .stroke-AB4{stroke:#EDF0FD;}
+		.d2-2874902637 .stroke-AB5{stroke:#F7F8FE;}
+		.d2-2874902637 .background-color-N1{background-color:#0A0F25;}
+		.d2-2874902637 .background-color-N2{background-color:#676C7E;}
+		.d2-2874902637 .background-color-N3{background-color:#9499AB;}
+		.d2-2874902637 .background-color-N4{background-color:#CFD2DD;}
+		.d2-2874902637 .background-color-N5{background-color:#DEE1EB;}
+		.d2-2874902637 .background-color-N6{background-color:#EEF1F8;}
+		.d2-2874902637 .background-color-N7{background-color:#FFFFFF;}
+		.d2-2874902637 .background-color-B1{background-color:#0D32B2;}
+		.d2-2874902637 .background-color-B2{background-color:#0D32B2;}
+		.d2-2874902637 .background-color-B3{background-color:#E3E9FD;}
+		.d2-2874902637 .background-color-B4{background-color:#E3E9FD;}
+		.d2-2874902637 .background-color-B5{background-color:#EDF0FD;}
+		.d2-2874902637 .background-color-B6{background-color:#F7F8FE;}
+		.d2-2874902637 .background-color-AA2{background-color:#4A6FF3;}
+		.d2-2874902637 .background-color-AA4{background-color:#EDF0FD;}
+		.d2-2874902637 .background-color-AA5{background-color:#F7F8FE;}
+		.d2-2874902637 .background-color-AB4{background-color:#EDF0FD;}
+		.d2-2874902637 .background-color-AB5{background-color:#F7F8FE;}
+		.d2-2874902637 .color-N1{color:#0A0F25;}
+		.d2-2874902637 .color-N2{color:#676C7E;}
+		.d2-2874902637 .color-N3{color:#9499AB;}
+		.d2-2874902637 .color-N4{color:#CFD2DD;}
+		.d2-2874902637 .color-N5{color:#DEE1EB;}
+		.d2-2874902637 .color-N6{color:#EEF1F8;}
+		.d2-2874902637 .color-N7{color:#FFFFFF;}
+		.d2-2874902637 .color-B1{color:#0D32B2;}
+		.d2-2874902637 .color-B2{color:#0D32B2;}
+		.d2-2874902637 .color-B3{color:#E3E9FD;}
+		.d2-2874902637 .color-B4{color:#E3E9FD;}
+		.d2-2874902637 .color-B5{color:#EDF0FD;}
+		.d2-2874902637 .color-B6{color:#F7F8FE;}
+		.d2-2874902637 .color-AA2{color:#4A6FF3;}
+		.d2-2874902637 .color-AA4{color:#EDF0FD;}
+		.d2-2874902637 .color-AA5{color:#F7F8FE;}
+		.d2-2874902637 .color-AB4{color:#EDF0FD;}
+		.d2-2874902637 .color-AB5{color:#F7F8FE;}.appendix text.text{fill:#0A0F25}.md{--color-fg-default:#0A0F25;--color-fg-muted:#676C7E;--color-fg-subtle:#9499AB;--color-canvas-default:#FFFFFF;--color-canvas-subtle:#EEF1F8;--color-border-default:#0D32B2;--color-border-muted:#0D32B2;--color-neutral-muted:#EEF1F8;--color-accent-fg:#0D32B2;--color-accent-emphasis:#0D32B2;--color-attention-subtle:#676C7E;--color-danger-fg:red;}.sketch-overlay-B1{fill:url(#streaks-darker-d2-2874902637);mix-blend-mode:lighten}.sketch-overlay-B2{fill:url(#streaks-darker-d2-2874902637);mix-blend-mode:lighten}.sketch-overlay-B3{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-B4{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-B5{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-B6{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-AA2{fill:url(#streaks-dark-d2-2874902637);mix-blend-mode:overlay}.sketch-overlay-AA4{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-AA5{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-AB4{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-AB5{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-N1{fill:url(#streaks-darker-d2-2874902637);mix-blend-mode:lighten}.sketch-overlay-N2{fill:url(#streaks-dark-d2-2874902637);mix-blend-mode:overlay}.sketch-overlay-N3{fill:url(#streaks-normal-d2-2874902637);mix-blend-mode:color-burn}.sketch-overlay-N4{fill:url(#streaks-normal-d2-2874902637);mix-blend-mode:color-burn}.sketch-overlay-N5{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-N6{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.sketch-overlay-N7{fill:url(#streaks-bright-d2-2874902637);mix-blend-mode:darken}.light-code{display: block}.dark-code{display: none}]]></style><g class="dDE="><g class="shape" ><rect x="253.000000" y="202.000000" width="334.000000" height="142.000000" stroke="#0D32B2" fill="#1a3a1a" class=" stroke-B1" style="stroke-width:2;" /></g><text x="420.000000" y="189.000000" fill="#f4d35e" class="text" style="text-anchor:middle;font-size:28px">Tier 1 — The 1% that delivers 51%</text></g><g class="dDI="><g class="shape" ><rect x="60.000000" y="484.000000" width="712.000000" height="490.000000" stroke="#0D32B2" fill="#1a2a3a" class=" stroke-B1" style="stroke-width:2;" /></g><text x="416.000000" y="471.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:28px">Tier 2 — The 4% that delivers 64%</text></g><g class="dDM="><g class="shape" ><rect x="10.000000" y="1114.000000" width="809.000000" height="142.000000" stroke="#0D32B2" fill="#3a2a1a" class=" stroke-B1" style="stroke-width:2;" /></g><text x="414.500000" y="1101.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:28px">Tier 3 — The 20% that delivers 80%</text></g><g class="dDQ="><g class="shape" ><rect x="159.000000" y="1396.000000" width="652.000000" height="474.000000" stroke="#0D32B2" fill="#2a1a2a" class=" stroke-B1" style="stroke-width:2;" /></g><text x="485.000000" y="1383.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:28px">Tier 4 — Polish to 100%</text></g><g class="dmlzaW9u"><g class="shape" ><rect x="231.000000" y="0.000000" width="378.000000" height="82.000000" stroke="#0D32B2" fill="#f4d35e" class=" stroke-B1" style="stroke-width:2;" /></g><text x="420.000000" y="38.500000" fill="#0e0e10" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="420.000000" dy="0.000000">VISION: Production-ready Go service in 15 lines</tspan><tspan x="420.000000" dy="18.500000">appkit.NewService(cfg) -&gt; svc.Run(ctx)</tspan></text></g><g class="dDEudDFfY29yZQ=="><g class="shape" ><rect x="283.000000" y="232.000000" width="274.000000" height="82.000000" stroke="#0D32B2" fill="#2a5a2a" class=" stroke-B1" style="stroke-width:2;" /></g><text x="420.000000" y="270.500000" fill="#f4f4f0" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="420.000000" dy="0.000000">Service type + NewService + Run</tspan><tspan x="420.000000" dy="18.500000">(THE identity change)</tspan></text></g><g class="dDIudDJfZGVwcw=="><g class="shape" ><rect x="303.000000" y="514.000000" width="234.000000" height="82.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="420.000000" y="552.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="420.000000" dy="0.000000">Add httputil + error-family</tspan><tspan x="420.000000" dy="18.500000">to go.mod</tspan></text></g><g class="dDIudDJfc2VydmVy"><g class="shape" ><rect x="90.000000" y="696.000000" width="253.000000" height="66.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="216.500000" y="734.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">Delegate server.go -&gt; httputil</text></g><g class="dDIudDJfaGVhbHRo"><g class="shape" ><rect x="488.000000" y="696.000000" width="254.000000" height="66.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="615.000000" y="734.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">Delegate health.go -&gt; httputil</text></g><g class="dDIudDJfbXc="><g class="shape" ><rect x="277.000000" y="862.000000" width="286.000000" height="82.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="420.000000" y="900.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="420.000000" dy="0.000000">Default middleware stack</tspan><tspan x="420.000000" dy="18.500000">(Recovery ReqID Log Timeout Sec)</tspan></text></g><g class="dDMudDNfc2h1dGRvd24="><g class="shape" ><rect x="40.000000" y="1144.000000" width="219.000000" height="82.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="149.500000" y="1182.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="149.500000" dy="0.000000">Coordinated graceful</tspan><tspan x="149.500000" dy="18.500000">shutdown (signal srv db)</tspan></text></g><g class="dDMudDNfZXJyb3Jz"><g class="shape" ><rect x="319.000000" y="1144.000000" width="202.000000" height="82.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="420.000000" y="1182.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="420.000000" dy="0.000000">Adopt go-error-family</tspan><tspan x="420.000000" dy="18.500000">for classified errors</tspan></text></g><g class="dDMudDNfdmFsaWRhdGU="><g class="shape" ><rect x="581.000000" y="1144.000000" width="208.000000" height="82.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="685.000000" y="1182.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="685.000000" dy="0.000000">Config validation</tspan><tspan x="685.000000" dy="18.500000">+ DefaultServiceConfig</tspan></text></g><g class="dDQudDRfcmVhZG1l"><g class="shape" ><rect x="189.000000" y="1426.000000" width="198.000000" height="82.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="288.000000" y="1464.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="288.000000" dy="0.000000">README rewrite</tspan><tspan x="288.000000" dy="18.500000">prod-ready in 15 lines</tspan></text></g><g class="dDQudDRfZXhhbXBsZQ=="><g class="shape" ><rect x="606.000000" y="1434.000000" width="159.000000" height="66.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="685.500000" y="1472.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">Example service</text></g><g class="dDQudDRfdGVzdHM="><g class="shape" ><rect x="615.000000" y="1608.000000" width="140.000000" height="66.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="685.000000" y="1646.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">Full test suite</text></g><g class="dDQudDRfZG9jcw=="><g class="shape" ><rect x="589.000000" y="1774.000000" width="192.000000" height="66.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="685.000000" y="1812.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">doc.go + AGENTS.md</text></g><g class="KHZpc2lvbiAtJmd0OyB0MS50MV9jb3JlKVswXQ=="><marker id="mk-d2-2874902637-3488378134" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#0D32B2" class="connection fill-B1" stroke-width="2" /> </marker><path d="M 420.000000 84.000000 C 420.000000 122.000000 420.000000 192.000000 420.000000 228.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="KHQxLnQxX2NvcmUgLSZndDsgdDIudDJfZGVwcylbMF0="><path d="M 420.000000 316.000000 C 420.000000 354.000000 420.000000 374.000000 420.000000 389.000000 C 420.000000 404.000000 420.000000 474.000000 420.000000 510.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="dDIuKHQyX2RlcHMgLSZndDsgdDJfc2VydmVyKVswXQ=="><path d="M 326.173721 596.815294 C 238.399002 636.000000 216.000000 656.000000 216.000000 692.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="dDIuKHQyX2RlcHMgLSZndDsgdDJfaGVhbHRoKVswXQ=="><path d="M 509.561933 596.846698 C 593.349976 636.000000 614.750000 656.000000 614.750000 692.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="dDIuKHQyX3NlcnZlciAtJmd0OyB0Ml9tdylbMF0="><path d="M 216.000000 764.000000 C 216.000000 802.000000 238.399994 822.000000 324.347448 860.369397" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="dDIuKHQyX2hlYWx0aCAtJmd0OyB0Ml9tdylbMF0="><path d="M 614.750000 764.000000 C 614.750000 802.000000 593.349976 822.000000 511.373867 860.306604" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="KHQyLnQyX213IC0mZ3Q7IHQzLnQzX3NodXRkb3duKVswXQ=="><path d="M 296.603910 944.636272 C 179.300003 984.000000 149.500000 1004.000000 149.500000 1019.000000 C 149.500000 1034.000000 149.500000 1104.000000 149.500000 1140.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="KHQyLnQyX213IC0mZ3Q7IHQzLnQzX2Vycm9ycylbMF0="><path d="M 420.000000 946.000000 C 420.000000 984.000000 420.000000 1004.000000 420.000000 1019.000000 C 420.000000 1034.000000 420.000000 1104.000000 420.000000 1140.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="KHQyLnQyX213IC0mZ3Q7IHQzLnQzX3ZhbGlkYXRlKVswXQ=="><path d="M 540.892119 944.647986 C 655.799988 984.000000 685.000000 1004.000000 685.000000 1019.000000 C 685.000000 1034.000000 685.000000 1104.000000 685.000000 1140.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="KHQzLnQzX3NodXRkb3duIC0mZ3Q7IHQ0LnQ0X3JlYWRtZSlbMF0="><path d="M 149.500000 1228.000000 C 149.500000 1266.000000 149.500000 1286.000000 149.500000 1301.000000 C 149.500000 1316.000000 164.699997 1386.000000 222.158332 1423.801534" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="KHQzLnQzX2Vycm9ycyAtJmd0OyB0NC50NF9yZWFkbWUpWzBd"><path d="M 420.000000 1228.000000 C 420.000000 1266.000000 420.000000 1286.000000 420.000000 1301.000000 C 420.000000 1316.000000 405.399994 1386.000000 350.300120 1423.739644" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="KHQzLnQzX3ZhbGlkYXRlIC0mZ3Q7IHQ0LnQ0X2V4YW1wbGUpWzBd"><path d="M 685.000000 1228.000000 C 685.000000 1266.000000 685.000000 1286.000000 685.000000 1301.000000 C 685.000000 1316.000000 685.000000 1387.599976 685.000000 1430.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="dDQuKHQ0X2V4YW1wbGUgLSZndDsgdDRfdGVzdHMpWzBd"><path d="M 685.000000 1502.000000 C 685.000000 1546.400024 685.000000 1568.000000 685.000000 1604.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><g class="dDQuKHQ0X3Rlc3RzIC0mZ3Q7IHQ0X2RvY3MpWzBd"><path d="M 685.000000 1676.000000 C 685.000000 1714.000000 685.000000 1734.000000 685.000000 1770.000000" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2874902637-3488378134)" mask="url(#d2-2874902637)" /></g><mask id="d2-2874902637" maskUnits="userSpaceOnUse" x="-91" y="-101" width="1011" height="2072">
+<rect x="-91" y="-101" width="1011" height="2072" fill="white"></rect>
+
+</mask></svg></svg>
+
+        <h2 id="fine"><span class="num">05</span>Detailed Breakdown — Sub-tasks (max 15 min each)</h2>
+        <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Sub-task</th>
+              <th>Est</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="4"><strong>1. Service types</strong></td><td>Draft <code>ServiceConfig</code> struct with all fields (Port, LogLevel, LogFormat, SQLitePath, PRAGMAs, ShutdownTimeout, ExtraMiddlewares, RegisterHealth, ReadWriteIdleTimeouts)</td><td>10m</td></tr>
+            <tr><td>Draft <code>Service</code> struct (logger, server, db, mux, shutdownFn, closeOnce)</td><td>10m</td></tr>
+            <tr><td>Add doc comments for every field and method</td><td>10m</td></tr>
+            <tr><td>Compile-check (no logic yet)</td><td>5m</td></tr>
+
+            <tr><td rowspan="5"><strong>2. NewService</strong></td><td>Call <code>cfg.Validate()</code> → return error</td><td>10m</td></tr>
+            <tr><td>Init logger via <code>InitLogger</code></td><td>10m</td></tr>
+            <tr><td>Open SQLite via <code>OpenSQLite</code> if path set</td><td>10m</td></tr>
+            <tr><td>Create mux + register health via httputil</td><td>10m</td></tr>
+            <tr><td>Build handler chain with middleware stack, create httputil.Server</td><td>15m</td></tr>
+
+            <tr><td rowspan="4"><strong>3. Service.Run</strong></td><td>Start httputil.Server (non-blocking, adapt channel→blocking)</td><td>15m</td></tr>
+            <tr><td>Wire <code>WaitForSignal</code> to trigger shutdown</td><td>10m</td></tr>
+            <tr><td>Call <code>Shutdown(ctx)</code> on signal/context</td><td>10m</td></tr>
+            <tr><td>Log "service started" / "service stopped" at info</td><td>5m</td></tr>
+
+            <tr><td rowspan="2"><strong>4. Accessors</strong></td><td>Expose <code>Mux</code>, <code>Logger</code>, <code>DB</code>, <code>Addr()</code>, <code>Running()</code></td><td>10m</td></tr>
+            <tr><td>Compile + smoke test</td><td>5m</td></tr>
+
+            <tr><td rowspan="2"><strong>5. go.mod</strong></td><td><code>go get github.com/larsartmann/httputil@v0.4.0</code></td><td>5m</td></tr>
+            <tr><td><code>go get github.com/larsartmann/go-error-family@v0.6.1</code> + <code>go mod tidy</code></td><td>10m</td></tr>
+
+            <tr><td rowspan="4"><strong>6. Delegate server.go</strong></td><td>Read httputil.Server API (NewServer, Start, Shutdown, Addr)</td><td>10m</td></tr>
+            <tr><td>Rewrite appkit.Server to embed/own httputil.Server</td><td>15m</td></tr>
+            <tr><td>Adapt Start signature (blocking vs channel)</td><td>15m</td></tr>
+            <tr><td>Update existing server tests to pass</td><td>15m</td></tr>
+
+            <tr><td rowspan="3"><strong>7. Delegate health.go</strong></td><td>Map HealthStatus enum → httputil ready-probe</td><td>10m</td></tr>
+            <tr><td>Rewrite writeHealthResponse to use httputil handlers</td><td>15m</td></tr>
+            <tr><td>Update health tests</td><td>15m</td></tr>
+
+            <tr><td rowspan="4"><strong>8. Middleware stack</strong></td><td>Create <code>middleware.go</code> with <code>defaultMiddlewareStack(logger, cfg)</code></td><td>15m</td></tr>
+            <tr><td>Wire: Recovery → RequestID → Logging → Timeout → SecurityHeaders</td><td>15m</td></tr>
+            <tr><td>Make configurable via <code>ServiceConfig.ExtraMiddlewares</code></td><td>10m</td></tr>
+            <tr><td>Test each middleware fires correctly</td><td>15m</td></tr>
+
+            <tr><td rowspan="2"><strong>9. Wire into Service</strong></td><td>Call <code>httputil.Chain(mux, stack...)</code> in NewService</td><td>10m</td></tr>
+            <tr><td>Verify ordering: Recovery outermost</td><td>10m</td></tr>
+
+            <tr><td rowspan="3"><strong>10. Shutdown</strong></td><td>Implement <code>Shutdown(ctx)</code>: server first, then db</td><td>15m</td></tr>
+            <tr><td>Add <code>sync.Once</code> for idempotency</td><td>10m</td></tr>
+            <tr><td>Log each step</td><td>5m</td></tr>
+
+            <tr><td rowspan="2"><strong>11. Signal in Run</strong></td><td>Replace standalone WaitForSignal call with inline signal handling</td><td>15m</td></tr>
+            <tr><td>Keep WaitForSignal exported for backward compat</td><td>5m</td></tr>
+
+            <tr><td rowspan="2"><strong>12. errors.go</strong></td><td><code>RegisterClassifications</code> for 4 sentinels → Rejection</td><td>15m</td></tr>
+            <tr><td>Add init() or explicit registration function</td><td>10m</td></tr>
+
+            <tr><td rowspan="2"><strong>13. SQLite classifier</strong></td><td><code>RegisterClassifier</code> for <code>*sqlite.Error</code> → Transient</td><td>15m</td></tr>
+            <tr><td>Test classification with synthetic errors</td><td>10m</td></tr>
+
+            <tr><td rowspan="2"><strong>14. Validate</strong></td><td>Port range (1-65535), log level, path, timeout checks</td><td>15m</td></tr>
+            <tr><td>Call Validate() at start of NewService</td><td>5m</td></tr>
+
+            <tr><td rowspan="2"><strong>15. Defaults</strong></td><td>DefaultServiceConfig() with all opinionated defaults</td><td>15m</td></tr>
+            <tr><td>Ensure zero-value config also works (fill from defaults)</td><td>10m</td></tr>
+
+            <tr><td rowspan="3"><strong>16. Optional SQLite</strong></td><td>Guard all DB operations behind <code>s.db != nil</code></td><td>10m</td></tr>
+            <tr><td>Test NewService without SQLitePath</td><td>10m</td></tr>
+            <tr><td>Update Service.DB to return nil-able *sql.DB</td><td>5m</td></tr>
+
+            <tr><td rowspan="2"><strong>17. Close</strong></td><td>Implement Close() = Shutdown(context.Background())</td><td>10m</td></tr>
+            <tr><td>Document defer pattern</td><td>5m</td></tr>
+
+            <tr><td rowspan="3"><strong>18. README</strong></td><td>Write "production-ready in 15 lines" hero section</td><td>15m</td></tr>
+            <tr><td>Document ServiceConfig fields in table</td><td>15m</td></tr>
+            <tr><td>Add "when NOT to use appkit" + ecosystem pointers</td><td>15m</td></tr>
+
+            <tr><td rowspan="2"><strong>19. Example</strong></td><td>Create example/main.go — 15-line service</td><td>15m</td></tr>
+            <tr><td>Verify <code>go run ./example</code> works</td><td>10m</td></tr>
+
+            <tr><td rowspan="3"><strong>20. Test construction</strong></td><td>Test defaults, custom config, invalid config</td><td>15m</td></tr>
+            <tr><td>Test all Service fields populated correctly</td><td>15m</td></tr>
+            <tr><td>Test with and without SQLite</td><td>10m</td></tr>
+
+            <tr><td rowspan="3"><strong>21. Test Run + health</strong></td><td>Start on free port, hit /health, assert 200 JSON</td><td>15m</td></tr>
+            <tr><td>Run <code>httputil.httpspec.Run</code> against handler</td><td>15m</td></tr>
+            <tr><td>Test /health/ready returns 503 when probe fails</td><td>10m</td></tr>
+
+            <tr><td rowspan="2"><strong>22. Test shutdown</strong></td><td>Start, cancel ctx, verify Run returns nil</td><td>15m</td></tr>
+            <tr><td>Verify DB closed (Ping returns error)</td><td>10m</td></tr>
+
+            <tr><td rowspan="2"><strong>23. Test validation</strong></td><td>Table-driven: each invalid config → expected error</td><td>15m</td></tr>
+            <tr><td>Verify error-family classification of validation errors</td><td>10m</td></tr>
+
+            <tr><td rowspan="3"><strong>24. Test middleware</strong></td><td>Panic in handler → Recovery → 500</td><td>15m</td></tr>
+            <tr><td>Request → X-Request-ID header present in response</td><td>10m</td></tr>
+            <tr><td>Logging middleware captures method/path/status/duration</td><td>15m</td></tr>
+
+            <tr><td><strong>25. doc.go</strong></td><td>Package doc: "production-ready service skeleton"</td><td>10m</td></tr>
+
+            <tr><td rowspan="2"><strong>26. AGENTS.md</strong></td><td>New architecture section: Service, httputil delegation, error-family</td><td>15m</td></tr>
+            <tr><td>Update file ownership map, conventions, gotchas</td><td>15m</td></tr>
+
+            <tr><td rowspan="2"><strong>27. Final green</strong></td><td><code>go test ./... -race</code> + <code>go vet</code> + <code>go build</code></td><td>15m</td></tr>
+            <tr><td>Clean up dead code, old comments, stale tests</td><td>15m</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2 id="risks"><span class="num">06</span>Risks &amp; Tradeoffs</h2>
+        <div class="issue issue-important">
+          <span class="severity severity-important">Breaking Change</span>
+          <h3>Existing consumers of NewServer / ServerConfig</h3>
+          <div class="where">server.go — public API</div>
+          <p>Delegating to httputil may change Start/Shutdown signatures. Existing consumers must adapt.</p>
+          <div class="callout callout-solution">
+            <strong>Mitigation:</strong> Keep the old API as a thin adapter. <code>Server</code> wraps <code>httputil.Server</code>, same method names. Or bump major version (v2).
+          </div>
+        </div>
+
+        <div class="issue issue-important">
+          <span class="severity severity-important">Dependency Scope</span>
+          <h3>Adding httputil + go-error-family</h3>
+          <div class="where">go.mod</div>
+          <p>appkit currently has one dep (sqlite). Adding httputil (+ its sole dep go-error-family) is minimal but changes the "zero-dep" perception.</p>
+          <div class="callout callout-solution">
+            <strong>Mitigation:</strong> go-error-family has zero transitive deps. httputil's only dep IS go-error-family. Total new deps: 2 libraries, zero transitive bloat. This is acceptable for a "production-ready skeleton."
+          </div>
+        </div>
+
+        <div class="issue issue-nice">
+          <span class="severity severity-nice">Design Decision</span>
+          <h3>Opinionated defaults vs flexibility</h3>
+          <div class="where">ServiceConfig design</div>
+          <p>Path 2 is explicitly opinionated. Consumers who disagree with the middleware stack or health endpoints can use httputil directly. appkit is for the 80% who want sane defaults.</p>
+        </div>
+
+        <div class="callout callout-warning">
+          <strong>Key principle:</strong> Every default must be overridable. <code>ServiceConfig</code> exposes every knob. The opinionated default is a starting point, not a cage. <code>ExtraMiddlewares</code> lets consumers add without replacing.
+        </div>
+
+        <footer class="footer">
+          Generated ${DATE} &middot; Pareto plan for Path 2: go-appkit → Superb Service Skeleton &middot; All tasks verified against current codebase
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>

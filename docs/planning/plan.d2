@@ -1,0 +1,55 @@
+direction: down
+
+t1: Tier 1 — The 1% that delivers 51% {
+  style.fill: "#1a3a1a"
+  style.font-color: "#f4d35e"
+  t1_core: "Service type + NewService + Run\n(THE identity change)" {
+    style.fill: "#2a5a2a"
+    style.font-color: "#f4f4f0"
+  }
+}
+
+t2: Tier 2 — The 4% that delivers 64% {
+  style.fill: "#1a2a3a"
+  t2_deps: "Add httputil + error-family\nto go.mod"
+  t2_server: "Delegate server.go -> httputil"
+  t2_health: "Delegate health.go -> httputil"
+  t2_mw: "Default middleware stack\n(Recovery ReqID Log Timeout Sec)"
+}
+
+t3: Tier 3 — The 20% that delivers 80% {
+  style.fill: "#3a2a1a"
+  t3_shutdown: "Coordinated graceful\nshutdown (signal srv db)"
+  t3_errors: "Adopt go-error-family\nfor classified errors"
+  t3_validate: "Config validation\n+ DefaultServiceConfig"
+}
+
+t4: Tier 4 — Polish to 100% {
+  style.fill: "#2a1a2a"
+  t4_readme: "README rewrite\nprod-ready in 15 lines"
+  t4_example: "Example service"
+  t4_tests: "Full test suite"
+  t4_docs: "doc.go + AGENTS.md"
+}
+
+vision: "VISION: Production-ready Go service in 15 lines\nappkit.NewService(cfg) -> svc.Run(ctx)" {
+  shape: rectangle
+  style.fill: "#f4d35e"
+  style.font-color: "#0e0e10"
+  style.bold: true
+}
+
+vision -> t1.t1_core
+t1.t1_core -> t2.t2_deps
+t2.t2_deps -> t2.t2_server
+t2.t2_deps -> t2.t2_health
+t2.t2_server -> t2.t2_mw
+t2.t2_health -> t2.t2_mw
+t2.t2_mw -> t3.t3_shutdown
+t2.t2_mw -> t3.t3_errors
+t2.t2_mw -> t3.t3_validate
+t3.t3_shutdown -> t4.t4_readme
+t3.t3_errors -> t4.t4_readme
+t3.t3_validate -> t4.t4_example
+t4.t4_example -> t4.t4_tests
+t4.t4_tests -> t4.t4_docs
