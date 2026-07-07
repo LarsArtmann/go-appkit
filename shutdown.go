@@ -9,9 +9,7 @@ import (
 	"time"
 )
 
-const defaultShutdownTimeout = 15 * time.Second
-
-// ShutdownConfig controls graceful shutdown behavior.
+// ShutdownConfig controls graceful shutdown behavior for WaitForSignal.
 type ShutdownConfig struct {
 	Timeout time.Duration
 	Signals []os.Signal
@@ -33,7 +31,7 @@ func WaitForSignal(ctx context.Context, cfg ShutdownConfig, onShutdown func(cont
 	}
 
 	if cfg.Timeout <= 0 {
-		cfg.Timeout = DefaultShutdownConfig().Timeout
+		cfg.Timeout = defaultShutdownTimeout
 	}
 
 	sigCh := make(chan os.Signal, 1)

@@ -1,53 +1,68 @@
 package appkit
 
 import (
+	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
-func TestDefaultHealthHandler(t *testing.T) {
+func TestHealthHandler_ReturnsUp(t *testing.T) {
 	t.Parallel()
 
-	rec := httptestNewRecorder()
-	DefaultHealthHandler(rec, newHealthRequest(t))
+	mux := http.NewServeMux()
+	RegisterHealth(mux)
+
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, newHealthRequest(t))
 
 	assertStatus(t, rec, http.StatusOK)
-	assertHealthBody(t, rec, `{"status":"ok"}`)
+
+	var resp map[string]string
+	err := json.NewDecoder(rec.Body).Decode(&resp)
+	if err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+
+	if resp["status"] != "up" {
+		t.Errorf("status = %q, want %q", resp["status"], "up")
+	}
 }
 
-func TestNewHealthHandler_Ready(t *testing.T) {
+func TestReadyHandlerWithProbe_Ready(t *testing.T) {
 	t.Parallel()
 
-	rec := httptestNewRecorder()
-	NewHealthHandler(HealthStatusReady)(rec, newHealthRequest(t))
+	handler := ReadyHandlerWithProbe(func() bool { return true })
+
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
 
 	assertStatus(t, rec, http.StatusOK)
-	assertHealthBody(t, rec, `{"status":"ready"}`)
 }
 
-func TestNewHealthHandler_Unhealthy(t *testing.T) {
+func TestReadyHandlerWithProbe_NotReady(t *testing.T) {
 	t.Parallel()
 
-	rec := httptestNewRecorder()
-	NewHealthHandler(HealthStatusUnhealthy)(rec, newHealthRequest(t))
+	handler := ReadyHandlerWithProbe(func() bool { return false })
+
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
 
 	assertStatus(t, rec, http.StatusServiceUnavailable)
 }
 
-func TestNewHealthHandler_Degraded(t *testing.T) {
+func TestRegisterHealth_RegistersThreeRoutes(t *testing.T) {
 	t.Parallel()
 
-	rec := httptestNewRecorder()
-	NewHealthHandler(HealthStatusDegraded)(rec, newHealthRequest(t))
+	mux := http.NewServeMux()
+	RegisterHealth(mux)
 
-	assertStatus(t, rec, http.StatusServiceUnavailable)
-}
+	for _, path := range []string{"/health", "/health/live", "/health/ready"} {
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
 
-func TestHealthStatus_HTTPStatus_Unknown(t *testing.T) {
-	t.Parallel()
-
-	status := HealthStatus("custom")
-	if got := status.HTTPStatus(); got != http.StatusOK {
-		t.Errorf("unknown status should default to 200, got %d", got)
+		if rec.Code != http.StatusOK {
+			t.Errorf("%s: status = %d, want %d", path, rec.Code, http.StatusOK)
+		}
 	}
 }

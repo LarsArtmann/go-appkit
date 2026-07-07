@@ -136,9 +136,13 @@ linters:
             - $gostd
             - $module
             - modernc.org/sqlite
+            - github.com/larsartmann/httputil
+            - github.com/charmbracelet/log
+            - github.com/larsartmann/go-error-family
     exhaustruct:
       exclude:
         - os/exec.Cmd
+        - net/http.Server
     ginkgolinter:
       forbid-focus-container: true
       forbid-spec-pollution: true

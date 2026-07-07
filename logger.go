@@ -1,11 +1,11 @@
 package appkit
 
 import (
-	"errors"
-	"fmt"
-	"io"
 	"log/slog"
 	"os"
+
+	"github.com/charmbracelet/log"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 type LogLevel string
@@ -25,11 +25,6 @@ const (
 	LogFormatAuto LogFormat = "auto"
 )
 
-var (
-	errUnsupportedLogLevel  = errors.New("unsupported log level")
-	errUnsupportedLogFormat = errors.New("unsupported log format")
-)
-
 func (l LogLevel) slogLevel() (slog.Level, error) {
 	switch l {
 	case LogLevelDebug:
@@ -41,20 +36,18 @@ func (l LogLevel) slogLevel() (slog.Level, error) {
 	case LogLevelError:
 		return slog.LevelError, nil
 	default:
-		return 0, fmt.Errorf("%w: %q", errUnsupportedLogLevel, l)
+		return 0, errorfamily.Newf(errorfamily.Rejection, "log.level_invalid", "unsupported log level: %q", l)
 	}
 }
 
-func (f LogFormat) isJSON(writer io.Writer) (bool, error) {
+func (f LogFormat) formatter() (log.Formatter, error) {
 	switch f {
 	case LogFormatJSON:
-		return true, nil
-	case LogFormatText, "":
-		return false, nil
-	case LogFormatAuto:
-		return !isTerminal(writer), nil
+		return log.JSONFormatter, nil
+	case LogFormatText, LogFormatAuto, "":
+		return log.TextFormatter, nil
 	default:
-		return false, fmt.Errorf("%w: %q", errUnsupportedLogFormat, f)
+		return 0, errorfamily.Newf(errorfamily.Rejection, "log.format_invalid", "unsupported log format: %q", f)
 	}
 }
 
@@ -69,40 +62,15 @@ func InitLogger(cfg LoggerConfig) (*slog.Logger, error) {
 		return nil, err
 	}
 
-	writer := os.Stderr
-
-	useJSON, err := cfg.Format.isJSON(writer)
+	formatter, err := cfg.Format.formatter()
 	if err != nil {
 		return nil, err
 	}
 
-	var handler slog.Handler
+	cl := log.NewWithOptions(os.Stderr, log.Options{
+		Level:     log.Level(level),
+		Formatter: formatter,
+	})
 
-	opts := &slog.HandlerOptions{
-		Level:       level,
-		AddSource:   false,
-		ReplaceAttr: nil,
-	}
-
-	if useJSON {
-		handler = slog.NewJSONHandler(writer, opts)
-	} else {
-		handler = slog.NewTextHandler(writer, opts)
-	}
-
-	return slog.New(handler), nil
-}
-
-func isTerminal(writer io.Writer) bool {
-	file, ok := writer.(*os.File)
-	if !ok {
-		return false
-	}
-
-	info, err := file.Stat()
-	if err != nil {
-		return false
-	}
-
-	return (info.Mode() & os.ModeCharDevice) != 0
+	return slog.New(cl), nil
 }

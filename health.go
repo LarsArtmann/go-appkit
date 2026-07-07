@@ -1,48 +1,22 @@
 package appkit
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/larsartmann/httputil"
 )
 
-type HealthStatus string
-
-const (
-	HealthStatusOK        HealthStatus = "ok"
-	HealthStatusReady     HealthStatus = "ready"
-	HealthStatusUnhealthy HealthStatus = "unhealthy"
-	HealthStatusDegraded  HealthStatus = "degraded"
-)
-
-func (s HealthStatus) HTTPStatus() int {
-	switch s {
-	case HealthStatusOK, HealthStatusReady:
-		return http.StatusOK
-	case HealthStatusDegraded:
-		return http.StatusServiceUnavailable
-	case HealthStatusUnhealthy:
-		return http.StatusServiceUnavailable
-	default:
-		return http.StatusOK
-	}
+// RegisterHealth registers /health, /health/live, and /health/ready on the given mux
+// using httputil's default handlers. This is a convenience wrapper around
+// httputil.RegisterHealth.
+func RegisterHealth(mux *http.ServeMux) {
+	httputil.RegisterHealth(mux)
 }
 
-func DefaultHealthHandler(w http.ResponseWriter, _ *http.Request) {
-	writeHealthResponse(w, HealthStatusOK)
-}
-
-func NewHealthHandler(status HealthStatus) http.HandlerFunc {
-	return func(w http.ResponseWriter, _ *http.Request) {
-		writeHealthResponse(w, status)
-	}
-}
-
-func writeHealthResponse(w http.ResponseWriter, status HealthStatus) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status.HTTPStatus())
-
-	encodeErr := json.NewEncoder(w).Encode(map[string]string{"status": string(status)})
-	if encodeErr != nil {
-		http.Error(w, encodeErr.Error(), http.StatusInternalServerError)
-	}
+// ReadyHandlerWithProbe returns an http.HandlerFunc that calls the provided readiness
+// function on each request. When ready returns true, responds 200 {"status":"up"}.
+// When false, responds 503 {"status":"down"}. Used for graceful drain: flip the probe
+// to false to make Kubernetes stop sending traffic before shutting down.
+func ReadyHandlerWithProbe(ready func() bool) http.HandlerFunc {
+	return httputil.ReadyHandlerWithProbe(ready)
 }

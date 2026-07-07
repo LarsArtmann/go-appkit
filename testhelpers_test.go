@@ -3,6 +3,7 @@ package appkit
 import (
 	"context"
 	"errors"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -26,15 +27,6 @@ func assertStatus(t *testing.T, rec *httptest.ResponseRecorder, want int) {
 
 	if rec.Code != want {
 		t.Errorf("status = %d, want %d", rec.Code, want)
-	}
-}
-
-func assertHealthBody(t *testing.T, rec *httptest.ResponseRecorder, want string) {
-	t.Helper()
-
-	body := rec.Body.String()
-	if body != want+"\n" {
-		t.Errorf("body = %q, want %q", body, want+"\n")
 	}
 }
 
@@ -90,9 +82,33 @@ func expectError(t *testing.T, err error, msg string) {
 	}
 }
 
-func expectOpenSQLiteError(t *testing.T, path, msg string) {
+func freePort(t *testing.T) string {
 	t.Helper()
 
-	_, err := OpenSQLite(context.Background(), SQLiteConfig{Path: path})
-	expectError(t, err, msg)
+	ln, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatalf("failed to get free port: %v", err)
+	}
+
+	addr := ln.Addr().String()
+
+	_ = ln.Close()
+
+	return addr
+}
+
+func waitForRunning(t *testing.T, svc *Service) {
+	t.Helper()
+
+	deadline := time.Now().Add(testTimeout)
+
+	for time.Now().Before(deadline) {
+		if svc.Running() {
+			return
+		}
+
+		time.Sleep(time.Millisecond)
+	}
+
+	t.Fatal("service did not start within timeout")
 }
