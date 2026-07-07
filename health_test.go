@@ -19,6 +19,7 @@ func TestHealthHandler_ReturnsUp(t *testing.T) {
 	assertStatus(t, rec, http.StatusOK)
 
 	var resp map[string]string
+
 	err := json.NewDecoder(rec.Body).Decode(&resp)
 	if err != nil {
 		t.Fatalf("decode body: %v", err)

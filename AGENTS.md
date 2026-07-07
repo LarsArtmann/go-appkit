@@ -1,16 +1,15 @@
 # Agent Notes: go-appkit
 
-This is a small, single-package Go library that provides a shared application skeleton for Go services.
+Production-ready HTTP service framework composing httputil, charmbracelet/log, and go-error-family.
 
 ## Project Type
 
-- Go module (`github.com/larsartmann/go-appkit`), Go 1.26.3.
-- No `main` package — it is a library intended to be imported by other Go applications.
-- All source lives in the repository root under package name `appkit`.
+- Go module (`github.com/larsartmann/go-appkit`), Go 1.26.4.
+- Library (package `appkit`) imported by Go applications.
+- Source in repository root. Example in `example/main.go`.
+- No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
 
 ## Essential Commands
-
-There is no Makefile, justfile, CI config, or flake.nix. Use standard Go tooling:
 
 ```bash
 go test ./...
@@ -19,54 +18,55 @@ go build ./...
 go mod tidy
 ```
 
+BuildFlow runs as pre-commit hook (20 checks).
+
 ## Code Organization
 
-Each file owns one self-contained concern:
-
-- `server.go` — `Server` wrapper around `http.Server`, optional `/health` registration, graceful shutdown, `Running()` status.
-- `health.go` — `HealthStatus` typed enum, `DefaultHealthHandler`, `NewHealthHandler(status)`, shared `writeHealthResponse`.
-- `shutdown.go` — `WaitForSignal` for SIGINT/SIGTERM handling, logs via `slog`.
-- `logger.go` — `LogLevel`/`LogFormat` typed strings, `InitLogger` returns `(*slog.Logger, error)`.
-- `sqlite.go` — `OpenSQLite(ctx, cfg)` with WAL-mode pragmas, PRAGMA key allowlist (`allowedPRAGMAKeys()` function) for injection safety.
-
-Tests mirror source files: `*_test.go` for each module.
+| File              | Concern                                                                                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `service.go`      | `Service` type: NewService, Start, Run, Shutdown, Close, Addr, Running. Owns `http.Server` + `net.Listener` + `readyProbe atomic.Bool`. |
+| `config.go`       | `ServiceConfig` struct, `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`.                                                      |
+| `middleware.go`   | `defaultMiddlewareStack()` + `buildMiddleware()`. Default: Recovery→RequestID→Logging→Timeout→SecurityHeaders.                          |
+| `logger.go`       | `LogLevel`/`LogFormat` types, `InitLogger()` using charmbracelet/log (Logger IS slog.Handler).                                          |
+| `health.go`       | `RegisterHealth(mux)` delegates to httputil. `ReadyHandlerWithProbe(ready)`.                                                            |
+| `errors.go`       | Re-exports `HTTPStatus()` and `LogError()` from go-error-family.                                                                        |
+| `shutdown.go`     | `WaitForSignal()` for SIGINT/SIGTERM. Preserved for backward compat.                                                                    |
+| `doc.go`          | Package doc statement.                                                                                                                  |
+| `example/main.go` | 12-line demo service.                                                                                                                   |
 
 ## Architecture and Control Flow
 
-- Configuration is passed as structs (`ServerConfig`, `ShutdownConfig`, `LoggerConfig`, `SQLiteConfig`).
-- Each config has a `Default*Config()` constructor that returns opinionated defaults.
-- `ServerConfig.applyDefaults()` fills zero-value fields from defaults (called once, not redundantly).
-- `ServerConfig.RegisterHealth` controls whether `/health` is auto-registered (default: true; set false to opt out).
-- `Server.ln` is protected by `sync.RWMutex`; use `Addr()` and `Running()` for thread-safe access.
-- `InitLogger` returns an error for invalid level/format instead of panicking.
-- `WaitForSignal` logs signal receipt via `slog.Info` instead of writing to stderr directly.
-- Typical usage pattern is shown in `README.md`.
+- `Service` owns the mux (`svc.Mux`), logger (`svc.Logger`), and HTTP server.
+- Consumer registers routes on `svc.Mux`, then calls `svc.Run(ctx)` which blocks.
+- appkit does NOT delegate to `httputil.Server` (it uses `ListenAndServe()` internally, no listener access). appkit owns `http.Server` + `net.Listener` directly for `Addr() net.Addr`.
+- httputil is used for: middleware (`Chain`, `Recovery`, `Logging`, etc.), health (`RegisterHealth`), and types (`Middleware`).
+- `ServiceConfig.RegisterHealth` is `*bool`: nil or `&true` = register health, `&false` = opt out.
+- Graceful drain: `Shutdown()` flips `readyProbe` to false → waits `DrainDelay` → `server.Shutdown(ctx)`.
+- `Run()` uses `signal.NotifyContext` for SIGINT/SIGTERM internally.
+- Errors use go-error-family constructors (`NewRejection`, `WrapInfrastructuref`) instead of `fmt.Errorf`.
 
-## Conventions and Patterns
+## Dependencies
 
-- Package name: `appkit`. Import alias is conventional: `appkit "github.com/larsartmann/go-appkit"`.
-- Config structs use typed fields (`LogLevel`, `LogFormat`, `HealthStatus`); zero values are replaced by defaults.
-- Error wrapping style: `fmt.Errorf("...: %w", err)`.
-- Logging uses `log/slog`; `InitLogger` returns errors for invalid config.
-- SQLite uses `modernc.org/sqlite` (CGO-free), default pragmas include WAL mode, busy timeout, and foreign keys.
-- `OpenSQLite(ctx, cfg)` takes a `context.Context` so PRAGMAs can be applied via `db.ExecContext` (also satisfies `noctx`).
-- PRAGMA keys validated against `allowedPRAGMAKeys()` set (function, not a global) to prevent SQL injection.
+| Module                                   | Version | Role                                                 |
+| ---------------------------------------- | ------- | ---------------------------------------------------- |
+| `github.com/larsartmann/httputil`        | v0.5.0  | Middleware, health endpoints, Middleware type        |
+| `github.com/charmbracelet/log`           | v1.0.0  | Pretty slog handler (Logger implements slog.Handler) |
+| `github.com/larsartmann/go-error-family` | v0.6.1  | Error classification, HTTPStatus, LogError           |
 
 ## Testing
 
-- Standard `testing` package; no external test frameworks.
+- Standard `testing` package; no external frameworks.
 - Tests run with `t.Parallel()`.
-- HTTP handlers tested with `net/http/httptest`.
-- SQLite tests use `t.TempDir()` for transient databases.
-- Server tests use `freePort()` helper to get ephemeral ports and `waitForAddr()`/`waitForRunning()` polling helpers instead of `time.Sleep`.
-- All tests pass with `-race` flag.
+- Server tests use `freePort()` and `waitForRunning()` helpers (no `time.Sleep`).
+- All tests pass with `-race` flag and `-count=1`.
+- Default `DrainDelay` (5s) makes some tests slow; use `DrainDelay: 0` in non-drain tests.
 
 ## Gotchas
 
-- `NewServer` registers `GET /health` by default; set `ServerConfig.RegisterHealth = false` to opt out.
-- `Server.Start` binds the port inside the function, not in `NewServer`; `Server.Addr()` returns `nil` until `Start` has been called.
-- `Server.Port: 0` gets overwritten to 8080 by defaults; use an explicit free port in tests.
-- `InitLogger` returns errors (not panics) for unknown log levels/formats.
-- `OpenSQLite` validates PRAGMA keys against an allowlist; unsupported keys return an error.
-- `WaitForSignal` calls `signal.Notify` and `signal.Stop` internally; do not register overlapping signal handlers for the same signals.
-- The module has no CI/build scripts; any changes must keep `go test ./... -race` and `go vet ./...` passing.
+- `NewService` registers `/health`, `/health/live`, `/health/ready` by default.
+- `Service.Addr()` returns `nil` before `Start()` is called.
+- `RegisterHealth` is `*bool` — use `&false` to opt out, not `false`.
+- `InitLogger` returns errors (not panics) for invalid config.
+- charmbracelet/log `Logger` directly implements `slog.Handler` — no adapter needed.
+- `Service.Shutdown` is idempotent — safe to call multiple times.
+- BuildFlow auto-fixes lint on commit (gofumpt, golines, gci).

@@ -78,10 +78,7 @@ func TestNewService_RegisterHealthFalse(t *testing.T) {
 
 	waitForRunning(t, svc)
 
-	resp, err := http.Get("http://" + svc.Addr().String() + "/health")
-	if err != nil {
-		t.Fatalf("health request: %v", err)
-	}
+	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/health")
 
 	defer func() { _ = resp.Body.Close() }()
 
@@ -188,10 +185,7 @@ func TestService_HealthEndpoints(t *testing.T) {
 	base := "http://" + svc.Addr().String()
 
 	for _, path := range []string{"/health", "/health/live", "/health/ready"} {
-		resp, err := http.Get(base + path)
-		if err != nil {
-			t.Fatalf("%s: %v", path, err)
-		}
+		resp := httpGet(t, t.Context(), base+path)
 
 		body, _ := io.ReadAll(resp.Body)
 		_ = resp.Body.Close()
@@ -295,10 +289,7 @@ func TestService_CustomRoute(t *testing.T) {
 
 	waitForRunning(t, svc)
 
-	resp, err := http.Get("http://" + svc.Addr().String() + "/hello")
-	if err != nil {
-		t.Fatalf("request: %v", err)
-	}
+	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/hello")
 
 	defer func() { _ = resp.Body.Close() }()
 

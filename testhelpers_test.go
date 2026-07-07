@@ -112,3 +112,19 @@ func waitForRunning(t *testing.T, svc *Service) {
 
 	t.Fatal("service did not start within timeout")
 }
+
+func httpGet(t *testing.T, ctx context.Context, url string) *http.Response {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		t.Fatalf("create request: %v", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("request %s: %v", url, err)
+	}
+
+	return resp
+}

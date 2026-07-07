@@ -1,6 +1,50 @@
 # go-appkit
 
-Shared application skeleton for Go services. It wires together the boilerplate every small-to-medium Go service needs: a structured logger, an HTTP server with a health endpoint, graceful shutdown, and SQLite setup.
+Production-ready HTTP service framework for Go. Composes [httputil](https://github.com/LarsArtmann/httputil),
+[charmbracelet/log](https://github.com/charmbracelet/log), and [go-error-family](https://github.com/LarsArtmann/go-error-family)
+into one coherent service lifecycle.
+
+## Quick start
+
+```go
+package main
+
+import (
+	"context"
+
+	appkit "github.com/larsartmann/go-appkit"
+	errorfamily "github.com/larsartmann/go-error-family"
+	"net/http"
+)
+
+func main() {
+	svc, err := appkit.NewService(appkit.ServiceConfig{
+		Addr:     ":8080",
+		LogLevel: appkit.LogLevelInfo,
+	})
+	if err != nil {
+		panic(err)
+	}
+	defer svc.Close()
+
+	svc.Mux.HandleFunc("GET /", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("hello"))
+	})
+
+	if err := svc.Run(context.Background()); err != nil {
+		os.Exit(errorfamily.HandleError(err))
+	}
+}
+```
+
+That gives you:
+
+- HTTP server with graceful drain + shutdown on SIGINT/SIGTERM
+- Middleware: Recovery → RequestID → Logging → Timeout → SecurityHeaders
+- Health endpoints: `GET /health`, `GET /health/live`, `GET /health/ready`
+- Pretty structured logging via charmbracelet/log
+- Error classification via go-error-family
 
 ## Install
 
@@ -10,123 +54,116 @@ go get github.com/larsartmann/go-appkit
 
 Requires Go 1.26.3 or later.
 
-## Features
+## Configuration
 
-- **HTTP server wrapper** with configurable timeouts, automatic `GET /health` registration, and graceful shutdown.
-- **Health handlers** with default and custom status responses.
-- **Graceful shutdown** on `SIGINT`/`SIGTERM` with a configurable timeout.
-- **Structured logging** via `log/slog` with JSON, text, or auto-detected output.
-- **SQLite setup** using the CGO-free `modernc.org/sqlite` driver with WAL-mode pragmas.
+All config is via `ServiceConfig`. Zero-value fields get production defaults:
 
-## Quick start
+| Field              | Type                    | Default   | Description                                      |
+| ------------------ | ----------------------- | --------- | ------------------------------------------------ |
+| `Addr`             | `string`                | `":8080"` | Listen address                                   |
+| `LogLevel`         | `LogLevel`              | `"info"`  | Log level: debug, info, warn, error              |
+| `LogFormat`        | `LogFormat`             | `"auto"`  | Log format: text, json, auto                     |
+| `ReadTimeout`      | `time.Duration`         | `10s`     | HTTP read timeout                                |
+| `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                               |
+| `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                |
+| `ShutdownTimeout`  | `time.Duration`         | `15s`     | Max time to wait for shutdown                    |
+| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown |
+| `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack             |
+| `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack           |
+| `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints   |
 
-```go
-package main
+## Middleware
 
-import (
-    "context"
-    "log/slog"
-    "net/http"
-    "time"
-
-    appkit "github.com/larsartmann/go-appkit"
-)
-
-func main() {
-    logger := appkit.InitLogger(appkit.LoggerConfig{Level: "info"})
-
-    mux := http.NewServeMux()
-    mux.HandleFunc("GET /", func(w http.ResponseWriter, _ *http.Request) {
-        w.Write([]byte("hello"))
-    })
-
-    srv := appkit.NewServer(appkit.DefaultServerConfig(), mux)
-
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
-
-    go func() {
-        if err := srv.Start(ctx); err != nil {
-            logger.Error("server error", "error", err)
-        }
-    }()
-
-    if err := appkit.WaitForSignal(ctx, appkit.DefaultShutdownConfig(), func(shutdownCtx context.Context) error {
-        return srv.Shutdown(shutdownCtx)
-    }); err != nil {
-        logger.Error("shutdown error", "error", err)
-    }
-}
-```
-
-## Components
-
-### Logger
-
-`InitLogger` returns a `*slog.Logger`. Supported levels are `debug`, `info`, `warn`, and `error`. The format can be `json`, `text`, or `auto` (text when stderr is a terminal, JSON otherwise). An invalid level panics.
+The default stack is opinionated but replaceable:
 
 ```go
-logger := appkit.InitLogger(appkit.LoggerConfig{
-    Level:  "debug",
-    Format: "json",
+// Use defaults (Recovery → RequestID → Logging → Timeout → SecurityHeaders):
+svc, _ := appkit.NewService(appkit.ServiceConfig{Addr: ":8080"})
+
+// Replace the entire stack:
+svc, _ := appkit.NewService(appkit.ServiceConfig{
+    Addr:        ":8080",
+    Middlewares: []httputil.Middleware{
+        httputil.Recovery(logger),
+        httputil.RequestID(httputil.DefaultRequestIDConfig()),
+    },
+})
+
+// Extend the default stack:
+svc, _ := appkit.NewService(appkit.ServiceConfig{
+    Addr:             ":8080",
+    ExtraMiddlewares: []httputil.Middleware{myMiddleware},
 })
 ```
 
-### HTTP Server
+## Health endpoints
 
-`NewServer` wraps `http.Server` and automatically registers `GET /health`. You can override the health handler or any timeout via `ServerConfig`.
+Three endpoints registered by default (via [httputil](https://github.com/LarsArtmann/httputil)):
 
-```go
-cfg := appkit.ServerConfig{
-    Port:         8080,
-    ReadTimeout:  30 * time.Second,
-    WriteTimeout: 30 * time.Second,
-    IdleTimeout:  120 * time.Second,
-}
+- `GET /health` — liveness (always 200 `{"status":"up"}`)
+- `GET /health/live` — Kubernetes liveness probe
+- `GET /health/ready` — Kubernetes readiness probe (flips to 503 during graceful drain)
 
-srv := appkit.NewServer(cfg, mux)
-```
+The readiness probe is connected to the graceful drain sequence: when `Shutdown` is called,
+the probe immediately starts returning 503 so load balancers stop sending traffic before the
+server stops accepting connections.
 
-Zero-value fields are replaced with defaults from `DefaultServerConfig`.
-
-### Health handler
+## Lifecycle
 
 ```go
-// Default JSON response: {"status":"ok"}
-mux.HandleFunc("GET /health", appkit.DefaultHealthHandler)
+// Simple: Run blocks until signal/error, handles shutdown internally.
+err := svc.Run(ctx)
 
-// Custom status value
-mux.HandleFunc("GET /health", appkit.NewHealthHandler("ready"))
+// Advanced: Start returns a channel, you manage the lifecycle.
+errCh, err := svc.Start()
+// ... start other servers, workers, etc.
+err := svc.Shutdown(ctx)
 ```
 
-### Graceful shutdown
+### Graceful drain sequence
 
-`WaitForSignal` blocks until `SIGINT`/`SIGTERM` or the context is cancelled, then calls your shutdown function with a timeout-bound context.
+When `Shutdown` is called:
+
+1. Ready probe flips to 503 (load balancer stops sending new traffic)
+2. Wait `DrainDelay` (default 5s) for LB propagation
+3. `server.Shutdown(ctx)` stops accepting + finishes in-flight requests
+
+## Error handling
+
+Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family) constructors:
 
 ```go
-err := appkit.WaitForSignal(ctx, appkit.DefaultShutdownConfig(), func(shutdownCtx context.Context) error {
-    return srv.Shutdown(shutdownCtx)
-})
+import errorfamily "github.com/larsartmann/go-error-family"
+
+// In your handlers — wrap errors at construction:
+err := errorfamily.NewRejection("user.not_found", "user %s not found", id)
+
+// appkit re-exports for convenience:
+status := appkit.HTTPStatus(err)  // 400 for Rejection
+appkit.LogError(err, logger)      // auto-severity (Transient→Warn, others→Error)
 ```
 
-### SQLite
-
-`OpenSQLite` opens a SQLite database with sensible defaults: WAL mode, `busy_timeout = 5000`, and `foreign_keys = ON`. You can override pragmas or connection limits via `SQLiteConfig`.
+For HTTP handlers that return errors, use `errorfamily.HTTPHandler`:
 
 ```go
-db, err := appkit.OpenSQLite(ctx, appkit.SQLiteConfig{
-    Path:         "app.db",
-    MaxOpenConns: 10,
-})
-if err != nil {
-    // handle error
-}
-defer db.Close()
+svc.Mux.Handle("POST /users", errorfamily.HTTPHandler(func(w http.ResponseWriter, r *http.Request) error {
+    // Return a classified error — HTTPHandler maps family→status, writes safe JSON.
+    return errorfamily.NewRejection("user.invalid", "name is required")
+}))
 ```
+
+## When NOT to use appkit
+
+- **You want a specific router** (chi, gin, echo): Use [httputil](https://github.com/LarsArtmann/httputil) directly — it gives you middleware without opinionated server lifecycle.
+- **You want type-safe API generation**: Use [Huma](https://github.com/danielgtaylor/huma) and wrap `svc.Mux` with `humago.New`.
+- **You want a full-stack framework**: Use [Buffalo](https://gobuffalo.io) or [GoFr](https://gofr.dev).
+
+appkit is for services that use Go stdlib `http.ServeMux` (Go 1.22+ method routing) and want
+middleware, health, logging, and shutdown wired in one import.
 
 ## Development
 
-This project uses only the standard Go toolchain:
+Standard Go toolchain:
 
 ```bash
 go test ./...
