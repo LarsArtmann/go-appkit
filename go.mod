@@ -4,8 +4,8 @@ go 1.26.4
 
 require (
 	github.com/charmbracelet/log v1.0.0
-	github.com/larsartmann/go-error-family v0.6.1
-	github.com/larsartmann/httputil v0.5.0
+	github.com/larsartmann/go-error-family v0.7.0
+	github.com/larsartmann/httputil v0.6.0
 )
 
 require (
@@ -19,11 +19,12 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
-	github.com/mattn/go-isatty v0.0.22 // indirect
+	github.com/mattn/go-isatty v0.0.23 // indirect
 	github.com/mattn/go-runewidth v0.0.24 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	golang.org/x/exp v0.0.0-20260611194520-c48552f49976 // indirect
-	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/exp v0.0.0-20260718201538-764159d718ef // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
 )
