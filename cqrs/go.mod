@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/cqrs
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/larsartmann/go-cqrs-lite/projectionhost/v3 v3.7.1
