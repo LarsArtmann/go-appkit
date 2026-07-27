@@ -1,11 +1,11 @@
 module github.com/larsartmann/go-appkit
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/charmbracelet/log v1.0.0
-	github.com/larsartmann/go-error-family v0.9.0
-	github.com/larsartmann/httputil v0.6.0
+	github.com/larsartmann/go-error-family v0.10.0
+	github.com/larsartmann/httputil v0.6.1
 )
 
 require (

@@ -1,12 +1,12 @@
 module github.com/larsartmann/go-appkit/cqrs
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/larsartmann/go-cqrs-lite/projectionhost/v3 v3.7.1
 	github.com/larsartmann/go-cqrs-lite/stack/sqlite/v3 v3.7.1
 	github.com/larsartmann/go-cqrs-lite/stack/v3 v3.7.4
-	github.com/larsartmann/go-error-family v0.9.0
+	github.com/larsartmann/go-error-family v0.10.0
 )
 
 require (
@@ -19,7 +19,7 @@ require (
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/larsartmann/go-branded-id v0.3.2 // indirect
+	github.com/larsartmann/go-branded-id v0.3.3 // indirect
 	github.com/larsartmann/go-cqrs-lite/codec/v3 v3.7.4 // indirect
 	github.com/larsartmann/go-cqrs-lite/command/v3 v3.7.4 // indirect
 	github.com/larsartmann/go-cqrs-lite/decider/v3 v3.7.4 // indirect
