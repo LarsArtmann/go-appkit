@@ -19,7 +19,7 @@ require (
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/larsartmann/go-branded-id v0.3.3 // indirect
+	github.com/larsartmann/go-branded-id v0.5.0 // indirect
 	github.com/larsartmann/go-cqrs-lite/codec/v3 v3.7.4 // indirect
 	github.com/larsartmann/go-cqrs-lite/command/v3 v3.7.4 // indirect
 	github.com/larsartmann/go-cqrs-lite/decider/v3 v3.7.4 // indirect
@@ -60,7 +60,7 @@ require (
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	modernc.org/libc v1.74.3 // indirect
+	modernc.org/libc v1.74.4 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
 	modernc.org/sqlite v1.54.0 // indirect
