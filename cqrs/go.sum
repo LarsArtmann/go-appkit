@@ -53,6 +53,8 @@ github.com/larsartmann/go-branded-id v0.3.3 h1:LNot2hJG2dEMPEkvQKOXU1oOSaLWW6m9L
 github.com/larsartmann/go-branded-id v0.3.3/go.mod h1:O9fhyzY3DxtLsswpR7XaI+VbCM9182ZbZQLjfFFanLk=
 github.com/larsartmann/go-branded-id v0.5.0 h1:IyZE8bM3GT+6PtY/HlvhSON9BCL6if3OBTkEEY6A/6s=
 github.com/larsartmann/go-branded-id v0.5.0/go.mod h1:ElTJY6HNf3ziPytNA5mpW32bxjfsZ/C8ILn4nPQdbmI=
+github.com/larsartmann/go-branded-id v0.5.1 h1:4Cyv41AkbtQuf66TuNfWugjqHYA48I3KfxjjM/KwBKk=
+github.com/larsartmann/go-branded-id v0.5.1/go.mod h1:ElTJY6HNf3ziPytNA5mpW32bxjfsZ/C8ILn4nPQdbmI=
 github.com/larsartmann/go-cqrs-lite/codec/v3 v3.7.4 h1:fFjA5TJK0sOhRgo9IztykX+cC0StNQyTTXASvrhOtws=
 github.com/larsartmann/go-cqrs-lite/codec/v3 v3.7.4/go.mod h1:K/UmroBpVcoHkwSzkB8P8zcRK7L4pLHLLgwjAXKKVbI=
 github.com/larsartmann/go-cqrs-lite/command/v3 v3.7.4 h1:epXu4CUajAjPI27AzVdqH/SDX5bIT97t5T/Do9dta6Y=
@@ -219,6 +221,8 @@ modernc.org/sqlite v1.53.0 h1:20WG8N9q4ji/dEqGk4uiI0c6OPjSeLTNYGFCc3+7c1M=
 modernc.org/sqlite v1.53.0/go.mod h1:xoEpOIpGrgT48H5iiyt/YXPCZPEzlfmfFwtk8Lklw8s=
 modernc.org/sqlite v1.54.0 h1:JCxR4qwkJvOaqAoYcgDoO25Nc+ROg6EJ2LfBVzdrgog=
 modernc.org/sqlite v1.54.0/go.mod h1:4ntCLuNmnH8+GNqjka1wNg7KJd5/Hi5FYp8K+XQ7GZw=
+modernc.org/sqlite v1.55.0 h1:hIFh0MCH0rGinQ/4KYb5/UbCkRkb+UP+OkLCVWa5MTM=
+modernc.org/sqlite v1.55.0/go.mod h1:4ntCLuNmnH8+GNqjka1wNg7KJd5/Hi5FYp8K+XQ7GZw=
 modernc.org/strutil v1.2.1 h1:UneZBkQA+DX2Rp35KcM69cSsNES9ly8mQWD71HKlOA0=
 modernc.org/strutil v1.2.1/go.mod h1:EHkiggD70koQxjVdSBM3JKM7k6L0FbGE5eymy9i3B9A=
 modernc.org/token v1.1.0 h1:Xl7Ap9dKaEs5kLoOQeQmPWevfnk/DM5qcLcYlA8ys6Y=
