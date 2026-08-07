@@ -4,23 +4,34 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 ## Project Type
 
-- Go module (`github.com/larsartmann/go-appkit`), Go 1.26.4.
-- Library (package `appkit`) imported by Go applications.
+- Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.5.
+- Four Go modules in one repo, independently versioned:
+  - **core** (`/`) — package `appkit`, HTTP service framework. v1.0.0 target.
+  - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite. v0.1.0.
+  - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0.
+  - **docs** (`/docs`) — opt-in auto-documentation. v0.1.0.
+- Library consumed by Go applications.
 - Source in repository root. Example in `example/main.go`.
 - No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
+- **realtime module requires `GOEXPERIMENT=jsonv2`** (transitive dep via go-sse → go-branded-id).
 
-## Essential Commands
+## Sub-module Build Commands
 
 ```bash
-go test ./...
-go vet ./...
-go build ./...
-go mod tidy
+# Core (no special flags)
+go test ./... && go vet ./... && go build ./...
+
+# cqrs module
+cd cqrs && go test ./... && go vet ./... && go build ./...
+
+# realtime module (requires GOEXPERIMENT=jsonv2)
+cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
+cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./...
 ```
 
 BuildFlow runs as pre-commit hook (20 checks).
 
-## Code Organization
+## Core Module — Code Organization
 
 | File              | Concern                                                                                                                                 |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
@@ -34,6 +45,19 @@ BuildFlow runs as pre-commit hook (20 checks).
 | `doc.go`          | Package doc statement.                                                                                                                  |
 | `example/main.go` | 12-line demo service.                                                                                                                   |
 
+## Realtime Module — Code Organization
+
+| File         | Concern                                                                                                                              |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `doc.go`     | Package doc. SSE-only constraint stated explicitly.                                                                                  |
+| `hub.go`     | `Hub` type: pairs `sse.Broadcaster[sse.Event]` + optional `sse.EventStore`. `NewHub`, `Broadcast`, `BroadcastPatch`, `Shutdown`, `Close`, `Health`. |
+| `handler.go` | `Handler` (canonical SSE endpoint: CORS→replay→subscribe→heartbeat→forward) + `Mount` convenience for stdlib mux. Functional options for heartbeat, CORS, filtering. |
+
+- **SSE only.** No WebSocket support, provided, or planned.
+- Depends on `go-sse v0.4.0` only (no core, no go-datastar, no go-cqrs-lite dependency).
+- `BroadcastPatch` uses duck-typed `PatchLike interface { Event() sse.Event }` — works with go-datastar patches without importing go-datastar.
+- Handler flushes headers immediately after `NewStream` so clients receive 200 OK without waiting for first event.
+
 ## Architecture and Control Flow
 
 - `Service` owns the mux (`svc.Mux`), logger (`svc.Logger`), and HTTP server.
@@ -45,13 +69,25 @@ BuildFlow runs as pre-commit hook (20 checks).
 - `Run()` uses `signal.NotifyContext` for SIGINT/SIGTERM internally.
 - Errors use go-error-family constructors (`NewRejection`, `WrapInfrastructuref`) instead of `fmt.Errorf`.
 
-## Dependencies
+## Core Dependencies
 
 | Module                                   | Version | Role                                                 |
 | ---------------------------------------- | ------- | ---------------------------------------------------- |
-| `github.com/larsartmann/httputil`        | v0.5.0  | Middleware, health endpoints, Middleware type        |
+| `github.com/larsartmann/httputil`        | v0.9.1  | Middleware, health endpoints, Middleware type        |
 | `github.com/charmbracelet/log`           | v1.0.0  | Pretty slog handler (Logger implements slog.Handler) |
-| `github.com/larsartmann/go-error-family` | v0.6.1  | Error classification, HTTPStatus, LogError           |
+| `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification, HTTPStatus, LogError           |
+
+## Realtime Module Dependencies
+
+| Module                                   | Version | Role                                                 |
+| ---------------------------------------- | ------- | ---------------------------------------------------- |
+| `github.com/larsartmann/go-sse`          | v0.4.0  | SSE transport: Stream, Broadcaster, EventStore, Replay |
+| `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification (shared with core)              |
+| `github.com/larsartmann/go-branded-id`   | v0.5.1  | Phantom-typed EventID (transitive via go-sse)        |
+
+## cqrs Module Dependencies
+
+Depends on `go-cqrs-lite` v3 packages (stack/sqlite, projectionhost, stack). Not yet migrated to v4 (system). See `docs/planning/realtime-sse-design.md` for the migration question.
 
 ## Testing
 
@@ -70,3 +106,15 @@ BuildFlow runs as pre-commit hook (20 checks).
 - charmbracelet/log `Logger` directly implements `slog.Handler` — no adapter needed.
 - `Service.Shutdown` is idempotent — safe to call multiple times.
 - BuildFlow auto-fixes lint on commit (gofumpt, golines, gci).
+
+## Realtime Module Gotchas
+
+- **`GOEXPERIMENT=jsonv2` required** to build (transitive via go-sse → go-branded-id). Always prefix commands with it.
+- **`GOWORK=off` recommended** if a parent `go.work` includes sibling projects with stale checksums.
+- Handler flushes headers immediately after `NewStream` — this is critical for Go HTTP clients and reverse proxies.
+- Hub's `BroadcastPatch` accepts any type with `Event() sse.Event` — no go-datastar import needed.
+- Default heartbeat is 15s; pass `WithHeartbeat(0)` to disable.
+- Default CORS is `*`; tighten via `WithCORSOrigin` for production.
+- Shutdown ordering: drain `hub.Shutdown(ctx)` BEFORE `svc.Shutdown(ctx)` so browsers reconnect to another instance.
+- The `PatchLike` interface intentionally matches `datastar.Patch` — duck typing avoids the import.
+- No go-appkit core dependency — `realtime.Mount` works on any `*http.ServeMux`.

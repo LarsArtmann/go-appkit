@@ -79,6 +79,12 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 		stream := sse.NewStream(w, r)
 		defer func() { _ = stream.Close() }()
 
+		// Flush headers immediately so the client receives the 200 OK
+		// without waiting for the first event or heartbeat.
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+
 		ctx := stream.Context()
 
 		if !replayMissedEvents(stream, hub, cfg.filter) {
