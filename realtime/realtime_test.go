@@ -27,6 +27,7 @@ func (s *memStore) EventsAfter(lastID sse.EventID) ([]sse.Event, error) {
 	for _, evt := range s.events {
 		if found {
 			result = append(result, evt)
+
 			continue
 		}
 
@@ -82,6 +83,7 @@ func readSSEFrame(t *testing.T, r io.Reader) string {
 				// Skip heartbeat comment frames
 				if strings.HasPrefix(frame, ":") {
 					buf = buf[:0]
+
 					continue
 				}
 
@@ -126,6 +128,7 @@ func TestHub_Broadcast_DeliversToSubscriber(t *testing.T) {
 	t.Parallel()
 
 	hub := realtime.NewHub()
+
 	ch := hub.Broadcaster.Subscribe()
 	defer hub.Broadcaster.Unsubscribe(ch)
 
@@ -146,6 +149,7 @@ func TestHub_BroadcastMany_DeliversBatch(t *testing.T) {
 	t.Parallel()
 
 	hub := realtime.NewHub()
+
 	ch := hub.Broadcaster.Subscribe()
 	defer hub.Broadcaster.Unsubscribe(ch)
 
@@ -171,6 +175,7 @@ func TestHub_BroadcastPatch(t *testing.T) {
 	t.Parallel()
 
 	hub := realtime.NewHub()
+
 	ch := hub.Broadcaster.Subscribe()
 	defer hub.Broadcaster.Unsubscribe(ch)
 
@@ -245,7 +250,8 @@ func TestHub_Shutdown_DrainsGracefully(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	if err := hub.Shutdown(ctx); err != nil {
+	err := hub.Shutdown(ctx)
+	if err != nil {
 		t.Fatalf("shutdown failed: %v", err)
 	}
 

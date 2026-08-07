@@ -12,31 +12,31 @@
 
 **`go-appkit/realtime/`** — new opt-in module (4th alongside core, cqrs, docs):
 
-| File                | Lines | Concern                                                              |
-| ------------------- | ----- | -------------------------------------------------------------------- |
-| `go.mod`            | 9     | Module: `github.com/larsartmann/go-appkit/realtime`, dep: go-sse v0.4.0 |
-| `doc.go`            | 35    | Package doc with quick start, DataStar pattern, SSE-only constraint  |
-| `hub.go`            | 133   | `Hub` type, `Option` functional options, `BroadcastPatch` duck-typed |
-| `handler.go`        | 135   | `Handler` (canonical SSE endpoint) + `Mount` + replay + heartbeat + CORS |
-| `realtime_test.go`  | 400+  | 20 tests: Hub lifecycle, broadcast, fan-out, filter, replay, CORS, heartbeat |
-| `docs/planning/realtime-sse-design.md` | 250+ | Revised design doc with API-by-API comparison to previous broken design |
+| File                                   | Lines | Concern                                                                      |
+| -------------------------------------- | ----- | ---------------------------------------------------------------------------- |
+| `go.mod`                               | 9     | Module: `github.com/larsartmann/go-appkit/realtime`, dep: go-sse v0.4.0      |
+| `doc.go`                               | 35    | Package doc with quick start, DataStar pattern, SSE-only constraint          |
+| `hub.go`                               | 133   | `Hub` type, `Option` functional options, `BroadcastPatch` duck-typed         |
+| `handler.go`                           | 135   | `Handler` (canonical SSE endpoint) + `Mount` + replay + heartbeat + CORS     |
+| `realtime_test.go`                     | 400+  | 20 tests: Hub lifecycle, broadcast, fan-out, filter, replay, CORS, heartbeat |
+| `docs/planning/realtime-sse-design.md` | 250+  | Revised design doc with API-by-API comparison to previous broken design      |
 
 ### Design corrections from previous session
 
 Every failure from the 2026-08-07 06:55 report is addressed:
 
-| Previous Failure | Correction |
-|---|---|
-| Built custom Hub from scratch | Uses go-sse's `Broadcaster[T]` directly — no reimplementation |
-| Fabricated `system.DefaultSQLiteDeployment` | No system dependency at all — realtime is CQRS-agnostic |
-| Invented `errorfamily.Classify(err)` | No error classification needed — handler uses slog for logging |
-| No CLI framework decision | Not needed — realtime module is HTTP-only, no CLI scope |
-| Ignored locked design decisions | Design doc references Decisions 4, 9, 10 explicitly |
-| No WebSocket plan | **WebSocket eliminated entirely. SSE only.** |
-| No SSE library decision | **go-sse v0.4.0 chosen and verified** — already used by go-datastar and cqrs-htmx |
-| No auth model | Documented: consumer's middleware, not module's concern |
-| No CORS discussion | Implemented: `WithCORSOrigin` option, default `*` |
-| No reconnect/replay design | Implemented: `WithStore` + go-sse's `Replay`/`ReplayFiltered` |
+| Previous Failure                            | Correction                                                                        |
+| ------------------------------------------- | --------------------------------------------------------------------------------- |
+| Built custom Hub from scratch               | Uses go-sse's `Broadcaster[T]` directly — no reimplementation                     |
+| Fabricated `system.DefaultSQLiteDeployment` | No system dependency at all — realtime is CQRS-agnostic                           |
+| Invented `errorfamily.Classify(err)`        | No error classification needed — handler uses slog for logging                    |
+| No CLI framework decision                   | Not needed — realtime module is HTTP-only, no CLI scope                           |
+| Ignored locked design decisions             | Design doc references Decisions 4, 9, 10 explicitly                               |
+| No WebSocket plan                           | **WebSocket eliminated entirely. SSE only.**                                      |
+| No SSE library decision                     | **go-sse v0.4.0 chosen and verified** — already used by go-datastar and cqrs-htmx |
+| No auth model                               | Documented: consumer's middleware, not module's concern                           |
+| No CORS discussion                          | Implemented: `WithCORSOrigin` option, default `*`                                 |
+| No reconnect/replay design                  | Implemented: `WithStore` + go-sse's `Replay`/`ReplayFiltered`                     |
 
 ### All tests pass
 
@@ -46,6 +46,7 @@ ok  github.com/larsartmann/go-appkit/realtime  1.076s
 ```
 
 20 tests covering:
+
 - Hub: creation, store pairing, buffer size, broadcast, broadcastMany, broadcastPatch, subscriber count, health, shutdown, close, onSubscribe/onUnsubscribe
 - Handler: serves events, CORS (default + custom), fan-out to multiple clients, filter predicate, replay on reconnect, no-replay without store, heartbeat sent, returns http.Handler
 

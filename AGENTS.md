@@ -47,10 +47,10 @@ BuildFlow runs as pre-commit hook (20 checks).
 
 ## Realtime Module — Code Organization
 
-| File         | Concern                                                                                                                              |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `doc.go`     | Package doc. SSE-only constraint stated explicitly.                                                                                  |
-| `hub.go`     | `Hub` type: pairs `sse.Broadcaster[sse.Event]` + optional `sse.EventStore`. `NewHub`, `Broadcast`, `BroadcastPatch`, `Shutdown`, `Close`, `Health`. |
+| File         | Concern                                                                                                                                                              |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`     | Package doc. SSE-only constraint stated explicitly.                                                                                                                  |
+| `hub.go`     | `Hub` type: pairs `sse.Broadcaster[sse.Event]` + optional `sse.EventStore`. `NewHub`, `Broadcast`, `BroadcastPatch`, `Shutdown`, `Close`, `Health`.                  |
 | `handler.go` | `Handler` (canonical SSE endpoint: CORS→replay→subscribe→heartbeat→forward) + `Mount` convenience for stdlib mux. Functional options for heartbeat, CORS, filtering. |
 
 - **SSE only.** No WebSocket support, provided, or planned.
@@ -79,11 +79,11 @@ BuildFlow runs as pre-commit hook (20 checks).
 
 ## Realtime Module Dependencies
 
-| Module                                   | Version | Role                                                 |
-| ---------------------------------------- | ------- | ---------------------------------------------------- |
+| Module                                   | Version | Role                                                   |
+| ---------------------------------------- | ------- | ------------------------------------------------------ |
 | `github.com/larsartmann/go-sse`          | v0.4.0  | SSE transport: Stream, Broadcaster, EventStore, Replay |
-| `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification (shared with core)              |
-| `github.com/larsartmann/go-branded-id`   | v0.5.1  | Phantom-typed EventID (transitive via go-sse)        |
+| `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification (shared with core)                |
+| `github.com/larsartmann/go-branded-id`   | v0.5.1  | Phantom-typed EventID (transitive via go-sse)          |
 
 ## cqrs Module Dependencies
 

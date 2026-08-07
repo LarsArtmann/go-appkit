@@ -11,18 +11,18 @@
 **go-sse and go-datastar already exist and solve the hard problems.**
 appkit/realtime is NOT a reimplementation — it is a thin lifecycle and integration layer.
 
-| Problem | Already solved by | appkit/realtime does |
-|---|---|---|
-| SSE wire format | go-sse (`Event`, `WriteEvent`, `KeyedLines`) | Nothing — re-exports |
-| Single connection lifecycle | go-sse (`Stream`: Send, Heartbeat, Context, LastEventID) | Nothing — uses directly |
-| Fan-out / subscriber management | go-sse (`Broadcaster[T]`: Subscribe, SubscribeFilter, Broadcast) | Wraps in Hub for lifecycle |
-| Backpressure (drop-on-full) | go-sse (non-blocking send, 64-buffer default, `WithBufferSize`) | Nothing — passes through |
-| Graceful drain | go-sse (`Broadcaster.Shutdown(ctx)`) | Integrates into Service shutdown |
-| Health snapshot | go-sse (`Broadcaster.Health()`) | Exposes via Hub |
-| Reconnection replay | go-sse (`EventStore`, `Replay`, `ReplayFiltered`) | Pairs store with Hub |
-| DataStar protocol | go-datastar (`Patch`, `ElementsPatch`, `SignalsPatch`, etc.) | Documents integration pattern |
-| DataStar JS client | go-datastar (`ScriptHandler()`) | Documents mounting pattern |
-| Domain event → SSE bridge | cqrs-htmx (`EventBridge` pattern) | Documents; consumer wires closure |
+| Problem                         | Already solved by                                                | appkit/realtime does              |
+| ------------------------------- | ---------------------------------------------------------------- | --------------------------------- |
+| SSE wire format                 | go-sse (`Event`, `WriteEvent`, `KeyedLines`)                     | Nothing — re-exports              |
+| Single connection lifecycle     | go-sse (`Stream`: Send, Heartbeat, Context, LastEventID)         | Nothing — uses directly           |
+| Fan-out / subscriber management | go-sse (`Broadcaster[T]`: Subscribe, SubscribeFilter, Broadcast) | Wraps in Hub for lifecycle        |
+| Backpressure (drop-on-full)     | go-sse (non-blocking send, 64-buffer default, `WithBufferSize`)  | Nothing — passes through          |
+| Graceful drain                  | go-sse (`Broadcaster.Shutdown(ctx)`)                             | Integrates into Service shutdown  |
+| Health snapshot                 | go-sse (`Broadcaster.Health()`)                                  | Exposes via Hub                   |
+| Reconnection replay             | go-sse (`EventStore`, `Replay`, `ReplayFiltered`)                | Pairs store with Hub              |
+| DataStar protocol               | go-datastar (`Patch`, `ElementsPatch`, `SignalsPatch`, etc.)     | Documents integration pattern     |
+| DataStar JS client              | go-datastar (`ScriptHandler()`)                                  | Documents mounting pattern        |
+| Domain event → SSE bridge       | cqrs-htmx (`EventBridge` pattern)                                | Documents; consumer wires closure |
 
 **What go-sse deliberately does NOT provide** (and appkit/realtime SHOULD):
 
@@ -267,15 +267,15 @@ The API may change until proven in real services.
 
 ## Comparison with Previous (Broken) Design
 
-| Aspect | Previous Design (broken) | Revised Design |
-|---|---|---|
-| SSE transport | Custom Hub with custom fan-out | go-sse Broadcaster (already built) |
-| Backpressure | Custom DropOldest/CloseClient | go-sse's drop-on-full (already built) |
-| Heartbeat | Custom implementation | go-sse's Stream.Heartbeat (already built) |
-| Replay | Vague "SeekableJournal" mention | go-sse's EventStore + Replay (already built) |
-| DataStar | Not mentioned | go-datastar Patch interface via BroadcastPatch |
-| Dependencies | Implicit, unverified | go-sse v0.4.0 only (explicit, verified) |
-| Core dependency | Proposed changing Service API | Zero core dependency — mounts on any mux |
-| EventBridge | Custom type with unverified APIs | 3-line consumer closure, documented pattern |
-| WebSocket | Mentioned as alternative | **Eliminated. SSE only.** |
-| App orchestrator | Proposed replacing Service | Not needed — Hub + Mount compose with Service |
+| Aspect           | Previous Design (broken)         | Revised Design                                 |
+| ---------------- | -------------------------------- | ---------------------------------------------- |
+| SSE transport    | Custom Hub with custom fan-out   | go-sse Broadcaster (already built)             |
+| Backpressure     | Custom DropOldest/CloseClient    | go-sse's drop-on-full (already built)          |
+| Heartbeat        | Custom implementation            | go-sse's Stream.Heartbeat (already built)      |
+| Replay           | Vague "SeekableJournal" mention  | go-sse's EventStore + Replay (already built)   |
+| DataStar         | Not mentioned                    | go-datastar Patch interface via BroadcastPatch |
+| Dependencies     | Implicit, unverified             | go-sse v0.4.0 only (explicit, verified)        |
+| Core dependency  | Proposed changing Service API    | Zero core dependency — mounts on any mux       |
+| EventBridge      | Custom type with unverified APIs | 3-line consumer closure, documented pattern    |
+| WebSocket        | Mentioned as alternative         | **Eliminated. SSE only.**                      |
+| App orchestrator | Proposed replacing Service       | Not needed — Hub + Mount compose with Service  |

@@ -98,6 +98,7 @@ The current `cqrs/go.mod` depends on `go-cqrs-lite/*/v3`. The `system` package i
 ### 6. Proposed dropping `cqrs/eventservice.go` without impact analysis
 
 I wrote "The current `cqrs/eventservice.go` dies" — destructive language with zero analysis of:
+
 - What consumers depend on `EventService.Bundle()`, `EventService.Host()`, `EventService.DB()`
 - Whether `eventservice_test.go` would need full rewrite
 - Whether any existing downstream code uses the v3 `stack.Bundle` API directly
@@ -216,6 +217,7 @@ I cannot determine this from code alone. **What is the intended relationship bet
 ### 2. Is the realtime/SSE feature in scope for go-appkit, or should it be a separate repo?
 
 The modular design principle (Decision 4) keeps heavy deps out of core. But `realtime` would add either:
+
 - Zero new deps (raw stdlib SSE — more code to maintain)
 - A lightweight SSE library dependency
 

@@ -12,25 +12,25 @@
 
 **4 commits auto-committed by BuildFlow:**
 
-| Commit | Content |
-|---|---|
-| `8a833f9` | Design doc + go.mod + doc.go |
+| Commit    | Content                                   |
+| --------- | ----------------------------------------- |
+| `8a833f9` | Design doc + go.mod + doc.go              |
 | `8c06440` | Dependencies resolved, go.mod reorganized |
-| `d44d153` | Full test suite (20 tests) |
-| `601c8e5` | Header-flush fix + AGENTS.md update |
+| `d44d153` | Full test suite (20 tests)                |
+| `601c8e5` | Header-flush fix + AGENTS.md update       |
 
 **Files created:**
 
-| File | Lines | Concern |
-|---|---:|---|
-| `realtime/go.mod` | 10 | Module declaration, dep: go-sse v0.4.0, go-error-family v0.10.0 |
-| `realtime/go.sum` | 6 | Checksums verified |
-| `realtime/doc.go` | 38 | Package doc with quick start, DataStar pattern, SSE-only constraint |
-| `realtime/hub.go` | 147 | `Hub` type, `Option` options, `BroadcastPatch` duck-typed, lifecycle |
-| `realtime/handler.go` | 165 | `Handler` (canonical SSE endpoint) + `Mount` + replay + heartbeat + CORS |
-| `realtime/realtime_test.go` | 598 | 20 tests covering Hub lifecycle, broadcast, fan-out, filter, replay, CORS, heartbeat |
-| `docs/planning/realtime-sse-design.md` | 250+ | Revised SSE-only design with API-by-API comparison to previous broken design |
-| `AGENTS.md` | Updated | Added realtime module section, dependencies, gotchas, build commands |
+| File                                   |   Lines | Concern                                                                              |
+| -------------------------------------- | ------: | ------------------------------------------------------------------------------------ |
+| `realtime/go.mod`                      |      10 | Module declaration, dep: go-sse v0.4.0, go-error-family v0.10.0                      |
+| `realtime/go.sum`                      |       6 | Checksums verified                                                                   |
+| `realtime/doc.go`                      |      38 | Package doc with quick start, DataStar pattern, SSE-only constraint                  |
+| `realtime/hub.go`                      |     147 | `Hub` type, `Option` options, `BroadcastPatch` duck-typed, lifecycle                 |
+| `realtime/handler.go`                  |     165 | `Handler` (canonical SSE endpoint) + `Mount` + replay + heartbeat + CORS             |
+| `realtime/realtime_test.go`            |     598 | 20 tests covering Hub lifecycle, broadcast, fan-out, filter, replay, CORS, heartbeat |
+| `docs/planning/realtime-sse-design.md` |    250+ | Revised SSE-only design with API-by-API comparison to previous broken design         |
+| `AGENTS.md`                            | Updated | Added realtime module section, dependencies, gotchas, build commands                 |
 
 **Tests pass:**
 
@@ -42,6 +42,7 @@ ok  github.com/larsartmann/go-appkit/realtime  1.066s
 **go-sse + go-datastar codebase reviewed:**
 
 Read and understood before implementing:
+
 - go-sse: `broadcaster.go`, `fanout.go`, `stream.go`, `event.go`, `replay.go`, `constants.go`, `AGENTS.md`, `README.md`, `example/datastar/handlers.go`
 - go-datastar: `patch.go`, `response.go`, `http.go`, `elements.go`, `constants.go`, `AGENTS.md`, `README.md`
 - cqrs-htmx: `datastar/event_bridge.go`, `datastar/broadcaster.go`, `sse_broadcaster.go`, `event_store_sse.go` (via agent search)
@@ -118,6 +119,7 @@ go-sse's `SetHeaders` doesn't set it. go-sse's example handlers don't set it eit
 When `replayMissedEvents` fails (store error or write error), the handler logs and returns. The client sees the connection drop with no explanation. The browser will auto-reconnect via `EventSource`, hit the same replay failure, and loop. This is a reconnect storm waiting to happen.
 
 **Fix:** Send an SSE error event before closing:
+
 ```go
 stream.Send(sse.Event{Event: "error", Data: `{"code":"replay_failed"}`})
 ```
