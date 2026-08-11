@@ -5,10 +5,11 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 ## Project Type
 
 - Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.5.
-- Four Go modules in one repo, independently versioned:
+- Five Go modules in one repo, independently versioned:
   - **core** (`/`) — package `appkit`, HTTP service framework. v1.0.0 target.
   - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite. v0.1.0.
   - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0.
+  - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0.
   - **docs** (`/docs`) — opt-in auto-documentation. v0.1.0.
 - Library consumed by Go applications.
 - Source in repository root. Example in `example/main.go`.
@@ -27,6 +28,10 @@ cd cqrs && go test ./... && go vet ./... && go build ./...
 # realtime module (requires GOEXPERIMENT=jsonv2)
 cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
 cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./...
+
+# flightrecorder module
+cd flightrecorder && go test ./... -race -count=1
+cd flightrecorder && go vet ./...
 ```
 
 BuildFlow runs as pre-commit hook (20 checks).
@@ -58,6 +63,20 @@ BuildFlow runs as pre-commit hook (20 checks).
 - `BroadcastPatch` uses duck-typed `PatchLike interface { Event() sse.Event }` — works with go-datastar patches without importing go-datastar.
 - Handler flushes headers immediately after `NewStream` so clients receive 200 OK without waiting for first event.
 
+## Flightrecorder Module — Code Organization
+
+| File            | Concern                                                                                                                                       |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`        | Package doc. Process-global singleton constraint, import aliasing guidance.                                                                   |
+| `middleware.go` | `Middleware(recorder, trigger, opts...)` — HTTP middleware that captures traces on configurable triggers. Options: error threshold, logger, auto-reset. |
+| `handler.go`    | `SnapshotHandler(recorder)` + `Mount(mux, pattern, recorder)` — manual snapshot endpoint with JSON response and reset-before-snapshot.        |
+
+- Wraps [github.com/larsartmann/go-flightrecorder] with HTTP integration.
+- `Middleware` uses `httputil.ResponseRecorder` to capture status codes; converts status >= threshold to `fr.TriggerContext.Err`.
+- `Middleware` auto-resets the recorder's once-latch after each capture (default), allowing multiple snapshots. Disable via `WithAutoReset(false)`.
+- `SnapshotHandler` resets the latch before snapshotting so manual captures work even after an automatic middleware capture.
+- Tests serialized via `recorderMu sync.Mutex` because Go's `runtime/trace` allows only ONE active flight recorder per process.
+
 ## Architecture and Control Flow
 
 - `Service` owns the mux (`svc.Mux`), logger (`svc.Logger`), and HTTP server.
@@ -85,6 +104,13 @@ BuildFlow runs as pre-commit hook (20 checks).
 | `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification (shared with core)                |
 | `github.com/larsartmann/go-branded-id`   | v0.5.1  | Phantom-typed EventID (transitive via go-sse)          |
 
+## Flightrecorder Module Dependencies
+
+| Module                                   | Version | Role                                                          |
+| ---------------------------------------- | ------- | ------------------------------------------------------------- |
+| `github.com/larsartmann/go-flightrecorder` | v0.1.1 | Flight recorder core: Recorder, triggers, typed errors        |
+| `github.com/larsartmann/httputil`        | v0.9.1  | Middleware type, ResponseRecorder for status capture          |
+
 ## cqrs Module Dependencies
 
 Depends on `go-cqrs-lite` v3 packages (stack/sqlite, projectionhost, stack). Not yet migrated to v4 (system). See `docs/planning/realtime-sse-design.md` for the migration question.
@@ -106,6 +132,14 @@ Depends on `go-cqrs-lite` v3 packages (stack/sqlite, projectionhost, stack). Not
 - charmbracelet/log `Logger` directly implements `slog.Handler` — no adapter needed.
 - `Service.Shutdown` is idempotent — safe to call multiple times.
 - BuildFlow auto-fixes lint on commit (gofumpt, golines, gci).
+
+## Flightrecorder Module Gotchas
+
+- **Process-global singleton**: Go's `runtime/trace` allows only ONE active flight recorder per process. Create one at startup.
+- **Package name collision**: This package is named `flightrecorder`, same as the underlying library. Alias the underlying library import as `fr`.
+- **Once-latch semantics**: The recorder captures only the first snapshot via `sync.Once`. `Middleware` auto-resets after each capture by default; `SnapshotHandler` resets before each manual capture.
+- **lazyFile handle caching**: `fr.WithFile` opens the file on first write and caches the handle. Deleting the file and expecting a new file on the next capture does NOT work (the handle stays open). Use `fr.WithWriter(&bytes.Buffer{})` for multi-capture tests.
+- No go-appkit core dependency — works on any `*http.ServeMux` or `http.Handler`.
 
 ## Realtime Module Gotchas
 
