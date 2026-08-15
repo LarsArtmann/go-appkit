@@ -1,6 +1,7 @@
 package errorpages
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -239,5 +240,74 @@ func TestWrite_CustomJSONWhenRule(t *testing.T) {
 
 	if !strings.Contains(pageRec.Header().Get("Content-Type"), "text/html") {
 		t.Errorf("page path: content-type = %q, want html", pageRec.Header().Get("Content-Type"))
+	}
+}
+
+func TestWrap_FollowsMuxPathCleaningRedirects(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name    string
+		pattern string // registered pattern; "" registers nothing
+		request string
+	}{
+		{name: "doubled slash on unregistered path", request: "/a//b"},
+		{name: "dot segments on unregistered path", request: "/x/../missing"},
+		{name: "doubled slash before trailing slash on registered path", pattern: "/health", request: "/health//"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			mux := http.NewServeMux()
+			if tc.pattern != "" {
+				mux.HandleFunc(tc.pattern, func(w http.ResponseWriter, _ *http.Request) {
+					w.WriteHeader(http.StatusOK)
+				})
+			}
+
+			// The bare mux defines expected behavior: a redirect to the
+			// cleaned path (307) rather than a 404.
+			bareRec := httptest.NewRecorder()
+			mux.ServeHTTP(bareRec, httptest.NewRequestWithContext(
+				context.Background(), http.MethodGet, "http://example.test"+tc.request, nil))
+
+			if bareRec.Code == http.StatusNotFound {
+				t.Fatalf("test setup: bare mux answered 404, want a redirect")
+			}
+
+			wrapRec := httptest.NewRecorder()
+			Wrap(mux, Config{}).ServeHTTP(wrapRec, httptest.NewRequestWithContext(
+				context.Background(), http.MethodGet, "http://example.test"+tc.request, nil))
+
+			if wrapRec.Code != bareRec.Code {
+				t.Fatalf("status = %d, want %d (bare mux parity)", wrapRec.Code, bareRec.Code)
+			}
+
+			if got, want := wrapRec.Header().Get("Location"), bareRec.Header().Get("Location"); got != want {
+				t.Fatalf("Location = %q, want %q (bare mux parity)", got, want)
+			}
+		})
+	}
+}
+
+func TestWrap_RendersPretty404OnlyOnCanonicalPath(t *testing.T) {
+	t.Parallel()
+
+	mux := http.NewServeMux()
+
+	// The canonical path a path-cleaning redirect would lead to answers
+	// with the pretty 404 page, not another redirect.
+	rec := httptest.NewRecorder()
+	Wrap(mux, Config{}).ServeHTTP(rec, httptest.NewRequestWithContext(
+		context.Background(), http.MethodGet, "http://example.test/missing", nil))
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("status = %d, want 404", rec.Code)
+	}
+
+	if ct := rec.Header().Get("Content-Type"); !strings.Contains(ct, "text/html") {
+		t.Fatalf("content-type = %q, want html", ct)
 	}
 }

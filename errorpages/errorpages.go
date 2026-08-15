@@ -2,6 +2,7 @@ package errorpages
 
 import (
 	"net/http"
+	"path"
 	"strings"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -57,13 +58,20 @@ func Mount(mux *http.ServeMux, cfg Config) {
 
 // Wrap returns a handler that serves requests through mux but replaces the
 // mux's built-in bare 404 and 405 responses with errorpages rendering.
-// The Allow header of 405 responses is preserved. Use when you control the
-// top-level handler (custom server setups); with appkit.Service, Mount is
-// the simpler integration.
+// The Allow header of 405 responses is preserved. Path-cleaning redirects
+// (e.g. "/a//b" to "/a/b", or "/x/../y" to "/y") keep the mux's redirect
+// behavior; only the canonical request that follows renders a pretty 404.
+// Use when you control the top-level handler (custom server setups); with
+// appkit.Service, Mount is the simpler integration.
 func Wrap(mux *http.ServeMux, cfg Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		matched, pattern := mux.Handler(r)
-		if pattern != "" {
+		// An empty pattern also occurs for non-canonical request paths
+		// (doubled slashes or dot segments): the mux answers those with a
+		// redirect to the cleaned path, not with a 404. Delegate so the
+		// redirect survives; the pretty 404 applies to the canonical
+		// request that follows it.
+		if pattern != "" || cleanPath(r.URL.EscapedPath()) != r.URL.EscapedPath() {
 			mux.ServeHTTP(w, r)
 
 			return
@@ -170,6 +178,26 @@ func (c Config) writeMethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	)
 
 	c.errorpageHandler(r, err, http.StatusMethodNotAllowed).ServeHTTP(w, r)
+}
+
+// cleanPath returns the canonical form of p, mirroring net/http's
+// unexported cleanPath: path.Clean with any trailing slash (except on the
+// root path) preserved.
+func cleanPath(p string) string {
+	if p == "" {
+		return "/"
+	}
+
+	if p[0] != '/' {
+		p = "/" + p
+	}
+
+	np := path.Clean(p)
+	if p[len(p)-1] == '/' && np != "/" {
+		np += "/"
+	}
+
+	return np
 }
 
 // statusRecorder captures only the status code and headers of a response.
