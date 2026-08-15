@@ -117,3 +117,74 @@ an adapter that implements `MetricsRecorder` on top of your meter.
 
 `Shutdown` joins and returns both the projection-host stop error and the
 bundle-close error instead of swallowing them.
+
+## Cookbook: testing and linting your CQRS code
+
+These recipes use go-cqrs-lite's companion packages directly — they are
+test/dev-only tools, so appkit/cqrs does not depend on them. Add them to your
+own `go.mod` when you use them.
+
+### Decider tests with the scenario DSL
+
+`github.com/larsartmann/go-cqrs-lite/scenario/v4` gives your decide/fold pairs
+a fluent Given/When/Then suite — no database needed:
+
+```go
+import "github.com/larsartmann/go-cqrs-lite/scenario/v4"
+
+func TestRenameTask(t *testing.T) {
+    scenario.Given[renameCmd, taskState](t, foldTask, taskState{},
+        mustEvent(evtTaskCreated{Title: "old"}),
+    ).
+        When(renameCmd{Title: "new"}, decideRename).
+        Then(event.Type("task.renamed"))        // emitted event types
+}
+
+func TestRenameMissingTask(t *testing.T) {
+    scenario.Given[renameCmd, taskState](t, foldTask, taskState{}).
+        When(renameCmd{Title: "x"}, decideRename).
+        ThenError(errTaskNotFound)              // or .ThenState(fold, initial, want)
+}
+```
+
+### Projection tests
+
+Same package, projection flavor — feed events, assert handler outcome:
+
+```go
+scenario.GivenProjection(t, taskListProjection, evt1, evt2, evt3).ThenNoError()
+scenario.GivenProjection(t, taskListProjection, poisonEvent).ThenError()
+```
+
+### Test helpers that pair well with EventConfig
+
+`github.com/larsartmann/go-cqrs-lite/testutil/v4`:
+
+| Helper                  | Use with               | Recipe                                                                                      |
+| ----------------------- | ---------------------- | ------------------------------------------------------------------------------------------- |
+| `CapturingSlogHandler`  | `EventConfig.Logger`   | Point the config's logger at it and assert worker lifecycle lines (restarts, DLQ captures). |
+| `DelayedJournal`        | slow-store edge cases  | Wraps a `SeekableJournal` with a delay — rehearsal for slow replay reads.                   |
+| `NewCmd`, `NoopCommand` | handler plumbing tests | Quick command records / handler stubs.                                                      |
+| `rapid` generators      | property tests         | `EventType()`, `StreamType()`, `Version()`, `MetadataMap()` feed rapid-based fuzzing.       |
+
+### cqrs-lint: domain-aware linting
+
+`cqrs-lint` (a standalone binary, v4.6.0+) statically analyzes go-cqrs-lite
+consumers for CQRS anti-patterns and API misuse:
+
+```bash
+cqrs-lint init        # create .cqrs-lint.json (library preset for reusable modules)
+cqrs-lint ./...       # lint
+cqrs-lint scorecard   # which go-cqrs-lite capabilities you use / miss
+cqrs-lint rules       # rule reference
+```
+
+Gotchas worth knowing:
+
+- **Build first.** On a project that does not compile, old cqrs-lint versions
+  silently reported "no Go files found"; current versions exit non-zero and
+  name the load errors — either way, don't trust lint output on a broken build.
+- **Suppressions:** `//cqrs-lint:ignore(RULE) reason` on its own line above
+  the finding (comma-separate multiple rules); `ignore-start`/`ignore-end`
+  for ranges. v4.6.0 flags stale suppressions whose rule no longer fires —
+  remove them when told they are safe to drop.
