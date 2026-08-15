@@ -6,8 +6,8 @@ package docs
 import (
 	"net/http"
 
-	"github.com/larsartmann/go-cqrs-lite/catalog/v3"
-	"github.com/larsartmann/go-cqrs-lite/catalog/v3/docserver"
+	"github.com/larsartmann/go-cqrs-lite/catalog/v4"
+	"github.com/larsartmann/go-cqrs-lite/catalog/v4/docserver"
 )
 
 // CatalogBuilder wraps catalog.Builder with appkit-friendly defaults.

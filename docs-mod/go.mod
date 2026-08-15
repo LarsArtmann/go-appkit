@@ -2,7 +2,7 @@ module github.com/larsartmann/go-appkit/docs
 
 go 1.26.5
 
-require github.com/larsartmann/go-cqrs-lite/catalog/v3 v3.7.1
+require github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.2.1
 
 require (
 	github.com/go-faster/errors v0.8.0 // indirect

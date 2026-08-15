@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/larsartmann/go-cqrs-lite/catalog/v3/docserver"
+	"github.com/larsartmann/go-cqrs-lite/catalog/v4/docserver"
 )
 
 func TestRegisterDocs_ServesOpenAPIJSON(t *testing.T) {
