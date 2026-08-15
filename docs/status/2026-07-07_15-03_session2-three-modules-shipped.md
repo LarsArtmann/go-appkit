@@ -135,58 +135,58 @@ sub-module wraps catalog/docserver for AsyncAPI/OpenAPI/D2 auto-documentation.
 
 ## f) Next 50 Tasks (Sorted by Impact ÷ Effort)
 
-| #   | Task                                            | Impact   | Effort | Priority |
-| --- | ----------------------------------------------- | -------- | ------ | -------- |
-| 1   | Fix docs-mod → docs directory problem           | Critical | 15m    | P0       |
-| 2   | Tag core v1.0.0                                 | Critical | 5m     | P0       |
-| 3   | Tag cqrs v0.1.0                                 | Medium   | 5m     | P0       |
-| 4   | Tag docs v0.1.0                                 | Low      | 5m     | P0       |
-| 5   | Fix README imports (os, errorfamily)            | Medium   | 5m     | P0       |
-| 6   | Remove init() hack in httpspec_test.go          | Low      | 5m     | P1       |
-| 7   | Add CQRS README section                         | Medium   | 20m    | P1       |
-| 8   | Add docs README section                         | Low      | 15m    | P1       |
-| 9   | Wire Service.Run + EventService.Shutdown        | High     | 30m    | P1       |
-| 10  | CQRS E2E: command dispatch → event stored       | High     | 45m    | P1       |
-| 11  | CQRS E2E: projection read model                 | Medium   | 30m    | P2       |
-| 12  | CQRS E2E: health check integration              | Medium   | 15m    | P2       |
-| 13  | Docs E2E: AddCommand → OpenAPI schema verify    | Medium   | 20m    | P2       |
-| 14  | Docs E2E: AddEvent → AsyncAPI schema verify     | Medium   | 20m    | P2       |
-| 15  | CHANGELOG.md for v1.0.0 rewrite                 | Medium   | 15m    | P2       |
-| 16  | golangci-lint config for cqrs sub-module        | Medium   | 15m    | P2       |
-| 17  | golangci-lint config for docs sub-module        | Low      | 10m    | P2       |
-| 18  | Fix test DrainDelay helper (near-zero default)  | Low      | 10m    | P3       |
-| 19  | Add `WithLogger(logger)` option                 | Low      | 15m    | P3       |
-| 20  | Add structured shutdown logging                 | Low      | 15m    | P3       |
-| 21  | Document httputil.Server non-delegation         | Medium   | 10m    | P3       |
-| 22  | Test errorfamily.HTTPHandler through middleware | Medium   | 15m    | P3       |
-| 23  | Add `svc.HealthCheck(fn)` convenience           | Low      | 15m    | P3       |
-| 24  | Consolidate planning docs (DRY)                 | Low      | 20m    | P3       |
-| 25  | Add CI config (GitHub Actions)                  | Medium   | 30m    | P4       |
-| 26  | Add `DisableHealth bool` consideration          | Low      | 10m    | P4       |
-| 27  | Add flake.nix (optional, AGENTS.md says no)     | Low      | 30m    | P5       |
-| 28  | Huma integration example in README              | Low      | 15m    | P5       |
-| 29  | Error-family bridge pattern docs                | Low      | 15m    | P5       |
-| 30  | CQRS: Bus exposure docs (Publisher/Subscriber)  | Low      | 15m    | P5       |
-| 31  | CQRS: Repository builder example                | Medium   | 20m    | P5       |
-| 32  | Docs: D2 diagram endpoint test                  | Low      | 15m    | P5       |
-| 33  | Docs: EventCatalog MDX export                   | Low      | 30m    | P5       |
-| 34  | Docs: Huma + catalog side-by-side example       | Low      | 20m    | P5       |
-| 35  | Benchmark: Service startup time                 | Low      | 15m    | P5       |
-| 36  | Benchmark: middleware overhead                  | Low      | 15m    | P5       |
-| 37  | Add `-tags integration` for slow E2E tests      | Low      | 15m    | P5       |
-| 38  | CQRS: Snapshot store integration                | Low      | 20m    | P5       |
-| 39  | CQRS: Idempotency integration                   | Low      | 20m    | P5       |
-| 40  | Docs: OpenAPI YAML endpoint test                | Low      | 10m    | P5       |
-| 41  | Add Go doc examples (testable examples)         | Low      | 20m    | P5       |
-| 42  | Add version string constant                     | Low      | 5m     | P5       |
-| 43  | Add `svc.Mount(pattern, handler)` convenience   | Low      | 10m    | P5       |
-| 44  | Consider metrics middleware integration         | Low      | 30m    | P5       |
-| 45  | Consider request rate limiting                  | Low      | 20m    | P5       |
-| 46  | Consider CORS middleware                        | Low      | 15m    | P5       |
-| 47  | Add graceful shutdown timeout test              | Low      | 15m    | P5       |
-| 48  | Add signal delivery test for Run()              | Medium   | 15m    | P5       |
-| 49  | Document drain sequence with diagram            | Low      | 15m    | P5       |
-| 50  | Final brutal-self-review skill run              | Medium   | 30m    | P5       |
+| #  | Task                                            | Impact   | Effort | Priority |
+| -- | ----------------------------------------------- | -------- | ------ | -------- |
+| 1  | Fix docs-mod → docs directory problem           | Critical | 15m    | P0       |
+| 2  | Tag core v1.0.0                                 | Critical | 5m     | P0       |
+| 3  | Tag cqrs v0.1.0                                 | Medium   | 5m     | P0       |
+| 4  | Tag docs v0.1.0                                 | Low      | 5m     | P0       |
+| 5  | Fix README imports (os, errorfamily)            | Medium   | 5m     | P0       |
+| 6  | Remove init() hack in httpspec_test.go          | Low      | 5m     | P1       |
+| 7  | Add CQRS README section                         | Medium   | 20m    | P1       |
+| 8  | Add docs README section                         | Low      | 15m    | P1       |
+| 9  | Wire Service.Run + EventService.Shutdown        | High     | 30m    | P1       |
+| 10 | CQRS E2E: command dispatch → event stored       | High     | 45m    | P1       |
+| 11 | CQRS E2E: projection read model                 | Medium   | 30m    | P2       |
+| 12 | CQRS E2E: health check integration              | Medium   | 15m    | P2       |
+| 13 | Docs E2E: AddCommand → OpenAPI schema verify    | Medium   | 20m    | P2       |
+| 14 | Docs E2E: AddEvent → AsyncAPI schema verify     | Medium   | 20m    | P2       |
+| 15 | CHANGELOG.md for v1.0.0 rewrite                 | Medium   | 15m    | P2       |
+| 16 | golangci-lint config for cqrs sub-module        | Medium   | 15m    | P2       |
+| 17 | golangci-lint config for docs sub-module        | Low      | 10m    | P2       |
+| 18 | Fix test DrainDelay helper (near-zero default)  | Low      | 10m    | P3       |
+| 19 | Add `WithLogger(logger)` option                 | Low      | 15m    | P3       |
+| 20 | Add structured shutdown logging                 | Low      | 15m    | P3       |
+| 21 | Document httputil.Server non-delegation         | Medium   | 10m    | P3       |
+| 22 | Test errorfamily.HTTPHandler through middleware | Medium   | 15m    | P3       |
+| 23 | Add `svc.HealthCheck(fn)` convenience           | Low      | 15m    | P3       |
+| 24 | Consolidate planning docs (DRY)                 | Low      | 20m    | P3       |
+| 25 | Add CI config (GitHub Actions)                  | Medium   | 30m    | P4       |
+| 26 | Add `DisableHealth bool` consideration          | Low      | 10m    | P4       |
+| 27 | Add flake.nix (optional, AGENTS.md says no)     | Low      | 30m    | P5       |
+| 28 | Huma integration example in README              | Low      | 15m    | P5       |
+| 29 | Error-family bridge pattern docs                | Low      | 15m    | P5       |
+| 30 | CQRS: Bus exposure docs (Publisher/Subscriber)  | Low      | 15m    | P5       |
+| 31 | CQRS: Repository builder example                | Medium   | 20m    | P5       |
+| 32 | Docs: D2 diagram endpoint test                  | Low      | 15m    | P5       |
+| 33 | Docs: EventCatalog MDX export                   | Low      | 30m    | P5       |
+| 34 | Docs: Huma + catalog side-by-side example       | Low      | 20m    | P5       |
+| 35 | Benchmark: Service startup time                 | Low      | 15m    | P5       |
+| 36 | Benchmark: middleware overhead                  | Low      | 15m    | P5       |
+| 37 | Add `-tags integration` for slow E2E tests      | Low      | 15m    | P5       |
+| 38 | CQRS: Snapshot store integration                | Low      | 20m    | P5       |
+| 39 | CQRS: Idempotency integration                   | Low      | 20m    | P5       |
+| 40 | Docs: OpenAPI YAML endpoint test                | Low      | 10m    | P5       |
+| 41 | Add Go doc examples (testable examples)         | Low      | 20m    | P5       |
+| 42 | Add version string constant                     | Low      | 5m     | P5       |
+| 43 | Add `svc.Mount(pattern, handler)` convenience   | Low      | 10m    | P5       |
+| 44 | Consider metrics middleware integration         | Low      | 30m    | P5       |
+| 45 | Consider request rate limiting                  | Low      | 20m    | P5       |
+| 46 | Consider CORS middleware                        | Low      | 15m    | P5       |
+| 47 | Add graceful shutdown timeout test              | Low      | 15m    | P5       |
+| 48 | Add signal delivery test for Run()              | Medium   | 15m    | P5       |
+| 49 | Document drain sequence with diagram            | Low      | 15m    | P5       |
+| 50 | Final brutal-self-review skill run              | Medium   | 30m    | P5       |
 
 ---
 

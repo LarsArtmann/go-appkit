@@ -18,27 +18,27 @@ gaps in testing, convention adherence, and missing deliverables.
 
 ## a) FULLY DONE
 
-| Item | Details |
-|---|---|
-| Module structure | `/flightrecorder/` with `go.mod`, `go.sum`, `doc.go`, `middleware.go`, `handler.go`, `flightrecorder_test.go` |
-| go.work integration | Added `./flightrecorder` to workspace `use` block |
-| Middleware implementation | `Middleware(rec, trigger, opts...)` with `WithErrorThreshold`, `WithLogger`, `WithAutoReset` options |
-| Snapshot handler | `SnapshotHandler(rec)` + `Mount(mux, pattern, rec)` with JSON response |
-| Tests | 16 tests covering triggers, options, handler, Mount, integration. All pass with `-race -count=1` |
-| AGENTS.md | Updated with module section, code org table, dependency table, build commands, gotchas |
-| Build verification | `go build ./...` passes for entire workspace |
-| Vet verification | `go vet ./...` passes |
-| Dependencies resolved | `go mod tidy` clean, go.sum generated |
+| Item                      | Details                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Module structure          | `/flightrecorder/` with `go.mod`, `go.sum`, `doc.go`, `middleware.go`, `handler.go`, `flightrecorder_test.go` |
+| go.work integration       | Added `./flightrecorder` to workspace `use` block                                                             |
+| Middleware implementation | `Middleware(rec, trigger, opts...)` with `WithErrorThreshold`, `WithLogger`, `WithAutoReset` options          |
+| Snapshot handler          | `SnapshotHandler(rec)` + `Mount(mux, pattern, rec)` with JSON response                                        |
+| Tests                     | 16 tests covering triggers, options, handler, Mount, integration. All pass with `-race -count=1`              |
+| AGENTS.md                 | Updated with module section, code org table, dependency table, build commands, gotchas                        |
+| Build verification        | `go build ./...` passes for entire workspace                                                                  |
+| Vet verification          | `go vet ./...` passes                                                                                         |
+| Dependencies resolved     | `go mod tidy` clean, go.sum generated                                                                         |
 
 ---
 
 ## b) PARTIALLY DONE
 
-| Item | What exists | What's missing |
-|---|---|---|
-| Test coverage | 16 tests covering happy paths, options, nil trigger | No concurrent/race tests, no coverage % measured, no benchmark, no test for disabled recorder |
-| AGENTS.md docs | Module section added, gotchas documented | Build commands section doesn't include `go build ./...` line (inconsistent with cqrs pattern) |
-| doc.go | Package doc written with quick-start, architecture explanation | **Quick-start example is BROKEN** (see section d) |
+| Item           | What exists                                                    | What's missing                                                                                |
+| -------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Test coverage  | 16 tests covering happy paths, options, nil trigger            | No concurrent/race tests, no coverage % measured, no benchmark, no test for disabled recorder |
+| AGENTS.md docs | Module section added, gotchas documented                       | Build commands section doesn't include `go build ./...` line (inconsistent with cqrs pattern) |
+| doc.go         | Package doc written with quick-start, architecture explanation | **Quick-start example is BROKEN** (see section d)                                             |
 
 ---
 

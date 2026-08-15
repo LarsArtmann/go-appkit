@@ -124,33 +124,33 @@ The closest thing to "fucked up" is the **uncommitted lint/formatting changes** 
 
 Sorted by impact × effort (highest first):
 
-| #   | Task                                                                  | Impact | Effort | Category     |
-| --- | --------------------------------------------------------------------- | ------ | ------ | ------------ |
-| 1   | Update README.md usage examples for new API                           | High   | 15min  | Docs         |
-| 2   | Fix `doc.go` package documentation                                    | High   | 10min  | Docs         |
-| 3   | Sanitize PRAGMA values (not just keys)                                | High   | 20min  | Security     |
-| 4   | Add error sentinel values (`ErrPathRequired`, etc.)                   | Medium | 20min  | Correctness  |
-| 5   | Inject `*slog.Logger` into `WaitForSignal` / `ShutdownConfig`         | Medium | 15min  | Testability  |
-| 6   | Add `example_test.go` with end-to-end usage                           | Medium | 20min  | DX           |
-| 7   | Update CHANGELOG.md for v0.2.0                                        | Medium | 10min  | Docs         |
-| 8   | Support `Port: 0` for OS-assigned ports                               | Medium | 15min  | Feature      |
-| 9   | Fill `docs/DOMAIN_LANGUAGE.md` with actual terms                      | Low    | 15min  | Docs         |
-| 10  | Add GitHub Actions CI (test + vet + lint)                             | Medium | 30min  | Infra        |
-| 11  | `go mod tidy` to clean unused indirect deps                           | Low    | 5min   | Housekeeping |
-| 12  | Add `ServerConfig.Addr` string field (support unix sockets)           | Low    | 20min  | Feature      |
-| 13  | Add `Server.Start()` returns actual listener address in error channel | Low    | 10min  | DX           |
-| 14  | Add `SQLiteConfig.DefaultPath` for in-memory default                  | Low    | 10min  | Feature      |
-| 15  | Add `WithLogger` option pattern for Server                            | Low    | 30min  | Feature      |
-| 16  | Add benchmarks for server start/shutdown                              | Low    | 20min  | Testing      |
-| 17  | Add fuzz tests for PRAGMA values and log level parsing                | Low    | 30min  | Testing      |
-| 18  | Add `ShutdownConfig.OnSignal` callback hook                           | Low    | 15min  | Feature      |
-| 19  | Add `Server.ServeMux()` accessor to retrieve the mux                  | Low    | 5min   | DX           |
-| 20  | Add `SQLiteConfig.Validate()` method                                  | Low    | 10min  | Correctness  |
-| 21  | Consider `errors.Join` for multi-PRAGMA failures                      | Low    | 10min  | Correctness  |
-| 22  | Add `IsTerminal()` test with mock file                                | Low    | 10min  | Testing      |
-| 23  | Add middleware support (request logging, recovery)                    | Low    | 45min  | Feature      |
-| 24  | Add graceful restart support via `SIGUSR2`                            | Low    | 30min  | Feature      |
-| 25  | Add `VERSION` constant for embedding in health checks                 | Low    | 5min   | Feature      |
+| #  | Task                                                                  | Impact | Effort | Category     |
+| -- | --------------------------------------------------------------------- | ------ | ------ | ------------ |
+| 1  | Update README.md usage examples for new API                           | High   | 15min  | Docs         |
+| 2  | Fix `doc.go` package documentation                                    | High   | 10min  | Docs         |
+| 3  | Sanitize PRAGMA values (not just keys)                                | High   | 20min  | Security     |
+| 4  | Add error sentinel values (`ErrPathRequired`, etc.)                   | Medium | 20min  | Correctness  |
+| 5  | Inject `*slog.Logger` into `WaitForSignal` / `ShutdownConfig`         | Medium | 15min  | Testability  |
+| 6  | Add `example_test.go` with end-to-end usage                           | Medium | 20min  | DX           |
+| 7  | Update CHANGELOG.md for v0.2.0                                        | Medium | 10min  | Docs         |
+| 8  | Support `Port: 0` for OS-assigned ports                               | Medium | 15min  | Feature      |
+| 9  | Fill `docs/DOMAIN_LANGUAGE.md` with actual terms                      | Low    | 15min  | Docs         |
+| 10 | Add GitHub Actions CI (test + vet + lint)                             | Medium | 30min  | Infra        |
+| 11 | `go mod tidy` to clean unused indirect deps                           | Low    | 5min   | Housekeeping |
+| 12 | Add `ServerConfig.Addr` string field (support unix sockets)           | Low    | 20min  | Feature      |
+| 13 | Add `Server.Start()` returns actual listener address in error channel | Low    | 10min  | DX           |
+| 14 | Add `SQLiteConfig.DefaultPath` for in-memory default                  | Low    | 10min  | Feature      |
+| 15 | Add `WithLogger` option pattern for Server                            | Low    | 30min  | Feature      |
+| 16 | Add benchmarks for server start/shutdown                              | Low    | 20min  | Testing      |
+| 17 | Add fuzz tests for PRAGMA values and log level parsing                | Low    | 30min  | Testing      |
+| 18 | Add `ShutdownConfig.OnSignal` callback hook                           | Low    | 15min  | Feature      |
+| 19 | Add `Server.ServeMux()` accessor to retrieve the mux                  | Low    | 5min   | DX           |
+| 20 | Add `SQLiteConfig.Validate()` method                                  | Low    | 10min  | Correctness  |
+| 21 | Consider `errors.Join` for multi-PRAGMA failures                      | Low    | 10min  | Correctness  |
+| 22 | Add `IsTerminal()` test with mock file                                | Low    | 10min  | Testing      |
+| 23 | Add middleware support (request logging, recovery)                    | Low    | 45min  | Feature      |
+| 24 | Add graceful restart support via `SIGUSR2`                            | Low    | 30min  | Feature      |
+| 25 | Add `VERSION` constant for embedding in health checks                 | Low    | 5min   | Feature      |
 
 ---
 

@@ -93,33 +93,33 @@ is ~12 lines for a production service.
 
 ## f) Next 25 Tasks (Sorted by Impact ÷ Effort)
 
-| #   | Task                                                   | Impact   | Effort | Priority |
-| --- | ------------------------------------------------------ | -------- | ------ | -------- |
-| 1   | Rewrite README.md for framework API                    | Critical | 30m    | P0       |
-| 2   | Create example/main.go (12-line service)               | High     | 15m    | P0       |
-| 3   | Update AGENTS.md (architecture, file map)              | High     | 20m    | P0       |
-| 4   | Fix test HTTP requests (noctx lint)                    | Medium   | 15m    | P1       |
-| 5   | Add middleware test: panic → 500                       | High     | 15m    | P1       |
-| 6   | Add middleware test: X-Request-ID present              | Medium   | 10m    | P1       |
-| 7   | Add middleware test: logging captured                  | Medium   | 15m    | P1       |
-| 8   | Add httpspec.Run conformance test                      | Medium   | 15m    | P1       |
-| 9   | Add ServiceConfig_test.go (table-driven validation)    | Medium   | 15m    | P2       |
-| 10  | Fix DrainDelay test helper (near-zero default)         | Low      | 10m    | P2       |
-| 11  | Tag v1.0.0 (after README + example)                    | Critical | 5m     | P2       |
-| 12  | Consolidate error-family docs (DRY)                    | Low      | 20m    | P2       |
-| 13  | Update planning docs version numbers (v0.5.0)          | Low      | 10m    | P2       |
-| 14  | Add `WithLogger(logger)` option                        | Low      | 15m    | P3       |
-| 15  | Add structured shutdown logging                        | Low      | 15m    | P3       |
-| 16  | Document httputil.Server non-delegation decision       | Medium   | 10m    | P3       |
-| 17  | Create go.work workspace file                          | Medium   | 10m    | P3       |
-| 18  | Create cqrs/go.mod + EventService stub                 | Medium   | 30m    | P4       |
-| 19  | Implement cqrs EventService (stack/sqlite.New wrapper) | Medium   | 45m    | P4       |
-| 20  | cqrs: Service integration (Shutdown calls es.Shutdown) | Medium   | 30m    | P4       |
-| 21  | cqrs: E2E test (command → event → projection → health) | High     | 60m    | P4       |
-| 22  | Create docs/go.mod + catalog wrapper                   | Low      | 30m    | P5       |
-| 23  | Implement docs RegisterDocs (catalog routes)           | Low      | 45m    | P5       |
-| 24  | Create flake.nix (build/lint/test automation)          | Medium   | 30m    | P5       |
-| 25  | Final review: brutal-self-review skill                 | Medium   | 30m    | P5       |
+| #  | Task                                                   | Impact   | Effort | Priority |
+| -- | ------------------------------------------------------ | -------- | ------ | -------- |
+| 1  | Rewrite README.md for framework API                    | Critical | 30m    | P0       |
+| 2  | Create example/main.go (12-line service)               | High     | 15m    | P0       |
+| 3  | Update AGENTS.md (architecture, file map)              | High     | 20m    | P0       |
+| 4  | Fix test HTTP requests (noctx lint)                    | Medium   | 15m    | P1       |
+| 5  | Add middleware test: panic → 500                       | High     | 15m    | P1       |
+| 6  | Add middleware test: X-Request-ID present              | Medium   | 10m    | P1       |
+| 7  | Add middleware test: logging captured                  | Medium   | 15m    | P1       |
+| 8  | Add httpspec.Run conformance test                      | Medium   | 15m    | P1       |
+| 9  | Add ServiceConfig_test.go (table-driven validation)    | Medium   | 15m    | P2       |
+| 10 | Fix DrainDelay test helper (near-zero default)         | Low      | 10m    | P2       |
+| 11 | Tag v1.0.0 (after README + example)                    | Critical | 5m     | P2       |
+| 12 | Consolidate error-family docs (DRY)                    | Low      | 20m    | P2       |
+| 13 | Update planning docs version numbers (v0.5.0)          | Low      | 10m    | P2       |
+| 14 | Add `WithLogger(logger)` option                        | Low      | 15m    | P3       |
+| 15 | Add structured shutdown logging                        | Low      | 15m    | P3       |
+| 16 | Document httputil.Server non-delegation decision       | Medium   | 10m    | P3       |
+| 17 | Create go.work workspace file                          | Medium   | 10m    | P3       |
+| 18 | Create cqrs/go.mod + EventService stub                 | Medium   | 30m    | P4       |
+| 19 | Implement cqrs EventService (stack/sqlite.New wrapper) | Medium   | 45m    | P4       |
+| 20 | cqrs: Service integration (Shutdown calls es.Shutdown) | Medium   | 30m    | P4       |
+| 21 | cqrs: E2E test (command → event → projection → health) | High     | 60m    | P4       |
+| 22 | Create docs/go.mod + catalog wrapper                   | Low      | 30m    | P5       |
+| 23 | Implement docs RegisterDocs (catalog routes)           | Low      | 45m    | P5       |
+| 24 | Create flake.nix (build/lint/test automation)          | Medium   | 30m    | P5       |
+| 25 | Final review: brutal-self-review skill                 | Medium   | 30m    | P5       |
 
 ---
 
