@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
 ## [0.1.0] - 2026-08-15
 
 Initial release. Requires `GOEXPERIMENT=jsonv2`.

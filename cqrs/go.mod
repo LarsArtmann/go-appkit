@@ -72,5 +72,3 @@ require (
 	modernc.org/memory v1.12.0 // indirect
 	modernc.org/sqlite v1.56.0 // indirect
 )
-
-replace github.com/larsartmann/go-appkit => ../

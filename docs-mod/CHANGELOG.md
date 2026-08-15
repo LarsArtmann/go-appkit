@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
 ## [0.2.0] - 2026-08-15
 
 First tagged release of the docs module. Requires `GOEXPERIMENT=jsonv2`.
