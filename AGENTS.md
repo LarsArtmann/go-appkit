@@ -5,12 +5,13 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 ## Project Type
 
 - Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.5.
-- Five Go modules in one repo, independently versioned:
+- Six Go modules in one repo, independently versioned:
   - **core** (`/`) — package `appkit`, HTTP service framework. v1.0.0 target.
-  - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite. v0.1.0.
+  - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite v4. v0.1.0.
   - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0.
   - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0.
-  - **docs** (`/docs`) — opt-in auto-documentation. v0.1.0.
+  - **docs** (`/docs-mod`) — opt-in auto-documentation via catalog/v4. v0.1.0.
+  - **errorpages** (`/errorpages`) — pretty classified error pages (HTML/JSON) via templ-components/errorpage. v0.1.0.
 - Library consumed by Go applications.
 - Source in repository root. Example in `example/main.go`.
 - No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
@@ -34,12 +35,16 @@ cd docs-mod && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPER
 cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
 cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./...
 
+# errorpages module (requires GOEXPERIMENT=jsonv2 — errorpage uses encoding/json/v2)
+cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
+cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
+
 # flightrecorder module
 cd flightrecorder && go test ./... -race -count=1
 cd flightrecorder && go vet ./...
 ```
 
-BuildFlow runs as pre-commit hook (20 checks).
+BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Core Module — Code Organization
 
@@ -131,7 +136,20 @@ BuildFlow runs as pre-commit hook (20 checks).
 - v4 codec default flipped JSON→CBOR for new writes; old JSON data still reads (self-describing events). SSE consumers of raw event payloads need CBOR→JSON transcoding.
 - v4 sqlite options changed: `WithPragmas`, `WithDSN`, `WithDurability`, `WithBusyTimeout`, `WithCacheSize`, `WithDriverName`, `WithStack` (v3's `WithoutWAL`/`WithOptimizations`/`WithForeignKeys`/`WithoutAutoMigrate`/`WithEventDB` are gone).
 - Projection readiness: `EventService.ReadyCheck()` + `EventService.LagPerProjection()`; core `ServiceConfig.ReadyCheck func() bool` composes external checks with the drain probe for `/health/ready`.
-- `EventConfig` full option set: `Logger`, `DLQ *DLQConfig` (SQLite store by default, `ReplayDeadLetters`/`ResetProjection` accessors), `FlightRecorder` (cqrs-lite flightrecorder/v4 type — NOT go-flightrecorder; only one active per process), `HostOptions` passthrough.
+- `EventConfig` full option set: `Logger`, `DLQ *DLQConfig` (SQLite store by default, `ReplayDeadLetters`/`ResetProjection` accessors), `FlightRecorder` (cqrs-lite flightrecorder/v4 type — NOT go-flightrecorder; only one active per process), `Metrics projectionhost.MetricsRecorder` (backend-agnostic lifecycle recorder; no prometheus/otel dep), `HostOptions` passthrough.
+
+## Errorpages Module — Code Organization
+
+| File              | Concern                                                                                                                                   |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`          | Package doc.                                                                                                                              |
+| `errorpages.go`   | `Config`, `Mount`, `Wrap`, `Handler`, `Write` bridging templ-components/errorpage to go-error-family classification + Accept negotiation. |
+| `example/main.go` | Demo service with pretty 404s and a classified error route.                                                                               |
+
+- Depends on `templ-components/errorpage v1.8.2`, `go-error-family v0.10.0`, `go-appkit v0.2.0` (example only; replace `../` for local dev).
+- Family → status identical to `appkit.HTTPStatus` (Rejection 400, Conflict 409, Transient 503, Corruption 500, Infrastructure 503).
+- `Wrap` mirrors net/http's `cleanPath` to preserve the mux's path-cleaning redirects (doubled slashes, dot segments); only the canonical request that follows gets the pretty 404.
+- Render failures fall back to a plain-text response with the correct status (inherited from errorpage's buffer-before-write rendering).
 
 ## Testing
 

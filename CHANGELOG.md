@@ -2,14 +2,42 @@
 
 ## [Unreleased]
 
+### Added
+
+- `ServiceConfig.ReadyCheck`: optional gate consulted by `/health/ready` in addition to
+  the drain probe — e.g. `cqrs.EventService.ReadyCheck` keeps readiness 503 until
+  projections are live.
+
 ### Changed
 
-- `OpenSQLite` now takes a `context.Context` as its first argument.
-- Magic numbers extracted to named constants (`defaultPort`, `defaultReadTimeout`, `defaultShutdownTimeout`, etc.).
-- All tests use `httptest.NewRequestWithContext`, `http.NewRequestWithContext`, and `*sql.DB.PingContext`/`ExecContext` to honor `noctx` rules.
-- `Server.Shutdown` wraps the underlying error (`fmt.Errorf("server shutdown: %w", err)`).
-- `WriteHealthResponse` now reports JSON encoding failures via `http.Error` (no more swallowed error).
-- `depguard` now allows `modernc.org/sqlite` in `main` ruleset.
+- `Shutdown` derives its timeout context from the caller's context via
+  `context.WithoutCancel`, so context values (tracing, logger) survive into the
+  shutdown sequence. Behavior is otherwise unchanged.
+- Tests build requests with `NewRequestWithContext` throughout (noctx hygiene).
+
+## [0.2.0] - 2026-07-26
+
+> Reconstructed after the fact: the tag was cut without a changelog section.
+> The former "Unreleased" items below 0.1.0 (ctx on `OpenSQLite`, `Server.Shutdown`
+> wrapping, etc.) were superseded by this rewrite — every `Server`-era API was removed.
+
+### Changed — complete rewrite as a service framework
+
+- `Server` → `Service`: owns `http.Server` + `net.Listener` (`Addr() net.Addr`), the
+  service mux (`svc.Mux`), and the logger (`svc.Logger`).
+- Middleware via [httputil](https://github.com/LarsArtmann/httputil): Recovery →
+  RequestID → Logging → Timeout → SecurityHeaders, replaceable (`Middlewares`) or
+  extendable (`ExtraMiddlewares`).
+- Logging via [charmbracelet/log](https://github.com/charmbracelet/log) (`InitLogger`,
+  `LogLevel`, `LogFormat`); the logger doubles as an `slog.Handler`.
+- Health endpoints `/health`, `/health/live`, `/health/ready` with a drain-aware
+  readiness probe (`RegisterHealth: *bool` to opt out).
+- Graceful drain sequence: ready probe flips 503 → `DrainDelay` → `server.Shutdown`;
+  `Shutdown` is idempotent.
+- Errors classified via [go-error-family](https://github.com/LarsArtmann/go-error-family);
+  `HTTPStatus` and `LogError` re-exported.
+- Repository split into independently versioned modules: `cqrs` (go-cqrs-lite
+  integration) and `docs` (catalog/docserver auto-documentation).
 
 ## [0.1.0] - 2026-06-12
 

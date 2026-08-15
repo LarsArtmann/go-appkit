@@ -3,6 +3,7 @@ package errorpages
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -309,5 +310,68 @@ func TestWrap_RendersPretty404OnlyOnCanonicalPath(t *testing.T) {
 
 	if ct := rec.Header().Get("Content-Type"); !strings.Contains(ct, "text/html") {
 		t.Fatalf("content-type = %q, want html", ct)
+	}
+}
+
+// failingWriter simulates a connection that fails on every write (e.g. a
+// client disconnecting mid-render). It records the status code the handler
+// committed so tests can assert the render-failure fallback path: the
+// handler must not panic and must have written the derived status before
+// the failing write, so the client still receives the correct code.
+type failingWriter struct {
+	status  int
+	written bool
+}
+
+func (f *failingWriter) Header() http.Header { return http.Header{} }
+
+func (f *failingWriter) Write([]byte) (int, error) {
+	f.written = true
+
+	return 0, errors.New("connection closed")
+}
+
+func (f *failingWriter) WriteHeader(status int) {
+	if f.status == 0 {
+		f.status = status
+	}
+}
+
+func TestHandler_RenderFailureFallsBackToPlainStatus(t *testing.T) {
+	t.Parallel()
+
+	err := errorfamily.New(errorfamily.Conflict, "cart.version_mismatch", "stale cart")
+
+	fw := &failingWriter{}
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/cart", nil)
+
+	Handler(err, Config{}).ServeHTTP(fw, req)
+
+	if fw.status != http.StatusConflict {
+		t.Errorf("committed status = %d, want %d", fw.status, http.StatusConflict)
+	}
+
+	if !fw.written {
+		t.Error("expected writer to receive at least one write attempt")
+	}
+}
+
+func TestMount_RenderFailureFallsBackToPlainStatus(t *testing.T) {
+	t.Parallel()
+
+	mux := http.NewServeMux()
+	Mount(mux, Config{})
+
+	fw := &failingWriter{}
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/nowhere", nil)
+
+	mux.ServeHTTP(fw, req)
+
+	if fw.status != http.StatusNotFound {
+		t.Errorf("committed status = %d, want %d", fw.status, http.StatusNotFound)
+	}
+
+	if !fw.written {
+		t.Error("expected writer to receive at least one write attempt")
 	}
 }

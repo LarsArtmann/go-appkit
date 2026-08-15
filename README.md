@@ -11,10 +11,11 @@ package main
 
 import (
 	"context"
+	"net/http"
+	"os"
 
 	appkit "github.com/larsartmann/go-appkit"
 	errorfamily "github.com/larsartmann/go-error-family"
-	"net/http"
 )
 
 func main() {
@@ -52,25 +53,43 @@ That gives you:
 go get github.com/larsartmann/go-appkit
 ```
 
-Requires Go 1.26.3 or later.
+Requires Go 1.26.5 or later.
+
+## Modules in this repository
+
+Each module is independently versioned and usable on its own:
+
+| Module                             | Import path                                       | What it adds                                                           |
+| ---------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+| [core](README.md) (this module)    | `github.com/larsartmann/go-appkit`                | Service lifecycle, middleware, health, logging                         |
+| [cqrs](cqrs/README.md)             | `github.com/larsartmann/go-appkit/cqrs`           | Event store + projections over go-cqrs-lite v4 (SQLite) — DLQ, metrics |
+| [docs](docs-mod/)                  | `github.com/larsartmann/go-appkit/docs`           | Auto-generated OpenAPI/AsyncAPI/D2 docs from Go types                  |
+| [errorpages](errorpages/README.md) | `github.com/larsartmann/go-appkit/errorpages`     | Pretty classified error pages (HTML) and contracts (JSON)              |
+| [realtime](realtime/)              | `github.com/larsartmann/go-appkit/realtime`       | SSE hub + handler: broadcast, replay, heartbeat, Last-Event-ID resume  |
+| [flightrecorder](flightrecorder/)  | `github.com/larsartmann/go-appkit/flightrecorder` | On-demand runtime/trace capture middleware + snapshot endpoint         |
+
+> Modules that depend on go-cqrs-lite (cqrs, docs) or templ-components
+> (errorpages) require `GOEXPERIMENT=jsonv2` to build; see each module's
+> README.
 
 ## Configuration
 
 All config is via `ServiceConfig`. Zero-value fields get production defaults:
 
-| Field              | Type                    | Default   | Description                                      |
-| ------------------ | ----------------------- | --------- | ------------------------------------------------ |
-| `Addr`             | `string`                | `":8080"` | Listen address                                   |
-| `LogLevel`         | `LogLevel`              | `"info"`  | Log level: debug, info, warn, error              |
-| `LogFormat`        | `LogFormat`             | `"auto"`  | Log format: text, json, auto                     |
-| `ReadTimeout`      | `time.Duration`         | `10s`     | HTTP read timeout                                |
-| `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                               |
-| `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                |
-| `ShutdownTimeout`  | `time.Duration`         | `15s`     | Max time to wait for shutdown                    |
-| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown |
-| `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack             |
-| `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack           |
-| `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints   |
+| Field              | Type                    | Default   | Description                                                                    |
+| ------------------ | ----------------------- | --------- | ------------------------------------------------------------------------------ |
+| `Addr`             | `string`                | `":8080"` | Listen address                                                                 |
+| `LogLevel`         | `LogLevel`              | `"info"`  | Log level: debug, info, warn, error                                            |
+| `LogFormat`        | `LogFormat`             | `"auto"`  | Log format: text, json, auto                                                   |
+| `ReadTimeout`      | `time.Duration`         | `10s`     | HTTP read timeout                                                              |
+| `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                                                             |
+| `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                                              |
+| `ShutdownTimeout`  | `time.Duration`         | `15s`     | Max time to wait for shutdown                                                  |
+| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown                               |
+| `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack                                           |
+| `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack                                         |
+| `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                 |
+| `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`) |
 
 ## Middleware
 
@@ -102,7 +121,8 @@ Three endpoints registered by default (via [httputil](https://github.com/LarsArt
 
 - `GET /health` — liveness (always 200 `{"status":"up"}`)
 - `GET /health/live` — Kubernetes liveness probe
-- `GET /health/ready` — Kubernetes readiness probe (flips to 503 during graceful drain)
+- `GET /health/ready` — Kubernetes readiness probe (flips to 503 during graceful drain;
+  also 503 while a configured `ReadyCheck` reports not ready)
 
 The readiness probe is connected to the graceful drain sequence: when `Shutdown` is called,
 the probe immediately starts returning 503 so load balancers stop sending traffic before the
