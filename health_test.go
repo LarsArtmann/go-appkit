@@ -2,7 +2,7 @@ package appkit
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,7 +21,7 @@ func TestHealthHandler_ReturnsUp(t *testing.T) {
 
 	var resp map[string]string
 
-	err := json.NewDecoder(rec.Body).Decode(&resp)
+	err := json.UnmarshalRead(rec.Body, &resp)
 	if err != nil {
 		t.Fatalf("decode body: %v", err)
 	}

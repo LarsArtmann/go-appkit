@@ -2,7 +2,7 @@ package errorpages
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -84,7 +84,7 @@ func TestHandler_JSONContractShape(t *testing.T) {
 		Fix     string `json:"fix"`
 	}
 
-	if err := json.NewDecoder(rec.Body).Decode(&body); err != nil {
+	if err := json.UnmarshalRead(rec.Body, &body); err != nil {
 		t.Fatalf("decode JSON contract: %v", err)
 	}
 

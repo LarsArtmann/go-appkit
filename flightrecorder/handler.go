@@ -1,7 +1,7 @@
 package flightrecorder
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"net/http"
 
 	fr "github.com/larsartmann/go-flightrecorder"
@@ -55,6 +55,5 @@ func writeSnapshotResponse(w http.ResponseWriter, code int, status, detail strin
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
-	_ = json.NewEncoder(w).
-		Encode(snapshotResponse{Status: status, Detail: detail})
+	_ = json.MarshalWrite(w, snapshotResponse{Status: status, Detail: detail})
 }

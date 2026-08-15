@@ -7,14 +7,14 @@
 
 ## What I Did This Session (chronological, with commit IDs)
 
-| #   | Task                      | Commit    | Result                                                                                                |
-| --- | ------------------------- | --------- | ----------------------------------------------------------------------------------------------------- |
-| 1   | Fix errorpages.Wrap bug   | `0eaea2f` | Wrap no longer swallows stdlib 307 path-cleaning redirects (`/a//b` → `/a/b`); parity tests vs bare mux |
-| 2   | M10 metrics               | `3cd9297` | `EventConfig.Metrics` → `projectionhost.WithMetrics`; 3 e2e tests incl. `/metrics` endpoint; README docs |
-| 3   | M11 bridge (re-designed)  | `ac743f30` (cqrs-htmx, branch) | `transport/` sub-package extracted: `JournalSSEStore` + deprecated root re-exports, 4-dep import surface |
-| 4   | M11 realtime side         | `a19f080` | Handler subscribes BEFORE replay + ID dedup; 2 deterministic regression tests (gap + dedup)            |
-| 5   | M12 context hygiene       | uncommitted | service.go `WithoutCancel`, docs_test/health_test `NewRequestWithContext`, realtime ctx threading       |
-| 6   | cqrs lint debt cleanup    | uncommitted | 15/17 findings fixed (varnamelen `es`→`eventSvc`, `db`→`bundleDB`/`sqlDB`; noinlineerr; 1 noctx)        |
+| # | Task                     | Commit                         | Result                                                                                                   |
+| - | ------------------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| 1 | Fix errorpages.Wrap bug  | `0eaea2f`                      | Wrap no longer swallows stdlib 307 path-cleaning redirects (`/a//b` → `/a/b`); parity tests vs bare mux  |
+| 2 | M10 metrics              | `3cd9297`                      | `EventConfig.Metrics` → `projectionhost.WithMetrics`; 3 e2e tests incl. `/metrics` endpoint; README docs |
+| 3 | M11 bridge (re-designed) | `ac743f30` (cqrs-htmx, branch) | `transport/` sub-package extracted: `JournalSSEStore` + deprecated root re-exports, 4-dep import surface |
+| 4 | M11 realtime side        | `a19f080`                      | Handler subscribes BEFORE replay + ID dedup; 2 deterministic regression tests (gap + dedup)              |
+| 5 | M12 context hygiene      | uncommitted                    | service.go `WithoutCancel`, docs_test/health_test `NewRequestWithContext`, realtime ctx threading        |
+| 6 | cqrs lint debt cleanup   | uncommitted                    | 15/17 findings fixed (varnamelen `es`→`eventSvc`, `db`→`bundleDB`/`sqlDB`; noinlineerr; 1 noctx)         |
 
 Daemon auto-commits this session: `83ebcbd`, `ce8b245` (dep drift).
 

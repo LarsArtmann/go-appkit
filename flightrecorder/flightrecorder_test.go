@@ -2,7 +2,7 @@ package flightrecorder_test
 
 import (
 	"bytes"
-	"encoding/json"
+	"encoding/json/v2"
 	"io"
 	"log/slog"
 	"net/http"
@@ -394,7 +394,7 @@ func TestSnapshotHandler_Success(t *testing.T) {
 		Status string `json:"status"`
 	}
 
-	err := json.NewDecoder(rr.Body).Decode(&resp)
+	err := json.UnmarshalRead(rr.Body, &resp)
 	if err != nil {
 		t.Fatalf("failed to decode response: %v", err)
 	}
