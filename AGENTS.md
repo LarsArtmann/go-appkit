@@ -22,8 +22,9 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 # Core (no special flags)
 go test ./... && go vet ./... && go build ./...
 
-# cqrs module
-cd cqrs && go test ./... && go vet ./... && go build ./...
+# cqrs module (requires GOEXPERIMENT=jsonv2 — codec/v4 uses encoding/json/jsontext)
+cd cqrs && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
+cd cqrs && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
 
 # realtime module (requires GOEXPERIMENT=jsonv2)
 cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
@@ -113,7 +114,18 @@ BuildFlow runs as pre-commit hook (20 checks).
 
 ## cqrs Module Dependencies
 
-Depends on `go-cqrs-lite` v3 packages (stack/sqlite v3.7.1, projectionhost v3.7.1, stack v3.7.4). Not yet migrated to v4 (stack/sqlite/projectionhost v4.3.0, system v4.4.0, metaengine v4.10.0). v4 predates nothing: v3.7.1 was tagged 2026-07-07, v4.0.0 landed 2026-07-11; v5 unification (ADR-0123) is in progress. cqrs-htmx (intended consumer) is already on v4.6 and does NOT depend on go-appkit. Full audit with migration priority: `docs/research/2026-08-15_ecosystem-deep-dive.html`.
+| Module                                                  | Version | Role                                                                      |
+| ------------------------------------------------------- | ------- | ------------------------------------------------------------------------- |
+| `github.com/larsartmann/go-cqrs-lite/stack/v4`          | v4.3.0  | Bundle (events, commands, queries, snapshots, checkpoints)                |
+| `github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4`   | v4.3.0  | SQLite preset (WAL, `SetMaxOpenConns(1)` via `ConfigureSQLitePool`)       |
+| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4` | v4.3.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                |
+| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.6.0  | indirect — pinned above stack's own v4.5.0 (needs `SQLiteSetSynchronous`) |
+| `github.com/larsartmann/go-error-family`                | v0.10.0 | Error classification (shared with core)                                   |
+
+- Migrated to v4 on 2026-08-15 (was v3.7.x). Migration guide: go-cqrs-lite `docs/migration/MIGRATION-GUIDE.md`.
+- **GOEXPERIMENT=jsonv2 required** (codec/v4 → encoding/json/jsontext).
+- v4 codec default flipped JSON→CBOR for new writes; old JSON data still reads (self-describing events). SSE consumers of raw event payloads need CBOR→JSON transcoding.
+- v4 sqlite options changed: `WithPragmas`, `WithDSN`, `WithDurability`, `WithBusyTimeout`, `WithCacheSize`, `WithDriverName`, `WithStack` (v3's `WithoutWAL`/`WithOptimizations`/`WithForeignKeys`/`WithoutAutoMigrate`/`WithEventDB` are gone).
 
 ## Testing
 

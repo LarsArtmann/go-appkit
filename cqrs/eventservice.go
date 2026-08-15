@@ -9,9 +9,9 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/larsartmann/go-cqrs-lite/projectionhost/v3"
-	"github.com/larsartmann/go-cqrs-lite/stack/sqlite/v3"
-	stack "github.com/larsartmann/go-cqrs-lite/stack/v3"
+	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
+	"github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4"
+	stack "github.com/larsartmann/go-cqrs-lite/stack/v4"
 	errorfamily "github.com/larsartmann/go-error-family"
 )
 
