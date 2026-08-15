@@ -1,6 +1,7 @@
 package appkit
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -36,7 +37,8 @@ func TestReadyHandlerWithProbe_Ready(t *testing.T) {
 	handler := ReadyHandlerWithProbe(func() bool { return true })
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(
+		context.Background(), http.MethodGet, "/health/ready", nil))
 
 	assertStatus(t, rec, http.StatusOK)
 }
@@ -47,7 +49,8 @@ func TestReadyHandlerWithProbe_NotReady(t *testing.T) {
 	handler := ReadyHandlerWithProbe(func() bool { return false })
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(
+		context.Background(), http.MethodGet, "/health/ready", nil))
 
 	assertStatus(t, rec, http.StatusServiceUnavailable)
 }
@@ -60,7 +63,8 @@ func TestRegisterHealth_RegistersThreeRoutes(t *testing.T) {
 
 	for _, path := range []string{"/health", "/health/live", "/health/ready"} {
 		rec := httptest.NewRecorder()
-		mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+		mux.ServeHTTP(rec, httptest.NewRequestWithContext(
+			context.Background(), http.MethodGet, path, nil))
 
 		if rec.Code != http.StatusOK {
 			t.Errorf("%s: status = %d, want %d", path, rec.Code, http.StatusOK)

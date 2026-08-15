@@ -121,7 +121,7 @@ func (s *Service) Run(ctx context.Context) error {
 		return serveErr
 	}
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), s.cfg.ShutdownTimeout)
+	shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), s.cfg.ShutdownTimeout)
 	defer cancel()
 
 	return s.Shutdown(shutdownCtx)

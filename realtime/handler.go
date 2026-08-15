@@ -1,6 +1,7 @@
 package realtime
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
@@ -93,7 +94,7 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 			f.Flush()
 		}
 
-		ctx := stream.Context()
+		ctx := r.Context()
 
 		// Subscribe before replay: everything broadcast from here on buffers
 		// in the channel and is forwarded after the replayed events (minus
@@ -109,7 +110,7 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 
 		defer hub.Broadcaster.Unsubscribe(ch)
 
-		replayed, ok := replayMissedEvents(stream, hub, cfg.filter)
+		replayed, ok := replayMissedEvents(ctx, stream, hub, cfg.filter)
 		if !ok {
 			return
 		}
@@ -164,6 +165,7 @@ func Mount(mux *http.ServeMux, pattern string, hub *Hub, opts ...MountOption) {
 // Callers must have subscribed to the live broadcaster BEFORE calling this,
 // so events racing the store snapshot are captured rather than lost.
 func replayMissedEvents(
+	ctx context.Context,
 	stream *sse.Stream,
 	hub *Hub,
 	filter func(sse.Event) bool,
@@ -180,7 +182,7 @@ func replayMissedEvents(
 	events, err := eventsAfter(hub.Store, lastID, filter)
 	if err != nil {
 		slog.ErrorContext(
-			stream.Context(),
+			ctx,
 			"realtime: replay store read failed, aborting connection",
 			"last_event_id", lastID.Get(),
 			"err", err,
@@ -195,7 +197,7 @@ func replayMissedEvents(
 		err := stream.Send(evt)
 		if err != nil {
 			slog.ErrorContext(
-				stream.Context(),
+				ctx,
 				"realtime: replay send failed, aborting connection",
 				"last_event_id", lastID.Get(),
 				"err", err,
