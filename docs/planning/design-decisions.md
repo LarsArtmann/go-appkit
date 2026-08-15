@@ -186,7 +186,7 @@ huma.Get(api, "/users/{id}", typedHandler)
 
 ## Decision 11 / ADR-001: cqrs-htmx ↔ appkit relationship — appkit-as-foundation, validated by spike
 
-> **Status:** Decided 2026-08-15. **Supersedes:** the undocumented "cqrs-htmx becomes appkit's first real consumer" plan (docs/planning/integrations.md, 2026-07-06), which was silently abandoned — cqrs-htmx v4.8.0 has zero appkit references.
+> **Status:** Decided 2026-08-15; spike validated 2026-08-16 (M18 passed all gates — Option A confirmed). **Supersedes:** the undocumented "cqrs-htmx becomes appkit's first real consumer" plan (docs/planning/integrations.md, 2026-07-06), which was silently abandoned — cqrs-htmx v4.8.0 has zero appkit references.
 > **Evidence:** source audit of cqrs-htmx `setup/` vs appkit core, 2026-08-15 ([Ecosystem Utilization Audit](./../research/2026-08-15_ecosystem-deep-dive.html)).
 
 **Decision:** appkit becomes the **generic server layer** for cqrs-htmx (`setup.Run` constructs `appkit.Service` behind its existing config), cqrs-htmx remains the **domain layer** (session/CSRF/CSP-nonce middleware, projection-aware readiness). Adoption is gated by a bounded prototype spike (plan task M18); if the spike shows regressions that cannot be fixed with additive appkit changes, we fall back to Option B automatically — no rewrite of either side.
@@ -223,7 +223,7 @@ huma.Get(api, "/users/{id}", typedHandler)
 
 ### Consequences
 
-- M18 (prototype spike) runs; its report decides final adoption (A confirmed vs fallback B).
+- M18 (prototype spike) ran 2026-08-16 on cqrs-htmx `spike/appkit-server`: **ADOPT** — Option A confirmed, fallback B not needed. Evidence: SSE header flush survives both middleware layers; `/health/ready` keeps projection-aware 503→200 semantics via `ReadyCheck`; response parity holds; full `setup` suite green under `-race`; smoke benchmark 16178 vs 45049 ns/op (delta ≈ per-request INFO logging; ~22k req/s single-conn remains). Adoption in cqrs-htmx is blocked only on a published appkit tag carrying `NoTimeout` + `ReadyCheck` (tracked in cqrs-htmx `TODO_LIST.md` P3; report: cqrs-htmx `docs/status/2026-08-16_01-38_appkit-spike-adopt.md`).
 - The 2026-07-06 claim "appkit will be httputil.Server's first real consumer" is corrected: appkit owns `http.Server` directly; cqrs-htmx uses httputil's `Server` today and would replace it with appkit only via the spike.
 - cqrs-htmx keeps its richer domain middleware; appkit never grows session/CSRF concerns — those are application territory.
 
