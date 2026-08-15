@@ -37,6 +37,8 @@ The 2026-07-06 assumption that "cqrs-htmx uses only `httputil.ClientIP`" is outd
 
 **Decided relationship (ADR-001, see [design-decisions.md §11](./design-decisions.md)):** cqrs-htmx may adopt `appkit.Service` as its generic server layer (replacing its direct `httputil.Server` use), gated by the M18 prototype spike. appkit is the generic layer; cqrs-htmx keeps its domain middleware and projection-aware readiness.
 
+**EventService future (ADR-002, see [design-decisions.md §12](./design-decisions.md)):** appkit/cqrs stays sqlite-first on the `stack/sqlite` + `projectionhost` pins for all of v0.x; go-cqrs-lite's `system/v4` composition root is adopted only when a defined trigger fires (second-engine demand, projection-declaration ergonomics gap, or one-composition-root need) — as a re-base behind the existing accessors, not a break.
+
 ---
 
 ## charmbracelet/log (v1.0.0) — Pretty slog Handler

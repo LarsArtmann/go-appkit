@@ -226,3 +226,34 @@ huma.Get(api, "/users/{id}", typedHandler)
 - M18 (prototype spike) runs; its report decides final adoption (A confirmed vs fallback B).
 - The 2026-07-06 claim "appkit will be httputil.Server's first real consumer" is corrected: appkit owns `http.Server` directly; cqrs-htmx uses httputil's `Server` today and would replace it with appkit only via the spike.
 - cqrs-htmx keeps its richer domain middleware; appkit never grows session/CSRF concerns — those are application territory.
+
+---
+
+## Decision 12 / ADR-002: EventService future — stay sqlite-first, adopt `system` only on trigger
+
+> **Status:** Decided 2026-08-15. **Context:** appkit/cqrs v0.2.0 wraps `stack/sqlite` + `projectionhost` directly. go-cqrs-lite now ships `system/v4` (v4.4.0): a composition root where `DomainConfig` (commands, queries, projections, decoders, host options) is compiler-separated from `DeploymentConfig` (engines, buses, instances, durability — koanf-loadable) and `System.New` wires everything.
+> **Evidence:** source read of `system/v4@v4.4.0` (config_types.go, system.go, README) against `cqrs/eventservice.go`, 2026-08-15.
+
+**Decision:** `EventService` stays **sqlite-first** for all of v0.x — the released cqrs/v0.2.0 contract is the committed interface. We do NOT generalize over stacks and do NOT adopt `system` today. Adoption becomes mandatory (as a re-base of `NewEventService`, keeping the accessors as delegating shims — additive, no consumer break) when any of these triggers fire:
+
+- **T1 — second engine demand:** a real consumer needs Postgres (or any non-SQLite engine) or an external bus. Today: zero such consumers.
+- **T2 — ergonomics gap:** consumer boilerplate for typed projections exceeds what `system`'s sealed declarations (`Lookup`, `QuerySet`, `Count`) + `EvolutionSpec` folds would remove.
+- **T3 — one composition root:** cqrs-htmx's own stack wiring and appkit/cqrs both want the same composition root (shutdown ordering via `ShutdownDependencies`, plan-drift detection via `ManifestPath`).
+
+### Options considered
+
+| Option                        | Verdict   | Why                                                                                                                                                                                                                                                                                                              |
+| ----------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A. sqlite-first (chosen)**  | **Adopt** | cqrs/v0.2.0 is coherent, tested, and released; SQLite covers every known consumer. Zero abstraction cost. `system` is evolving fast (v4.3→v4.4 added evolutions, scream plans); pinning to it now imports churn into a stable surface.                                                                           |
+| B. stack-generic EventService | Rejected  | Generalizing over `stack.Bundle` adds type parameters/config surface for engines nobody uses — premature abstraction (YAGNI). When T1 fires, `system`'s `DeploymentConfig` is the better generalization than appkit inventing its own.                                                                           |
+| C. Adopt `system` now         | Deferred  | `system.System` exposes everything `EventService` re-wraps (`ProjectionHost()`, `ResetProjection()`, `GracefulClose()`), so adoption is cheap LATER — that is exactly why it can wait. Migrating during a release freeze (v0.2.0 cut today) would invalidate the freshly cut contract for zero consumer benefit. |
+
+### What adoption looks like when a trigger fires (T1–T3)
+
+`NewEventService` becomes: fixed SQLite `DeploymentConfig` preset + `EventConfig` mapped onto `DomainConfig` (Logger/DLQ/FlightRecorder/Metrics already map 1:1 onto `ProjectionHostOptions`); `system.System` provides the host. `ReadyCheck()`, `LagPerProjection()`, `ReplayDeadLetters()`, `ResetProjection()`, `Shutdown()` stay as delegating accessors — public API unchanged. The `GOEXPERIMENT=jsonv2` requirement is unaffected (codec/v4 either way).
+
+### Consequences
+
+- appkit/cqrs keeps direct `stack/sqlite` + `projectionhost/v4` pins (v4.3.0 line, storage v4.6.0 skew documented in AGENTS.md).
+- Watch `system/v4` releases quarterly; re-verify triggers at each cqrs minor release.
+- cqrs-htmx remains free to adopt `system` independently — nothing in this decision constrains it.
