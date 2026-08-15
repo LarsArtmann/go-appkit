@@ -9,6 +9,7 @@ import (
 	"errors"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/larsartmann/go-cqrs-lite/flightrecorder/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
@@ -258,6 +259,41 @@ func asSQLDB(db any) (*sql.DB, error) {
 	}
 
 	return sqlDB, nil
+}
+
+// ReadyCheck reports whether all registered projections are serving: every
+// worker must be live (caught up and processing) or stopped (fully drained,
+// normal for batch-style hosts). A worker that is idle before
+// StartProjections, still catching up, backing off after a crash, draining,
+// or terminally failed makes the service NOT ready. Wire it into
+// appkit.ServiceConfig.ReadyCheck so /health/ready serves 503 until
+// projections are caught up and flips back if one dies:
+//
+//	cfg.ReadyCheck = eventSvc.ReadyCheck
+//
+// With no registered projections it reports true.
+func (es *EventService) ReadyCheck() bool {
+	for _, state := range es.host.Status() {
+		switch state.Status {
+		case projectionhost.WorkerLive, projectionhost.WorkerStopped:
+			continue
+		case projectionhost.WorkerIdle,
+			projectionhost.WorkerRunning,
+			projectionhost.WorkerBackoff,
+			projectionhost.WorkerDraining,
+			projectionhost.WorkerFailed:
+			return false
+		}
+	}
+
+	return true
+}
+
+// LagPerProjection reports how far behind real-time each projection is, keyed
+// by projection name. Useful for dashboards and alerting; the same data
+// drives staleness decisions in production.
+func (es *EventService) LagPerProjection() map[string]time.Duration {
+	return es.host.LagPerProjection()
 }
 
 // StartProjections starts the projection host workers.

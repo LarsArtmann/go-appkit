@@ -40,6 +40,14 @@ type ServiceConfig struct {
 	// RegisterHealth controls whether /health, /health/live, /health/ready are auto-registered.
 	// Uses a pointer so the zero-value (nil) defaults to true. Set to false to opt out.
 	RegisterHealth *bool
+
+	// ReadyCheck, when set, is consulted by /health/ready in addition to the
+	// internal drain probe: the endpoint reports 200 only while BOTH the
+	// drain probe is up AND ReadyCheck returns true. Use it to gate traffic
+	// on external state — e.g. cqrs.EventService.ReadyCheck (projections
+	// caught up) or a dependency ping. It must be safe for concurrent use.
+	// Optional — nil keeps probe-only readiness.
+	ReadyCheck func() bool
 }
 
 // DefaultServiceConfig returns a config with production-ready defaults.

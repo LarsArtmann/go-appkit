@@ -58,6 +58,19 @@ _ = es.ResetProjection(ctx, "user-projection", projectionhost.WithPurgeDeadLette
 The default SQLite store also implements `projectionhost.DeadLetterStoreAdmin`
 (Count, ListPaged, PurgeBefore) — type-assert to use it for admin dashboards.
 
+### Readiness
+
+`ReadyCheck()` reports whether every projection worker is live or fully
+drained. Wire it into appkit's composable readiness so `/health/ready` serves
+503 until projections catch up (and flips back if a worker dies):
+
+```go
+appkitCfg := appkit.DefaultServiceConfig()
+appkitCfg.ReadyCheck = eventSvc.ReadyCheck // composes with the drain probe
+
+lag := eventSvc.LagPerProjection() // map[projectionName]time.Duration
+```
+
 ## Accessors
 
 | Method                                | Returns                          | Purpose                                                           |

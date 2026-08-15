@@ -67,3 +67,56 @@ func TestRegisterHealth_RegistersThreeRoutes(t *testing.T) {
 		}
 	}
 }
+
+func TestReadyEndpoint_ComposesDrainProbeWithReadyCheck(t *testing.T) {
+	t.Parallel()
+
+	externalReady := false
+
+	svc, err := NewService(ServiceConfig{
+		DrainDelay: 0,
+		ReadyCheck: func() bool { return externalReady },
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	get := func() int {
+		rec := httptest.NewRecorder()
+		svc.Mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
+
+		return rec.Code
+	}
+
+	if code := get(); code != http.StatusServiceUnavailable {
+		t.Fatalf("expected 503 while external check false, got %d", code)
+	}
+
+	externalReady = true
+
+	if code := get(); code != http.StatusOK {
+		t.Fatalf("expected 200 after external check flips true, got %d", code)
+	}
+
+	// Drain must still force 503 even when the external check is happy:
+	// Shutdown flips the probe before unbinding.
+	svc.readyProbe.Store(false)
+
+	if code := get(); code != http.StatusServiceUnavailable {
+		t.Fatalf("expected 503 after drain probe flipped, got %d", code)
+	}
+}
+
+func TestReadyEndpoint_ProbeOnlyWhenReadyCheckNil(t *testing.T) {
+	t.Parallel()
+
+	svc, err := NewService(ServiceConfig{DrainDelay: 0})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	rec := httptest.NewRecorder()
+	svc.Mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
+
+	assertStatus(t, rec, http.StatusOK)
+}

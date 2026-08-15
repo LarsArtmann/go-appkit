@@ -57,7 +57,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 	if cfg.RegisterHealth == nil || *cfg.RegisterHealth {
 		mux.HandleFunc("GET /health", httputil.HealthHandler())
 		mux.HandleFunc("GET /health/live", httputil.LiveHandler())
-		mux.HandleFunc("GET /health/ready", httputil.ReadyHandlerWithProbe(svc.readyProbe.Load))
+		mux.HandleFunc("GET /health/ready", httputil.ReadyHandlerWithProbe(svc.ready))
 	}
 
 	mws := buildMiddleware(logger, cfg)
@@ -186,4 +186,15 @@ func (s *Service) Running() bool {
 	defer s.mu.RUnlock()
 
 	return s.ln != nil
+}
+
+// ready composes the internal drain probe with the optional configured
+// ReadyCheck: the service is ready only while the probe is up AND the
+// external check (if any) passes. Drain therefore always forces 503.
+func (s *Service) ready() bool {
+	if !s.readyProbe.Load() {
+		return false
+	}
+
+	return s.cfg.ReadyCheck == nil || s.cfg.ReadyCheck()
 }

@@ -130,6 +130,8 @@ BuildFlow runs as pre-commit hook (20 checks).
 - **GOEXPERIMENT=jsonv2 required** (codec/v4 → encoding/json/jsontext).
 - v4 codec default flipped JSON→CBOR for new writes; old JSON data still reads (self-describing events). SSE consumers of raw event payloads need CBOR→JSON transcoding.
 - v4 sqlite options changed: `WithPragmas`, `WithDSN`, `WithDurability`, `WithBusyTimeout`, `WithCacheSize`, `WithDriverName`, `WithStack` (v3's `WithoutWAL`/`WithOptimizations`/`WithForeignKeys`/`WithoutAutoMigrate`/`WithEventDB` are gone).
+- Projection readiness: `EventService.ReadyCheck()` + `EventService.LagPerProjection()`; core `ServiceConfig.ReadyCheck func() bool` composes external checks with the drain probe for `/health/ready`.
+- `EventConfig` full option set: `Logger`, `DLQ *DLQConfig` (SQLite store by default, `ReplayDeadLetters`/`ResetProjection` accessors), `FlightRecorder` (cqrs-lite flightrecorder/v4 type — NOT go-flightrecorder; only one active per process), `HostOptions` passthrough.
 
 ## Testing
 
