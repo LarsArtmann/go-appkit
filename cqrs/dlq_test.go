@@ -15,7 +15,7 @@ import (
 func newDLQService(t *testing.T, threshold int) *EventService {
 	t.Helper()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 		DLQ:        &DLQConfig{Threshold: threshold},
 	})
@@ -23,9 +23,9 @@ func newDLQService(t *testing.T, threshold int) *EventService {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	t.Cleanup(func() { _ = es.Shutdown(context.Background()) })
+	t.Cleanup(func() { _ = eventSvc.Shutdown(context.Background()) })
 
-	return es
+	return eventSvc
 }
 
 // flakyProjection fails while broken is true and succeeds afterwards.
@@ -46,25 +46,25 @@ func flakyProjection(broken *atomic.Bool) projection.Projection {
 func TestEventService_DLQ_PoisonEventQuarantinedAndReplayed(t *testing.T) {
 	t.Parallel()
 
-	es := newDLQService(t, 2)
+	eventSvc := newDLQService(t, 2)
 
 	broken := &atomic.Bool{}
 	broken.Store(true)
 
-	err := es.Host().Register(flakyProjection(broken))
+	err := eventSvc.Host().Register(flakyProjection(broken))
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
-	appendTestEvent(t, es, "test.poison")
-	appendTestEvent(t, es, "test.fine")
+	appendTestEvent(t, eventSvc, "test.poison")
+	appendTestEvent(t, eventSvc, "test.fine")
 
-	err = es.StartProjections(context.Background())
+	err = eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
-	dlq := es.DeadLetterStore()
+	dlq := eventSvc.DeadLetterStore()
 	if dlq == nil {
 		t.Fatal("expected DeadLetterStore to be non-nil when DLQ configured")
 	}
@@ -82,7 +82,7 @@ func TestEventService_DLQ_PoisonEventQuarantinedAndReplayed(t *testing.T) {
 	// The worker must NOT have failed: the checkpoint advanced past the
 	// poison event and the projection kept running.
 	waitFor(t, "worker to drain without failing", func() bool {
-		for _, state := range es.Host().Status() {
+		for _, state := range eventSvc.Host().Status() {
 			if state.Name == "dlq-projection" && state.Status == projectionhost.WorkerFailed {
 				return false
 			}
@@ -94,7 +94,7 @@ func TestEventService_DLQ_PoisonEventQuarantinedAndReplayed(t *testing.T) {
 	// Fix the handler bug, then replay: the quarantined event succeeds.
 	broken.Store(false)
 
-	result, err := es.ReplayDeadLetters(context.Background(), "dlq-projection")
+	result, err := eventSvc.ReplayDeadLetters(context.Background(), "dlq-projection")
 	if err != nil {
 		t.Fatalf("replay dead letters: %v", err)
 	}
@@ -128,20 +128,20 @@ func TestEventService_DLQ_PoisonEventQuarantinedAndReplayed(t *testing.T) {
 func TestEventService_DLQ_DisabledByDefault(t *testing.T) {
 	t.Parallel()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	if es.DeadLetterStore() != nil {
+	if eventSvc.DeadLetterStore() != nil {
 		t.Error("expected nil DeadLetterStore when DLQ not configured")
 	}
 
-	_, err = es.ReplayDeadLetters(context.Background(), "")
+	_, err = eventSvc.ReplayDeadLetters(context.Background(), "")
 	if err == nil {
 		t.Error("expected error from ReplayDeadLetters when DLQ disabled")
 	}
@@ -152,7 +152,7 @@ func TestEventService_DLQ_MemoryStorePassthrough(t *testing.T) {
 
 	store := projectionhost.NewMemoryDeadLetterStore()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 		DLQ:        &DLQConfig{Threshold: 1, Store: store},
 	})
@@ -160,9 +160,9 @@ func TestEventService_DLQ_MemoryStorePassthrough(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	if es.DeadLetterStore() != store {
+	if eventSvc.DeadLetterStore() != store {
 		t.Error("expected configured store to be returned verbatim")
 	}
 }

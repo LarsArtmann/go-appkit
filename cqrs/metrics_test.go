@@ -61,7 +61,7 @@ func TestEventConfig_Metrics_RecordsProjectionLifecycle(t *testing.T) {
 
 	rec := &countingRecorder{}
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 		Metrics:    rec,
 	})
@@ -69,7 +69,7 @@ func TestEventConfig_Metrics_RecordsProjectionLifecycle(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	proj := projection.NewProjection(
 		"metrics-projection",
@@ -77,14 +77,14 @@ func TestEventConfig_Metrics_RecordsProjectionLifecycle(t *testing.T) {
 		[]event.Type{"test.metrics"},
 	)
 
-	err = es.Host().Register(proj)
+	err = eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
-	appendTestEvent(t, es, "test.metrics")
+	appendTestEvent(t, eventSvc, "test.metrics")
 
-	err = es.StartProjections(context.Background())
+	err = eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
@@ -102,7 +102,7 @@ func TestEventConfig_Metrics_RecordsErrors(t *testing.T) {
 
 	rec := &countingRecorder{}
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 		Metrics:    rec,
 	})
@@ -110,7 +110,7 @@ func TestEventConfig_Metrics_RecordsErrors(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	boom := errors.New("handler boom")
 
@@ -120,14 +120,14 @@ func TestEventConfig_Metrics_RecordsErrors(t *testing.T) {
 		[]event.Type{"test.metrics.fail"},
 	)
 
-	err = es.Host().Register(proj)
+	err = eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
-	appendTestEvent(t, es, "test.metrics.fail")
+	appendTestEvent(t, eventSvc, "test.metrics.fail")
 
-	err = es.StartProjections(context.Background())
+	err = eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
@@ -143,7 +143,7 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 
 	rec := &countingRecorder{}
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 		Metrics:    rec,
 	})
@@ -151,7 +151,7 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	proj := projection.NewProjection(
 		"endpoint-projection",
@@ -159,14 +159,14 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 		[]event.Type{"test.endpoint"},
 	)
 
-	err = es.Host().Register(proj)
+	err = eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
-	appendTestEvent(t, es, "test.endpoint")
+	appendTestEvent(t, eventSvc, "test.endpoint")
 
-	err = es.StartProjections(context.Background())
+	err = eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}

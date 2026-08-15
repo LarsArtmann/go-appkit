@@ -260,14 +260,14 @@ func (es *EventService) DB() (*sql.DB, error) {
 }
 
 // asSQLDB type-asserts a stack bundle database handle to *sql.DB.
-func asSQLDB(db any) (*sql.DB, error) {
-	sqlDB, ok := db.(*sql.DB)
+func asSQLDB(bundleDB any) (*sql.DB, error) {
+	sqlDB, ok := bundleDB.(*sql.DB)
 	if !ok {
 		return nil, errorfamily.Newf(
 			errorfamily.Rejection,
 			"cqrs.db_not_sql",
 			"database is not *sql.DB (got %T)",
-			db,
+			bundleDB,
 		)
 	}
 

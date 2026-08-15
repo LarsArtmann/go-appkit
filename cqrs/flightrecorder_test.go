@@ -46,7 +46,7 @@ func TestEventConfig_FlightRecorder_CapturesOnWorkerFailure(t *testing.T) {
 
 	defer rec.Stop()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath:     t.TempDir() + "/test.db",
 		FlightRecorder: rec,
 		// Fail fast: first handler error exhausts the restart budget, no
@@ -60,7 +60,7 @@ func TestEventConfig_FlightRecorder_CapturesOnWorkerFailure(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	proj := projection.NewProjection(
 		"fr-projection",
@@ -70,20 +70,20 @@ func TestEventConfig_FlightRecorder_CapturesOnWorkerFailure(t *testing.T) {
 		[]event.Type{"test.fr"},
 	)
 
-	err = es.Host().Register(proj)
+	err = eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
-	appendTestEvent(t, es, "test.fr")
+	appendTestEvent(t, eventSvc, "test.fr")
 
-	err = es.StartProjections(context.Background())
+	err = eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
 	waitFor(t, "worker to reach WorkerFailed", func() bool {
-		for _, state := range es.Host().Status() {
+		for _, state := range eventSvc.Host().Status() {
 			if state.Name == "fr-projection" && state.Status == projectionhost.WorkerFailed {
 				return true
 			}

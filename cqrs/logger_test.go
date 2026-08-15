@@ -73,7 +73,7 @@ func (h *capturingHandler) contains(substr string) bool {
 
 // appendTestEvent writes a single event of eventType to a fresh stream.
 // Each call uses a new stream so saves never conflict on version.
-func appendTestEvent(t *testing.T, es *EventService, eventType event.Type) {
+func appendTestEvent(t *testing.T, eventSvc *EventService, eventType event.Type) {
 	t.Helper()
 
 	static := testEventSeq.Add(1)
@@ -96,7 +96,7 @@ func appendTestEvent(t *testing.T, es *EventService, eventType event.Type) {
 
 	ref := id.NewStreamRef("test-stream", streamID)
 
-	err = es.Bundle().EventSink.Save(context.Background(), ref, []event.Event{evt}, 0)
+	err = eventSvc.Bundle().EventSink.Save(context.Background(), ref, []event.Event{evt}, 0)
 	if err != nil {
 		t.Fatalf("save event: %v", err)
 	}
@@ -124,7 +124,7 @@ func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 
 	handler := &capturingHandler{}
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 		Logger:     slog.New(handler),
 	})
@@ -132,7 +132,7 @@ func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	boom := errors.New("handler boom")
 
@@ -142,14 +142,14 @@ func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 		[]event.Type{"test.logged"},
 	)
 
-	err = es.Host().Register(proj)
+	err = eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
-	appendTestEvent(t, es, "test.logged")
+	appendTestEvent(t, eventSvc, "test.logged")
 
-	err = es.StartProjections(context.Background())
+	err = eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}

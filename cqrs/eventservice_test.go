@@ -22,40 +22,40 @@ func TestNewEventService_ValidPath(t *testing.T) {
 
 	dir := t.TempDir()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: dir + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	if es.Bundle() == nil {
+	if eventSvc.Bundle() == nil {
 		t.Fatal("expected non-nil Bundle")
 	}
 
-	if es.Host() == nil {
+	if eventSvc.Host() == nil {
 		t.Fatal("expected non-nil Host")
 	}
 
-	if es.Bundle().EventSink == nil {
+	if eventSvc.Bundle().EventSink == nil {
 		t.Error("expected non-nil EventSink")
 	}
 
-	if es.Bundle().EventSource == nil {
+	if eventSvc.Bundle().EventSource == nil {
 		t.Error("expected non-nil EventSource")
 	}
 
-	if es.Bundle().Publisher == nil {
+	if eventSvc.Bundle().Publisher == nil {
 		t.Error("expected non-nil Publisher")
 	}
 
-	if es.Bundle().Subscriber == nil {
+	if eventSvc.Bundle().Subscriber == nil {
 		t.Error("expected non-nil Subscriber")
 	}
 
-	if es.Bundle().CheckpointStore == nil {
+	if eventSvc.Bundle().CheckpointStore == nil {
 		t.Error("expected non-nil CheckpointStore")
 	}
 }
@@ -65,21 +65,21 @@ func TestEventService_DB(t *testing.T) {
 
 	dir := t.TempDir()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: dir + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	db, err := es.DB()
+	db, err := eventSvc.DB()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if err := db.Ping(); err != nil {
+	if err := db.PingContext(context.Background()); err != nil {
 		t.Fatalf("ping failed: %v", err)
 	}
 }
@@ -89,18 +89,20 @@ func TestEventService_Shutdown_Idempotent(t *testing.T) {
 
 	dir := t.TempDir()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: dir + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if err := es.Shutdown(context.Background()); err != nil {
+	err = eventSvc.Shutdown(context.Background())
+	if err != nil {
 		t.Fatalf("first shutdown: %v", err)
 	}
 
-	if err := es.Shutdown(context.Background()); err != nil {
+	err = eventSvc.Shutdown(context.Background())
+	if err != nil {
 		t.Fatalf("second shutdown: %v", err)
 	}
 }
@@ -140,16 +142,16 @@ func TestAsSQLDB_AcceptsSQLDB(t *testing.T) {
 
 	dir := t.TempDir()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: dir + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	db, err := asSQLDB(es.Bundle().Database())
+	db, err := asSQLDB(eventSvc.Bundle().Database())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

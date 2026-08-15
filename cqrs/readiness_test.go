@@ -12,16 +12,16 @@ import (
 func TestEventService_ReadyCheck_NoProjectionsReady(t *testing.T) {
 	t.Parallel()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	if !es.ReadyCheck() {
+	if !eventSvc.ReadyCheck() {
 		t.Error("expected ready with no projections registered")
 	}
 }
@@ -29,14 +29,14 @@ func TestEventService_ReadyCheck_NoProjectionsReady(t *testing.T) {
 func TestEventService_ReadyCheck_503To200Transition(t *testing.T) {
 	t.Parallel()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	proj := projection.NewProjection(
 		"ready-projection",
@@ -44,32 +44,32 @@ func TestEventService_ReadyCheck_503To200Transition(t *testing.T) {
 		[]event.Type{"test.ready"},
 	)
 
-	err = es.Host().Register(proj)
+	err = eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
 	// Idle before StartProjections: not ready.
-	if es.ReadyCheck() {
+	if eventSvc.ReadyCheck() {
 		t.Fatal("expected not ready while worker is idle")
 	}
 
-	appendTestEvent(t, es, "test.ready")
+	appendTestEvent(t, eventSvc, "test.ready")
 
-	err = es.StartProjections(context.Background())
+	err = eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
 	// After drain the worker stops: ready. (Without WithSubscriber the host
 	// is a batch drainer; "stopped" means caught up, not broken.)
-	waitFor(t, "ready after projections caught up", es.ReadyCheck)
+	waitFor(t, "ready after projections caught up", eventSvc.ReadyCheck)
 }
 
 func TestEventService_ReadyCheck_FailedProjectionNotReady(t *testing.T) {
 	t.Parallel()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 		HostOptions: []projectionhost.HostOption{
 			projectionhost.WithMaxRestarts(0),
@@ -80,7 +80,7 @@ func TestEventService_ReadyCheck_FailedProjectionNotReady(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	proj := projection.NewProjection(
 		"doomed-projection",
@@ -88,20 +88,20 @@ func TestEventService_ReadyCheck_FailedProjectionNotReady(t *testing.T) {
 		[]event.Type{"test.doomed"},
 	)
 
-	err = es.Host().Register(proj)
+	err = eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
-	appendTestEvent(t, es, "test.doomed")
+	appendTestEvent(t, eventSvc, "test.doomed")
 
-	err = es.StartProjections(context.Background())
+	err = eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
 	waitFor(t, "WorkerFailed", func() bool {
-		for _, state := range es.Host().Status() {
+		for _, state := range eventSvc.Host().Status() {
 			if state.Name == "doomed-projection" && state.Status == projectionhost.WorkerFailed {
 				return true
 			}
@@ -110,7 +110,7 @@ func TestEventService_ReadyCheck_FailedProjectionNotReady(t *testing.T) {
 		return false
 	})
 
-	if es.ReadyCheck() {
+	if eventSvc.ReadyCheck() {
 		t.Error("expected not ready with a failed projection")
 	}
 }
@@ -118,16 +118,16 @@ func TestEventService_ReadyCheck_FailedProjectionNotReady(t *testing.T) {
 func TestEventService_LagPerProjection(t *testing.T) {
 	t.Parallel()
 
-	es, err := NewEventService(EventConfig{
+	eventSvc, err := NewEventService(EventConfig{
 		SQLitePath: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	defer func() { _ = es.Shutdown(context.Background()) }()
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	lag := es.LagPerProjection()
+	lag := eventSvc.LagPerProjection()
 	if lag == nil {
 		t.Fatal("expected non-nil lag map")
 	}
