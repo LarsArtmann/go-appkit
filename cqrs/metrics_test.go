@@ -182,10 +182,17 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 
-	resp, err := srv.Client().Get(srv.URL + "/metrics")
+	req, err := http.NewRequestWithContext(
+		context.Background(), http.MethodGet, srv.URL+"/metrics", nil)
+	if err != nil {
+		t.Fatalf("build /metrics request: %v", err)
+	}
+
+	resp, err := srv.Client().Do(req)
 	if err != nil {
 		t.Fatalf("get /metrics: %v", err)
 	}
+
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
