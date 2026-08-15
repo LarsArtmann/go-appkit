@@ -65,11 +65,11 @@ BuildFlow runs as pre-commit hook (20 checks).
 
 ## Flightrecorder Module — Code Organization
 
-| File            | Concern                                                                                                                                       |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `doc.go`        | Package doc. Process-global singleton constraint, import aliasing guidance.                                                                   |
+| File            | Concern                                                                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`        | Package doc. Process-global singleton constraint, import aliasing guidance.                                                                             |
 | `middleware.go` | `Middleware(recorder, trigger, opts...)` — HTTP middleware that captures traces on configurable triggers. Options: error threshold, logger, auto-reset. |
-| `handler.go`    | `SnapshotHandler(recorder)` + `Mount(mux, pattern, recorder)` — manual snapshot endpoint with JSON response and reset-before-snapshot.        |
+| `handler.go`    | `SnapshotHandler(recorder)` + `Mount(mux, pattern, recorder)` — manual snapshot endpoint with JSON response and reset-before-snapshot.                  |
 
 - Wraps [github.com/larsartmann/go-flightrecorder] with HTTP integration.
 - `Middleware` uses `httputil.ResponseRecorder` to capture status codes; converts status >= threshold to `fr.TriggerContext.Err`.
@@ -106,10 +106,10 @@ BuildFlow runs as pre-commit hook (20 checks).
 
 ## Flightrecorder Module Dependencies
 
-| Module                                   | Version | Role                                                          |
-| ---------------------------------------- | ------- | ------------------------------------------------------------- |
-| `github.com/larsartmann/go-flightrecorder` | v0.1.1 | Flight recorder core: Recorder, triggers, typed errors        |
-| `github.com/larsartmann/httputil`        | v0.9.1  | Middleware type, ResponseRecorder for status capture          |
+| Module                                     | Version | Role                                                   |
+| ------------------------------------------ | ------- | ------------------------------------------------------ |
+| `github.com/larsartmann/go-flightrecorder` | v0.1.1  | Flight recorder core: Recorder, triggers, typed errors |
+| `github.com/larsartmann/httputil`          | v0.9.1  | Middleware type, ResponseRecorder for status capture   |
 
 ## cqrs Module Dependencies
 
