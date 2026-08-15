@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"sync"
 
+	"github.com/larsartmann/go-cqrs-lite/flightrecorder/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
 	"github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4"
 	stack "github.com/larsartmann/go-cqrs-lite/stack/v4"
@@ -39,6 +40,23 @@ type EventConfig struct {
 	// store and the checkpoint advances — one poison event cannot stall a
 	// projection. See DLQConfig for store and threshold defaults.
 	DLQ *DLQConfig
+
+	// FlightRecorder captures a runtime/trace snapshot when a projection
+	// worker exhausts its restart budget and transitions to WorkerFailed —
+	// terminal failures are rare and high-signal, so every one is captured
+	// (OnAlways). The recorder must be started separately, typically at
+	// application startup; snapshots go to the recorder's configured writer.
+	// Go allows only ONE active flight recorder per process: coordinate with
+	// the HTTP-level github.com/larsartmann/go-flightrecorder used by the
+	// appkit/flightrecorder middleware module if you are tempted to run both.
+	FlightRecorder *flightrecorder.Recorder
+
+	// HostOptions are passed through to projectionhost.New for advanced
+	// tuning (WithMaxRestarts, WithBackoff, WithBatchSize,
+	// WithShutdownTimeout, ...). Options derived from Logger, DLQ, and
+	// FlightRecorder are appended after these, so derived wiring wins
+	// conflicts.
+	HostOptions []projectionhost.HostOption
 }
 
 // DLQConfig configures the projection dead-letter queue.
@@ -157,11 +175,16 @@ func resolveDLQ(
 
 // hostOptions maps EventConfig onto projectionhost options.
 // Nil-valued config fields are skipped so projectionhost defaults apply.
+// Consumer-supplied HostOptions come first; derived wiring wins conflicts.
 func (cfg EventConfig) hostOptions() []projectionhost.HostOption {
-	var opts []projectionhost.HostOption
+	opts := append([]projectionhost.HostOption{}, cfg.HostOptions...)
 
 	if cfg.Logger != nil {
 		opts = append(opts, projectionhost.WithLogger(cfg.Logger))
+	}
+
+	if cfg.FlightRecorder != nil {
+		opts = append(opts, projectionhost.WithFlightRecorder(cfg.FlightRecorder, nil))
 	}
 
 	return opts
