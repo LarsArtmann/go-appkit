@@ -162,30 +162,30 @@ docs.RegisterDocs(svc.Mux, builder)
 ## Dependency Direction
 
 ```
-                    ┌──────────────────┐
-                    │   Application     │
-                    │   (main package)  │
-                    └────────┬──────────┘
-                             │
-              ┌──────────────┼──────────────┐
-              │              │              │
-     ┌────────▼──────┐ ┌─────▼─────┐ ┌─────▼──────┐
-     │ go-appkit/cqrs│ │go-appkit/ │ │ go-appkit  │
-     │               │ │  docs     │ │   (core)   │
-     └───────┬───────┘ └─────┬─────┘ └─────┬──────┘
-             │               │              │
-             │               │              ├── httputil
-             │               │              ├── charmbracelet/log
-             │               │              └── go-error-family
-             │               │
-             ├── go-cqrs-lite/stack/sqlite  │
-             ├── go-cqrs-lite/projectionhost│
-             └── go-appkit (core) ──────────┘
-                             │
-                    ┌────────┴──────────┐
-                    │  go-cqrs-lite/    │
-                    │  catalog/v3       │
-                    └───────────────────┘
+               ┌──────────────────┐
+               │   Application     │
+               │   (main package)  │
+               └────────┬──────────┘
+                        │
+         ┌──────────────┼──────────────┐
+         │              │              │
+┌────────▼──────┐ ┌─────▼─────┐ ┌─────▼──────┐
+│ go-appkit/cqrs│ │go-appkit/ │ │ go-appkit  │
+│               │ │  docs     │ │   (core)   │
+└───────┬───────┘ └─────┬─────┘ └─────┬──────┘
+        │               │              │
+        │               │              ├── httputil
+        │               │              ├── charmbracelet/log
+        │               │              └── go-error-family
+        │               │
+        ├── go-cqrs-lite/stack/sqlite  │
+        ├── go-cqrs-lite/projectionhost│
+        └── go-appkit (core) ──────────┘
+                        │
+               ┌────────┴──────────┐
+               │  go-cqrs-lite/    │
+               │  catalog/v3       │
+               └───────────────────┘
 ```
 
 - Core never imports cqrs or docs.

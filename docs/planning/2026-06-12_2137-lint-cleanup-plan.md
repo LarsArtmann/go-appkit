@@ -6,22 +6,22 @@
 
 ## Issue Inventory (42 total, sorted by linter and impact)
 
-| #   | Linter             | File:Line                                              | Category         | Impact | Effort | Priority |
-| --- | ------------------ | ------------------------------------------------------ | ---------------- | ------ | ------ | -------- |
-| 1   | `depguard`         | sqlite.go:9                                            | Security/Cfg     | High   | Low    | 1        |
-| 2   | `errcheck`         | shutdown_test.go:82                                    | Test correctness | Med    | Low    | 2        |
-| 3   | `errchkjson`       | health.go:44                                           | Correctness      | High   | Low    | 3        |
-| 4   | `wrapcheck`        | server.go:119                                          | API contract     | Med    | Low    | 4        |
-| 5   | `contextcheck`     | shutdown.go:44,48                                      | Correctness      | High   | Low    | 5        |
-| 6   | `forcetypeassert`  | server_test.go:194                                     | Test safety      | Med    | Low    | 6        |
-| 7   | `gosec`            | server_test.go:189                                     | Test safety      | Med    | Low    | 7        |
-| 8   | `gochecknoglobals` | sqlite.go:12                                           | Style            | Low    | Med    | 8        |
-| 9   | `goconst`          | sqlite.go:13                                           | Style            | Low    | Low    | 9        |
-| 10  | `exhaustruct`      | server.go:23,70,72; logger.go:75                       | Style            | Low    | Low    | 10       |
-| 11  | `mnd`              | server.go:24-27, shutdown.go:21                        | Readability      | Med    | Low    | 11       |
-| 12  | `err113`           | logger.go:38,51; sqlite.go:45,74; shutdown_test.go:42  | Quality          | Med    | Low    | 12       |
-| 13  | `varnamelen`       | logger.go:42,66; sqlite.go:48; sqlite_test.go:15,56,79 | Readability      | Low    | Low    | 13       |
-| 14  | `noctx`            | server.go:84; sqlite.go:77; tests                      | Correctness      | High   | Med    | 14       |
+| #  | Linter             | File:Line                                              | Category         | Impact | Effort | Priority |
+| -- | ------------------ | ------------------------------------------------------ | ---------------- | ------ | ------ | -------- |
+| 1  | `depguard`         | sqlite.go:9                                            | Security/Cfg     | High   | Low    | 1        |
+| 2  | `errcheck`         | shutdown_test.go:82                                    | Test correctness | Med    | Low    | 2        |
+| 3  | `errchkjson`       | health.go:44                                           | Correctness      | High   | Low    | 3        |
+| 4  | `wrapcheck`        | server.go:119                                          | API contract     | Med    | Low    | 4        |
+| 5  | `contextcheck`     | shutdown.go:44,48                                      | Correctness      | High   | Low    | 5        |
+| 6  | `forcetypeassert`  | server_test.go:194                                     | Test safety      | Med    | Low    | 6        |
+| 7  | `gosec`            | server_test.go:189                                     | Test safety      | Med    | Low    | 7        |
+| 8  | `gochecknoglobals` | sqlite.go:12                                           | Style            | Low    | Med    | 8        |
+| 9  | `goconst`          | sqlite.go:13                                           | Style            | Low    | Low    | 9        |
+| 10 | `exhaustruct`      | server.go:23,70,72; logger.go:75                       | Style            | Low    | Low    | 10       |
+| 11 | `mnd`              | server.go:24-27, shutdown.go:21                        | Readability      | Med    | Low    | 11       |
+| 12 | `err113`           | logger.go:38,51; sqlite.go:45,74; shutdown_test.go:42  | Quality          | Med    | Low    | 12       |
+| 13 | `varnamelen`       | logger.go:42,66; sqlite.go:48; sqlite_test.go:15,56,79 | Readability      | Low    | Low    | 13       |
+| 14 | `noctx`            | server.go:84; sqlite.go:77; tests                      | Correctness      | High   | Med    | 14       |
 
 ## Strategy
 
