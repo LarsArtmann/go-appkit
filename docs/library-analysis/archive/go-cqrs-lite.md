@@ -53,14 +53,14 @@ is a **domain-pattern library** that an _application_ adopts to structure its bu
 The dependency graph an application should form is:
 
 ```
-   ┌───────────────────────────────┐
-   │   Application (main package)   │
-   └───────────────┬───────────────┘
-            uses both, independently
-        ┌──────────┴──────────┐
-        ▼                     ▼
-  go-cqrs-lite          go-appkit  (← and httputil)
-  (domain layer)        (infra layer)
+ ┌───────────────────────────────┐
+ │   Application (main package)   │
+ └───────────────┬───────────────┘
+          uses both, independently
+      ┌──────────┴──────────┐
+      ▼                     ▼
+go-cqrs-lite          go-appkit  (← and httputil)
+(domain layer)        (infra layer)
 ```
 
 For appkit to `import` cqrs-lite would force **every consumer of appkit** (even non-CQRS services) to

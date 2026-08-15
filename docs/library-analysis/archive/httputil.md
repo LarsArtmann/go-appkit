@@ -87,7 +87,7 @@ Referrer-Policy, CSP, HSTS), `RequestID` (time-ordered 16-byte IDs), `Recovery`,
 | Health status → HTTP status              | `HealthStatus.HTTPStatus()`                      | `ReadyHandlerWithProbe` (200/503)           | ✅ Overlapping                                  |
 | Production middlewares                   | **none**                                         | 13                                          | ❌ httputil-only                                |
 | Method-pattern routing                   | `mux.HandleFunc("GET /health", …)`               | same                                        | ✅ Same approach                                |
-| Config validation                        | `applyDefaults()` (zero-fill)                    | `Validate() error` (startup checks)         | ⚠️ httputil is stricter                         |
+| Config validation                        | `applyDefaults()` (zero-fill)                    | `Validate() error` (startup checks)         | ⚠️ httputil is stricter                          |
 
 **Conclusion:** appkit's server/health are a **strict subset** of httputil, re-implemented. The only
 delta in appkit's favor is the `RegisterHealth bool` opt-out toggle and the explicit `HealthStatus`
