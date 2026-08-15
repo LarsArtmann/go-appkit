@@ -181,3 +181,48 @@ huma.Get(api, "/users/{id}", typedHandler)
 - `ServiceConfig.ShutdownTimeout time.Duration` — timeout for steps 3-4. Default: 15s.
 
 **Implementation:** If `DrainDelay > 0`, `Run()` flips `ReadyHandlerWithProbe` to returning `false` before sleeping `DrainDelay`, then calls `Shutdown()`.
+
+---
+
+## Decision 11 / ADR-001: cqrs-htmx ↔ appkit relationship — appkit-as-foundation, validated by spike
+
+> **Status:** Decided 2026-08-15. **Supersedes:** the undocumented "cqrs-htmx becomes appkit's first real consumer" plan (docs/planning/integrations.md, 2026-07-06), which was silently abandoned — cqrs-htmx v4.8.0 has zero appkit references.
+> **Evidence:** source audit of cqrs-htmx `setup/` vs appkit core, 2026-08-15 ([Ecosystem Utilization Audit](./../research/2026-08-15_ecosystem-deep-dive.html)).
+
+**Decision:** appkit becomes the **generic server layer** for cqrs-htmx (`setup.Run` constructs `appkit.Service` behind its existing config), cqrs-htmx remains the **domain layer** (session/CSRF/CSP-nonce middleware, projection-aware readiness). Adoption is gated by a bounded prototype spike (plan task M18); if the spike shows regressions that cannot be fixed with additive appkit changes, we fall back to Option B automatically — no rewrite of either side.
+
+### Options considered
+
+| Option                                       | Verdict       | Why                                                                                                                                                                                                                                     |
+| -------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A. appkit-as-foundation** (chosen)         | **Adopt**     | appkit has 7 capabilities cqrs-htmx lacks (see below); both regressions are fixable additively; ends the split brain where two frameworks duplicate generic service concerns on the same upstreams (httputil, go-error-family, go-sse). |
+| B. Parallel assemblies (independent futures) | Fallback only | Ratifies the split brain permanently: drain, readiness, flight recorder, live/ready split would each be built twice. Only wins if the spike proves the swap regresses cqrs-htmx irreparably.                                            |
+| C. Retire the relationship plan entirely     | Rejected      | Orphans the consumer story for appkit's cqrs/errorpages/realtime modules and discards verified unique value. The plan being dead as originally conceived does not mean the relationship should be.                                      |
+
+### Verified appkit-unique value (cqrs-htmx `setup/` lacks all of these)
+
+1. Drain phase on shutdown — readiness flip → `DrainDelay` → `server.Shutdown` (`service.go:134-164`); cqrs-htmx's `setup.RunHandler` calls `Shutdown` directly (`setup/run.go:93-103`) with zero LB-drain handling.
+2. `Addr() net.Addr` — live listener address (`service.go:172-181`); cqrs-htmx never captures the listener (httputil `Start()` uses `ListenAndServe`).
+3. Flight-recorder middleware module (trace capture on 5xx/latency); cqrs-htmx has none.
+4. RequestID + request-logging + Timeout in the default middleware stack (`middleware.go:12-18`); cqrs-htmx's chain is security-headers + nonce + recovery only.
+5. Live/ready split (`/health`, `/health/live`, `/health/ready` with atomic probe).
+6. Built-in SIGINT/SIGTERM handling in `Run()`.
+7. Charmbracelet-backed logger option.
+
+### Verified cqrs-htmx advantages (must not regress)
+
+- **SSE-safe timeout policy:** `setup/run.go` deliberately omits Read/WriteTimeout. appkit force-defaults `WriteTimeout` to 30s (`config.go:86-88`) — this would kill SSE streams >30s, including appkit's own `realtime` module mounted behind `appkit.Service` **today**. → Prerequisite P1 (additive opt-out) below.
+- **Projection-aware readiness:** `ProjectionReadinessCheck` with named checks and JSON detail is richer than appkit's boolean probe. → Prerequisite P2 (M08 `ReadyCheck()` composition) below.
+- CSP nonce, session, CSRF middleware: preserved — appkit's middleware stack is replaceable (Decision 3), cqrs-htmx keeps its own chain.
+
+### Prerequisites (all additive, no public API breaks)
+
+- **P1 — SSE-safe timeouts:** add an opt-out so `WriteTimeout` can be disabled for SSE services (zero value currently means "default", never "off"). Fixes a live appkit+realtime limitation regardless of the spike outcome.
+- **P2 — readiness composition:** M08's `EventService.ReadyCheck()` plus appkit's probe pattern let cqrs-htmx keep projection-aware 503 semantics under appkit.
+- **P3 — spike M18:** swap `setup.Run`'s server layer for `appkit.Service` on a cqrs-htmx branch; verify SSE header flush through appkit's middleware chain, drain-probe ↔ readiness wiring, and no behavioral regressions vs baseline. Adopt/reject on evidence.
+
+### Consequences
+
+- M18 (prototype spike) runs; its report decides final adoption (A confirmed vs fallback B).
+- The 2026-07-06 claim "appkit will be httputil.Server's first real consumer" is corrected: appkit owns `http.Server` directly; cqrs-htmx uses httputil's `Server` today and would replace it with appkit only via the spike.
+- cqrs-htmx keeps its richer domain middleware; appkit never grows session/CSRF concerns — those are application territory.

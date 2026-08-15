@@ -31,9 +31,11 @@
 
 httputil's `Server.Addr()` returns `string` (configured address), NOT `net.Addr` (live listener address). appkit owns the `net.Listener` separately to preserve `Addr() net.Addr` — critical for tests using `:0` (random port).
 
-### httputil.Server has zero real consumers
+### httputil.Server consumers — corrected 2026-08-15
 
-cqrs-htmx (the main consumer of httputil) uses only `httputil.ClientIP`. The `Server` type has no battle-tested integration. appkit will be its first real consumer. **Risk:** if Server proves problematic, appkit falls back to owning `http.Server` directly while keeping httputil's middleware + health.
+The 2026-07-06 assumption that "cqrs-htmx uses only `httputil.ClientIP`" is outdated: since v4.x cqrs-htmx's `setup.Run` builds its server on `httputil.NewServer` (security-headers + nonce + recovery chain, `/health` with projection-aware readiness). appkit does **not** use `httputil.Server` at all — it owns `http.Server` + `net.Listener` directly to preserve `Addr() net.Addr`.
+
+**Decided relationship (ADR-001, see [design-decisions.md §11](./design-decisions.md)):** cqrs-htmx may adopt `appkit.Service` as its generic server layer (replacing its direct `httputil.Server` use), gated by the M18 prototype spike. appkit is the generic layer; cqrs-htmx keeps its domain middleware and projection-aware readiness.
 
 ---
 
