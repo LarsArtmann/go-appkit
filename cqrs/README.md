@@ -31,12 +31,15 @@ err = es.Shutdown(ctx)
 
 ## Configuration
 
-| Field          | Type              | Default          | Effect                                                                                                                                 |
-| -------------- | ----------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `SQLitePath`   | `string`          | — (required)     | Path of the SQLite database file.                                                                                                      |
-| `StackOptions` | `[]sqlite.Option` | none             | Passed through to `stack/sqlite.New` (v4 option set).                                                                                  |
-| `Logger`       | `*slog.Logger`    | `slog.Default()` | Receives projection worker lifecycle events (crashes, restarts, dead-letter captures). Wire the same logger you gave `appkit.Service`. |
-| `DLQ`          | `*DLQConfig`      | nil (disabled)   | Enables poison-event capture. Default store: SQLite table in the event database; default threshold: 3.                                 |
+| Field            | Type                             | Default          | Effect                                                                                                                                 |
+| ---------------- | -------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `SQLitePath`     | `string`                         | — (required)     | Path of the SQLite database file.                                                                                                      |
+| `StackOptions`   | `[]sqlite.Option`                | none             | Passed through to `stack/sqlite.New` (v4 option set).                                                                                  |
+| `Logger`         | `*slog.Logger`                   | `slog.Default()` | Receives projection worker lifecycle events (crashes, restarts, dead-letter captures). Wire the same logger you gave `appkit.Service`. |
+| `DLQ`            | `*DLQConfig`                     | nil (disabled)   | Enables poison-event capture. Default store: SQLite table in the event database; default threshold: 3.                                 |
+| `FlightRecorder` | `*flightrecorder.Recorder`       | nil (disabled)   | Captures a runtime/trace snapshot when a worker terminally fails (WorkerFailed). One active recorder per process.                      |
+| `Metrics`        | `projectionhost.MetricsRecorder` | nil (disabled)   | Observes projection lifecycle events (processed, errored, dead-lettered, restarts, checkpoint lag). Backend-agnostic.                  |
+| `HostOptions`    | `[]projectionhost.HostOption`    | none             | Advanced host tuning; derived wiring (Logger, Metrics, FlightRecorder, DLQ) wins conflicts.                                            |
 
 ### Dead-letter queue
 
@@ -71,6 +74,32 @@ appkitCfg.ReadyCheck = eventSvc.ReadyCheck // composes with the drain probe
 lag := eventSvc.LagPerProjection() // map[projectionName]time.Duration
 ```
 
+### Metrics
+
+`Metrics` takes any `projectionhost.MetricsRecorder` — a six-method,
+backend-agnostic interface (`EventProcessed`, `EventErrored`,
+`EventDeadLettered`, `WorkerRestarted`, `WorkerFailed`,
+`CheckpointAdvanced`). Implementations must be concurrency-safe and must
+not block; the host records fire-and-forget from every worker goroutine.
+This module deliberately adds no metrics dependency — forward the calls to
+whatever backend you run:
+
+```go
+es, _ := cqrs.NewEventService(cqrs.EventConfig{
+    SQLitePath: "events.db",
+    Metrics:    myRecorder, // implements projectionhost.MetricsRecorder
+})
+
+mux.HandleFunc("/metrics", func(w http.ResponseWriter, _ *http.Request) {
+    // serve myRecorder's counters, e.g. promhttp.Handler()
+})
+```
+
+For Prometheus via OpenTelemetry, compose
+`github.com/larsartmann/go-cqrs-lite/prometheus/v4` (`prometheus.Setup()` →
+`otel.SetMeterProvider` → `mux.Handle("/metrics", provider.Handler())`) with
+an adapter that implements `MetricsRecorder` on top of your meter.
+
 ## Accessors
 
 | Method                                | Returns                          | Purpose                                                           |
@@ -81,6 +110,8 @@ lag := eventSvc.LagPerProjection() // map[projectionName]time.Duration
 | `DeadLetterStore()`                   | `projectionhost.DeadLetterStore` | The configured DLQ store, or nil when disabled.                   |
 | `ReplayDeadLetters(ctx, name)`        | `(ReplayResult, error)`          | Pure retry of quarantined events into their projections.          |
 | `ResetProjection(ctx, name, opts...)` | `error`                          | Rewind a projection checkpoint (optionally purging dead letters). |
+| `ReadyCheck()`                        | `bool`                           | All workers live or drained; wire to appkit's `/health/ready`.    |
+| `LagPerProjection()`                  | `map[string]time.Duration`       | Event-age lag per projection.                                     |
 | `StartProjections(ctx)`               | `error`                          | Starts projection workers.                                        |
 | `Shutdown(ctx)`                       | `error`                          | Stops workers and closes the store. Idempotent.                   |
 

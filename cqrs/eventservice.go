@@ -52,11 +52,20 @@ type EventConfig struct {
 	// appkit/flightrecorder middleware module if you are tempted to run both.
 	FlightRecorder *flightrecorder.Recorder
 
+	// Metrics observes projection host lifecycle events: processed and
+	// errored events, dead-letter captures, worker restarts and terminal
+	// failures, and checkpoint advance with lag. Implementations must be
+	// safe for concurrent use and must not block (the host records
+	// fire-and-forget from every worker goroutine). The interface is
+	// backend-agnostic — forward the calls to Prometheus, OTel, or any
+	// stats sink. Nil (default) disables metrics.
+	Metrics projectionhost.MetricsRecorder
+
 	// HostOptions are passed through to projectionhost.New for advanced
 	// tuning (WithMaxRestarts, WithBackoff, WithBatchSize,
-	// WithShutdownTimeout, ...). Options derived from Logger, DLQ, and
-	// FlightRecorder are appended after these, so derived wiring wins
-	// conflicts.
+	// WithShutdownTimeout, ...). Options derived from Logger, Metrics,
+	// and FlightRecorder are appended after these, so derived wiring wins
+	// conflicts. (DLQ wiring is derived in NewEventService.)
 	HostOptions []projectionhost.HostOption
 }
 
@@ -186,6 +195,10 @@ func (cfg EventConfig) hostOptions() []projectionhost.HostOption {
 
 	if cfg.FlightRecorder != nil {
 		opts = append(opts, projectionhost.WithFlightRecorder(cfg.FlightRecorder, nil))
+	}
+
+	if cfg.Metrics != nil {
+		opts = append(opts, projectionhost.WithMetrics(cfg.Metrics))
 	}
 
 	return opts
