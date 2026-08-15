@@ -57,5 +57,4 @@ func writeSnapshotResponse(w http.ResponseWriter, code int, status, detail strin
 
 	_ = json.NewEncoder(w).
 		Encode(snapshotResponse{Status: status, Detail: detail})
-	//nolint:errchkjson // HTTP response, nothing to do on encode failure
 }

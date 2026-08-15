@@ -393,6 +393,7 @@ func TestSnapshotHandler_Success(t *testing.T) {
 	var resp struct {
 		Status string `json:"status"`
 	}
+
 	err := json.NewDecoder(rr.Body).Decode(&resp)
 	if err != nil {
 		t.Fatalf("failed to decode response: %v", err)
