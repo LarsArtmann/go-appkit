@@ -2,7 +2,10 @@ package cqrs
 
 import (
 	"context"
+	"errors"
 	"testing"
+
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 func TestNewEventService_EmptyPath(t *testing.T) {
@@ -99,5 +102,59 @@ func TestEventService_Shutdown_Idempotent(t *testing.T) {
 
 	if err := es.Shutdown(context.Background()); err != nil {
 		t.Fatalf("second shutdown: %v", err)
+	}
+}
+
+func TestAsSQLDB_RejectsNonSQLDB(t *testing.T) {
+	t.Parallel()
+
+	db, err := asSQLDB("not a database")
+	if err == nil {
+		t.Fatal("expected error for non *sql.DB value")
+	}
+
+	if db != nil {
+		t.Errorf("expected nil *sql.DB, got %v", db)
+	}
+
+	var familyErr *errorfamily.Error
+	if !errors.As(err, &familyErr) {
+		t.Fatalf("expected *errorfamily.Error, got %T", err)
+	}
+
+	if familyErr.Family() != errorfamily.Rejection {
+		t.Errorf("expected family %q, got %q", errorfamily.Rejection, familyErr.Family())
+	}
+
+	if familyErr.Code() != "cqrs.db_not_sql" {
+		t.Errorf("expected code cqrs.db_not_sql, got %q", familyErr.Code())
+	}
+
+	if got := errorfamily.HTTPStatus(err); got != 400 {
+		t.Errorf("expected HTTP status 400 for Rejection, got %d", got)
+	}
+}
+
+func TestAsSQLDB_AcceptsSQLDB(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	es, err := NewEventService(EventConfig{
+		SQLitePath: dir + "/test.db",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = es.Shutdown(context.Background()) }()
+
+	db, err := asSQLDB(es.Bundle().Database())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if db == nil {
+		t.Fatal("expected non-nil *sql.DB")
 	}
 }

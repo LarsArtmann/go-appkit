@@ -6,7 +6,7 @@ package cqrs
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"errors"
 	"sync"
 
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v3"
@@ -84,14 +84,24 @@ func (es *EventService) Host() *projectionhost.Host {
 }
 
 // DB extracts the *sql.DB from the bundle's Database() method.
-// Returns an error if the database is not backed by *sql.DB.
+// Returns a Rejection error if the database is not backed by *sql.DB.
 func (es *EventService) DB() (*sql.DB, error) {
-	db, ok := es.bundle.Database().(*sql.DB)
+	return asSQLDB(es.bundle.Database())
+}
+
+// asSQLDB type-asserts a stack bundle database handle to *sql.DB.
+func asSQLDB(db any) (*sql.DB, error) {
+	sqlDB, ok := db.(*sql.DB)
 	if !ok {
-		return nil, fmt.Errorf("cqrs: database is not *sql.DB (got %T)", es.bundle.Database())
+		return nil, errorfamily.Newf(
+			errorfamily.Rejection,
+			"cqrs.db_not_sql",
+			"database is not *sql.DB (got %T)",
+			db,
+		)
 	}
 
-	return db, nil
+	return sqlDB, nil
 }
 
 // StartProjections starts the projection host workers.
@@ -114,7 +124,5 @@ func (es *EventService) Shutdown(ctx context.Context) error {
 	es.closed = true
 	es.mu.Unlock()
 
-	_ = es.host.Stop()
-
-	return es.bundle.GracefulClose(ctx)
+	return errors.Join(es.host.Stop(), es.bundle.GracefulClose(ctx))
 }
