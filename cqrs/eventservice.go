@@ -31,6 +31,27 @@ type EventConfig struct {
 	// you hand to appkit.Service so projection trouble lands in one place.
 	// Default: slog.Default().
 	Logger *slog.Logger
+
+	// DLQ enables poison-event capture for projections. When nil (default),
+	// a repeatedly failing event eventually exhausts the worker's restart
+	// budget and the projection stalls in WorkerFailed. When set, events that
+	// fail more than DLQ.Threshold times are quarantined in a dead-letter
+	// store and the checkpoint advances — one poison event cannot stall a
+	// projection. See DLQConfig for store and threshold defaults.
+	DLQ *DLQConfig
+}
+
+// DLQConfig configures the projection dead-letter queue.
+type DLQConfig struct {
+	// Threshold is the number of handler failures before an event is
+	// quarantined. Values <= 0 keep the projectionhost default (3).
+	Threshold int
+
+	// Store persists dead-letter entries. When nil (default), a SQLite-backed
+	// store is created in the event store's own database (table
+	// projection_dead_letters), so entries survive restarts. Provide
+	// projectionhost.NewMemoryDeadLetterStore for ephemeral tests.
+	Store projectionhost.DeadLetterStore
 }
 
 // EventService manages a CQRS/ES event store backed by SQLite.
@@ -39,6 +60,7 @@ type EventConfig struct {
 type EventService struct {
 	bundle *stack.Bundle
 	host   *projectionhost.Host
+	dlq    projectionhost.DeadLetterStore
 	mu     sync.Mutex
 	closed bool
 }
@@ -61,10 +83,24 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		)
 	}
 
+	hostOpts := cfg.hostOptions()
+
+	dlqStore, dlqErr := resolveDLQ(cfg.DLQ, bundle)
+	if dlqErr != nil {
+		_ = bundle.GracefulClose(context.Background())
+
+		return nil, dlqErr
+	}
+
+	if dlqStore != nil {
+		hostOpts = append(hostOpts,
+			projectionhost.WithDeadLetterStore(dlqStore, cfg.DLQ.Threshold))
+	}
+
 	host, err := projectionhost.New(
 		bundle.SeekableJournal,
 		bundle.CheckpointStore,
-		cfg.hostOptions()...,
+		hostOpts...,
 	)
 	if err != nil {
 		_ = bundle.GracefulClose(context.Background())
@@ -79,7 +115,44 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 	return &EventService{
 		bundle: bundle,
 		host:   host,
+		dlq:    dlqStore,
 	}, nil
+}
+
+// resolveDLQ determines the dead-letter store for a config. A nil cfg or a
+// cfg with an explicit Store needs no bundle access; the default store is
+// provisioned in the bundle's own database.
+func resolveDLQ(
+	cfg *DLQConfig,
+	bundle *stack.Bundle,
+) (projectionhost.DeadLetterStore, error) {
+	if cfg == nil {
+		return nil, nil
+	}
+
+	if cfg.Store != nil {
+		return cfg.Store, nil
+	}
+
+	sqlDB, err := asSQLDB(bundle.Database())
+	if err != nil {
+		return nil, errorfamily.WrapInfrastructure(
+			err,
+			"cqrs.dlq_db_unavailable",
+			"cannot provision SQLite dead-letter store",
+		)
+	}
+
+	store, err := projectionhost.NewSQLiteDeadLetterStore(context.Background(), sqlDB)
+	if err != nil {
+		return nil, errorfamily.WrapInfrastructuref(
+			err,
+			"cqrs.dlq_provision_failed",
+			"failed to create dead-letter store",
+		)
+	}
+
+	return store, nil
 }
 
 // hostOptions maps EventConfig onto projectionhost options.
@@ -104,6 +177,43 @@ func (es *EventService) Bundle() *stack.Bundle {
 // Use this to register projections before starting the service.
 func (es *EventService) Host() *projectionhost.Host {
 	return es.host
+}
+
+// DeadLetterStore returns the configured dead-letter store, or nil when the
+// DLQ is disabled. The SQLite default additionally implements
+// projectionhost.DeadLetterStoreAdmin (Count, ListPaged, PurgeBefore) via
+// type assertion.
+func (es *EventService) DeadLetterStore() projectionhost.DeadLetterStore {
+	return es.dlq
+}
+
+// ReplayDeadLetters re-feeds dead-letter entries to their registered
+// projections. It is a pure retry: fix the handler bug first, then call this;
+// successful entries are reported in ReplayResult.Replayed and must be
+// removed from the store by the caller (Store.Delete or Purge). The host need
+// not be running. Returns an error when the DLQ is disabled.
+func (es *EventService) ReplayDeadLetters(
+	ctx context.Context,
+	projectionName string,
+) (projectionhost.ReplayResult, error) {
+	if es.dlq == nil {
+		return projectionhost.ReplayResult{},
+			errorfamily.NewRejection("cqrs.dlq_disabled", "DLQ is not configured")
+	}
+
+	return es.host.ReplayDeadLetters(ctx, projectionName)
+}
+
+// ResetProjection rewinds a projection's checkpoint to the beginning (or to a
+// specific event with reset options) so it reprocesses its stream. Pass
+// projectionhost.WithPurgeDeadLetters() to also clear its dead-letter
+// entries. Use after fixing a handler bug to rebuild a projection's state.
+func (es *EventService) ResetProjection(
+	ctx context.Context,
+	name string,
+	opts ...projectionhost.ResetOption,
+) error {
+	return es.host.Reset(ctx, name, opts...)
 }
 
 // DB extracts the *sql.DB from the bundle's Database() method.

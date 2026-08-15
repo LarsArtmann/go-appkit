@@ -3,9 +3,11 @@ package cqrs
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -13,6 +15,9 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
 	"github.com/larsartmann/go-cqrs-lite/projection/v4"
 )
+
+// testEventSeq makes appendTestEvent streams unique across calls.
+var testEventSeq atomic.Uint64
 
 // capturingHandler is a slog.Handler that records every record it receives.
 type capturingHandler struct {
@@ -67,10 +72,13 @@ func (h *capturingHandler) contains(substr string) bool {
 }
 
 // appendTestEvent writes a single event of eventType to a fresh stream.
+// Each call uses a new stream so saves never conflict on version.
 func appendTestEvent(t *testing.T, es *EventService, eventType event.Type) {
 	t.Helper()
 
-	streamID, err := id.ParseStreamID("stream-1")
+	static := testEventSeq.Add(1)
+
+	streamID, err := id.ParseStreamID(fmt.Sprintf("stream-%d", static))
 	if err != nil {
 		t.Fatalf("parse stream id: %v", err)
 	}

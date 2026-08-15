@@ -12,7 +12,8 @@ behind a lifecycle-managed `EventService`.
 ```go
 es, err := cqrs.NewEventService(cqrs.EventConfig{
     SQLitePath: "app.db",
-    Logger:     svc.Logger, // projection worker logs flow into your service log
+    Logger:     svc.Logger,     // projection worker logs flow into your service log
+    DLQ:        &cqrs.DLQConfig{}, // poison events quarantined, not fatal
 })
 if err != nil {
     return err
@@ -35,16 +36,40 @@ err = es.Shutdown(ctx)
 | `SQLitePath`   | `string`          | — (required)     | Path of the SQLite database file.                                                                                                      |
 | `StackOptions` | `[]sqlite.Option` | none             | Passed through to `stack/sqlite.New` (v4 option set).                                                                                  |
 | `Logger`       | `*slog.Logger`    | `slog.Default()` | Receives projection worker lifecycle events (crashes, restarts, dead-letter captures). Wire the same logger you gave `appkit.Service`. |
+| `DLQ`          | `*DLQConfig`      | nil (disabled)   | Enables poison-event capture. Default store: SQLite table in the event database; default threshold: 3.                                 |
+
+### Dead-letter queue
+
+With `DLQ` set, an event that fails more than `DLQ.Threshold` times is moved to
+the dead-letter store and the projection checkpoint advances — one poison
+event cannot stall a projection. Inspect, replay, and purge:
+
+```go
+entries, _ := es.DeadLetterStore().List(ctx, "user-projection")
+
+// after fixing the handler bug:
+result, _ := es.ReplayDeadLetters(ctx, "user-projection") // pure retry
+_ = es.DeadLetterStore().Purge(ctx, "user-projection")     // then clear
+
+// rebuild a projection from scratch, clearing its dead letters too:
+_ = es.ResetProjection(ctx, "user-projection", projectionhost.WithPurgeDeadLetters())
+```
+
+The default SQLite store also implements `projectionhost.DeadLetterStoreAdmin`
+(Count, ListPaged, PurgeBefore) — type-assert to use it for admin dashboards.
 
 ## Accessors
 
-| Method                  | Returns                | Purpose                                                    |
-| ----------------------- | ---------------------- | ---------------------------------------------------------- |
-| `Bundle()`              | `*stack.Bundle`        | Event/command/query sinks and sources, journal, snapshots. |
-| `Host()`                | `*projectionhost.Host` | Register projections before `StartProjections`.            |
-| `DB()`                  | `(*sql.DB, error)`     | Raw SQLite handle for own queries.                         |
-| `StartProjections(ctx)` | `error`                | Starts projection workers.                                 |
-| `Shutdown(ctx)`         | `error`                | Stops workers and closes the store. Idempotent.            |
+| Method                                | Returns                          | Purpose                                                           |
+| ------------------------------------- | -------------------------------- | ----------------------------------------------------------------- |
+| `Bundle()`                            | `*stack.Bundle`                  | Event/command/query sinks and sources, journal, snapshots.        |
+| `Host()`                              | `*projectionhost.Host`           | Register projections before `StartProjections`.                   |
+| `DB()`                                | `(*sql.DB, error)`               | Raw SQLite handle for own queries.                                |
+| `DeadLetterStore()`                   | `projectionhost.DeadLetterStore` | The configured DLQ store, or nil when disabled.                   |
+| `ReplayDeadLetters(ctx, name)`        | `(ReplayResult, error)`          | Pure retry of quarantined events into their projections.          |
+| `ResetProjection(ctx, name, opts...)` | `error`                          | Rewind a projection checkpoint (optionally purging dead letters). |
+| `StartProjections(ctx)`               | `error`                          | Starts projection workers.                                        |
+| `Shutdown(ctx)`                       | `error`                          | Stops workers and closes the store. Idempotent.                   |
 
 `Shutdown` joins and returns both the projection-host stop error and the
 bundle-close error instead of swallowing them.
