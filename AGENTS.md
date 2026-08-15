@@ -59,7 +59,7 @@ BuildFlow runs as pre-commit hook (20 checks).
 | `handler.go` | `Handler` (canonical SSE endpoint: CORS→replay→subscribe→heartbeat→forward) + `Mount` convenience for stdlib mux. Functional options for heartbeat, CORS, filtering. |
 
 - **SSE only.** No WebSocket support, provided, or planned.
-- Depends on `go-sse v0.4.0` only (no core, no go-datastar, no go-cqrs-lite dependency).
+- Depends on `go-sse v0.5.0` only (no core, no go-datastar, no go-cqrs-lite dependency).
 - `BroadcastPatch` uses duck-typed `PatchLike interface { Event() sse.Event }` — works with go-datastar patches without importing go-datastar.
 - Handler flushes headers immediately after `NewStream` so clients receive 200 OK without waiting for first event.
 
@@ -92,7 +92,7 @@ BuildFlow runs as pre-commit hook (20 checks).
 
 | Module                                   | Version | Role                                                 |
 | ---------------------------------------- | ------- | ---------------------------------------------------- |
-| `github.com/larsartmann/httputil`        | v0.9.1  | Middleware, health endpoints, Middleware type        |
+| `github.com/larsartmann/httputil`        | v0.11.0 | Middleware, health endpoints, Middleware type        |
 | `github.com/charmbracelet/log`           | v1.0.0  | Pretty slog handler (Logger implements slog.Handler) |
 | `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification, HTTPStatus, LogError           |
 
@@ -100,7 +100,7 @@ BuildFlow runs as pre-commit hook (20 checks).
 
 | Module                                   | Version | Role                                                   |
 | ---------------------------------------- | ------- | ------------------------------------------------------ |
-| `github.com/larsartmann/go-sse`          | v0.4.0  | SSE transport: Stream, Broadcaster, EventStore, Replay |
+| `github.com/larsartmann/go-sse`          | v0.5.0  | SSE transport: Stream, Broadcaster, EventStore, Replay |
 | `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification (shared with core)                |
 | `github.com/larsartmann/go-branded-id`   | v0.5.1  | Phantom-typed EventID (transitive via go-sse)          |
 
@@ -109,11 +109,11 @@ BuildFlow runs as pre-commit hook (20 checks).
 | Module                                     | Version | Role                                                   |
 | ------------------------------------------ | ------- | ------------------------------------------------------ |
 | `github.com/larsartmann/go-flightrecorder` | v0.1.1  | Flight recorder core: Recorder, triggers, typed errors |
-| `github.com/larsartmann/httputil`          | v0.9.1  | Middleware type, ResponseRecorder for status capture   |
+| `github.com/larsartmann/httputil`          | v0.11.0 | Middleware type, ResponseRecorder for status capture   |
 
 ## cqrs Module Dependencies
 
-Depends on `go-cqrs-lite` v3 packages (stack/sqlite, projectionhost, stack). Not yet migrated to v4 (system). See `docs/planning/realtime-sse-design.md` for the migration question.
+Depends on `go-cqrs-lite` v3 packages (stack/sqlite v3.7.1, projectionhost v3.7.1, stack v3.7.4). Not yet migrated to v4 (stack/sqlite/projectionhost v4.3.0, system v4.4.0, metaengine v4.10.0). v4 predates nothing: v3.7.1 was tagged 2026-07-07, v4.0.0 landed 2026-07-11; v5 unification (ADR-0123) is in progress. cqrs-htmx (intended consumer) is already on v4.6 and does NOT depend on go-appkit. Full audit with migration priority: `docs/research/2026-08-15_ecosystem-deep-dive.html`.
 
 ## Testing
 

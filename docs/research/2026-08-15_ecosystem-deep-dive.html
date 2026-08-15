@@ -1,0 +1,1816 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Ecosystem Deep Dive - go-cqrs-lite, cqrs-htmx, templ-components
+    </title>
+    <style>
+      /* =========================================================================
+         BAUHAUS LIGHT — Editorial template
+         Design language: form follows function. Primary colors on warm paper.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         Token architecture: see references/bauhaus-tokens.md
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Light) --- */
+        --color-paper: #f4f4f0;
+        --color-paper-2: #ffffff;
+        --color-paper-3: #e8e8e2;
+        --color-ink: #111111;
+        --color-red: #e63946;
+        --color-blue: #1d3557;
+        --color-yellow: #f4d35e;
+        --color-hairline: rgba(17, 17, 17, 0.14);
+        --color-hairline-strong: rgba(17, 17, 17, 0.3);
+
+        /* --- Semantic layer (shared vocabulary with dark template) --- */
+        --surface: var(--color-paper);
+        --surface-raised: var(--color-paper-2);
+        --surface-sunken: var(--color-paper-3);
+        --text: var(--color-ink);
+        --text-muted: rgba(17, 17, 17, 0.72);
+        --text-faint: rgba(17, 17, 17, 0.5);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-red);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Backward-compatible aliases (do not break consumer skills) --- */
+        --bg: var(--surface);
+        --bg-elevated: var(--surface-raised);
+        --bg-sunken: var(--surface-sunken);
+        --bg-card: var(--surface-raised);
+        --bg-code: var(--surface-sunken);
+        --ink: var(--text);
+        --ink-secondary: var(--text-muted);
+        --ink-muted: var(--text-faint);
+        --rose: var(--problem);
+        --rose-glow: color-mix(in srgb, var(--problem) 15%, transparent);
+        --emerald: var(--solution);
+        --emerald-glow: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber: var(--warning);
+        --amber-glow: color-mix(in srgb, var(--warning) 15%, transparent);
+        --amber-light: color-mix(in srgb, var(--warning) 22%, transparent);
+        --coral: var(--problem);
+        --coral-light: color-mix(in srgb, var(--problem) 12%, transparent);
+        --teal: var(--solution);
+        --teal-light: color-mix(in srgb, var(--solution) 12%, transparent);
+
+        /* --- Shape --- */
+        --radius: 0px;
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Accessibility: keyboard focus --- */
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      a:focus-visible {
+        outline-offset: -1px;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout: optional sticky sidebar TOC --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--text);
+      }
+      .sidebar a {
+        font-size: 0.86rem;
+        color: var(--text);
+        text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        border-left: 4px solid transparent;
+        font-weight: 600;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        color: var(--accent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: var(--text);
+      }
+      h1 {
+        font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+        line-height: 1.05;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 3px solid var(--text);
+        display: flex;
+        align-items: baseline;
+        gap: 0.7rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      h3 {
+        font-size: 1.15rem;
+        margin: 0 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 1rem;
+        margin: 0 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 2rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 3px solid var(--text);
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+        margin-bottom: 0.9rem;
+      }
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        max-width: 70ch;
+        margin: 0 0 1rem;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .tag {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 0.25rem 0.6rem;
+        background: var(--surface-sunken);
+        color: var(--text);
+        border: 1px solid var(--border-strong);
+      }
+      .tag.amber {
+        background: var(--warning);
+        border-color: var(--warning);
+        color: var(--text);
+      }
+      .tag.teal {
+        background: var(--solution);
+        border-color: var(--solution);
+        color: var(--surface);
+      }
+
+      /* Bauhaus signature: geometric shape cluster (optional) */
+      .hero-shapes {
+        position: relative;
+        height: 90px;
+        margin-bottom: 1.2rem;
+      }
+      .hero-shapes .circle {
+        position: absolute;
+        top: 0;
+        right: 180px;
+        width: 64px;
+        height: 64px;
+        background: var(--problem);
+        border-radius: 50%;
+      }
+      .hero-shapes .square {
+        position: absolute;
+        top: 26px;
+        right: 90px;
+        width: 56px;
+        height: 56px;
+        background: var(--solution);
+      }
+      .hero-shapes .tri {
+        position: absolute;
+        top: 8px;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-left: 32px solid transparent;
+        border-right: 32px solid transparent;
+        border-bottom: 56px solid var(--warning);
+      }
+      .hero-shapes .bar {
+        position: absolute;
+        bottom: 0;
+        right: 230px;
+        width: 100px;
+        height: 14px;
+        background: var(--text);
+      }
+
+      /* --- Scorecard / stat cards --- */
+      .scorecard,
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0;
+        margin: 1.5rem 0 2rem;
+        border: 3px solid var(--text);
+      }
+      .score-card,
+      .stat-card {
+        padding: 1.3rem 1rem;
+        text-align: center;
+        border-right: 3px solid var(--text);
+        background: var(--surface-raised);
+      }
+      .score-card:last-child,
+      .stat-card:last-child {
+        border-right: none;
+      }
+
+      .score,
+      .stat-value {
+        font-family: var(--font-heading);
+        font-size: 2.6rem;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+      .score-card .label,
+      .stat-label {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-top: 0.5rem;
+      }
+      /* Semantic state classes — no nth-child decoration, no !important */
+      .score-good,
+      .stat-good {
+        background: var(--solution);
+        color: var(--surface);
+      }
+      .score-warn,
+      .stat-warn {
+        background: var(--warning);
+        color: var(--text);
+      }
+      .score-bad,
+      .stat-bad {
+        background: var(--problem);
+        color: var(--surface);
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+        border-left: 8px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+        border-left: 8px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.22rem 0.6rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+        color: var(--text);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Inline badges --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        border: 1px solid var(--text);
+        color: var(--text);
+      }
+      .badge-critical {
+        background: var(--problem);
+        color: var(--surface);
+      }
+      .badge-high {
+        background: var(--warning);
+      }
+      .badge-medium {
+        background: var(--surface-sunken);
+      }
+      .badge-low {
+        background: var(--surface-raised);
+        color: var(--text-muted);
+      }
+      .badge-fixed {
+        background: var(--solution);
+        color: var(--surface);
+      }
+
+      /* --- Callouts --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--border-strong);
+        border-left: 4px solid var(--border-strong);
+        background: var(--surface-sunken);
+        font-size: 0.92rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-teal,
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 10%,
+          var(--surface-raised)
+        );
+      }
+      .callout-amber,
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 18%,
+          var(--surface-raised)
+        );
+      }
+
+      /* --- Strengths --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.9rem;
+        padding: 0.75rem 0;
+        border-bottom: 2px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 900;
+        color: var(--solution);
+        font-size: 1.3rem;
+        line-height: 1.3;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Tables --- */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.92rem;
+        border: 2px solid var(--text);
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--text);
+        color: var(--surface);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-right: 1px solid var(--border-strong);
+      }
+      th:last-child {
+        border-right: none;
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-top: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+      }
+      td:last-child {
+        border-right: none;
+      }
+      tr:nth-child(even) td {
+        background: var(--surface-sunken);
+      }
+      table.compare td.yes {
+        color: var(--solution);
+        font-weight: 700;
+      }
+      table.compare td.no {
+        color: var(--problem);
+        font-weight: 700;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--text);
+        color: var(--surface);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+        border: 2px solid var(--text);
+      }
+      code {
+        font-family: var(--font-mono);
+      }
+      p code,
+      li code,
+      td code {
+        font-size: 0.88em;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+      }
+      .tok-keyword {
+        color: var(--warning);
+      }
+      .tok-type {
+        color: var(--warning);
+      }
+      .tok-string {
+        color: #95e1d3;
+      }
+      .tok-comment {
+        color: rgba(244, 244, 240, 0.45);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #6eb5ff;
+      }
+      .tok-number {
+        color: var(--warning);
+      }
+      .tok-generic {
+        color: var(--problem);
+      }
+      .tok-builtin {
+        color: #6eb5ff;
+      }
+      .tok-punct {
+        color: rgba(244, 244, 240, 0.7);
+      }
+      .tok-attr {
+        color: var(--warning);
+      }
+
+      /* --- Dependency tree / ASCII diagrams --- */
+      .dep-tree {
+        background: var(--surface-sunken);
+        border: 2px solid var(--text);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .dep-tree .root {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .dep-tree .ok {
+        color: var(--solution);
+      }
+      .dep-tree .unwanted {
+        color: var(--problem);
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.4rem 0.75rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 700;
+        background: var(--surface-sunken);
+        border: 1px solid var(--text);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Grids --- */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* --- Inline TOC --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        border-left: 6px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Migration / numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1.1rem;
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        border-left: 6px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.94rem;
+      }
+
+      /* --- Before/After comparison --- */
+      .compare-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+      .compare-before,
+      .compare-after {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 0.7rem;
+        color: var(--surface);
+      }
+      .compare-before {
+        background: var(--problem);
+      }
+      .compare-after {
+        background: var(--solution);
+      }
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .compare-row pre {
+        margin: 0;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 3px solid var(--text);
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-header,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .scorecard,
+        .stat-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .score-card:nth-child(2),
+        .stat-card:nth-child(2) {
+          border-right: none;
+        }
+        .score-card:nth-child(1),
+        .stat-card:nth-child(1),
+        .score-card:nth-child(2),
+        .stat-card:nth-child(2) {
+          border-bottom: 3px solid var(--text);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+        .hero-shapes {
+          display: none;
+        }
+      }
+      .score-sub {
+        font-size: 0.42em;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin-left: 0.15em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <span>Library Deep Dive</span>
+      <span>2026-08-15</span>
+      <span>go-appkit &middot; LarsArtmann ecosystem</span>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#summary">Summary</a>
+          <a href="#scorecard">Scorecard</a>
+          <a href="#cqrs-lite">go-cqrs-lite</a>
+          <a href="#cqrs-lite-usage">Current usage</a>
+          <a href="#cqrs-lite-findings">Findings</a>
+          <a href="#cqrs-lite-versions">Version currency</a>
+          <a href="#cqrs-htmx">cqrs-htmx</a>
+          <a href="#templ-components">templ-components</a>
+          <a href="#ecosystem">Ecosystem view</a>
+          <a href="#opportunities">Top opportunities</a>
+          <a href="#appendix">Appendix</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="hero">
+          <div class="hero-shapes">
+            <div class="bar"></div>
+            <div class="circle"></div>
+            <div class="square"></div>
+            <div class="tri"></div>
+          </div>
+          <div class="eyebrow">
+            Library Deep Dive &middot; 2026-08-15 &middot; three libraries
+          </div>
+          <h1>
+            go-cqrs-lite &middot; cqrs-htmx &middot; templ-components &mdash;
+            Ecosystem Utilization Audit
+          </h1>
+          <p class="subtitle">
+            Are we using these three superbly? Evidence-backed audit of
+            go-appkit's adoption of three sibling LarsArtmann libraries. Method:
+            full capability inventories of each library read from source,
+            compared against every import, call site, and config in go-appkit.
+          </p>
+          <div class="meta">
+            <span class="tag amber"
+              >go-cqrs-lite: v3.7.x used &middot; v4.3&ndash;4.10 latest</span
+            >
+            <span class="tag amber">cqrs-htmx: v4.8.0 &middot; zero usage</span>
+            <span class="tag amber"
+              >templ-components: v1.8.3 &middot; zero usage</span
+            >
+            <span class="tag teal">Verdict: not superbly &mdash; yet</span>
+          </div>
+        </header>
+
+        <section id="scorecard" class="scorecard">
+          <div class="score-card score-bad">
+            <div class="score">28<span class="score-sub">/100</span></div>
+            <div class="label">go-cqrs-lite adoption</div>
+          </div>
+          <div class="score-card score-bad">
+            <div class="score">0<span class="score-sub">/100</span></div>
+            <div class="label">cqrs-htmx integration</div>
+          </div>
+          <div class="score-card score-warn">
+            <div class="score">0<span class="score-sub">/100</span></div>
+            <div class="label">templ-components integration</div>
+          </div>
+          <div class="score-card score-bad">
+            <div class="score">2</div>
+            <div class="label">Major-version gaps</div>
+          </div>
+          <div class="score-card score-warn">
+            <div class="score">12</div>
+            <div class="label">Actionable findings</div>
+          </div>
+        </section>
+
+        <section id="summary">
+          <h2><span class="num">00</span>Summary</h2>
+          <p>
+            No &mdash; not superbly. The honest picture: one library is used
+            minimally on a dead major version, and two are not used at all.
+            go-appkit's <code>cqrs</code> module pins
+            <strong>go-cqrs-lite v3.7.x</strong> (tagged 2026-07-07) and wraps
+            exactly 4 of its ~35 module families in a 120-line lifecycle
+            wrapper. Four days after that pin, go-cqrs-lite shipped v4.0.0
+            (2026-07-11); the entire v4 line &mdash; bundle health checks,
+            topological shutdown, SQLite DLQ, lag metrics, the
+            <code>system</code> composition root, the metaengine &mdash; is
+            invisible to appkit. <strong>cqrs-htmx</strong> was planned to be
+            appkit's "first real consumer" (docs/planning/integrations.md:36)
+            but never adopted it: it builds directly on httputil v0.11.0 and
+            go-cqrs-lite v4, duplicating every generic service concern appkit
+            provides, on the same upstream primitives.
+            <strong>templ-components</strong> has zero relationship with appkit
+            in either direction &mdash; yet its <code>errorpage</code> module
+            speaks go-error-family's exact five-family taxonomy and is a
+            ready-made, currently-missed bridge.
+          </p>
+          <div class="callout callout-amber">
+            <strong>The bottom line</strong>
+            The single highest-leverage move is migrating the
+            <code>cqrs</code> and <code>docs</code> modules to go-cqrs-lite
+            <strong>v4</strong> before v5 unification lands (ADR-0123), and
+            wiring the wrapper properly while doing it (logger, flight recorder,
+            health, DLQ). Second: make a written decision on the cqrs-htmx
+            relationship &mdash; the window for appkit to become its foundation
+            is closing as cqrs-htmx's v5 roadmap shrinks it toward upstreams.
+          </div>
+        </section>
+
+        <!-- ================= go-cqrs-lite ================= -->
+
+        <section id="cqrs-lite">
+          <h2><span class="num">01</span>go-cqrs-lite &mdash; 28/100</h2>
+          <p>
+            A ~86-module CQRS/event-sourcing monorepo: dispatch, decider,
+            projection hosting, 10+ storage engines, durable timers, event
+            signing/encryption, schema evolution, full OTel/Prometheus
+            observability, BDD scenario DSL, codegen and a 203-rule linter.
+            appkit consumes 4 module families of it, all on the terminal v3
+            tags.
+          </p>
+
+          <div class="dep-tree">
+            <span class="root"
+              >go-cqrs-lite (35+ importable module families)</span
+            >
+            ├── <span class="ok">stack/v3 v3.7.4</span> &larr; USED
+            (cqrs/eventservice.go) ├──
+            <span class="ok">stack/sqlite/v3 v3.7.1</span> &larr; USED
+            (cqrs/eventservice.go) ├──
+            <span class="ok">projectionhost/v3 v3.7.1</span> &larr; USED
+            (cqrs/eventservice.go) ├──
+            <span class="ok">catalog/v3 v3.7.1</span> &larr; USED
+            (docs-mod/docs.go) ├── system (v4.4.0) &mdash; deployer-driven
+            composition root <span class="unwanted">&larr; UNUSED</span> ├──
+            metaengine (v4.10.0) + 10 engines, planner, SSE
+            <span class="unwanted">&larr; UNUSED</span> ├── deriver &middot;
+            scheduling &middot; commandlifecycle &middot; dedup
+            <span class="unwanted">&larr; UNUSED</span> ├── signing &middot;
+            encryption &middot; schema (upcasters)
+            <span class="unwanted">&larr; UNUSED</span> ├── middleware
+            (retry/circuit-breaker/idempotency)
+            <span class="unwanted">&larr; UNUSED</span> ├── otel &middot;
+            prometheus &middot; watermill bridge
+            <span class="unwanted">&larr; UNUSED</span> ├── testutil &middot;
+            scenario (BDD) &middot; eventtest &middot;
+            <span class="unwanted">&larr; UNUSED</span> └── stack presets:
+            postgres &middot; pebble &middot; bbolt &middot;
+            <span class="unwanted">&larr; UNUSED</span> duckdb &middot; turso
+            &middot; memory &middot; bench (SQLite only is wired)
+          </div>
+        </section>
+
+        <section id="cqrs-lite-usage">
+          <h2><span class="num">02</span>go-cqrs-lite &mdash; current usage</h2>
+          <p>
+            Two opt-in sub-modules import it. The <code>cqrs</code> module is a
+            single 120-line file (<code>cqrs/eventservice.go</code>) owning a
+            lifecycle wrapper: <code>sqlite.New</code> &rarr;
+            <code>projectionhost.New</code> &rarr; expose <code>Bundle()</code>,
+            <code>Host()</code>, <code>DB()</code>,
+            <code>StartProjections()</code>, <code>Shutdown()</code>. The
+            <code>docs</code> module (<code>docs-mod/docs.go</code>, 41 lines)
+            wraps <code>catalog.Builder</code> + docserver route mounting for
+            AsyncAPI/OpenAPI/D2.
+          </p>
+
+          <div class="strengths">
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Lifecycle integration is genuinely useful</strong>
+                <span
+                  >Graceful drain ordering (host.Stop() then
+                  bundle.GracefulClose) wired for appkit.Service consumers;
+                  idempotent Shutdown via mutex guard
+                  (cqrs/eventservice.go:105-120).</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Error-family classification used correctly</strong>
+                <span
+                  >NewRejection / WrapInfrastructuref for constructor errors
+                  (cqrs/eventservice.go:44-66), matching the project's
+                  conventions.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>StackOptions pass-through keeps the preset open</strong>
+                <span
+                  >EventConfig.StackOptions forwards sqlite.Option variadics, so
+                  WAL/PRAGMA/DSN topology is not hidden
+                  (cqrs/eventservice.go:26).</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Docs module mounts the full docserver surface</strong>
+                <span
+                  >/docs/openapi, /docs/asyncapi, /docs/diagram,
+                  /docs/catalog.json via RegisterDocs
+                  (docs-mod/docs.go:34-40).</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="cqrs-lite-findings">
+          <h2><span class="num">03</span>go-cqrs-lite &mdash; findings</h2>
+
+          <div class="issue issue-critical" id="cl-1">
+            <span class="severity severity-critical"
+              >Missed Opportunity &middot; Critical</span
+            >
+            <h3>
+              Pinned to v3.7.x &mdash; the entire v4 line (and v5 direction) is
+              invisible
+            </h3>
+            <div class="where">
+              cqrs/go.mod (projectionhost/v3 v3.7.1, stack/sqlite/v3 v3.7.1,
+              stack/v3 v3.7.4) &middot; docs-mod/go.mod (catalog/v3)
+            </div>
+            <p>
+              v3.7.1 was tagged 2026-07-07; v4.0.0 shipped 2026-07-11 &mdash;
+              four days later. Since then: stack v4.3.0, catalog v4.2.1,
+              command/event v4.6.0, metaengine v4.10.0. The v4 line adds
+              <code>Bundle.HealthCheck</code>,
+              <code>WithShutdownDependency</code> (topological close ordering),
+              durability tiers, machine-checkable capability flags,
+              projectionhost lag metrics
+              (<code>LagPerProjection</code>/<code>Status()</code>), SQLite DLQ
+              + admin, <code>WithPurgeDeadLetters</code>, and CBOR codec
+              defaults. v5 unification (ADR-0123) is already in progress; v3 is
+              a dead end that will never receive these.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Migrate both modules to v4 before building anything further on v3.
+              The migration guide is mechanical (module paths /v3&rarr;/v4,
+              alias removals, codec default flip). Time it before v5 to avoid
+              doing it twice.
+            </div>
+          </div>
+
+          <div class="issue issue-critical" id="cl-2">
+            <span class="severity severity-critical"
+              >Risk &middot; High impact</span
+            >
+            <h3>
+              v3 stack/sqlite lacks the WAL single-writer pool cap &mdash;
+              SQLITE_BUSY under concurrent writers
+            </h3>
+            <div class="where">
+              cqrs/eventservice.go:47 (sqlite.New) &middot; evidence:
+              go-cqrs-lite CHANGELOG 2026-08-15 (benchkit entry)
+            </div>
+            <p>
+              stack/sqlite v4.3.0 added <code>SetMaxOpenConns(1)</code> to cap
+              concurrent WAL writers. go-cqrs-lite's own CHANGELOG documents
+              that pinning a pre-v4.3.0 stack/sqlite caused "instant
+              <code>SQLITE_BUSY (517)</code>" under concurrent writes in their
+              own benchmark suite. appkit's v3.7.1 pin has exactly that hole:
+              any appkit service with concurrent command dispatch can hit
+              SQLITE_BUSY with no retry shield.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              The v4 migration (finding #1) is the real fix. If v3 must stay
+              short-term, document the risk and route writes through a single
+              dispatcher.
+            </div>
+          </div>
+
+          <div class="issue issue-important" id="cl-3">
+            <span class="severity severity-important"
+              >Partially Used &middot; High impact</span
+            >
+            <h3>
+              projectionhost wired bare: no logger, no metrics, no flight
+              recorder, no DLQ
+            </h3>
+            <div class="where">
+              cqrs/eventservice.go:57 (New without options)
+            </div>
+            <p>
+              <code
+                >projectionhost.New(bundle.SeekableJournal,
+                bundle.CheckpointStore)</code
+              >
+              is called with zero options. The library offers
+              <code>WithLogger</code>, <code>WithMetrics</code>,
+              <code>WithDeadLetterStore</code>, <code>WithFlightRecorder</code>,
+              <code>WithBackoff</code>, <code>WithBatchSize</code> &mdash; none
+              wired. The irony is sharp: appkit
+              <em>ships its own flightrecorder module and its own logger</em>,
+              and connects neither to the component that would benefit most.
+              Poison events vanish silently (no DLQ), and projection crashes
+              restart invisibly.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Thread appkit's logger through
+              <code>EventConfig</code>, and add a flight recorder option:
+            </div>
+            <pre><code><span class="tok-comment">// EventConfig gains:</span>
+Logger         *slog.Logger
+FlightRecorder *fr.Recorder   <span class="tok-comment">// appkit's own module!</span>
+DLQ            event.DeadLetterStore
+
+opts := []projectionhost.HostOption{}
+<span class="tok-keyword">if</span> cfg.Logger != <span class="tok-builtin">nil</span> {
+    opts = <span class="tok-builtin">append</span>(opts, projectionhost.WithLogger(cfg.Logger))
+}
+<span class="tok-keyword">if</span> cfg.FlightRecorder != <span class="tok-builtin">nil</span> {
+    opts = <span class="tok-builtin">append</span>(opts, projectionhost.WithFlightRecorder(cfg.FlightRecorder))
+}
+host, err := projectionhost.New(journal, checkpoints, opts...)</code></pre>
+          </div>
+
+          <div class="issue issue-important" id="cl-4">
+            <span class="severity severity-important"
+              >Anti-Pattern &middot; Low impact</span
+            >
+            <h3>
+              <code>fmt.Errorf</code> in DB() violates the project's own error
+              rule
+            </h3>
+            <div class="where">cqrs/eventservice.go:91</div>
+            <p>
+              AGENTS.md: "Errors use go-error-family constructors instead of
+              fmt.Errorf." The very next file breaks it: DB() returns
+              <code>fmt.Errorf("cqrs: database is not *sql.DB ...")</code>. It
+              is also the only error in the module that will not classify for
+              <code>HTTPStatus()</code>/<code>LogError()</code>.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix</strong>
+              <code
+                >errorfamily.NewRejection("cqrs.db_not_sql", "database is not
+                *sql.DB (got %T)", ...)</code
+              >
+              &mdash; or Corruption family if it indicates store damage.
+            </div>
+          </div>
+
+          <div class="issue issue-important" id="cl-5">
+            <span class="severity severity-important"
+              >Partially Used &middot; Medium impact</span
+            >
+            <h3>Projection health is invisible to appkit's readiness probe</h3>
+            <div class="where">
+              cqrs/eventservice.go:99-101 &middot; appkit health.go
+            </div>
+            <p>
+              appkit's core value is the ready probe + graceful drain, yet
+              EventService exposes no readiness signal. projectionhost v4 has
+              <code>Status()</code>, <code>LagPerProjection()</code>, and stack
+              v4 has <code>HealthCheck(ctx)</code>. cqrs-htmx built exactly this
+              bridge (<code>ProjectionReadinessCheck</code>: 503 while
+              projections are idle/running/backoff/draining/failed). appkit's
+              cqrs module should offer the same so
+              <code>/health/ready</code> tells the truth before traffic arrives.
+            </p>
+          </div>
+
+          <div class="issue issue-important" id="cl-6">
+            <span class="severity severity-important"
+              >Partially Used &middot; Low impact</span
+            >
+            <h3><code>host.Stop()</code> error swallowed during shutdown</h3>
+            <div class="where">cqrs/eventservice.go:117</div>
+            <p>
+              <code>_ = es.host.Stop()</code> discards the drain error while
+              <code>GracefulClose</code>'s error is returned. A projection that
+              fails to drain is silently lost &mdash; the exact scenario
+              graceful shutdown exists to surface. v4's
+              <code>WithShutdownTimeout</code> makes the error meaningful.
+            </p>
+          </div>
+
+          <div class="issue issue-important" id="cl-7">
+            <span class="severity severity-important"
+              >Missed Opportunity &middot; Medium impact</span
+            >
+            <h3>Observability modules (otel, prometheus) never imported</h3>
+            <div class="where">not used anywhere in go-appkit</div>
+            <p>
+              go-cqrs-lite ships a complete observability stack:
+              <code>otel.Setup()</code> with canonical CQRS span attributes and
+              correlation-ID baggage, <code>prometheus.Setup()</code> with an
+              OTel&rarr;Prom bridge and <code>/metrics</code> handler, and
+              projectionhost <code>WithMetrics</code> hooks. appkit positions
+              itself as the service framework yet offers no metrics path for the
+              event store it manages. A single opt-in
+              <code>cqrs.WithMetrics()</code>-style accessor would compose them.
+            </p>
+          </div>
+
+          <div class="issue issue-nice" id="cl-8">
+            <span class="severity severity-nice"
+              >Nice to have &middot; Strategic</span
+            >
+            <h3>Hardwired to SQLite while 8 stack presets exist</h3>
+            <div class="where">cqrs/eventservice.go:47</div>
+            <p>
+              stack presets exist for postgres, mysql, pebble, bbolt, duckdb,
+              turso, memory &mdash; and v4's <code>system</code> package makes
+              engine choice an operator-level YAML/env decision. appkit
+              accepting only <code>SQLitePath</code> forces every consumer onto
+              embedded storage. Not urgent, but the v4 migration is the moment
+              to decide whether EventService stays sqlite-shaped or becomes
+              stack-generic.
+            </p>
+          </div>
+
+          <div class="issue issue-nice" id="cl-9">
+            <span class="severity severity-nice"
+              >Nice to have &middot; Developer experience</span
+            >
+            <h3>testutil and scenario (BDD) invisible to appkit consumers</h3>
+            <div class="where">not used anywhere in go-appkit</div>
+            <p>
+              go-cqrs-lite's <code>scenario</code> DSL
+              (GivenDecider/GivenProjection), <code>testutil</code> helpers, and
+              <code>cqrs-lint</code> (203 rules) are free quality leverage for
+              any appkit+cqrs consumer. Even documenting them in the cqrs module
+              README would capture most of the value at zero dependency cost.
+            </p>
+          </div>
+        </section>
+
+        <section id="cqrs-lite-versions">
+          <h2>
+            <span class="num">04</span>go-cqrs-lite &mdash; version currency
+          </h2>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>appkit pins</th>
+                <th>Latest tag</th>
+                <th>What appkit is missing</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>stack</td>
+                <td class="no">v3.7.4</td>
+                <td>v4.3.0</td>
+                <td>
+                  HealthCheck, WithShutdownDependency, durability tiers,
+                  capabilities
+                </td>
+              </tr>
+              <tr>
+                <td>stack/sqlite</td>
+                <td class="no">v3.7.1</td>
+                <td>v4.3.0</td>
+                <td>
+                  SetMaxOpenConns(1) WAL cap, SQLViewModel, WithMetaEngine
+                </td>
+              </tr>
+              <tr>
+                <td>projectionhost</td>
+                <td class="no">v3.7.1</td>
+                <td>v4.3.0</td>
+                <td>
+                  Lag/Status, SQLite DLQ + admin, WithPurgeDeadLetters,
+                  WithFlightRecorder
+                </td>
+              </tr>
+              <tr>
+                <td>catalog</td>
+                <td class="no">v3.7.1</td>
+                <td>v4.2.1</td>
+                <td>
+                  REST/OpenAPI operations, EventCatalog LLM output,
+                  huma/httptyped
+                </td>
+              </tr>
+              <tr>
+                <td>command / event</td>
+                <td class="no">v3.7.4 (indirect)</td>
+                <td>v4.6.0</td>
+                <td>Stream rename, envelope stamps, CBOR defaults</td>
+              </tr>
+              <tr>
+                <td>system / metaengine</td>
+                <td>&mdash;</td>
+                <td>v4.4.0 / v4.10.0</td>
+                <td>Entire packages: composition root, Event-Query Model</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ================= cqrs-htmx ================= -->
+
+        <section id="cqrs-htmx">
+          <h2>
+            <span class="num">05</span>cqrs-htmx &mdash; 0/100 integration
+          </h2>
+          <p>
+            cqrs-htmx v4.8.0 is the flagship application framework of the
+            ecosystem: one-line command/query&rarr;HTTP wiring, HTMX response
+            builders, embedded admin/dashboard/login UIs, an event-sourced
+            usermgmt service, offline sync, and its own SSE stack. The
+            relationship question is inverted for this one: appkit was never
+            going to import it &mdash;
+            <strong>cqrs-htmx was supposed to import appkit</strong>. It never
+            did.
+          </p>
+
+          <div class="issue issue-critical" id="ch-1">
+            <span class="severity severity-critical"
+              >Strategic &middot; High impact</span
+            >
+            <h3>
+              The "first real consumer" plan is dead &mdash; and nobody wrote
+              the obituary
+            </h3>
+            <div class="where">
+              docs/planning/integrations.md:36 vs cqrs-htmx/go.mod (httputil
+              v0.11.0, go-cqrs-lite v4, go-sse v0.5.0 &mdash; no appkit)
+            </div>
+            <p>
+              appkit's planning docs state cqrs-htmx would be appkit's first
+              real consumer. Verified today: <code>rg -i 'appkit'</code> across
+              the entire cqrs-htmx repo returns <strong>zero matches</strong>.
+              Its <code>setup.Bundle.Run()</code> owns a listener via
+              <code>httputil.NewServer</code> directly. Meanwhile every generic
+              concern appkit exists to provide is duplicated there on the same
+              upstreams:
+            </p>
+            <table class="compare">
+              <thead>
+                <tr>
+                  <th>Concern</th>
+                  <th>appkit</th>
+                  <th>cqrs-htmx's own version</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Panic recovery</td>
+                  <td>httputil.Recovery</td>
+                  <td>own RecoveryMiddleware (errorfamily+requestID-aware)</td>
+                </tr>
+                <tr>
+                  <td>Request/correlation ID</td>
+                  <td>httputil.RequestID</td>
+                  <td>own ContextEnrichmentMiddleware</td>
+                </tr>
+                <tr>
+                  <td>Request logging</td>
+                  <td>httputil.Logging + charmbracelet</td>
+                  <td>own RequestLoggingSlog (+family/error_code attrs)</td>
+                </tr>
+                <tr>
+                  <td>Security headers</td>
+                  <td>httputil.SecurityHeaders</td>
+                  <td>RecommendedSecurityMiddleware (same httputil)</td>
+                </tr>
+                <tr>
+                  <td>Health/ready</td>
+                  <td>/health/live + /health/ready + drain probe</td>
+                  <td>
+                    ReadinessHandler + ProjectionReadinessCheck + healthz/readyz
+                  </td>
+                </tr>
+                <tr>
+                  <td>SSE hub</td>
+                  <td>realtime.Hub (heartbeat/CORS/replay/filter)</td>
+                  <td>Broadcaster over go-sse + JournalSSEStore + ACK</td>
+                </tr>
+                <tr>
+                  <td>Server lifecycle</td>
+                  <td>Service.Run/Shutdown + drain</td>
+                  <td>setup.Run via httputil.Server</td>
+                </tr>
+                <tr>
+                  <td>Auto-docs</td>
+                  <td>docs module (catalog docserver)</td>
+                  <td>catalog/v4 docserver (same module appkit wraps!)</td>
+                </tr>
+              </tbody>
+            </table>
+            <p>
+              cqrs-htmx's v5 roadmap retires its 39 httputil re-exports and
+              shrinks toward upstreams &mdash; the moment where a shared service
+              foundation pays off. If appkit wants that role, its unique,
+              non-duplicated value is narrow and specific:
+              <strong>the LB drain probe</strong>, listener-owned
+              <code>Addr() net.Addr</code>, charmbracelet pretty logging, and
+              the flightrecorder middleware.
+            </p>
+            <div class="callout callout-amber">
+              <strong>Recommendation &mdash; decide, then document</strong>
+              Either (a) make setup.Run's server layer pluggable and prototype
+              appkit.Service inside cqrs-htmx's setup module, or (b) formally
+              retire the "cqrs-htmx will consume appkit" line from
+              docs/planning. An unwritten decision is how ecosystems grow two of
+              everything.
+            </div>
+          </div>
+
+          <div class="issue issue-important" id="ch-2">
+            <span class="severity severity-important"
+              >Missed Opportunity &middot; Medium impact</span
+            >
+            <h3>SSE: same upstream, zero interop, complementary gaps</h3>
+            <div class="where">
+              realtime/handler.go (CORS, replay, filtering) vs cqrs-htmx
+              sse_broadcaster.go / event_store_sse.go (journal-durable replay,
+              ACK, no CORS)
+            </div>
+            <p>
+              appkit's realtime module and cqrs-htmx's SSE stack both build on
+              <code>go-sse v0.5.0</code>. appkit has CORS handling, heartbeat
+              config, and event filtering; cqrs-htmx has journal-durable replay
+              (<code>JournalSSEStore</code> over event.Journal) and a
+              command-ACK protocol &mdash; and no CORS handling. The natural
+              composition (cqrs Journal &rarr; SSE EventStore bridge in appkit)
+              exists in neither repo. Building it in appkit/realtime would make
+              realtime the SSE endpoint of record for the whole ecosystem.
+            </p>
+          </div>
+        </section>
+
+        <!-- ================= templ-components ================= -->
+
+        <section id="templ-components">
+          <h2>
+            <span class="num">06</span>templ-components &mdash; 0/100, one cheap
+            win
+          </h2>
+          <p>
+            116 templ + Tailwind v4 components, 106 icons, golden-file and
+            chromedp visual-regression gates, CSP-nonce discipline. Correctly
+            <em>not</em> an appkit dependency: it is a UI layer for
+            applications. But one submodule was practically designed for a
+            service framework like appkit and nobody connected the wires.
+          </p>
+
+          <div class="issue issue-critical" id="tc-1">
+            <span class="severity severity-critical"
+              >Missed Opportunity &middot; High impact &middot; Low effort</span
+            >
+            <h3>
+              errorpage speaks go-error-family natively &mdash; appkit's exact
+              error taxonomy, unused
+            </h3>
+            <div class="where">
+              not used anywhere in go-appkit &middot; errorpage/handler.go
+              (standalone module, deps: templ, go-error-family v0.10.0)
+            </div>
+            <p>
+              <code>templ-components/errorpage</code> is a standalone Go module
+              whose <code>ErrorHandler(err, cfg) http.Handler</code> classifies
+              via go-error-family &mdash; the same five families appkit
+              re-exports through <code>HTTPStatus()</code>
+              (Rejection&rarr;400, Conflict&rarr;409, Transient&rarr;503,
+              Corruption&rarr;500, Infrastructure&rarr;503). It renders styled
+              What/Why/Fix error pages (or JSON) with prebuilt 404/403/409/503
+              constructors, plain-text fallback if rendering fails, and a
+              documented JSON contract
+              <code>{family, code, message, title, why, fix, context}</code>
+              that templ-components' own <code>htmx.GlobalErrorHandling</code>
+              parses client-side into family-mapped toasts. appkit consumers
+              currently get naked status codes.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Add an opt-in sub-module (same pattern as realtime/cqrs, keeps
+              jsonv2 out of core):
+            </div>
+            <pre><code><span class="tok-comment">// go-appkit/errorpages: optional pretty errors</span>
+<span class="tok-keyword">import</span> errorpage <span class="tok-string">"github.com/larsartmann/templ-components/errorpage"</span>
+
+<span class="tok-comment">// registers a not-found handler + wraps 5xx via errorfamily</span>
+errorpages.Mount(svc.Mux, errorpages.Config{ServiceName: <span class="tok-string">"myapp"</span>})
+<span class="tok-comment">// consumers using templ-components get toasts for free:</span>
+<span class="tok-comment">// htmx.GlobalErrorHandling parses the same JSON contract</span></code></pre>
+            <p>
+              Constraint to respect: errorpage requires
+              <code>GOEXPERIMENT=jsonv2</code> (encoding/json/v2) &mdash;
+              already required by appkit's realtime module, so the pattern is
+              established. HTML mode additionally needs the host's Tailwind
+              build; JSON mode is framework-neutral.
+            </p>
+          </div>
+
+          <div class="issue issue-nice" id="tc-2">
+            <span class="severity severity-nice"
+              >Upstream finding &middot; courtesy fix</span
+            >
+            <h3>
+              errorpage: 6th family (FamilyOrchestration) missing from
+              FamilyStatusCode map
+            </h3>
+            <div class="where">templ-components/errorpage (status map)</div>
+            <p>
+              go-error-family's taxonomy now has a sixth family (Orchestration);
+              errorpage styles it but omits it from the status-code map, so it
+              silently falls back to 500. Worth an upstream ticket/PR once
+              verified against go-error-family's intended mapping.
+            </p>
+          </div>
+        </section>
+
+        <!-- ================= Ecosystem ================= -->
+
+        <section id="ecosystem">
+          <h2>
+            <span class="num">07</span>Ecosystem view &mdash; the split brain
+          </h2>
+          <p>
+            The three audits reduce to one structural problem: appkit and
+            cqrs-htmx both assemble service frameworks from the same upstreams,
+            one major version apart on the CQRS engine.
+          </p>
+          <div class="diagram">
+            <span class="node node-problem">appkit</span>
+            <span class="arrow"
+              >&mdash; httputil v0.11 &middot; cqrs-lite v3.7 &middot; go-sse
+              v0.5 &rarr;</span
+            >
+            <span class="node"
+              >health &middot; SSE &middot; docs &middot; lifecycle</span
+            >
+          </div>
+          <div class="diagram">
+            <span class="node node-problem">cqrs-htmx</span>
+            <span class="arrow"
+              >&mdash; httputil v0.11 &middot; cqrs-lite v4.6 &middot; go-sse
+              v0.5 &rarr;</span
+            >
+            <span class="node"
+              >health &middot; SSE &middot; docs &middot; lifecycle</span
+            >
+          </div>
+          <p>
+            Two parallel assemblies, zero imports between them, and a v3/v4
+            fault line across the only shared domain library. Also noted:
+            appkit's AGENTS.md has drifted &mdash; it documents httputil v0.9.1
+            and go-sse v0.4.0 while go.mod pins v0.11.0 and v0.5.0.
+          </p>
+        </section>
+
+        <!-- ================= Opportunities ================= -->
+
+        <section id="opportunities">
+          <h2>
+            <span class="num">08</span>Top opportunities (impact &times; ease)
+          </h2>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Opportunity</th>
+                <th>Impact</th>
+                <th>Ease</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>
+                  Migrate cqrs + docs modules to go-cqrs-lite v4 (before v5)
+                </td>
+                <td class="yes">5</td>
+                <td>2</td>
+                <td><span class="highlight">10</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>
+                  Wire logger + flight recorder + DLQ into projectionhost
+                  (EventConfig)
+                </td>
+                <td class="yes">4</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">20</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>
+                  Fix fmt.Errorf &rarr; errorfamily; stop swallowing host.Stop()
+                  error
+                </td>
+                <td>2</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">10</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Projection readiness signal into /health/ready</td>
+                <td class="yes">4</td>
+                <td>4</td>
+                <td><span class="highlight">16</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>
+                  errorpage opt-in sub-module (pretty + JSON error contract)
+                </td>
+                <td class="yes">4</td>
+                <td>3</td>
+                <td><span class="highlight">12</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Written decision: cqrs-htmx &harr; appkit relationship</td>
+                <td class="yes">5</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">25</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>realtime: cqrs Journal &rarr; sse.EventStore bridge</td>
+                <td class="yes">4</td>
+                <td>2</td>
+                <td><span class="highlight">8</span></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>
+                  Metrics path: otel/prometheus accessors for the event store
+                </td>
+                <td>3</td>
+                <td>3</td>
+                <td><span class="highlight">9</span></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>Update AGENTS.md stale versions (httputil, go-sse)</td>
+                <td>1</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">5</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ================= Appendix ================= -->
+
+        <section id="appendix">
+          <h2>
+            <span class="num">09</span>Appendix &mdash; method &amp; evidence
+          </h2>
+          <p>
+            Full capability inventories were produced by reading each library's
+            source, FEATURES.md, ROADMAP.md, CHANGELOG.md, and git tags (three
+            research agents, 2026-08-15). Usage baseline from every import and
+            call site in go-appkit (<code
+              >rg 'go-cqrs-lite|cqrs-htmx|templ-components'</code
+            >), verified by reading cqrs/eventservice.go, docs-mod/docs.go, and
+            all go.mod files. Cross-repo claims verified: zero appkit references
+            in cqrs-htmx and templ-components; cqrs module tests pass (<code
+              >go test ./...</code
+            >, 2026-08-15). Version tags read from each repo's git refs.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Library</th>
+                <th>Latest</th>
+                <th>appkit uses</th>
+                <th>Verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>go-cqrs-lite</td>
+                <td>v4.3&ndash;4.10 per module</td>
+                <td class="no">v3.7.x &middot; 4 module families</td>
+                <td class="no">Partially used &middot; stale major</td>
+              </tr>
+              <tr>
+                <td>cqrs-htmx</td>
+                <td>v4.8.0</td>
+                <td class="no">
+                  nothing (by design as consumer &mdash; but plan dead)
+                </td>
+                <td class="no">Split brain with appkit core</td>
+              </tr>
+              <tr>
+                <td>templ-components</td>
+                <td>v1.8.3 (v2.0 unreleased)</td>
+                <td class="no">nothing</td>
+                <td class="no">errorpage bridge missed</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <footer class="footer">
+          <p>
+            Generated 2026-08-15 &middot; Library Deep Dive skill &middot; All
+            version numbers read from git tags; all file:line claims verified
+            against source
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>
