@@ -7,6 +7,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log/slog"
 	"sync"
 
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
@@ -24,6 +25,12 @@ type EventConfig struct {
 	// StackOptions are passed through to stack/sqlite.New.
 	// Use these to customize WAL, foreign keys, optimizations, etc.
 	StackOptions []sqlite.Option
+
+	// Logger receives projection host lifecycle events: worker crashes,
+	// restarts, dead-letter captures, and shutdowns. Wire the same logger
+	// you hand to appkit.Service so projection trouble lands in one place.
+	// Default: slog.Default().
+	Logger *slog.Logger
 }
 
 // EventService manages a CQRS/ES event store backed by SQLite.
@@ -54,7 +61,11 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		)
 	}
 
-	host, err := projectionhost.New(bundle.SeekableJournal, bundle.CheckpointStore)
+	host, err := projectionhost.New(
+		bundle.SeekableJournal,
+		bundle.CheckpointStore,
+		cfg.hostOptions()...,
+	)
 	if err != nil {
 		_ = bundle.GracefulClose(context.Background())
 
@@ -69,6 +80,18 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		bundle: bundle,
 		host:   host,
 	}, nil
+}
+
+// hostOptions maps EventConfig onto projectionhost options.
+// Nil-valued config fields are skipped so projectionhost defaults apply.
+func (cfg EventConfig) hostOptions() []projectionhost.HostOption {
+	var opts []projectionhost.HostOption
+
+	if cfg.Logger != nil {
+		opts = append(opts, projectionhost.WithLogger(cfg.Logger))
+	}
+
+	return opts
 }
 
 // Bundle returns the underlying stack.Bundle.
