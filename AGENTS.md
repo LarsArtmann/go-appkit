@@ -15,13 +15,14 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 - Library consumed by Go applications.
 - Source in repository root. Example in `example/main.go`.
 - No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
-- **realtime module requires `GOEXPERIMENT=jsonv2`** (transitive dep via go-sse → go-branded-id).
+- **All six modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly).
 
 ## Sub-module Build Commands
 
 ```bash
-# Core (no special flags)
-go test ./... && go vet ./... && go build ./...
+# Core (requires GOEXPERIMENT=jsonv2 — httputil/httpspec test dep imports encoding/json/v2)
+GOEXPERIMENT=jsonv2 go test ./... -race -count=1
+GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go build ./...
 
 # cqrs module (requires GOEXPERIMENT=jsonv2 — codec/v4 uses encoding/json/jsontext)
 cd cqrs && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
@@ -39,9 +40,9 @@ cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./...
 cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
 cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
 
-# flightrecorder module
-cd flightrecorder && go test ./... -race -count=1
-cd flightrecorder && go vet ./...
+# flightrecorder module (requires GOEXPERIMENT=jsonv2 — imports encoding/json/v2 directly)
+cd flightrecorder && GOEXPERIMENT=jsonv2 go test ./... -race -count=1
+cd flightrecorder && GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go build ./...
 ```
 
 BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).

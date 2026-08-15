@@ -210,16 +210,16 @@ Per task: module `go test && go vet && go build` green (cqrs/docs/errorpages wit
 
 Plan-level DoD:
 
-- [ ] ADR-001 and ADR-002 written, linked from `docs/planning/integrations.md`
-- [ ] cqrs + docs modules on go-cqrs-lite v4.3.0 line; SQLITE_BUSY risk eliminated
-- [ ] projectionhost wired: logger, DLQ (+SQLite store), flight recorder, metrics accessor
-- [ ] `/health/ready` reflects projection state (503 until live)
-- [ ] `errorpages` module shipped with JSON contract + example
-- [ ] Journal→SSE bridge module shipped; realtime still cqrs-free
-- [ ] README/FEATURES/CHANGELOG/AGENTS.md current (no version drift, jsonv2 documented)
-- [ ] Tags `cqrs/v0.2.0`, `docs/v0.2.0`, `errorpages/v0.1.0` pushed; fresh `go get` verified
-- [ ] templ-components PR filed with reproduction evidence
-- [ ] Zero public API breaks in core, realtime, flightrecorder
+- [x] ADR-001 and ADR-002 written, linked from `docs/planning/integrations.md` (ADR-001 spike-validated 2026-08-16: ADOPT)
+- [x] cqrs + docs modules on go-cqrs-lite v4.3.0 line; SQLITE_BUSY risk eliminated
+- [x] projectionhost wired: logger, DLQ (+SQLite store), flight recorder, metrics accessor
+- [x] `/health/ready` reflects projection state (503 until live)
+- [x] `errorpages` module shipped with JSON contract + example
+- [x] Journal→SSE bridge module shipped; realtime still cqrs-free
+- [x] README/FEATURES/CHANGELOG/AGENTS.md current (no version drift, jsonv2 documented)
+- [ ] Tags `cqrs/v0.2.0`, `docs/v0.2.0`, `errorpages/v0.1.0` pushed; fresh `go get` verified — tags cut locally at `e4a4e9d`; push blocked on user approval
+- [ ] templ-components PR filed with reproduction evidence — fix + tests on local branch `fix/errorpage-orchestration-status` @ `c6df43c`; filing blocked on user approval
+- [x] Zero public API breaks in core, realtime, flightrecorder
 
 ## 8. Notes
 
