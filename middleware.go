@@ -8,14 +8,21 @@ import (
 
 // defaultMiddlewareStack returns the opinionated middleware chain:
 // Recovery → RequestID → Logging → Timeout → SecurityHeaders.
+// With WriteTimeout = NoTimeout (SSE services) the Timeout middleware is
+// omitted: an already-expired or zero context deadline would cut long-lived
+// streams that the operator explicitly asked to run unbounded.
 func defaultMiddlewareStack(logger *slog.Logger, cfg ServiceConfig) []httputil.Middleware {
-	return []httputil.Middleware{
+	stack := []httputil.Middleware{
 		httputil.Recovery(logger),
 		httputil.RequestID(httputil.DefaultRequestIDConfig()),
 		httputil.Logging(logger),
-		httputil.Timeout(cfg.WriteTimeout),
-		httputil.SecurityHeaders(httputil.DefaultSecurityHeadersConfig()),
 	}
+
+	if cfg.WriteTimeout != NoTimeout {
+		stack = append(stack, httputil.Timeout(cfg.WriteTimeout))
+	}
+
+	return append(stack, httputil.SecurityHeaders(httputil.DefaultSecurityHeadersConfig()))
 }
 
 // buildMiddleware resolves the final middleware chain from config.

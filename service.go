@@ -65,9 +65,9 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 
 	svc.server = &http.Server{
 		Handler:           wrapped,
-		ReadTimeout:       cfg.ReadTimeout,
+		ReadTimeout:       serverTimeout(cfg.ReadTimeout),
 		ReadHeaderTimeout: cfg.ReadHeaderTimeout,
-		WriteTimeout:      cfg.WriteTimeout,
+		WriteTimeout:      serverTimeout(cfg.WriteTimeout),
 		IdleTimeout:       cfg.IdleTimeout,
 	}
 

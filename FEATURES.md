@@ -11,16 +11,16 @@ aspirations.
 
 ## core (`github.com/larsartmann/go-appkit`)
 
-| Feature                                   | Status           | Evidence                         |
-| ----------------------------------------- | ---------------- | -------------------------------- |
-| `Service` lifecycle (Run/Start/Shutdown)  | FULLY_FUNCTIONAL | `service.go`, `service_test.go`  |
-| Graceful drain (ready→503, delay, stop)   | FULLY_FUNCTIONAL | `service.go:134`                 |
-| Default middleware stack (replace/extend) | FULLY_FUNCTIONAL | `middleware.go`                  |
-| Health endpoints `/health`, live, ready   | FULLY_FUNCTIONAL | `health.go`, `health_test.go`    |
-| `ReadyCheck` external readiness gate      | FULLY_FUNCTIONAL | `config.go:50`, `service.go:192` |
-| charmbracelet/logging (`InitLogger`)      | FULLY_FUNCTIONAL | `logger.go`                      |
-| error-family re-exports (`HTTPStatus`…)   | FULLY_FUNCTIONAL | `errors.go`                      |
-| SSE-safe `WriteTimeout` configuration     | PLANNED          | see M18 in execution plan        |
+| Feature                                   | Status           | Evidence                                       |
+| ----------------------------------------- | ---------------- | ---------------------------------------------- |
+| `Service` lifecycle (Run/Start/Shutdown)  | FULLY_FUNCTIONAL | `service.go`, `service_test.go`                |
+| Graceful drain (ready→503, delay, stop)   | FULLY_FUNCTIONAL | `service.go:134`                               |
+| Default middleware stack (replace/extend) | FULLY_FUNCTIONAL | `middleware.go`                                |
+| Health endpoints `/health`, live, ready   | FULLY_FUNCTIONAL | `health.go`, `health_test.go`                  |
+| `ReadyCheck` external readiness gate      | FULLY_FUNCTIONAL | `config.go:50`, `service.go:192`               |
+| charmbracelet/logging (`InitLogger`)      | FULLY_FUNCTIONAL | `logger.go`                                    |
+| error-family re-exports (`HTTPStatus`…)   | FULLY_FUNCTIONAL | `errors.go`                                    |
+| SSE-safe `WriteTimeout` configuration     | FULLY_FUNCTIONAL | `config.go` (`NoTimeout`), `notimeout_test.go` |
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 

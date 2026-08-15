@@ -12,10 +12,12 @@ func TestValidate_NegativeTimeouts(t *testing.T) {
 		name string
 		cfg  ServiceConfig
 	}{
-		{"negative ReadTimeout", ServiceConfig{Addr: ":0", ReadTimeout: -1}},
-		{"negative ReadHeaderTimeout", ServiceConfig{Addr: ":0", ReadHeaderTimeout: -1}},
-		{"negative WriteTimeout", ServiceConfig{Addr: ":0", WriteTimeout: -1}},
+		{"negative ReadTimeout", ServiceConfig{Addr: ":0", ReadTimeout: -2 * time.Millisecond}},
+		{"negative ReadHeaderTimeout", ServiceConfig{Addr: ":0", ReadHeaderTimeout: -2 * time.Millisecond}},
+		{"negative WriteTimeout", ServiceConfig{Addr: ":0", WriteTimeout: -2 * time.Millisecond}},
 		{"negative IdleTimeout", ServiceConfig{Addr: ":0", IdleTimeout: -1}},
+		{"NoTimeout on ReadHeaderTimeout", ServiceConfig{Addr: ":0", ReadHeaderTimeout: NoTimeout}},
+		{"NoTimeout on IdleTimeout", ServiceConfig{Addr: ":0", IdleTimeout: NoTimeout}},
 		{"zero ShutdownTimeout", ServiceConfig{Addr: ":0", ShutdownTimeout: -1}},
 		{"negative DrainDelay", ServiceConfig{Addr: ":0", DrainDelay: -1}},
 	}
@@ -50,6 +52,11 @@ func TestValidate_ValidConfigs(t *testing.T) {
 		}},
 		{"zero DrainDelay", ServiceConfig{Addr: ":0", DrainDelay: 0}},
 		{"debug logging", ServiceConfig{Addr: ":0", LogLevel: LogLevelDebug}},
+		{"NoTimeout on Read and Write (SSE)", ServiceConfig{
+			Addr:         ":0",
+			ReadTimeout:  NoTimeout,
+			WriteTimeout: NoTimeout,
+		}},
 	}
 
 	for _, tt := range tests {

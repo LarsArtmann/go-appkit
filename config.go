@@ -17,15 +17,24 @@ const (
 	defaultDrainDelay        = 5 * time.Second
 )
 
+// NoTimeout disables a server deadline instead of defaulting it. Assign it
+// to ReadTimeout or WriteTimeout when responses outlive any fixed deadline —
+// long-lived SSE streams are the canonical case: a WriteTimeout would cut
+// them mid-stream. With WriteTimeout set to NoTimeout the default stack also
+// drops its per-request Timeout middleware, and http.Server runs without the
+// corresponding deadline. ReadHeaderTimeout and IdleTimeout (the slowloris /
+// keep-alive reaping pair) stay enabled either way.
+const NoTimeout time.Duration = -1
+
 // ServiceConfig holds all configuration for a Service.
 // Zero-value fields are replaced with sensible defaults by NewService.
 type ServiceConfig struct {
 	Addr              string
 	LogLevel          LogLevel
 	LogFormat         LogFormat
-	ReadTimeout       time.Duration
+	ReadTimeout       time.Duration // 0 = default; NoTimeout = disabled
 	ReadHeaderTimeout time.Duration
-	WriteTimeout      time.Duration
+	WriteTimeout      time.Duration // 0 = default; NoTimeout = disabled (SSE)
 	IdleTimeout       time.Duration
 	ShutdownTimeout   time.Duration
 	DrainDelay        time.Duration
@@ -110,11 +119,11 @@ func (cfg *ServiceConfig) applyDefaults() {
 
 // Validate checks the config for invalid values after defaults are applied.
 func (cfg *ServiceConfig) Validate() error {
-	if cfg.ReadTimeout < 0 {
+	if invalidTimeout(cfg.ReadTimeout) {
 		return errorfamily.Newf(
 			errorfamily.Rejection,
 			"config.read_timeout_negative",
-			"ReadTimeout must not be negative: %v",
+			"ReadTimeout must not be negative (except NoTimeout): %v",
 			cfg.ReadTimeout,
 		)
 	}
@@ -128,11 +137,11 @@ func (cfg *ServiceConfig) Validate() error {
 		)
 	}
 
-	if cfg.WriteTimeout < 0 {
+	if invalidTimeout(cfg.WriteTimeout) {
 		return errorfamily.Newf(
 			errorfamily.Rejection,
 			"config.write_timeout_negative",
-			"WriteTimeout must not be negative: %v",
+			"WriteTimeout must not be negative (except NoTimeout): %v",
 			cfg.WriteTimeout,
 		)
 	}
@@ -165,4 +174,20 @@ func (cfg *ServiceConfig) Validate() error {
 	}
 
 	return nil
+}
+
+// invalidTimeout reports whether d is a negative duration other than the
+// NoTimeout sentinel. Zero means "apply the default" and is always valid.
+func invalidTimeout(d time.Duration) bool {
+	return d < 0 && d != NoTimeout
+}
+
+// serverTimeout translates a config timeout for http.Server: the NoTimeout
+// sentinel becomes 0, which the stdlib treats as "no deadline".
+func serverTimeout(d time.Duration) time.Duration {
+	if d == NoTimeout {
+		return 0
+	}
+
+	return d
 }

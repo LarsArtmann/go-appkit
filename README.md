@@ -172,6 +172,23 @@ svc.Mux.Handle("POST /users", errorfamily.HTTPHandler(func(w http.ResponseWriter
 }))
 ```
 
+### SSE and other long-lived responses
+
+A fixed `WriteTimeout` (and the default stack's per-request Timeout middleware)
+kills streams that outlive it. For SSE (e.g. the `realtime` module) disable both
+with the sentinel:
+
+```go
+svc, _ := appkit.NewService(appkit.ServiceConfig{
+    Addr:         ":8080",
+    WriteTimeout: appkit.NoTimeout, // drops server deadline AND Timeout middleware
+    ReadTimeout:  appkit.NoTimeout, // optional; headers/keep-alive reaping stays on
+})
+```
+
+`ReadHeaderTimeout` and `IdleTimeout` (the slowloris/keep-alive reaping pair)
+remain enabled either way.
+
 ## When NOT to use appkit
 
 - **You want a specific router** (chi, gin, echo): Use [httputil](https://github.com/LarsArtmann/httputil) directly — it gives you middleware without opinionated server lifecycle.

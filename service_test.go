@@ -96,7 +96,7 @@ func TestNewService_Validation_NegativeReadTimeout(t *testing.T) {
 
 	_, err := NewService(ServiceConfig{
 		Addr:        "localhost:0",
-		ReadTimeout: -1,
+		ReadTimeout: -2 * time.Millisecond,
 	})
 	if err == nil {
 		t.Fatal("expected error for negative ReadTimeout")
@@ -108,7 +108,7 @@ func TestNewService_Validation_NegativeWriteTimeout(t *testing.T) {
 
 	_, err := NewService(ServiceConfig{
 		Addr:         "localhost:0",
-		WriteTimeout: -1,
+		WriteTimeout: -2 * time.Millisecond,
 	})
 	if err == nil {
 		t.Fatal("expected error for negative WriteTimeout")

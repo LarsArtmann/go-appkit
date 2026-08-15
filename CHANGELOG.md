@@ -4,6 +4,10 @@
 
 ### Added
 
+- `NoTimeout` sentinel and opt-out for `ReadTimeout`/`WriteTimeout`: assign
+  `appkit.NoTimeout` to disable the deadline (server field and the default
+  stack's Timeout middleware) for long-lived responses such as SSE streams.
+  `ReadHeaderTimeout`/`IdleTimeout` reaping stays enabled.
 - `ServiceConfig.ReadyCheck`: optional gate consulted by `/health/ready` in addition to
   the drain probe — e.g. `cqrs.EventService.ReadyCheck` keeps readiness 503 until
   projections are live.

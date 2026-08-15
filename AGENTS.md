@@ -168,6 +168,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - `InitLogger` returns errors (not panics) for invalid config.
 - charmbracelet/log `Logger` directly implements `slog.Handler` — no adapter needed.
 - `Service.Shutdown` is idempotent — safe to call multiple times.
+- `NoTimeout` sentinel (`-1`): `ReadTimeout`/`WriteTimeout` = `NoTimeout` disables the deadline (server field 0 AND drops the Timeout middleware from the default stack). Required for SSE services; `ReadHeaderTimeout`/`IdleTimeout` reaping stays on. Only `-1` exactly — other negatives are rejected by Validate.
 - BuildFlow auto-fixes lint on commit (gofumpt, golines, gci).
 
 ## Flightrecorder Module Gotchas
