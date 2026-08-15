@@ -57,11 +57,11 @@ BuildFlow runs as pre-commit hook (20 checks).
 
 ## Realtime Module — Code Organization
 
-| File         | Concern                                                                                                                                                              |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `doc.go`     | Package doc. SSE-only constraint stated explicitly.                                                                                                                  |
-| `hub.go`     | `Hub` type: pairs `sse.Broadcaster[sse.Event]` + optional `sse.EventStore`. `NewHub`, `Broadcast`, `BroadcastPatch`, `Shutdown`, `Close`, `Health`.                  |
-| `handler.go` | `Handler` (canonical SSE endpoint: CORS→replay→subscribe→heartbeat→forward) + `Mount` convenience for stdlib mux. Functional options for heartbeat, CORS, filtering. |
+| File         | Concern                                                                                                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`     | Package doc. SSE-only constraint stated explicitly.                                                                                                                             |
+| `hub.go`     | `Hub` type: pairs `sse.Broadcaster[sse.Event]` + optional `sse.EventStore`. `NewHub`, `Broadcast`, `BroadcastPatch`, `Shutdown`, `Close`, `Health`.                             |
+| `handler.go` | `Handler` (canonical SSE endpoint: CORS→subscribe→replay-with-dedup→heartbeat→forward) + `Mount` convenience for stdlib mux. Functional options for heartbeat, CORS, filtering. |
 
 - **SSE only.** No WebSocket support, provided, or planned.
 - Depends on `go-sse v0.5.0` only (no core, no go-datastar, no go-cqrs-lite dependency).
@@ -168,5 +168,7 @@ BuildFlow runs as pre-commit hook (20 checks).
 - Default heartbeat is 15s; pass `WithHeartbeat(0)` to disable.
 - Default CORS is `*`; tighten via `WithCORSOrigin` for production.
 - Shutdown ordering: drain `hub.Shutdown(ctx)` BEFORE `svc.Shutdown(ctx)` so browsers reconnect to another instance.
+- Replay/live boundary: the handler subscribes BEFORE reading the replay store and deduplicates replayed IDs in the live loop — no event can slip between store snapshot and subscription. Bursts larger than the subscriber buffer (default 64) during a slow store read can still drop; clients heal via Last-Event-ID reconnect.
+- Journal-backed replay (CQRS event stores): wire `transport.NewJournalSSEStore(journal, mapper)` from `github.com/larsartmann/cqrs-htmx/v4/transport` (lean 4-dep sub-package) into `realtime.NewHub(realtime.WithStore(store))`. realtime itself stays cqrs-free.
 - The `PatchLike` interface intentionally matches `datastar.Patch` — duck typing avoids the import.
 - No go-appkit core dependency — `realtime.Mount` works on any `*http.ServeMux`.

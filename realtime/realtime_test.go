@@ -602,3 +602,142 @@ func TestHandler_ReturnsHTTPHandler(t *testing.T) {
 		t.Fatalf("Content-Type: want %q, got %q", sse.ContentType, ct)
 	}
 }
+
+// blockingStore delays EventsAfter until released, simulating a slow store
+// read during which live events race the replay snapshot.
+type blockingStore struct {
+	inner   sse.EventStore
+	release chan struct{}
+}
+
+func (s *blockingStore) EventsAfter(lastID sse.EventID) ([]sse.Event, error) {
+	<-s.release
+
+	return s.inner.EventsAfter(lastID)
+}
+
+// TestHandler_SubscribeBeforeReplay_ClosesGap proves the handler subscribes
+// before reading the replay store: an event broadcast while the store read is
+// blocked (and therefore NOT in the replay snapshot) still reaches the client
+// after the replayed events. The old replay-then-subscribe order lost it.
+func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
+	t.Parallel()
+
+	store := &blockingStore{
+		inner: &memStore{events: []sse.Event{
+			{Event: "old", Data: "1", ID: mustParseID("1")},
+			{Event: "old", Data: "2", ID: mustParseID("2")},
+			{Event: "old", Data: "3", ID: mustParseID("3")},
+		}},
+		release: make(chan struct{}),
+	}
+
+	hub := realtime.NewHub(realtime.WithStore(store))
+	mux := http.NewServeMux()
+	realtime.Mount(mux, "GET /events", hub, realtime.WithHeartbeat(0))
+
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	req, err := http.NewRequestWithContext(
+		context.Background(), http.MethodGet, server.URL+"/events", nil)
+	if err != nil {
+		t.Fatalf("new request: %v", err)
+	}
+
+	req.Header.Set("Last-Event-ID", "1")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("connect: %v", err)
+	}
+
+	defer func() { _ = resp.Body.Close() }()
+
+	// The handler subscribes before reading the store: once the subscriber
+	// count is 1 while the store read is still blocked, any broadcast is
+	// buffered by the channel, not lost.
+	waitForSubscriber(t, hub, 1)
+
+	hub.Broadcast(sse.Event{Event: "live", Data: "gap", ID: mustParseID("5")})
+
+	close(store.release)
+
+	frame := readSSEFrame(t, resp.Body)
+	if !strings.Contains(frame, "data: 2") {
+		t.Fatalf("first replayed event should be data: 2, got:\n%s", frame)
+	}
+
+	frame = readSSEFrame(t, resp.Body)
+	if !strings.Contains(frame, "data: 3") {
+		t.Fatalf("second replayed event should be data: 3, got:\n%s", frame)
+	}
+
+	frame = readSSEFrame(t, resp.Body)
+	if !strings.Contains(frame, "data: gap") {
+		t.Fatalf("event broadcast during store read should be forwarded, got:\n%s", frame)
+	}
+}
+
+// TestHandler_ReplayLiveDedup proves events that are both replayed and
+// buffered (appended after subscribe, snapshot-read before) are delivered
+// exactly once: the ID sent during replay is skipped in the live loop.
+func TestHandler_ReplayLiveDedup(t *testing.T) {
+	t.Parallel()
+
+	store := &blockingStore{
+		inner: &memStore{events: []sse.Event{
+			{Event: "old", Data: "1", ID: mustParseID("1")},
+			{Event: "old", Data: "2", ID: mustParseID("2")},
+			{Event: "old", Data: "3", ID: mustParseID("3")},
+		}},
+		release: make(chan struct{}),
+	}
+
+	hub := realtime.NewHub(realtime.WithStore(store))
+	mux := http.NewServeMux()
+	realtime.Mount(mux, "GET /events", hub, realtime.WithHeartbeat(0))
+
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	req, err := http.NewRequestWithContext(
+		context.Background(), http.MethodGet, server.URL+"/events", nil)
+	if err != nil {
+		t.Fatalf("new request: %v", err)
+	}
+
+	req.Header.Set("Last-Event-ID", "1")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("connect: %v", err)
+	}
+
+	defer func() { _ = resp.Body.Close() }()
+
+	waitForSubscriber(t, hub, 1)
+
+	// ID 2 is in the store (will be replayed) AND broadcast now (buffers in
+	// the live channel) — the overlap case. ID 7 is live-only.
+	hub.Broadcast(sse.Event{Event: "old", Data: "2", ID: mustParseID("2")})
+	hub.Broadcast(sse.Event{Event: "live", Data: "7", ID: mustParseID("7")})
+
+	close(store.release)
+
+	frames := make([]string, 0, 3)
+	for range 3 {
+		frames = append(frames, readSSEFrame(t, resp.Body))
+	}
+
+	joined := strings.Join(frames, "")
+	if got := strings.Count(joined, "id: 2"); got != 1 {
+		t.Fatalf("replayed+buffered event should be delivered exactly once, got %d:\n%s", got, joined)
+	}
+
+	for _, want := range []string{"data: 2", "data: 3", "data: 7"} {
+		if !strings.Contains(joined, want) {
+			t.Fatalf("expected %s among delivered frames:\n%s", want, joined)
+		}
+	}
+}

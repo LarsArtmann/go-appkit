@@ -51,11 +51,19 @@ func WithFilter(pred func(sse.Event) bool) MountOption {
 //
 //  1. Sets CORS headers (configurable via [WithCORSOrigin])
 //  2. Creates an [sse.Stream] (sets SSE headers + 200 OK)
-//  3. Replays missed events from the Hub's store (if Last-Event-ID present)
-//  4. Subscribes to the broadcaster (optionally filtered)
+//  3. Subscribes to the broadcaster FIRST (optionally filtered) — live
+//     events buffer in the subscriber channel while replay runs, so no
+//     event can slip between the store snapshot and the subscription
+//  4. Replays missed events from the Hub's store (if Last-Event-ID present),
+//     recording replayed IDs
 //  5. Starts a heartbeat goroutine (configurable via [WithHeartbeat])
-//  6. Forwards events from the subscription channel to the stream until
-//     the client disconnects
+//  6. Forwards buffered and live events to the stream, skipping IDs that
+//     were already replayed (subscribe-before-replay makes overlap possible;
+//     dedup keeps delivery exactly-once), until the client disconnects
+//
+// Residual risk: a burst larger than the subscriber buffer (default 64)
+// during a slow store read can still drop live events; clients heal via the
+// standard Last-Event-ID reconnect, which replays exactly the gap.
 //
 // This is the opinionated handler that go-sse deliberately does not provide.
 // Use [Mount] for stdlib mux convenience, or [Handler] directly with any
@@ -87,10 +95,10 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 
 		ctx := stream.Context()
 
-		if !replayMissedEvents(stream, hub, cfg.filter) {
-			return
-		}
-
+		// Subscribe before replay: everything broadcast from here on buffers
+		// in the channel and is forwarded after the replayed events (minus
+		// dedup), closing the snapshot-to-subscription gap the old
+		// replay-then-subscribe order had.
 		var ch <-chan sse.Event
 
 		if cfg.filter != nil {
@@ -101,6 +109,11 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 
 		defer hub.Broadcaster.Unsubscribe(ch)
 
+		replayed, ok := replayMissedEvents(stream, hub, cfg.filter)
+		if !ok {
+			return
+		}
+
 		if cfg.heartbeat > 0 {
 			go stream.Heartbeat(ctx, cfg.heartbeat)
 		}
@@ -110,7 +123,20 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 			case <-ctx.Done():
 				return
 			case evt, ok := <-ch:
-				if !ok || stream.Send(evt) != nil {
+				if !ok {
+					return
+				}
+
+				// Skip events that raced the store snapshot: appended after
+				// subscribe (so they are in this channel) and before the
+				// snapshot read (so they were also replayed).
+				if id := evt.ID.Get(); id != "" {
+					if _, dup := replayed[id]; dup {
+						continue
+					}
+				}
+
+				if stream.Send(evt) != nil {
 					return
 				}
 			}
@@ -130,36 +156,103 @@ func Mount(mux *http.ServeMux, pattern string, hub *Hub, opts ...MountOption) {
 }
 
 // replayMissedEvents replays events from the store based on the Last-Event-ID
-// header. Returns false if the handler should abort (write failure during
-// replay means the connection is dead).
-func replayMissedEvents(stream *sse.Stream, hub *Hub, filter func(sse.Event) bool) bool {
+// header and returns the IDs it sent for live-loop deduplication. ok is false
+// when the handler should abort: a store read failure or a write failure
+// mid-replay means the stream state cannot be trusted. A nil map with ok true
+// means nothing was replayed (no store, no Last-Event-ID, or empty result).
+//
+// Callers must have subscribed to the live broadcaster BEFORE calling this,
+// so events racing the store snapshot are captured rather than lost.
+func replayMissedEvents(
+	stream *sse.Stream,
+	hub *Hub,
+	filter func(sse.Event) bool,
+) (replayed map[string]struct{}, ok bool) {
 	if hub.Store == nil {
-		return true
+		return nil, true
 	}
 
 	lastID := stream.LastEventID()
 	if lastID.IsZero() {
-		return true
+		return nil, true
 	}
 
-	var err error
-
-	if filter != nil {
-		_, err = sse.ReplayFiltered(stream, hub.Store, lastID, filter)
-	} else {
-		_, err = sse.Replay(stream, hub.Store, lastID)
-	}
-
+	events, err := eventsAfter(hub.Store, lastID, filter)
 	if err != nil {
 		slog.ErrorContext(
 			stream.Context(),
-			"realtime: replay failed, aborting connection",
+			"realtime: replay store read failed, aborting connection",
 			"last_event_id", lastID.Get(),
 			"err", err,
 		)
 
-		return false
+		return nil, false
 	}
 
-	return true
+	replayed = make(map[string]struct{}, len(events))
+
+	for _, evt := range events {
+		err := stream.Send(evt)
+		if err != nil {
+			slog.ErrorContext(
+				stream.Context(),
+				"realtime: replay send failed, aborting connection",
+				"last_event_id", lastID.Get(),
+				"err", err,
+			)
+
+			return replayed, false
+		}
+
+		if id := evt.ID.Get(); id != "" {
+			replayed[id] = struct{}{}
+		}
+	}
+
+	return replayed, true
+}
+
+// eventsAfter reads the store for replay. A nil filter is pushed to the plain
+// EventsAfter call; a non-nil filter uses FilteredEventStore when the store
+// implements it and otherwise falls back to EventsAfter plus in-memory
+// post-filtering with panic recovery, mirroring sse.ReplayFiltered's
+// fallback contract.
+func eventsAfter(
+	store sse.EventStore,
+	lastID sse.EventID,
+	filter func(sse.Event) bool,
+) ([]sse.Event, error) {
+	if filter == nil {
+		return store.EventsAfter(lastID)
+	}
+
+	if filtered, ok := store.(sse.FilteredEventStore); ok {
+		return filtered.EventsAfterFiltered(lastID, filter)
+	}
+
+	all, err := store.EventsAfter(lastID)
+	if err != nil {
+		return nil, err
+	}
+
+	events := make([]sse.Event, 0, len(all))
+	for _, evt := range all {
+		if safeFilter(filter, evt) {
+			events = append(events, evt)
+		}
+	}
+
+	return events, nil
+}
+
+// safeFilter applies pred with panic recovery, treating a panic as a
+// non-match.
+func safeFilter(pred func(sse.Event) bool, evt sse.Event) (match bool) {
+	defer func() {
+		if recover() != nil {
+			match = false
+		}
+	}()
+
+	return pred(evt)
 }
