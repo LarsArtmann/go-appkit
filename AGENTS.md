@@ -129,7 +129,11 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | `github.com/larsartmann/go-cqrs-lite/stack/v4`          | v4.3.0  | Bundle (events, commands, queries, snapshots, checkpoints)                |
 | `github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4`   | v4.3.0  | SQLite preset (WAL, `SetMaxOpenConns(1)` via `ConfigureSQLitePool`)       |
 | `github.com/larsartmann/go-cqrs-lite/projectionhost/v4` | v4.3.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                |
-| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.6.0  | indirect — pinned above stack's own v4.5.0 (needs `SQLiteSetSynchronous`) |
+| `github.com/larsartmann/go-cqrs-lite/event/v4`          | v4.7.0  | Event types, stream refs, event construction                              |
+| `github.com/larsartmann/go-cqrs-lite/id/v4`             | v4.5.0  | Branded IDs (stream, event)                                               |
+| `github.com/larsartmann/go-cqrs-lite/projection/v4`     | v4.3.0  | Projection type and `NewProjection`                                        |
+| `github.com/larsartmann/go-cqrs-lite/flightrecorder/v4` | v4.0.0  | CQRS-specific flight recorder (process-global singleton)                  |
+| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.7.1  | indirect — v4.7.0 had a build bug (`err :=` in keyset.go), fixed in v4.7.1  |
 | `github.com/larsartmann/go-error-family`                | v0.10.0 | Error classification (shared with core)                                   |
 
 - Migrated to v4 on 2026-08-15 (was v3.7.x). Migration guide: go-cqrs-lite `docs/migration/MIGRATION-GUIDE.md`.
@@ -138,7 +142,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - v4 sqlite options changed: `WithPragmas`, `WithDSN`, `WithDurability`, `WithBusyTimeout`, `WithCacheSize`, `WithDriverName`, `WithStack` (v3's `WithoutWAL`/`WithOptimizations`/`WithForeignKeys`/`WithoutAutoMigrate`/`WithEventDB` are gone).
 - Projection readiness: `EventService.ReadyCheck()` + `EventService.LagPerProjection()`; core `ServiceConfig.ReadyCheck func() bool` composes external checks with the drain probe for `/health/ready`.
 - Read-your-writes: projections are async — `EventService.CheckStaleness(budget)` / `CheckProjectionStaleness(name, budget)` are read-time guards (Transient error on lag > budget). projectionhost v4.3.0 has NO public Sync/Drain; cqrs-lint E014's suggested APIs don't exist in the pinned version.
-- cqrs-lint: run from inside `cqrs/` — from a workspace root it attributes sub-module imports to the root go.mod (A018 false positive). A/P-series findings on this wrapper (no Save/Publish calls, no WithBatchSize) are by design: consumers get `Bundle()`, tuning flows via `HostOptions`.
+- cqrs-lint: run from inside `cqrs/` — from a workspace root it attributes sub-module imports to the root go.mod (A018 false positive). A/P-series findings on this wrapper (no Save/Publish calls, no WithBatchSize) are by design: consumers get `Bundle()`, tuning flows via `HostOptions`. `.cqrs-lint.json` uses `library-framework` preset (disables ALL F-series adoption-coaching rules) with pinned feature profile and 3 config-level disables (A018, V003, V006). `docs-mod/.cqrs-lint.json` disables A018/A009 (docs module, not an event-sourced app). cqrs-lint source lives at `go-cqrs-lite/cmd/cqrs-lint` — file linter bugs there.
 - `EventConfig` full option set: `Logger`, `DLQ *DLQConfig` (SQLite store by default, `ReplayDeadLetters`/`ResetProjection` accessors), `FlightRecorder` (cqrs-lite flightrecorder/v4 type — NOT go-flightrecorder; only one active per process), `Metrics projectionhost.MetricsRecorder` (backend-agnostic lifecycle recorder; no prometheus/otel dep), `HostOptions` passthrough.
 - cqrs README ends with a cookbook: scenario DSL decider/projection tests (scenario/v4), testutil helpers (CapturingSlogHandler, DelayedJournal), and cqrs-lint usage — all verified against scenario/v4 v4.2.0, testutil/v4 v4.2.0, cqrs-lint 4.6.0.
 

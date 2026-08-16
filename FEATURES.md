@@ -32,6 +32,7 @@ aspirations.
 | `EventConfig.FlightRecorder`         | FULLY_FUNCTIONAL | `flightrecorder_test.go` |
 | `EventConfig.Metrics` recorder hook  | FULLY_FUNCTIONAL | `metrics_test.go`        |
 | Projection readiness + lag accessors | FULLY_FUNCTIONAL | `readiness_test.go`      |
+| Read-your-writes staleness guards    | FULLY_FUNCTIONAL | `staleness_test.go`      |
 
 ## docs (`github.com/larsartmann/go-appkit/docs`)
 

@@ -9,12 +9,23 @@
   projection lag exceeds the budget (cqrs-lint E014's supported v4 answer;
   projectionhost v4.3.0 has no post-command drain API).
 - README: "Read-your-writes" section and cqrs-lint workspace/wrapper gotchas.
+- Staleness test suite: fresh, disabled, stale (Transient), unknown projection
+  (Rejection), and per-projection variants. `closeOnConstructionFailure`
+  error-join path tested via injected failing closer.
 
 ### Fixed
 
 - Constructor-abort paths no longer discard `bundle.GracefulClose` errors
   (cqrs-lint C023): a close failure during `NewEventService` teardown is
   appended to the primary error via `errors.Join`.
+- Bumped `storage/v4` v4.7.0 → v4.7.1: v4.7.0 had a build bug (`err =` instead
+  of `err :=` in `sql/keyset.go`).
+
+### Changed
+
+- `.cqrs-lint.json` preset: `library` → `library-framework` (disables ALL
+  F-series adoption-coaching rules — this module is a framework wrapper, not
+  a go-cqrs-lite app). Added pinned feature profile to prevent auto-detection drift.
 
 ## [0.2.0] - 2026-08-15
 

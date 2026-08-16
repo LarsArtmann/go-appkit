@@ -1,0 +1,17 @@
+{
+  // appkit/docs is a library module that provides auto-documentation via
+  // go-cqrs-lite/catalog/v4. It is not an event-sourced application — it uses
+  // the catalog builder for OpenAPI/AsyncAPI/D2 generation, not the event
+  // store or CQRS patterns. The findings below are false positives for a
+  // documentation module.
+  "preset": "library",
+
+  "rules": {
+    "disable": [
+      // Docs module by design: uses catalog/v4 for API doc generation, not Save/Publish/Dispatch.
+      "A018",
+      // Docs module by design: uses catalog/v4, not a stack/ preset — no event store needed.
+      "A009"
+    ]
+  }
+}

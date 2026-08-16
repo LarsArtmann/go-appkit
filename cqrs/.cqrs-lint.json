@@ -1,18 +1,30 @@
 {
-  // appkit/cqrs is a library wrapper: it hands consumers the Bundle and
+  // appkit/cqrs is a framework wrapper: it hands consumers the Bundle and
   // forwards projectionhost tuning via HostOptions. It never calls
-  // Save/Publish/Dispatch itself — that is the consumer's job.
-  "preset": "library",
+  // Save/Publish/Dispatch itself — that is the consumer's job. The
+  // library-framework preset disables ALL F-series adoption-coaching rules
+  // because this module is consumed by applications, not a go-cqrs-lite app.
+  "preset": "library-framework",
+
+  // Pin the detected feature profile to prevent auto-detection drift.
+  "features": {
+    "store": "sqlite",
+    "command-flow": "read-only",
+    "server": false,
+    "soft-delete": false,
+    "tracing": "off",
+    "snapshot": "off"
+  },
 
   "rules": {
     "disable": [
-      // Library wrapper by design: consumers get Bundle() and call Save/Publish/Dispatch themselves.
+      // Framework wrapper by design: consumers get Bundle() and call Save/Publish/Dispatch themselves.
       "A018",
       // False positive: flightrecorder/v4 has exactly one tag (v4.0.0) — no v4.3.x exists.
       // Verified via `git tag | grep flightrecorder` in go-cqrs-lite on 2026-08-16.
       "V003",
       // Real but unactionable: flightrecorder/v4 v4.0.0 is the only published tag; other v4 modules
-      // are v4.3–v4.6. go-cqrs-lite has not re-tagged flightrecorder/v4. Suppress until a new tag ships.
+      // are v4.3–v4.7. go-cqrs-lite has not re-tagged flightrecorder/v4. Suppress until a new tag ships.
       "V006"
     ]
   }

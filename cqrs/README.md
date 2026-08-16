@@ -199,7 +199,7 @@ scenario.GivenProjection(t, taskListProjection, poisonEvent).ThenError()
 consumers for CQRS anti-patterns and API misuse:
 
 ```bash
-cqrs-lint init        # create .cqrs-lint.json (library preset for reusable modules)
+cqrs-lint init        # create .cqrs-lint.json (library-framework preset for framework wrappers)
 cqrs-lint ./...       # lint
 cqrs-lint scorecard   # which go-cqrs-lite capabilities you use / miss
 cqrs-lint rules       # rule reference

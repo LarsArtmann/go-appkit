@@ -7,6 +7,8 @@ import (
 	"time"
 
 	errorfamily "github.com/larsartmann/go-error-family"
+	"github.com/larsartmann/go-cqrs-lite/event/v4"
+	"github.com/larsartmann/go-cqrs-lite/projection/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
 )
 
@@ -47,6 +49,42 @@ func TestEventService_CheckStaleness_DisabledByNonPositiveBudget(t *testing.T) {
 	}
 }
 
+func TestEventService_CheckStaleness_FreshProjectionWithinBudget(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		SQLitePath: t.TempDir() + "/test.db",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	proj := projection.NewProjection(
+		"fresh-projection",
+		func(_ context.Context, _ event.Event) error { return nil },
+		[]event.Type{"test.fresh"},
+	)
+
+	if err := eventSvc.Host().Register(proj); err != nil {
+		t.Fatalf("register projection: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, "test.fresh")
+
+	if err := eventSvc.StartProjections(context.Background()); err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+
+	// The projection has processed an event and is well within a 1-hour budget.
+	if err := eventSvc.CheckStaleness(time.Hour); err != nil {
+		t.Errorf("expected nil within generous budget after processing, got: %v", err)
+	}
+}
+
 func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 	t.Parallel()
 
@@ -59,11 +97,134 @@ func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 
 	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	// Workers that have not processed anything report lag 0, so even a tight
-	// budget stays green until events are actually flowing; staleness beyond
-	// the threshold only surfaces once a worker has processed an event.
-	if err := eventSvc.CheckStaleness(time.Hour); err != nil {
+	proj := projection.NewProjection(
+		"stale-projection",
+		func(_ context.Context, _ event.Event) error { return nil },
+		[]event.Type{"test.stale"},
+	)
+
+	if err := eventSvc.Host().Register(proj); err != nil {
+		t.Fatalf("register projection: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, "test.stale")
+
+	if err := eventSvc.StartProjections(context.Background()); err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+
+	// After the worker processes the event, lag = time.Since(lastProcessedAt).
+	// A nanosecond budget is already exceeded — the projection is stale.
+	err = eventSvc.CheckStaleness(time.Nanosecond)
+	if err == nil {
+		t.Fatal("expected staleness error with nanosecond budget after processing an event")
+	}
+
+	if !errors.Is(err, projectionhost.ErrProjectionStale) {
+		t.Errorf("expected errors.Is(err, ErrProjectionStale), got: %v", err)
+	}
+
+	var familyErr *errorfamily.Error
+	if !errors.As(err, &familyErr) {
+		t.Fatalf("expected *errorfamily.Error, got %T", err)
+	}
+
+	if familyErr.Family() != errorfamily.Transient {
+		t.Errorf("expected family %q, got %q", errorfamily.Transient, familyErr.Family())
+	}
+
+	if got := errorfamily.HTTPStatus(err); got != 503 {
+		t.Errorf("expected HTTP status 503 for Transient, got %d", got)
+	}
+}
+
+func TestEventService_CheckProjectionStaleness_FreshProjectionWithinBudget(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		SQLitePath: t.TempDir() + "/test.db",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	proj := projection.NewProjection(
+		"named-fresh",
+		func(_ context.Context, _ event.Event) error { return nil },
+		[]event.Type{"test.named-fresh"},
+	)
+
+	if err := eventSvc.Host().Register(proj); err != nil {
+		t.Fatalf("register projection: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, "test.named-fresh")
+
+	if err := eventSvc.StartProjections(context.Background()); err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+
+	if err := eventSvc.CheckProjectionStaleness("named-fresh", time.Hour); err != nil {
 		t.Errorf("expected nil within generous budget, got: %v", err)
+	}
+}
+
+func TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		SQLitePath: t.TempDir() + "/test.db",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	proj := projection.NewProjection(
+		"named-stale",
+		func(_ context.Context, _ event.Event) error { return nil },
+		[]event.Type{"test.named-stale"},
+	)
+
+	if err := eventSvc.Host().Register(proj); err != nil {
+		t.Fatalf("register projection: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, "test.named-stale")
+
+	if err := eventSvc.StartProjections(context.Background()); err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+
+	err = eventSvc.CheckProjectionStaleness("named-stale", time.Nanosecond)
+	if err == nil {
+		t.Fatal("expected staleness error with nanosecond budget after processing an event")
+	}
+
+	if !errors.Is(err, projectionhost.ErrProjectionStale) {
+		t.Errorf("expected errors.Is(err, ErrProjectionStale), got: %v", err)
+	}
+
+	var familyErr *errorfamily.Error
+	if !errors.As(err, &familyErr) {
+		t.Fatalf("expected *errorfamily.Error, got %T", err)
+	}
+
+	if familyErr.Family() != errorfamily.Transient {
+		t.Errorf("expected family %q, got %q", errorfamily.Transient, familyErr.Family())
+	}
+
+	if got := errorfamily.HTTPStatus(err); got != 503 {
+		t.Errorf("expected HTTP status 503 for Transient, got %d", got)
 	}
 }
 

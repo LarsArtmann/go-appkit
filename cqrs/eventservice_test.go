@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4"
+	stack "github.com/larsartmann/go-cqrs-lite/stack/v4"
 	errorfamily "github.com/larsartmann/go-error-family"
 )
 
@@ -160,3 +162,62 @@ func TestAsSQLDB_AcceptsSQLDB(t *testing.T) {
 		t.Fatal("expected non-nil *sql.DB")
 	}
 }
+
+func TestCloseOnConstructionFailure_CloseSucceeds(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		SQLitePath: t.TempDir() + "/test.db",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	sentinel := errors.New("primary construction failure")
+
+	// When GracefulClose succeeds, the primary error is returned unchanged.
+	result := closeOnConstructionFailure(eventSvc.Bundle(), sentinel)
+
+	if !errors.Is(result, sentinel) {
+		t.Errorf("expected sentinel error in result, got: %v", result)
+	}
+
+	// No close error joined — result should be the sentinel itself.
+	if result != sentinel {
+		t.Errorf("expected exact sentinel (no join), got: %v", result)
+	}
+}
+
+func TestCloseOnConstructionFailure_CloseFailureJoinsErrors(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		SQLitePath: t.TempDir() + "/test.db",
+		StackOptions: []sqlite.Option{
+			sqlite.WithStack(stack.WithCloser(failingCloser{})),
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	sentinel := errors.New("primary construction failure")
+
+	result := closeOnConstructionFailure(eventSvc.Bundle(), sentinel)
+
+	// The primary error must be present in the joined result.
+	if !errors.Is(result, sentinel) {
+		t.Errorf("expected sentinel error in joined result, got: %v", result)
+	}
+
+	// The close error must also be present — both errors surface.
+	if !errors.Is(result, errCloseFailed) {
+		t.Errorf("expected close error in joined result, got: %v", result)
+	}
+}
+
+var errCloseFailed = errors.New("simulated close failure")
+
+type failingCloser struct{}
+
+func (failingCloser) Close() error { return errCloseFailed }
