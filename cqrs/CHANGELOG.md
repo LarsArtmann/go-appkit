@@ -4,11 +4,17 @@
 
 ### Added
 
-- Nothing yet.
+- `EventService.CheckStaleness(budget)` and `CheckProjectionStaleness(name, budget)`
+  — read-time staleness guards for read-your-writes: Transient error when
+  projection lag exceeds the budget (cqrs-lint E014's supported v4 answer;
+  projectionhost v4.3.0 has no post-command drain API).
+- README: "Read-your-writes" section and cqrs-lint workspace/wrapper gotchas.
 
 ### Fixed
 
-- Nothing yet.
+- Constructor-abort paths no longer discard `bundle.GracefulClose` errors
+  (cqrs-lint C023): a close failure during `NewEventService` teardown is
+  appended to the primary error via `errors.Join`.
 
 ## [0.2.0] - 2026-08-15
 

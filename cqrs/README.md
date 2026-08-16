@@ -74,6 +74,30 @@ appkitCfg.ReadyCheck = eventSvc.ReadyCheck // composes with the drain probe
 lag := eventSvc.LagPerProjection() // map[projectionName]time.Duration
 ```
 
+### Read-your-writes
+
+Projections are asynchronous: a command handler returning does **not** imply the
+read model has moved. go-cqrs-lite v4's answer is a read-time staleness guard,
+not a post-command drain — `EventService` exposes it directly:
+
+```go
+mux.HandleFunc("GET /tasks", func(w http.ResponseWriter, r *http.Request) {
+    if err := eventSvc.CheckProjectionStaleness("task-list", 2*time.Second); err != nil {
+        // Transient classification: serve 503, or stale data with a warning.
+        http.Error(w, "read model catching up", http.StatusServiceUnavailable)
+        return
+    }
+    // serve the read model
+})
+```
+
+`CheckStaleness(budget)` guards against the maximum lag across all workers,
+`CheckProjectionStaleness(name, budget)` against one named read model. A
+budget <= 0 disables the check; a worker that has not processed any event yet
+counts as fresh. On large streams, tune catch-up throughput with
+`HostOptions: []projectionhost.HostOption{projectionhost.WithBatchSize(n)}` —
+the default batch size trades throughput for latency smoothness.
+
 ### Metrics
 
 `Metrics` takes any `projectionhost.MetricsRecorder` — a six-method,
@@ -112,6 +136,8 @@ an adapter that implements `MetricsRecorder` on top of your meter.
 | `ResetProjection(ctx, name, opts...)` | `error`                          | Rewind a projection checkpoint (optionally purging dead letters). |
 | `ReadyCheck()`                        | `bool`                           | All workers live or drained; wire to appkit's `/health/ready`.    |
 | `LagPerProjection()`                  | `map[string]time.Duration`       | Event-age lag per projection.                                     |
+| `CheckStaleness(budget)`              | `error`                          | Read-time guard: Transient error when max lag exceeds budget.     |
+| `CheckProjectionStaleness(name, budget)` | `error`                       | Per-projection read-time guard; Rejection for unknown names.      |
 | `StartProjections(ctx)`               | `error`                          | Starts projection workers.                                        |
 | `Shutdown(ctx)`                       | `error`                          | Stops workers and closes the store. Idempotent.                   |
 
@@ -169,7 +195,7 @@ scenario.GivenProjection(t, taskListProjection, poisonEvent).ThenError()
 
 ### cqrs-lint: domain-aware linting
 
-`cqrs-lint` (a standalone binary, v4.6.0+) statically analyzes go-cqrs-lite
+`cqrs-lint` (a standalone binary) statically analyzes go-cqrs-lite
 consumers for CQRS anti-patterns and API misuse:
 
 ```bash
@@ -184,6 +210,15 @@ Gotchas worth knowing:
 - **Build first.** On a project that does not compile, old cqrs-lint versions
   silently reported "no Go files found"; current versions exit non-zero and
   name the load errors — either way, don't trust lint output on a broken build.
+- **Run it inside the module.** From a workspace root it attributes
+  sub-module imports to the root `go.mod` — go-appkit's root module has zero
+  go-cqrs-lite dependencies yet earns an A018 "dead import" finding when run
+  from the repo root. `cd cqrs && cqrs-lint ./...` is the honest scope.
+- **Wrappers trip usage detectors.** This module never calls `Save`/`Publish`/
+  `Dispatch` itself (A018) and passes `projectionhost.New` no `WithBatchSize`
+  (P008) **by design** — it hands consumers the `Bundle` and forwards tuning
+  via `HostOptions`. Take A/P-series findings on a library wrapper as
+  questions, not orders.
 - **Suppressions:** `//cqrs-lint:ignore(RULE) reason` on its own line above
   the finding (comma-separate multiple rules); `ignore-start`/`ignore-end`
   for ranges. v4.6.0 flags stale suppressions whose rule no longer fires —

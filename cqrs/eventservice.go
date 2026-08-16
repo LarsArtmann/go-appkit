@@ -1,6 +1,8 @@
 // Package cqrs provides CQRS/ES integration for go-appkit services.
 // It wraps go-cqrs-lite/stack/sqlite and projectionhost into a lifecycle-managed
 // EventService that integrates with appkit.Service for graceful shutdown.
+
+//cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a post-command drain
 package cqrs
 
 import (
@@ -115,9 +117,7 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 
 	dlqStore, dlqErr := resolveDLQ(cfg.DLQ, bundle)
 	if dlqErr != nil {
-		_ = bundle.GracefulClose(context.Background())
-
-		return nil, dlqErr
+		return nil, closeOnConstructionFailure(bundle, dlqErr)
 	}
 
 	if dlqStore != nil {
@@ -125,18 +125,20 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 			projectionhost.WithDeadLetterStore(dlqStore, cfg.DLQ.Threshold))
 	}
 
+	//cqrs-lint:ignore(P008) batch-size tuning belongs to consumers via HostOptions; this wrapper forwards them unchanged
 	host, err := projectionhost.New(
 		bundle.SeekableJournal,
 		bundle.CheckpointStore,
 		hostOpts...,
 	)
 	if err != nil {
-		_ = bundle.GracefulClose(context.Background())
-
-		return nil, errorfamily.WrapInfrastructuref(
-			err,
-			"cqrs.projection_host_failed",
-			"failed to create projection host",
+		return nil, closeOnConstructionFailure(
+			bundle,
+			errorfamily.WrapInfrastructuref(
+					err,
+					"cqrs.projection_host_failed",
+					"failed to create projection host",
+				),
 		)
 	}
 
@@ -145,6 +147,18 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		host:   host,
 		dlq:    dlqStore,
 	}, nil
+}
+
+// closeOnConstructionFailure tears down the half-built bundle when
+// NewEventService aborts. The primary error is returned untouched when the
+// close succeeds; a close failure is appended with errors.Join so a double
+// failure is never silently discarded.
+func closeOnConstructionFailure(bundle *stack.Bundle, err error) error {
+	if closeErr := bundle.GracefulClose(context.Background()); closeErr != nil {
+		return errors.Join(err, closeErr)
+	}
+
+	return err
 }
 
 // resolveDLQ determines the dead-letter store for a config. A nil cfg or a
@@ -307,6 +321,25 @@ func (es *EventService) ReadyCheck() bool {
 // drives staleness decisions in production.
 func (es *EventService) LagPerProjection() map[string]time.Duration {
 	return es.host.LagPerProjection()
+}
+
+// CheckStaleness reports a Transient error when the maximum projection lag
+// exceeds maxStaleness, nil otherwise. Projections run asynchronously, so a
+// command handler returning does not imply the read model has moved — use this
+// as a read-time guard before serving data from a read model (or serve 503):
+// with lag beyond the threshold, the projection will catch up once its worker
+// drains the backlog. A maxStaleness <= 0 disables the check; a projection
+// that has not processed any event yet counts as fresh.
+func (es *EventService) CheckStaleness(maxStaleness time.Duration) error {
+	return es.host.CheckStaleness(maxStaleness)
+}
+
+// CheckProjectionStaleness is the per-projection variant of CheckStaleness:
+// it guards reads served from one named read model instead of the maximum
+// across all workers. Rejects (400-class) when the projection is not
+// registered; a maxStaleness <= 0 disables the check first.
+func (es *EventService) CheckProjectionStaleness(name string, maxStaleness time.Duration) error {
+	return es.host.CheckProjectionStaleness(name, maxStaleness)
 }
 
 // StartProjections starts the projection host workers.
