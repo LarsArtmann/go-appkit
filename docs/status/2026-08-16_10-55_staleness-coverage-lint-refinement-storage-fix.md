@@ -32,6 +32,7 @@ The session 5 status report had a 50-item next-steps list and 3 open questions. 
 **What was wrong:** `TestEventService_CheckStaleness_StaleProjectionIsTransient` did NOT test staleness. It tested a generous 1-hour budget with no processed events, which passes trivially (lag 0 = fresh). The name promised a Transient error assertion the body never exercised. This was flagged in session 5's report as "the kind of lying name the AGENTS.md naming-review skill warns about."
 
 **What I did:**
+
 - Rewrote `TestEventService_CheckStaleness_StaleProjectionIsTransient` to actually produce staleness: register a projection, append an event, start projections, `waitFor` catch-up (ReadyCheck), then call `CheckStaleness(time.Nanosecond)`. After processing, lag = `time.Since(lastProcessedAt)` which already exceeds 1ns. Asserts `errors.Is(err, projectionhost.ErrProjectionStale)`, Transient family, HTTP 503.
 - Added `TestEventService_CheckStaleness_FreshProjectionWithinBudget` — the old "generous budget" test, now with an honest name and a real projection that processed an event.
 - Added `TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient` — per-projection variant, same stale-path assertion.
@@ -46,6 +47,7 @@ The session 5 status report had a 50-item next-steps list and 3 open questions. 
 **What was wrong:** Session 5 added `closeOnConstructionFailure(bundle, err)` which calls `bundle.GracefulClose(ctx)` and `errors.Join`s the close error with the primary. But no test triggered a `GracefulClose` failure to verify the join surfaces both errors.
 
 **What I did:**
+
 - `TestCloseOnConstructionFailure_CloseSucceeds` — when GracefulClose returns nil, the primary error is returned unchanged (not wrapped).
 - `TestCloseOnConstructionFailure_CloseFailureJoinsErrors` — injects a `failingCloser{}` via `sqlite.WithStack(stack.WithCloser(failingCloser{}))`. The bundle's `Close()` calls the failing closer, returning `errCloseFailed`. `closeOnConstructionFailure` joins it with the sentinel. Asserts `errors.Is(result, sentinel)` AND `errors.Is(result, errCloseFailed)`.
 
@@ -56,6 +58,7 @@ The session 5 status report had a 50-item next-steps list and 3 open questions. 
 ### cqrs-lint doctor — config verified
 
 Ran `cqrs-lint doctor` from `cqrs/`. Confirmed:
+
 - `.cqrs-lint.json` is found and parsed (19 lines, 806 bytes with `library` preset).
 - Active preset: `library` — disables E003, E016, F002, F006, F010, F011, F015, F022-F026, S002, S003.
 - Inline suppressions: E014 (1), P008 (1) — both active, not stale.
@@ -77,6 +80,7 @@ Ran `cqrs-lint doctor` from `cqrs/`. Confirmed:
 ### docs-mod lint — config created, lint clean
 
 **Findings:** `cqrs-lint --adoption` in `docs-mod` produced 2 findings:
+
 - A018: "Project imports go-cqrs-lite but never calls Save/Publish/Dispatch" — false positive, docs-mod uses catalog/v4 for API doc generation.
 - A009: "Project does not use a stack/ preset" — false positive, docs module doesn't need an event store.
 
@@ -122,6 +126,7 @@ All items I started this session were completed. The items below in (c) were not
 ### Upstream issues not filed
 
 Found the source location (`go-cqrs-lite/cmd/cqrs-lint`) but did not file any of the 3 identified issues:
+
 1. E014 suggests phantom `host.Sync()`/`host.Drain()` APIs (don't exist in any version).
 2. V003 fabricates flightrecorder/v4 v4.3.x (only v4.0.0 tagged).
 3. storage/v4.7.0 shipped with a build bug (fixed in v4.7.1, but the broken tag is still in the module proxy).
