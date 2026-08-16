@@ -80,7 +80,9 @@ func Wrap(mux *http.ServeMux, cfg Config) http.Handler {
 		// No route pattern matched: the mux would write a bare 404 or 405.
 		// Discern which by executing the internal handler into a throwaway
 		// recorder — it only writes a status line and short text.
-		rec := &statusRecorder{header: http.Header{}}
+		rec := &statusRecorder{ //nolint:exhaustruct // status is deliberately zero; the wrapped handler sets it via WriteHeader
+			header: http.Header{},
+		}
 		matched.ServeHTTP(rec, r)
 
 		switch rec.status {
@@ -135,7 +137,7 @@ func (c Config) errorpageHandler(
 		Lang:      c.Lang,
 		HTMLShell: true,
 		JSON:      c.wantsJSON(r),
-		Override: func(e error, props errorpage.ErrorPageProps) *errorpage.ErrorPageProps {
+		Override: func(sourceErr error, props errorpage.ErrorPageProps) *errorpage.ErrorPageProps {
 			if forceStatus != 0 {
 				props.StatusCode = forceStatus
 			}
@@ -144,7 +146,7 @@ func (c Config) errorpageHandler(
 				return &props
 			}
 
-			return c.Override(e, props)
+			return c.Override(sourceErr, props)
 		},
 	})
 }

@@ -2,6 +2,7 @@ package flightrecorder_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json/v2"
 	"io"
 	"log/slog"
@@ -16,6 +17,44 @@ import (
 	appkitfr "github.com/larsartmann/go-appkit/flightrecorder"
 	fr "github.com/larsartmann/go-flightrecorder"
 )
+
+// httpGetURL issues a context-aware GET against a test server (noctx forbids
+// http.Get in tests).
+func httpGetURL(t *testing.T, url string) *http.Response {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
+	if err != nil {
+		t.Fatalf("building GET %s: %v", url, err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("GET %s: %v", url, err)
+	}
+
+	return resp
+}
+
+// httpPostJSON issues a context-aware JSON POST against a test server (noctx
+// forbids http.Post in tests).
+func httpPostJSON(t *testing.T, url string) *http.Response {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, nil)
+	if err != nil {
+		t.Fatalf("building POST %s: %v", url, err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST %s: %v", url, err)
+	}
+
+	return resp
+}
 
 // recorderMu serializes tests that call Start/Stop because Go's
 // runtime/trace allows only ONE active flight recorder per process.
@@ -117,7 +156,7 @@ func TestMiddleware_CapturesOnError(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusInternalServerError {
@@ -141,7 +180,7 @@ func TestMiddleware_CapturesOnLatency(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/slow", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/slow", nil)
 	handler.ServeHTTP(rr, req)
 
 	assertTraceWritten(t, tracePath)
@@ -160,7 +199,7 @@ func TestMiddleware_DoesNotCaptureOnSuccess(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/ok", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/ok", nil)
 	handler.ServeHTTP(rr, req)
 
 	assertTraceNotWritten(t, tracePath)
@@ -179,7 +218,7 @@ func TestMiddleware_CapturesOnErrorOrLatency_ErrorCase(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr, req)
 
 	assertTraceWritten(t, tracePath)
@@ -199,7 +238,7 @@ func TestMiddleware_CapturesOnErrorOrLatency_LatencyCase(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/slow", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/slow", nil)
 	handler.ServeHTTP(rr, req)
 
 	assertTraceWritten(t, tracePath)
@@ -223,7 +262,7 @@ func TestMiddleware_WithErrorThreshold(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/missing", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/missing", nil)
 	handler.ServeHTTP(rr, req)
 
 	assertTraceWritten(t, tracePath)
@@ -243,7 +282,7 @@ func TestMiddleware_WithErrorThreshold_NotTriggeredBelow(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/missing", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/missing", nil)
 	handler.ServeHTTP(rr, req)
 
 	assertTraceNotWritten(t, tracePath)
@@ -268,7 +307,7 @@ func TestMiddleware_WithLogger(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/api/data", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/data", nil)
 	handler.ServeHTTP(rr, req)
 
 	assertTraceWritten(t, tracePath)
@@ -299,7 +338,7 @@ func TestMiddleware_WithAutoResetDisabled(t *testing.T) {
 
 	// First request should capture
 	rr1 := httptest.NewRecorder()
-	req1 := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	req1 := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr1, req1)
 
 	assertTraceWritten(t, tracePath)
@@ -312,7 +351,7 @@ func TestMiddleware_WithAutoResetDisabled(t *testing.T) {
 
 	// Second request should NOT capture (once-latch not reset)
 	rr2 := httptest.NewRecorder()
-	req2 := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	req2 := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr2, req2)
 
 	assertTraceNotWritten(t, tracePath)
@@ -332,7 +371,7 @@ func TestMiddleware_AutoResetDefault_AllowsMultipleCaptures(t *testing.T) {
 
 	// First request
 	rr1 := httptest.NewRecorder()
-	req1 := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	req1 := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr1, req1)
 
 	firstSize := buf.Len()
@@ -342,7 +381,7 @@ func TestMiddleware_AutoResetDefault_AllowsMultipleCaptures(t *testing.T) {
 
 	// Second request should also capture (autoReset is default true)
 	rr2 := httptest.NewRecorder()
-	req2 := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	req2 := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr2, req2)
 
 	secondSize := buf.Len()
@@ -364,7 +403,7 @@ func TestMiddleware_NilTriggerNeverCaptures(t *testing.T) {
 	}))
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr, req)
 
 	assertTraceNotWritten(t, tracePath)
@@ -381,7 +420,7 @@ func TestSnapshotHandler_Success(t *testing.T) {
 	handler := appkitfr.SnapshotHandler(rec)
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/debug/snapshot", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/debug/snapshot", nil)
 	handler.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
@@ -413,7 +452,7 @@ func TestSnapshotHandler_WorksWithJsonContentType(t *testing.T) {
 	handler := appkitfr.SnapshotHandler(rec)
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/debug/snapshot", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/debug/snapshot", nil)
 	handler.ServeHTTP(rr, req)
 
 	if ct := rr.Header().Get("Content-Type"); ct != "application/json" {
@@ -443,7 +482,7 @@ func TestSnapshotHandler_ResetBeforeSnapshot(t *testing.T) {
 	handler := appkitfr.SnapshotHandler(rec)
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/debug/snapshot", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/debug/snapshot", nil)
 	handler.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
@@ -471,10 +510,7 @@ func TestMount_RegistersHandler(t *testing.T) {
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
-	resp, err := http.Post(ts.URL+"/debug/snapshot", "application/json", nil)
-	if err != nil {
-		t.Fatalf("request error: %v", err)
-	}
+	resp := httpPostJSON(t, ts.URL+"/debug/snapshot")
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
@@ -489,7 +525,9 @@ func TestMount_RegistersHandler(t *testing.T) {
 	var result struct {
 		Status string `json:"status"`
 	}
-	if err := json.Unmarshal(body, &result); err != nil {
+
+	err = json.Unmarshal(body, &result)
+	if err != nil {
 		t.Fatalf("unmarshal error: %v", err)
 	}
 
@@ -524,10 +562,7 @@ func TestMiddleware_ThenHandler_ManualSnapshotAfterAutoCapture(t *testing.T) {
 	defer ts.Close()
 
 	// Trigger automatic capture via middleware
-	resp1, err := http.Get(ts.URL + "/api/fail")
-	if err != nil {
-		t.Fatalf("request error: %v", err)
-	}
+	resp1 := httpGetURL(t, ts.URL+"/api/fail")
 
 	_ = resp1.Body.Close()
 
@@ -537,10 +572,7 @@ func TestMiddleware_ThenHandler_ManualSnapshotAfterAutoCapture(t *testing.T) {
 	}
 
 	// Now manually snapshot — handler resets the latch, should capture again
-	resp2, err := http.Post(ts.URL+"/debug/snapshot", "application/json", nil)
-	if err != nil {
-		t.Fatalf("request error: %v", err)
-	}
+	resp2 := httpPostJSON(t, ts.URL+"/debug/snapshot")
 	defer func() { _ = resp2.Body.Close() }()
 
 	if resp2.StatusCode != http.StatusOK {

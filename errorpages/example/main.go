@@ -33,19 +33,20 @@ func main() {
 		return
 	}
 
-	errorpages.Mount(svc.Mux, errorpages.Config{})
+	errorpages.Mount(svc.Mux, errorpages.Config{}) //nolint:exhaustruct // zero Config
 
 	svc.Mux.HandleFunc("GET /teapot", func(w http.ResponseWriter, r *http.Request) {
 		err := errorfamily.NewRejection("demo.teapot", "short and stout")
-		errorpages.Write(w, r, err, errorpages.Config{})
+		errorpages.Write(w, r, err, errorpages.Config{}) //nolint:exhaustruct // zero Config
 	})
 
 	svc.Mux.HandleFunc("GET /explode", func(w http.ResponseWriter, r *http.Request) {
 		err := errorfamily.NewInfrastructure("demo.explode", "the database left the building")
-		errorpages.Write(w, r, err, errorpages.Config{})
+		errorpages.Write(w, r, err, errorpages.Config{}) //nolint:exhaustruct // zero Config
 	})
 
-	if err := svc.Run(context.Background()); err != nil {
+	err = svc.Run(context.Background())
+	if err != nil {
 		slog.Error("service stopped", "error", err)
 	}
 }

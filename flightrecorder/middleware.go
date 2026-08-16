@@ -1,6 +1,7 @@
 package flightrecorder
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -79,9 +80,9 @@ func Middleware(rec *fr.Recorder, trigger fr.TriggerFunc, opts ...MiddlewareOpti
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
-			rr := httputil.NewResponseRecorder(w)
+			responseRecorder := httputil.NewResponseRecorder(w)
 
-			next.ServeHTTP(rr, r)
+			next.ServeHTTP(responseRecorder, r)
 
 			duration := time.Since(start)
 
@@ -89,7 +90,7 @@ func Middleware(rec *fr.Recorder, trigger fr.TriggerFunc, opts ...MiddlewareOpti
 				Kind:     "http",
 				Type:     r.Method + " " + r.URL.Path,
 				Duration: duration,
-				Err:      statusError(rr.Status(), cfg.errorThreshold),
+				Err:      statusError(responseRecorder.Status(), cfg.errorThreshold),
 			}
 
 			captured := rec.SnapshotIf(r.Context(), tc, trigger)
@@ -103,7 +104,7 @@ func Middleware(rec *fr.Recorder, trigger fr.TriggerFunc, opts ...MiddlewareOpti
 					"method", r.Method,
 					"path", r.URL.Path,
 					"duration", duration,
-					"status", rr.Status(),
+					"status", responseRecorder.Status(),
 				)
 			}
 
@@ -114,12 +115,16 @@ func Middleware(rec *fr.Recorder, trigger fr.TriggerFunc, opts ...MiddlewareOpti
 	}
 }
 
+// errHTTPStatus is the sentinel underlying status-class errors, so callers
+// can match any threshold-exceeding status with errors.Is.
+var errHTTPStatus = errors.New("http status")
+
 // statusError returns an error if the status code indicates a server error,
 // nil otherwise. This populates [fr.TriggerContext].Err so that [fr.OnError]
 // and [fr.OnErrorOrLatency] triggers fire on error responses.
 func statusError(status, threshold int) error {
 	if status >= threshold {
-		return fmt.Errorf("http status %d", status)
+		return fmt.Errorf("%w %d", errHTTPStatus, status)
 	}
 
 	return nil

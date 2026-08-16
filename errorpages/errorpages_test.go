@@ -41,7 +41,7 @@ func TestHandler_FamiliesMapToStatusCodes(t *testing.T) {
 		err := errorfamily.New(tc.family, "test.code", "boom")
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, "/boom", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/boom", nil)
 
 		Handler(err, Config{}).ServeHTTP(rec, req)
 
@@ -62,7 +62,7 @@ func TestHandler_JSONContractShape(t *testing.T) {
 	err := errorfamily.New(errorfamily.Transient, "store.busy", "database is busy")
 
 	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/api/user", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/user", nil)
 	req.Header.Set("Accept", "application/json")
 
 	Handler(err, Config{}).ServeHTTP(rec, req)
@@ -84,8 +84,9 @@ func TestHandler_JSONContractShape(t *testing.T) {
 		Fix     string `json:"fix"`
 	}
 
-	if err := json.UnmarshalRead(rec.Body, &body); err != nil {
-		t.Fatalf("decode JSON contract: %v", err)
+	decodeErr := json.UnmarshalRead(rec.Body, &body)
+	if decodeErr != nil {
+		t.Fatalf("decode JSON contract: %v", decodeErr)
 	}
 
 	if body.Family != "transient" {
@@ -112,7 +113,7 @@ func TestMount_404HTMLByDefault(t *testing.T) {
 	Mount(mux, Config{})
 
 	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/nope", nil))
+	mux.ServeHTTP(rec, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/nope", nil))
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", rec.Code)
@@ -133,7 +134,7 @@ func TestMount_404JSONWhenAccepted(t *testing.T) {
 	mux := newMux(t)
 	Mount(mux, Config{})
 
-	req := httptest.NewRequest(http.MethodGet, "/nope", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/nope", nil)
 	req.Header.Set("Accept", "application/json")
 
 	rec := httptest.NewRecorder()
@@ -159,7 +160,7 @@ func TestMount_RegisteredRoutesUnaffected(t *testing.T) {
 	Mount(mux, Config{})
 
 	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health", nil))
+	mux.ServeHTTP(rec, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/health", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
@@ -172,7 +173,7 @@ func TestWrap_Pretty404(t *testing.T) {
 	handler := Wrap(newMux(t), Config{})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/gone", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/gone", nil))
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", rec.Code)
@@ -189,7 +190,7 @@ func TestWrap_Pretty405PreservesAllow(t *testing.T) {
 	handler := Wrap(newMux(t), Config{})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/health", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/health", nil))
 
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("status = %d, want 405", rec.Code)
@@ -210,7 +211,7 @@ func TestWrap_RegisteredRoutesPassThrough(t *testing.T) {
 	handler := Wrap(newMux(t), Config{})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/health", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
@@ -228,7 +229,7 @@ func TestWrite_CustomJSONWhenRule(t *testing.T) {
 	}}
 
 	apiRec := httptest.NewRecorder()
-	apiReq := httptest.NewRequest(http.MethodGet, "/api/thing", nil)
+	apiReq := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/thing", nil)
 	Write(apiRec, apiReq, err, cfg)
 
 	if !strings.Contains(apiRec.Header().Get("Content-Type"), "application/json") {
@@ -236,7 +237,7 @@ func TestWrite_CustomJSONWhenRule(t *testing.T) {
 	}
 
 	pageRec := httptest.NewRecorder()
-	pageReq := httptest.NewRequest(http.MethodGet, "/page", nil)
+	pageReq := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/page", nil)
 	Write(pageRec, pageReq, err, cfg)
 
 	if !strings.Contains(pageRec.Header().Get("Content-Type"), "text/html") {
