@@ -8,222 +8,222 @@ version: "2"
 #   - noinlineerr additionally enabled (newer linter, catches inline err decls)
 #   - no gci formatter: goimports is sufficient here
 run:
-    timeout: 3m
-    go: "1.26.5"
-    allow-parallel-runners: true
-    allow-serial-runners: true
+  timeout: 3m
+  go: "1.26.5"
+  allow-parallel-runners: true
+  allow-serial-runners: true
 output:
-    formats: {}
+  formats: {}
 linters:
-    default: standard
-    enable:
-        - asasalint
-        - asciicheck
-        - bidichk
-        - bodyclose
-        - canonicalheader
-        - containedctx
-        - contextcheck
-        - copyloopvar
-        - cyclop
-        - decorder
-        - dogsled
-        - dupl
-        - dupword
-        - durationcheck
-        - embeddedstructfieldcheck
-        - err113
-        - errchkjson
-        - errname
-        - errorlint
-        - exhaustive
-        - exhaustruct
-        - exptostd
-        - fatcontext
-        - forbidigo
-        - forcetypeassert
-        - funlen
-        - ginkgolinter
-        - gocheckcompilerdirectives
-        - gochecknoglobals
-        - gochecknoinits
-        - gochecksumtype
-        - gocognit
-        - goconst
-        - gocritic
-        - gocyclo
-        - godoclint
-        - godot
-        - godox
-        - goheader
-        - gomoddirectives
-        - gomodguard_v2
-        - goprintffuncname
-        - gosec
-        - gosmopolitan
-        - govet
-        - grouper
-        - iface
-        - importas
-        - inamedparam
-        - ineffassign
-        - interfacebloat
-        - intrange
-        - iotamixing
-        - ireturn
-        - loggercheck
-        - maintidx
-        - makezero
-        - mirror
-        - misspell
-        - mnd
-        - modernize
-        - musttag
-        - nakedret
-        - nestif
-        - nilerr
-        - nilnesserr
-        - nilnil
-        - nlreturn
-        - noctx
-        - noinlineerr
-        - nolintlint
-        - nonamedreturns
-        - nosprintfhostport
-        - paralleltest
-        - perfsprint
-        - prealloc
-        - predeclared
-        - promlinter
-        - protogetter
-        - reassign
-        - recvcheck
-        - revive
-        - rowserrcheck
-        - sloglint
-        - spancheck
-        - sqlclosecheck
-        - staticcheck
-        - tagalign
-        - tagliatelle
-        - testableexamples
-        - testifylint
-        - testpackage
-        - thelper
-        - tparallel
-        - unconvert
-        - unparam
-        - unqueryvet
-        - unused
-        - usestdlibvars
-        - usetesting
-        - varnamelen
-        - wastedassign
-        - whitespace
-        - wrapcheck
-        - wsl_v5
-        - zerologlint
-    settings:
-        cyclop:
-            max-complexity: 12
-        exhaustruct:
-            exclude:
-                - sync.Mutex
-                - time.Time
-        funlen:
-            lines: 200
-            statements: 100
-        gocritic:
-            disabled-checks:
-                - ifElseChain
-        gomoddirectives:
-            replace-local: true
-        gosec:
-            excludes:
-                - G304
-                - G115
-        ireturn:
-            allow:
-                - error
-                - empty
-                - anon
-                - stdlib
-                - generic
-        makezero:
-            always: true
-        mnd:
-            ignored-numbers:
-                - "0"
-                - "1"
-                - "2"
-                - "100"
-        revive:
-            rules:
-                - disabled: true
-                  name: exported
-                - disabled: true
-                  name: package-comments
-        varnamelen:
-            ignore-map-index-ok: true
-            ignore-names:
-                - err
-                - ok
-                - tt
-                - fn
-                - t
-                - i
-                - m
-                - g
-                - a
-                - b
-                - v
-                - w
-                - r
-                - tc
-            ignore-type-assert-ok: true
-        wrapcheck:
-            ignore-sigs:
-                - .Errorf(
-                - errors.New(
-                - errors.Unwrap(
-                - errors.Join(
-                - .Wrap(
-                - .Wrapf(
-                - .WithMessage(
-                - .WithMessagef(
-                - .WithStack(
-    exclusions:
-        generated: lax
-        rules:
-            # Tests are intentionally serialized (recorderMu): the process-global
-            # flight-recorder singleton forbids parallel Start/Stop. Same rationale
-            # as go-flightrecorder's config.
-            - path: _test\.go
-              linters:
-                - mnd
-                - exhaustruct
-                - err113
-                - paralleltest
-                - gochecknoglobals
-                - goconst
-                - varnamelen
-                - wsl_v5
-            - path: _test\.go
-              text: unused
-              linters:
-                - unused
-        paths:
-            - vendor/
+  default: standard
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - canonicalheader
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - decorder
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - embeddedstructfieldcheck
+    - err113
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exhaustruct
+    - exptostd
+    - fatcontext
+    - forbidigo
+    - forcetypeassert
+    - funlen
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecknoglobals
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godoclint
+    - godot
+    - godox
+    - goheader
+    - gomoddirectives
+    - gomodguard_v2
+    - goprintffuncname
+    - gosec
+    - gosmopolitan
+    - govet
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - ineffassign
+    - interfacebloat
+    - intrange
+    - iotamixing
+    - ireturn
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - misspell
+    - mnd
+    - modernize
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - nlreturn
+    - noctx
+    - noinlineerr
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - sqlclosecheck
+    - staticcheck
+    - tagalign
+    - tagliatelle
+    - testableexamples
+    - testifylint
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - unqueryvet
+    - unused
+    - usestdlibvars
+    - usetesting
+    - varnamelen
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - wsl_v5
+    - zerologlint
+  settings:
+    cyclop:
+      max-complexity: 12
+    exhaustruct:
+      exclude:
+        - sync.Mutex
+        - time.Time
+    funlen:
+      lines: 200
+      statements: 100
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+    gomoddirectives:
+      replace-local: true
+    gosec:
+      excludes:
+        - G304
+        - G115
+    ireturn:
+      allow:
+        - error
+        - empty
+        - anon
+        - stdlib
+        - generic
+    makezero:
+      always: true
+    mnd:
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "100"
+    revive:
+      rules:
+        - disabled: true
+          name: exported
+        - disabled: true
+          name: package-comments
+    varnamelen:
+      ignore-map-index-ok: true
+      ignore-names:
+        - err
+        - ok
+        - tt
+        - fn
+        - t
+        - i
+        - m
+        - g
+        - a
+        - b
+        - v
+        - w
+        - r
+        - tc
+      ignore-type-assert-ok: true
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
+  exclusions:
+    generated: lax
+    rules:
+      # Tests are intentionally serialized (recorderMu): the process-global
+      # flight-recorder singleton forbids parallel Start/Stop. Same rationale
+      # as go-flightrecorder's config.
+      - path: _test\.go
+        linters:
+          - mnd
+          - exhaustruct
+          - err113
+          - paralleltest
+          - gochecknoglobals
+          - goconst
+          - varnamelen
+          - wsl_v5
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - vendor/
 formatters:
-    enable:
-        - goimports
-        - gofumpt
-        - golines
-    settings:
-        golines:
-            max-len: 120
-    exclusions:
-        generated: lax
+  enable:
+    - goimports
+    - gofumpt
+    - golines
+  settings:
+    golines:
+      max-len: 120
+  exclusions:
+    generated: lax
 issues:
-    max-issues-per-linter: 50
-    max-same-issues: 10
+  max-issues-per-linter: 50
+  max-same-issues: 10

@@ -91,13 +91,13 @@ Use this module when you want:
 
 ## Trigger functions
 
-| Function                  | Fires when                                              |
-| ------------------------- | ------------------------------------------------------- |
-| `fr.OnError()`            | Any health check returns a non-nil error (default).     |
-| `fr.OnErrorOrLatency()`   | A check fails OR takes longer than the latency budget. |
-| `fr.OnAlways()`           | Every health-check batch (useful for sampling).         |
-| `fr.OnAny(fns...)`        | Any of the composed functions fire.                    |
-| `fr.OnAll(fns...)`        | All of the composed functions fire.                    |
+| Function                | Fires when                                             |
+| ----------------------- | ------------------------------------------------------ |
+| `fr.OnError()`          | Any health check returns a non-nil error (default).    |
+| `fr.OnErrorOrLatency()` | A check fails OR takes longer than the latency budget. |
+| `fr.OnAlways()`         | Every health-check batch (useful for sampling).        |
+| `fr.OnAny(fns...)`      | Any of the composed functions fire.                    |
+| `fr.OnAll(fns...)`      | All of the composed functions fire.                    |
 
 `fr.TriggerContext.Err` is set to the first failing service's error, so
 `OnError` and `OnErrorOrLatency` fire correctly on health-check failures.
@@ -114,35 +114,35 @@ unhealthy for the losing side.
 
 ### Checkable
 
-| Option              | Default            | Effect                              |
-| ------------------- | ------------------ | ----------------------------------- |
-| `WithCheckableName` | "flight-recorder"  | Display name in the health dashboard. |
+| Option              | Default           | Effect                                |
+| ------------------- | ----------------- | ------------------------------------- |
+| `WithCheckableName` | "flight-recorder" | Display name in the health dashboard. |
 
 ### Trigger
 
-| Option               | Default            | Effect                                                  |
-| -------------------- | ------------------ | ------------------------------------------------------- |
-| `WithTriggerFunc`    | `fr.OnError()`     | Decides when to capture.                                |
-| `WithCooldown`       | 0                  | Minimum duration between captures (30s–60s recommended for directory sinks). |
-| `WithTriggerLogger`  | nil                | slog logger for capture events.                         |
-| `WithServiceName`    | ""                 | Identifier logged with each capture (multi-trigger setups). |
+| Option              | Default        | Effect                                                                       |
+| ------------------- | -------------- | ---------------------------------------------------------------------------- |
+| `WithTriggerFunc`   | `fr.OnError()` | Decides when to capture.                                                     |
+| `WithCooldown`      | 0              | Minimum duration between captures (30s–60s recommended for directory sinks). |
+| `WithTriggerLogger` | nil            | slog logger for capture events.                                              |
+| `WithServiceName`   | ""             | Identifier logged with each capture (multi-trigger setups).                  |
 
 ## API surface
 
-| Symbol                                            | Purpose                                                        |
-| ------------------------------------------------- | -------------------------------------------------------------- |
-| `NewCheckable(rec, opts...) *Checkable`           | Health-checkable wrapper for the recorder.                     |
-| `Checkable.HealthCheck(ctx) error`                | Reports nil when enabled, error otherwise.                     |
-| `Checkable.Name() string`                        | Service name (for dashboard display).                          |
-| `NewTrigger(rec, opts...) *Trigger`              | HealthRecorder that captures on trigger fire.                  |
-| `Trigger.RecordHealthCheckWithContext(ctx, inj)`  | Runs the batch, fires `SnapshotIfAsync` if trigger returns true. |
-| `Register(injector, rec, name, opts...) *Checkable` | Convenience: creates + registers a `Checkable` in one call. |
+| Symbol                                              | Purpose                                                          |
+| --------------------------------------------------- | ---------------------------------------------------------------- |
+| `NewCheckable(rec, opts...) *Checkable`             | Health-checkable wrapper for the recorder.                       |
+| `Checkable.HealthCheck(ctx) error`                  | Reports nil when enabled, error otherwise.                       |
+| `Checkable.Name() string`                           | Service name (for dashboard display).                            |
+| `NewTrigger(rec, opts...) *Trigger`                 | HealthRecorder that captures on trigger fire.                    |
+| `Trigger.RecordHealthCheckWithContext(ctx, inj)`    | Runs the batch, fires `SnapshotIfAsync` if trigger returns true. |
+| `Register(injector, rec, name, opts...) *Checkable` | Convenience: creates + registers a `Checkable` in one call.      |
 
 ## Errors
 
 Errors are constructed via [go-error-family](https://github.com/LarsArtmann/go-error-family):
 
-| Error                                                  | Family         | When                                     |
-| ------------------------------------------------------ | -------------- | ---------------------------------------- |
-| `flightrecorder.recorder_missing`                      | Rejection      | `Checkable.HealthCheck` with nil recorder. |
-| `flightrecorder.recorder_disabled`                     | Infrastructure | `Checkable.HealthCheck` when recorder not started. |
+| Error                              | Family         | When                                               |
+| ---------------------------------- | -------------- | -------------------------------------------------- |
+| `flightrecorder.recorder_missing`  | Rejection      | `Checkable.HealthCheck` with nil recorder.         |
+| `flightrecorder.recorder_disabled` | Infrastructure | `Checkable.HealthCheck` when recorder not started. |
