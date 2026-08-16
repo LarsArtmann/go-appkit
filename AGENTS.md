@@ -108,7 +108,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `doc.go`           | Package doc. Quick start, import aliasing, process-global singleton note.                                                                                       |
 | `adapter.go`       | `Checkable` (health-checkable wrapper, implements `do.HealthcheckerWithContext`), `Trigger` (implements `health.HealthRecorder`), `Register` convenience, options. |
-| `adapter_test.go`  | 19 tests: Checkable health states, Trigger capture/no-capture/pass-through, cooldown, logger, custom trigger, Register, integration, concurrency-safe cooldown. |
+| `adapter_test.go`  | 20 tests: Checkable health states, Trigger capture/no-capture/pass-through, cooldown, logger, custom trigger, Register, integration (incl. real `health.New` Probe end-to-end), concurrency-safe cooldown. |
 | `contract_test.go` | Compile-time assertions: `*Trigger` satisfies `health.HealthRecorder`, `*Checkable` satisfies `do.HealthcheckerWithContext`. Makes contract drift a compile error. |
 | `example_test.go`  | 3 runnable godoc examples (`Register`, `NewCheckable`, `NewTrigger`) with verified output — the compile-checked source of truth for doc snippets.               |
 | `benchmark_test.go`| `BenchmarkTrigger_RecordHealthCheckWithContext_AllPass` — no-capture hot path (~4.7µs/batch, 2 services).                                                        |

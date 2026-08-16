@@ -14,6 +14,7 @@ import (
 
 	frhealth "github.com/larsartmann/go-appkit/flightrecorderhealth"
 	fr "github.com/larsartmann/go-flightrecorder"
+	"github.com/larsartmann/go-health"
 	"github.com/samber/do/v2"
 )
 
@@ -572,4 +573,33 @@ func TestIntegration_CheckableAppearsAsUnhealthyWhenStopped(t *testing.T) {
 	if fmt.Sprint(recorderErr) == "" {
 		t.Fatal("expected non-empty error message")
 	}
+}
+
+// TestIntegration_RealProbeEndToEnd wires a real go-health Probe exactly as
+// the README documents, and proves the full chain: probe batch → Trigger →
+// SnapshotIfAsync → trace file on disk.
+func TestIntegration_RealProbeEndToEnd(t *testing.T) {
+	rec, tracePath := newTestRecorder(t)
+
+	cleanup := startRecorder(t, rec)
+	defer cleanup()
+
+	injector := do.New()
+	registerSvc(injector, "database", errTestConnectionRefused)
+
+	probe := health.New(injector,
+		health.WithCriticalServices("database"),
+		health.WithHealthRecorder(frhealth.NewTrigger(rec)),
+	)
+
+	rec.Reset()
+
+	resp := probe.Evaluate(context.Background())
+
+	if resp.Status != health.StatusFail {
+		t.Fatalf("expected fail status for failing critical service, got %q", resp.Status)
+	}
+
+	drainAndStop(rec)
+	assertTraceWritten(t, tracePath)
 }

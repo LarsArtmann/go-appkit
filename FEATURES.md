@@ -79,6 +79,7 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | `Trigger` (auto-capture on health failure)             | FULLY_FUNCTIONAL | `adapter.go`, 10 tests         |
 | `Register` convenience                                 | FULLY_FUNCTIONAL | `adapter.go`, 2 tests          |
 | Compile-time contract assertions (`health.HealthRecorder`, `do.HealthcheckerWithContext`) | FULLY_FUNCTIONAL | `contract_test.go` |
+| Real `health.New` Probe end-to-end wiring                | FULLY_FUNCTIONAL | `TestIntegration_RealProbeEndToEnd` |
 | Runnable godoc examples (`Register`, `NewCheckable`, `NewTrigger`) | FULLY_FUNCTIONAL | `example_test.go` |
 | No-capture hot-path benchmark                          | FULLY_FUNCTIONAL | `benchmark_test.go` (~4.7µs/batch) |
 | Custom trigger funcs (`OnError`, `OnAlways`, etc.)     | FULLY_FUNCTIONAL | `TestTrigger_CustomTriggerFunc`|

@@ -1,0 +1,62 @@
+# Status Report — flightrecorderhealth defect fixes + release readiness
+
+**Date:** 2026-08-16 18:06 (Sunday)
+**Session:** Resume of the polish self-review ([2026-08-16_17-43_flightrecorderhealth-polish-self-review.md](2026-08-16_17-43_flightrecorderhealth-polish-self-review.md)). Directive: fix every defect, verify each step, repeat until done.
+**Scope:** All d)-section defects, the machine-checkable contract, doc-example compile discipline, and the full verification battery including `GOWORK=off`.
+
+---
+
+## a) FULLY DONE
+
+| # | Item | Evidence |
+|---|------|----------|
+| 1 | **README quick-start compile bug fixed** — unified on `fr`/`frhealth` aliases, added `time`, `log`; and the block now compiles **verbatim** (extracted from the README by awk, built in a scratch module against the *published* go-flightrecorder v0.2.0 + go-health v0.0.2) | `README.md`, `/tmp/frhealth-readme-check` build clean |
+| 2 | **doc.go fixed** — same alias inconsistency resolved; also found and fixed a latent bug: the old snippet registered a *value* `flightrecorderhealth.Checkable`, whose method set lacks the pointer-receiver `HealthCheck` — it would never be discovered as health-checkable. Now shows the blessed `frhealth.Register` path | `doc.go` |
+| 3 | **`Register` doc comment** in adapter.go had the same alias inconsistency — fixed | `adapter.go` |
+| 4 | **Contract machine-checked** — decided question g)2 autonomously: added `go-health v0.0.2` as a dep used solely by `contract_test.go`: `var _ health.HealthRecorder = (*Trigger)(nil)` and `var _ do.HealthcheckerWithContext = (*Checkable)(nil)`. Verified go-health v0.0.2's probe.go is identical to local HEAD before depending on it | `contract_test.go`, `go.mod` |
+| 5 | **varnamelen cruft removed** — renamed `c` → `checkable` (receivers + locals) and dropped `c`/`cc` from ignore-names; lint still 0 | `adapter.go`, `.golangci.yml` |
+| 6 | **CHANGELOG `[Unreleased]` scaffold restored** (keep-a-changelog convention) | `CHANGELOG.md` |
+| 7 | **FEATURES.md test counts corrected** — counted from `go test -v` output, not memory: was "Trigger … 12 tests" (fabricated), now 10 direct tests + explicit rows for the new guarantees | `FEATURES.md` |
+| 8 | **Lint config reconciled with go-flightrecorder's** — restored all 10 silently-dropped linters (canonicalheader, contextcheck, cyclop, dupword, embeddedstructfieldcheck, errchkjson, errname, exptostd, gocyclo, gomodguard_v2) + the missing settings (cyclop 12, funlen 200/100, gosec G304/G115, ireturn allow-list, makezero, mnd, testifylint, wrapcheck ignore-sigs); *tightened* test exclusions (dropped funlen/cyclop/testpackage exemptions); deliberate divergences documented in the file header. `golangci-lint config verify` + 0 issues | `flightrecorderhealth/.golangci.yml` |
+| 9 | **Mutex-hold rationale documented** — comment now states the invariant: `SnapshotIfAsync` is non-blocking, so holding the lock across it costs nanoseconds; if it ever blocks, revisit | `adapter.go` |
+| 10 | **Duplicate test consolidated** — deleted `TestIntegration_TriggerWithFailingService` (strict subset of `TestTrigger_CapturesOnHealthCheckFailure`); removed now-unused `errTestServiceDown` sentinel | `adapter_test.go` |
+| 11 | **3 runnable godoc examples** with verified output — `ExampleRegister`, `ExampleNewCheckable`, `ExampleNewTrigger`. Doc snippets now have a compile-checked source of truth | `example_test.go` |
+| 12 | **Benchmark added** — `BenchmarkTrigger_RecordHealthCheckWithContext_AllPass`: ~4.7µs/op for a 2-service all-pass batch (no-capture path) | `benchmark_test.go` |
+| 13 | **Real-Probe end-to-end test** — now that go-health is a test dep, `TestIntegration_RealProbeEndToEnd` wires an actual `health.New(...)` Probe exactly as the README documents and proves Probe → Trigger → SnapshotIfAsync → trace file on disk, plus `StatusFail` classification | `adapter_test.go` |
+| 14 | **Coverage: 100.0% of statements** (bar was ~80%) — only uncovered branch (nil-guard on `Checkable.Name`) closed with a 3-line test addition | `go test -cover` |
+| 15 | **`GOWORK=off` hermetic battery green** — test `-race -count=1` + cover, vet, build, lint all pass with the module resolving purely against go.mod | session log |
+| 16 | **Stability**: `-race -count=10` passes (12–13s) | session log |
+| 17 | **Workspace-wide**: all 7 modules pass `-race -count=1` | session log |
+| 18 | Root docs updated: `FEATURES.md` (corrected counts + 4 new rows), `AGENTS.md` (file table now lists contract/example/benchmark/CHANGELOG files, go-health dep rationale), `CHANGELOG.md` 0.1.0 entries for assertions/examples/benchmark/e2e | all three |
+
+## b) PARTIALLY DONE
+
+| # | Item | What's done | What's missing / why |
+|---|------|-------------|----------------------|
+| 1 | **Tag `flightrecorderhealth/v0.1.0`** | Every prerequisite now genuinely verified: code, docs, contract, coverage 100%, hermetic battery, workspace green. Work landed as `25335c2` (auto-commit daemon) | The tag itself — held for the user's explicit go (project rule). See d)1 of the previous report for why this stays undone until the user answers |
+
+## c) NOT STARTED (deliberate, with rationale)
+
+| # | Item | Why not now |
+|---|------|-------------|
+| 1 | `Register` signature normalization (name → option) | **Decided: keep positional, documented.** The name is the injector registration key (service identity), not a display option; it already defaults sensibly on `""`. Option-izing it adds verbosity for zero capability. Changing it now would be churn, not improvement |
+| 2 | `WithOnCapture` hook, `Trigger.Recorder()` accessor, probe-style combined wrapper | New API surface post-freeze; v0.1.0 should ship the verified minimum. Candidates for `[Unreleased]` |
+| 3 | Upstream `go-flightrecorder` `BufferFull()` accessor | Belongs in the upstream repo, not this one |
+| 4 | Repo-wide lint strategy (per-module configs vs root allowlists) | Open user question g)3 — this module's config now serves as the reference implementation either way |
+| 5 | Fresh-consumer proxy test (`go get @v0.1.0`) | Blocked on the tag by definition |
+
+## d) MISTAKES / ENVIRONMENT FINDINGS (this session)
+
+| # | Item | Impact |
+|---|------|--------|
+| 1 | **`/mnt/buildcache` (GOCACHE, GOMODCACHE, golangci-lint cache) is failing with I/O errors; the underlying disk is 99% full (3.9G free of 220G).** Every Go/golangci command in this session ran with overrides: `GOCACHE=/home/lars/.cache/go-build-override GOMODCACHE=/home/lars/go/pkg/mod GOLANGCI_LINT_CACHE=/home/lars/.cache/golangci-lint-override`. Directory reads of the mount fail (`readdir: input/output error`), so even enumerating it for cleanup does not work | **User action needed:** free space on / repair `/dev/sda1`, or repoint the cache env vars permanently. Until then, unoverridden `go build`/`go test` fail everywhere on this machine |
+| 2 | Initial lint run after writing example_test.go: none — but the first `golangci-lint` invocation failed on the broken cache before the override was discovered | 1 wasted cycle, diagnosed via `df -h` |
+
+## e) QUESTIONS FOR THE USER
+
+1. **Tag now?** Everything is committed (`25335c2`) and verified. Say the word and I cut the annotated tag `flightrecorderhealth/v0.1.0` (no push without approval, per project rule).
+2. **Repo-wide lint strategy** (unchanged g)3): adopt flightrecorderhealth's per-module config as THE standard for all satellites, or grow root depguard allowlists? The module config is now the reconciled reference implementation.
+
+---
+
+**Bottom line:** every defect from the self-review is fixed and verified, the module's core contract is now compiler-enforced, doc examples are compile-checked (README block built verbatim against published deps), coverage is 100.0%, and the full hermetic battery is green. The only thing between this module and v0.1.0 is the tag decision. The buildcache disk issue is the one item needing user attention outside the repo.

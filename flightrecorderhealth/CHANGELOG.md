@@ -31,7 +31,9 @@ health-check failures through the health dashboard.
 - Compile-time interface assertions: `*Trigger` satisfies
   `health.HealthRecorder` and `*Checkable` satisfies
   `do.HealthcheckerWithContext` (`contract_test.go`). Interface changes in
-  either dependency become compile errors instead of silent breaks.
+  either dependency become compile errors instead of silent breaks. The full
+  chain (Probe batch → Trigger → snapshot on disk) is verified against a real
+  `health.New` Probe in `TestIntegration_RealProbeEndToEnd`.
 - Runnable godoc examples for `Register`, `NewCheckable`, and `NewTrigger`
   with verified output.
 - `BenchmarkTrigger_RecordHealthCheckWithContext_AllPass` for the no-capture
