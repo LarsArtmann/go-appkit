@@ -67,6 +67,7 @@ Each module is independently versioned and usable on its own:
 | [errorpages](errorpages/README.md) | `github.com/larsartmann/go-appkit/errorpages`     | Pretty classified error pages (HTML) and contracts (JSON)              |
 | [realtime](realtime/)              | `github.com/larsartmann/go-appkit/realtime`       | SSE hub + handler: broadcast, replay, heartbeat, Last-Event-ID resume  |
 | [flightrecorder](flightrecorder/)  | `github.com/larsartmann/go-appkit/flightrecorder` | On-demand runtime/trace capture middleware + snapshot endpoint         |
+| [flightrecorderhealth](flightrecorderhealth/) | `github.com/larsartmann/go-appkit/flightrecorderhealth` | Bridges flight recorder with go-health: dashboard visibility + auto-capture on health failures |
 
 > Modules that depend on go-cqrs-lite (cqrs, docs) or templ-components
 > (errorpages) require `GOEXPERIMENT=jsonv2` to build; see each module's
