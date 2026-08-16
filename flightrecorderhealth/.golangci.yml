@@ -1,7 +1,17 @@
 version: "2"
+# Modeled on go-flightrecorder/.golangci.yml (sibling library with the same
+# process-global flight-recorder singleton constraint).
+#
+# Deliberate divergences from go-flightrecorder's config:
+#   - no goexperiment.* build-tags: this module does not require any
+#     GOEXPERIMENT (verified: builds and tests clean without them)
+#   - noinlineerr additionally enabled (newer linter, catches inline err decls)
+#   - no gci formatter: goimports is sufficient here
 run:
     timeout: 3m
     go: "1.26.5"
+    allow-parallel-runners: true
+    allow-serial-runners: true
 output:
     formats: {}
 linters:
@@ -11,16 +21,24 @@ linters:
         - asciicheck
         - bidichk
         - bodyclose
+        - canonicalheader
         - containedctx
+        - contextcheck
         - copyloopvar
+        - cyclop
         - decorder
         - dogsled
         - dupl
+        - dupword
         - durationcheck
+        - embeddedstructfieldcheck
         - err113
+        - errchkjson
+        - errname
         - errorlint
         - exhaustive
         - exhaustruct
+        - exptostd
         - fatcontext
         - forbidigo
         - forcetypeassert
@@ -33,11 +51,13 @@ linters:
         - gocognit
         - goconst
         - gocritic
+        - gocyclo
         - godoclint
         - godot
         - godox
         - goheader
         - gomoddirectives
+        - gomodguard_v2
         - goprintffuncname
         - gosec
         - gosmopolitan
@@ -104,6 +124,45 @@ linters:
         - wsl_v5
         - zerologlint
     settings:
+        cyclop:
+            max-complexity: 12
+        exhaustruct:
+            exclude:
+                - sync.Mutex
+                - time.Time
+        funlen:
+            lines: 200
+            statements: 100
+        gocritic:
+            disabled-checks:
+                - ifElseChain
+        gomoddirectives:
+            replace-local: true
+        gosec:
+            excludes:
+                - G304
+                - G115
+        ireturn:
+            allow:
+                - error
+                - empty
+                - anon
+                - stdlib
+                - generic
+        makezero:
+            always: true
+        mnd:
+            ignored-numbers:
+                - "0"
+                - "1"
+                - "2"
+                - "100"
+        revive:
+            rules:
+                - disabled: true
+                  name: exported
+                - disabled: true
+                  name: package-comments
         varnamelen:
             ignore-map-index-ok: true
             ignore-names:
@@ -120,23 +179,25 @@ linters:
                 - v
                 - w
                 - r
-                - c
                 - tc
-                - cc
             ignore-type-assert-ok: true
-        exhaustruct:
-            exclude:
-                - sync.Mutex
-                - time.Time
-        revive:
-            rules:
-                - disabled: true
-                  name: exported
-                - disabled: true
-                  name: package-comments
+        wrapcheck:
+            ignore-sigs:
+                - .Errorf(
+                - errors.New(
+                - errors.Unwrap(
+                - errors.Join(
+                - .Wrap(
+                - .Wrapf(
+                - .WithMessage(
+                - .WithMessagef(
+                - .WithStack(
     exclusions:
         generated: lax
         rules:
+            # Tests are intentionally serialized (recorderMu): the process-global
+            # flight-recorder singleton forbids parallel Start/Stop. Same rationale
+            # as go-flightrecorder's config.
             - path: _test\.go
               linters:
                 - mnd
@@ -147,9 +208,6 @@ linters:
                 - goconst
                 - varnamelen
                 - wsl_v5
-                - funlen
-                - cyclop
-                - testpackage
             - path: _test\.go
               text: unused
               linters:

@@ -28,36 +28,49 @@ health checks fail.
 ## Quick start
 
 ```go
+package main
+
 import (
-    fr "github.com/larsartmann/go-flightrecorder"
-    "github.com/larsartmann/go-health"
-    frhealth "github.com/larsartmann/go-appkit/flightrecorderhealth"
-    "github.com/samber/do/v2"
+	"log"
+	"time"
+
+	frhealth "github.com/larsartmann/go-appkit/flightrecorderhealth"
+	fr "github.com/larsartmann/go-flightrecorder"
+	"github.com/larsartmann/go-health"
+	"github.com/samber/do/v2"
 )
 
-// Build the recorder.
-rec, err := flightrecorder.New(
-    flightrecorder.WithSnapshotDir("/var/traces"),
-    flightrecorder.WithMinAge(50*time.Millisecond),
-)
-if err != nil { /* handle */ }
-if err := rec.Start(); err != nil { /* handle */ }
-defer rec.Close()
+func main() {
+	// Build the recorder. A directory sink keeps timestamped snapshots on disk.
+	rec, err := fr.New(
+		fr.WithSnapshotDir("/var/traces"),
+		fr.WithMinAge(50*time.Millisecond),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := rec.Start(); err != nil {
+		log.Fatal(err)
+	}
+	defer rec.Close()
 
-// 1. Register the recorder as a health-checkable service so its status
-//    appears in the dashboard.
-injector := do.New()
-frhealth.Register(injector, rec, "flight-recorder")
+	injector := do.New()
 
-// 2. Wire the trigger to auto-capture a trace snapshot on health failures.
-probe := health.New(injector,
-    health.WithCriticalServices("database", "cache"),
-    health.WithHealthRecorder(frhealth.NewTrigger(rec,
-        frhealth.WithTriggerFunc(fr.OnError()),
-        frhealth.WithServiceName("flight-recorder"),
-        frhealth.WithCooldown(30*time.Second),
-    )),
-)
+	// 1. Register the recorder as a health-checkable service so its status
+	//    appears in the dashboard.
+	frhealth.Register(injector, rec, "flight-recorder")
+
+	// 2. Wire the trigger to auto-capture a trace snapshot on health failures.
+	probe := health.New(injector,
+		health.WithCriticalServices("database", "cache"),
+		health.WithHealthRecorder(frhealth.NewTrigger(rec,
+			frhealth.WithTriggerFunc(fr.OnError()),
+			frhealth.WithServiceName("flight-recorder"),
+			frhealth.WithCooldown(30*time.Second),
+		)),
+	)
+	_ = probe // serve probe.ReadinessHandler(), probe.LivenessHandler(), ...
+}
 ```
 
 ## When to use

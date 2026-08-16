@@ -104,13 +104,17 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Flightrecorderhealth Module — Code Organization
 
-| File             | Concern                                                                                                                                                          |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `doc.go`         | Package doc. Quick start, import aliasing, process-global singleton note.                                                                                       |
-| `adapter.go`     | `Checkable` (health-checkable wrapper, implements `do.HealthcheckerWithContext`), `Trigger` (implements `health.HealthRecorder`), `Register` convenience, options. |
-| `adapter_test.go`| 20 tests: Checkable health states, Trigger capture/no-capture/pass-through, cooldown, logger, custom trigger, Register, integration, concurrency-safe cooldown. |
-| `.golangci.yml`  | Module-specific lint config (mirrors go-flightrecorder's exclusions; test files exempt from `paralleltest`/`err113`/`varnamelen` due to singleton constraint). |
-| `README.md`      | Module overview, quick start, trigger functions, error taxonomy.                                                                                                |
+| File               | Concern                                                                                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`           | Package doc. Quick start, import aliasing, process-global singleton note.                                                                                       |
+| `adapter.go`       | `Checkable` (health-checkable wrapper, implements `do.HealthcheckerWithContext`), `Trigger` (implements `health.HealthRecorder`), `Register` convenience, options. |
+| `adapter_test.go`  | 19 tests: Checkable health states, Trigger capture/no-capture/pass-through, cooldown, logger, custom trigger, Register, integration, concurrency-safe cooldown. |
+| `contract_test.go` | Compile-time assertions: `*Trigger` satisfies `health.HealthRecorder`, `*Checkable` satisfies `do.HealthcheckerWithContext`. Makes contract drift a compile error. |
+| `example_test.go`  | 3 runnable godoc examples (`Register`, `NewCheckable`, `NewTrigger`) with verified output — the compile-checked source of truth for doc snippets.               |
+| `benchmark_test.go`| `BenchmarkTrigger_RecordHealthCheckWithContext_AllPass` — no-capture hot path (~4.7µs/batch, 2 services).                                                        |
+| `.golangci.yml`    | Module lint config reconciled with go-flightrecorder's enable-list (deliberate divergences documented in file header); tests serialized via `recorderMu` due to singleton constraint. |
+| `README.md`        | Module overview, quick start (compile-checked verbatim in a scratch module), trigger functions, error taxonomy.                                                   |
+| `CHANGELOG.md`     | keep-a-changelog format with `[Unreleased]` scaffold.                                                                                                           |
 
 - Bridges [github.com/larsartmann/go-flightrecorder] with [github.com/larsartmann/go-health].
 - `Checkable` reports the recorder's own operational state (enabled/disabled) as a health-checkable service in the dashboard.
@@ -119,6 +123,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - `WithCooldown` prevents trace flooding on flapping services; `lastCapture` is guarded by `sync.Mutex` for concurrent batch safety.
 - `WithServiceName` includes an identifier in trigger log messages (multi-trigger setups).
 - Nil-safe: nil `Trigger` or nil recorder pass-through to `injector.HealthCheckWithContext`.
+- The `go-health` dependency exists solely for the compile-time interface assertion in `contract_test.go` — no runtime usage. If go-health's `HealthRecorder` interface changes, the build breaks instead of failing silently.
 - Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family) constructors: `flightrecorder.recorder_missing` is `Rejection`, `flightrecorder.recorder_disabled` is `Infrastructure`.
 - Tests use `do.New()` with registered `healthSvc` mocks, `WithMinAge(50ms)` + `WithMaxBytes(1MiB)` + 100ms warmup sleep for trace data.
 - Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.0.2`, `samber/do v2.1.0`, `go-error-family v0.10.0`.

@@ -5,6 +5,7 @@ go 1.26.5
 require (
 	github.com/larsartmann/go-error-family v0.10.0
 	github.com/larsartmann/go-flightrecorder v0.2.0
+	github.com/larsartmann/go-health v0.0.2
 	github.com/samber/do/v2 v2.1.0
 )
 

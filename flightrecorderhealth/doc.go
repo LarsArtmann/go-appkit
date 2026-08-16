@@ -18,28 +18,22 @@
 // # Quick start
 //
 // Register the recorder as a health-checkable service so its status appears in
-// the dashboard:
+// the dashboard, then wire the trigger to capture a trace snapshot when any
+// health check fails:
 //
-//	rec, err := flightrecorder.New(flightrecorder.WithSnapshotDir("/var/traces"))
+//	rec, err := fr.New(fr.WithSnapshotDir("/var/traces"))
 //	if err != nil { /* handle */ }
 //	if err := rec.Start(); err != nil { /* handle */ }
 //	defer rec.Close()
 //
-//	// Register in the samber/do injector — the health Probe discovers it
-//	// automatically.
-//	checkable := flightrecorderhealth.NewCheckable(rec)
-//	do.ProvideNamed(injector, "flight-recorder", func(_ do.Injector) (flightrecorderhealth.Checkable, error) {
-//	    return checkable, nil
-//	})
-//	_, _ = do.InvokeNamed[flightrecorderhealth.Checkable](injector, "flight-recorder")
-//
-// Wire the trigger to capture a trace snapshot when any health check fails:
+//	injector := do.New()
+//	frhealth.Register(injector, rec, "flight-recorder")
 //
 //	probe := health.New(injector,
 //	    health.WithCriticalServices("database", "bot"),
-//	    health.WithHealthRecorder(flightrecorderhealth.NewTrigger(rec,
-//	        flightrecorderhealth.WithTriggerFunc(fr.OnError()),
-//	        flightrecorderhealth.WithServiceName("flight-recorder"),
+//	    health.WithHealthRecorder(frhealth.NewTrigger(rec,
+//	        frhealth.WithTriggerFunc(fr.OnError()),
+//	        frhealth.WithServiceName("flight-recorder"),
 //	    )),
 //	)
 //

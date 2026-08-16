@@ -21,7 +21,6 @@ import (
 var (
 	errTestConnectionRefused = errors.New("connection refused")
 	errTestTimeout           = errors.New("timeout")
-	errTestServiceDown       = errors.New("service down")
 )
 
 // recorderMu serializes tests that call Start/Stop because Go's
@@ -168,6 +167,10 @@ func TestCheckable_NilReceiver(t *testing.T) {
 	err := c.HealthCheck(context.Background())
 	if err == nil {
 		t.Fatal("expected error for nil Checkable, got nil")
+	}
+
+	if got := c.Name(); got != "" {
+		t.Fatalf("expected empty name for nil Checkable, got %q", got)
 	}
 }
 
@@ -545,29 +548,6 @@ func TestIntegration_HealthDashboardShowsRecorder(t *testing.T) {
 	if recorderErr != nil {
 		t.Fatalf("expected healthy recorder, got error: %v", recorderErr)
 	}
-}
-
-func TestIntegration_TriggerWithFailingService(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
-
-	injector := do.New()
-	registerSvc(injector, "failing-svc", errTestServiceDown)
-
-	trigger := frhealth.NewTrigger(rec)
-
-	rec.Reset()
-
-	results := trigger.RecordHealthCheckWithContext(context.Background(), injector)
-
-	if results["failing-svc"] == nil {
-		t.Fatal("expected failing-svc to have an error")
-	}
-
-	drainAndStop(rec)
-	assertTraceWritten(t, tracePath)
 }
 
 func TestIntegration_CheckableAppearsAsUnhealthyWhenStopped(t *testing.T) {

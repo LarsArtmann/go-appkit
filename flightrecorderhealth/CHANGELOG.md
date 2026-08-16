@@ -1,5 +1,7 @@
 # Changelog
 
+## [Unreleased]
+
 ## [0.1.0] - 2026-08-16
 
 First release of the flightrecorderhealth module. Bridges
@@ -26,6 +28,14 @@ health-check failures through the health dashboard.
   messages (useful when multiple triggers run in the same process).
 - `Register(injector, rec, name, opts...)` — convenience function that
   creates a `Checkable` and registers it in the samber/do injector.
+- Compile-time interface assertions: `*Trigger` satisfies
+  `health.HealthRecorder` and `*Checkable` satisfies
+  `do.HealthcheckerWithContext` (`contract_test.go`). Interface changes in
+  either dependency become compile errors instead of silent breaks.
+- Runnable godoc examples for `Register`, `NewCheckable`, and `NewTrigger`
+  with verified output.
+- `BenchmarkTrigger_RecordHealthCheckWithContext_AllPass` for the no-capture
+  hot path (~4.7µs per batch with two passing services).
 - Errors classified via [go-error-family](https://github.com/LarsArtmann/go-error-family):
   `flightrecorder.recorder_missing` (Rejection) for nil recorder, and
   `flightrecorder.recorder_disabled` (Infrastructure) for not-started recorder.

@@ -30,7 +30,7 @@ type CheckableOption func(*Checkable)
 // WithCheckableName sets the display name for this service in the health
 // dashboard. Default: "flight-recorder".
 func WithCheckableName(name string) CheckableOption {
-	return func(c *Checkable) { c.name = name }
+	return func(checkable *Checkable) { checkable.name = name }
 }
 
 // NewCheckable wraps a flight recorder as a health-checkable service. The
@@ -40,26 +40,26 @@ func WithCheckableName(name string) CheckableOption {
 // If rec is nil, HealthCheck returns an error immediately. This is a
 // programming error — do not construct a Checkable without a recorder.
 func NewCheckable(rec *fr.Recorder, opts ...CheckableOption) *Checkable {
-	c := &Checkable{
+	checkable := &Checkable{
 		rec:  rec,
 		name: "flight-recorder",
 	}
 
 	for _, opt := range opts {
-		opt(c)
+		opt(checkable)
 	}
 
-	return c
+	return checkable
 }
 
 // HealthCheck reports whether the flight recorder is actively recording.
 // Returns nil if enabled, an error otherwise.
-func (c *Checkable) HealthCheck(_ context.Context) error {
-	if c == nil || c.rec == nil {
+func (checkable *Checkable) HealthCheck(_ context.Context) error {
+	if checkable == nil || checkable.rec == nil {
 		return errorfamily.NewRejection("flightrecorder.recorder_missing", "flightrecorder: recorder is not configured")
 	}
 
-	if !c.rec.Enabled() {
+	if !checkable.rec.Enabled() {
 		return errorfamily.NewInfrastructure(
 			"flightrecorder.recorder_disabled",
 			"flightrecorder: recorder is not enabled (trace buffer inactive)",
@@ -71,12 +71,12 @@ func (c *Checkable) HealthCheck(_ context.Context) error {
 
 // Name returns the service name. Satisfies the optional name provider
 // pattern used by samber/do for display purposes.
-func (c *Checkable) Name() string {
-	if c == nil {
+func (checkable *Checkable) Name() string {
+	if checkable == nil {
 		return ""
 	}
 
-	return c.name
+	return checkable.name
 }
 
 // Trigger is a [health.HealthRecorder] that intercepts every health-check
@@ -195,6 +195,12 @@ func (t *Trigger) RecordHealthCheckWithContext(
 	// Cooldown check — compare against the last capture time. Holding the
 	// mutex across both the read and the write prevents two concurrent
 	// batches from both deciding the cooldown has elapsed.
+	//
+	// The mutex is deliberately held across the SnapshotIfAsync call below:
+	// that call is non-blocking (it spawns a capture goroutine and returns
+	// immediately), so the lock is only held for nanoseconds. If it ever
+	// becomes blocking, concurrent health-check batches would serialize here
+	// — revisit this ordering then.
 	t.mu.Lock()
 
 	if t.cooldown > 0 && !t.lastCapture.IsZero() && time.Since(t.lastCapture) < t.cooldown {
@@ -259,8 +265,8 @@ func firstError(results map[string]error) error {
 // it in the samber/do injector as a named service. The health Probe will
 // discover it automatically.
 //
-//	rec, _ := flightrecorder.New(flightrecorder.WithSnapshotDir("/var/traces"))
-//	flightrecorderhealth.Register(injector, rec, "flight-recorder")
+//	rec, _ := fr.New(fr.WithSnapshotDir("/var/traces"))
+//	frhealth.Register(injector, rec, "flight-recorder")
 //
 // If you need the HealthRecorder trigger as well, use [NewTrigger] separately
 // and pass it to [health.New] via [health.WithHealthRecorder].
@@ -269,14 +275,14 @@ func Register(injector do.Injector, rec *fr.Recorder, name string, opts ...Check
 		name = "flight-recorder"
 	}
 
-	c := NewCheckable(rec, append(opts, WithCheckableName(name))...)
+	checkable := NewCheckable(rec, append(opts, WithCheckableName(name))...)
 
 	do.ProvideNamed(injector, name, func(_ do.Injector) (*Checkable, error) {
-		return c, nil
+		return checkable, nil
 	})
 
 	// Eagerly invoke to instantiate the service in the container.
 	_, _ = do.InvokeNamed[*Checkable](injector, name)
 
-	return c
+	return checkable
 }
