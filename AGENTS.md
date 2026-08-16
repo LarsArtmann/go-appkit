@@ -104,17 +104,17 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Flightrecorderhealth Module — Code Organization
 
-| File               | Concern                                                                                                                                                          |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `doc.go`           | Package doc. Quick start, import aliasing, process-global singleton note.                                                                                       |
-| `adapter.go`       | `Checkable` (health-checkable wrapper, implements `do.HealthcheckerWithContext`), `Trigger` (implements `health.HealthRecorder`), `Register` convenience, options. |
-| `adapter_test.go`  | 20 tests: Checkable health states, Trigger capture/no-capture/pass-through, cooldown, logger, custom trigger, Register, integration (incl. real `health.New` Probe end-to-end), concurrency-safe cooldown. |
-| `contract_test.go` | Compile-time assertions: `*Trigger` satisfies `health.HealthRecorder`, `*Checkable` satisfies `do.HealthcheckerWithContext`. Makes contract drift a compile error. |
-| `example_test.go`  | 3 runnable godoc examples (`Register`, `NewCheckable`, `NewTrigger`) with verified output — the compile-checked source of truth for doc snippets.               |
-| `benchmark_test.go`| `BenchmarkTrigger_RecordHealthCheckWithContext_AllPass` — no-capture hot path (~4.7µs/batch, 2 services).                                                        |
-| `.golangci.yml`    | Module lint config reconciled with go-flightrecorder's enable-list (deliberate divergences documented in file header); tests serialized via `recorderMu` due to singleton constraint. |
-| `README.md`        | Module overview, quick start (compile-checked verbatim in a scratch module), trigger functions, error taxonomy.                                                   |
-| `CHANGELOG.md`     | keep-a-changelog format with `[Unreleased]` scaffold.                                                                                                           |
+| File                | Concern                                                                                                                                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`            | Package doc. Quick start, import aliasing, process-global singleton note.                                                                                                                                  |
+| `adapter.go`        | `Checkable` (health-checkable wrapper, implements `do.HealthcheckerWithContext`), `Trigger` (implements `health.HealthRecorder`), `Register` convenience, options.                                         |
+| `adapter_test.go`   | 20 tests: Checkable health states, Trigger capture/no-capture/pass-through, cooldown, logger, custom trigger, Register, integration (incl. real `health.New` Probe end-to-end), concurrency-safe cooldown. |
+| `contract_test.go`  | Compile-time assertions: `*Trigger` satisfies `health.HealthRecorder`, `*Checkable` satisfies `do.HealthcheckerWithContext`. Makes contract drift a compile error.                                         |
+| `example_test.go`   | 3 runnable godoc examples (`Register`, `NewCheckable`, `NewTrigger`) with verified output — the compile-checked source of truth for doc snippets.                                                          |
+| `benchmark_test.go` | `BenchmarkTrigger_RecordHealthCheckWithContext_AllPass` — no-capture hot path (~4.7µs/batch, 2 services).                                                                                                  |
+| `.golangci.yml`     | Module lint config reconciled with go-flightrecorder's enable-list (deliberate divergences documented in file header); tests serialized via `recorderMu` due to singleton constraint.                      |
+| `README.md`         | Module overview, quick start (compile-checked verbatim in a scratch module), trigger functions, error taxonomy.                                                                                            |
+| `CHANGELOG.md`      | keep-a-changelog format with `[Unreleased]` scaffold.                                                                                                                                                      |
 
 - Bridges [github.com/larsartmann/go-flightrecorder] with [github.com/larsartmann/go-health].
 - `Checkable` reports the recorder's own operational state (enabled/disabled) as a health-checkable service in the dashboard.

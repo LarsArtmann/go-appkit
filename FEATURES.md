@@ -73,18 +73,18 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 
 ## flightrecorderhealth (`github.com/larsartmann/go-appkit/flightrecorderhealth`)
 
-| Feature                                                | Status           | Evidence                       |
-| ------------------------------------------------------ | ---------------- | ------------------------------ |
-| `Checkable` (health-dashboard visibility)              | FULLY_FUNCTIONAL | `adapter.go`, 5 tests          |
-| `Trigger` (auto-capture on health failure)             | FULLY_FUNCTIONAL | `adapter.go`, 10 tests         |
-| `Register` convenience                                 | FULLY_FUNCTIONAL | `adapter.go`, 2 tests          |
-| Compile-time contract assertions (`health.HealthRecorder`, `do.HealthcheckerWithContext`) | FULLY_FUNCTIONAL | `contract_test.go` |
-| Real `health.New` Probe end-to-end wiring                | FULLY_FUNCTIONAL | `TestIntegration_RealProbeEndToEnd` |
-| Runnable godoc examples (`Register`, `NewCheckable`, `NewTrigger`) | FULLY_FUNCTIONAL | `example_test.go` |
-| No-capture hot-path benchmark                          | FULLY_FUNCTIONAL | `benchmark_test.go` (~4.7µs/batch) |
-| Custom trigger funcs (`OnError`, `OnAlways`, etc.)     | FULLY_FUNCTIONAL | `TestTrigger_CustomTriggerFunc`|
-| Cooldown (trace-flood prevention)                      | FULLY_FUNCTIONAL | `TestTrigger_WithCooldown`     |
-| Concurrency-safe `lastCapture` (`sync.Mutex`)          | FULLY_FUNCTIONAL | `TestTrigger_ConcurrentCooldownIsRaceFree` |
-| Logger integration (`WithTriggerLogger`)               | FULLY_FUNCTIONAL | `TestTrigger_WithLogger`       |
-| Multi-trigger observability (`WithServiceName`)        | FULLY_FUNCTIONAL | `TestTrigger_WithServiceName_NotLoggedWhenEmpty` |
-| go-error-family classification (`Rejection` / `Infrastructure`) | FULLY_FUNCTIONAL | `adapter.go:HealthCheck`       |
+| Feature                                                                                   | Status           | Evidence                                         |
+| ----------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------ |
+| `Checkable` (health-dashboard visibility)                                                 | FULLY_FUNCTIONAL | `adapter.go`, 5 tests                            |
+| `Trigger` (auto-capture on health failure)                                                | FULLY_FUNCTIONAL | `adapter.go`, 10 tests                           |
+| `Register` convenience                                                                    | FULLY_FUNCTIONAL | `adapter.go`, 2 tests                            |
+| Compile-time contract assertions (`health.HealthRecorder`, `do.HealthcheckerWithContext`) | FULLY_FUNCTIONAL | `contract_test.go`                               |
+| Real `health.New` Probe end-to-end wiring                                                 | FULLY_FUNCTIONAL | `TestIntegration_RealProbeEndToEnd`              |
+| Runnable godoc examples (`Register`, `NewCheckable`, `NewTrigger`)                        | FULLY_FUNCTIONAL | `example_test.go`                                |
+| No-capture hot-path benchmark                                                             | FULLY_FUNCTIONAL | `benchmark_test.go` (~4.7µs/batch)               |
+| Custom trigger funcs (`OnError`, `OnAlways`, etc.)                                        | FULLY_FUNCTIONAL | `TestTrigger_CustomTriggerFunc`                  |
+| Cooldown (trace-flood prevention)                                                         | FULLY_FUNCTIONAL | `TestTrigger_WithCooldown`                       |
+| Concurrency-safe `lastCapture` (`sync.Mutex`)                                             | FULLY_FUNCTIONAL | `TestTrigger_ConcurrentCooldownIsRaceFree`       |
+| Logger integration (`WithTriggerLogger`)                                                  | FULLY_FUNCTIONAL | `TestTrigger_WithLogger`                         |
+| Multi-trigger observability (`WithServiceName`)                                           | FULLY_FUNCTIONAL | `TestTrigger_WithServiceName_NotLoggedWhenEmpty` |
+| go-error-family classification (`Rejection` / `Infrastructure`)                           | FULLY_FUNCTIONAL | `adapter.go:HealthCheck`                         |
