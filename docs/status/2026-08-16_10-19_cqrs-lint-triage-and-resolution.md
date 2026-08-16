@@ -10,13 +10,13 @@
 
 User pasted `cqrs-lint --adoption --verbose` output from the repo root. Five findings:
 
-| Rule | Severity | File:Line | Message |
-|------|----------|-----------|---------|
-| A018 | INFO | `go.mod:1:1` (root) | Project imports go-cqrs-lite but never calls Save/Publish/Dispatch |
-| E014 | INFO | `cqrs/eventservice.go:4:1` | No projection drain/sync/flush call — read model may be stale |
-| C023 | WARNING | `cqrs/eventservice.go:118:3` | GracefulClose() error ignored |
-| C023 | WARNING | `cqrs/eventservice.go:134:3` | GracefulClose() error ignored |
-| P008 | INFO | `cqrs/eventservice.go:128:15` | projectionhost.New without WithBatchSize |
+| Rule | Severity | File:Line                     | Message                                                            |
+| ---- | -------- | ----------------------------- | ------------------------------------------------------------------ |
+| A018 | INFO     | `go.mod:1:1` (root)           | Project imports go-cqrs-lite but never calls Save/Publish/Dispatch |
+| E014 | INFO     | `cqrs/eventservice.go:4:1`    | No projection drain/sync/flush call — read model may be stale      |
+| C023 | WARNING  | `cqrs/eventservice.go:118:3`  | GracefulClose() error ignored                                      |
+| C023 | WARNING  | `cqrs/eventservice.go:134:3`  | GracefulClose() error ignored                                      |
+| P008 | INFO     | `cqrs/eventservice.go:128:15` | projectionhost.New without WithBatchSize                           |
 
 ---
 
@@ -38,6 +38,7 @@ User pasted `cqrs-lint --adoption --verbose` output from the repo root. Five fin
 **Resolution:** The real v4.3.0 answer is `Host.CheckStaleness(maxStaleness)` — a read-time guard that returns a Transient error when projection lag exceeds a budget. This is the read-your-writes strategy the linter is trying to prompt, just via a different API shape.
 
 **Action:**
+
 - Added `EventService.CheckStaleness(budget)` and `EventService.CheckProjectionStaleness(name, budget)` accessors delegating to `host.CheckStaleness` / `host.CheckProjectionStaleness`.
 - Added README "Read-your-writes" section with usage example.
 - Added accessor table rows in README.
@@ -81,6 +82,7 @@ When run from inside `cqrs/` (the correct scope), A018 still fires because the w
 ### .cqrs-lint.json — Project lint config (new file)
 
 Created `cqrs/.cqrs-lint.json` with:
+
 - `"preset": "library"` — silences app-only rules for a library module.
 - `"rules.disable": ["A018", "V003", "V006"]` — three go.mod-level findings with documented reasons.
 
@@ -105,6 +107,7 @@ go test ./... -race -count=1: ok (3.5s)
 ### Staleness tests — coverage gap
 
 **What's done:** 5 tests in `staleness_test.go` covering:
+
 - Fresh projection (no events processed) passes even with nanosecond budget.
 - Disabled check (budget <= 0) always returns nil.
 - Unknown projection name returns Rejection (400-class) with correct code.
@@ -147,6 +150,7 @@ Only tested `cqrs` module. Did not run `GOEXPERIMENT=jsonv2 go build ./...` from
 ### go-cqrs-lite issues filed
 
 Found three real problems in go-cqrs-lite / cqrs-lint:
+
 1. E014 suggests phantom APIs (`host.Sync()`/`host.Drain()` don't exist).
 2. V003 fabricates version data (claims v4.3.x exists for flightrecorder/v4; only v4.0.0 tagged).
 3. flightrecorder/v4 frozen at v4.0.0 — never re-tagged despite 1,383 commits.

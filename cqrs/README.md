@@ -126,20 +126,20 @@ an adapter that implements `MetricsRecorder` on top of your meter.
 
 ## Accessors
 
-| Method                                | Returns                          | Purpose                                                           |
-| ------------------------------------- | -------------------------------- | ----------------------------------------------------------------- |
-| `Bundle()`                            | `*stack.Bundle`                  | Event/command/query sinks and sources, journal, snapshots.        |
-| `Host()`                              | `*projectionhost.Host`           | Register projections before `StartProjections`.                   |
-| `DB()`                                | `(*sql.DB, error)`               | Raw SQLite handle for own queries.                                |
-| `DeadLetterStore()`                   | `projectionhost.DeadLetterStore` | The configured DLQ store, or nil when disabled.                   |
-| `ReplayDeadLetters(ctx, name)`        | `(ReplayResult, error)`          | Pure retry of quarantined events into their projections.          |
-| `ResetProjection(ctx, name, opts...)` | `error`                          | Rewind a projection checkpoint (optionally purging dead letters). |
-| `ReadyCheck()`                        | `bool`                           | All workers live or drained; wire to appkit's `/health/ready`.    |
-| `LagPerProjection()`                  | `map[string]time.Duration`       | Event-age lag per projection.                                     |
-| `CheckStaleness(budget)`              | `error`                          | Read-time guard: Transient error when max lag exceeds budget.     |
-| `CheckProjectionStaleness(name, budget)` | `error`                       | Per-projection read-time guard; Rejection for unknown names.      |
-| `StartProjections(ctx)`               | `error`                          | Starts projection workers.                                        |
-| `Shutdown(ctx)`                       | `error`                          | Stops workers and closes the store. Idempotent.                   |
+| Method                                   | Returns                          | Purpose                                                           |
+| ---------------------------------------- | -------------------------------- | ----------------------------------------------------------------- |
+| `Bundle()`                               | `*stack.Bundle`                  | Event/command/query sinks and sources, journal, snapshots.        |
+| `Host()`                                 | `*projectionhost.Host`           | Register projections before `StartProjections`.                   |
+| `DB()`                                   | `(*sql.DB, error)`               | Raw SQLite handle for own queries.                                |
+| `DeadLetterStore()`                      | `projectionhost.DeadLetterStore` | The configured DLQ store, or nil when disabled.                   |
+| `ReplayDeadLetters(ctx, name)`           | `(ReplayResult, error)`          | Pure retry of quarantined events into their projections.          |
+| `ResetProjection(ctx, name, opts...)`    | `error`                          | Rewind a projection checkpoint (optionally purging dead letters). |
+| `ReadyCheck()`                           | `bool`                           | All workers live or drained; wire to appkit's `/health/ready`.    |
+| `LagPerProjection()`                     | `map[string]time.Duration`       | Event-age lag per projection.                                     |
+| `CheckStaleness(budget)`                 | `error`                          | Read-time guard: Transient error when max lag exceeds budget.     |
+| `CheckProjectionStaleness(name, budget)` | `error`                          | Per-projection read-time guard; Rejection for unknown names.      |
+| `StartProjections(ctx)`                  | `error`                          | Starts projection workers.                                        |
+| `Shutdown(ctx)`                          | `error`                          | Stops workers and closes the store. Idempotent.                   |
 
 `Shutdown` joins and returns both the projection-host stop error and the
 bundle-close error instead of swallowing them.
