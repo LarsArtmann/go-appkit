@@ -4,6 +4,20 @@
 
 ### Added
 
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.3.0] - 2026-08-16
+
+> Minor bump: two new opt-in APIs (`NoTimeout`, `ServiceConfig.ReadyCheck`); no
+> breaking changes. This is the release the cqrs-htmx `setup` adoption (ADR-001)
+> waits on.
+
+### Added
+
 - `NoTimeout` sentinel and opt-out for `ReadTimeout`/`WriteTimeout`: assign
   `appkit.NoTimeout` to disable the deadline (server field and the default
   stack's Timeout middleware) for long-lived responses such as SSE streams.

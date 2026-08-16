@@ -1,0 +1,2236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pareto Plan — go-appkit Release Wave &amp; Harvest</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS DARK — Dashboard template
+         Design language: form follows function. Primary colors on graphite.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         Token architecture: see references/bauhaus-tokens.md
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Dark) --- */
+        --color-graphite: #0e0e10;
+        --color-graphite-2: #18181d;
+        --color-graphite-3: #16161a;
+        --color-bone: #f4f4f0;
+        --color-red: #ff6b6b;
+        --color-blue: #6eb5ff;
+        --color-yellow: #f4d35e;
+        --color-amber: #ffb347;
+        --color-hairline: rgba(244, 244, 240, 0.12);
+        --color-hairline-strong: rgba(244, 244, 240, 0.25);
+
+        /* --- Semantic layer (shared vocabulary with editorial template) --- */
+        --surface: var(--color-graphite);
+        --surface-raised: var(--color-graphite-2);
+        --surface-sunken: var(--color-graphite-3);
+        --text: var(--color-bone);
+        --text-muted: rgba(244, 244, 240, 0.72);
+        --text-faint: rgba(244, 244, 240, 0.45);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-amber);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Backward-compatible aliases (do not break consumer skills) --- */
+        --bg: var(--surface);
+        --bg-elevated: var(--surface-raised);
+        --bg-sunken: var(--surface-sunken);
+        --bg-card: var(--surface-raised);
+        --bg-code: var(--surface-sunken);
+        --ink: var(--text);
+        --ink-secondary: var(--text-muted);
+        --ink-muted: var(--text-faint);
+        --rose: var(--problem);
+        --rose-glow: color-mix(in srgb, var(--problem) 15%, transparent);
+        --emerald: var(--solution);
+        --emerald-glow: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-glow: color-mix(in srgb, var(--warning) 15%, transparent);
+        --coral: var(--problem);
+        --coral-light: color-mix(in srgb, var(--problem) 15%, transparent);
+        --teal: var(--solution);
+        --teal-light: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-light: color-mix(in srgb, var(--warning) 20%, transparent);
+
+        /* --- Shape --- */
+        --radius: 0px; /* Bauhaus default: sharp corners */
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      /* Sticky-header offset for anchor jumps */
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Accessibility: keyboard focus --- */
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      a:focus-visible {
+        outline-offset: -1px;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout: optional sticky sidebar TOC --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .sidebar a {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.45rem 0.75rem;
+        border-left: 2px solid transparent;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.1;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      h3 {
+        font-size: 1.1rem;
+        margin: 0 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 0.98rem;
+        margin: 0 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .hero-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--surface);
+        background: var(--accent);
+        padding: 0.3rem 0.7rem;
+        margin-bottom: 0.9rem;
+      }
+      .hero-subtitle {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        max-width: 70ch;
+        margin: 0;
+      }
+
+      /* Bauhaus signature: geometric shape cluster (optional) */
+      .hero-shapes {
+        position: relative;
+        height: 80px;
+        margin-bottom: 1rem;
+      }
+      .hero-shapes .circle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 56px;
+        height: 56px;
+        background: var(--problem);
+        border-radius: 50%;
+      }
+      .hero-shapes .square {
+        position: absolute;
+        top: 24px;
+        left: 72px;
+        width: 48px;
+        height: 48px;
+        background: var(--solution);
+      }
+      .hero-shapes .tri {
+        position: absolute;
+        top: 8px;
+        left: 140px;
+        width: 0;
+        height: 0;
+        border-left: 28px solid transparent;
+        border-right: 28px solid transparent;
+        border-bottom: 48px solid var(--warning);
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges (used inside issue cards) --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Inline badges (used in tables) --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.18rem 0.5rem;
+        border: 1px solid var(--border-strong);
+        color: var(--text-muted);
+      }
+      .badge-critical {
+        color: var(--problem);
+        border-color: var(--problem);
+      }
+      .badge-high {
+        color: var(--warning);
+        border-color: var(--warning);
+      }
+      .badge-medium {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .badge-low {
+        color: var(--text-muted);
+      }
+      .badge-fixed {
+        color: var(--solution);
+        border-color: var(--solution);
+      }
+
+      /* --- Callouts (used inside issues or standalone) --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.7rem 0.9rem;
+        border-left: 3px solid var(--border-strong);
+        background: color-mix(in srgb, var(--text) 5%, transparent);
+        font-size: 0.9rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 10%, transparent);
+      }
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 10%, transparent);
+      }
+
+      /* --- Stat cards / scorecards (aliased vocabulary) --- */
+      .stat-grid,
+      .scorecard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .stat-card,
+      .score-card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1rem;
+        position: relative;
+      }
+      .stat-card::before,
+      .score-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-strong);
+      }
+      .stat-bad,
+      .score-bad {
+        /* default top bar already set */
+      }
+      .stat-bad::before,
+      .score-bad::before {
+        background: var(--problem);
+      }
+      .stat-good::before,
+      .score-good::before {
+        background: var(--solution);
+      }
+      .stat-warn::before,
+      .score-warn::before {
+        background: var(--warning);
+      }
+      .stat-value,
+      .score {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: var(--text);
+      }
+      .stat-bad .stat-value,
+      .score-bad .score {
+        color: var(--problem);
+      }
+      .stat-good .stat-value,
+      .score-good .score {
+        color: var(--solution);
+      }
+      .stat-warn .stat-value,
+      .score-warn .score {
+        color: var(--warning);
+      }
+      .stat-label,
+      .score-card .label {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-faint);
+        margin-top: 0.5rem;
+      }
+
+      /* --- Strengths list --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--solution);
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* --- Tables --- */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.9rem;
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--surface-raised);
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-strong);
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+      }
+      tr:hover td {
+        background: var(--surface-raised);
+      }
+
+      /* --- Before/After comparison --- */
+      .compare-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+      .compare-before,
+      .compare-after {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 0.7rem;
+        color: var(--surface);
+      }
+      .compare-before {
+        background: var(--problem);
+      }
+      .compare-after {
+        background: var(--solution);
+      }
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .compare-row pre {
+        margin: 0;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+      }
+      code {
+        font-family: var(--font-mono);
+      }
+      p code,
+      li code,
+      td code {
+        font-size: 0.88em;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+      }
+      .tok-keyword {
+        color: var(--accent);
+      } /* func, type, struct, if, return */
+      .tok-type {
+        color: var(--warning);
+      } /* int, string, bool, error */
+      .tok-string {
+        color: var(--solution);
+      } /* "quoted strings" */
+      .tok-comment {
+        color: var(--text-faint);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #74a9ff;
+      } /* function names */
+      .tok-number {
+        color: var(--accent);
+      } /* 42, 3.14 */
+      .tok-generic {
+        color: var(--problem);
+      } /* T, ID in generics */
+      .tok-builtin {
+        color: #4dd9ff;
+      } /* make, len, append */
+      .tok-punct {
+        color: var(--text-muted);
+      } /* { } ( ) ; = : */
+      .tok-attr {
+        color: var(--accent);
+      } /* Nix attribute names */
+
+      /* --- Dependency tree / ASCII diagrams --- */
+      .dep-tree {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .dep-tree .root {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .dep-tree .ok {
+        color: var(--solution);
+      }
+      .dep-tree .unwanted {
+        color: var(--problem);
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.35rem 0.7rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: var(--surface-sunken);
+        border: 1px solid var(--border-strong);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+        border-color: var(--accent);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+        border-color: var(--problem);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+        border-color: var(--solution);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Grids (responsive) --- */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* --- Inline TOC (alternative to sidebar) --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Migration / numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-header,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .stat-grid,
+        .scorecard {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="top-bar">
+      <span>PARETO PLAN</span>
+      <span>2026-08-16</span>
+      <span>Crush — release wave &amp; harvest session</span>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#summary">Summary</a>
+          <a href="#decisions">Decisions</a>
+          <a href="#tiers">Pareto Tiers</a>
+          <a href="#graph">Execution Graph</a>
+          <a href="#plan">Comprehensive Plan</a>
+          <a href="#fine">Fine Breakdown</a>
+          <a href="#verify">Verification</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <div class="hero">
+          <div class="hero-shapes">
+            <div class="circle"></div>
+            <div class="square"></div>
+            <div class="tri"></div>
+          </div>
+          <div class="hero-badge">Pareto Plan</div>
+          <h1>go-appkit Release Wave &amp; Cross-Repo Harvest</h1>
+          <p class="hero-subtitle">
+            Execute the follow-through of the setup-vs-appkit comparison: cut
+            four releases, harvest nine findings into living TODO lists, and
+            stage everything one command from shipping.
+          </p>
+        </div>
+
+        <nav class="toc">
+          <h3>Contents</h3>
+          <ul>
+            <li><a href="#summary">Summary</a></li>
+            <li><a href="#decisions">Decisions</a></li>
+            <li><a href="#tiers">Pareto Tiers</a></li>
+            <li><a href="#graph">Execution Graph</a></li>
+            <li><a href="#plan">Comprehensive Plan</a></li>
+            <li><a href="#fine">Fine Breakdown</a></li>
+            <li><a href="#verify">Verification</a></li>
+          </ul>
+        </nav>
+
+        <h2 id="summary"><span class="num">00</span>Summary</h2>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value">4</div>
+            <div class="stat-label">Releases prepared locally</div>
+          </div>
+          <div class="stat-card stat-warn">
+            <div class="stat-value">1</div>
+            <div class="stat-label">User gate (push)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">2</div>
+            <div class="stat-label">TODO lists harvested</div>
+          </div>
+          <div class="stat-card stat-good">
+            <div class="stat-value">9</div>
+            <div class="stat-label">Findings routed</div>
+          </div>
+        </div>
+
+        <p>
+          The prior session ended with three open questions. This plan answers
+          them with evidence and executes everything that does not require
+          external approval: the entire go-appkit release wave is prepared
+          locally (CHANGELOGs cut, verified, annotated tags created), all
+          comparison findings are routed into the two repos' TODO lists, the
+          comparison report moves to its canonical home, and the cqrs-htmx code
+          changes stay frozen behind the parallel agent's uncommitted WIP.
+        </p>
+
+        <h2 id="decisions">
+          <span class="num">01</span>Decisions (the three questions, resolved)
+        </h2>
+
+        <div class="card card-solution">
+          <p>
+            <strong
+              >Q1 — Push go-appkit now vs batch with v0.3.0: premise was
+              stale.</strong
+            >
+            <code>git ls-remote</code> shows master at 0/0 with origin and every
+            existing tag (<code>v0.2.0</code>, <code>cqrs/v0.2.0</code>,
+            <code>docs/v0.2.0</code>, <code>errorpages/v0.1.0</code>) already
+            pushed. The only outstanding release action is cutting the new wave:
+            <strong>core v0.3.0</strong> (<code>NoTimeout</code> +
+            <code>ReadyCheck</code>), <strong>cqrs v0.3.0</strong> (staleness
+            guards, storage v4.7.1), <strong>realtime v0.1.0</strong>, and
+            <strong>flightrecorder v0.1.0</strong>. All four are fully prepared
+            locally; pushing remains the single user-gated command.
+          </p>
+        </div>
+
+        <div class="card card-solution">
+          <p>
+            <strong
+              >Q2 — Parallel-WIP coordination: freeze code, not docs.</strong
+            >
+            The round-3 WIP (still uncommitted) already implements finding 4's
+            replay half (subscribe-first + Last-Event-ID backfill via
+            <code>transport.NewJournalSSEStore</code>) and leaves heartbeat/CORS
+            out by choice; finding 5 (<code>SubscribeAll</code> log-only) is
+            still present in the dirty tree. No cqrs-htmx code is touched by
+            this session. TODO_LIST entries cite the WIP dependency explicitly
+            so the landing review knows what to check.
+          </p>
+        </div>
+
+        <div class="card card-solution">
+          <p>
+            <strong
+              >Q3 — Report home: <code>projects/docs/review/</code>.</strong
+            >
+            Sibling streams already use it; the comparison report relocates
+            there with non-destructive annotations (state-of-tree caveat that
+            the original omitted). Findings harvest happens now — TODO_LIST.md
+            is not in the parallel agent's dirty file set, and sequential edits
+            to a shared tree carry no merge risk.
+          </p>
+        </div>
+
+        <div class="card card-warning">
+          <p>
+            <strong>Release-scope decisions from evidence:</strong>
+            <strong>errorpages v0.1.1 is NOT cut</strong> — its only commit
+            since v0.1.0 (<code>83c91bc</code>) is test-only (json/v2 decode in
+            tests). Consumers gain nothing from a tag.
+            <strong>docs v0.3.0 is NOT cut</strong> — the only drift is a
+            <code>.cqrs-lint.json</code> preset; it is recorded in
+            <code>[Unreleased]</code> instead. No module carries
+            <code>replace</code> directives and no submodule requires an
+            unpublished sibling, so all four tags are independently
+            consumer-valid.
+          </p>
+        </div>
+
+        <h2 id="tiers"><span class="num">02</span>Pareto Tiers</h2>
+
+        <div class="migration-step">
+          <div class="migration-num">1%</div>
+          <div class="migration-content">
+            <h4>
+              Cut the four go-appkit releases locally — 51% of the outcome
+            </h4>
+            <p>
+              CHANGELOG cuts, hermetic verification, annotated tags. Unblocks
+              the entire ADR-001 fold-in chain and resolves findings 1 and 6.
+              Everything downstream (cqrs-htmx adoption, SSE upgrade, family tag
+              v4.8.1/v4.9.0) waits on this.
+            </p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">4%</div>
+          <div class="migration-content">
+            <h4>Harvest the nine findings into living TODO lists — 64%</h4>
+            <p>
+              go-appkit TODO_LIST.md built from scratch (it never existed);
+              cqrs-htmx TODO_LIST enriched and deduped. Point-in-time reports
+              stop being the only home of forward-looking work.
+            </p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">20%</div>
+          <div class="migration-content">
+            <h4>Report hygiene + memory — 80%</h4>
+            <p>
+              Comparison report relocated to docs/review/ with annotations; the
+              11-52 status report's questions answered inline; AGENTS.md memory
+              updated in both repos so the next session starts from truth.
+            </p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">rest</div>
+          <div class="migration-content">
+            <h4>Post-gate code work (not this session)</h4>
+            <p>
+              Push + proxy verification; fold-in of <code>RunWithAppkit</code>;
+              SSE heartbeat/CORS; <code>SubscribeAll</code> fail-fast; logging
+              posture; <code>Addr()</code>; benchmark hardening; test split;
+              coverage refresh.
+            </p>
+          </div>
+        </div>
+
+        <h2 id="graph"><span class="num">03</span>Execution Graph</h2>
+        <div
+          style="
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            padding: 12px;
+          "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            data-d2-version="v0.7.1"
+            preserveAspectRatio="xMinYMin meet"
+            viewBox="0 0 4792 748"
+          >
+            <svg
+              class="d2-52365119 d2-svg"
+              width="4792"
+              height="748"
+              viewBox="-53 -55 4792 748"
+            >
+              <rect
+                x="-53.000000"
+                y="-55.000000"
+                width="4792.000000"
+                height="748.000000"
+                rx="0.000000"
+                fill="#FFFFFF"
+                class="fill-N7"
+                stroke-width="0"
+              />
+              <style type="text/css">
+                <![CDATA[
+                .d2-52365119 .text {
+                	font-family: "d2-52365119-font-regular";
+                }
+                @font-face {
+                	font-family: d2-52365119-font-regular;
+                	src: url("data:application/font-woff;base64,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");
+                }
+                .d2-52365119 .text-bold {
+                	font-family: "d2-52365119-font-bold";
+                }
+                @font-face {
+                	font-family: d2-52365119-font-bold;
+                	src: url("data:application/font-woff;base64,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");
+                }
+                .d2-52365119 .text-italic {
+                	font-family: "d2-52365119-font-italic";
+                }
+                @font-face {
+                	font-family: d2-52365119-font-italic;
+                	src: url("data:application/font-woff;base64,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");
+                }]]>
+              </style>
+              <style type="text/css">
+                <![CDATA[.shape {
+                  shape-rendering: geometricPrecision;
+                  stroke-linejoin: round;
+                }
+                .connection {
+                  stroke-linecap: round;
+                  stroke-linejoin: round;
+                }
+                .blend {
+                  mix-blend-mode: multiply;
+                  opacity: 0.5;
+                }
+
+                		.d2-52365119 .fill-N1{fill:#0A0F25;}
+                		.d2-52365119 .fill-N2{fill:#676C7E;}
+                		.d2-52365119 .fill-N3{fill:#9499AB;}
+                		.d2-52365119 .fill-N4{fill:#CFD2DD;}
+                		.d2-52365119 .fill-N5{fill:#DEE1EB;}
+                		.d2-52365119 .fill-N6{fill:#EEF1F8;}
+                		.d2-52365119 .fill-N7{fill:#FFFFFF;}
+                		.d2-52365119 .fill-B1{fill:#0D32B2;}
+                		.d2-52365119 .fill-B2{fill:#0D32B2;}
+                		.d2-52365119 .fill-B3{fill:#E3E9FD;}
+                		.d2-52365119 .fill-B4{fill:#E3E9FD;}
+                		.d2-52365119 .fill-B5{fill:#EDF0FD;}
+                		.d2-52365119 .fill-B6{fill:#F7F8FE;}
+                		.d2-52365119 .fill-AA2{fill:#4A6FF3;}
+                		.d2-52365119 .fill-AA4{fill:#EDF0FD;}
+                		.d2-52365119 .fill-AA5{fill:#F7F8FE;}
+                		.d2-52365119 .fill-AB4{fill:#EDF0FD;}
+                		.d2-52365119 .fill-AB5{fill:#F7F8FE;}
+                		.d2-52365119 .stroke-N1{stroke:#0A0F25;}
+                		.d2-52365119 .stroke-N2{stroke:#676C7E;}
+                		.d2-52365119 .stroke-N3{stroke:#9499AB;}
+                		.d2-52365119 .stroke-N4{stroke:#CFD2DD;}
+                		.d2-52365119 .stroke-N5{stroke:#DEE1EB;}
+                		.d2-52365119 .stroke-N6{stroke:#EEF1F8;}
+                		.d2-52365119 .stroke-N7{stroke:#FFFFFF;}
+                		.d2-52365119 .stroke-B1{stroke:#0D32B2;}
+                		.d2-52365119 .stroke-B2{stroke:#0D32B2;}
+                		.d2-52365119 .stroke-B3{stroke:#E3E9FD;}
+                		.d2-52365119 .stroke-B4{stroke:#E3E9FD;}
+                		.d2-52365119 .stroke-B5{stroke:#EDF0FD;}
+                		.d2-52365119 .stroke-B6{stroke:#F7F8FE;}
+                		.d2-52365119 .stroke-AA2{stroke:#4A6FF3;}
+                		.d2-52365119 .stroke-AA4{stroke:#EDF0FD;}
+                		.d2-52365119 .stroke-AA5{stroke:#F7F8FE;}
+                		.d2-52365119 .stroke-AB4{stroke:#EDF0FD;}
+                		.d2-52365119 .stroke-AB5{stroke:#F7F8FE;}
+                		.d2-52365119 .background-color-N1{background-color:#0A0F25;}
+                		.d2-52365119 .background-color-N2{background-color:#676C7E;}
+                		.d2-52365119 .background-color-N3{background-color:#9499AB;}
+                		.d2-52365119 .background-color-N4{background-color:#CFD2DD;}
+                		.d2-52365119 .background-color-N5{background-color:#DEE1EB;}
+                		.d2-52365119 .background-color-N6{background-color:#EEF1F8;}
+                		.d2-52365119 .background-color-N7{background-color:#FFFFFF;}
+                		.d2-52365119 .background-color-B1{background-color:#0D32B2;}
+                		.d2-52365119 .background-color-B2{background-color:#0D32B2;}
+                		.d2-52365119 .background-color-B3{background-color:#E3E9FD;}
+                		.d2-52365119 .background-color-B4{background-color:#E3E9FD;}
+                		.d2-52365119 .background-color-B5{background-color:#EDF0FD;}
+                		.d2-52365119 .background-color-B6{background-color:#F7F8FE;}
+                		.d2-52365119 .background-color-AA2{background-color:#4A6FF3;}
+                		.d2-52365119 .background-color-AA4{background-color:#EDF0FD;}
+                		.d2-52365119 .background-color-AA5{background-color:#F7F8FE;}
+                		.d2-52365119 .background-color-AB4{background-color:#EDF0FD;}
+                		.d2-52365119 .background-color-AB5{background-color:#F7F8FE;}
+                		.d2-52365119 .color-N1{color:#0A0F25;}
+                		.d2-52365119 .color-N2{color:#676C7E;}
+                		.d2-52365119 .color-N3{color:#9499AB;}
+                		.d2-52365119 .color-N4{color:#CFD2DD;}
+                		.d2-52365119 .color-N5{color:#DEE1EB;}
+                		.d2-52365119 .color-N6{color:#EEF1F8;}
+                		.d2-52365119 .color-N7{color:#FFFFFF;}
+                		.d2-52365119 .color-B1{color:#0D32B2;}
+                		.d2-52365119 .color-B2{color:#0D32B2;}
+                		.d2-52365119 .color-B3{color:#E3E9FD;}
+                		.d2-52365119 .color-B4{color:#E3E9FD;}
+                		.d2-52365119 .color-B5{color:#EDF0FD;}
+                		.d2-52365119 .color-B6{color:#F7F8FE;}
+                		.d2-52365119 .color-AA2{color:#4A6FF3;}
+                		.d2-52365119 .color-AA4{color:#EDF0FD;}
+                		.d2-52365119 .color-AA5{color:#F7F8FE;}
+                		.d2-52365119 .color-AB4{color:#EDF0FD;}
+                		.d2-52365119 .color-AB5{color:#F7F8FE;}.appendix text.text{fill:#0A0F25}.md{--color-fg-default:#0A0F25;--color-fg-muted:#676C7E;--color-fg-subtle:#9499AB;--color-canvas-default:#FFFFFF;--color-canvas-subtle:#EEF1F8;--color-border-default:#0D32B2;--color-border-muted:#0D32B2;--color-neutral-muted:#EEF1F8;--color-accent-fg:#0D32B2;--color-accent-emphasis:#0D32B2;--color-attention-subtle:#676C7E;--color-danger-fg:red;}.sketch-overlay-B1{fill:url(#streaks-darker-d2-52365119);mix-blend-mode:lighten}.sketch-overlay-B2{fill:url(#streaks-darker-d2-52365119);mix-blend-mode:lighten}.sketch-overlay-B3{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-B4{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-B5{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-B6{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-AA2{fill:url(#streaks-dark-d2-52365119);mix-blend-mode:overlay}.sketch-overlay-AA4{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-AA5{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-AB4{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-AB5{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-N1{fill:url(#streaks-darker-d2-52365119);mix-blend-mode:lighten}.sketch-overlay-N2{fill:url(#streaks-dark-d2-52365119);mix-blend-mode:overlay}.sketch-overlay-N3{fill:url(#streaks-normal-d2-52365119);mix-blend-mode:color-burn}.sketch-overlay-N4{fill:url(#streaks-normal-d2-52365119);mix-blend-mode:color-burn}.sketch-overlay-N5{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-N6{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.sketch-overlay-N7{fill:url(#streaks-bright-d2-52365119);mix-blend-mode:darken}.light-code{display: block}.dark-code{display: none}]]>
+              </style>
+              <g class="d2F2ZQ==">
+                <g class="shape">
+                  <rect
+                    x="48.000000"
+                    y="181.000000"
+                    width="1850.000000"
+                    height="250.000000"
+                    stroke="#0D32B2"
+                    fill="#E3E9FD"
+                    class="stroke-B1 fill-B4"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="973.000000"
+                  y="168.000000"
+                  fill="#0A0F25"
+                  class="text fill-N1"
+                  style="text-anchor: middle; font-size: 28px"
+                >
+                  go-appkit release wave (this session)
+                </text>
+              </g>
+              <g class="cHVzaA==">
+                <g class="shape">
+                  <path
+                    d="M 2469 151 C 2467 151 2466 151 2465 151 L 2226 106 C 2223 106 2223 105 2226 104 L 2465 59 C 2468 59 2471 59 2474 59 L 2713 104 C 2716 104 2716 105 2713 106 L 2473 151 C 2472 151 2471 151 2469 151 Z"
+                    stroke="#111111"
+                    fill="#f4d35e"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="2469.000000"
+                  y="110.500000"
+                  fill="#111111"
+                  class="text-bold"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  USER GATE: push master + 4 tags
+                </text>
+              </g>
+              <g class="cHJveHk=">
+                <g class="shape">
+                  <path
+                    d="M 3066 46 H 3383 C 3384 46 3385 46 3386 47 L 3403 63 C 3404 64 3404 65 3404 66 V 133 C 3404 133 3404 133 3404 133 H 3066 C 3065 133 3065 133 3065 133 V 47 C 3065 46 3065 46 3066 46 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 3403 133 H 3066 C 3065 133 3065 133 3065 132 V 47 C 3065 46 3065 46 3066 46 H 3382 C 3383 46 3383 46 3383 47 V 64 C 3383 65 3384 66 3385 66 H 3403 C 3404 66 3404 66 3404 67 V 132 C 3403 133 3404 133 3403 133 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="3234.500000"
+                  y="95.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  post-push proxy + pkg.go.dev verification
+                </text>
+              </g>
+              <g class="aGFydmVzdA==">
+                <g class="shape">
+                  <path
+                    d="M 2268 211 H 2650 C 2651 211 2652 211 2653 212 L 2670 228 C 2671 229 2671 230 2671 231 V 298 C 2671 298 2671 298 2671 298 H 2268 C 2267 298 2267 298 2267 298 V 212 C 2267 211 2267 211 2268 211 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 2670 298 H 2268 C 2267 298 2267 298 2267 297 V 212 C 2267 211 2267 211 2268 211 H 2649 C 2650 211 2650 211 2650 212 V 229 C 2650 230 2651 231 2652 231 H 2670 C 2671 231 2671 231 2671 232 V 297 C 2670 298 2671 298 2670 298 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="2469.000000"
+                  y="260.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  TODO_LIST harvest: cqrs-htmx + go-appkit (BUILD)
+                </text>
+              </g>
+              <g class="ZG9jcw==">
+                <g class="shape">
+                  <path
+                    d="M 2277 358 H 2642 C 2643 358 2644 358 2645 359 L 2662 375 C 2663 376 2663 377 2663 378 V 445 C 2663 445 2663 445 2663 445 H 2277 C 2276 445 2276 445 2276 445 V 359 C 2276 358 2276 358 2277 358 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 2662 445 H 2277 C 2276 445 2276 445 2276 444 V 359 C 2276 358 2276 358 2277 358 H 2641 C 2642 358 2642 358 2642 359 V 376 C 2642 377 2643 378 2644 378 H 2662 C 2663 378 2663 378 2663 379 V 444 C 2662 445 2663 445 2662 445 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="2469.500000"
+                  y="407.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  report relocation, annotations, AGENTS memory
+                </text>
+              </g>
+              <g class="d2lw">
+                <g class="shape">
+                  <rect
+                    x="1529.000000"
+                    y="515.000000"
+                    width="366.000000"
+                    height="66.000000"
+                    stroke="#0D32B2"
+                    fill="#cfe3ff"
+                    class="stroke-B1"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="1712.000000"
+                  y="553.500000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  cqrs-htmx parallel WIP lands (round-3 seams)
+                </text>
+              </g>
+              <g class="cmV2aWV3">
+                <g class="shape">
+                  <path
+                    d="M 2355 505 H 2564 C 2565 505 2566 505 2567 506 L 2584 522 C 2585 523 2585 524 2585 525 V 592 C 2585 592 2585 592 2585 592 H 2355 C 2354 592 2354 592 2354 592 V 506 C 2354 505 2354 505 2355 505 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 2584 592 H 2355 C 2354 592 2354 592 2354 591 V 506 C 2354 505 2354 505 2355 505 H 2563 C 2564 505 2564 505 2564 506 V 523 C 2564 524 2565 525 2566 525 H 2584 C 2585 525 2585 525 2585 526 V 591 C 2584 592 2585 592 2584 592 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="2469.500000"
+                  y="554.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  review WIP vs findings 4+5
+                </text>
+              </g>
+              <g class="Zm9sZA==">
+                <g class="shape">
+                  <path
+                    d="M 2987 500 H 3462 C 3463 500 3464 500 3465 501 L 3482 517 C 3483 518 3483 519 3483 520 V 587 C 3483 587 3483 587 3483 587 H 2987 C 2986 587 2986 587 2986 587 V 501 C 2986 500 2986 500 2987 500 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 3482 587 H 2987 C 2986 587 2986 587 2986 586 V 501 C 2986 500 2986 500 2987 500 H 3461 C 3462 500 3462 500 3462 501 V 518 C 3462 519 3463 520 3464 520 H 3482 C 3483 520 3483 520 3483 521 V 586 C 3482 587 3483 587 3482 587 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="3234.500000"
+                  y="549.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  fold-in: RunWithAppkit -&gt; RunHandler (findings 1+2+3,
+                  ADR-001)
+                </text>
+              </g>
+              <g class="c3Nl">
+                <g class="shape">
+                  <rect
+                    x="3639.000000"
+                    y="510.000000"
+                    width="306.000000"
+                    height="66.000000"
+                    stroke="#0D32B2"
+                    fill="#F7F8FE"
+                    class="stroke-B1 fill-B6"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="3792.000000"
+                  y="548.500000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  SSE heartbeat + CORS (finding 4 rest)
+                </text>
+              </g>
+              <g
+                class="JiMzNDtTdWJzY3JpYmVBbGwgZmFpbC1mYXN0IChmaW5kaW5nIDUpJiMzNDs="
+              >
+                <g class="shape">
+                  <path
+                    d="M 248 483 H 494 C 495 483 496 483 497 484 L 514 500 C 515 501 515 502 515 503 V 570 C 515 570 515 570 515 570 H 248 C 247 570 247 570 247 570 V 484 C 247 483 247 483 248 483 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 514 570 H 248 C 247 570 247 570 247 569 V 484 C 247 483 247 483 248 483 H 493 C 494 483 494 483 494 484 V 501 C 494 502 495 503 496 503 H 514 C 515 503 515 503 515 504 V 569 C 514 570 515 570 514 570 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="381.000000"
+                  y="532.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  SubscribeAll fail-fast (finding 5)
+                </text>
+              </g>
+              <g class="cG9zdA==">
+                <g class="shape">
+                  <path
+                    d="M 4102 500 H 4617 C 4618 500 4619 500 4620 501 L 4637 517 C 4638 518 4638 519 4638 520 V 587 C 4638 587 4638 587 4638 587 H 4102 C 4101 587 4101 587 4101 587 V 501 C 4101 500 4101 500 4102 500 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 4637 587 H 4102 C 4101 587 4101 587 4101 586 V 501 C 4101 500 4101 500 4102 500 H 4616 C 4617 500 4617 500 4617 501 V 518 C 4617 519 4618 520 4619 520 H 4637 C 4638 520 4638 520 4638 521 V 586 C 4637 587 4638 587 4637 587 Z"
+                    stroke="#0D32B2"
+                    fill="#EDF0FD"
+                    class="stroke-B1 fill-AB4"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="4369.500000"
+                  y="549.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  post-adoption: Addr(), logging posture (7), bench hardening,
+                  test split
+                </text>
+              </g>
+              <g class="d2F2ZS5jaGFuZ2Vsb2dz">
+                <g class="shape">
+                  <path
+                    d="M 78 281 L 78 216 L 683 216 L 683 281 C 582 267 481 267 381 281 C 280 296 179 296 78 281 Z"
+                    stroke="#0D32B2"
+                    fill="#F7F8FE"
+                    class="stroke-B1 fill-AB5"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="380.500000"
+                  y="249.610964"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  CHANGELOG cuts: core v0.3.0, cqrs v0.3.0, realtime v0.1.0,
+                  flightrecorder v0.1.0
+                </text>
+              </g>
+              <g class="d2F2ZS52ZXJpZnk=">
+                <g class="shape">
+                  <path
+                    d="M 910 211 H 1282 C 1283 211 1284 211 1285 212 L 1302 228 C 1303 229 1303 230 1303 231 V 298 C 1303 298 1303 298 1303 298 H 910 C 909 298 909 298 909 298 V 212 C 909 211 909 211 910 211 Z"
+                    stroke="#0D32B2"
+                    fill="#F7F8FE"
+                    class="stroke-B1 fill-AB5"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 1302 298 H 910 C 909 298 909 298 909 297 V 212 C 909 211 909 211 910 211 H 1281 C 1282 211 1282 211 1282 212 V 229 C 1282 230 1283 231 1284 231 H 1302 C 1303 231 1303 231 1303 232 V 297 C 1302 298 1303 298 1302 298 Z"
+                    stroke="#0D32B2"
+                    fill="#F7F8FE"
+                    class="stroke-B1 fill-AB5"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="1106.000000"
+                  y="260.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  hermetic verify: 6 modules build + vet + race tests
+                </text>
+              </g>
+              <g class="d2F2ZS50YWdz">
+                <g class="shape">
+                  <path
+                    d="M 1557 211 H 1847 C 1848 211 1849 211 1850 212 L 1867 228 C 1868 229 1868 230 1868 231 V 298 C 1868 298 1868 298 1868 298 H 1557 C 1556 298 1556 298 1556 298 V 212 C 1556 211 1556 211 1557 211 Z"
+                    stroke="#0D32B2"
+                    fill="#F7F8FE"
+                    class="stroke-B1 fill-AB5"
+                    style="stroke-width: 2"
+                  />
+                  <path
+                    d="M 1867 298 H 1557 C 1556 298 1556 298 1556 297 V 212 C 1556 211 1556 211 1557 211 H 1846 C 1847 211 1847 211 1847 212 V 229 C 1847 230 1848 231 1849 231 H 1867 C 1868 231 1868 231 1868 232 V 297 C 1867 298 1868 298 1867 298 Z"
+                    stroke="#0D32B2"
+                    fill="#F7F8FE"
+                    class="stroke-B1 fill-AB5"
+                    style="stroke-width: 2"
+                  />
+                </g>
+                <text
+                  x="1712.000000"
+                  y="260.000000"
+                  fill="#0A0F25"
+                  class="text-bold fill-N1"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  local annotated tags x4, same commit
+                </text>
+              </g>
+              <g class="d2F2ZS4oY2hhbmdlbG9ncyAtJmd0OyB2ZXJpZnkpWzBd">
+                <marker
+                  id="mk-d2-52365119-3488378134"
+                  markerWidth="10.000000"
+                  markerHeight="12.000000"
+                  refX="7.000000"
+                  refY="6.000000"
+                  viewBox="0.000000 0.000000 10.000000 12.000000"
+                  orient="auto"
+                  markerUnits="userSpaceOnUse"
+                >
+                  <polygon
+                    points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000"
+                    fill="#0D32B2"
+                    class="connection fill-B1"
+                    stroke-width="2"
+                  />
+                </marker>
+                <path
+                  d="M 684.999995 254.004425 C 773.400024 254.199997 818.599976 254.199997 905.000010 254.008849"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+                <text
+                  x="796.000000"
+                  y="260.000000"
+                  fill="#676C7E"
+                  class="text-italic fill-N2"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  sequential
+                </text>
+              </g>
+              <g class="d2F2ZS4odmVyaWZ5IC0mZ3Q7IHRhZ3MpWzBd">
+                <path
+                  d="M 1304.999995 254.004425 C 1393.400024 254.199997 1444.000000 254.199997 1552.000006 254.007143"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+                <text
+                  x="1430.000000"
+                  y="260.000000"
+                  fill="#676C7E"
+                  class="text-italic fill-N2"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  sequential
+                </text>
+              </g>
+              <g class="KHdhdmUudGFncyAtJmd0OyBwdXNoKVswXQ==">
+                <path
+                  d="M 1789.734319 210.003939 C 1936.000000 126.000000 2123.600098 104.800003 2220.000008 104.992032"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+                <text
+                  x="1994.500000"
+                  y="125.000000"
+                  fill="#676C7E"
+                  class="text-italic fill-N2"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  one command
+                </text>
+              </g>
+              <g class="KHB1c2ggLSZndDsgcHJveHkpWzBd">
+                <path
+                  d="M 2672.998683 95.927422 C 2814.199951 90.800003 2893.000000 89.400002 3061.000011 89.009302"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+              </g>
+              <g class="KHB1c2ggLSZndDsgZm9sZClbMF0=">
+                <path
+                  d="M 2536.767030 139.936806 C 2787.000000 272.600006 2913.000000 344.799988 3161.594109 497.902404"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+                <text
+                  x="2855.000000"
+                  y="317.000000"
+                  fill="#676C7E"
+                  class="text-italic fill-N2"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  unblocks ADR-001
+                </text>
+              </g>
+              <g class="KHdpcCAtJmd0OyByZXZpZXcpWzBd">
+                <path
+                  d="M 1897.000000 548.250000 C 1957.400024 548.250000 2149.600098 548.200012 2350.000002 548.003914"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+                <text
+                  x="2125.000000"
+                  y="554.000000"
+                  fill="#676C7E"
+                  class="text-italic fill-N2"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  gates it
+                </text>
+              </g>
+              <g class="KHJldmlldyAtJmd0OyBmb2xkKVswXQ==">
+                <path
+                  d="M 2586.999999 548.001887 C 2797.000000 548.200012 2877.199951 547.799988 2982.000547 546.066167"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+                <text
+                  x="2786.000000"
+                  y="554.000000"
+                  fill="#676C7E"
+                  class="text-italic fill-N2"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  gates it
+                </text>
+              </g>
+              <g class="KGZvbGQgLSZndDsgc3NlKVswXQ==">
+                <path
+                  d="M 3485.000000 543.000000 C 3545.399902 543.000000 3576.600098 543.000000 3635.000000 543.000000"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+              </g>
+              <g class="KHNzZSAtJmd0OyBwb3N0KVswXQ==">
+                <path
+                  d="M 3947.000000 543.000000 C 4007.399902 543.000000 4038.600098 543.000000 4097.000000 543.000000"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+              </g>
+              <g class="KHdhdmUgLSZndDsgaGFydmVzdClbMF0=">
+                <path
+                  d="M 1899.500000 254.250000 C 2058.300049 254.250000 2132.199951 254.199997 2263.000004 254.005935"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+                <text
+                  x="2082.000000"
+                  y="260.000000"
+                  fill="#676C7E"
+                  class="text-italic fill-N2"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  independent
+                </text>
+              </g>
+              <g class="KHdhdmUgLSZndDsgZG9jcylbMF0=">
+                <path
+                  d="M 1899.500000 401.250000 C 2058.300049 401.250000 2134.000000 401.200012 2272.000004 401.005634"
+                  stroke="#0D32B2"
+                  fill="none"
+                  class="connection stroke-B1"
+                  style="stroke-width: 2"
+                  marker-end="url(#mk-d2-52365119-3488378134)"
+                  mask="url(#d2-52365119)"
+                />
+                <text
+                  x="2087.000000"
+                  y="407.000000"
+                  fill="#676C7E"
+                  class="text-italic fill-N2"
+                  style="text-anchor: middle; font-size: 16px"
+                >
+                  independent
+                </text>
+              </g>
+              <mask
+                id="d2-52365119"
+                maskUnits="userSpaceOnUse"
+                x="-53"
+                y="-55"
+                width="4792"
+                height="748"
+              >
+                <rect
+                  x="-53"
+                  y="-55"
+                  width="4792"
+                  height="748"
+                  fill="white"
+                ></rect>
+                <rect
+                  x="759.000000"
+                  y="244.000000"
+                  width="74"
+                  height="21"
+                  fill="black"
+                ></rect>
+                <rect
+                  x="1393.000000"
+                  y="244.000000"
+                  width="74"
+                  height="21"
+                  fill="black"
+                ></rect>
+                <rect
+                  x="1945.000000"
+                  y="109.000000"
+                  width="99"
+                  height="21"
+                  fill="black"
+                ></rect>
+                <rect
+                  x="2795.000000"
+                  y="301.000000"
+                  width="120"
+                  height="21"
+                  fill="black"
+                ></rect>
+                <rect
+                  x="2098.000000"
+                  y="538.000000"
+                  width="54"
+                  height="21"
+                  fill="black"
+                ></rect>
+                <rect
+                  x="2759.000000"
+                  y="538.000000"
+                  width="54"
+                  height="21"
+                  fill="black"
+                ></rect>
+                <rect
+                  x="2038.000000"
+                  y="244.000000"
+                  width="88"
+                  height="21"
+                  fill="black"
+                ></rect>
+                <rect
+                  x="2043.000000"
+                  y="391.000000"
+                  width="88"
+                  height="21"
+                  fill="black"
+                ></rect>
+              </mask>
+            </svg>
+          </svg>
+        </div>
+
+        <h2 id="plan">
+          <span class="num">04</span>Comprehensive Plan (medium granularity)
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Task</th>
+              <th>Repo</th>
+              <th>Impact</th>
+              <th>Effort</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>
+                Cut CHANGELOG sections: core v0.3.0, cqrs v0.3.0; leave empty
+                [Unreleased]
+              </td>
+              <td>go-appkit</td>
+              <td>High</td>
+              <td>30 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>
+                BUILD CHANGELOG.md for realtime + flightrecorder (v0.1.0 from
+                git history)
+              </td>
+              <td>go-appkit</td>
+              <td>High</td>
+              <td>30 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>
+                Record docs-mod preset in its [Unreleased] (no tag — config-only
+                drift)
+              </td>
+              <td>go-appkit</td>
+              <td>Low</td>
+              <td>10 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>
+                Hermetic verify all 6 modules: build + vet +
+                <code>go test -race -count=1</code> (GOWORK=off,
+                GOEXPERIMENT=jsonv2)
+              </td>
+              <td>go-appkit</td>
+              <td>High</td>
+              <td>30 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>
+                Create annotated tags v0.3.0, cqrs/v0.3.0, realtime/v0.1.0,
+                flightrecorder/v0.1.0 at one commit
+              </td>
+              <td>go-appkit</td>
+              <td>High</td>
+              <td>15 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>PUSH master + the 4 tags (single user-gated command)</td>
+              <td>go-appkit</td>
+              <td>High</td>
+              <td>5 min</td>
+              <td><span class="badge badge-critical">USER GATE</span></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Post-push: proxy resolution + pkg.go.dev for all 4 tags</td>
+              <td>go-appkit</td>
+              <td>Medium</td>
+              <td>30 min</td>
+              <td><span class="badge badge-medium">next session</span></td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>
+                BUILD go-appkit TODO_LIST.md (never existed) — sessions 3-6 +
+                this wave
+              </td>
+              <td>go-appkit</td>
+              <td>High</td>
+              <td>45 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>
+                HARVEST cqrs-htmx TODO_LIST.md — findings 4/5/7/9/10 + fold-in
+                enrichment, deduped vs existing P1-P3
+              </td>
+              <td>cqrs-htmx</td>
+              <td>High</td>
+              <td>45 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td>
+                Relocate comparison report to docs/review/ + state-of-tree
+                annotation + finding status updates
+              </td>
+              <td>projects/docs</td>
+              <td>Medium</td>
+              <td>20 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td>
+                ANNOTATE 11-52 status report: resolve (f) items and answer (g)
+                inline
+              </td>
+              <td>projects/docs</td>
+              <td>Medium</td>
+              <td>20 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td>
+                AGENTS.md memory: release state + push command + report pointer
+                (both repos)
+              </td>
+              <td>both</td>
+              <td>Medium</td>
+              <td>20 min</td>
+              <td><span class="badge badge-fixed">done</span></td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td>
+                Review parallel WIP on landing vs findings 4/5 (replay done;
+                heartbeat/CORS/fail-fast remain)
+              </td>
+              <td>cqrs-htmx</td>
+              <td>High</td>
+              <td>30 min</td>
+              <td><span class="badge badge-medium">post-WIP</span></td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td>
+                Fold-in: <code>RunWithAppkit</code> → <code>RunHandler</code>;
+                delete httputil path, replace, spike lint ignores; fix /health
+                semantics + middleware dedupe (findings 1-3)
+              </td>
+              <td>cqrs-htmx</td>
+              <td>High</td>
+              <td>100 min</td>
+              <td><span class="badge badge-medium">post-push+WIP</span></td>
+            </tr>
+            <tr>
+              <td>15</td>
+              <td>
+                SSE heartbeat + CORS on SSEPath;
+                <code>attachSSE</code> fail-fast on SubscribeAll (findings 4-5)
+              </td>
+              <td>cqrs-htmx</td>
+              <td>Medium</td>
+              <td>60 min</td>
+              <td><span class="badge badge-medium">post-WIP</span></td>
+            </tr>
+            <tr>
+              <td>16</td>
+              <td>
+                Logging posture decision (finding 7) — level/sampling or wire
+                setup's logger
+              </td>
+              <td>go-appkit</td>
+              <td>Medium</td>
+              <td>45 min</td>
+              <td><span class="badge badge-low">open</span></td>
+            </tr>
+            <tr>
+              <td>17</td>
+              <td>
+                Post-adoption polish: expose <code>Addr()</code>, benchmark
+                hardening (benchmem + benchstat), spike test speed,
+                <code>setup_test.go</code> split, coverage re-measure (findings
+                9-10)
+              </td>
+              <td>cqrs-htmx</td>
+              <td>Low</td>
+              <td>3 × 45 min</td>
+              <td><span class="badge badge-low">open</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 id="fine">
+          <span class="num">05</span>Fine Breakdown (post-gate code work, ≤ 15
+          min steps)
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Action</th>
+              <th>Verify</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>14a</td>
+              <td>
+                Push:
+                <code
+                  >git push origin master &amp;&amp; git push origin v0.3.0
+                  cqrs/v0.3.0 realtime/v0.1.0 flightrecorder/v0.1.0</code
+                >
+              </td>
+              <td><code>git ls-remote --tags origin</code> shows all four</td>
+            </tr>
+            <tr>
+              <td>7a</td>
+              <td>Fresh-consumer proxy test per module from /tmp</td>
+              <td><code>go get …@v…</code> + blank-import build PASS</td>
+            </tr>
+            <tr>
+              <td>7b</td>
+              <td>Check pkg.go.dev renders each new version</td>
+              <td>Pages list v0.3.0 / v0.1.0</td>
+            </tr>
+            <tr>
+              <td>14.1</td>
+              <td>
+                In setup, switch <code>go.mod</code> appkit require to
+                <code>v0.3.0</code>, drop the dev replace
+              </td>
+              <td>Hermetic <code>GOWORK=off</code> build green</td>
+            </tr>
+            <tr>
+              <td>14.2</td>
+              <td>
+                Move <code>RunWithAppkit</code> body into
+                <code>RunHandler</code>, same signature
+              </td>
+              <td><code>go vet ./...</code> clean</td>
+            </tr>
+            <tr>
+              <td>14.3</td>
+              <td>
+                Suppress bundle's duplicate <code>/health</code> when appkit
+                owns health; document LB → <code>/health/ready</code>
+              </td>
+              <td>
+                Test asserts 503-on-drain at <code>/health/ready</code> only
+              </td>
+            </tr>
+            <tr>
+              <td>14.4</td>
+              <td>
+                Drop bundle recovery + duplicate security headers from the
+                composed chain
+              </td>
+              <td>Header parity test still green; single Recovery pass</td>
+            </tr>
+            <tr>
+              <td>14.5</td>
+              <td>
+                Delete <code>run.go</code> server block + spike lint ignores +
+                <code>run_appkit.go</code>
+              </td>
+              <td>Full suite <code>-race</code> green</td>
+            </tr>
+            <tr>
+              <td>15.1</td>
+              <td>
+                Add heartbeat ticker to <code>sseHandler</code> (mirror
+                dashboardui <code>SSEHeartbeatInterval</code>)
+              </td>
+              <td>
+                Test: idle connection receives heartbeat within 2× interval
+              </td>
+            </tr>
+            <tr>
+              <td>15.2</td>
+              <td>
+                Decide CORS posture for SSEPath (same-origin default documented
+                vs option)
+              </td>
+              <td>ADR note or config field + test</td>
+            </tr>
+            <tr>
+              <td>15.3</td>
+              <td>
+                <code>attachSSE</code> returns error; <code>New</code> fails on
+                SubscribeAll error
+              </td>
+              <td>
+                Test: failing bus → <code>New</code> returns
+                Rejection/Infrastructure
+              </td>
+            </tr>
+            <tr>
+              <td>16.1</td>
+              <td>
+                Appkit: add log level/sampling knob or accept-wire-logger
+                option; bench before/after
+              </td>
+              <td>Benchstat shows INFO cost bounded</td>
+            </tr>
+            <tr>
+              <td>17.1</td>
+              <td>
+                Expose <code>Bundle.Addr()</code> delegating to the service
+              </td>
+              <td>Test asserts listener addr after start</td>
+            </tr>
+            <tr>
+              <td>17.2</td>
+              <td>
+                Benchmark hardening: <code>-benchmem</code>, 5×, benchstat; keep
+                in permanent suite
+              </td>
+              <td>Benchstat table committed</td>
+            </tr>
+            <tr>
+              <td>17.3</td>
+              <td>Inject short DrainDelay in spike tests (8s → ~3s)</td>
+              <td>Suite time &lt; 4s</td>
+            </tr>
+            <tr>
+              <td>17.4</td>
+              <td>
+                Split <code>setup_test.go</code> by concern (defaults /
+                validation / paths / lifecycle)
+              </td>
+              <td>Same test count, files &lt; 500 lines</td>
+            </tr>
+            <tr>
+              <td>17.5</td>
+              <td>
+                Re-measure setup coverage post-WIP; refresh AGENTS + TODO_LIST
+                claims
+              </td>
+              <td>Claims cite date + tree state</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 id="verify"><span class="num">06</span>Verification</h2>
+        <div class="callout callout-solution">
+          <p>
+            <strong>Canonical command (per module):</strong>
+            <code
+              >GOWORK=off GOEXPERIMENT=jsonv2 go build ./... &amp;&amp; go vet
+              ./... &amp;&amp; go test ./... -race -count=1</code
+            >
+            — core from repo root, satellites from their directories. All six
+            modules must be green before any tag; tags must all point at one
+            commit (<code>git tag --points-at HEAD</code>);
+            <code>git ls-remote --tags origin</code> must show exactly the four
+            new tags as the push delta.
+          </p>
+        </div>
+        <div class="callout callout-warning">
+          <p>
+            <strong>Frozen zone:</strong> cqrs-htmx working tree carries the
+            parallel agent's uncommitted round-3 WIP (setup/sse.go, bundle.go,
+            config.go, transport/, dashboardui/). No code edits there until it
+            lands. Doc edits (TODO_LIST.md, AGENTS.md) are safe — not in the
+            dirty set.
+          </p>
+        </div>
+
+        <footer class="footer">
+          Generated 2026-08-16 12:04 &middot; All release-state claims verified
+          against git remote state and working trees at plan time &middot;
+          Companion artifacts:
+          docs/review/2026-08-16_setup-vs-go-appkit-comparison.md &amp;
+          TODO_LISTs in both repos
+        </footer>
+      </main>
+    </div>
+
+    <!-- Progressive-enhancement scrollspy. Nav still works without JS via anchor links. -->
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>

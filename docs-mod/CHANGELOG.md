@@ -4,7 +4,9 @@
 
 ### Added
 
-- Nothing yet.
+- `.cqrs-lint.json` module preset (`library`; disables A018/A009 as
+  docs-by-design false positives — the module uses catalog/v4 for doc
+  generation, not event stores). Tooling config only, no API change.
 
 ### Fixed
 

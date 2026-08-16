@@ -4,6 +4,18 @@
 
 ### Added
 
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.3.0] - 2026-08-16
+
+> Minor bump: new opt-in read-your-writes APIs; no breaking changes.
+
+### Added
+
 - `EventService.CheckStaleness(budget)` and `CheckProjectionStaleness(name, budget)`
   — read-time staleness guards for read-your-writes: Transient error when
   projection lag exceeds the budget (cqrs-lint E014's supported v4 answer;
