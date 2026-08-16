@@ -1,15 +1,5 @@
 # Changelog
 
-## [Unreleased]
-
-### Added
-
-- Nothing yet.
-
-### Fixed
-
-- Nothing yet.
-
 ## [0.1.0] - 2026-08-16
 
 First release of the flightrecorderhealth module. Bridges
@@ -23,7 +13,6 @@ health-check failures through the health dashboard.
   dashboard. Implements `do.HealthcheckerWithContext`.
 - `NewCheckable(rec, opts...)` — constructs a `Checkable` with options.
 - `WithCheckableName(name)` — sets the display name for the dashboard.
-- `WithNowFunc(now)` — overrides the clock for testing.
 - `Trigger` — a `health.HealthRecorder` that intercepts every health-check
   batch and triggers a flight recorder snapshot when the configured trigger
   function fires. Uses `SnapshotIfAsync` for non-blocking capture.
@@ -33,5 +22,26 @@ health-check failures through the health dashboard.
 - `WithTriggerLogger(logger)` — routes capture events to a slog logger.
 - `WithCooldown(d)` — sets a minimum duration between captures to prevent
   trace flooding on flapping services.
+- `WithServiceName(name)` — sets an identifier included in trigger log
+  messages (useful when multiple triggers run in the same process).
 - `Register(injector, rec, name, opts...)` — convenience function that
   creates a `Checkable` and registers it in the samber/do injector.
+- Errors classified via [go-error-family](https://github.com/LarsArtmann/go-error-family):
+  `flightrecorder.recorder_missing` (Rejection) for nil recorder, and
+  `flightrecorder.recorder_disabled` (Infrastructure) for not-started recorder.
+
+### Concurrency
+
+- `Trigger.lastCapture` is guarded by `sync.Mutex`, allowing concurrent
+  health-check batches to safely read and update the cooldown state.
+- `Trigger.RecordHealthCheckWithContext` is safe for concurrent use; the
+  underlying `SnapshotIfAsync` is also race-safe.
+
+### Notes
+
+- This module does NOT require `GOEXPERIMENT=jsonv2`. Its dependencies
+  (`go-flightrecorder`, `go-health`, `samber/do/v2`) all use plain
+  `encoding/json`.
+- Process-global singleton constraint applies: Go's `runtime/trace` allows
+  only ONE active `flightrecorder.Recorder` per process. See the package
+  doc and `go-flightrecorder` README for details.

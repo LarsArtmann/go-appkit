@@ -17,6 +17,13 @@ import (
 	"github.com/samber/do/v2"
 )
 
+// Static test-error sentinels — err113 forbids dynamic errors.New("...") in tests.
+var (
+	errTestConnectionRefused = errors.New("connection refused")
+	errTestTimeout           = errors.New("timeout")
+	errTestServiceDown       = errors.New("service down")
+)
+
 // recorderMu serializes tests that call Start/Stop because Go's
 // runtime/trace allows only ONE active flight recorder per process.
 var recorderMu sync.Mutex
@@ -195,7 +202,7 @@ func TestTrigger_CapturesOnHealthCheckFailure(t *testing.T) {
 	trigger := frhealth.NewTrigger(rec)
 
 	injector := do.New()
-	registerSvc(injector, "database", errors.New("connection refused"))
+	registerSvc(injector, "database", errTestConnectionRefused)
 
 	rec.Reset()
 
@@ -237,7 +244,7 @@ func TestTrigger_NilRecorder_PassThrough(t *testing.T) {
 	trigger := frhealth.NewTrigger(nil)
 
 	injector := do.New()
-	registerSvc(injector, "database", errors.New("connection refused"))
+	registerSvc(injector, "database", errTestConnectionRefused)
 
 	results := trigger.RecordHealthCheckWithContext(context.Background(), injector)
 
@@ -250,7 +257,7 @@ func TestTrigger_NilReceiver_PassThrough(t *testing.T) {
 	var trigger *frhealth.Trigger
 
 	injector := do.New()
-	registerSvc(injector, "database", errors.New("connection refused"))
+	registerSvc(injector, "database", errTestConnectionRefused)
 
 	results := trigger.RecordHealthCheckWithContext(context.Background(), injector)
 
@@ -271,10 +278,11 @@ func TestTrigger_WithLogger(t *testing.T) {
 
 	trigger := frhealth.NewTrigger(rec,
 		frhealth.WithTriggerLogger(logger),
+		frhealth.WithServiceName("orders-recorder"),
 	)
 
 	injector := do.New()
-	registerSvc(injector, "database", errors.New("connection refused"))
+	registerSvc(injector, "database", errTestConnectionRefused)
 
 	rec.Reset()
 
@@ -294,6 +302,74 @@ func TestTrigger_WithLogger(t *testing.T) {
 	if !bytes.Contains(buf.Bytes(), []byte("database")) {
 		t.Fatalf("expected log to contain failing service name, got: %s", logOutput)
 	}
+
+	if !bytes.Contains(buf.Bytes(), []byte("orders-recorder")) {
+		t.Fatalf("expected log to contain service name, got: %s", logOutput)
+	}
+}
+
+func TestTrigger_WithServiceName_NotLoggedWhenEmpty(t *testing.T) {
+	rec, _ := newTestRecorder(t)
+
+	cleanup := startRecorder(t, rec)
+	defer cleanup()
+
+	var buf bytes.Buffer
+
+	logger := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelDebug}))
+
+	trigger := frhealth.NewTrigger(rec,
+		frhealth.WithTriggerLogger(logger),
+		// no WithServiceName
+	)
+
+	injector := do.New()
+	registerSvc(injector, "database", errTestConnectionRefused)
+
+	rec.Reset()
+
+	_ = trigger.RecordHealthCheckWithContext(context.Background(), injector)
+
+	drainAndStop(rec)
+
+	if bytes.Contains(buf.Bytes(), []byte("service=")) {
+		t.Fatalf("expected no 'service' attribute when service name empty, got: %s", buf.String())
+	}
+}
+
+func TestTrigger_ConcurrentCooldownIsRaceFree(t *testing.T) {
+	rec, _ := newBufferRecorder(t)
+
+	cleanup := startRecorder(t, rec)
+	defer cleanup()
+
+	trigger := frhealth.NewTrigger(rec,
+		frhealth.WithCooldown(50*time.Millisecond),
+	)
+
+	injector := do.New()
+	registerSvc(injector, "database", errTestConnectionRefused)
+
+	rec.Reset()
+
+	const goroutines = 8
+	const iterations = 25
+
+	var wg sync.WaitGroup
+
+	wg.Add(goroutines)
+	for range goroutines {
+		go func() {
+			defer wg.Done()
+			for range iterations {
+				_ = trigger.RecordHealthCheckWithContext(context.Background(), injector)
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	drainAndStop(rec)
 }
 
 func TestTrigger_WithCooldown(t *testing.T) {
@@ -307,7 +383,7 @@ func TestTrigger_WithCooldown(t *testing.T) {
 	)
 
 	injector := do.New()
-	registerSvc(injector, "database", errors.New("connection refused"))
+	registerSvc(injector, "database", errTestConnectionRefused)
 
 	// First capture — should fire (cooldown not yet started).
 	rec.Reset()
@@ -322,7 +398,8 @@ func TestTrigger_WithCooldown(t *testing.T) {
 	}
 
 	// Restart recorder for the second batch.
-	if err := rec.Start(); err != nil {
+	err := rec.Start()
+	if err != nil {
 		t.Fatalf("rec.Start() error: %v", err)
 	}
 
@@ -372,9 +449,9 @@ func TestTrigger_RecordsResultsFaithfully(t *testing.T) {
 	trigger := frhealth.NewTrigger(rec)
 
 	injector := do.New()
-	registerSvc(injector, "database", errors.New("connection refused"))
+	registerSvc(injector, "database", errTestConnectionRefused)
 	registerSvc(injector, "cache", nil)
-	registerSvc(injector, "queue", errors.New("timeout"))
+	registerSvc(injector, "queue", errTestTimeout)
 
 	rec.Reset()
 
@@ -477,7 +554,7 @@ func TestIntegration_TriggerWithFailingService(t *testing.T) {
 	defer cleanup()
 
 	injector := do.New()
-	registerSvc(injector, "failing-svc", errors.New("service down"))
+	registerSvc(injector, "failing-svc", errTestServiceDown)
 
 	trigger := frhealth.NewTrigger(rec)
 

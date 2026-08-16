@@ -70,3 +70,17 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | Trigger-based trace capture middleware | FULLY_FUNCTIONAL | `middleware.go`, tests |
 | Snapshot endpoint (`SnapshotHandler`)  | FULLY_FUNCTIONAL | `handler.go`, tests    |
 | Auto-reset for repeated captures       | FULLY_FUNCTIONAL | `middleware.go`        |
+
+## flightrecorderhealth (`github.com/larsartmann/go-appkit/flightrecorderhealth`)
+
+| Feature                                                | Status           | Evidence                       |
+| ------------------------------------------------------ | ---------------- | ------------------------------ |
+| `Checkable` (health-dashboard visibility)              | FULLY_FUNCTIONAL | `adapter.go`, 5 tests          |
+| `Trigger` (auto-capture on health failure)             | FULLY_FUNCTIONAL | `adapter.go`, 12 tests         |
+| `Register` convenience                                 | FULLY_FUNCTIONAL | `adapter.go`, 2 tests          |
+| Custom trigger funcs (`OnError`, `OnAlways`, etc.)     | FULLY_FUNCTIONAL | `TestTrigger_CustomTriggerFunc`|
+| Cooldown (trace-flood prevention)                      | FULLY_FUNCTIONAL | `TestTrigger_WithCooldown`     |
+| Concurrency-safe `lastCapture` (`sync.Mutex`)          | FULLY_FUNCTIONAL | `TestTrigger_ConcurrentCooldownIsRaceFree` |
+| Logger integration (`WithTriggerLogger`)               | FULLY_FUNCTIONAL | `TestTrigger_WithLogger`       |
+| Multi-trigger observability (`WithServiceName`)        | FULLY_FUNCTIONAL | `TestTrigger_WithServiceName_NotLoggedWhenEmpty` |
+| go-error-family classification (`Rejection` / `Infrastructure`) | FULLY_FUNCTIONAL | `adapter.go:HealthCheck`       |

@@ -10,13 +10,14 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
   - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite v4. v0.3.0 prepared 2026-08-16 (push pending).
   - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0 prepared 2026-08-16 (push pending; first CHANGELOG added same day).
   - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0 prepared 2026-08-16 (push pending; first CHANGELOG added same day).
-  - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. v0.1.0 current.
+  - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. v0.1.0 work-in-progress; tagged pending release wave.
   - **docs** (`/docs-mod`) — opt-in auto-documentation via catalog/v4. v0.2.0 current (no re-tag needed: since-tag delta is config-only).
   - **errorpages** (`/errorpages`) — pretty classified error pages (HTML/JSON) via templ-components/errorpage. v0.1.0 current (no re-tag needed: since-tag delta is test-only, `83c91bc`).
 - Library consumed by Go applications. Reference consumer: cqrs-htmx `setup` (ADR-001 adoption, blocked only on the push).
 - Source in repository root. Example in `example/main.go`.
 - No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
-- **All seven modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly; flightrecorderhealth via go-health → samber/do).
+- **Six of seven modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly).
+- **`flightrecorderhealth` does NOT require `GOEXPERIMENT=jsonv2`** — its deps (`go-health`, `samber/do/v2`, `go-flightrecorder`) all use plain `encoding/json`. Builds and tests run with plain `go build`/`go test`.
 
 ## Release State (2026-08-16)
 
@@ -53,9 +54,9 @@ cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXP
 cd flightrecorder && GOEXPERIMENT=jsonv2 go test ./... -race -count=1
 cd flightrecorder && GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go build ./...
 
-# flightrecorderhealth module
-GOEXPERIMENT=jsonv2 go test ./flightrecorderhealth/... -race -count=1
-cd flightrecorderhealth && GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go build ./...
+# flightrecorderhealth module (no GOEXPERIMENT required — plain encoding/json)
+go test ./flightrecorderhealth/... -race -count=1
+cd flightrecorderhealth && go vet ./... && go build ./...
 ```
 
 BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
@@ -103,20 +104,24 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Flightrecorderhealth Module — Code Organization
 
-| File | Concern |
-| ---- | ------- |
-| `doc.go` | Package doc. Quick start, import aliasing, process-global singleton note. |
-| `adapter.go` | `Checkable` (health-checkable wrapper, implements `do.HealthcheckerWithContext`), `Trigger` (implements `health.HealthRecorder`), `Register` convenience, options. |
-| `adapter_test.go` | 18 tests: Checkable health states, Trigger capture/no-capture/pass-through, cooldown, logger, custom trigger, Register, integration. |
+| File             | Concern                                                                                                                                                          |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`         | Package doc. Quick start, import aliasing, process-global singleton note.                                                                                       |
+| `adapter.go`     | `Checkable` (health-checkable wrapper, implements `do.HealthcheckerWithContext`), `Trigger` (implements `health.HealthRecorder`), `Register` convenience, options. |
+| `adapter_test.go`| 20 tests: Checkable health states, Trigger capture/no-capture/pass-through, cooldown, logger, custom trigger, Register, integration, concurrency-safe cooldown. |
+| `.golangci.yml`  | Module-specific lint config (mirrors go-flightrecorder's exclusions; test files exempt from `paralleltest`/`err113`/`varnamelen` due to singleton constraint). |
+| `README.md`      | Module overview, quick start, trigger functions, error taxonomy.                                                                                                |
 
 - Bridges [github.com/larsartmann/go-flightrecorder] with [github.com/larsartmann/go-health].
 - `Checkable` reports the recorder's own operational state (enabled/disabled) as a health-checkable service in the dashboard.
 - `Trigger` intercepts every health-check batch via `HealthRecorder.RecordHealthCheckWithContext`, constructs a `fr.TriggerContext` with `Kind="health.check"`, and calls `SnapshotIfAsync` when the trigger function fires.
 - `TriggerContext.Err` is set to the first failing service's error so `fr.OnError` fires on failures. `fr.OnAlways` fires on every batch regardless.
-- `WithCooldown` prevents trace flooding on flapping services.
+- `WithCooldown` prevents trace flooding on flapping services; `lastCapture` is guarded by `sync.Mutex` for concurrent batch safety.
+- `WithServiceName` includes an identifier in trigger log messages (multi-trigger setups).
 - Nil-safe: nil `Trigger` or nil recorder pass-through to `injector.HealthCheckWithContext`.
+- Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family) constructors: `flightrecorder.recorder_missing` is `Rejection`, `flightrecorder.recorder_disabled` is `Infrastructure`.
 - Tests use `do.New()` with registered `healthSvc` mocks, `WithMinAge(50ms)` + `WithMaxBytes(1MiB)` + 100ms warmup sleep for trace data.
-- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.0.2`, `samber/do v2.1.0`.
+- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.0.2`, `samber/do v2.1.0`, `go-error-family v0.10.0`.
 
 ## Architecture and Control Flow
 

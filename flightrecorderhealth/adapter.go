@@ -2,10 +2,11 @@ package flightrecorderhealth
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
+	"sync"
 	"time"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	fr "github.com/larsartmann/go-flightrecorder"
 	"github.com/samber/do/v2"
 )
@@ -55,11 +56,14 @@ func NewCheckable(rec *fr.Recorder, opts ...CheckableOption) *Checkable {
 // Returns nil if enabled, an error otherwise.
 func (c *Checkable) HealthCheck(_ context.Context) error {
 	if c == nil || c.rec == nil {
-		return fmt.Errorf("flightrecorder: recorder is not configured")
+		return errorfamily.NewRejection("flightrecorder.recorder_missing", "flightrecorder: recorder is not configured")
 	}
 
 	if !c.rec.Enabled() {
-		return fmt.Errorf("flightrecorder: recorder is not enabled (trace buffer inactive)")
+		return errorfamily.NewInfrastructure(
+			"flightrecorder.recorder_disabled",
+			"flightrecorder: recorder is not enabled (trace buffer inactive)",
+		)
 	}
 
 	return nil
@@ -76,18 +80,23 @@ func (c *Checkable) Name() string {
 }
 
 // Trigger is a [health.HealthRecorder] that intercepts every health-check
-// batch and triggers a flight recorder snapshot when any service fails. The
-// snapshot captures the trace window around the failure for offline analysis
-// with `go tool trace`.
+// batch and triggers a flight recorder snapshot when the configured trigger
+// function evaluates to true. The default trigger is [fr.OnError], so by
+// default a snapshot is captured when any health check fails. Use [fr.OnAlways]
+// to capture on every batch, or [fr.OnErrorOrLatency] to also capture on slow
+// checks.
 //
-// The trigger uses [fr.SnapshotIfAsync] so the capture is non-blocking — the
-// health-check loop is never delayed by trace I/O.
+// The snapshot is captured via [fr.SnapshotIfAsync] so the health-check loop
+// is never delayed by trace I/O.
 type Trigger struct {
-	rec          *fr.Recorder
-	triggerFunc  fr.TriggerFunc
-	logger       *slog.Logger
-	cooldown     time.Duration
-	lastCapture  time.Time
+	rec         *fr.Recorder
+	triggerFunc fr.TriggerFunc
+	logger      *slog.Logger
+	cooldown    time.Duration
+	serviceName string
+
+	mu          sync.Mutex
+	lastCapture time.Time
 }
 
 // TriggerOption configures a [Trigger].
@@ -104,8 +113,8 @@ func WithTriggerFunc(trigger fr.TriggerFunc) TriggerOption {
 }
 
 // WithTriggerLogger sets the slog logger for snapshot capture events. When
-// set, the trigger logs each capture with the failing service names and
-// errors. Default: no logging.
+// set, the trigger logs each capture with the service name, failing service
+// names, and errors. Default: no logging.
 func WithTriggerLogger(logger *slog.Logger) TriggerOption {
 	return func(t *Trigger) { t.logger = logger }
 }
@@ -114,7 +123,7 @@ func WithTriggerLogger(logger *slog.Logger) TriggerOption {
 // snapshot requests within the cooldown window are silently dropped. This
 // prevents trace flooding when a service flaps repeatedly.
 //
-// Default: 0 (no cooldown — every failing batch triggers a capture, subject
+// Default: 0 (no cooldown — every trigger firing initiates a capture, subject
 // to the recorder's own once-semantics and sink configuration).
 //
 // For directory-sink recorders ([fr.WithSnapshotDir]), a cooldown of 30s–60s
@@ -124,14 +133,24 @@ func WithCooldown(d time.Duration) TriggerOption {
 	return func(t *Trigger) { t.cooldown = d }
 }
 
+// WithServiceName sets an optional service name included in the trigger's log
+// messages. This helps identify which trigger instance captured a snapshot
+// when multiple triggers run in the same process (e.g., one per subsystem).
+// Default: empty (no service name logged).
+func WithServiceName(name string) TriggerOption {
+	return func(t *Trigger) { t.serviceName = name }
+}
+
 // NewTrigger creates a [health.HealthRecorder] that captures a flight recorder
-// snapshot when health checks fail. The snapshot is captured asynchronously
-// via [fr.SnapshotIfAsync], so the health-check loop is never blocked.
+// snapshot when the configured trigger function fires. The snapshot is captured
+// asynchronously via [fr.SnapshotIfAsync], so the health-check loop is never
+// blocked.
 //
 // If rec is nil, RecordHealthCheckWithContext is a pass-through that delegates
 // to the injector directly. This allows construction before the recorder is
 // available (e.g., config-gated disabling).
 func NewTrigger(rec *fr.Recorder, opts ...TriggerOption) *Trigger {
+	//nolint:exhaustruct // logger, serviceName, mu, lastCapture are zero by design; options fill them as needed
 	t := &Trigger{
 		rec:         rec,
 		triggerFunc: fr.OnError(),
@@ -146,8 +165,8 @@ func NewTrigger(rec *fr.Recorder, opts ...TriggerOption) *Trigger {
 }
 
 // RecordHealthCheckWithContext satisfies [health.HealthRecorder]. It runs the
-// health-check batch via the injector, then evaluates the trigger function
-// to decide whether to capture a trace snapshot. The snapshot is captured
+// health-check batch via the injector, then evaluates the trigger function to
+// decide whether to capture a trace snapshot. The snapshot is captured
 // asynchronously via [fr.SnapshotIfAsync], so the health-check loop is never
 // blocked.
 //
@@ -162,32 +181,48 @@ func (t *Trigger) RecordHealthCheckWithContext(
 		return injector.HealthCheckWithContext(ctx)
 	}
 
+	start := time.Now()
+
 	results := injector.HealthCheckWithContext(ctx)
 
 	tc := fr.TriggerContext{
-		Kind: "health.check",
-		Type: "batch",
-		Err:  firstError(results),
+		Kind:     "health.check",
+		Type:     "batch",
+		Duration: time.Since(start),
+		Err:      firstError(results),
 	}
 
-	// Cooldown check — compare against the last capture time.
-	if t.cooldown > 0 && !t.lastCapture.IsZero() {
-		if time.Since(t.lastCapture) < t.cooldown {
-			return results
-		}
+	// Cooldown check — compare against the last capture time. Holding the
+	// mutex across both the read and the write prevents two concurrent
+	// batches from both deciding the cooldown has elapsed.
+	t.mu.Lock()
+
+	if t.cooldown > 0 && !t.lastCapture.IsZero() && time.Since(t.lastCapture) < t.cooldown {
+		t.mu.Unlock()
+
+		return results
 	}
 
 	captured := t.rec.SnapshotIfAsync(context.WithoutCancel(ctx), tc, t.triggerFunc)
 
 	if captured {
 		t.lastCapture = time.Now()
+	}
 
-		if t.logger != nil {
-			t.logger.InfoContext(ctx,
-				"flightrecorder: trace snapshot triggered by health check",
-				"failed_services", failingServiceNames(results),
-			)
+	t.mu.Unlock()
+
+	if captured && t.logger != nil {
+		attrs := []any{
+			"failed_services", failingServiceNames(results),
 		}
+		if t.serviceName != "" {
+			attrs = append(attrs, "service", t.serviceName)
+		}
+
+		t.logger.InfoContext(ctx,
+			"flightrecorder: trace snapshot triggered by health check",
+			attrs...,
+		)
 	}
 
 	return results

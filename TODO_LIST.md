@@ -3,7 +3,7 @@
 > Short-term, actionable, bounded work. Open items only.
 > Completed work lives in [CHANGELOG.md](CHANGELOG.md). Long-term vision lives in `docs/planning/`.
 
-**Updated:** 2026-08-16 | **Modules:** 6 (core, cqrs, realtime, flightrecorder, errorpages, docs) | **Release state:** core **v0.3.0**, cqrs **v0.3.0**, realtime **v0.1.0**, flightrecorder **v0.1.0** cut at `f938d65` (2026-08-16), hermetically verified, **push pending — user gate**; errorpages v0.1.0 and docs v0.2.0 current (their since-tag deltas are test-only / config-only — deliberately not re-tagged) | **All modules require `GOEXPERIMENT=jsonv2`** (see AGENTS.md per-module reasons)
+**Updated:** 2026-08-16 | **Modules:** 7 (core, cqrs, realtime, flightrecorder, flightrecorderhealth, errorpages, docs) | **Release state:** core **v0.3.0**, cqrs **v0.3.0**, realtime **v0.1.0**, flightrecorder **v0.1.0** cut at `f938d65` (2026-08-16), hermetically verified, **push pending — user gate**; errorpages v0.1.0 and docs v0.2.0 current (their since-tag deltas are test-only / config-only — deliberately not re-tagged); flightrecorderhealth **v0.1.0 uncut — work-in-progress** | **Six modules require `GOEXPERIMENT=jsonv2`** (flightrecorderhealth does NOT — its deps are plain `encoding/json`)
 
 ## Status Legend
 
