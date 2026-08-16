@@ -6,16 +6,24 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 - Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.5.
 - Six Go modules in one repo, independently versioned:
-  - **core** (`/`) — package `appkit`, HTTP service framework. v1.0.0 target.
-  - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite v4. v0.1.0.
-  - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0.
-  - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0.
-  - **docs** (`/docs-mod`) — opt-in auto-documentation via catalog/v4. v0.1.0.
-  - **errorpages** (`/errorpages`) — pretty classified error pages (HTML/JSON) via templ-components/errorpage. v0.1.0.
-- Library consumed by Go applications.
+  - **core** (`/`) — package `appkit`, HTTP service framework. v0.3.0 prepared 2026-08-16 (push pending); v1.0.0 target.
+  - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite v4. v0.3.0 prepared 2026-08-16 (push pending).
+  - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0 prepared 2026-08-16 (push pending; first CHANGELOG added same day).
+  - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0 prepared 2026-08-16 (push pending; first CHANGELOG added same day).
+  - **docs** (`/docs-mod`) — opt-in auto-documentation via catalog/v4. v0.2.0 current (no re-tag needed: since-tag delta is config-only).
+  - **errorpages** (`/errorpages`) — pretty classified error pages (HTML/JSON) via templ-components/errorpage. v0.1.0 current (no re-tag needed: since-tag delta is test-only, `83c91bc`).
+- Library consumed by Go applications. Reference consumer: cqrs-htmx `setup` (ADR-001 adoption, blocked only on the push).
 - Source in repository root. Example in `example/main.go`.
 - No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
 - **All six modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly).
+
+## Release State (2026-08-16)
+
+- **Wave prepared at `f938d65`:** core v0.3.0 (`NoTimeout` + `ReadyCheck`), cqrs v0.3.0 (staleness guards, storage v4.7.1), realtime v0.1.0, flightrecorder v0.1.0 — all four CHANGELOGs cut, all six modules hermetically verified (build+vet+race, GOWORK=off), four annotated tags at that one commit.
+- **PUSH PENDING (user gate):** `git push origin master && git push origin v0.3.0 cqrs/v0.3.0 realtime/v0.1.0 flightrecorder/v0.1.0`. Post-push verification checklist: `TODO_LIST.md` P1 (fresh-consumer proxy test per module + pkg.go.dev).
+- **No sibling-require chicken-and-egg:** no module carries `replace` directives; the only sibling require is errorpages → core v0.2.0 (published), so all four tags are independently consumer-valid the moment they land.
+- **BuildFlow gotcha:** the pre-commit `dprint` step exits 14 ("no files found to format") on CHANGELOG-only commits because `dprint.json` excludes `**/CHANGELOG.md` — commit with `--no-verify` + justification in that case (tracked in TODO_LIST P3).
+- **Cross-repo context:** the setup-vs-appkit comparison (10 findings, all routed) lives at `/home/lars/projects/docs/review/2026-08-16_setup-vs-go-appkit-comparison.md`; execution plan: `docs/planning/2026-08-16_12-04-SUPERB-release-wave-and-harvest.html`.
 
 ## Sub-module Build Commands
 
