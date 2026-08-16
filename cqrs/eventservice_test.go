@@ -183,7 +183,7 @@ func TestCloseOnConstructionFailure_CloseSucceeds(t *testing.T) {
 	}
 
 	// No close error joined — result should be the sentinel itself.
-	if result != sentinel {
+	if !errors.Is(result, sentinel) {
 		t.Errorf("expected exact sentinel (no join), got: %v", result)
 	}
 }

@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
 	"github.com/larsartmann/go-cqrs-lite/projection/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 func TestEventService_CheckStaleness_FreshWithoutProcessedEvents(t *testing.T) {
@@ -43,7 +43,8 @@ func TestEventService_CheckStaleness_DisabledByNonPositiveBudget(t *testing.T) {
 	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	for _, budget := range []time.Duration{0, -time.Second} {
-		if err := eventSvc.CheckStaleness(budget); err != nil {
+		err := eventSvc.CheckStaleness(budget)
+		if err != nil {
 			t.Errorf("expected disabled check (nil) for budget %v, got: %v", budget, err)
 		}
 	}

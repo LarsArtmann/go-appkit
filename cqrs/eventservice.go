@@ -2,7 +2,7 @@
 // It wraps go-cqrs-lite/stack/sqlite and projectionhost into a lifecycle-managed
 // EventService that integrates with appkit.Service for graceful shutdown.
 
-//cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a post-command drain
+// cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a post-command drain
 package cqrs
 
 import (
@@ -135,10 +135,10 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		return nil, closeOnConstructionFailure(
 			bundle,
 			errorfamily.WrapInfrastructuref(
-					err,
-					"cqrs.projection_host_failed",
-					"failed to create projection host",
-				),
+				err,
+				"cqrs.projection_host_failed",
+				"failed to create projection host",
+			),
 		)
 	}
 
@@ -154,7 +154,8 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 // close succeeds; a close failure is appended with errors.Join so a double
 // failure is never silently discarded.
 func closeOnConstructionFailure(bundle *stack.Bundle, err error) error {
-	if closeErr := bundle.GracefulClose(context.Background()); closeErr != nil {
+	closeErr := bundle.GracefulClose(context.Background())
+	if closeErr != nil {
 		return errors.Join(err, closeErr)
 	}
 

@@ -124,17 +124,17 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## cqrs Module Dependencies
 
-| Module                                                  | Version | Role                                                                      |
-| ------------------------------------------------------- | ------- | ------------------------------------------------------------------------- |
-| `github.com/larsartmann/go-cqrs-lite/stack/v4`          | v4.3.0  | Bundle (events, commands, queries, snapshots, checkpoints)                |
-| `github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4`   | v4.3.0  | SQLite preset (WAL, `SetMaxOpenConns(1)` via `ConfigureSQLitePool`)       |
-| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4` | v4.3.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                |
-| `github.com/larsartmann/go-cqrs-lite/event/v4`          | v4.7.0  | Event types, stream refs, event construction                              |
-| `github.com/larsartmann/go-cqrs-lite/id/v4`             | v4.5.0  | Branded IDs (stream, event)                                               |
+| Module                                                  | Version | Role                                                                       |
+| ------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
+| `github.com/larsartmann/go-cqrs-lite/stack/v4`          | v4.3.0  | Bundle (events, commands, queries, snapshots, checkpoints)                 |
+| `github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4`   | v4.3.0  | SQLite preset (WAL, `SetMaxOpenConns(1)` via `ConfigureSQLitePool`)        |
+| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4` | v4.3.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                 |
+| `github.com/larsartmann/go-cqrs-lite/event/v4`          | v4.7.0  | Event types, stream refs, event construction                               |
+| `github.com/larsartmann/go-cqrs-lite/id/v4`             | v4.5.0  | Branded IDs (stream, event)                                                |
 | `github.com/larsartmann/go-cqrs-lite/projection/v4`     | v4.3.0  | Projection type and `NewProjection`                                        |
-| `github.com/larsartmann/go-cqrs-lite/flightrecorder/v4` | v4.0.0  | CQRS-specific flight recorder (process-global singleton)                  |
-| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.7.1  | indirect — v4.7.0 had a build bug (`err :=` in keyset.go), fixed in v4.7.1  |
-| `github.com/larsartmann/go-error-family`                | v0.10.0 | Error classification (shared with core)                                   |
+| `github.com/larsartmann/go-cqrs-lite/flightrecorder/v4` | v4.0.0  | CQRS-specific flight recorder (process-global singleton)                   |
+| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.7.1  | indirect — v4.7.0 had a build bug (`err :=` in keyset.go), fixed in v4.7.1 |
+| `github.com/larsartmann/go-error-family`                | v0.10.0 | Error classification (shared with core)                                    |
 
 - Migrated to v4 on 2026-08-15 (was v3.7.x). Migration guide: go-cqrs-lite `docs/migration/MIGRATION-GUIDE.md`.
 - **GOEXPERIMENT=jsonv2 required** (codec/v4 → encoding/json/jsontext).
