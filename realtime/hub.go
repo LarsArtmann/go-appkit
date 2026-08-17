@@ -39,7 +39,7 @@ type hubConfig struct {
 //	    realtime.WithBufferSize(256),
 //	)
 func NewHub(opts ...Option) *Hub {
-	cfg := hubConfig{}
+	cfg := hubConfig{} //nolint:exhaustruct // zero defaults, options fill fields
 
 	for _, opt := range opts {
 		opt(&cfg)
@@ -125,7 +125,7 @@ func (h *Hub) BroadcastPatch(p PatchLike) {
 // BEFORE shutting down the HTTP server so browsers auto-reconnect to another
 // instance. Returns ctx.Err() if the deadline fires before drain completes.
 func (h *Hub) Shutdown(ctx context.Context) error {
-	return h.Broadcaster.Shutdown(ctx)
+	return h.Broadcaster.Shutdown(ctx) //nolint:wrapcheck // pure delegation
 }
 
 // Close instantly closes all subscriber channels. Use during hard shutdown

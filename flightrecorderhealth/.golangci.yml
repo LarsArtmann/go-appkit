@@ -208,6 +208,9 @@ linters:
           - goconst
           - varnamelen
           - wsl_v5
+          - funlen
+          - cyclop
+          - testpackage
       - path: _test\.go
         text: unused
         linters:

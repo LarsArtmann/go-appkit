@@ -1,7 +1,7 @@
 // Package cqrs provides CQRS/ES integration for go-appkit services.
 // It wraps go-cqrs-lite/stack/sqlite and projectionhost into a lifecycle-managed
 // EventService that integrates with appkit.Service for graceful shutdown.
-
+//
 // cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a post-command drain
 package cqrs
 
@@ -142,7 +142,7 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		)
 	}
 
-	return &EventService{
+	return &EventService{ //nolint:exhaustruct // zero-value mu and closed
 		bundle: bundle,
 		host:   host,
 		dlq:    dlqStore,
@@ -165,12 +165,12 @@ func closeOnConstructionFailure(bundle *stack.Bundle, err error) error {
 // resolveDLQ determines the dead-letter store for a config. A nil cfg or a
 // cfg with an explicit Store needs no bundle access; the default store is
 // provisioned in the bundle's own database.
-func resolveDLQ(
+func resolveDLQ( //nolint:ireturn // upstream interface
 	cfg *DLQConfig,
 	bundle *stack.Bundle,
 ) (projectionhost.DeadLetterStore, error) {
 	if cfg == nil {
-		return nil, nil
+		return nil, nil //nolint:nilnil // nil store + nil error is the documented "DLQ disabled" state
 	}
 
 	if cfg.Store != nil {
@@ -235,7 +235,7 @@ func (es *EventService) Host() *projectionhost.Host {
 // DLQ is disabled. The SQLite default additionally implements
 // projectionhost.DeadLetterStoreAdmin (Count, ListPaged, PurgeBefore) via
 // type assertion.
-func (es *EventService) DeadLetterStore() projectionhost.DeadLetterStore {
+func (es *EventService) DeadLetterStore() projectionhost.DeadLetterStore { //nolint:ireturn // upstream interface
 	return es.dlq
 }
 
@@ -253,7 +253,7 @@ func (es *EventService) ReplayDeadLetters(
 			errorfamily.NewRejection("cqrs.dlq_disabled", "DLQ is not configured")
 	}
 
-	return es.host.ReplayDeadLetters(ctx, projectionName)
+	return es.host.ReplayDeadLetters(ctx, projectionName) //nolint:wrapcheck // delegation
 }
 
 // ResetProjection rewinds a projection's checkpoint to the beginning (or to a
@@ -265,7 +265,7 @@ func (es *EventService) ResetProjection(
 	name string,
 	opts ...projectionhost.ResetOption,
 ) error {
-	return es.host.Reset(ctx, name, opts...)
+	return es.host.Reset(ctx, name, opts...) //nolint:wrapcheck // delegation
 }
 
 // DB extracts the *sql.DB from the bundle's Database() method.
@@ -332,7 +332,7 @@ func (es *EventService) LagPerProjection() map[string]time.Duration {
 // drains the backlog. A maxStaleness <= 0 disables the check; a projection
 // that has not processed any event yet counts as fresh.
 func (es *EventService) CheckStaleness(maxStaleness time.Duration) error {
-	return es.host.CheckStaleness(maxStaleness)
+	return es.host.CheckStaleness(maxStaleness) //nolint:wrapcheck // delegation
 }
 
 // CheckProjectionStaleness is the per-projection variant of CheckStaleness:
@@ -340,13 +340,13 @@ func (es *EventService) CheckStaleness(maxStaleness time.Duration) error {
 // across all workers. Rejects (400-class) when the projection is not
 // registered; a maxStaleness <= 0 disables the check first.
 func (es *EventService) CheckProjectionStaleness(name string, maxStaleness time.Duration) error {
-	return es.host.CheckProjectionStaleness(name, maxStaleness)
+	return es.host.CheckProjectionStaleness(name, maxStaleness) //nolint:wrapcheck // delegation
 }
 
 // StartProjections starts the projection host workers.
 // Must be called after all projections are registered and before the service begins serving.
 func (es *EventService) StartProjections(ctx context.Context) error {
-	return es.host.Start(ctx)
+	return es.host.Start(ctx) //nolint:wrapcheck // delegation
 }
 
 // Shutdown gracefully stops projections and closes the event store.

@@ -29,7 +29,7 @@ func newDLQService(t *testing.T, threshold int) *EventService {
 }
 
 // flakyProjection fails while broken is true and succeeds afterwards.
-func flakyProjection(broken *atomic.Bool) projection.Projection {
+func flakyProjection(broken *atomic.Bool) projection.Projection { //nolint:ireturn // upstream interface
 	return projection.NewProjection(
 		"dlq-projection",
 		func(_ context.Context, _ event.Event) error {

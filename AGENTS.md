@@ -61,6 +61,8 @@ cd flightrecorderhealth && go vet ./... && go build ./...
 
 BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
+**Linting (2026-08-17 standard):** every module — root included — carries its own `.golangci.yml`. Lint each module **from its own directory** (`cd <module> && golangci-lint run ./...`); never lint satellites from the workspace root (the root config's depguard allowlist covers only core + family deps, and per-module configs are the source of truth). Root depguard allow now includes `go-appkit` itself (example/ self-import), `go-flightrecorder`, `go-health`, and `go-sse`. All 7 modules sit at **0 issues** (verified 2026-08-17 with `go test -race` green across the board). Shared test-exclusion union for `_test.go`: mnd, exhaustruct, err113, paralleltest, gochecknoglobals, goconst, varnamelen, wsl_v5, funlen, cyclop, testpackage.
+
 ## Core Module — Code Organization
 
 | File              | Concern                                                                                                                                 |

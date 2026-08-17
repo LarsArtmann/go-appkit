@@ -15,16 +15,18 @@ import (
 
 // recorderMu serializes tests that hold the process-global flight recorder
 // slot (runtime/trace allows exactly one active recorder per process).
-var recorderMu chanMutex
+var recorderMu = newChanMutex()
 
 type chanMutex struct{ ch chan struct{} }
 
 func (m chanMutex) lock()   { <-m.ch }
 func (m chanMutex) unlock() { m.ch <- struct{}{} }
 
-func init() {
-	recorderMu = chanMutex{ch: make(chan struct{}, 1)}
-	recorderMu.unlock()
+func newChanMutex() chanMutex {
+	m := chanMutex{ch: make(chan struct{}, 1)}
+	m.unlock()
+
+	return m
 }
 
 // NOT parallel: holds the single process-global flight recorder slot.

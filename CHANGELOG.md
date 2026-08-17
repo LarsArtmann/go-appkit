@@ -8,7 +8,8 @@
 
 ### Fixed
 
-- Nothing yet.
+- Resolved all golangci-lint findings (exhaustruct, gochecknoinits, noctx, noinlineerr, wrapcheck, varnamelen): context-aware `net.ListenConfig`/`NewRequestWithContext` in code and tests, removed the httpspec `init()` workaround, justified nolint directives on deliberate zero-value structs, depguard allowlist now covers the module family.
+
 
 ## [0.3.0] - 2026-08-16
 

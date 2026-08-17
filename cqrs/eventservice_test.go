@@ -81,7 +81,8 @@ func TestEventService_DB(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if err := db.PingContext(context.Background()); err != nil {
+	err = db.PingContext(context.Background())
+	if err != nil {
 		t.Fatalf("ping failed: %v", err)
 	}
 }

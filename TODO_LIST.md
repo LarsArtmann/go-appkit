@@ -3,7 +3,7 @@
 > Short-term, actionable, bounded work. Open items only.
 > Completed work lives in [CHANGELOG.md](CHANGELOG.md). Long-term vision lives in `docs/planning/`.
 
-**Updated:** 2026-08-16 | **Modules:** 7 (core, cqrs, realtime, flightrecorder, flightrecorderhealth, errorpages, docs) | **Release state:** core **v0.3.0**, cqrs **v0.3.0**, realtime **v0.1.0**, flightrecorder **v0.1.0**, flightrecorderhealth **v0.1.0** cut (flightrecorderhealth at `d3e3e51`, 2026-08-16, hermetically verified incl. 100% coverage + compile-time contract assertions), **push pending — user gate**; errorpages v0.1.0 and docs v0.2.0 current (their since-tag deltas are test-only / config-only — deliberately not re-tagged) | **Six modules require `GOEXPERIMENT=jsonv2`** (flightrecorderhealth does NOT — its deps are plain `encoding/json`)
+**Updated:** 2026-08-17 | **Modules:** 7 (core, cqrs, realtime, flightrecorder, flightrecorderhealth, errorpages, docs) | **Release state:** core **v0.3.0**, cqrs **v0.3.0**, realtime **v0.1.0**, flightrecorder **v0.1.0**, flightrecorderhealth **v0.1.0** cut (flightrecorderhealth at `d3e3e51`, 2026-08-16, hermetically verified incl. 100% coverage + compile-time contract assertions), **push pending — user gate**; errorpages v0.1.0 and docs v0.2.0 current (their since-tag deltas are test-only / config-only — deliberately not re-tagged) | **Six modules require `GOEXPERIMENT=jsonv2`** (flightrecorderhealth does NOT — its deps are plain `encoding/json`)
 
 ## Status Legend
 
@@ -28,9 +28,7 @@
 - [ ] **README: document `GOEXPERIMENT=jsonv2` for building from source.** AGENTS.md carries per-module reasons; README (user-facing) does not mention it. Source: session-5 #19.
 - [ ] **FEATURES.md: add a "Consumers" section** citing the cqrs-htmx `setup` spike/adoption (ADR-001) as the reference consumer. Source: session-5 #25.
 - [ ] **Fix `docs/planning/design-decisions.md:118` lychee 404 + MD013 long lines.** Source: session-5 #13/#14.
-- [ ] **`httpspec_test.go` init-function refactor** (`gochecknoinits`/`godoclint` flag it; BuildFlow root run 2026-08-16). Source: session-5 #34.
 - [ ] **Document the `DrainDelay: 0` test-ergonomics pattern in AGENTS.md** (how to make shutdown/drain tests fast). Source: session-5 #22/#23.
-- [ ] **Verify `example/main.go` quick start compiles with plain `go build`** (README quick-start honesty). Source: session-5 #23.
 - [ ] **Add a mechanical API-break check to the release process** (goapidiff or a `go doc` snapshot diff at tag time) — v0.2.0 was reconstructed after the fact; never again. Source: session-5 #7.
 - [ ] **Bump Go toolchain 1.26.5 → 1.26.6 when nixpkgs carries it** (GO-2026-6090 crypto/tls post-handshake flood, GO-2026-5972 encoding/asn1 recursion; both symbol-level findings, patch-class DoS; builds run GOTOOLCHAIN=local so the nixpkgs lock gates this). Source: govulncheck via BuildFlow 2026-08-16; same item tracked in cqrs-htmx TODO_LIST P2.
 
@@ -39,7 +37,6 @@
 ## P3 — Technical debt & tooling
 
 - [ ] **BuildFlow dprint step fails on CHANGELOG-only commits** (exit 14 "no files found to format"): `dprint.json` excludes `**/CHANGELOG.md`, so a commit staging only CHANGELOGs (+ non-dprint files) trips the formatter's empty-set error. Fix: `--allow-no-files` (or skip when no files match). Evidence: the v0.3.0-wave commit needed `--no-verify` on 2026-08-16 (deterministic, retried once).
-- [ ] **golangci depguard allowlists per satellite module.** Family imports (go-sse, go-flightrecorder, templ-components/errorpage, go-cqrs-lite/…) are flagged "not allowed from list 'main'" across modules (counts at `f938d65`: cqrs 54, realtime 31, flightrecorder 39, errorpages 26, docs 3, root 14 — pre-existing, warnings). Either configure per-module lists or record the accepted-warning rationale.
 - [ ] **go-structure-linter root-package findings:** 8 standing "package file at project root" errors — the root package IS the intended public layout for core; configure the linter to accept it instead of living with red.
 - [ ] **Define v1.0.0 exit criteria for core** (AGENTS.md names v1.0.0 as the core target; no written criteria exist). Ideas live in `docs/planning/framework-architecture.md`; graduate to actionable when the consumer count grows.
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -22,7 +23,7 @@ func main() {
 func run(cfg appkit.ServiceConfig) error {
 	svc, err := appkit.NewService(cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("create service: %w", err)
 	}
 
 	defer func() { _ = svc.Close() }()
@@ -33,5 +34,5 @@ func run(cfg appkit.ServiceConfig) error {
 		_, _ = w.Write([]byte("hello"))
 	})
 
-	return svc.Run(context.Background())
+	return svc.Run(context.Background()) //nolint:wrapcheck // top-level main returns the error as-is
 }

@@ -1,7 +1,7 @@
 version: "2"
 run:
   timeout: 5m
-  go: 1.26.4
+  go: 1.26.5
   build-tags:
     - goexperiment.arenas
     - goexperiment.goroutineleakprofile
@@ -137,8 +137,12 @@ linters:
             - $module
             - modernc.org/sqlite
             - github.com/larsartmann/httputil
+            - github.com/larsartmann/go-appkit
             - github.com/charmbracelet/log
             - github.com/larsartmann/go-error-family
+            - github.com/larsartmann/go-flightrecorder
+            - github.com/larsartmann/go-health
+            - github.com/larsartmann/go-sse
     exhaustruct:
       exclude:
         - os/exec.Cmd

@@ -87,7 +87,8 @@ func TestReadyEndpoint_ComposesDrainProbeWithReadyCheck(t *testing.T) {
 
 	get := func() int {
 		rec := httptest.NewRecorder()
-		svc.Mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
+		svc.Mux.ServeHTTP(rec, httptest.NewRequestWithContext(
+			context.Background(), http.MethodGet, "/health/ready", nil))
 
 		return rec.Code
 	}
@@ -120,7 +121,7 @@ func TestReadyEndpoint_ProbeOnlyWhenReadyCheckNil(t *testing.T) {
 	}
 
 	rec := httptest.NewRecorder()
-	svc.Mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
+	svc.Mux.ServeHTTP(rec, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/health/ready", nil))
 
 	assertStatus(t, rec, http.StatusOK)
 }

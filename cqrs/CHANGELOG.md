@@ -8,7 +8,8 @@
 
 ### Fixed
 
-- Nothing yet.
+- Resolved all golangci-lint findings: Go 1.26 blank-assignment fix (`_, _ = fmt.Fprint`), noinlineerr conversions in tests, `init()` replaced by a constructor for the recorder mutex, package doc reordered so the cqrs-lint directive folds into the godoc block, justified nolint directives on interface-mirroring returns and pure delegation.
+
 
 ## [0.3.0] - 2026-08-16
 

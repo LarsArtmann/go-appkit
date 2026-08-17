@@ -48,6 +48,18 @@ func mustParseID(s string) sse.EventID {
 	return id
 }
 
+// httpGetURL issues a context-aware GET (noctx-compliant test helper).
+func httpGetURL(t *testing.T, url string) (*http.Response, error) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
+	if err != nil {
+		t.Fatalf("build GET %s: %v", url, err)
+	}
+
+	return http.DefaultClient.Do(req) //nolint:wrapcheck // test helper
+}
+
 // waitForSubscriber polls SubscriberCount until it reaches want or timeout.
 func waitForSubscriber(t *testing.T, hub *realtime.Hub, want int) {
 	t.Helper()
@@ -71,10 +83,10 @@ func readSSEFrame(t *testing.T, r io.Reader) string {
 	t.Helper()
 
 	buf := make([]byte, 0, 256)
-	tmp := make([]byte, 1)
+	var tmp [1]byte
 
 	for {
-		n, err := r.Read(tmp)
+		n, err := r.Read(tmp[:])
 		if n > 0 {
 			buf = append(buf, tmp[:n]...)
 
@@ -307,7 +319,7 @@ func TestHandler_ServesEvents(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	resp, err := http.Get(server.URL + "/events")
+	resp, err := httpGetURL(t, server.URL+"/events")
 	if err != nil {
 		t.Fatalf("connect failed: %v", err)
 	}
@@ -339,7 +351,7 @@ func TestHandler_CORSHeader(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	resp, err := http.Get(server.URL + "/events")
+	resp, err := httpGetURL(t, server.URL+"/events")
 	if err != nil {
 		t.Fatalf("connect failed: %v", err)
 	}
@@ -364,7 +376,7 @@ func TestHandler_CustomCORS(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	resp, err := http.Get(server.URL + "/events")
+	resp, err := httpGetURL(t, server.URL+"/events")
 	if err != nil {
 		t.Fatalf("connect failed: %v", err)
 	}
@@ -386,14 +398,14 @@ func TestHandler_FanOut_MultipleClients(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	resp1, err := http.Get(server.URL + "/events")
+	resp1, err := httpGetURL(t, server.URL+"/events")
 	if err != nil {
 		t.Fatalf("client 1 connect: %v", err)
 	}
 
 	defer func() { _ = resp1.Body.Close() }()
 
-	resp2, err := http.Get(server.URL + "/events")
+	resp2, err := httpGetURL(t, server.URL+"/events")
 	if err != nil {
 		t.Fatalf("client 2 connect: %v", err)
 	}
@@ -431,7 +443,7 @@ func TestHandler_Filter_OnlyMatchingEvents(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	resp, err := http.Get(server.URL + "/events")
+	resp, err := httpGetURL(t, server.URL+"/events")
 	if err != nil {
 		t.Fatalf("connect: %v", err)
 	}
@@ -472,7 +484,7 @@ func TestHandler_Replay_OnReconnect(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	req, err := http.NewRequest(http.MethodGet, server.URL+"/events", nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, server.URL+"/events", nil)
 	if err != nil {
 		t.Fatalf("new request: %v", err)
 	}
@@ -507,7 +519,7 @@ func TestHandler_NoReplay_WithoutStore(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	req, err := http.NewRequest(http.MethodGet, server.URL+"/events", nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, server.URL+"/events", nil)
 	if err != nil {
 		t.Fatalf("new request: %v", err)
 	}
@@ -543,7 +555,7 @@ func TestHandler_Heartbeat_Sent(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	resp, err := http.Get(server.URL + "/events")
+	resp, err := httpGetURL(t, server.URL+"/events")
 	if err != nil {
 		t.Fatalf("connect: %v", err)
 	}
@@ -553,10 +565,10 @@ func TestHandler_Heartbeat_Sent(t *testing.T) {
 	// Read raw bytes — heartbeat is a comment frame that readSSEFrame skips.
 	// We read directly to detect it.
 	buf := make([]byte, 0, 64)
-	tmp := make([]byte, 1)
+	var tmp [1]byte
 
 	for {
-		n, err := resp.Body.Read(tmp)
+		n, err := resp.Body.Read(tmp[:])
 		if n > 0 {
 			buf = append(buf, tmp[:n]...)
 			if len(buf) >= 2 && buf[len(buf)-1] == '\n' && buf[len(buf)-2] == '\n' {
@@ -587,7 +599,7 @@ func TestHandler_ReturnsHTTPHandler(t *testing.T) {
 	server := httptest.NewServer(h)
 	defer server.Close()
 
-	resp, err := http.Get(server.URL)
+	resp, err := httpGetURL(t, server.URL)
 	if err != nil {
 		t.Fatalf("connect: %v", err)
 	}
@@ -613,7 +625,7 @@ type blockingStore struct {
 func (s *blockingStore) EventsAfter(lastID sse.EventID) ([]sse.Event, error) {
 	<-s.release
 
-	return s.inner.EventsAfter(lastID)
+	return s.inner.EventsAfter(lastID) //nolint:wrapcheck // store pass-through
 }
 
 // TestHandler_SubscribeBeforeReplay_ClosesGap proves the handler subscribes

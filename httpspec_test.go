@@ -3,7 +3,6 @@ package appkit
 import (
 	"log/slog"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/larsartmann/httputil"
@@ -36,9 +35,4 @@ type devNullWriter struct{}
 
 func (devNullWriter) Write(p []byte) (int, error) {
 	return len(p), nil
-}
-
-func init() {
-	// Prevent unused import warning — httptest is used by httpspec internally
-	_ = httptest.NewRecorder
 }

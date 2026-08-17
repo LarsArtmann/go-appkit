@@ -67,7 +67,7 @@ func InitLogger(cfg LoggerConfig) (*slog.Logger, error) {
 		return nil, err
 	}
 
-	cl := log.NewWithOptions(os.Stderr, log.Options{
+	cl := log.NewWithOptions(os.Stderr, log.Options{ //nolint:exhaustruct // only level and formatter matter
 		Level:     log.Level(level),
 		Formatter: formatter,
 	})

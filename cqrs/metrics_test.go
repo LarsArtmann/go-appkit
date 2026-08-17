@@ -176,7 +176,7 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/metrics", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
-		_ = fmt.Fprint(w, rec.exposition())
+		_, _ = fmt.Fprint(w, rec.exposition())
 	})
 
 	srv := httptest.NewServer(mux)

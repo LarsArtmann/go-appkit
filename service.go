@@ -35,7 +35,8 @@ type Service struct {
 func NewService(cfg ServiceConfig) (*Service, error) {
 	cfg.applyDefaults()
 
-	if err := cfg.Validate(); err != nil {
+	err := cfg.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -46,7 +47,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 
 	mux := http.NewServeMux()
 
-	svc := &Service{
+	svc := &Service{ //nolint:exhaustruct // server, ln, readyProbe, mu are deliberate zero values
 		cfg:    cfg,
 		Logger: logger,
 		Mux:    mux,
@@ -78,19 +79,20 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 // Returns a synchronous error if the listener cannot bind.
 // The returned channel receives any serve error (nil on graceful shutdown).
 func (s *Service) Start() (<-chan error, error) {
-	ln, err := net.Listen("tcp", s.cfg.Addr)
+	listener, err := (&net.ListenConfig{}).Listen( //nolint:exhaustruct // zero config is intentional
+		context.Background(), "tcp", s.cfg.Addr)
 	if err != nil {
 		return nil, errorfamily.WrapInfrastructuref(err, "server.listen_failed", "listen on %s", s.cfg.Addr)
 	}
 
 	s.mu.Lock()
-	s.ln = ln
+	s.ln = listener
 	s.mu.Unlock()
 
 	errCh := make(chan error, 1)
 
 	go func() {
-		serveErr := s.server.Serve(ln)
+		serveErr := s.server.Serve(listener)
 		if serveErr != nil && !errors.Is(serveErr, http.ErrServerClosed) {
 			errCh <- errorfamily.WrapInfrastructuref(serveErr, "server.serve_failed", "serve failed")
 
@@ -106,7 +108,7 @@ func (s *Service) Start() (<-chan error, error) {
 // Run starts the service and blocks until a signal is received, ctx is cancelled,
 // or the server encounters an error. Handles graceful drain + shutdown internally.
 func (s *Service) Run(ctx context.Context) error {
-	errCh, err := s.Start()
+	errCh, err := s.Start() //nolint:contextcheck // Start is context-free by API design; Run owns the lifecycle ctx
 	if err != nil {
 		return err
 	}

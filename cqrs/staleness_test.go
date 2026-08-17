@@ -25,7 +25,8 @@ func TestEventService_CheckStaleness_FreshWithoutProcessedEvents(t *testing.T) {
 	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	// No event processed yet: lag is 0, so even a nanosecond budget passes.
-	if err := eventSvc.CheckStaleness(time.Nanosecond); err != nil {
+	err = eventSvc.CheckStaleness(time.Nanosecond)
+	if err != nil {
 		t.Errorf("expected fresh (nil) with no processed events, got: %v", err)
 	}
 }
@@ -68,20 +69,23 @@ func TestEventService_CheckStaleness_FreshProjectionWithinBudget(t *testing.T) {
 		[]event.Type{"test.fresh"},
 	)
 
-	if err := eventSvc.Host().Register(proj); err != nil {
+	err = eventSvc.Host().Register(proj)
+	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
 	appendTestEvent(t, eventSvc, "test.fresh")
 
-	if err := eventSvc.StartProjections(context.Background()); err != nil {
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
 	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
 
 	// The projection has processed an event and is well within a 1-hour budget.
-	if err := eventSvc.CheckStaleness(time.Hour); err != nil {
+	err = eventSvc.CheckStaleness(time.Hour)
+	if err != nil {
 		t.Errorf("expected nil within generous budget after processing, got: %v", err)
 	}
 }
@@ -104,13 +108,15 @@ func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 		[]event.Type{"test.stale"},
 	)
 
-	if err := eventSvc.Host().Register(proj); err != nil {
+	err = eventSvc.Host().Register(proj)
+	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
 	appendTestEvent(t, eventSvc, "test.stale")
 
-	if err := eventSvc.StartProjections(context.Background()); err != nil {
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
@@ -159,19 +165,22 @@ func TestEventService_CheckProjectionStaleness_FreshProjectionWithinBudget(t *te
 		[]event.Type{"test.named-fresh"},
 	)
 
-	if err := eventSvc.Host().Register(proj); err != nil {
+	err = eventSvc.Host().Register(proj)
+	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
 	appendTestEvent(t, eventSvc, "test.named-fresh")
 
-	if err := eventSvc.StartProjections(context.Background()); err != nil {
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
 	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
 
-	if err := eventSvc.CheckProjectionStaleness("named-fresh", time.Hour); err != nil {
+	err = eventSvc.CheckProjectionStaleness("named-fresh", time.Hour)
+	if err != nil {
 		t.Errorf("expected nil within generous budget, got: %v", err)
 	}
 }
@@ -194,13 +203,15 @@ func TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient(t *tes
 		[]event.Type{"test.named-stale"},
 	)
 
-	if err := eventSvc.Host().Register(proj); err != nil {
+	err = eventSvc.Host().Register(proj)
+	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
 	appendTestEvent(t, eventSvc, "test.named-stale")
 
-	if err := eventSvc.StartProjections(context.Background()); err != nil {
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
@@ -280,7 +291,8 @@ func TestEventService_CheckProjectionStaleness_DisabledBeforeRegistrationCheck(t
 	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
 	// A non-positive budget returns nil before the name is looked up.
-	if err := eventSvc.CheckProjectionStaleness("no-such-projection", 0); err != nil {
+	err = eventSvc.CheckProjectionStaleness("no-such-projection", 0)
+	if err != nil {
 		t.Errorf("expected disabled check (nil), got: %v", err)
 	}
 }

@@ -8,7 +8,8 @@
 
 ### Fixed
 
-- Nothing yet.
+- Resolved all golangci-lint findings: extracted `forwardLive` to bring `Handler` under the gocognit threshold, context-aware HTTP test helper (`httpGetURL`), array-based read buffers (makezero), justified nolint directives on store pass-throughs and the recover-dependent named return.
+
 
 ## [0.1.0] - 2026-08-16
 

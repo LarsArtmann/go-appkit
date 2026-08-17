@@ -100,15 +100,15 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 		// in the channel and is forwarded after the replayed events (minus
 		// dedup), closing the snapshot-to-subscription gap the old
 		// replay-then-subscribe order had.
-		var ch <-chan sse.Event
+		var eventCh <-chan sse.Event
 
 		if cfg.filter != nil {
-			ch = hub.Broadcaster.SubscribeFilter(cfg.filter)
+			eventCh = hub.Broadcaster.SubscribeFilter(cfg.filter)
 		} else {
-			ch = hub.Broadcaster.Subscribe()
+			eventCh = hub.Broadcaster.Subscribe()
 		}
 
-		defer hub.Broadcaster.Unsubscribe(ch)
+		defer hub.Broadcaster.Unsubscribe(eventCh)
 
 		replayed, ok := replayMissedEvents(ctx, stream, hub, cfg.filter)
 		if !ok {
@@ -119,30 +119,43 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 			go stream.Heartbeat(ctx, cfg.heartbeat)
 		}
 
-		for {
-			select {
-			case <-ctx.Done():
+		forwardLive(ctx, stream, eventCh, replayed)
+	})
+}
+
+// forwardLive forwards broadcaster events to the stream until the client
+// disconnects or the channel closes, skipping IDs already replayed by
+// replayMissedEvents (subscribe-before-replay makes overlap possible; dedup
+// keeps delivery exactly-once).
+func forwardLive(
+	ctx context.Context,
+	stream *sse.Stream,
+	eventCh <-chan sse.Event,
+	replayed map[string]struct{},
+) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case evt, ok := <-eventCh:
+			if !ok {
 				return
-			case evt, ok := <-ch:
-				if !ok {
-					return
-				}
+			}
 
-				// Skip events that raced the store snapshot: appended after
-				// subscribe (so they are in this channel) and before the
-				// snapshot read (so they were also replayed).
-				if id := evt.ID.Get(); id != "" {
-					if _, dup := replayed[id]; dup {
-						continue
-					}
-				}
-
-				if stream.Send(evt) != nil {
-					return
+			// Skip events that raced the store snapshot: appended after
+			// subscribe (so they are in this channel) and before the
+			// snapshot read (so they were also replayed).
+			if id := evt.ID.Get(); id != "" {
+				if _, dup := replayed[id]; dup {
+					continue
 				}
 			}
+
+			if stream.Send(evt) != nil {
+				return
+			}
 		}
-	})
+	}
 }
 
 // Mount registers an SSE endpoint on the mux using [Handler]. This is the
@@ -169,7 +182,7 @@ func replayMissedEvents(
 	stream *sse.Stream,
 	hub *Hub,
 	filter func(sse.Event) bool,
-) (replayed map[string]struct{}, ok bool) {
+) (map[string]struct{}, bool) {
 	if hub.Store == nil {
 		return nil, true
 	}
@@ -191,7 +204,7 @@ func replayMissedEvents(
 		return nil, false
 	}
 
-	replayed = make(map[string]struct{}, len(events))
+	replayed := make(map[string]struct{}, len(events))
 
 	for _, evt := range events {
 		err := stream.Send(evt)
@@ -225,16 +238,16 @@ func eventsAfter(
 	filter func(sse.Event) bool,
 ) ([]sse.Event, error) {
 	if filter == nil {
-		return store.EventsAfter(lastID)
+		return store.EventsAfter(lastID) //nolint:wrapcheck // store pass-through
 	}
 
 	if filtered, ok := store.(sse.FilteredEventStore); ok {
-		return filtered.EventsAfterFiltered(lastID, filter)
+		return filtered.EventsAfterFiltered(lastID, filter) //nolint:wrapcheck // store pass-through
 	}
 
 	all, err := store.EventsAfter(lastID)
 	if err != nil {
-		return nil, err
+		return nil, err //nolint:wrapcheck // store error propagated untouched
 	}
 
 	events := make([]sse.Event, 0, len(all))
@@ -249,7 +262,7 @@ func eventsAfter(
 
 // safeFilter applies pred with panic recovery, treating a panic as a
 // non-match.
-func safeFilter(pred func(sse.Event) bool, evt sse.Event) (match bool) {
+func safeFilter(pred func(sse.Event) bool, evt sse.Event) (match bool) { //nolint:nonamedreturns // defer
 	defer func() {
 		if recover() != nil {
 			match = false

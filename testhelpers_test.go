@@ -85,14 +85,14 @@ func expectError(t *testing.T, err error, msg string) {
 func freePort(t *testing.T) string {
 	t.Helper()
 
-	ln, err := net.Listen("tcp", "localhost:0")
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "localhost:0")
 	if err != nil {
 		t.Fatalf("failed to get free port: %v", err)
 	}
 
-	addr := ln.Addr().String()
+	addr := listener.Addr().String()
 
-	_ = ln.Close()
+	_ = listener.Close()
 
 	return addr
 }

@@ -258,11 +258,13 @@ func TestService_Close_Idempotent(t *testing.T) {
 
 	waitForRunning(t, svc)
 
-	if err := svc.Close(); err != nil {
+	err = svc.Close()
+	if err != nil {
 		t.Fatalf("first Close: %v", err)
 	}
 
-	if err := svc.Close(); err != nil {
+	err = svc.Close()
+	if err != nil {
 		t.Fatalf("second Close: %v", err)
 	}
 
