@@ -1,6 +1,7 @@
 package appkit
 
 import (
+	"context"
 	"time"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -26,6 +27,15 @@ const (
 // keep-alive reaping pair) stay enabled either way.
 const NoTimeout time.Duration = -1
 
+// NoDrainDelay skips the drain wait in Shutdown. Zero is NOT "no delay" — it
+// applies the default — because the zero-value config must stay
+// production-safe for load-balancer propagation. Assign NoDrainDelay when
+// shutdown speed matters more than in-flight load-balancer convergence:
+// tests are the canonical case. The ready probe still flips to false
+// immediately either way; only the wait between probe flip and listener
+// close is skipped.
+const NoDrainDelay time.Duration = -2
+
 // ServiceConfig holds all configuration for a Service.
 // Zero-value fields are replaced with sensible defaults by NewService.
 type ServiceConfig struct {
@@ -45,6 +55,24 @@ type ServiceConfig struct {
 
 	// ExtraMiddlewares appends to the default stack (ignored if Middlewares is non-nil).
 	ExtraMiddlewares []httputil.Middleware
+
+	// OuterMiddlewares wraps the entire chain — including the default stack
+	// or a configured Middlewares replacement — and therefore runs outermost,
+	// before Recovery. Use it for instrumentation that must observe the full
+	// request lifetime and seed request-scoped context for everything
+	// downstream; OpenTelemetry tracing is the canonical case (see the otel
+	// module). Optional.
+	OuterMiddlewares []httputil.Middleware
+
+	// ShutdownHooks run once, in order, after the server has shut down and
+	// released its connections, each receiving the shutdown context. Use them
+	// to flush telemetry providers — their spans then cover the final
+	// in-flight requests — and to close downstream resources. A failing hook
+	// does not stop the rest; errors are joined and classified as
+	// infrastructure failures. A service that never started does not run its
+	// hooks — defer provider.Shutdown yourself on startup-error paths.
+	// Optional.
+	ShutdownHooks []func(context.Context) error
 
 	// RegisterHealth controls whether /health, /health/live, /health/ready are auto-registered.
 	// Uses a pointer so the zero-value (nil) defaults to true. Set to false to opt out.
@@ -164,11 +192,11 @@ func (cfg *ServiceConfig) Validate() error {
 		)
 	}
 
-	if cfg.DrainDelay < 0 {
+	if cfg.DrainDelay < 0 && cfg.DrainDelay != NoDrainDelay {
 		return errorfamily.Newf(
 			errorfamily.Rejection,
 			"config.drain_delay_negative",
-			"DrainDelay must not be negative: %v",
+			"DrainDelay must not be negative (except NoDrainDelay): %v",
 			cfg.DrainDelay,
 		)
 	}

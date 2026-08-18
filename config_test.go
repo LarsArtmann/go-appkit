@@ -20,6 +20,7 @@ func TestValidate_NegativeTimeouts(t *testing.T) {
 		{"NoTimeout on IdleTimeout", ServiceConfig{Addr: ":0", IdleTimeout: NoTimeout}},
 		{"zero ShutdownTimeout", ServiceConfig{Addr: ":0", ShutdownTimeout: -1}},
 		{"negative DrainDelay", ServiceConfig{Addr: ":0", DrainDelay: -1}},
+		{"DrainDelay below NoDrainDelay", ServiceConfig{Addr: ":0", DrainDelay: -3}},
 	}
 
 	for _, tt := range tests {
@@ -51,6 +52,7 @@ func TestValidate_ValidConfigs(t *testing.T) {
 			IdleTimeout:       30 * time.Second,
 		}},
 		{"zero DrainDelay", ServiceConfig{Addr: ":0", DrainDelay: 0}},
+		{"NoDrainDelay", ServiceConfig{Addr: ":0", DrainDelay: NoDrainDelay}},
 		{"debug logging", ServiceConfig{Addr: ":0", LogLevel: LogLevelDebug}},
 		{"NoTimeout on Read and Write (SSE)", ServiceConfig{
 			Addr:         ":0",

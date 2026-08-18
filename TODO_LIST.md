@@ -3,7 +3,7 @@
 > Short-term, actionable, bounded work. Open items only.
 > Completed work lives in [CHANGELOG.md](CHANGELOG.md). Long-term vision lives in `docs/planning/`.
 
-**Updated:** 2026-08-17 | **Modules:** 7 (core, cqrs, realtime, flightrecorder, flightrecorderhealth, errorpages, docs) | **Release state:** core **v0.3.0**, cqrs **v0.3.0**, realtime **v0.1.0**, flightrecorder **v0.1.0**, flightrecorderhealth **v0.1.0** cut (flightrecorderhealth at `d3e3e51`, 2026-08-16, hermetically verified incl. 100% coverage + compile-time contract assertions), **push pending — user gate**; errorpages v0.1.0 and docs v0.2.0 current (their since-tag deltas are test-only / config-only — deliberately not re-tagged) | **Six modules require `GOEXPERIMENT=jsonv2`** (flightrecorderhealth does NOT — its deps are plain `encoding/json`)
+**Updated:** 2026-08-18 | **Modules:** 8 (core, cqrs, realtime, otel, flightrecorder, flightrecorderhealth, errorpages, docs) | **Release state:** core **v0.3.0**, cqrs **v0.3.0**, realtime **v0.1.0**, flightrecorder **v0.1.0**, flightrecorderhealth **v0.1.0** cut (flightrecorderhealth at `d3e3e51`, 2026-08-16, hermetically verified incl. 100% coverage + compile-time contract assertions), **push pending — user gate**; errorpages v0.1.0 and docs v0.2.0 current (their since-tag deltas are test-only / config-only — deliberately not re-tagged); **otel v0.1.0 unreleased** — the 2026-08-18 OTEL work (core hooks + otel module + cqrs metrics adapter) sits uncommitted, commit strategy gated on `docs/status/2026-08-18_12-45_otel-module-and-telemetry-hooks.md` §g Q1 | **Six of eight modules require `GOEXPERIMENT=jsonv2`** (flightrecorderhealth and otel do NOT — their deps are plain `encoding/json`)
 
 ## Status Legend
 
@@ -18,6 +18,8 @@
 
 - [ ] **Push the prepared release wave (USER GATE).** `git push origin master && git push origin v0.3.0 cqrs/v0.3.0 realtime/v0.1.0 flightrecorder/v0.1.0` — master is 1 commit ahead (`f938d65`, release prep); the 4 tags are local-only (verified via `git ls-remote` delta 2026-08-16). This unblocks the cqrs-htmx `setup` adoption (their ADR-001; see their TODO_LIST P3).
 - [ ] **Post-push verification for all 4 tags.** (a) Fresh-consumer proxy test per module: clean module in /tmp → `go get <module>@<version>` → blank-import `main.go` → `go build` (the honest smoke test — do not reference symbols that might not exist). (b) pkg.go.dev renders each new version (expect 2-10 min proxy propagation). Source: go-release skill Phases 6-7; carried from session-5 #30/#31.
+- [ ] **Commit the OTEL work (USER GATE on strategy).** Working tree holds the full 2026-08-18 OTEL change set: core telemetry hooks (`OuterMiddlewares`, `ShutdownHooks`, `NoDrainDelay` + test-suite speedup ~30s→6s), the new `otel` module (23 tests, race-clean, E2E-verified live), cqrs `OTelProjectionMetrics` (closes M10), and all doc updates. One commit vs per-module commits is status report §g Q1. Commits include `.go` files, so the dprint exit-14 gotcha should not trip.
+- [ ] **Tag `otel/v0.1.0` (after core v0.3.0 is pushed).** Pre-tag: drop the example's `replace github.com/larsartmann/go-appkit => ../` in `otel/go.mod`, require published core, hermetic verify (`cd otel && GOWORK=off go test ./... -race -count=1`), then annotated tag. Post-tag: fresh-consumer proxy test + pkg.go.dev. Wave membership (join pending 4-tag push vs second wave) is status report §g Q2.
 
 ---
 
@@ -28,7 +30,8 @@
 - [ ] **README: document `GOEXPERIMENT=jsonv2` for building from source.** AGENTS.md carries per-module reasons; README (user-facing) does not mention it. Source: session-5 #19.
 - [ ] **FEATURES.md: add a "Consumers" section** citing the cqrs-htmx `setup` spike/adoption (ADR-001) as the reference consumer. Source: session-5 #25.
 - [ ] **Fix `docs/planning/design-decisions.md:118` lychee 404 + MD013 long lines.** Source: session-5 #13/#14.
-- [ ] **Document the `DrainDelay: 0` test-ergonomics pattern in AGENTS.md** (how to make shutdown/drain tests fast). Source: session-5 #22/#23.
+- [ ] **Upstream: cqrs-lite otel `Provider.Shutdown` must ForceFlush before Shutdown.** Same batch-queue race fixed locally in go-appkit/otel — spans ended moments before Shutdown sit in the async queue and are silently dropped. Probe-test evidence in the 2026-08-18 OTEL session. Issue vs PR is status report §g Q3 (verify-before-filing applies).
+- [ ] **Sweep satellite module tests for `DrainDelay: 0` misuse.** Zero applies the 5s default (hidden test tax); core's conversion to `NoDrainDelay` dropped wall time ~30s→6s. realtime/errorpages/docs/flightrecorder likely carry the same pattern.
 - [ ] **Add a mechanical API-break check to the release process** (goapidiff or a `go doc` snapshot diff at tag time) — v0.2.0 was reconstructed after the fact; never again. Source: session-5 #7.
 - [ ] **Bump Go toolchain 1.26.5 → 1.26.6 when nixpkgs carries it** (GO-2026-6090 crypto/tls post-handshake flood, GO-2026-5972 encoding/asn1 recursion; both symbol-level findings, patch-class DoS; builds run GOTOOLCHAIN=local so the nixpkgs lock gates this). Source: govulncheck via BuildFlow 2026-08-16; same item tracked in cqrs-htmx TODO_LIST P2.
 
@@ -38,7 +41,9 @@
 
 - [ ] **BuildFlow dprint step fails on CHANGELOG-only commits** (exit 14 "no files found to format"): `dprint.json` excludes `**/CHANGELOG.md`, so a commit staging only CHANGELOGs (+ non-dprint files) trips the formatter's empty-set error. Fix: `--allow-no-files` (or skip when no files match). Evidence: the v0.3.0-wave commit needed `--no-verify` on 2026-08-16 (deterministic, retried once).
 - [ ] **go-structure-linter root-package findings:** 8 standing "package file at project root" errors — the root package IS the intended public layout for core; configure the linter to accept it instead of living with red.
-- [ ] **Define v1.0.0 exit criteria for core** (AGENTS.md names v1.0.0 as the core target; no written criteria exist). Ideas live in `docs/planning/framework-architecture.md`; graduate to actionable when the consumer count grows.
+- [ ] **otel: middleware benchmark (no-op vs configured) + benchstat** — quantify overhead, record numbers in module README. Status report §f P3-15.
+- [ ] **Propose httputil `Logging` emit with request context** so completion lines correlate with spans via `TraceHandler` (today only handler-level logs correlate). Status report §f P2-12.
+- [ ] **Define v1.0.0 exit criteria for core** (AGENTS.md names v1.0.0 as the core target; no written criteria exist). Ideas live in `docs/planning/framework-architecture.md`; graduate to actionable when the consumer count grows. `OuterMiddlewares`/`ShutdownHooks` are v1-shaped — fold into criteria. Deeper OTEL backlog lives in `docs/status/2026-08-18_12-45_otel-module-and-telemetry-hooks.md` §f.
 
 ---
 

@@ -5,10 +5,11 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 ## Project Type
 
 - Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.5.
-- Six Go modules in one repo, independently versioned:
+- Eight Go modules in one repo, independently versioned:
   - **core** (`/`) — package `appkit`, HTTP service framework. v0.3.0 prepared 2026-08-16 (push pending); v1.0.0 target.
   - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite v4. v0.3.0 prepared 2026-08-16 (push pending).
   - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0 prepared 2026-08-16 (push pending; first CHANGELOG added same day).
+  - **otel** (`/otel`) — package `otel` (alias `appkitotel`), OpenTelemetry provider setup + otelhttp middleware bridge + trace-correlated logging. Added 2026-08-18, unreleased — tag `otel/v0.1.0` with the next wave (drop the example's local `replace ../` at tag time).
   - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0 prepared 2026-08-16 (push pending; first CHANGELOG added same day).
   - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. **v0.1.0 tagged** at `d3e3e51` (2026-08-16, push pending).
   - **docs** (`/docs-mod`) — opt-in auto-documentation via catalog/v4. v0.2.0 current (no re-tag needed: since-tag delta is config-only).
@@ -16,8 +17,8 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 - Library consumed by Go applications. Reference consumer: cqrs-htmx `setup` (ADR-001 adoption, blocked only on the push).
 - Source in repository root. Example in `example/main.go`.
 - No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
-- **Six of seven modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly).
-- **`flightrecorderhealth` does NOT require `GOEXPERIMENT=jsonv2`** — its deps (`go-health`, `samber/do/v2`, `go-flightrecorder`) all use plain `encoding/json`. Builds and tests run with plain `go build`/`go test`.
+- **Six of eight modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly).
+- **`flightrecorderhealth` and `otel` do NOT require `GOEXPERIMENT=jsonv2`** — their deps (`go-health`, `samber/do/v2`, `go-flightrecorder`; OTel v1.45) all use plain `encoding/json`. Builds and tests run with plain `go build`/`go test`.
 
 ## Release State (2026-08-16)
 
@@ -26,6 +27,7 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 - **No sibling-require chicken-and-egg:** no module carries `replace` directives; the only sibling require is errorpages → core v0.2.0 (published), so all four tags are independently consumer-valid the moment they land.
 - **BuildFlow gotcha:** the pre-commit `dprint` step exits 14 ("no files found to format") on CHANGELOG-only commits because `dprint.json` excludes `**/CHANGELOG.md` — commit with `--no-verify` + justification in that case (tracked in TODO_LIST P3).
 - **Cross-repo context:** the setup-vs-appkit comparison (10 findings, all routed) lives at `/home/lars/projects/docs/review/2026-08-16_setup-vs-go-appkit-comparison.md`; execution plan: `docs/planning/2026-08-16_12-04-SUPERB-release-wave-and-harvest.html`.
+- **OTEL work (2026-08-18) uncommitted in the working tree:** core telemetry hooks (`OuterMiddlewares`, `ShutdownHooks`, `NoDrainDelay`), the new `otel` module, cqrs `OTelProjectionMetrics`. Commit strategy + otel release-wave membership pending user decision — see `docs/status/2026-08-18_12-45_otel-module-and-telemetry-hooks.md` section g.
 
 ## Sub-module Build Commands
 
@@ -46,6 +48,10 @@ cd docs-mod && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPER
 cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
 cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./...
 
+# otel module (no GOEXPERIMENT required — plain encoding/json)
+cd otel && GOWORK=off go test ./... -race -count=1
+cd otel && GOWORK=off go vet ./... && GOWORK=off go build ./...
+
 # errorpages module (requires GOEXPERIMENT=jsonv2 — errorpage uses encoding/json/v2)
 cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
 cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
@@ -61,15 +67,15 @@ cd flightrecorderhealth && go vet ./... && go build ./...
 
 BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
-**Linting (2026-08-17 standard):** every module — root included — carries its own `.golangci.yml`. Lint each module **from its own directory** (`cd <module> && golangci-lint run ./...`); never lint satellites from the workspace root (the root config's depguard allowlist covers only core + family deps, and per-module configs are the source of truth). Root depguard allow now includes `go-appkit` itself (example/ self-import), `go-flightrecorder`, `go-health`, and `go-sse`. All 7 modules sit at **0 issues** (verified 2026-08-17 with `go test -race` green across the board). Shared test-exclusion union for `_test.go`: mnd, exhaustruct, err113, paralleltest, gochecknoglobals, goconst, varnamelen, wsl_v5, funlen, cyclop, testpackage.
+**Linting (2026-08-18 standard):** every module — root included — carries its own `.golangci.yml`. Lint each module **from its own directory** (`cd <module> && golangci-lint run ./...`); never lint satellites from the workspace root (the root config's depguard allowlist covers only core + family deps, and per-module configs are the source of truth). Run **one module's lint at a time** — concurrent golangci-lint processes race on the shared build cache (`/mnt/buildcache`) and produce flickering or incomplete findings (verified 2026-08-18: a parallel batch under-reported 3 of 7 real findings); if results look wrong, re-run sequentially. Root depguard allow now includes `go-appkit` itself (example/ self-import), `go-flightrecorder`, `go-health`, and `go-sse`. All 8 modules sit at **0 issues** (verified 2026-08-18 with `go test -race` green across the board; otel's config extends the ireturn allow-list with `go\.opentelemetry\.io/otel/.*` — the OTel API is interface-based by design). Shared test-exclusion union for `_test.go`: mnd, exhaustruct, err113, paralleltest, gochecknoglobals, goconst, varnamelen, wsl_v5, funlen, cyclop, testpackage.
 
 ## Core Module — Code Organization
 
 | File              | Concern                                                                                                                                 |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `service.go`      | `Service` type: NewService, Start, Run, Shutdown, Close, Addr, Running. Owns `http.Server` + `net.Listener` + `readyProbe atomic.Bool`. |
-| `config.go`       | `ServiceConfig` struct, `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`.                                                      |
-| `middleware.go`   | `defaultMiddlewareStack()` + `buildMiddleware()`. Default: Recovery→RequestID→Logging→Timeout→SecurityHeaders.                          |
+| `service.go`      | `Service` type: NewService, Start, Run, Shutdown (runs ShutdownHooks once, after connections are released; errors joined), Close, Addr, Running. Owns `http.Server` + `net.Listener` + `readyProbe atomic.Bool`. |
+| `config.go`       | `ServiceConfig` struct (`OuterMiddlewares`, `ShutdownHooks`), `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`. Sentinels: `NoTimeout` (-1), `NoDrainDelay` (-2).                                                      |
+| `middleware.go`   | `defaultMiddlewareStack()` + `buildMiddleware()` + `concatMiddlewares()`. Order: OuterMiddlewares → (Middlewares replacement | default stack + ExtraMiddlewares); concatenation allocates a fresh slice so config backing arrays are never written through. Default: Recovery→RequestID→Logging→Timeout→SecurityHeaders.                          |
 | `logger.go`       | `LogLevel`/`LogFormat` types, `InitLogger()` using charmbracelet/log (Logger IS slog.Handler).                                          |
 | `health.go`       | `RegisterHealth(mux)` delegates to httputil. `ReadyHandlerWithProbe(ready)`.                                                            |
 | `errors.go`       | Re-exports `HTTPStatus()` and `LogError()` from go-error-family.                                                                        |
@@ -130,6 +136,22 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - Tests use `do.New()` with registered `healthSvc` mocks, `WithMinAge(50ms)` + `WithMaxBytes(1MiB)` + 100ms warmup sleep for trace data.
 - Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.0.2`, `samber/do v2.1.0`, `go-error-family v0.10.0`.
 
+## otel Module — Code Organization
+
+| File              | Concern                                                                                                                                                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `doc.go`          | Package doc: wiring recipe, emitted signals, shutdown ordering, log correlation, one-Setup-per-process rule.                                                                                                                                 |
+| `setup.go`        | `Setup(opts...)` + `Provider` (`AsTracerProvider`/`AsMeterProvider`/`Shutdown`). Options: `WithService`, `WithSpanExporter`, `WithSampler`, `WithMetricReader`, `WithPropagator`, `WithStdoutExporter`, `WithoutGlobalRegistration`. Registers globals + W3C propagator; Shutdown ForceFlushes BOTH providers first. |
+| `middleware.go`   | `Middleware(opts...)` bridging otelhttp v0.68. Span named by matched ServeMux pattern (`r.Pattern`, e.g. `GET /users/{id}`) falling back to method. Options: `WithTracerProvider`, `WithMeterProvider`, `WithServerName`, `WithPublicEndpoint` (remote parents → links), `WithFilter`, `WithFilteredPaths`. Health paths unconditionally filtered. |
+| `logging.go`      | `TraceHandler` slog decorator stamping `trace_id`/`span_id` when ctx carries a span; `TraceIDFromContext`/`SpanIDFromContext`/`ContextLogger` (return `"none"` without a span).                                                              |
+| `views.go`        | `NewHTTPViews()` pinning `http.server.request.duration` to `HTTPDurationBoundaries` (semconv 0..10s, 15 values); exact-name match only.                                                                                                      |
+| `attributes.go`   | `ServiceResourceAttributes` (semconv v1.26.0), `NewTextMapPropagator` (TraceContext+Baggage).                                                                                                                                               |
+| `example/main.go` | Demo service honoring `PORT` env (8080 occupied on dev machines); E2E-verified live.                                                                                                                                                       |
+
+- Strictly opt-in: without a provider the middleware is a no-op and globals stay untouched.
+- Library code has NO core dependency (`Middleware` fits any `http.Handler`); only the example imports core via a local `replace ../` (REMOVE AT RELEASE TIME).
+- 23 tests: `middleware_test.go` (9), `setup_test.go` (6), `metrics_test.go` (3, incl. cardinality proof: 3 user IDs → one `/users/{id}` series), `logging_test.go` (5). Race-clean, 5x stable.
+
 ## Architecture and Control Flow
 
 - `Service` owns the mux (`svc.Mux`), logger (`svc.Logger`), and HTTP server.
@@ -137,7 +159,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - appkit does NOT delegate to `httputil.Server` (it uses `ListenAndServe()` internally, no listener access). appkit owns `http.Server` + `net.Listener` directly for `Addr() net.Addr`.
 - httputil is used for: middleware (`Chain`, `Recovery`, `Logging`, etc.), health (`RegisterHealth`), and types (`Middleware`).
 - `ServiceConfig.RegisterHealth` is `*bool`: nil or `&true` = register health, `&false` = opt out.
-- Graceful drain: `Shutdown()` flips `readyProbe` to false → waits `DrainDelay` → `server.Shutdown(ctx)`.
+- Graceful drain: `Shutdown()` flips `readyProbe` to false → waits `DrainDelay` → `server.Shutdown(ctx)` → runs `ShutdownHooks` (once, in order; failures don't stop the rest; errors joined + classified Infrastructure).
 - `Run()` uses `signal.NotifyContext` for SIGINT/SIGTERM internally.
 - Errors use go-error-family constructors (`NewRejection`, `WrapInfrastructuref`) instead of `fmt.Errorf`.
 
@@ -145,7 +167,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 | Module                                   | Version | Role                                                 |
 | ---------------------------------------- | ------- | ---------------------------------------------------- |
-| `github.com/larsartmann/httputil`        | v0.11.0 | Middleware, health endpoints, Middleware type        |
+| `github.com/larsartmann/httputil`        | v0.12.0 | Middleware, health endpoints, Middleware type        |
 | `github.com/charmbracelet/log`           | v1.0.0  | Pretty slog handler (Logger implements slog.Handler) |
 | `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification, HTTPStatus, LogError           |
 
@@ -162,7 +184,15 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | Module                                     | Version | Role                                                   |
 | ------------------------------------------ | ------- | ------------------------------------------------------ |
 | `github.com/larsartmann/go-flightrecorder` | v0.1.1  | Flight recorder core: Recorder, triggers, typed errors |
-| `github.com/larsartmann/httputil`          | v0.11.0 | Middleware type, ResponseRecorder for status capture   |
+| `github.com/larsartmann/httputil`          | v0.12.0 | Middleware type, ResponseRecorder for status capture   |
+
+## otel Module Dependencies
+
+| Module                                           | Version | Role                                             |
+| ------------------------------------------------ | ------- | ------------------------------------------------ |
+| `go.opentelemetry.io/contrib/.../otelhttp`       | v0.68.0 | Server spans, semconv metrics, W3C propagation   |
+| `go.opentelemetry.io/otel` (+sdk, metric, trace) | v1.45.0 | Tracer/meter providers, SDK, stdout exporter     |
+| `github.com/larsartmann/httputil`                | v0.12.0 | `Middleware` type (bridge target)                |
 
 ## cqrs Module Dependencies
 
@@ -185,7 +215,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - Projection readiness: `EventService.ReadyCheck()` + `EventService.LagPerProjection()`; core `ServiceConfig.ReadyCheck func() bool` composes external checks with the drain probe for `/health/ready`.
 - Read-your-writes: projections are async — `EventService.CheckStaleness(budget)` / `CheckProjectionStaleness(name, budget)` are read-time guards (Transient error on lag > budget). projectionhost v4.3.0 has NO public Sync/Drain; cqrs-lint E014's suggested APIs don't exist in the pinned version.
 - cqrs-lint: run from inside `cqrs/` — from a workspace root it attributes sub-module imports to the root go.mod (A018 false positive). A/P-series findings on this wrapper (no Save/Publish calls, no WithBatchSize) are by design: consumers get `Bundle()`, tuning flows via `HostOptions`. `.cqrs-lint.json` uses `library-framework` preset (disables ALL F-series adoption-coaching rules) with pinned feature profile and 3 config-level disables (A018, V003, V006). `docs-mod/.cqrs-lint.json` disables A018/A009 (docs module, not an event-sourced app). cqrs-lint source lives at `go-cqrs-lite/cmd/cqrs-lint` — file linter bugs there.
-- `EventConfig` full option set: `Logger`, `DLQ *DLQConfig` (SQLite store by default, `ReplayDeadLetters`/`ResetProjection` accessors), `FlightRecorder` (cqrs-lite flightrecorder/v4 type — NOT go-flightrecorder; only one active per process), `Metrics projectionhost.MetricsRecorder` (backend-agnostic lifecycle recorder; no prometheus/otel dep), `HostOptions` passthrough.
+- `EventConfig` full option set: `Logger`, `DLQ *DLQConfig` (SQLite store by default, `ReplayDeadLetters`/`ResetProjection` accessors), `FlightRecorder` (cqrs-lite flightrecorder/v4 type — NOT go-flightrecorder; only one active per process), `Metrics projectionhost.MetricsRecorder` (backend-agnostic lifecycle recorder; no prometheus/otel dep; wire `cqrs.NewOTelProjectionMetrics(meter)` from `otelmetrics.go` for OTel — adds only interface-only OTel API deps), `HostOptions` passthrough.
 - cqrs README ends with a cookbook: scenario DSL decider/projection tests (scenario/v4), testutil helpers (CapturingSlogHandler, DelayedJournal), and cqrs-lint usage — all verified against scenario/v4 v4.2.0, testutil/v4 v4.2.0, cqrs-lint 4.6.0.
 
 ## Errorpages Module — Code Organization
@@ -207,7 +237,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - Tests run with `t.Parallel()`.
 - Server tests use `freePort()` and `waitForRunning()` helpers (no `time.Sleep`).
 - All tests pass with `-race` flag and `-count=1`.
-- Default `DrainDelay` (5s) makes some tests slow; use `DrainDelay: 0` in non-drain tests.
+- Default `DrainDelay` (5s) makes tests slow; use `DrainDelay: NoDrainDelay` in non-drain tests — `DrainDelay: 0` applies the 5s default (zero-value production safety), it does NOT disable the wait. Converting the suite dropped wall time ~30s → ~6s.
 
 ## Gotchas
 
@@ -218,6 +248,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - charmbracelet/log `Logger` directly implements `slog.Handler` — no adapter needed.
 - `Service.Shutdown` is idempotent — safe to call multiple times.
 - `NoTimeout` sentinel (`-1`): `ReadTimeout`/`WriteTimeout` = `NoTimeout` disables the deadline (server field 0 AND drops the Timeout middleware from the default stack). Required for SSE services; `ReadHeaderTimeout`/`IdleTimeout` reaping stays on. Only `-1` exactly — other negatives are rejected by Validate.
+- `NoDrainDelay` sentinel (`-2`): skips the drain wait in Shutdown (ready probe still flips immediately). Only `-2` exactly — other negatives rejected by Validate. Sentinel registry so far: `NoTimeout` = -1, `NoDrainDelay` = -2; the next sentinel takes -3.
 - BuildFlow auto-fixes lint on commit (gofumpt, golines, gci).
 
 ## Flightrecorder Module Gotchas
@@ -241,3 +272,13 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - Journal-backed replay (CQRS event stores): wire `transport.NewJournalSSEStore(journal, mapper)` from `github.com/larsartmann/cqrs-htmx/v4/transport` (lean 4-dep sub-package) into `realtime.NewHub(realtime.WithStore(store))`. realtime itself stays cqrs-free.
 - The `PatchLike` interface intentionally matches `datastar.Patch` — duck typing avoids the import.
 - No go-appkit core dependency — `realtime.Mount` works on any `*http.ServeMux`.
+
+## otel Module Gotchas
+
+- **One `Setup` per process** across go-appkit/otel AND go-cqrs-lite's otel module — both register globals; pick one owner for the tracer/meter providers.
+- `Provider.Shutdown` ForceFlushes both providers BEFORE shutting down: plain Shutdown does not drain the batch processor's async queue and can silently drop final spans (cqrs-lite's otel module has this latent bug upstream — fix pending).
+- Span name carries the method prefix (`GET /users/{id}`); the `http.route` metric attribute does NOT (`/users/{id}`). Assert accordingly.
+- `tracetest.InMemoryExporter.Shutdown` RESETS its buffer — read spans after an explicit `ForceFlush`, BEFORE calling Shutdown.
+- Health endpoints (`/health`, `/health/live`, `/health/ready`) are unconditionally filtered from tracing and metrics.
+- `TraceHandler` correlates only handler-level logs; httputil's `Logging` middleware emits the request-completion line without request context, so that line stays uncorrelated (known limitation, documented in `doc.go`).
+- Build with `GOWORK=off` when hermetically testing: the workspace otherwise resolves core via the example's `replace ../`.

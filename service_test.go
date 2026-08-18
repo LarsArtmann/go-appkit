@@ -170,7 +170,7 @@ func TestService_Start_Addr_Running(t *testing.T) {
 func TestService_HealthEndpoints(t *testing.T) {
 	t.Parallel()
 
-	svc, err := NewService(ServiceConfig{Addr: "localhost:0", DrainDelay: 0})
+	svc, err := NewService(ServiceConfig{Addr: "localhost:0", DrainDelay: NoDrainDelay})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -274,7 +274,7 @@ func TestService_Close_Idempotent(t *testing.T) {
 func TestService_CustomRoute(t *testing.T) {
 	t.Parallel()
 
-	svc, err := NewService(ServiceConfig{Addr: "localhost:0", DrainDelay: 0})
+	svc, err := NewService(ServiceConfig{Addr: "localhost:0", DrainDelay: NoDrainDelay})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -20,7 +20,7 @@ func TestNoTimeout_DisablesServerDeadline(t *testing.T) {
 		ReadHeaderTimeout: 5 * time.Second,
 		WriteTimeout:      NoTimeout,
 		IdleTimeout:       60 * time.Second,
-		DrainDelay:        0,
+		DrainDelay:        NoDrainDelay,
 	})
 	if err != nil {
 		t.Fatalf("NewService: %v", err)
@@ -50,7 +50,7 @@ func TestNoTimeout_DisablesServerDeadline(t *testing.T) {
 func TestNoTimeout_NoRequestContextDeadline(t *testing.T) {
 	t.Parallel()
 
-	svc, err := NewService(ServiceConfig{Addr: ":0", WriteTimeout: NoTimeout, DrainDelay: 0})
+	svc, err := NewService(ServiceConfig{Addr: ":0", WriteTimeout: NoTimeout, DrainDelay: NoDrainDelay})
 	if err != nil {
 		t.Fatalf("NewService: %v", err)
 	}
@@ -82,7 +82,7 @@ func TestNoTimeout_SlowResponseSurvives(t *testing.T) {
 	startService := func(t *testing.T, write time.Duration) *Service {
 		t.Helper()
 
-		svc, err := NewService(ServiceConfig{Addr: ":0", WriteTimeout: write, DrainDelay: 0})
+		svc, err := NewService(ServiceConfig{Addr: ":0", WriteTimeout: write, DrainDelay: NoDrainDelay})
 		if err != nil {
 			t.Fatalf("NewService: %v", err)
 		}

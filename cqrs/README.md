@@ -119,10 +119,33 @@ mux.HandleFunc("/metrics", func(w http.ResponseWriter, _ *http.Request) {
 })
 ```
 
-For Prometheus via OpenTelemetry, compose
-`github.com/larsartmann/go-cqrs-lite/prometheus/v4` (`prometheus.Setup()` →
-`otel.SetMeterProvider` → `mux.Handle("/metrics", provider.Handler())`) with
-an adapter that implements `MetricsRecorder` on top of your meter.
+For OpenTelemetry (any reader: OTLP, Prometheus, stdout), use this module's
+`NewOTelProjectionMetrics` — it implements `MetricsRecorder` on
+`cqrs.projection.*` instruments, adding only the interface-only OTel API to
+this module's dependency tree. Wire it together with the appkit `otel`
+module for the HTTP side:
+
+```go
+provider, _ := appkitotel.Setup(          // github.com/larsartmann/go-appkit/otel
+    appkitotel.WithService("myapp", version, instance),
+    appkitotel.WithSpanExporter(otlpExporter),
+    appkitotel.WithMetricReader(otlpMetricReader),
+)
+defer provider.Shutdown(ctx)
+
+projectionMetrics, _ := cqrs.NewOTelProjectionMetrics(otel.Meter("myapp"))
+
+es, _ := cqrs.NewEventService(cqrs.EventConfig{
+    SQLitePath: "events.db",
+    Metrics:    projectionMetrics,
+})
+```
+
+Instruments: `cqrs.projection.event.count` (projection, event type, status),
+`cqrs.projection.event.duration` (ms), `cqrs.projection.worker.count`
+(restarted/failed), `cqrs.projection.checkpoint.lag` (ms). Attribute keys
+follow go-cqrs-lite's `cqrs.*` conventions, so one dashboard schema covers
+HTTP spans and projection metrics.
 
 ## Accessors
 

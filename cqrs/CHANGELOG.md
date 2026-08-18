@@ -4,7 +4,14 @@
 
 ### Added
 
-- Nothing yet.
+- `NewOTelProjectionMetrics(meter)`: `projectionhost.MetricsRecorder`
+  implementation on OTel instruments (`cqrs.projection.event.count`,
+  `.event.duration`, `.worker.count`, `.checkpoint.lag`) with go-cqrs-lite
+  `cqrs.*` attribute conventions. Closes the metrics path for
+  `EventConfig.Metrics` (planning M10): pair with the new appkit `otel`
+  module's `Setup` for one-provider HTTP + projection telemetry. Adds only
+  the interface-only OTel API (`go.opentelemetry.io/otel/{attribute,metric}`)
+  to the direct dependency set — no SDK, no exporter.
 
 ### Fixed
 

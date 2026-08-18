@@ -26,14 +26,26 @@ func defaultMiddlewareStack(logger *slog.Logger, cfg ServiceConfig) []httputil.M
 }
 
 // buildMiddleware resolves the final middleware chain from config.
-// If cfg.Middlewares is non-nil, it replaces the default stack entirely.
-// Otherwise, the default stack is used with cfg.ExtraMiddlewares appended.
+// OuterMiddlewares (if any) wrap everything else so instrumentation can
+// observe the full request lifetime. If cfg.Middlewares is non-nil, it
+// replaces the default stack entirely (OuterMiddlewares still wrap it);
+// otherwise, the default stack is used with cfg.ExtraMiddlewares appended.
 func buildMiddleware(logger *slog.Logger, cfg ServiceConfig) []httputil.Middleware {
-	if cfg.Middlewares != nil {
-		return cfg.Middlewares
+	stack := cfg.Middlewares
+	if stack == nil {
+		stack = append(defaultMiddlewareStack(logger, cfg), cfg.ExtraMiddlewares...)
 	}
 
-	stack := defaultMiddlewareStack(logger, cfg)
+	return concatMiddlewares(cfg.OuterMiddlewares, stack)
+}
 
-	return append(stack, cfg.ExtraMiddlewares...)
+// concatMiddlewares returns a fresh outer→inner chain. A new slice is
+// allocated so the config's slices are never written through a shared
+// backing array.
+func concatMiddlewares(outer, inner []httputil.Middleware) []httputil.Middleware {
+	chain := make([]httputil.Middleware, 0, len(outer)+len(inner))
+	chain = append(chain, outer...)
+	chain = append(chain, inner...)
+
+	return chain
 }

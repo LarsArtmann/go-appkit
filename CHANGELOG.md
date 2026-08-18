@@ -4,7 +4,25 @@
 
 ### Added
 
-- Nothing yet.
+- `ServiceConfig.OuterMiddlewares`: middlewares that wrap the entire chain —
+  including the default stack or a configured `Middlewares` replacement — and
+  run outermost, before Recovery. The hook point instrumentation (OpenTelemetry
+  tracing, see the new `otel` module) needs to observe the full request
+  lifetime and seed context for everything downstream.
+- `ServiceConfig.ShutdownHooks`: run once, in order, after the server shut
+  down and released its connections; errors are joined and classified as
+  infrastructure failures. The canonical use is flushing telemetry providers
+  so their spans cover the final in-flight requests. A service that never
+  started does not run its hooks.
+- `NoDrainDelay` sentinel: skips the drain wait in `Shutdown`. Zero is not
+  "no delay" — it applies the 5s default — so tests previously paid 5s per
+  shutdown; `NoDrainDelay` is the explicit opt-out (the ready probe still
+  flips immediately). The core test suite now uses it throughout.
+- `otel` module (package `otel`, import alias `appkitotel`): opt-in
+  OpenTelemetry support — provider `Setup`, an `otelhttp` middleware bridge
+  (spans + semantic-convention metrics + W3C propagation, health endpoints
+  filtered by default), HTTP histogram views, and slog trace correlation
+  (`TraceHandler`). No core dependency: works on any `http.Handler`.
 
 ### Fixed
 

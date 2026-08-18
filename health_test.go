@@ -78,7 +78,7 @@ func TestReadyEndpoint_ComposesDrainProbeWithReadyCheck(t *testing.T) {
 	externalReady := false
 
 	svc, err := NewService(ServiceConfig{
-		DrainDelay: 0,
+		DrainDelay: NoDrainDelay,
 		ReadyCheck: func() bool { return externalReady },
 	})
 	if err != nil {
@@ -115,7 +115,7 @@ func TestReadyEndpoint_ComposesDrainProbeWithReadyCheck(t *testing.T) {
 func TestReadyEndpoint_ProbeOnlyWhenReadyCheckNil(t *testing.T) {
 	t.Parallel()
 
-	svc, err := NewService(ServiceConfig{DrainDelay: 0})
+	svc, err := NewService(ServiceConfig{DrainDelay: NoDrainDelay})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

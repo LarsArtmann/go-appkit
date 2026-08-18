@@ -1,0 +1,272 @@
+version: "2"
+# Module-local lint config — the repo-wide standard for satellite modules
+# (reference implementation: flightrecorderhealth/.golangci.yml).
+#
+# Why module-local: the ROOT config's depguard allowlist is structurally
+# wrong for non-root modules (family deps like go-flightrecorder, go-sse,
+# templ-components, go-cqrs-lite are not in its allow list). Each module
+# lints itself with `cd <module> && golangci-lint run ./...`.
+#
+# Deliberate divergences from the root config:
+#   - no depguard: imports are governed by go.mod + review, not an allowlist
+#   - no arangolint / clickhouselint: no database driver code in this module
+#   - goexperiment.* build-tags match this module's build requirements
+run:
+  timeout: 5m
+  go: 1.26.5
+  build-tags:
+    - goexperiment.arenas
+    - goexperiment.goroutineleakprofile
+    # jsonv2 not required: this module builds with plain go build (see AGENTS.md)
+    - goexperiment.runtimesecret
+    - goexperiment.simd
+  allow-parallel-runners: true
+  allow-serial-runners: true
+  issues-exit-code: 1
+output:
+  formats: {}
+linters:
+  default: standard
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - canonicalheader
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - decorder
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - embeddedstructfieldcheck
+    - err113
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exhaustruct
+    - exptostd
+    - fatcontext
+    - forbidigo
+    - forcetypeassert
+    - funlen
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecknoglobals
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godoclint
+    - godot
+    - godox
+    - goheader
+    - gomoddirectives
+    - gomodguard_v2
+    - goprintffuncname
+    - gosec
+    - gosmopolitan
+    - govet
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - ineffassign
+    - interfacebloat
+    - intrange
+    - iotamixing
+    - ireturn
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - misspell
+    - mnd
+    - modernize
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - nlreturn
+    - noctx
+    - noinlineerr
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - sqlclosecheck
+    - staticcheck
+    - tagalign
+    - tagliatelle
+    - testableexamples
+    - testifylint
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - unqueryvet
+    - unused
+    - usestdlibvars
+    - usetesting
+    - varnamelen
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - wsl_v5
+    - zerologlint
+  settings:
+    cyclop:
+      max-complexity: 12
+    exhaustruct:
+      exclude:
+        - net/http.Client
+        - net/http.Server
+        - net/http.Request
+        - net/http.Response
+        - net/http.Transport
+        - net/http.Cookie
+        - net.TCPAddr
+        - net.Dialer
+        - log/slog.HandlerOptions
+        - sync.WaitGroup
+        - sync.Once
+        - sync.Mutex
+        - time.Time
+        - time.Ticker
+        - time.Timer
+        - bytes.Buffer
+        - os/exec.Cmd
+    funlen:
+      lines: 200
+      statements: 100
+    ginkgolinter:
+      forbid-focus-container: true
+      forbid-spec-pollution: true
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+    gomoddirectives:
+      replace-local: true
+    gosec:
+      excludes:
+        - G304
+        - G115
+    ireturn:
+      allow:
+        - error
+        - empty
+        - anon
+        # The OTel API surface is interface-based by design (propagators,
+        # providers, meters); returning concrete wrappers would fight it.
+        - go\.opentelemetry\.io/otel/.*
+        - stdlib
+        - generic
+    makezero:
+      always: true
+    mnd:
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "100"
+    revive:
+      rules:
+        - disabled: true
+          name: exported
+        - disabled: true
+          name: package-comments
+    testifylint:
+      disable:
+        - go-require
+      enable-all: true
+    varnamelen:
+      ignore-map-index-ok: true
+      ignore-names:
+        - err
+        - ok
+        - tt
+        - fn
+        - t
+        - i
+        - m
+        - g
+        - a
+        - b
+        - v
+        - w
+        - r
+        - f
+        - p
+        - tc
+      ignore-type-assert-ok: true
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
+  exclusions:
+    generated: lax
+    rules:
+      - path: _test\.go
+        linters:
+          - mnd
+          - exhaustruct
+          - err113
+          - paralleltest
+          - gochecknoglobals
+          - goconst
+          - varnamelen
+          - wsl_v5
+          - funlen
+          - cyclop
+          - testpackage
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - \.gen\.go$
+      - _templ\.go$
+      - vendor/
+formatters:
+  enable:
+    - gci
+    - goimports
+    - gofumpt
+    - golines
+  settings:
+    golines:
+      max-len: 120
+  exclusions:
+    generated: lax
+    paths:
+      - _templ\.go$
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10
