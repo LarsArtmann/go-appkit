@@ -122,8 +122,8 @@ func TestAsSQLDB_RejectsNonSQLDB(t *testing.T) {
 		t.Errorf("expected nil *sql.DB, got %v", db)
 	}
 
-	var familyErr *errorfamily.Error
-	if !errors.As(err, &familyErr) {
+	familyErr, ok := errors.AsType[*errorfamily.Error](err)
+	if !ok {
 		t.Fatalf("expected *errorfamily.Error, got %T", err)
 	}
 

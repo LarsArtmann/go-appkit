@@ -11,19 +11,19 @@ aspirations.
 
 ## core (`github.com/larsartmann/go-appkit`)
 
-| Feature                                   | Status           | Evidence                                       |
-| ----------------------------------------- | ---------------- | ---------------------------------------------- |
-| `Service` lifecycle (Run/Start/Shutdown)  | FULLY_FUNCTIONAL | `service.go`, `service_test.go`                |
-| Graceful drain (ready→503, delay, stop)   | FULLY_FUNCTIONAL | `service.go:134`                               |
-| Default middleware stack (replace/extend) | FULLY_FUNCTIONAL | `middleware.go`                                |
-| Health endpoints `/health`, live, ready   | FULLY_FUNCTIONAL | `health.go`, `health_test.go`                  |
-| `ReadyCheck` external readiness gate      | FULLY_FUNCTIONAL | `config.go:50`, `service.go:192`               |
+| Feature                                    | Status           | Evidence                                       |
+| ------------------------------------------ | ---------------- | ---------------------------------------------- |
+| `Service` lifecycle (Run/Start/Shutdown)   | FULLY_FUNCTIONAL | `service.go`, `service_test.go`                |
+| Graceful drain (ready→503, delay, stop)    | FULLY_FUNCTIONAL | `service.go:134`                               |
+| Default middleware stack (replace/extend)  | FULLY_FUNCTIONAL | `middleware.go`                                |
+| Health endpoints `/health`, live, ready    | FULLY_FUNCTIONAL | `health.go`, `health_test.go`                  |
+| `ReadyCheck` external readiness gate       | FULLY_FUNCTIONAL | `config.go:50`, `service.go:192`               |
 | `OuterMiddlewares` outermost hook          | FULLY_FUNCTIONAL | `config.go:65`, `middleware_test.go`           |
 | `ShutdownHooks` post-shutdown flush hooks  | FULLY_FUNCTIONAL | `service.go`, `shutdownhooks_test.go`          |
 | `NoDrainDelay` fast-test shutdown sentinel | FULLY_FUNCTIONAL | `config.go:37`, `config_test.go`               |
-| charmbracelet/logging (`InitLogger`)      | FULLY_FUNCTIONAL | `logger.go`                                    |
-| error-family re-exports (`HTTPStatus`…)   | FULLY_FUNCTIONAL | `errors.go`                                    |
-| SSE-safe `WriteTimeout` configuration     | FULLY_FUNCTIONAL | `config.go` (`NoTimeout`), `notimeout_test.go` |
+| charmbracelet/logging (`InitLogger`)       | FULLY_FUNCTIONAL | `logger.go`                                    |
+| error-family re-exports (`HTTPStatus`…)    | FULLY_FUNCTIONAL | `errors.go`                                    |
+| SSE-safe `WriteTimeout` configuration      | FULLY_FUNCTIONAL | `config.go` (`NoTimeout`), `notimeout_test.go` |
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
@@ -36,7 +36,7 @@ aspirations.
 | `EventConfig.Metrics` recorder hook  | FULLY_FUNCTIONAL | `metrics_test.go`        |
 | Projection readiness + lag accessors | FULLY_FUNCTIONAL | `readiness_test.go`      |
 | Read-your-writes staleness guards    | FULLY_FUNCTIONAL | `staleness_test.go`      |
-| OTel projection metrics adapter       | FULLY_FUNCTIONAL | `otelmetrics.go`         |
+| OTel projection metrics adapter      | FULLY_FUNCTIONAL | `otelmetrics.go`         |
 
 ## docs (`github.com/larsartmann/go-appkit/docs`)
 
@@ -95,20 +95,20 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
 
-| Feature                                                    | Status           | Evidence                            |
-| ---------------------------------------------------------- | ---------------- | ----------------------------------- |
-| Provider setup (`Setup`, options incl. `WithSampler`)       | FULLY_FUNCTIONAL | `setup.go`, `setup_test.go`         |
-| Flush-safe shutdown (ForceFlush before Shutdown)            | FULLY_FUNCTIONAL | `setup.go:135`, `setup_test.go`     |
-| otelhttp middleware bridge (pattern-named server spans)     | FULLY_FUNCTIONAL | `middleware.go`, `middleware_test.go` |
-| W3C trace-context + baggage propagation                      | FULLY_FUNCTIONAL | `attributes.go`, `middleware_test.go` |
-| Health-endpoint tracing/metrics filter (unconditional)      | FULLY_FUNCTIONAL | `middleware.go:170`                 |
-| Public-endpoint mode (remote parents → links)               | FULLY_FUNCTIONAL | `middleware_test.go`                |
-| Custom path/predicate filters                                | FULLY_FUNCTIONAL | `middleware_test.go`                |
-| Route-attributed, cardinality-safe HTTP metrics              | FULLY_FUNCTIONAL | `metrics_test.go`                   |
-| Semconv histogram views (`http.server.request.duration`)    | FULLY_FUNCTIONAL | `views.go`, `metrics_test.go`       |
-| Trace-correlated logging (`TraceHandler`, ID helpers)        | FULLY_FUNCTIONAL | `logging.go`, `logging_test.go`     |
-| Strictly opt-in no-op mode (no provider → pass-through)     | FULLY_FUNCTIONAL | `middleware_test.go`                |
-| Runnable example (PORT-aware, E2E-verified)                  | FULLY_FUNCTIONAL | `example/main.go`                   |
+| Feature                                                  | Status           | Evidence                              |
+| -------------------------------------------------------- | ---------------- | ------------------------------------- |
+| Provider setup (`Setup`, options incl. `WithSampler`)    | FULLY_FUNCTIONAL | `setup.go`, `setup_test.go`           |
+| Flush-safe shutdown (ForceFlush before Shutdown)         | FULLY_FUNCTIONAL | `setup.go:135`, `setup_test.go`       |
+| otelhttp middleware bridge (pattern-named server spans)  | FULLY_FUNCTIONAL | `middleware.go`, `middleware_test.go` |
+| W3C trace-context + baggage propagation                  | FULLY_FUNCTIONAL | `attributes.go`, `middleware_test.go` |
+| Health-endpoint tracing/metrics filter (unconditional)   | FULLY_FUNCTIONAL | `middleware.go:170`                   |
+| Public-endpoint mode (remote parents → links)            | FULLY_FUNCTIONAL | `middleware_test.go`                  |
+| Custom path/predicate filters                            | FULLY_FUNCTIONAL | `middleware_test.go`                  |
+| Route-attributed, cardinality-safe HTTP metrics          | FULLY_FUNCTIONAL | `metrics_test.go`                     |
+| Semconv histogram views (`http.server.request.duration`) | FULLY_FUNCTIONAL | `views.go`, `metrics_test.go`         |
+| Trace-correlated logging (`TraceHandler`, ID helpers)    | FULLY_FUNCTIONAL | `logging.go`, `logging_test.go`       |
+| Strictly opt-in no-op mode (no provider → pass-through)  | FULLY_FUNCTIONAL | `middleware_test.go`                  |
+| Runnable example (PORT-aware, E2E-verified)              | FULLY_FUNCTIONAL | `example/main.go`                     |
 
 Known limitation: httputil's `Logging` middleware emits the request-completion
 line without request context, so only handler-level logs correlate with spans

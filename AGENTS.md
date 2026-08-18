@@ -71,17 +71,17 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Core Module — Code Organization
 
-| File              | Concern                                                                                                                                 |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| File              | Concern                                                                                                                                                                                                          |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `service.go`      | `Service` type: NewService, Start, Run, Shutdown (runs ShutdownHooks once, after connections are released; errors joined), Close, Addr, Running. Owns `http.Server` + `net.Listener` + `readyProbe atomic.Bool`. |
-| `config.go`       | `ServiceConfig` struct (`OuterMiddlewares`, `ShutdownHooks`), `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`. Sentinels: `NoTimeout` (-1), `NoDrainDelay` (-2).                                                      |
-| `middleware.go`   | `defaultMiddlewareStack()` + `buildMiddleware()` + `concatMiddlewares()`. Order: OuterMiddlewares → (Middlewares replacement | default stack + ExtraMiddlewares); concatenation allocates a fresh slice so config backing arrays are never written through. Default: Recovery→RequestID→Logging→Timeout→SecurityHeaders.                          |
-| `logger.go`       | `LogLevel`/`LogFormat` types, `InitLogger()` using charmbracelet/log (Logger IS slog.Handler).                                          |
-| `health.go`       | `RegisterHealth(mux)` delegates to httputil. `ReadyHandlerWithProbe(ready)`.                                                            |
-| `errors.go`       | Re-exports `HTTPStatus()` and `LogError()` from go-error-family.                                                                        |
-| `shutdown.go`     | `WaitForSignal()` for SIGINT/SIGTERM. Preserved for backward compat.                                                                    |
-| `doc.go`          | Package doc statement.                                                                                                                  |
-| `example/main.go` | 12-line demo service.                                                                                                                   |
+| `config.go`       | `ServiceConfig` struct (`OuterMiddlewares`, `ShutdownHooks`), `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`. Sentinels: `NoTimeout` (-1), `NoDrainDelay` (-2).                                       |
+| `middleware.go`   | `defaultMiddlewareStack()` + `buildMiddleware()` + `concatMiddlewares()`. Order: OuterMiddlewares → (Middlewares replacement                                                                                     |
+| `logger.go`       | `LogLevel`/`LogFormat` types, `InitLogger()` using charmbracelet/log (Logger IS slog.Handler).                                                                                                                   |
+| `health.go`       | `RegisterHealth(mux)` delegates to httputil. `ReadyHandlerWithProbe(ready)`.                                                                                                                                     |
+| `errors.go`       | Re-exports `HTTPStatus()` and `LogError()` from go-error-family.                                                                                                                                                 |
+| `shutdown.go`     | `WaitForSignal()` for SIGINT/SIGTERM. Preserved for backward compat.                                                                                                                                             |
+| `doc.go`          | Package doc statement.                                                                                                                                                                                           |
+| `example/main.go` | 12-line demo service.                                                                                                                                                                                            |
 
 ## Realtime Module — Code Organization
 
@@ -138,15 +138,15 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## otel Module — Code Organization
 
-| File              | Concern                                                                                                                                                                                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `doc.go`          | Package doc: wiring recipe, emitted signals, shutdown ordering, log correlation, one-Setup-per-process rule.                                                                                                                                 |
-| `setup.go`        | `Setup(opts...)` + `Provider` (`AsTracerProvider`/`AsMeterProvider`/`Shutdown`). Options: `WithService`, `WithSpanExporter`, `WithSampler`, `WithMetricReader`, `WithPropagator`, `WithStdoutExporter`, `WithoutGlobalRegistration`. Registers globals + W3C propagator; Shutdown ForceFlushes BOTH providers first. |
+| File              | Concern                                                                                                                                                                                                                                                                                                                                            |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`          | Package doc: wiring recipe, emitted signals, shutdown ordering, log correlation, one-Setup-per-process rule.                                                                                                                                                                                                                                       |
+| `setup.go`        | `Setup(opts...)` + `Provider` (`AsTracerProvider`/`AsMeterProvider`/`Shutdown`). Options: `WithService`, `WithSpanExporter`, `WithSampler`, `WithMetricReader`, `WithPropagator`, `WithStdoutExporter`, `WithoutGlobalRegistration`. Registers globals + W3C propagator; Shutdown ForceFlushes BOTH providers first.                               |
 | `middleware.go`   | `Middleware(opts...)` bridging otelhttp v0.68. Span named by matched ServeMux pattern (`r.Pattern`, e.g. `GET /users/{id}`) falling back to method. Options: `WithTracerProvider`, `WithMeterProvider`, `WithServerName`, `WithPublicEndpoint` (remote parents → links), `WithFilter`, `WithFilteredPaths`. Health paths unconditionally filtered. |
-| `logging.go`      | `TraceHandler` slog decorator stamping `trace_id`/`span_id` when ctx carries a span; `TraceIDFromContext`/`SpanIDFromContext`/`ContextLogger` (return `"none"` without a span).                                                              |
-| `views.go`        | `NewHTTPViews()` pinning `http.server.request.duration` to `HTTPDurationBoundaries` (semconv 0..10s, 15 values); exact-name match only.                                                                                                      |
-| `attributes.go`   | `ServiceResourceAttributes` (semconv v1.26.0), `NewTextMapPropagator` (TraceContext+Baggage).                                                                                                                                               |
-| `example/main.go` | Demo service honoring `PORT` env (8080 occupied on dev machines); E2E-verified live.                                                                                                                                                       |
+| `logging.go`      | `TraceHandler` slog decorator stamping `trace_id`/`span_id` when ctx carries a span; `TraceIDFromContext`/`SpanIDFromContext`/`ContextLogger` (return `"none"` without a span).                                                                                                                                                                    |
+| `views.go`        | `NewHTTPViews()` pinning `http.server.request.duration` to `HTTPDurationBoundaries` (semconv 0..10s, 15 values); exact-name match only.                                                                                                                                                                                                            |
+| `attributes.go`   | `ServiceResourceAttributes` (semconv v1.26.0), `NewTextMapPropagator` (TraceContext+Baggage).                                                                                                                                                                                                                                                      |
+| `example/main.go` | Demo service honoring `PORT` env (8080 occupied on dev machines); E2E-verified live.                                                                                                                                                                                                                                                               |
 
 - Strictly opt-in: without a provider the middleware is a no-op and globals stay untouched.
 - Library code has NO core dependency (`Middleware` fits any `http.Handler`); only the example imports core via a local `replace ../` (REMOVE AT RELEASE TIME).
@@ -188,11 +188,11 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## otel Module Dependencies
 
-| Module                                           | Version | Role                                             |
-| ------------------------------------------------ | ------- | ------------------------------------------------ |
-| `go.opentelemetry.io/contrib/.../otelhttp`       | v0.68.0 | Server spans, semconv metrics, W3C propagation   |
-| `go.opentelemetry.io/otel` (+sdk, metric, trace) | v1.45.0 | Tracer/meter providers, SDK, stdout exporter     |
-| `github.com/larsartmann/httputil`                | v0.12.0 | `Middleware` type (bridge target)                |
+| Module                                           | Version | Role                                           |
+| ------------------------------------------------ | ------- | ---------------------------------------------- |
+| `go.opentelemetry.io/contrib/.../otelhttp`       | v0.68.0 | Server spans, semconv metrics, W3C propagation |
+| `go.opentelemetry.io/otel` (+sdk, metric, trace) | v1.45.0 | Tracer/meter providers, SDK, stdout exporter   |
+| `github.com/larsartmann/httputil`                | v0.12.0 | `Middleware` type (bridge target)              |
 
 ## cqrs Module Dependencies
 

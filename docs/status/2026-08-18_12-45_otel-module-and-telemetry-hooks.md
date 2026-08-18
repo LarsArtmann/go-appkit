@@ -15,12 +15,14 @@ OTEL support went from **literally zero** (no code anywhere in the repo; consume
 ## a) FULLY DONE
 
 ### 1. Research (complete, informed all design)
+
 - Confirmed zero OTEL in go-appkit; found the ecosystem pattern (go-cqrs-lite `otel/v4`).
 - Studied cqrs-lite otel API surface (Setup/Provider/options/logging/views/propagation) — mirrored its API shape for muscle-memory consistency.
 - Studied otelhttp v0.68.0: `r.Pattern`-based span naming, filter semantics (AND over allow), semconv-stable metrics, public-endpoint link semantics.
 - Found planning milestone **M10** ("metrics path: otel/prometheus accessors for the event store") — closed it this session.
 
 ### 2. Core enablers (dependency-free, in root module)
+
 - **`ServiceConfig.OuterMiddlewares`** — wraps the ENTIRE chain (default stack or replaced stack), runs outermost before Recovery. This is where tracing must sit. `middleware.go` refactored; `concatMiddlewares` allocates a fresh slice so config backing arrays are never written through (tested).
 - **`ServiceConfig.ShutdownHooks`** — `[]func(context.Context) error`, run ONCE, in order, AFTER `server.Shutdown` released connections (so flushed spans cover final in-flight requests). Failing hooks don't stop the rest; errors joined + classified Infrastructure. Never-started services skip hooks (tested).
 - **`NoDrainDelay` sentinel (`-2`)** — discovered a real gap: `DrainDelay: 0` means "apply 5s default", NOT "no delay" (zero-value production-safety). Tests were silently eating 5s per shutdown. Converted ALL core tests to `NoDrainDelay`; suite wall time dropped ~30s → ~6s. Mirrors the existing `NoTimeout` design; Validate rejects other negatives (tested).
@@ -28,6 +30,7 @@ OTEL support went from **literally zero** (no code anywhere in the repo; consume
 - Core CHANGELOG updated.
 
 ### 3. New `otel` module (`/otel`, package `otel`, alias `appkitotel`)
+
 - **`setup.go`**: `Setup(opts...)` + `Provider`. Options: `WithService`, `WithSpanExporter`, `WithSampler` (cqrs-lite's version LACKS this), `WithMetricReader`, `WithPropagator`, `WithStdoutExporter`, `WithoutGlobalRegistration`. Registers globals + W3C propagator.
 - **Provider.Shutdown force-flushes before shutdown** — discovered and fixed a real bug class: spans ended moments before Shutdown can still sit in the batch processor's async queue; Shutdown alone does NOT guarantee export. (cqrs-lite's otel module has this same latent bug — worth an upstream fix.)
 - **`middleware.go`**: `Middleware(opts...)` bridging otelhttp v0.68. One SERVER span/request named by matched ServeMux pattern (`GET /users/{id}`); W3C trace-context+baggage in/out; semconv metrics (`http.server.request.duration` etc.) with route/method/status attrs when a meter provider exists. Options: `WithTracerProvider`, `WithMeterProvider`, `WithServerName`, `WithPublicEndpoint` (distrusts remote parents → links), `WithFilter`, `WithFilteredPaths`. Health endpoints unconditionally filtered. **No-op without Setup** — OTel strictly opt-in.
@@ -39,11 +42,13 @@ OTEL support went from **literally zero** (no code anywhere in the repo; consume
 - otel suite green with `-race`, 5 consecutive runs stable.
 
 ### 4. cqrs module — M10 closed
+
 - **`otelmetrics.go`**: `OTelProjectionMetrics` implements `projectionhost.MetricsRecorder` (six methods) on OTel instruments: `cqrs.projection.event.count` (projection/event_type/status), `.event.duration` (ms), `.worker.count` (restarted/failed), `.checkpoint.lag` (ms). Attribute keys follow cqrs-lite's `cqrs.*` conventions — one dashboard schema for HTTP + projections. Adds ONLY interface-only OTel API deps (no SDK/exporter).
 - Compile-time interface assertion; 2 tests verifying all lifecycle events + attributes.
 - cqrs README metrics section rewritten around it; CHANGELOG entry added; full cqrs suite green with `-race`; golangci 0 issues; cqrs-lint clean.
 
 ### 5. Repo wiring
+
 - `go.work`: `./otel` added, use-block alphabetized.
 - Root README: otel row in the module table.
 
@@ -90,6 +95,7 @@ None of these remain in the tree — all were fixed and re-verified.
 ## f) NEXT 50 (prioritized)
 
 **P0 — finish this session's loose ends**
+
 1. Re-apply the interrupted AGENTS.md update (module list → 8, otel build commands, lint standard, core table rows).
 2. FEATURES.md: otel module section + core rows (OuterMiddlewares, ShutdownHooks, NoDrainDelay).
 3. TODO_LIST.md: refresh header (8 modules), add otel v0.1.0 to the release-wave gate, mark P2 "DrainDelay: 0 test-ergonomics" OBSOLETE (superseded).
@@ -128,7 +134,7 @@ None of these remain in the tree — all were fixed and re-verified.
 30. eval: `SO_TIMEOUT`-style span timeout protection for pathological streams (probably YAGNI — document instead).
 
 **P4 — bigger bets**
-31. OpenTelemetry ` Baggage` correlation-ID helpers (cqrs-parity: WithCorrelationID).
+31. OpenTelemetry `Baggage` correlation-ID helpers (cqrs-parity: WithCorrelationID).
 32. otelhttp.Transport wrapper export for outbound client spans (`appkitotel.Transport()`).
 33. Prometheus reader recipe in otel README (stdout + OTLP covered; prometheus only via cqrs-lite today).
 34. Errorpages: render trace_id on error pages when a span is active (support handoff).

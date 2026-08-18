@@ -133,8 +133,8 @@ func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 		t.Errorf("expected errors.Is(err, ErrProjectionStale), got: %v", err)
 	}
 
-	var familyErr *errorfamily.Error
-	if !errors.As(err, &familyErr) {
+	familyErr, ok := errors.AsType[*errorfamily.Error](err)
+	if !ok {
 		t.Fatalf("expected *errorfamily.Error, got %T", err)
 	}
 
@@ -226,8 +226,8 @@ func TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient(t *tes
 		t.Errorf("expected errors.Is(err, ErrProjectionStale), got: %v", err)
 	}
 
-	var familyErr *errorfamily.Error
-	if !errors.As(err, &familyErr) {
+	familyErr, ok := errors.AsType[*errorfamily.Error](err)
+	if !ok {
 		t.Fatalf("expected *errorfamily.Error, got %T", err)
 	}
 
@@ -259,8 +259,8 @@ func TestEventService_CheckProjectionStaleness_UnknownProjectionRejected(t *test
 
 	if !errors.Is(err, projectionhost.ErrProjectionStale) {
 		// Unknown-name rejection, not staleness — assert family and code.
-		var familyErr *errorfamily.Error
-		if !errors.As(err, &familyErr) {
+		familyErr, ok := errors.AsType[*errorfamily.Error](err)
+		if !ok {
 			t.Fatalf("expected *errorfamily.Error, got %T", err)
 		}
 

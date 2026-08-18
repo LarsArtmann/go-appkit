@@ -54,6 +54,7 @@ Scope: this session only — finishing the lint rollout (cqrs, realtime, root, d
 ## f) NEXT — up to 50 things
 
 **User-gated (nothing for me to do until answered):**
+
 1. Push master + 5 tags (core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0, flightrecorderhealth v0.1.0).
 2. Fresh-consumer /tmp proxy smoke test per pushed module.
 3. Verify pkg.go.dev renders each new version.

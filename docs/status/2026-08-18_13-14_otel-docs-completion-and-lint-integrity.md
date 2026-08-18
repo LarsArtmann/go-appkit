@@ -13,9 +13,11 @@ This session closed every loose end the predecessor left: AGENTS.md re-applied (
 ## a) FULLY DONE
 
 ### 1. Session-state reconstruction
+
 - Read the predecessor status report, git status (33 changed/added files), go.work (discovered it is **gitignored** — on disk, not in HEAD, absent from `git status`; informational only), otel API surface, and the stale doc files before touching anything.
 
 ### 2. AGENTS.md — interrupted edit re-applied and extended (19 edits + 1 follow-up)
+
 - Module list "Six" → "Eight"; otel bullet inserted (alias `appkitotel`, unreleased, tag-with-next-wave note).
 - GOEXPERIMENT notes: "Six of seven" → "Six of eight"; otel joins flightrecorderhealth in the NOT-required list.
 - Build commands: otel block added (no GOEXPERIMENT, GOWORK=off).
@@ -27,16 +29,19 @@ This session closed every loose end the predecessor left: AGENTS.md re-applied (
 - One of 19 multiedit edits failed (overlapping targets); caught by outcome-grep, patched with a targeted edit.
 
 ### 3. FEATURES.md
+
 - otel section: 12 rows (setup, flush-safe shutdown, middleware bridge, propagation, filters, public-endpoint mode, cardinality-safe metrics, views, log correlation, no-op mode, example) + the known Logging-correlation limitation as prose.
 - Core: `OuterMiddlewares`, `ShutdownHooks`, `NoDrainDelay` rows. cqrs: OTel projection metrics adapter row.
 
 ### 4. TODO_LIST.md
+
 - Header: 8 modules, otel-unreleased note, "Six of eight" GOEXPERIMENT phrasing.
 - P1: two new gated items — commit-the-OTEL-work (§g Q1) and tag-`otel/v0.1.0` (incl. replace-directive drop + hermetic verify + post-tag checks; wave membership = §g Q2).
 - Removed the now-obsolete P2 "Document the `DrainDelay: 0` test-ergonomics pattern" (superseded by NoDrainDelay, now documented).
 - Harvested near-term backlog: upstream cqrs-lite ForceFlush item (Q3), satellite `DrainDelay: 0` sweep, otel benchmark + benchstat, httputil ctx-Logging proposal, v1.0.0-criteria fold-in.
 
 ### 5. Verification sweep — and the lint-integrity correction
+
 - **All 8 modules test+vet(+build) green with `-race -count=1`** (core needs GOEXPERIMENT=jsonv2; satellites hermetic GOWORK=off).
 - First lint pass (run as 3 parallel batches) reported 4 core findings — contradicting the predecessor's "0 issues". Fixed those (appendAssign, noctx, noinlineerr, sloglint). The re-run then surfaced **3 more pre-existing findings** (canonicalheader ×2, gosec G602) — proving the parallel run had under-reported: concurrent golangci-lint processes raced on the shared cache at `/mnt/buildcache` (visible "Failed to persist facts" warnings).
 - Fixed the remainder; one intermediate fix (make+assign for the aliasing probe) itself tripped makezero — final shape is a composite literal, clean by construction under all three slice-policing linters.
@@ -61,8 +66,8 @@ This session closed every loose end the predecessor left: AGENTS.md re-applied (
 ## d) TOTALLY FUCKED UP (this session's mistakes, all fixed)
 
 1. **I trusted a corrupted lint run.** Running three lint batches in parallel for speed raced the shared `/mnt/buildcache` — the "4 findings" first report was incomplete (3 missing), and the satellites' simultaneous "0 issues" greens were untrustworthy until I redid everything sequentially. Cost: one full extra lint sweep. Root cause: my parallelization choice; the cache location is not concurrency-safe.
-2. **Linter whack-a-mole on one test helper.** appendAssign fix (`outer[:2]`) → gosec G602; second fix (`make` + index assigns) → makezero; third (composite literal) finally clean. Three rounds because I fixed the *reported* finding each time instead of reasoning once about the shape satisfying all slice-policing linters.
-3. **Two multiedit partial failures.** middleware_test.go (6/7): I wrote `old_string` from memory (`resp.Header…` context) instead of copying the file's exact `rec.Header().Get(...)` — the exact rule the tool documents. AGENTS.md (18/19): overlapping targets within one batch, and I never root-caused *which* edit collided — I patched by outcome instead. Both caught by verification greps, but each burned a round trip.
+2. **Linter whack-a-mole on one test helper.** appendAssign fix (`outer[:2]`) → gosec G602; second fix (`make` + index assigns) → makezero; third (composite literal) finally clean. Three rounds because I fixed the _reported_ finding each time instead of reasoning once about the shape satisfying all slice-policing linters.
+3. **Two multiedit partial failures.** middleware_test.go (6/7): I wrote `old_string` from memory (`resp.Header…` context) instead of copying the file's exact `rec.Header().Get(...)` — the exact rule the tool documents. AGENTS.md (18/19): overlapping targets within one batch, and I never root-caused _which_ edit collided — I patched by outcome instead. Both caught by verification greps, but each burned a round trip.
 4. **First fix batch was scoped to exactly the reported findings** — I didn't anticipate that a cache-corrupted run under-reports; the canonicalheader/G602 wave afterwards was foreseeable the moment I suspected the cache.
 5. (Minor) gopls showed stale diagnostics all session (fixed issues kept re-appearing in tool output); I correctly overrode them with real tool runs but never restarted the LSP.
 
@@ -79,6 +84,7 @@ This session closed every loose end the predecessor left: AGENTS.md re-applied (
 ## f) NEXT 50 (prioritized; ≈6 items already harvested into TODO_LIST this session are excluded)
 
 **P0 — ship the OTEL work**
+
 1. Answer §g Q1 → commit (one coherent commit vs per-module core/otel/cqrs).
 2. Push the 4 prepared tags (standing user gate from 2026-08-16).
 3. otel release prep: drop `replace ../` in `otel/go.mod`, require published core, hermetic re-verify.

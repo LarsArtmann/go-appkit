@@ -49,13 +49,13 @@ shutdown. Run the example: `go run ./example`.
 
 ## What you get
 
-| Signal   | Instrument                                            | Notes                                                     |
-| -------- | ----------------------------------------------------- | --------------------------------------------------------- |
-| Traces   | one SERVER span per request                           | named after the ServeMux pattern (`GET /users/{id}`)      |
-| Traces   | W3C `traceparent`/`baggage` in and out                | continues caller traces; feeds downstream calls           |
-| Metrics  | `http.server.request.duration` (+ size, active)       | method/route/status attributes; route-based, no blowups   |
-| Logs     | `trace_id` + `span_id` on records logged with ctx     | `TraceHandler` decorates any `slog.Handler`               |
-| Lifecycle| provider `Shutdown` in `ServiceConfig.ShutdownHooks`  | flush after drain — spans cover the final requests        |
+| Signal    | Instrument                                           | Notes                                                   |
+| --------- | ---------------------------------------------------- | ------------------------------------------------------- |
+| Traces    | one SERVER span per request                          | named after the ServeMux pattern (`GET /users/{id}`)    |
+| Traces    | W3C `traceparent`/`baggage` in and out               | continues caller traces; feeds downstream calls         |
+| Metrics   | `http.server.request.duration` (+ size, active)      | method/route/status attributes; route-based, no blowups |
+| Logs      | `trace_id` + `span_id` on records logged with ctx    | `TraceHandler` decorates any `slog.Handler`             |
+| Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks` | flush after drain — spans cover the final requests      |
 
 ## Options that matter
 
