@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/cqrs
 
-go 1.26.5
+go 1.26.6
 
 require (
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.7.0
@@ -45,7 +45,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/storage/v4 v4.7.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/testutil/pgtestcontainer/v4 v4.0.0 // indirect
 	github.com/larsartmann/go-cqrs-lite/watermill/v4 v4.5.0 // indirect
-	github.com/larsartmann/go-sse v0.5.0 // indirect
+	github.com/larsartmann/go-sse v0.5.1 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/maypok86/otter/v2 v2.3.0 // indirect
