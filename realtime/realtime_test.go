@@ -12,6 +12,7 @@ import (
 
 	"github.com/larsartmann/go-appkit/realtime"
 	"github.com/larsartmann/go-sse"
+	"github.com/larsartmann/go-sse/ssetest"
 )
 
 // memStore is a minimal in-memory sse.EventStore for testing replay.
@@ -330,14 +331,14 @@ func TestHandler_ServesEvents(t *testing.T) {
 
 	hub.Broadcast(sse.Event{Event: "greeting", Data: "hello world"})
 
-	frame := readSSEFrame(t, resp.Body)
+	evt := ssetest.MustReadNEvents(t, resp.Body, 1)[0]
 
-	if !strings.Contains(frame, "event: greeting") {
-		t.Fatalf("missing event type in frame:\n%s", frame)
+	if evt.Type != "greeting" {
+		t.Fatalf("missing event type, got %q", evt.Type)
 	}
 
-	if !strings.Contains(frame, "data: hello world") {
-		t.Fatalf("missing data in frame:\n%s", frame)
+	if evt.Data() != "hello world" {
+		t.Fatalf("missing data, got %q", evt.Data())
 	}
 }
 
@@ -416,15 +417,15 @@ func TestHandler_FanOut_MultipleClients(t *testing.T) {
 
 	hub.Broadcast(sse.Event{Event: "broadcast", Data: "both"})
 
-	frame1 := readSSEFrame(t, resp1.Body)
-	frame2 := readSSEFrame(t, resp2.Body)
+	evt1 := ssetest.MustReadNEvents(t, resp1.Body, 1)[0]
+	evt2 := ssetest.MustReadNEvents(t, resp2.Body, 1)[0]
 
-	if !strings.Contains(frame1, "data: both") {
-		t.Fatalf("client 1 missing data:\n%s", frame1)
+	if evt1.Data() != "both" {
+		t.Fatalf("client 1 missing data:\n%s", evt1.Data())
 	}
 
-	if !strings.Contains(frame2, "data: both") {
-		t.Fatalf("client 2 missing data:\n%s", frame2)
+	if evt2.Data() != "both" {
+		t.Fatalf("client 2 missing data:\n%s", evt2.Data())
 	}
 }
 
@@ -455,14 +456,14 @@ func TestHandler_Filter_OnlyMatchingEvents(t *testing.T) {
 	hub.Broadcast(sse.Event{Event: "noise", Data: "ignored"})
 	hub.Broadcast(sse.Event{Event: "important", Data: "delivered"})
 
-	frame := readSSEFrame(t, resp.Body)
+	evt := ssetest.MustReadNEvents(t, resp.Body, 1)[0]
 
-	if strings.Contains(frame, "noise") {
-		t.Fatalf("filtered event leaked through:\n%s", frame)
+	if evt.Data() == "ignored" {
+		t.Fatalf("filtered event leaked through:\n%s", evt.Data())
 	}
 
-	if !strings.Contains(frame, "important") {
-		t.Fatalf("matching event missing:\n%s", frame)
+	if evt.Data() != "delivered" {
+		t.Fatalf("matching event missing, got:\n%s", evt.Data())
 	}
 }
 
@@ -498,14 +499,13 @@ func TestHandler_Replay_OnReconnect(t *testing.T) {
 
 	defer func() { _ = resp.Body.Close() }()
 
-	frame := readSSEFrame(t, resp.Body)
-	if !strings.Contains(frame, "data: 2") {
-		t.Fatalf("first replayed event should be data: 2, got:\n%s", frame)
+	events := ssetest.MustReadNEvents(t, resp.Body, 2)
+	if events[0].Data() != "2" {
+		t.Fatalf("first replayed event should be data: 2, got:\n%s", events[0].Data())
 	}
 
-	frame = readSSEFrame(t, resp.Body)
-	if !strings.Contains(frame, "data: 3") {
-		t.Fatalf("second replayed event should be data: 3, got:\n%s", frame)
+	if events[1].Data() != "3" {
+		t.Fatalf("second replayed event should be data: 3, got:\n%s", events[1].Data())
 	}
 }
 
@@ -537,9 +537,9 @@ func TestHandler_NoReplay_WithoutStore(t *testing.T) {
 
 	hub.Broadcast(sse.Event{Event: "live", Data: "now"})
 
-	frame := readSSEFrame(t, resp.Body)
-	if !strings.Contains(frame, "data: now") {
-		t.Fatalf("live event should arrive, got:\n%s", frame)
+	evt := ssetest.MustReadNEvents(t, resp.Body, 1)[0]
+	if evt.Data() != "now" {
+		t.Fatalf("live event should arrive, got:\n%s", evt.Data())
 	}
 }
 
@@ -675,19 +675,17 @@ func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
 
 	close(store.release)
 
-	frame := readSSEFrame(t, resp.Body)
-	if !strings.Contains(frame, "data: 2") {
-		t.Fatalf("first replayed event should be data: 2, got:\n%s", frame)
+	events := ssetest.MustReadNEvents(t, resp.Body, 3)
+	if events[0].Data() != "2" {
+		t.Fatalf("first replayed event should be data: 2, got:\n%s", events[0].Data())
 	}
 
-	frame = readSSEFrame(t, resp.Body)
-	if !strings.Contains(frame, "data: 3") {
-		t.Fatalf("second replayed event should be data: 3, got:\n%s", frame)
+	if events[1].Data() != "3" {
+		t.Fatalf("second replayed event should be data: 3, got:\n%s", events[1].Data())
 	}
 
-	frame = readSSEFrame(t, resp.Body)
-	if !strings.Contains(frame, "data: gap") {
-		t.Fatalf("event broadcast during store read should be forwarded, got:\n%s", frame)
+	if events[2].Data() != "gap" {
+		t.Fatalf("event broadcast during store read should be forwarded, got:\n%s", events[2].Data())
 	}
 }
 

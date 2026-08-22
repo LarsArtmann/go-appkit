@@ -6,3 +6,5 @@ github.com/larsartmann/go-sse v0.5.0 h1:6KC4fh/cDxNvaZE10ByT39y6ib65KH+nQIgw8sfV
 github.com/larsartmann/go-sse v0.5.0/go.mod h1:kj1Gv+cnHIWKeqL0hRvbzkyM96/ZHAfub4FpgFtehHg=
 github.com/larsartmann/go-sse v0.5.1 h1:WxTNZp+DfShA2yXPne4+Jp5sFKTDlng+VMOniCiFVu8=
 github.com/larsartmann/go-sse v0.5.1/go.mod h1:TJl45pMXjwZTdhGgyu6RZWmmXyr28XwpnNJ7rVyyUxU=
+github.com/larsartmann/go-sse/ssetest v0.1.0 h1:wuvufTzPD11ezdCotPzOuX1X0F8u2lKxV2VlV5VIVPw=
+github.com/larsartmann/go-sse/ssetest v0.1.0/go.mod h1:NhScY7qZtXb9cWMBrwM/dXeZ14ArAAahYCIhZUM91qM=
