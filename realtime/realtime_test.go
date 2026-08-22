@@ -2,7 +2,6 @@ package realtime_test
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -76,38 +75,6 @@ func waitForSubscriber(t *testing.T, hub *realtime.Hub, want int) {
 	}
 
 	t.Fatalf("timed out waiting for %d subscribers (got %d)", want, hub.SubscriberCount())
-}
-
-// readSSEFrame reads one SSE frame (ending in \n\n) from a streaming body.
-// Skips heartbeat comment frames (starting with ":").
-func readSSEFrame(t *testing.T, r io.Reader) string {
-	t.Helper()
-
-	buf := make([]byte, 0, 256)
-	var tmp [1]byte
-
-	for {
-		n, err := r.Read(tmp[:])
-		if n > 0 {
-			buf = append(buf, tmp[:n]...)
-
-			if len(buf) >= 2 && buf[len(buf)-1] == '\n' && buf[len(buf)-2] == '\n' {
-				frame := string(buf)
-				// Skip heartbeat comment frames
-				if strings.HasPrefix(frame, ":") {
-					buf = buf[:0]
-
-					continue
-				}
-
-				return frame
-			}
-		}
-
-		if err != nil {
-			t.Fatalf("read error: %v (got so far: %q)", err, string(buf))
-		}
-	}
 }
 
 // --- Hub tests ---
@@ -562,7 +529,7 @@ func TestHandler_Heartbeat_Sent(t *testing.T) {
 
 	defer func() { _ = resp.Body.Close() }()
 
-	// Read raw bytes — heartbeat is a comment frame that readSSEFrame skips.
+	// Read raw bytes — heartbeat is a comment frame that the parser skips.
 	// We read directly to detect it.
 	buf := make([]byte, 0, 64)
 	var tmp [1]byte
@@ -735,19 +702,21 @@ func TestHandler_ReplayLiveDedup(t *testing.T) {
 
 	close(store.release)
 
-	frames := make([]string, 0, 3)
-	for range 3 {
-		frames = append(frames, readSSEFrame(t, resp.Body))
+	events := ssetest.MustReadNEvents(t, resp.Body, 3)
+
+	ids := make([]string, 0, 3)
+	for _, evt := range events {
+		ids = append(ids, evt.ID)
 	}
 
-	joined := strings.Join(frames, "")
-	if got := strings.Count(joined, "id: 2"); got != 1 {
+	joined := strings.Join(ids, " ")
+	if got := strings.Count(joined, "2"); got != 1 {
 		t.Fatalf("replayed+buffered event should be delivered exactly once, got %d:\n%s", got, joined)
 	}
 
-	for _, want := range []string{"data: 2", "data: 3", "data: 7"} {
+	for _, want := range []string{"2", "3", "7"} {
 		if !strings.Contains(joined, want) {
-			t.Fatalf("expected %s among delivered frames:\n%s", want, joined)
+			t.Fatalf("expected %s among delivered events:\n%s", want, joined)
 		}
 	}
 }
