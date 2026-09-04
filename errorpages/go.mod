@@ -1,11 +1,11 @@
 module github.com/larsartmann/go-appkit/errorpages
 
-go 1.26.5
+go 1.26.7
 
 require (
-	github.com/larsartmann/go-appkit v0.3.0
+	github.com/larsartmann/go-appkit v0.4.0
 	github.com/larsartmann/go-error-family v0.10.0
-	github.com/larsartmann/templ-components/errorpage v1.11.0
+	github.com/larsartmann/templ-components/errorpage v1.12.0
 )
 
 require (
@@ -24,8 +24,8 @@ require (
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/larsartmann/go-etag v0.2.0 // indirect
 	github.com/larsartmann/httputil v0.12.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.11.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.11.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.12.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.12.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.29 // indirect

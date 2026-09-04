@@ -11,21 +11,21 @@ aspirations.
 
 ## core (`github.com/larsartmann/go-appkit`)
 
-| Feature                                    | Status           | Evidence                                       |
-| ------------------------------------------ | ---------------- | ---------------------------------------------- |
-| `Service` lifecycle (Run/Start/Shutdown)   | FULLY_FUNCTIONAL | `service.go`, `service_test.go`                |
-| Graceful drain (ready→503, delay, stop)    | FULLY_FUNCTIONAL | `service.go:134`                               |
-| Default middleware stack (replace/extend)  | FULLY_FUNCTIONAL | `middleware.go`                                |
-| Health endpoints `/health`, live, ready    | FULLY_FUNCTIONAL | `health.go`, `health_test.go`                  |
-| `ReadyCheck` external readiness gate       | FULLY_FUNCTIONAL | `config.go:50`, `service.go:192`               |
-| `OuterMiddlewares` outermost hook          | FULLY_FUNCTIONAL | `config.go:65`, `middleware_test.go`           |
-| `ShutdownHooks` post-shutdown flush hooks  | FULLY_FUNCTIONAL | `service.go`, `shutdownhooks_test.go`          |
-| `DrainHooks` drain-start readiness hooks   | FULLY_FUNCTIONAL | `config.go`, `service.go`, `drainhooks_test.go` |
+| Feature                                    | Status           | Evidence                                         |
+| ------------------------------------------ | ---------------- | ------------------------------------------------ |
+| `Service` lifecycle (Run/Start/Shutdown)   | FULLY_FUNCTIONAL | `service.go`, `service_test.go`                  |
+| Graceful drain (ready→503, delay, stop)    | FULLY_FUNCTIONAL | `service.go:134`                                 |
+| Default middleware stack (replace/extend)  | FULLY_FUNCTIONAL | `middleware.go`                                  |
+| Health endpoints `/health`, live, ready    | FULLY_FUNCTIONAL | `health.go`, `health_test.go`                    |
+| `ReadyCheck` external readiness gate       | FULLY_FUNCTIONAL | `config.go:50`, `service.go:192`                 |
+| `OuterMiddlewares` outermost hook          | FULLY_FUNCTIONAL | `config.go:65`, `middleware_test.go`             |
+| `ShutdownHooks` post-shutdown flush hooks  | FULLY_FUNCTIONAL | `service.go`, `shutdownhooks_test.go`            |
+| `DrainHooks` drain-start readiness hooks   | FULLY_FUNCTIONAL | `config.go`, `service.go`, `drainhooks_test.go`  |
 | Shutdown phase logging (per-phase INFO)    | FULLY_FUNCTIONAL | `service.go` (`logPhase`), `shutdownlog_test.go` |
-| `NoDrainDelay` fast-test shutdown sentinel | FULLY_FUNCTIONAL | `config.go:37`, `config_test.go`               |
-| charmbracelet/logging (`InitLogger`)       | FULLY_FUNCTIONAL | `logger.go`                                    |
-| error-family re-exports (`HTTPStatus`…)    | FULLY_FUNCTIONAL | `errors.go`                                    |
-| SSE-safe `WriteTimeout` configuration      | FULLY_FUNCTIONAL | `config.go` (`NoTimeout`), `notimeout_test.go` |
+| `NoDrainDelay` fast-test shutdown sentinel | FULLY_FUNCTIONAL | `config.go:37`, `config_test.go`                 |
+| charmbracelet/logging (`InitLogger`)       | FULLY_FUNCTIONAL | `logger.go`                                      |
+| error-family re-exports (`HTTPStatus`…)    | FULLY_FUNCTIONAL | `errors.go`                                      |
+| SSE-safe `WriteTimeout` configuration      | FULLY_FUNCTIONAL | `config.go` (`NoTimeout`), `notimeout_test.go`   |
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
@@ -97,17 +97,17 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 
 ## health (`github.com/larsartmann/go-appkit/health`)
 
-| Feature                                                            | Status           | Evidence                                         |
-| ------------------------------------------------------------------ | ---------------- | ------------------------------------------------ |
-| `NewProbe` injector-free probe (concurrent, panic-isolated checks) | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go`                      |
-| Critical/non-critical readiness classification                     | FULLY_FUNCTIONAL | `TestNewProbe_ClassificationFollowsCriticality`  |
-| `New` + `RegisterRoutes` / `Mount` mux wiring                      | FULLY_FUNCTIONAL | `mount.go`, `mount_test.go`                      |
-| Kubelet probe routes (custom paths opt-in)                         | FULLY_FUNCTIONAL | `TestMount_ProbeOnlyRegistersKubeletRoutes`      |
-| Real-time dashboard (HTML/JSON/SSE/metrics/trend) opt-in           | FULLY_FUNCTIONAL | `TestMount_WithDashboardServesHTMLJSONAndProbes` |
+| Feature                                                            | Status           | Evidence                                           |
+| ------------------------------------------------------------------ | ---------------- | -------------------------------------------------- |
+| `NewProbe` injector-free probe (concurrent, panic-isolated checks) | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go`                        |
+| Critical/non-critical readiness classification                     | FULLY_FUNCTIONAL | `TestNewProbe_ClassificationFollowsCriticality`    |
+| `New` + `RegisterRoutes` / `Mount` mux wiring                      | FULLY_FUNCTIONAL | `mount.go`, `mount_test.go`                        |
+| Kubelet probe routes (custom paths opt-in)                         | FULLY_FUNCTIONAL | `TestMount_ProbeOnlyRegistersKubeletRoutes`        |
+| Real-time dashboard (HTML/JSON/SSE/metrics/trend) opt-in           | FULLY_FUNCTIONAL | `TestMount_WithDashboardServesHTMLJSONAndProbes`   |
 | Drain lockstep (`Drain` → readiness 503 for the drain window)      | FULLY_FUNCTIONAL | `TestMount_DrainFlipsDashboardReadiness`, live E2E |
-| Lifecycle guards (double-Start rejection, idempotent Shutdown)     | FULLY_FUNCTIONAL | `TestMount_LifecycleGuardsAndIdempotence`        |
-| SDK validation errors surface via `Start` (errors.Is preserved)    | FULLY_FUNCTIONAL | `TestMount_StartPropagatesProbeValidationErrors` |
-| Runnable example (verified live: dashboard, probes, drain 503s)    | FULLY_FUNCTIONAL | `example/main.go`                                |
+| Lifecycle guards (double-Start rejection, idempotent Shutdown)     | FULLY_FUNCTIONAL | `TestMount_LifecycleGuardsAndIdempotence`          |
+| SDK validation errors surface via `Start` (errors.Is preserved)    | FULLY_FUNCTIONAL | `TestMount_StartPropagatesProbeValidationErrors`   |
+| Runnable example (verified live: dashboard, probes, drain 503s)    | FULLY_FUNCTIONAL | `example/main.go`                                  |
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
 

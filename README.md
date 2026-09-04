@@ -60,16 +60,16 @@ verified on; `encoding/json/v2` must be available, see below).
 
 Each module is independently versioned and usable on its own:
 
-| Module                                        | Import path                                             | What it adds                                                                                     |
-| --------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [core](README.md) (this module)               | `github.com/larsartmann/go-appkit`                      | Service lifecycle, middleware, health, logging                                                   |
-| [cqrs](cqrs/README.md)                        | `github.com/larsartmann/go-appkit/cqrs`                 | Event store + projections over go-cqrs-lite v4 (SQLite) — DLQ, metrics                           |
-| [docs](docs-mod/)                             | `github.com/larsartmann/go-appkit/docs`                 | Auto-generated OpenAPI/AsyncAPI/D2 docs from Go types                                            |
-| [errorpages](errorpages/README.md)            | `github.com/larsartmann/go-appkit/errorpages`           | Pretty classified error pages (HTML) and contracts (JSON)                                        |
-| [realtime](realtime/)                         | `github.com/larsartmann/go-appkit/realtime`             | SSE hub + handler: broadcast, replay, heartbeat, Last-Event-ID resume                            |
-| [otel](otel/)                                 | `github.com/larsartmann/go-appkit/otel`                 | Opt-in OpenTelemetry: provider setup, otelhttp tracing/metrics middleware, trace-correlated logs |
-| [flightrecorder](flightrecorder/)             | `github.com/larsartmann/go-appkit/flightrecorder`       | On-demand runtime/trace capture middleware + snapshot endpoint                                   |
-| [flightrecorderhealth](flightrecorderhealth/) | `github.com/larsartmann/go-appkit/flightrecorderhealth` | Bridges flight recorder with go-health: dashboard visibility + auto-capture on health failures   |
+| Module                                        | Import path                                             | What it adds                                                                                          |
+| --------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [core](README.md) (this module)               | `github.com/larsartmann/go-appkit`                      | Service lifecycle, middleware, health, logging                                                        |
+| [cqrs](cqrs/README.md)                        | `github.com/larsartmann/go-appkit/cqrs`                 | Event store + projections over go-cqrs-lite v4 (SQLite) — DLQ, metrics                                |
+| [docs](docs-mod/)                             | `github.com/larsartmann/go-appkit/docs`                 | Auto-generated OpenAPI/AsyncAPI/D2 docs from Go types                                                 |
+| [errorpages](errorpages/README.md)            | `github.com/larsartmann/go-appkit/errorpages`           | Pretty classified error pages (HTML) and contracts (JSON)                                             |
+| [realtime](realtime/)                         | `github.com/larsartmann/go-appkit/realtime`             | SSE hub + handler: broadcast, replay, heartbeat, Last-Event-ID resume                                 |
+| [otel](otel/)                                 | `github.com/larsartmann/go-appkit/otel`                 | Opt-in OpenTelemetry: provider setup, otelhttp tracing/metrics middleware, trace-correlated logs      |
+| [flightrecorder](flightrecorder/)             | `github.com/larsartmann/go-appkit/flightrecorder`       | On-demand runtime/trace capture middleware + snapshot endpoint                                        |
+| [flightrecorderhealth](flightrecorderhealth/) | `github.com/larsartmann/go-appkit/flightrecorderhealth` | Bridges flight recorder with go-health: dashboard visibility + auto-capture on health failures        |
 | [health](health/)                             | `github.com/larsartmann/go-appkit/health`               | go-health probes (critical/non-critical, startup latch) + real-time health dashboard, one wiring call |
 
 > **JSON v2 requirement:** the dependency stack (go-cqrs-lite,

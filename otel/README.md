@@ -119,7 +119,7 @@ median of 3x1s runs; `httptest` round-trip against `w.WriteHeader(200)`):
 | Traced (spans)          | 26,400 | 11,033 | 90        |
 | Traced + metered (full) | 27,400 | 11,042 | 90        |
 
-Full instrumentation costs ~6us/req (~+29%) and ~3.1KB over the no-op path,
+Full instrumentation costs ~~6us/req (~~+29%) and ~3.1KB over the no-op path,
 with zero additional allocations; export I/O is excluded by design (batching
 processor, no exporter wired). The no-op baseline is the cost of the
 middleware existing in the chain with the module imported but no providers —

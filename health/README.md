@@ -13,20 +13,20 @@ appkit's lifecycle.
 
 ## Why
 
-appkit's default `/health`, `/health/live`, `/health/ready` answer *is the
-process up* with a two-state JSON. This module upgrades the health surface
-to answer *is the app actually usable*:
+appkit's default `/health`, `/health/live`, `/health/ready` answer _is the
+process up_ with a two-state JSON. This module upgrades the health surface
+to answer _is the app actually usable_:
 
-| Concern                              | Default endpoints | With this module                          |
-| ------------------------------------ | ----------------- | ----------------------------------------- |
-| Critical vs non-critical services    | —                 | fail (503) vs warn (200, degraded)        |
-| Per-check results                    | —                 | named checks with errors in the response  |
-| Background caching (kubelet storms)  | —                 | 1s refresh, lock-free reads               |
-| Startup latch (slow boots)           | —                 | `/startupz`, one-way latch                |
-| Real-time dashboard                  | —                 | `/health` HTML + SSE, trend, dark mode    |
-| Prometheus exposition                | —                 | `/health/metrics` (opt-in)                |
-| Webhooks on transitions              | —                 | change-only JSON pushes (opt-in)          |
-| Drain coherence                      | appkit probe only | probe `/readyz` flips 503 in lockstep     |
+| Concern                             | Default endpoints | With this module                         |
+| ----------------------------------- | ----------------- | ---------------------------------------- |
+| Critical vs non-critical services   | —                 | fail (503) vs warn (200, degraded)       |
+| Per-check results                   | —                 | named checks with errors in the response |
+| Background caching (kubelet storms) | —                 | 1s refresh, lock-free reads              |
+| Startup latch (slow boots)          | —                 | `/startupz`, one-way latch               |
+| Real-time dashboard                 | —                 | `/health` HTML + SSE, trend, dark mode   |
+| Prometheus exposition               | —                 | `/health/metrics` (opt-in)               |
+| Webhooks on transitions             | —                 | change-only JSON pushes (opt-in)         |
+| Drain coherence                     | appkit probe only | probe `/readyz` flips 503 in lockstep    |
 
 ## Quick start
 
@@ -87,17 +87,17 @@ SIGTERM ─▶ readyProbe=false ─▶ DrainHooks ─▶ DrainDelay ─▶ conne
 
 ## API
 
-| Symbol                     | Purpose                                                                          |
-| -------------------------- | -------------------------------------------------------------------------------- |
-| `NewProbe(checks, opts...)` | Injector-free go-health probe: per-check `CheckFunc` map, concurrent batches, per-check panic isolation. SDK options pass through (`WithCriticalServices`, `WithTimeout`, `WithRefreshInterval`, …). |
-| `New(probe, opts...)`      | Lifecycle handle without routes — the primary appkit flow (config references the handle before the mux exists). |
-| `Mounted.RegisterRoutes(mux)` | Registers probe routes (and dashboard routes with `WithDashboard`).           |
-| `Mount(mux, probe, opts...)` | `New` + `RegisterRoutes` for muxes that already exist.                         |
-| `Mounted.Start(ctx)`       | Initial synchronous batch + background refresh + dashboard pusher.               |
-| `Mounted.Drain()`          | Probe → shutting-down: every readiness surface 503, liveness stays 200.          |
-| `Mounted.Shutdown(ctx)`    | Drain + stop pusher/refresh loop. Idempotent.                                    |
-| `Mounted.Ready()`          | Cached readiness verdict — pass as `ServiceConfig.ReadyCheck` if you keep appkit's endpoints. |
-| `Mounted.Probe()` / `.Dashboard()` | Escape hatches for advanced wiring (webhooks, middleware, accessors).    |
+| Symbol                             | Purpose                                                                                                                                                                                              |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NewProbe(checks, opts...)`        | Injector-free go-health probe: per-check `CheckFunc` map, concurrent batches, per-check panic isolation. SDK options pass through (`WithCriticalServices`, `WithTimeout`, `WithRefreshInterval`, …). |
+| `New(probe, opts...)`              | Lifecycle handle without routes — the primary appkit flow (config references the handle before the mux exists).                                                                                      |
+| `Mounted.RegisterRoutes(mux)`      | Registers probe routes (and dashboard routes with `WithDashboard`).                                                                                                                                  |
+| `Mount(mux, probe, opts...)`       | `New` + `RegisterRoutes` for muxes that already exist.                                                                                                                                               |
+| `Mounted.Start(ctx)`               | Initial synchronous batch + background refresh + dashboard pusher.                                                                                                                                   |
+| `Mounted.Drain()`                  | Probe → shutting-down: every readiness surface 503, liveness stays 200.                                                                                                                              |
+| `Mounted.Shutdown(ctx)`            | Drain + stop pusher/refresh loop. Idempotent.                                                                                                                                                        |
+| `Mounted.Ready()`                  | Cached readiness verdict — pass as `ServiceConfig.ReadyCheck` if you keep appkit's endpoints.                                                                                                        |
+| `Mounted.Probe()` / `.Dashboard()` | Escape hatches for advanced wiring (webhooks, middleware, accessors).                                                                                                                                |
 
 ## Gotchas
 
@@ -122,7 +122,7 @@ SIGTERM ─▶ readyProbe=false ─▶ DrainHooks ─▶ DrainDelay ─▶ conne
 ## Integration with flightrecorderhealth
 
 `flightrecorderhealth.Trigger` auto-captures flight-recorder traces on
-health-check failures. It plugs into go-health's *recorder path*, which
+health-check failures. It plugs into go-health's _recorder path_, which
 requires a samber/do injector — build the probe with the SDK's
 `health.New(injector, health.WithHealthRecorder(trigger))` instead of
 `NewProbe` (whose explicit batch function bypasses the recorder, by design).

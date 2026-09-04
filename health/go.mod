@@ -5,7 +5,7 @@ go 1.26.7
 require (
 	github.com/larsartmann/go-appkit v0.4.0
 	github.com/larsartmann/go-error-family v0.10.0
-	github.com/larsartmann/go-health v0.1.1
+	github.com/larsartmann/go-health v0.1.2
 	github.com/larsartmann/go-health-dashboard v0.5.0
 )
 
@@ -24,13 +24,13 @@ require (
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/larsartmann/go-branded-id v0.5.1 // indirect
-	github.com/larsartmann/go-datastar v0.4.0 // indirect
-	github.com/larsartmann/go-datastar/static v0.4.0 // indirect
+	github.com/larsartmann/go-datastar v0.5.0 // indirect
+	github.com/larsartmann/go-datastar/static v0.5.0 // indirect
 	github.com/larsartmann/go-etag v0.2.0 // indirect
 	github.com/larsartmann/go-sse v0.6.0 // indirect
 	github.com/larsartmann/httputil v0.12.0 // indirect
-	github.com/larsartmann/templ-components v1.11.0 // indirect
-	github.com/larsartmann/templ-components/datastar v1.11.0 // indirect
+	github.com/larsartmann/templ-components v1.12.0 // indirect
+	github.com/larsartmann/templ-components/datastar v1.12.0 // indirect
 	github.com/larsartmann/templ-components/htmx v1.12.0 // indirect
 	github.com/larsartmann/templ-components/icons v1.12.0 // indirect
 	github.com/larsartmann/templ-components/utils v1.12.0 // indirect

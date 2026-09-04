@@ -4,7 +4,7 @@ go 1.26.7
 
 require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.9.0
-	github.com/larsartmann/go-appkit v0.3.0
+	github.com/larsartmann/go-appkit v0.4.0
 	github.com/larsartmann/go-appkit/realtime v0.1.0
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.9.0
 	github.com/larsartmann/go-cqrs-lite/id/v4 v4.5.0
@@ -40,12 +40,12 @@ require (
 	github.com/larsartmann/httputil v0.12.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
-	github.com/mattn/go-runewidth v0.0.27 // indirect
+	github.com/mattn/go-runewidth v0.0.29 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xo/terminfo v1.0.0 // indirect
-	golang.org/x/exp v0.0.0-20260813180055-c1d0aacb2297 // indirect
+	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 )

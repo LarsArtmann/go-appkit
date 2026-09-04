@@ -23,63 +23,63 @@
 
 ## Top 7 quick wins (port ≈ 1:1, tests already exist)
 
-| # | Battery | Port-from | LOC | Why first |
-| --- | --- | --- | --- | --- |
-| 1 | **A2 API-key auth + CSRF bypass** | `internal/middleware/apikey.go` + `csrf_apikey_bypass.go` | 68+40 | Every scripted/timer client in the family needs it today |
-| 2 | **A3 Rate-limit profiles** | `internal/middleware/ratelimit.go` | 57 | Protects appkit's own `/health/sse` from pollers |
-| 3 | **A4 Origin check** | `internal/middleware/origin_check.go` | 109 | Defense-in-depth one-file middleware |
-| 4 | **A8 Body limit** | `internal/middleware/body_limit.go` | 26 | Smallest battery in the doc |
-| 5 | **A6 Sanitization** | `internal/sanitization/sanitization.go` | ~60 | Text + URL (with the `&not=`→`¬=` bluemonday trap) |
-| 6 | **B4 Conditional GET** | `internal/features/pipeline/handlers/interviews_ics_handler.go` | ~80 | Promotes `go-etag` (already an unused indirect dep) |
-| 7 | **D7 Idempotency store** | `career-pipeline/eventstore/idempotency.go` | 165 | Self-contained; closes a whole race class |
+| # | Battery                           | Port-from                                                       | LOC   | Why first                                                |
+| - | --------------------------------- | --------------------------------------------------------------- | ----- | -------------------------------------------------------- |
+| 1 | **A2 API-key auth + CSRF bypass** | `internal/middleware/apikey.go` + `csrf_apikey_bypass.go`       | 68+40 | Every scripted/timer client in the family needs it today |
+| 2 | **A3 Rate-limit profiles**        | `internal/middleware/ratelimit.go`                              | 57    | Protects appkit's own `/health/sse` from pollers         |
+| 3 | **A4 Origin check**               | `internal/middleware/origin_check.go`                           | 109   | Defense-in-depth one-file middleware                     |
+| 4 | **A8 Body limit**                 | `internal/middleware/body_limit.go`                             | 26    | Smallest battery in the doc                              |
+| 5 | **A6 Sanitization**               | `internal/sanitization/sanitization.go`                         | ~60   | Text + URL (with the `&not=`→`¬=` bluemonday trap)       |
+| 6 | **B4 Conditional GET**            | `internal/features/pipeline/handlers/interviews_ics_handler.go` | ~80   | Promotes `go-etag` (already an unused indirect dep)      |
+| 7 | **D7 Idempotency store**          | `career-pipeline/eventstore/idempotency.go`                     | 165   | Self-contained; closes a whole race class                |
 
 ---
 
 ## Master matrix
 
-| ID | Battery | Module | Effort | Impact | Port-from (CV) | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| A1 | CSRF middleware | `security` | S | H | httputil `CSRFMiddleware` (already used by CV) | NEW |
-| A2 | API-key auth + CSRF bypass | `security` | S | H | `internal/middleware/apikey.go`, `csrf_apikey_bypass.go` | NEW |
-| A3 | Rate-limit profiles (keyed) | `security` | S | H | `internal/middleware/ratelimit.go` | NEW |
-| A4 | Origin check | `security` | S | M | `internal/middleware/origin_check.go` | NEW |
-| A5 | CSP nonce + policy build | `security` | M | H | `csp_nonce.go` + `consolidated_security.go` (690) | NEW |
-| A6 | Text/URL sanitization | `security` | S | M | `internal/sanitization/sanitization.go` | NEW |
-| A7 | Env-tuned security headers (HSTS) | core option | S | M | `middleware_chain.go` `securityHeadersConfig` | NEW |
-| A8 | Body limit | `security` | S | M | `internal/middleware/body_limit.go` (26) | NEW |
-| B1 | ResultHandler family | `httpx` | M | H | `internal/middleware/result_handler.go` (452) | NEW |
-| B2 | Bind + validation (integrated) | `httpx` | S | H | `ResultHandlerWithValidation[T,V]`, `httpx/validation.go` (154) | NEW |
-| B3 | ResponseWriter contract helper | `httpx`/`testkit` | S | H | `internal/httpx/response_writer.go` (149) | NEW |
-| B4 | Conditional GET (ETag/304) | `httpx` | S | M | ICS handler | NEW |
-| B5 | Content negotiation | `httpx` | S | M | `/admin/health` pattern | NEW |
-| B6 | Route introspection + golden test | `httpx`+`testkit` | M | H | `internal/server/routes_test.go` | NEW |
-| B7 | Per-route write deadlines | `httpx` | S | M | `internal/middleware/write_deadline.go` | NEW |
-| B8 | Route metadata → docs feed | `docs` | M | M | — | NEW |
-| B9 | No-leak error responses | `httpx` | S | H | `internal/security/error_handler.go`, `secure_error_handler.go` (64) | NEW |
-| C1 | SSE drop/backpressure counters | `realtime` | S | H | `/api/pipeline/sse-stats` | NEW |
-| C2 | Projection→broadcast contract | `realtime`+`cqrs` | M | H | `DashboardProjection.SubscribeFolded` | NEW |
-| C3 | Per-subscriber auth + filter | `realtime` | S | M | — | NEW |
-| D1 | Worker supervisor + pool | `worker` | M | H | `internal/pkg/worker/` (473) | NEW |
-| D2 | samber/do bridge | `do` | M | M | `internal/di/container.go` (`resolve[T]` pattern) | NEW |
-| D3 | SQLite ops kit (lease/backup/ledger) | `sqlite` | L | H | `eventstore` lease + `deadportals` ledger | NEW |
-| D4 | Atomic file write | `fs` | S | M | go-atomic-write ≥ v0.5.1 (Windows trap) | NEW |
-| D5 | Polite outbound client | `polite` | M | H | `career-pipeline/scanner/http_politeness.go` (205) | NEW |
-| D6 | Best-effort webhook sender | `webhook` | S | M | go-health-dashboard `WithWebhook` | NEW |
-| D7 | Idempotency store | `cqrs` or `worker` | S | H | `career-pipeline/eventstore/idempotency.go` (165) | NEW |
-| D8 | Scheduler (tick, jitter, single-flight) | `worker` | S | M | SystemNix timers are external; no CV port | NEW |
-| E1 | Full-chain test harness | `testkit` | M | H | `tests/integration` harness | NEW |
-| E2 | SSE test client + flake-triage helpers | `testkit` | S | H | `eventually`, `dumpFailureState` | NEW |
-| E3 | Rate-limit bucket isolation | `testkit` | S | M | `pipelineJourneyClient` XFF | NEW |
-| E4 | Middleware chain-order snapshot | `testkit`+core | S | M | implicit in CV integration tests | NEW |
-| F1 | koanf config module | `config` | M | M | CV `internal/config` | NEW |
-| F2 | Request-ID log correlation + timing | core | S | M | `internal/middleware/timing.go` (116) | ENDORSED (TODO P3) |
-| F3 | ~~README build notes (json/v2)~~ | docs | S | M | — | **DONE 2026-09-04** (README JSON v2 note existed since the execution wave; gopls false-`string literal not terminated` editor note added — core CHANGELOG [Unreleased]) |
-| F4 | Config hot-reload | `config` | M | M | `career-pipeline/profileagent/platform_spec.go` | NEW |
-| F5 | BuildInfo battery | core | S | M | `internal/version/version.go` | NEW |
-| G1 | TLS support | core | M | H | — | ENDORSED (TODO P3, PapDashboard demand) |
-| G2 | Prometheus surface in core | core | M | M | CV `/metrics` | NEW |
-| G3 | ~~Shutdown phase logging~~ | core | S | M | CV drain logs | **DONE 2026-09-04** (per-phase INFO lines + total line; core CHANGELOG [Unreleased]) |
-| G4 | Licensing + API-break check + v1 criteria | process | S | H | — | ENDORSED (TODO P1/P2) |
+| ID | Battery                                   | Module             | Effort | Impact | Port-from (CV)                                                       | Status                                                                                                                                                                  |
+| -- | ----------------------------------------- | ------------------ | ------ | ------ | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1 | CSRF middleware                           | `security`         | S      | H      | httputil `CSRFMiddleware` (already used by CV)                       | NEW                                                                                                                                                                     |
+| A2 | API-key auth + CSRF bypass                | `security`         | S      | H      | `internal/middleware/apikey.go`, `csrf_apikey_bypass.go`             | NEW                                                                                                                                                                     |
+| A3 | Rate-limit profiles (keyed)               | `security`         | S      | H      | `internal/middleware/ratelimit.go`                                   | NEW                                                                                                                                                                     |
+| A4 | Origin check                              | `security`         | S      | M      | `internal/middleware/origin_check.go`                                | NEW                                                                                                                                                                     |
+| A5 | CSP nonce + policy build                  | `security`         | M      | H      | `csp_nonce.go` + `consolidated_security.go` (690)                    | NEW                                                                                                                                                                     |
+| A6 | Text/URL sanitization                     | `security`         | S      | M      | `internal/sanitization/sanitization.go`                              | NEW                                                                                                                                                                     |
+| A7 | Env-tuned security headers (HSTS)         | core option        | S      | M      | `middleware_chain.go` `securityHeadersConfig`                        | NEW                                                                                                                                                                     |
+| A8 | Body limit                                | `security`         | S      | M      | `internal/middleware/body_limit.go` (26)                             | NEW                                                                                                                                                                     |
+| B1 | ResultHandler family                      | `httpx`            | M      | H      | `internal/middleware/result_handler.go` (452)                        | NEW                                                                                                                                                                     |
+| B2 | Bind + validation (integrated)            | `httpx`            | S      | H      | `ResultHandlerWithValidation[T,V]`, `httpx/validation.go` (154)      | NEW                                                                                                                                                                     |
+| B3 | ResponseWriter contract helper            | `httpx`/`testkit`  | S      | H      | `internal/httpx/response_writer.go` (149)                            | NEW                                                                                                                                                                     |
+| B4 | Conditional GET (ETag/304)                | `httpx`            | S      | M      | ICS handler                                                          | NEW                                                                                                                                                                     |
+| B5 | Content negotiation                       | `httpx`            | S      | M      | `/admin/health` pattern                                              | NEW                                                                                                                                                                     |
+| B6 | Route introspection + golden test         | `httpx`+`testkit`  | M      | H      | `internal/server/routes_test.go`                                     | NEW                                                                                                                                                                     |
+| B7 | Per-route write deadlines                 | `httpx`            | S      | M      | `internal/middleware/write_deadline.go`                              | NEW                                                                                                                                                                     |
+| B8 | Route metadata → docs feed                | `docs`             | M      | M      | —                                                                    | NEW                                                                                                                                                                     |
+| B9 | No-leak error responses                   | `httpx`            | S      | H      | `internal/security/error_handler.go`, `secure_error_handler.go` (64) | NEW                                                                                                                                                                     |
+| C1 | SSE drop/backpressure counters            | `realtime`         | S      | H      | `/api/pipeline/sse-stats`                                            | NEW                                                                                                                                                                     |
+| C2 | Projection→broadcast contract             | `realtime`+`cqrs`  | M      | H      | `DashboardProjection.SubscribeFolded`                                | NEW                                                                                                                                                                     |
+| C3 | Per-subscriber auth + filter              | `realtime`         | S      | M      | —                                                                    | NEW                                                                                                                                                                     |
+| D1 | Worker supervisor + pool                  | `worker`           | M      | H      | `internal/pkg/worker/` (473)                                         | NEW                                                                                                                                                                     |
+| D2 | samber/do bridge                          | `do`               | M      | M      | `internal/di/container.go` (`resolve[T]` pattern)                    | NEW                                                                                                                                                                     |
+| D3 | SQLite ops kit (lease/backup/ledger)      | `sqlite`           | L      | H      | `eventstore` lease + `deadportals` ledger                            | NEW                                                                                                                                                                     |
+| D4 | Atomic file write                         | `fs`               | S      | M      | go-atomic-write ≥ v0.5.1 (Windows trap)                              | NEW                                                                                                                                                                     |
+| D5 | Polite outbound client                    | `polite`           | M      | H      | `career-pipeline/scanner/http_politeness.go` (205)                   | NEW                                                                                                                                                                     |
+| D6 | Best-effort webhook sender                | `webhook`          | S      | M      | go-health-dashboard `WithWebhook`                                    | NEW                                                                                                                                                                     |
+| D7 | Idempotency store                         | `cqrs` or `worker` | S      | H      | `career-pipeline/eventstore/idempotency.go` (165)                    | NEW                                                                                                                                                                     |
+| D8 | Scheduler (tick, jitter, single-flight)   | `worker`           | S      | M      | SystemNix timers are external; no CV port                            | NEW                                                                                                                                                                     |
+| E1 | Full-chain test harness                   | `testkit`          | M      | H      | `tests/integration` harness                                          | NEW                                                                                                                                                                     |
+| E2 | SSE test client + flake-triage helpers    | `testkit`          | S      | H      | `eventually`, `dumpFailureState`                                     | NEW                                                                                                                                                                     |
+| E3 | Rate-limit bucket isolation               | `testkit`          | S      | M      | `pipelineJourneyClient` XFF                                          | NEW                                                                                                                                                                     |
+| E4 | Middleware chain-order snapshot           | `testkit`+core     | S      | M      | implicit in CV integration tests                                     | NEW                                                                                                                                                                     |
+| F1 | koanf config module                       | `config`           | M      | M      | CV `internal/config`                                                 | NEW                                                                                                                                                                     |
+| F2 | Request-ID log correlation + timing       | core               | S      | M      | `internal/middleware/timing.go` (116)                                | ENDORSED (TODO P3)                                                                                                                                                      |
+| F3 | ~~README build notes (json/v2)~~          | docs               | S      | M      | —                                                                    | **DONE 2026-09-04** (README JSON v2 note existed since the execution wave; gopls false-`string literal not terminated` editor note added — core CHANGELOG [Unreleased]) |
+| F4 | Config hot-reload                         | `config`           | M      | M      | `career-pipeline/profileagent/platform_spec.go`                      | NEW                                                                                                                                                                     |
+| F5 | BuildInfo battery                         | core               | S      | M      | `internal/version/version.go`                                        | NEW                                                                                                                                                                     |
+| G1 | TLS support                               | core               | M      | H      | —                                                                    | ENDORSED (TODO P3, PapDashboard demand)                                                                                                                                 |
+| G2 | Prometheus surface in core                | core               | M      | M      | CV `/metrics`                                                        | NEW                                                                                                                                                                     |
+| G3 | ~~Shutdown phase logging~~                | core               | S      | M      | CV drain logs                                                        | **DONE 2026-09-04** (per-phase INFO lines + total line; core CHANGELOG [Unreleased])                                                                                    |
+| G4 | Licensing + API-break check + v1 criteria | process            | S      | H      | —                                                                    | ENDORSED (TODO P1/P2)                                                                                                                                                   |
 
 ---
 
@@ -533,14 +533,14 @@ CV's `cv --version` stamps `main.version/commit/date`; go-health already takes `
 
 # Sequencing
 
-| Wave | Items | Gate to next wave |
-| --- | --- | --- |
-| **W0 (process, parallel)** | G4 licensing, F3 README | pkg.go.dev renders all modules |
-| **W1 foundations** | G1 TLS, G2 metrics, G3 shutdown logs, F2 timing, E1 testkit core, F5 buildinfo | testkit verifies every later battery |
-| **W2 security** | A2, A3, A4, A8, A6 (quick wins) then A1, A5, A7 | 429-bypass + CSP-pin tests green upstream |
-| **W3 handler DX** | B1, B2, B9 then B3, B4, B5, B7, then B6, B8 | classification-parity vs errorpages pinned |
-| **W4 ops & data** | D7, D4, D6 (small) then D1, D5, then D3, D2, D8, F1, F4 | lease + politeness pin-tests ported |
-| **W5 realtime** | C1, C3, then C2 | folded-broadcast discriminator green |
+| Wave                       | Items                                                                          | Gate to next wave                          |
+| -------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------ |
+| **W0 (process, parallel)** | G4 licensing, F3 README                                                        | pkg.go.dev renders all modules             |
+| **W1 foundations**         | G1 TLS, G2 metrics, G3 shutdown logs, F2 timing, E1 testkit core, F5 buildinfo | testkit verifies every later battery       |
+| **W2 security**            | A2, A3, A4, A8, A6 (quick wins) then A1, A5, A7                                | 429-bypass + CSP-pin tests green upstream  |
+| **W3 handler DX**          | B1, B2, B9 then B3, B4, B5, B7, then B6, B8                                    | classification-parity vs errorpages pinned |
+| **W4 ops & data**          | D7, D4, D6 (small) then D1, D5, then D3, D2, D8, F1, F4                        | lease + politeness pin-tests ported        |
+| **W5 realtime**            | C1, C3, then C2                                                                | folded-broadcast discriminator green       |
 
 ---
 

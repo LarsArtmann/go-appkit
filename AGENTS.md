@@ -85,17 +85,17 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Core Module — Code Organization
 
-| File              | Concern                                                                                                                                                                                                          |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| File              | Concern                                                                                                                                                                                                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `service.go`      | `Service` type: NewService, Start, Run, Shutdown (runs ShutdownHooks once, after connections are released; errors joined; emits per-phase INFO lines — see Gotchas), Close, Addr, Running. Owns `http.Server` + `net.Listener` + `readyProbe atomic.Bool`. |
-| `config.go`       | `ServiceConfig` struct (`OuterMiddlewares`, `DrainHooks`, `ShutdownHooks`), `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`. Sentinels: `NoTimeout` (-1), `NoDrainDelay` (-2).                                       |
-| `middleware.go`   | `defaultMiddlewareStack()` + `buildMiddleware()` + `concatMiddlewares()`. Order: OuterMiddlewares → (Middlewares replacement                                                                                     |
-| `logger.go`       | `LogLevel`/`LogFormat` types, `InitLogger()` using charmbracelet/log (Logger IS slog.Handler).                                                                                                                   |
-| `health.go`       | `RegisterHealth(mux)` delegates to httputil. `ReadyHandlerWithProbe(ready)`.                                                                                                                                     |
-| `errors.go`       | Re-exports `HTTPStatus()` and `LogError()` from go-error-family.                                                                                                                                                 |
-| `shutdown.go`     | `WaitForSignal()` for SIGINT/SIGTERM. Preserved for backward compat.                                                                                                                                             |
-| `doc.go`          | Package doc statement.                                                                                                                                                                                           |
-| `example/main.go` | 12-line demo service.                                                                                                                                                                                            |
+| `config.go`       | `ServiceConfig` struct (`OuterMiddlewares`, `DrainHooks`, `ShutdownHooks`), `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`. Sentinels: `NoTimeout` (-1), `NoDrainDelay` (-2).                                                                   |
+| `middleware.go`   | `defaultMiddlewareStack()` + `buildMiddleware()` + `concatMiddlewares()`. Order: OuterMiddlewares → (Middlewares replacement                                                                                                                               |
+| `logger.go`       | `LogLevel`/`LogFormat` types, `InitLogger()` using charmbracelet/log (Logger IS slog.Handler).                                                                                                                                                             |
+| `health.go`       | `RegisterHealth(mux)` delegates to httputil. `ReadyHandlerWithProbe(ready)`.                                                                                                                                                                               |
+| `errors.go`       | Re-exports `HTTPStatus()` and `LogError()` from go-error-family.                                                                                                                                                                                           |
+| `shutdown.go`     | `WaitForSignal()` for SIGINT/SIGTERM. Preserved for backward compat.                                                                                                                                                                                       |
+| `doc.go`          | Package doc statement.                                                                                                                                                                                                                                     |
+| `example/main.go` | 12-line demo service.                                                                                                                                                                                                                                      |
 
 ## Realtime Module — Code Organization
 
@@ -152,12 +152,12 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Health Module — Code Organization
 
-| File         | Concern                                                                                                                                        |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `doc.go`     | Package doc: quick start, route map, lifecycle ordering (Start → Run; DrainHooks → ShutdownHooks), aliasing guidance, GOEXPERIMENT note.        |
-| `probe.go`   | `NewProbe(checks, opts...)` — injector-free go-health probe from a `map[string]CheckFunc`; concurrent per-check batches (`wg.Go`), per-check panic isolation (`errorfamily.Infrastructure` `health.check_panicked`), SDK options pass through (`WithCriticalServices`, `WithTimeout`, …). |
-| `mount.go`   | `New(probe, opts...)` + `Mounted.RegisterRoutes(mux)` + `Mount(mux, ...)` sugar; `Mounted` lifecycle: `Start(ctx)` (initial sync batch + refresh + pusher), `Drain()` (probe → 503), `Shutdown(ctx)` (idempotent, re-Start legal), `Ready()`, `Probe()`, `Dashboard()`; options `WithDashboard(opts...)` (opt-in), `WithProbeRoutes(health.Routes)`. |
-| `example/`   | Demo service: critical + flapping non-critical check, dashboard w/ trend + metrics, full appkit wiring; verified live E2E (lockstep drain 503s). Local `replace ../` to core — REMOVE AT RELEASE TIME. |
+| File       | Concern                                                                                                                                                                                                                                                                                                                                              |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`   | Package doc: quick start, route map, lifecycle ordering (Start → Run; DrainHooks → ShutdownHooks), aliasing guidance, GOEXPERIMENT note.                                                                                                                                                                                                             |
+| `probe.go` | `NewProbe(checks, opts...)` — injector-free go-health probe from a `map[string]CheckFunc`; concurrent per-check batches (`wg.Go`), per-check panic isolation (`errorfamily.Infrastructure` `health.check_panicked`), SDK options pass through (`WithCriticalServices`, `WithTimeout`, …).                                                            |
+| `mount.go` | `New(probe, opts...)` + `Mounted.RegisterRoutes(mux)` + `Mount(mux, ...)` sugar; `Mounted` lifecycle: `Start(ctx)` (initial sync batch + refresh + pusher), `Drain()` (probe → 503), `Shutdown(ctx)` (idempotent, re-Start legal), `Ready()`, `Probe()`, `Dashboard()`; options `WithDashboard(opts...)` (opt-in), `WithProbeRoutes(health.Routes)`. |
+| `example/` | Demo service: critical + flapping non-critical check, dashboard w/ trend + metrics, full appkit wiring; verified live E2E (lockstep drain 503s). Local `replace ../` to core — REMOVE AT RELEASE TIME.                                                                                                                                               |
 
 - NO core dependency (mount works on any `*http.ServeMux`); the appkit composition is config-level (`DrainHooks`/`ShutdownHooks`/`ReadyCheck`).
 - Consumers alias this module as `appkithealth` when they also import go-health (both packages are named `health`).
@@ -226,17 +226,17 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## cqrs Module Dependencies
 
-| Module                                                  | Version | Role                                                                       |
-| ------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
-| `github.com/larsartmann/go-cqrs-lite/stack/v4`          | v4.3.0  | Bundle (events, commands, queries, snapshots, checkpoints)                 |
-| `github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4`   | v4.3.0  | SQLite preset (WAL, `SetMaxOpenConns(1)` via `ConfigureSQLitePool`)        |
-| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4` | v4.4.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                 |
-| `github.com/larsartmann/go-cqrs-lite/event/v4`          | v4.9.0  | Event types, stream refs, event construction                               |
-| `github.com/larsartmann/go-cqrs-lite/id/v4`             | v4.5.0  | Branded IDs (stream, event)                                                |
-| `github.com/larsartmann/go-cqrs-lite/projection/v4`     | v4.3.0  | Projection type and `NewProjection`                                        |
+| Module                                                  | Version | Role                                                                                     |
+| ------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
+| `github.com/larsartmann/go-cqrs-lite/stack/v4`          | v4.3.0  | Bundle (events, commands, queries, snapshots, checkpoints)                               |
+| `github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4`   | v4.3.0  | SQLite preset (WAL, `SetMaxOpenConns(1)` via `ConfigureSQLitePool`)                      |
+| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4` | v4.4.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                               |
+| `github.com/larsartmann/go-cqrs-lite/event/v4`          | v4.9.0  | Event types, stream refs, event construction                                             |
+| `github.com/larsartmann/go-cqrs-lite/id/v4`             | v4.5.0  | Branded IDs (stream, event)                                                              |
+| `github.com/larsartmann/go-cqrs-lite/projection/v4`     | v4.3.0  | Projection type and `NewProjection`                                                      |
 | `github.com/larsartmann/go-flightrecorder`              | v0.2.0  | Flight recorder (projectionhost v4.4.0 unified on it; shared with appkit/flightrecorder) |
-| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.8.1  | indirect                                                                   |
-| `github.com/larsartmann/go-error-family`                | v0.10.0 | Error classification (shared with core)                                    |
+| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.8.1  | indirect                                                                                 |
+| `github.com/larsartmann/go-error-family`                | v0.10.0 | Error classification (shared with core)                                                  |
 
 - Migrated to v4 on 2026-08-15 (was v3.7.x). Migration guide: go-cqrs-lite `docs/migration/MIGRATION-GUIDE.md`.
 - **GOEXPERIMENT=jsonv2 required** (codec/v4 → encoding/json/jsontext).
@@ -306,11 +306,11 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Integration Module — Code Organization
 
-| File                  | Concern                                                                                                                        |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `doc.go`              | Package doc: cross-module + cross-repo E2E compositions; never released.                                                       |
-| `integration_test.go` | 2 E2E tests: SSE header flush through the appkit default stack; journal replay via cqrs-htmx `transport.JournalSSEStore`.       |
-| `.golangci.yml`       | Cloned from realtime's module config (go 1.26.7).                                                                              |
+| File                  | Concern                                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`              | Package doc: cross-module + cross-repo E2E compositions; never released.                                                  |
+| `integration_test.go` | 2 E2E tests: SSE header flush through the appkit default stack; journal replay via cqrs-htmx `transport.JournalSSEStore`. |
+| `.golangci.yml`       | Cloned from realtime's module config (go 1.26.7).                                                                         |
 
 - **Pins PUBLISHED tags only** (`go-appkit v0.3.0`, `realtime v0.1.0`, `cqrs-htmx v4.9.0`) — it always tests exactly what a fresh consumer resolves from the proxy. Post-v0.3.0 APIs (e.g. `NoDrainDelay`) are intentionally unavailable; tests use a 1ms explicit `DrainDelay`.
 - `TestSSEHeadersFlushThroughAppkitDefaultStack` ports the cqrs-htmx ADR-001 spike's M18.3 flush test: headers must arrive well before the first event through appkit's full default middleware stack (Recovery → RequestID → Logging → SecurityHeaders).
@@ -356,12 +356,12 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 ## Deferred Register (deliberately NOT built — trigger conditions only)
 
-| Item | Trigger to revisit |
-| ---- | ------------------ |
-| cqrs EventConfig opt-ins: encryption/v4, signing/v4, idempotency/sqlstore, scheduling | A real consumer asks for it |
-| Core TLS option | PapDashboard `PAP_TLS_CERT/KEY` becomes an appkit-hosting requirement |
-| Cordis bridge module | cordis tags go/v0.1.0 AND a consumer states the reactive-composition requirement AND core v1.0.0 exit criteria shipped (`docs/planning/core-v1-exit-criteria.md`) |
-| PapDashboard appkit-side code | They ship an appkit-hosted release (reverse adoption — their repo, not ours) |
-| BuildFlow dprint exit-14 on CHANGELOG-only commits | Fix belongs upstream in buildflow: skip the dprint step (or pass `--allow-no-files`) when the staged file set ∩ dprint's non-excluded set is empty. dprint.json excludes `**/CHANGELOG.md`; removing the exclude was rejected because the resulting formatting churn cannot be dry-run verified here (no standalone dprint binary). Escape hatch until then: `git commit --no-verify` + justification. |
-| httputil `docs/integrations/huma.md` 404 on GitHub | File exists unpushed in the httputil repo — push it, then optionally re-link from `docs/planning/design-decisions.md` Decision 7 (currently inlined instead) |
-| cqrs-lint yaml `exclude_patterns` | Inert in installed binary f7e33e03 despite source comment "removes rules by name" — file a buildflow-style fix in go-structure-linter or wait for a newer binary |
+| Item                                                                                  | Trigger to revisit                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| cqrs EventConfig opt-ins: encryption/v4, signing/v4, idempotency/sqlstore, scheduling | A real consumer asks for it                                                                                                                                                                                                                                                                                                                                                                            |
+| Core TLS option                                                                       | PapDashboard `PAP_TLS_CERT/KEY` becomes an appkit-hosting requirement                                                                                                                                                                                                                                                                                                                                  |
+| Cordis bridge module                                                                  | cordis tags go/v0.1.0 AND a consumer states the reactive-composition requirement AND core v1.0.0 exit criteria shipped (`docs/planning/core-v1-exit-criteria.md`)                                                                                                                                                                                                                                      |
+| PapDashboard appkit-side code                                                         | They ship an appkit-hosted release (reverse adoption — their repo, not ours)                                                                                                                                                                                                                                                                                                                           |
+| BuildFlow dprint exit-14 on CHANGELOG-only commits                                    | Fix belongs upstream in buildflow: skip the dprint step (or pass `--allow-no-files`) when the staged file set ∩ dprint's non-excluded set is empty. dprint.json excludes `**/CHANGELOG.md`; removing the exclude was rejected because the resulting formatting churn cannot be dry-run verified here (no standalone dprint binary). Escape hatch until then: `git commit --no-verify` + justification. |
+| httputil `docs/integrations/huma.md` 404 on GitHub                                    | File exists unpushed in the httputil repo — push it, then optionally re-link from `docs/planning/design-decisions.md` Decision 7 (currently inlined instead)                                                                                                                                                                                                                                           |
+| cqrs-lint yaml `exclude_patterns`                                                     | Inert in installed binary f7e33e03 despite source comment "removes rules by name" — file a buildflow-style fix in go-structure-linter or wait for a newer binary                                                                                                                                                                                                                                       |
