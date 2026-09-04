@@ -599,8 +599,12 @@ func (s *blockingStore) EventsAfter(lastID sse.EventID) ([]sse.Event, error) {
 // before reading the replay store: an event broadcast while the store read is
 // blocked (and therefore NOT in the replay snapshot) still reaches the client
 // after the replayed events. The old replay-then-subscribe order lost it.
-func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
-	t.Parallel()
+// connectReplayClient starts a realtime hub over a blockingStore preloaded
+// with three replay events, mounts it, and connects an SSE client resuming
+// from Last-Event-ID 1. The returned release channel unblocks the store
+// read; broadcasts issued before release are buffered, not lost.
+func connectReplayClient(t *testing.T) (hub *realtime.Hub, resp *http.Response, release chan struct{}) {
+	t.Helper()
 
 	store := &blockingStore{
 		inner: &memStore{events: []sse.Event{
@@ -611,12 +615,12 @@ func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
 		release: make(chan struct{}),
 	}
 
-	hub := realtime.NewHub(realtime.WithStore(store))
+	hub = realtime.NewHub(realtime.WithStore(store))
 	mux := http.NewServeMux()
 	realtime.Mount(mux, "GET /events", hub, realtime.WithHeartbeat(0))
 
 	server := httptest.NewServer(mux)
-	defer server.Close()
+	t.Cleanup(server.Close)
 
 	req, err := http.NewRequestWithContext(
 		context.Background(), http.MethodGet, server.URL+"/events", nil)
@@ -626,12 +630,20 @@ func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
 
 	req.Header.Set("Last-Event-ID", "1")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err = http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("connect: %v", err)
 	}
 
-	defer func() { _ = resp.Body.Close() }()
+	t.Cleanup(func() { _ = resp.Body.Close() })
+
+	return hub, resp, store.release
+}
+
+func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
+	t.Parallel()
+
+	hub, resp, release := connectReplayClient(t)
 
 	// The handler subscribes before reading the store: once the subscriber
 	// count is 1 while the store read is still blocked, any broadcast is
@@ -640,7 +652,7 @@ func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
 
 	hub.Broadcast(sse.Event{Event: "live", Data: "gap", ID: mustParseID("5")})
 
-	close(store.release)
+	close(release)
 
 	events := ssetest.MustReadNEvents(t, resp.Body, 3)
 	if events[0].Data() != "2" {
@@ -662,36 +674,7 @@ func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
 func TestHandler_ReplayLiveDedup(t *testing.T) {
 	t.Parallel()
 
-	store := &blockingStore{
-		inner: &memStore{events: []sse.Event{
-			{Event: "old", Data: "1", ID: mustParseID("1")},
-			{Event: "old", Data: "2", ID: mustParseID("2")},
-			{Event: "old", Data: "3", ID: mustParseID("3")},
-		}},
-		release: make(chan struct{}),
-	}
-
-	hub := realtime.NewHub(realtime.WithStore(store))
-	mux := http.NewServeMux()
-	realtime.Mount(mux, "GET /events", hub, realtime.WithHeartbeat(0))
-
-	server := httptest.NewServer(mux)
-	defer server.Close()
-
-	req, err := http.NewRequestWithContext(
-		context.Background(), http.MethodGet, server.URL+"/events", nil)
-	if err != nil {
-		t.Fatalf("new request: %v", err)
-	}
-
-	req.Header.Set("Last-Event-ID", "1")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		t.Fatalf("connect: %v", err)
-	}
-
-	defer func() { _ = resp.Body.Close() }()
+	hub, resp, release := connectReplayClient(t)
 
 	waitForSubscriber(t, hub, 1)
 
@@ -700,7 +683,7 @@ func TestHandler_ReplayLiveDedup(t *testing.T) {
 	hub.Broadcast(sse.Event{Event: "old", Data: "2", ID: mustParseID("2")})
 	hub.Broadcast(sse.Event{Event: "live", Data: "7", ID: mustParseID("7")})
 
-	close(store.release)
+	close(release)
 
 	events := ssetest.MustReadNEvents(t, resp.Body, 3)
 

@@ -113,6 +113,18 @@ func startRecorder(t *testing.T, rec *fr.Recorder) func() {
 	}
 }
 
+// newStartedRecorder returns a fresh recorder that is already started and
+// stopped/closed automatically when the test ends, plus its trace output
+// path.
+func newStartedRecorder(t *testing.T) (*fr.Recorder, string) {
+	t.Helper()
+
+	rec, tracePath := newTestRecorder(t)
+	t.Cleanup(startRecorder(t, rec))
+
+	return rec, tracePath
+}
+
 // assertTraceWritten verifies that a non-empty trace file was created.
 func assertTraceWritten(t *testing.T, path string) {
 	t.Helper()
@@ -144,10 +156,7 @@ func assertTraceNotWritten(t *testing.T, path string) {
 // --- Middleware trigger tests ---
 
 func TestMiddleware_CapturesOnError(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, fr.OnError())
 
@@ -167,10 +176,7 @@ func TestMiddleware_CapturesOnError(t *testing.T) {
 }
 
 func TestMiddleware_CapturesOnLatency(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, fr.OnLatency(50*time.Millisecond))
 
@@ -187,10 +193,7 @@ func TestMiddleware_CapturesOnLatency(t *testing.T) {
 }
 
 func TestMiddleware_DoesNotCaptureOnSuccess(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, fr.OnErrorOrLatency(1*time.Second))
 
@@ -206,10 +209,7 @@ func TestMiddleware_DoesNotCaptureOnSuccess(t *testing.T) {
 }
 
 func TestMiddleware_CapturesOnErrorOrLatency_ErrorCase(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, fr.OnErrorOrLatency(1*time.Second))
 
@@ -225,10 +225,7 @@ func TestMiddleware_CapturesOnErrorOrLatency_ErrorCase(t *testing.T) {
 }
 
 func TestMiddleware_CapturesOnErrorOrLatency_LatencyCase(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, fr.OnErrorOrLatency(50*time.Millisecond))
 
@@ -247,10 +244,7 @@ func TestMiddleware_CapturesOnErrorOrLatency_LatencyCase(t *testing.T) {
 // --- Middleware option tests ---
 
 func TestMiddleware_WithErrorThreshold(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	// With threshold 400, a 404 should count as error
 	mw := appkitfr.Middleware(rec, fr.OnError(),
@@ -269,10 +263,7 @@ func TestMiddleware_WithErrorThreshold(t *testing.T) {
 }
 
 func TestMiddleware_WithErrorThreshold_NotTriggeredBelow(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	// Default threshold is 500, so 404 alone should NOT trigger OnError
 	mw := appkitfr.Middleware(rec, fr.OnError())
@@ -289,10 +280,7 @@ func TestMiddleware_WithErrorThreshold_NotTriggeredBelow(t *testing.T) {
 }
 
 func TestMiddleware_WithLogger(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	var buf bytes.Buffer
 
@@ -323,10 +311,7 @@ func TestMiddleware_WithLogger(t *testing.T) {
 }
 
 func TestMiddleware_WithAutoResetDisabled(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, fr.OnError(),
 		appkitfr.WithAutoReset(false),
@@ -391,10 +376,7 @@ func TestMiddleware_AutoResetDefault_AllowsMultipleCaptures(t *testing.T) {
 }
 
 func TestMiddleware_NilTriggerNeverCaptures(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, nil)
 
@@ -412,10 +394,7 @@ func TestMiddleware_NilTriggerNeverCaptures(t *testing.T) {
 // --- Handler tests ---
 
 func TestSnapshotHandler_Success(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	handler := appkitfr.SnapshotHandler(rec)
 
@@ -499,10 +478,7 @@ func TestSnapshotHandler_ResetBeforeSnapshot(t *testing.T) {
 // --- Mount tests ---
 
 func TestMount_RegistersHandler(t *testing.T) {
-	rec, tracePath := newTestRecorder(t)
-
-	cleanup := startRecorder(t, rec)
-	defer cleanup()
+	rec, tracePath := newStartedRecorder(t)
 
 	mux := http.NewServeMux()
 	appkitfr.Mount(mux, "POST /debug/snapshot", rec)
