@@ -3,6 +3,7 @@ package integration_test
 import (
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"testing"
@@ -60,7 +61,8 @@ func newSSEService(t *testing.T, hub *realtime.Hub) *appkit.Service {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		if err := svc.Shutdown(ctx); err != nil {
+		err := svc.Shutdown(ctx)
+		if err != nil {
 			t.Errorf("shutdown: %v", err)
 		}
 
@@ -94,8 +96,14 @@ func freeAddr(t *testing.T) string {
 
 // connect opens an SSE connection to the service, optionally carrying a
 // Last-Event-ID cursor. readTimeout caps the whole connection (headers plus
-// body reads) via http.Client.Timeout.
-func connect(t *testing.T, svc *appkit.Service, lastEventID string, readTimeout time.Duration) *http.Response {
+// body reads) via http.Client.Timeout. The body is closed via t.Cleanup;
+// ownership transfers to the caller only for reading.
+func connect(
+	t *testing.T,
+	svc *appkit.Service,
+	lastEventID string,
+	readTimeout time.Duration,
+) (io.ReadCloser, http.Header) {
 	t.Helper()
 
 	req, err := http.NewRequestWithContext(
@@ -116,10 +124,11 @@ func connect(t *testing.T, svc *appkit.Service, lastEventID string, readTimeout 
 	t.Cleanup(func() { _ = resp.Body.Close() })
 
 	if resp.StatusCode != http.StatusOK {
+		_ = resp.Body.Close()
 		t.Fatalf("status = %d, want 200", resp.StatusCode)
 	}
 
-	return resp
+	return resp.Body, resp.Header
 }
 
 // TestSSEHeadersFlushThroughAppkitDefaultStack mirrors the cqrs-htmx
@@ -139,10 +148,10 @@ func TestSSEHeadersFlushThroughAppkitDefaultStack(t *testing.T) {
 
 	start := time.Now()
 
-	resp := connect(t, svc, "", 10*time.Second)
+	body, header := connect(t, svc, "", 10*time.Second)
 	headerElapsed := time.Since(start)
 
-	if ct := resp.Header.Get("Content-Type"); ct != "text/event-stream" {
+	if ct := header.Get("Content-Type"); ct != "text/event-stream" {
 		t.Fatalf("content-type = %q, want text/event-stream", ct)
 	}
 
@@ -151,7 +160,7 @@ func TestSSEHeadersFlushThroughAppkitDefaultStack(t *testing.T) {
 			headerElapsed, eventDelay)
 	}
 
-	evt := ssetest.MustReadNEvents(t, resp.Body, 1)[0]
+	evt := ssetest.MustReadNEvents(t, body, 1)[0]
 
 	if evt.Type != "ping" {
 		t.Fatalf("event type = %q, want ping", evt.Type)
@@ -182,25 +191,25 @@ func TestJournalBackedReplayThroughAppkitService(t *testing.T) {
 	// history: replay is a reconnect mechanism, not a cold-start backfill.
 	// The heartbeat (15s) lies far beyond the 300ms probe budget, so any
 	// frame within the budget would have to be a replayed journal event.
-	fresh := connect(t, svc, "", 300*time.Millisecond)
+	fresh, _ := connect(t, svc, "", 300*time.Millisecond)
 
-	_, readErr := ssetest.ReadNEvents(fresh.Body, 1)
+	_, readErr := ssetest.ReadNEvents(fresh, 1)
 	if readErr == nil {
 		t.Fatal("first connection received an event, want no cold-start replay")
 	}
 
 	// Reconnect with a Last-Event-ID cursor: exactly the missed suffix
 	// (event 2) is replayed from the journal through the full stack.
-	reconnected := connect(t, svc, events[0].ID().String(), 10*time.Second)
+	reconnected, _ := connect(t, svc, events[0].ID().String(), 10*time.Second)
 
-	after := ssetest.MustReadNEvents(t, reconnected.Body, 1)[0]
+	after := ssetest.MustReadNEvents(t, reconnected, 1)[0]
 	ssetest.RequireEventID(t, after, events[1].ID().String())
 	ssetest.RequireEventType(t, after, "event")
 
 	// Live broadcasts interleave on the reconnected stream.
 	hub.Broadcast(sse.Event{Event: "live", Data: "{}", ID: sse.NewEventID("live-1")})
 
-	live := ssetest.MustReadNEvents(t, reconnected.Body, 1)[0]
+	live := ssetest.MustReadNEvents(t, reconnected, 1)[0]
 	ssetest.RequireEventID(t, live, "live-1")
 }
 
@@ -235,7 +244,8 @@ func appendBatch(t *testing.T, store *memory.MemoryStore, events []event.Event) 
 	t.Helper()
 
 	ref := id.StreamRef{ID: events[0].StreamID(), Type: "test"}
-	if err := store.AppendBatch(context.Background(), ref, events); err != nil {
+	err := store.AppendBatch(context.Background(), ref, events)
+	if err != nil {
 		t.Fatalf("append batch: %v", err)
 	}
 }
