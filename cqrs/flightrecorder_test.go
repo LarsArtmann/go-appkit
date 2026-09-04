@@ -207,3 +207,150 @@ func TestEventConfig_FlightRecorderTrigger_ReceivesProjectionContext(t *testing.
 		return buf.Len() > 0
 	})
 }
+
+// NOT parallel: holds the single process-global flight recorder slot.
+func TestEventConfig_FlightRecorderTrigger_FalseGateSkipsCapture(t *testing.T) {
+	recorderMu.lock()
+	defer recorderMu.unlock()
+
+	buf := &syncBuffer{}
+
+	rec, err := fr.New(fr.WithWriter(buf), fr.WithMinAge(time.Nanosecond))
+	if err != nil {
+		t.Fatalf("create recorder: %v", err)
+	}
+
+	err = rec.Start()
+	if err != nil {
+		t.Fatalf("start recorder: %v", err)
+	}
+
+	defer rec.Stop()
+
+	eventSvc, err := NewEventService(EventConfig{
+		SQLitePath:     t.TempDir() + "/test.db",
+		FlightRecorder: rec,
+		// Gate refuses every capture.
+		FlightRecorderTrigger: func(fr.TriggerContext) bool { return false },
+		HostOptions: []projectionhost.HostOption{
+			projectionhost.WithMaxRestarts(0),
+			projectionhost.WithBackoff(time.Nanosecond, time.Nanosecond),
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	proj := projection.NewProjection(
+		"gate-projection",
+		func(_ context.Context, _ event.Event) error {
+			return errors.New("terminal failure")
+		},
+		[]event.Type{"test.gate"},
+	)
+
+	err = eventSvc.Host().Register(proj)
+	if err != nil {
+		t.Fatalf("register projection: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, "test.gate")
+
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "worker to reach WorkerFailed", func() bool {
+		for _, state := range eventSvc.Host().Status() {
+			if state.Name == "gate-projection" && state.Status == projectionhost.WorkerFailed {
+				return true
+			}
+		}
+
+		return false
+	})
+
+	// The trigger runs synchronously before the terminal transition, so once
+	// WorkerFailed is observed the capture decision is final: no delayed
+	// write can appear after this point (restarts are zero, worker is dead).
+	time.Sleep(250 * time.Millisecond)
+
+	if buf.Len() != 0 {
+		t.Fatalf("gated trigger captured anyway: %d bytes", buf.Len())
+	}
+}
+
+// NOT parallel: holds the single process-global flight recorder slot.
+func TestEventConfig_FlightRecorder_DerivedWiringWinsOverHostOptions(t *testing.T) {
+	recorderMu.lock()
+	defer recorderMu.unlock()
+
+	derivedBuf := &syncBuffer{}
+	otherBuf := &syncBuffer{}
+
+	rec, err := fr.New(fr.WithWriter(derivedBuf), fr.WithMinAge(time.Nanosecond))
+	if err != nil {
+		t.Fatalf("create derived recorder: %v", err)
+	}
+
+	err = rec.Start()
+	if err != nil {
+		t.Fatalf("start derived recorder: %v", err)
+	}
+
+	defer rec.Stop()
+
+	// Deliberately NOT started: if the consumer HostOption wrongly won, the
+	// snapshot would go here (a no-op on an unstarted recorder) instead of
+	// the derived recorder, and the derived buffer would stay empty.
+	other, err := fr.New(fr.WithWriter(otherBuf), fr.WithMinAge(time.Nanosecond))
+	if err != nil {
+		t.Fatalf("create other recorder: %v", err)
+	}
+
+	eventSvc, err := NewEventService(EventConfig{
+		SQLitePath:     t.TempDir() + "/test.db",
+		FlightRecorder: rec,
+		HostOptions: []projectionhost.HostOption{
+			projectionhost.WithFlightRecorder(other, nil),
+			projectionhost.WithMaxRestarts(0),
+			projectionhost.WithBackoff(time.Nanosecond, time.Nanosecond),
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	proj := projection.NewProjection(
+		"precedence-projection",
+		func(_ context.Context, _ event.Event) error {
+			return errors.New("terminal failure")
+		},
+		[]event.Type{"test.precedence"},
+	)
+
+	err = eventSvc.Host().Register(proj)
+	if err != nil {
+		t.Fatalf("register projection: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, "test.precedence")
+
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "trace snapshot in derived recorder buffer", func() bool {
+		return derivedBuf.Len() > 0
+	})
+
+	if otherBuf.Len() != 0 {
+		t.Fatalf("consumer HostOption captured instead of derived wiring: %d bytes", otherBuf.Len())
+	}
+}
