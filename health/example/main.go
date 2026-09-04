@@ -71,12 +71,16 @@ func main() {
 		log.Fatalf("service: %v", err)
 	}
 
-	// Method-less "/" on purpose: the dashboard registers method-agnostic
-	// routes (/health), and a "GET /" catch-all trips Go's ServeMux
-	// precedence rules ("matches more methods than GET /").
-	svc.Mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
+	// Method-less "/hello" on purpose: the dashboard registers
+	// method-agnostic routes (/health), and a "GET /" catch-all trips Go's
+	// ServeMux precedence rules ("matches more methods than GET /").
+	svc.Mux.HandleFunc("/hello", func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintln(w, "hello from appkit") //nolint:errcheck // demo handler
 	})
+
+	// Keep a load-balancer-facing readiness endpoint alongside the probe's
+	// /readyz — both report 503 during the drain window.
+	svc.Mux.HandleFunc("GET /health/ready", appkit.ReadyHandlerWithProbe(mounted.Ready))
 
 	mounted.RegisterRoutes(svc.Mux)
 
