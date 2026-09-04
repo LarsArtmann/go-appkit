@@ -2,9 +2,9 @@ package health
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/go-health"
 )
 
@@ -41,10 +41,7 @@ func NewProbe(checks map[string]CheckFunc, opts ...health.Option) *health.Probe 
 		)
 
 		for name, check := range checks {
-			wg.Add(1)
-
-			go func() {
-				defer wg.Done()
+			wg.Go(func() {
 				defer recordCheckPanic(name, results, &mu)
 
 				err := check(ctx)
@@ -52,7 +49,7 @@ func NewProbe(checks map[string]CheckFunc, opts ...health.Option) *health.Probe 
 				mu.Lock()
 				results[name] = err
 				mu.Unlock()
-			}()
+			})
 		}
 
 		wg.Wait()
@@ -75,5 +72,11 @@ func recordCheckPanic(name string, results map[string]error, mu *sync.Mutex) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	results[name] = fmt.Errorf("check %q panicked: %v", name, recovered)
+	results[name] = errorfamily.Newf(
+		errorfamily.Infrastructure,
+		"health.check_panicked",
+		"check %q panicked: %v",
+		name,
+		recovered,
+	)
 }

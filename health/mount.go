@@ -66,12 +66,17 @@ func New(probe *health.Probe, opts ...MountOption) (*Mounted, error) {
 		)
 	}
 
-	cfg := mountConfig{probeRoutes: health.DefaultRoutes()}
+	cfg := mountConfig{ //nolint:exhaustruct // dashboard fields default to disabled
+		probeRoutes: health.DefaultRoutes(),
+	}
 	for _, opt := range opts {
 		opt(&cfg)
 	}
 
-	m := &Mounted{probe: probe, probeRoutes: cfg.probeRoutes}
+	m := &Mounted{ //nolint:exhaustruct // dashboard, mu, started are deliberate zero values
+		probe:       probe,
+		probeRoutes: cfg.probeRoutes,
+	}
 
 	if cfg.dashboardEnabled {
 		m.dashboard = dashboard.New(probe, cfg.dashboardOptions...)
@@ -165,7 +170,8 @@ func (m *Mounted) Start(ctx context.Context) error {
 	}
 
 	if m.dashboard != nil {
-		if err := m.dashboard.Start(ctx); err != nil {
+		err := m.dashboard.Start(ctx)
+		if err != nil {
 			return err
 		}
 	}
