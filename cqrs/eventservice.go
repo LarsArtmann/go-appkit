@@ -152,7 +152,7 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		)
 	}
 
-	return &EventService{ //nolint:exhaustruct // zero-value mu and closed
+	return &EventService{ //nolint:exhaustruct_v5 // zero-value mu and closed
 		bundle: bundle,
 		host:   host,
 		dlq:    dlqStore,

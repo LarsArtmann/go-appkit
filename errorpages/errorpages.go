@@ -80,7 +80,7 @@ func Wrap(mux *http.ServeMux, cfg Config) http.Handler {
 		// No route pattern matched: the mux would write a bare 404 or 405.
 		// Discern which by executing the internal handler into a throwaway
 		// recorder — it only writes a status line and short text.
-		rec := &statusRecorder{ //nolint:exhaustruct // status is deliberately zero; the wrapped handler sets it via WriteHeader
+		rec := &statusRecorder{ //nolint:exhaustruct_v5 // status is deliberately zero; the wrapped handler sets it via WriteHeader
 			header: http.Header{},
 		}
 		matched.ServeHTTP(rec, r)

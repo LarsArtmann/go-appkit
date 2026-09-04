@@ -43,7 +43,7 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exhaustruct
+    - exhaustruct_v5
     - exptostd
     - fatcontext
     - forbidigo
@@ -132,7 +132,7 @@ linters:
   settings:
     cyclop:
       max-complexity: 12
-    exhaustruct:
+    exhaustruct_v5:
       exclude:
         - sync.Mutex
         - time.Time
@@ -207,7 +207,7 @@ linters:
       - path: _test\.go
         linters:
           - mnd
-          - exhaustruct
+          - exhaustruct_v5
           - err113
           - paralleltest
           - gochecknoglobals

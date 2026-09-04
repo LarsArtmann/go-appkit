@@ -150,7 +150,7 @@ func WithServiceName(name string) TriggerOption {
 // to the injector directly. This allows construction before the recorder is
 // available (e.g., config-gated disabling).
 func NewTrigger(rec *fr.Recorder, opts ...TriggerOption) *Trigger {
-	//nolint:exhaustruct // logger, serviceName, mu, lastCapture are zero by design; options fill them as needed
+	//nolint:exhaustruct_v5 // logger, serviceName, mu, lastCapture are zero by design; options fill them as needed
 	t := &Trigger{
 		rec:         rec,
 		triggerFunc: fr.OnError(),

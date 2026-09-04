@@ -184,7 +184,7 @@ func (p *Provider) Shutdown(ctx context.Context) error {
 // propagator are set so [Middleware] picks them up automatically; pass
 // WithoutGlobalRegistration to keep the process globals untouched.
 func Setup(opts ...SetupOption) (*Provider, error) {
-	cfg := &setupConfig{} //nolint:exhaustruct // options applied below
+	cfg := &setupConfig{} //nolint:exhaustruct_v5 // options applied below
 
 	for _, opt := range opts {
 		opt(cfg)

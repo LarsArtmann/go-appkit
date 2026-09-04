@@ -29,11 +29,11 @@ var HTTPDurationBoundaries = []float64{ //nolint:gochecknoglobals // a constant 
 func NewHTTPViews() []sdkmetric.View {
 	return []sdkmetric.View{
 		sdkmetric.NewView(
-			sdkmetric.Instrument{ //nolint:exhaustruct // only Name is a filter criterion
+			sdkmetric.Instrument{ //nolint:exhaustruct_v5 // only Name is a filter criterion
 				Name: InstrumentHTTPRequestDuration,
 			},
-			sdkmetric.Stream{ //nolint:exhaustruct // only Aggregation is configured
-				Aggregation: sdkmetric.AggregationExplicitBucketHistogram{ //nolint:exhaustruct // NoMinMax stays false
+			sdkmetric.Stream{ //nolint:exhaustruct_v5 // only Aggregation is configured
+				Aggregation: sdkmetric.AggregationExplicitBucketHistogram{ //nolint:exhaustruct_v5 // NoMinMax stays false
 					Boundaries: HTTPDurationBoundaries,
 				},
 			},

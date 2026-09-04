@@ -103,7 +103,7 @@ type ServiceConfig struct {
 func DefaultServiceConfig() ServiceConfig {
 	t := true
 
-	return ServiceConfig{ //nolint:exhaustruct // optional fields stay zero
+	return ServiceConfig{ //nolint:exhaustruct_v5 // optional fields stay zero
 		Addr:              defaultAddr,
 		LogLevel:          LogLevelInfo,
 		LogFormat:         LogFormatAuto,

@@ -47,7 +47,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 
 	mux := http.NewServeMux()
 
-	svc := &Service{ //nolint:exhaustruct // server, ln, readyProbe, mu are deliberate zero values
+	svc := &Service{ //nolint:exhaustruct_v5 // server, ln, readyProbe, mu are deliberate zero values
 		cfg:    cfg,
 		Logger: logger,
 		Mux:    mux,
@@ -79,7 +79,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 // Returns a synchronous error if the listener cannot bind.
 // The returned channel receives any serve error (nil on graceful shutdown).
 func (s *Service) Start() (<-chan error, error) {
-	listener, err := (&net.ListenConfig{}).Listen( //nolint:exhaustruct // zero config is intentional
+	listener, err := (&net.ListenConfig{}).Listen( //nolint:exhaustruct_v5 // zero config is intentional
 		context.Background(), "tcp", s.cfg.Addr)
 	if err != nil {
 		return nil, errorfamily.WrapInfrastructuref(err, "server.listen_failed", "listen on %s", s.cfg.Addr)

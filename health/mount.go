@@ -66,14 +66,14 @@ func New(probe *health.Probe, opts ...MountOption) (*Mounted, error) {
 		)
 	}
 
-	cfg := mountConfig{ //nolint:exhaustruct // dashboard fields default to disabled
+	cfg := mountConfig{ //nolint:exhaustruct_v5 // dashboard fields default to disabled
 		probeRoutes: health.DefaultRoutes(),
 	}
 	for _, opt := range opts {
 		opt(&cfg)
 	}
 
-	m := &Mounted{ //nolint:exhaustruct // dashboard, mu, started are deliberate zero values
+	m := &Mounted{ //nolint:exhaustruct_v5 // dashboard, mu, started are deliberate zero values
 		probe:       probe,
 		probeRoutes: cfg.probeRoutes,
 	}

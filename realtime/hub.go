@@ -39,7 +39,7 @@ type hubConfig struct {
 //	    realtime.WithBufferSize(256),
 //	)
 func NewHub(opts ...Option) *Hub {
-	cfg := hubConfig{} //nolint:exhaustruct // zero defaults, options fill fields
+	cfg := hubConfig{} //nolint:exhaustruct_v5 // zero defaults, options fill fields
 
 	for _, opt := range opts {
 		opt(&cfg)

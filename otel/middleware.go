@@ -110,7 +110,7 @@ func WithFilteredPaths(paths ...string) MiddlewareOption {
 // near-zero-overhead no-op: it propagates nothing and records nothing,
 // which keeps OTel strictly opt-in.
 func Middleware(opts ...MiddlewareOption) httputil.Middleware {
-	cfg := &middlewareConfig{ //nolint:exhaustruct // options applied below
+	cfg := &middlewareConfig{ //nolint:exhaustruct_v5 // options applied below
 		filters: nil,
 	}
 
