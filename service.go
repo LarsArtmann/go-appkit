@@ -131,9 +131,17 @@ func (s *Service) Run(ctx context.Context) error {
 
 // Shutdown performs the graceful drain sequence:
 // 1. Flip ready probe to false (load balancer stops sending traffic)
-// 2. Wait DrainDelay for load balancer propagation
-// 3. Stop accepting new connections and finish in-flight requests.
+// 2. Run DrainHooks while traffic is still served
+// 3. Wait DrainDelay for load balancer propagation
+// 4. Stop accepting new connections and finish in-flight requests
+// 5. Run ShutdownHooks after connections are released.
+//
+// Every phase emits one INFO line ("shutdown phase complete" carrying the
+// phase name and its duration), so a deploy can be diagnosed from logs
+// alone; a final "graceful shutdown complete" line reports the total.
 func (s *Service) Shutdown(ctx context.Context) error {
+	totalStart := time.Now()
+
 	s.mu.Lock()
 	ln := s.ln
 	s.ln = nil
@@ -143,16 +151,22 @@ func (s *Service) Shutdown(ctx context.Context) error {
 		return nil
 	}
 
+	phaseStart := time.Now()
 	s.readyProbe.Store(false)
+	s.logPhase("ready_flip", phaseStart)
 
 	// Drain hooks run while the server still serves traffic: readiness is
 	// already down everywhere, so external readiness signals mounted on the
 	// service (e.g. the health module's probe) flip in lockstep before the
 	// drain wait gives load balancers time to observe the change.
+	phaseStart = time.Now()
 	drainHooksErr := s.runDrainHooks(ctx)
+	s.logPhase("drain_hooks", phaseStart)
 
 	if s.cfg.DrainDelay > 0 {
 		s.Logger.Info("draining traffic", "delay", s.cfg.DrainDelay)
+
+		phaseStart = time.Now()
 
 		timer := time.NewTimer(s.cfg.DrainDelay)
 		defer timer.Stop()
@@ -161,18 +175,42 @@ func (s *Service) Shutdown(ctx context.Context) error {
 		case <-timer.C:
 		case <-ctx.Done():
 		}
+
+		s.logPhase("drain_wait", phaseStart)
+	} else {
+		s.Logger.Info("shutdown phase skipped", "phase", "drain_wait")
 	}
 
+	phaseStart = time.Now()
 	err := s.server.Shutdown(ctx)
 	if err != nil {
 		err = errorfamily.WrapInfrastructuref(err, "server.shutdown_failed", "shutdown failed")
 	}
 
+	s.logPhase("listener_close", phaseStart)
+
 	// Hooks run after the server released its connections so telemetry
 	// providers flush spans covering the final in-flight requests.
+	phaseStart = time.Now()
 	hooksErr := s.runShutdownHooks(ctx)
+	s.logPhase("shutdown_hooks", phaseStart)
 
-	return errors.Join(drainHooksErr, err, hooksErr)
+	joined := errors.Join(drainHooksErr, err, hooksErr)
+
+	result := "ok"
+	if joined != nil {
+		result = "error"
+	}
+
+	s.Logger.Info("graceful shutdown complete", "total", time.Since(totalStart), "result", result)
+
+	return joined
+}
+
+// logPhase emits the per-phase shutdown line: a stable message carrying the
+// phase name and its duration.
+func (s *Service) logPhase(phase string, start time.Time) {
+	s.Logger.Info("shutdown phase complete", "phase", phase, "duration", time.Since(start))
 }
 
 // runDrainHooks invokes each configured DrainHook in order with the shutdown
