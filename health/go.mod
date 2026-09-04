@@ -7,3 +7,19 @@ require (
 	github.com/larsartmann/go-health v0.1.1
 	github.com/larsartmann/go-health-dashboard v0.5.0
 )
+
+require (
+	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
+	github.com/a-h/templ v0.3.1020 // indirect
+	github.com/larsartmann/go-branded-id v0.5.1 // indirect
+	github.com/larsartmann/go-datastar v0.4.0 // indirect
+	github.com/larsartmann/go-datastar/static v0.4.0 // indirect
+	github.com/larsartmann/go-sse v0.6.0 // indirect
+	github.com/larsartmann/templ-components v1.11.0 // indirect
+	github.com/larsartmann/templ-components/datastar v1.11.0 // indirect
+	github.com/larsartmann/templ-components/htmx v1.12.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.12.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.12.0 // indirect
+	github.com/samber/do/v2 v2.1.0 // indirect
+	github.com/samber/go-type-to-string v1.8.0 // indirect
+)
