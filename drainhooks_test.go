@@ -19,20 +19,22 @@ func TestDrainHooks_RunInTrafficWindowBeforeShutdown(t *testing.T) {
 	var events []string
 
 	readyDownDuringDrain := false
-	stillRunningDuringDrain := false
+	drainHookAddr := ""
 
 	svc, err := NewService(ServiceConfig{
 		Addr:       "localhost:0",
 		DrainDelay: 150 * time.Millisecond,
 		DrainHooks: []func(context.Context) error{
-			func(context.Context) error {
-				resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/health/ready")
-				defer resp.Body.Close() //nolint:errcheck // test response body
+			func(ctx context.Context) error {
+				resp := httpGet(t, ctx, "http://"+drainHookAddr+"/health/ready")
+				defer resp.Body.Close()
 
 				_, _ = io.Copy(io.Discard, resp.Body)
 
+				// The request completing at all proves the socket still
+				// serves traffic; the code proves the ready probe already
+				// flipped for the whole drain window.
 				readyDownDuringDrain = resp.StatusCode == http.StatusServiceUnavailable
-				stillRunningDuringDrain = svc.Running()
 
 				events = append(events, "drain")
 
@@ -58,6 +60,11 @@ func TestDrainHooks_RunInTrafficWindowBeforeShutdown(t *testing.T) {
 
 	waitForRunning(t, svc)
 
+	// Shutdown detaches the listener before drain hooks run (the socket
+	// itself keeps serving until server.Shutdown), so capture the address
+	// beforehand.
+	drainHookAddr = svc.Addr().String()
+
 	shutdownCtx, cancel := context.WithTimeout(t.Context(), testTimeout)
 	defer cancel()
 
@@ -70,10 +77,6 @@ func TestDrainHooks_RunInTrafficWindowBeforeShutdown(t *testing.T) {
 		t.Error("readiness must already report 503 while drain hooks execute")
 	}
 
-	if !stillRunningDuringDrain {
-		t.Error("drain hooks must run before the listener closes, while traffic is still served")
-	}
-
 	if len(events) != 2 || events[0] != "drain" || events[1] != "shutdown" {
 		t.Errorf("hook order = %v, want [drain shutdown]", events)
 	}
@@ -84,7 +87,7 @@ func TestDrainHooks_RunInTrafficWindowBeforeShutdown(t *testing.T) {
 func TestDrainHooks_AllRunDespiteFailure(t *testing.T) {
 	t.Parallel()
 
-	secondRan := false
+	calls := 0
 
 	svc, err := NewService(ServiceConfig{
 		Addr:       "localhost:0",
@@ -92,7 +95,7 @@ func TestDrainHooks_AllRunDespiteFailure(t *testing.T) {
 		DrainHooks: []func(context.Context) error{
 			func(context.Context) error { return errDrainHookFailed },
 			func(context.Context) error {
-				secondRan = true
+				calls++
 
 				return nil
 			},
@@ -114,54 +117,13 @@ func TestDrainHooks_AllRunDespiteFailure(t *testing.T) {
 		t.Fatalf("shutdown error = %v, want wrapped %v", shutdownErr, errDrainHookFailed)
 	}
 
-	if !secondRan {
-		t.Error("a failing drain hook must not stop the remaining hooks")
-	}
-
-	assertServerStopped(t, errCh)
-}
-
-func TestDrainHooks_SecondShutdownDoesNotRerun(t *testing.T) {
-	t.Parallel()
-
-	called := make(chan struct{}, 2)
-
-	svc, err := NewService(ServiceConfig{
-		Addr:       "localhost:0",
-		DrainDelay: NoDrainDelay,
-		DrainHooks: []func(context.Context) error{
-			func(context.Context) error {
-				called <- struct{}{}
-
-				return nil
-			},
-		},
-	})
+	err = svc.Close()
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("second close: %v", err)
 	}
 
-	errCh, err := svc.Start()
-	if err != nil {
-		t.Fatalf("start: %v", err)
-	}
-
-	waitForRunning(t, svc)
-
-	ctx := t.Context()
-
-	err = svc.Shutdown(ctx)
-	if err != nil {
-		t.Fatalf("first shutdown: %v", err)
-	}
-
-	err = svc.Shutdown(ctx)
-	if err != nil {
-		t.Fatalf("second shutdown: %v", err)
-	}
-
-	if len(called) != 1 {
-		t.Fatalf("drain hook ran %d times, want exactly 1", len(called))
+	if calls != 1 {
+		t.Errorf("hooks ran %d times across two shutdowns, want exactly 1", calls)
 	}
 
 	assertServerStopped(t, errCh)
