@@ -37,9 +37,10 @@ err = es.Shutdown(ctx)
 | `StackOptions`   | `[]sqlite.Option`                | none             | Passed through to `stack/sqlite.New` (v4 option set).                                                                                  |
 | `Logger`         | `*slog.Logger`                   | `slog.Default()` | Receives projection worker lifecycle events (crashes, restarts, dead-letter captures). Wire the same logger you gave `appkit.Service`. |
 | `DLQ`            | `*DLQConfig`                     | nil (disabled)   | Enables poison-event capture. Default store: SQLite table in the event database; default threshold: 3.                                 |
-| `FlightRecorder` | `*flightrecorder.Recorder`       | nil (disabled)   | Captures a runtime/trace snapshot when a worker terminally fails (WorkerFailed). One active recorder per process.                      |
+| `FlightRecorder` | `*fr.Recorder`                   | nil (disabled)   | Captures a runtime/trace snapshot when a worker terminally fails (WorkerFailed). Type is `github.com/larsartmann/go-flightrecorder` — the same recorder the appkit `flightrecorder` middleware uses, so ONE shared instance can serve both. One active recorder per process. |
+| `FlightRecorderTrigger` | `fr.TriggerFunc`          | nil (= OnAlways) | Gate for the capture: receives an `fr.TriggerContext` (Kind `"projection"`, Type = projection name, Err = terminal error). Default captures every terminal failure. |
 | `Metrics`        | `projectionhost.MetricsRecorder` | nil (disabled)   | Observes projection lifecycle events (processed, errored, dead-lettered, restarts, checkpoint lag). Backend-agnostic.                  |
-| `HostOptions`    | `[]projectionhost.HostOption`    | none             | Advanced host tuning; derived wiring (Logger, Metrics, FlightRecorder, DLQ) wins conflicts.                                            |
+| `HostOptions`    | `[]projectionhost.HostOption`    | none             | Advanced host tuning — e.g. `WithCheckpointEvery(n)` (batch live-phase checkpoint saves), `WithOnFailed(fn)` (failure callback), `WithMaxRestarts`, `WithBatchSize`. Derived wiring (Logger, Metrics, FlightRecorder, DLQ) wins conflicts. |
 
 ### Dead-letter queue
 

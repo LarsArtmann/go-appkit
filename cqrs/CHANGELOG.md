@@ -2,8 +2,25 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking (dependency alignment):** `EventConfig.FlightRecorder` is now
+  `*github.com/larsartmann/go-flightrecorder.Recorder` — go-cqrs-lite
+  `projectionhost/v4.4.0` switched `WithFlightRecorder` from its internal
+  `flightrecorder/v4` type to go-flightrecorder, so the module did not
+  compile against the pinned version until this migration. The
+  `flightrecorder/v4` dependency is dropped; `go-flightrecorder v0.2.0`
+  becomes a direct dependency. Consumers gain the ability to share ONE
+  recorder instance between the appkit `flightrecorder` HTTP middleware and
+  the projection host (Go still allows only one active recorder per
+  process).
+
 ### Added
 
+- `EventConfig.FlightRecorderTrigger fr.TriggerFunc` — optional gate for
+  terminal-failure captures; receives an `fr.TriggerContext` (Kind
+  `"projection"`, Type = projection name, Err = terminal error). Nil keeps
+  the upstream default (capture every terminal failure, OnAlways).
 - `NewOTelProjectionMetrics(meter)`: `projectionhost.MetricsRecorder`
   implementation on OTel instruments (`cqrs.projection.event.count`,
   `.event.duration`, `.worker.count`, `.checkpoint.lag`) with go-cqrs-lite
