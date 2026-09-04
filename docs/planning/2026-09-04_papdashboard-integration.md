@@ -1,7 +1,7 @@
 # Integration Research — PapDashboard → go-appkit
 
 > **Date:** 2026-09-04. **Type:** Point-in-time research (re-verify before acting).
-> **Question:** Can and should go-appkit integrate [`/home/lars/projects/PapDashboard`](../../../../PapDashboard) (event-sourced notification hub, published as `github.com/larsartmann/papdashboard` v0.2.0)?
+> **Question:** Can and should go-appkit integrate [`/home/lars/projects/PapDashboard`](../../../PapDashboard) (event-sourced notification hub, published as `github.com/larsartmann/papdashboard` v0.2.0)?
 >
 > **Verdicts:**
 >
