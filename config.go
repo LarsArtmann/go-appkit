@@ -64,6 +64,18 @@ type ServiceConfig struct {
 	// module). Optional.
 	OuterMiddlewares []httputil.Middleware
 
+	// DrainHooks run once, in order, at the start of the shutdown drain —
+	// after the ready probe flips to false but BEFORE the DrainDelay wait
+	// and the listener close — each receiving the shutdown context. Use them
+	// to flip external readiness signals in lockstep with the service's own
+	// probe, so every readiness endpoint (the framework's and any mounted
+	// probe's, e.g. the health module's /readyz) reports down for the whole
+	// drain window and load balancers stop routing immediately. A failing
+	// hook does not stop the drain or the remaining hooks; errors are joined
+	// with the shutdown result and classified as infrastructure failures. A
+	// service that never started does not run its hooks. Optional.
+	DrainHooks []func(context.Context) error
+
 	// ShutdownHooks run once, in order, after the server has shut down and
 	// released its connections, each receiving the shutdown context. Use them
 	// to flush telemetry providers — their spans then cover the final

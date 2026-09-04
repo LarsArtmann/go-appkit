@@ -145,6 +145,12 @@ func (s *Service) Shutdown(ctx context.Context) error {
 
 	s.readyProbe.Store(false)
 
+	// Drain hooks run while the server still serves traffic: readiness is
+	// already down everywhere, so external readiness signals mounted on the
+	// service (e.g. the health module's probe) flip in lockstep before the
+	// drain wait gives load balancers time to observe the change.
+	drainHooksErr := s.runDrainHooks(ctx)
+
 	if s.cfg.DrainDelay > 0 {
 		s.Logger.Info("draining traffic", "delay", s.cfg.DrainDelay)
 
@@ -166,7 +172,25 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	// providers flush spans covering the final in-flight requests.
 	hooksErr := s.runShutdownHooks(ctx)
 
-	return errors.Join(err, hooksErr)
+	return errors.Join(drainHooksErr, err, hooksErr)
+}
+
+// runDrainHooks invokes each configured DrainHook in order with the shutdown
+// context and joins the errors. Hooks run at most once per service: Shutdown
+// is a no-op after the first call.
+func (s *Service) runDrainHooks(ctx context.Context) error {
+	var errs []error
+
+	for _, hook := range s.cfg.DrainHooks {
+		err := hook(ctx)
+		if err != nil {
+			errs = append(errs, errorfamily.WrapInfrastructuref(
+				err, "server.drain_hook_failed", "drain hook failed",
+			))
+		}
+	}
+
+	return errors.Join(errs...)
 }
 
 // runShutdownHooks invokes each configured ShutdownHook in order with the

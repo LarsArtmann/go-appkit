@@ -113,3 +113,24 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 Known limitation: httputil's `Logging` middleware emits the request-completion
 line without request context, so only handler-level logs correlate with spans
 (documented in `doc.go`).
+
+## Consumers
+
+Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
+`setup/v4`** — its one-call composition root for event-sourced full-stack apps.
+
+- ADR-001 ("appkit-as-foundation") decided and spike-validated: `RunWithAppkit`
+  drives an `appkit.Service` with `NoTimeout` (SSE-safe), `ReadyCheck` wired to
+  projection readiness, and the appkit middleware stack wrapped outside the
+  bundle's domain chain. Verified equivalences live in their
+  `setup/run_appkit_test.go` (SSE header flush through the full stack, drain
+  readiness transitions, response parity, hardened adoption benchmark).
+- Consumed version: `go-appkit v0.3.0` from the module proxy (their dev
+  `replace` stripped at their v4.9.0 train; re-verified 2026-09-04).
+- Their fold-in (flipping `RunHandler` internals to appkit) is unblocked and
+  pending on the cqrs-htmx side (`docs/planning/2026-08-30_appkit-foldin-revalidation.md`).
+
+All five released modules verified as fresh proxy consumers on 2026-09-04
+(blank-import smoke modules in clean dirs, `go build` green):
+core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0,
+flightrecorderhealth v0.1.0.

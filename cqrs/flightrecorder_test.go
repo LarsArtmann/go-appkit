@@ -18,6 +18,28 @@ import (
 // slot (runtime/trace allows exactly one active recorder per process).
 var recorderMu = newChanMutex()
 
+// syncBuffer guards a bytes.Buffer shared between the projection worker
+// goroutine (flight recorder snapshot writes) and the test goroutine
+// (length polls in waitFor).
+type syncBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (s *syncBuffer) Write(p []byte) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.buf.Write(p)
+}
+
+func (s *syncBuffer) Len() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.buf.Len()
+}
+
 type chanMutex struct{ ch chan struct{} }
 
 func (m chanMutex) lock()   { <-m.ch }
@@ -35,7 +57,7 @@ func TestEventConfig_FlightRecorder_CapturesOnWorkerFailure(t *testing.T) {
 	recorderMu.lock()
 	defer recorderMu.unlock()
 
-	buf := &bytes.Buffer{}
+	buf := &syncBuffer{}
 
 	rec, err := fr.New(fr.WithWriter(buf), fr.WithMinAge(time.Nanosecond))
 	if err != nil {
@@ -105,7 +127,7 @@ func TestEventConfig_FlightRecorderTrigger_ReceivesProjectionContext(t *testing.
 	recorderMu.lock()
 	defer recorderMu.unlock()
 
-	buf := &bytes.Buffer{}
+	buf := &syncBuffer{}
 
 	rec, err := fr.New(fr.WithWriter(buf), fr.WithMinAge(time.Nanosecond))
 	if err != nil {
