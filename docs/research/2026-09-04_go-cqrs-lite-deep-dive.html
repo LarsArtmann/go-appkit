@@ -848,214 +848,217 @@
     </style>
   </head>
   <body>
-      <!-- Full-bleed top bar -->
-      <div class="top-bar">
-        <span>LIBRARY DEEP DIVE</span>
-        <span>2026-09-04</span>
-        <span>go-appkit / cqrs</span>
-      </div>
+    <!-- Full-bleed top bar -->
+    <div class="top-bar">
+      <span>LIBRARY DEEP DIVE</span>
+      <span>2026-09-04</span>
+      <span>go-appkit / cqrs</span>
+    </div>
 
-      <div class="layout">
-        <aside class="sidebar" data-nav>
-          <nav>
-            <div class="label">Contents</div>
-            <a href="#summary">Summary</a>
-            <a href="#usage">Current Usage</a>
-            <a href="#findings">Findings</a>
-            <a href="#target">Target State</a>
-            <a href="#plan">Action Plan</a>
-            <a href="#appendix">Appendix</a>
-          </nav>
-        </aside>
+    <div class="layout">
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#summary">Summary</a>
+          <a href="#usage">Current Usage</a>
+          <a href="#findings">Findings</a>
+          <a href="#target">Target State</a>
+          <a href="#plan">Action Plan</a>
+          <a href="#appendix">Appendix</a>
+        </nav>
+      </aside>
 
-        <main class="main">
-          <header class="hero">
-            <div class="hero-shapes">
-              <div class="bar"></div>
-              <div class="circle"></div>
-              <div class="square"></div>
-              <div class="tri"></div>
-            </div>
-            <div class="eyebrow">LIBRARY DEEP DIVE &middot; 2026-09-04</div>
-            <h1>go-cqrs-lite — Adoption &amp; Utilization Audit</h1>
-            <p class="subtitle">
-              How go-appkit's <code>cqrs</code> wrapper uses the go-cqrs-lite v4
-              stack, where it leaves capability on the table, and what was fixed
-              during this audit. Researched from go-cqrs-lite source at commit
-              <code>8eb4054c2</code>, not from secondary docs.
-            </p>
-            <div class="meta">
-              <span class="tag amber">Scope: go-appkit/cqrs</span>
-              <span class="tag">projectionhost v4.4.0 (latest)</span>
-              <span class="tag teal">All 8 pinned modules at latest tags</span>
-            </div>
-          </header>
+      <main class="main">
+        <header class="hero">
+          <div class="hero-shapes">
+            <div class="bar"></div>
+            <div class="circle"></div>
+            <div class="square"></div>
+            <div class="tri"></div>
+          </div>
+          <div class="eyebrow">LIBRARY DEEP DIVE &middot; 2026-09-04</div>
+          <h1>go-cqrs-lite — Adoption &amp; Utilization Audit</h1>
+          <p class="subtitle">
+            How go-appkit's <code>cqrs</code> wrapper uses the go-cqrs-lite v4
+            stack, where it leaves capability on the table, and what was fixed
+            during this audit. Researched from go-cqrs-lite source at commit
+            <code>8eb4054c2</code>, not from secondary docs.
+          </p>
+          <div class="meta">
+            <span class="tag amber">Scope: go-appkit/cqrs</span>
+            <span class="tag">projectionhost v4.4.0 (latest)</span>
+            <span class="tag teal">All 8 pinned modules at latest tags</span>
+          </div>
+        </header>
 
-          <section id="scorecard" class="scorecard">
-            <div class="score-card score-good">
-              <div class="score">68</div>
-              <div class="label">Adoption score / 100</div>
-            </div>
-            <div class="score-card score-bad">
-              <div class="score">1</div>
-              <div class="label">Build blockers at audit start (fixed)</div>
-            </div>
-            <div class="score-card score-good">
-              <div class="score">0</div>
-              <div class="label">Modules behind latest tag</div>
-            </div>
-            <div class="score-card score-warn">
-              <div class="score">3/27</div>
-              <div class="label">Modules adopted (by design — see §3)</div>
-            </div>
-            <div class="score-card score-good">
-              <div class="score">2</div>
-              <div class="label">Lint suppressions, all still firing</div>
-            </div>
-          </section>
+        <section id="scorecard" class="scorecard">
+          <div class="score-card score-good">
+            <div class="score">68</div>
+            <div class="label">Adoption score / 100</div>
+          </div>
+          <div class="score-card score-bad">
+            <div class="score">1</div>
+            <div class="label">Build blockers at audit start (fixed)</div>
+          </div>
+          <div class="score-card score-good">
+            <div class="score">0</div>
+            <div class="label">Modules behind latest tag</div>
+          </div>
+          <div class="score-card score-warn">
+            <div class="score">3/27</div>
+            <div class="label">Modules adopted (by design — see §3)</div>
+          </div>
+          <div class="score-card score-good">
+            <div class="score">2</div>
+            <div class="label">Lint suppressions, all still firing</div>
+          </div>
+        </section>
 
-          <section id="summary">
-            <h2><span class="num">00</span>Summary</h2>
+        <section id="summary">
+          <h2><span class="num">00</span>Summary</h2>
+          <p>
+            go-appkit/cqrs wraps go-cqrs-lite's SQLite stack and projection host
+            into a lifecycle-managed <code>EventService</code>. At audit start
+            the module <strong>did not compile</strong>: go-cqrs-lite
+            <code>projectionhost/v4.4.0</code> replaced its internal
+            <code>flightrecorder/v4</code> type with
+            <code>go-flightrecorder</code> in <code>WithFlightRecorder</code>,
+            and the wrapper still passed the old type. That migration was
+            executed during this audit, along with the test-hardening and
+            documentation it surfaced. Version currency is otherwise perfect —
+            every pinned module sits on its latest tag.
+          </p>
+          <div class="callout callout-amber">
+            <strong>The bottom line</strong>
+            The wrapper's low tooling score (3/27 modules detected by
+            <code>cqrs-lint scorecard</code>) is <em>by design</em>, not
+            underuse: a framework wrapper hands consumers the
+            <code>Bundle()</code> and stays out of the command/query path. The
+            real gaps were the v4.4.0 break (fixed here) and thin documentation
+            of the host-option surface — checkpoint batching and the failure
+            callback were reachable but undocumented (also fixed). Encryption,
+            signing, and idempotency remain genuine future opt-in candidates for
+            <code>EventConfig</code>.
+          </div>
+        </section>
+
+        <section id="usage">
+          <h2><span class="num">01</span>What the wrapper uses today</h2>
+          <p>
+            The wrapper's job: own lifecycle, expose the stack, and integrate
+            projection health with appkit's service model. It does this with a
+            deliberately small direct-import set
+            (<code>cqrs/eventservice.go:16-21</code>).
+          </p>
+          <div class="strengths">
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong
+                  >SQLite stack + projection host, lifecycle-managed</strong
+                >
+                <span
+                  ><code>sqlite.New</code> +
+                  <code>projectionhost.New</code> wrapped with
+                  construction-failure cleanup
+                  (<code>eventservice.go:101-163</code>) and idempotent Shutdown
+                  (<code>eventservice.go:354-367</code>).</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Dead-letter queue with admin surface</strong>
+                <span
+                  >SQLite-default DLQ provisioning
+                  (<code>eventservice.go:165-199</code>), replay and projection
+                  reset accessors, admin interface documented for
+                  dashboards.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Read-your-writes staleness guards</strong>
+                <span
+                  ><code>CheckStaleness</code> /
+                  <code>CheckProjectionStaleness</code>
+                  (<code>eventservice.go:334-344</code>) — the v4-honest answer
+                  to async projections, wired for
+                  <code>appkit.ServiceConfig.ReadyCheck</code>.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Backend-agnostic metrics + OTel adapter</strong>
+                <span
+                  ><code>Metrics projectionhost.MetricsRecorder</code> with
+                  <code>NewOTelProjectionMetrics</code>
+                  (<code>otelmetrics.go</code>) — interface-only OTel deps,
+                  cardinality-tested.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Flight recorder on terminal failures</strong>
+                <span
+                  >WorkerFailed captures with configurable trigger
+                  (<code>eventservice.go:47-66</code>) — migrated to
+                  go-flightrecorder in this audit.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Companion-tooling cookbook</strong>
+                <span
+                  >scenario/v4 DSL, testutil/v4 helpers, and cqrs-lint usage
+                  documented in the README — dev-only deps kept out of the
+                  module's own go.mod, correctly.</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="findings">
+          <h2><span class="num">02</span>Findings</h2>
+          <p>Ordered by impact. The first two were fixed during this audit.</p>
+
+          <div class="issue issue-critical" id="issue-build-break">
+            <span class="severity severity-critical"
+              >Blocking &middot; FIXED 2026-09-04</span
+            >
+            <h3>
+              Module did not compile against projectionhost v4.4.0 — flight
+              recorder type changed upstream
+            </h3>
+            <div class="where">
+              cqrs/eventservice.go:212 (pre-fix) &middot; go-cqrs-lite
+              projectionhost/options.go:163
+            </div>
             <p>
-              go-appkit/cqrs wraps go-cqrs-lite's SQLite stack and projection
-              host into a lifecycle-managed <code>EventService</code>. At audit
-              start the module <strong>did not compile</strong>: go-cqrs-lite
-              <code>projectionhost/v4.4.0</code> replaced its internal
-              <code>flightrecorder/v4</code> type with
-              <code>go-flightrecorder</code> in <code>WithFlightRecorder</code>,
-              and the wrapper still passed the old type. That migration was
-              executed during this audit, along with the test-hardening and
-              documentation it surfaced. Version currency is otherwise perfect —
-              every pinned module sits on its latest tag.
+              go-cqrs-lite unified its flight-recorder story:
+              <code>projectionhost.WithFlightRecorder</code> now takes
+              <code>*go-flightrecorder.Recorder</code> and a
+              <code>flightrecorder.TriggerFunc</code> instead of the internal
+              <code>flightrecorder/v4.Recorder</code>. The wrapper's
+              <code>EventConfig.FlightRecorder</code> still held the old type,
+              so <code>go build ./...</code> failed —
+              <code>cqrs-lint scorecard</code> silently reported 0% adoption
+              because package loading was poisoned (the exact README gotcha).
+              Fix executed: field migrated to <code>*fr.Recorder</code>,
+              <code>flightrecorder/v4</code> dropped from go.mod,
+              <code>go-flightrecorder v0.2.0</code> promoted to direct.
             </p>
-            <div class="callout callout-amber">
-              <strong>The bottom line</strong>
-              The wrapper's low tooling score (3/27 modules detected by
-              <code>cqrs-lint scorecard</code>) is <em>by design</em>, not
-              underuse: a framework wrapper hands consumers the
-              <code>Bundle()</code> and stays out of the command/query path.
-              The real gaps were the v4.4.0 break (fixed here) and thin
-              documentation of the host-option surface — checkpoint batching
-              and the failure callback were reachable but undocumented
-              (also fixed). Encryption, signing, and idempotency remain
-              genuine future opt-in candidates for <code>EventConfig</code>.
-            </div>
-          </section>
-
-          <section id="usage">
-            <h2><span class="num">01</span>What the wrapper uses today</h2>
-            <p>
-              The wrapper's job: own lifecycle, expose the stack, and integrate
-              projection health with appkit's service model. It does this with a
-              deliberately small direct-import set
-              (<code>cqrs/eventservice.go:16-21</code>).
-            </p>
-            <div class="strengths">
-              <div class="strength">
-                <div class="check">+</div>
-                <div class="text">
-                  <strong>SQLite stack + projection host, lifecycle-managed</strong>
-                  <span
-                    ><code>sqlite.New</code> + <code>projectionhost.New</code>
-                    wrapped with construction-failure cleanup
-                    (<code>eventservice.go:101-163</code>) and idempotent
-                    Shutdown (<code>eventservice.go:354-367</code>).</span
-                  >
-                </div>
-              </div>
-              <div class="strength">
-                <div class="check">+</div>
-                <div class="text">
-                  <strong>Dead-letter queue with admin surface</strong>
-                  <span
-                    >SQLite-default DLQ provisioning
-                    (<code>eventservice.go:165-199</code>), replay and
-                    projection reset accessors, admin interface documented for
-                    dashboards.</span
-                  >
-                </div>
-              </div>
-              <div class="strength">
-                <div class="check">+</div>
-                <div class="text">
-                  <strong>Read-your-writes staleness guards</strong>
-                  <span
-                    ><code>CheckStaleness</code> /
-                    <code>CheckProjectionStaleness</code>
-                    (<code>eventservice.go:334-344</code>) — the v4-honest
-                    answer to async projections, wired for
-                    <code>appkit.ServiceConfig.ReadyCheck</code>.</span
-                  >
-                </div>
-              </div>
-              <div class="strength">
-                <div class="check">+</div>
-                <div class="text">
-                  <strong>Backend-agnostic metrics + OTel adapter</strong>
-                  <span
-                    ><code>Metrics projectionhost.MetricsRecorder</code> with
-                    <code>NewOTelProjectionMetrics</code>
-                    (<code>otelmetrics.go</code>) — interface-only OTel deps,
-                    cardinality-tested.</span
-                  >
-                </div>
-              </div>
-              <div class="strength">
-                <div class="check">+</div>
-                <div class="text">
-                  <strong>Flight recorder on terminal failures</strong>
-                  <span
-                    >WorkerFailed captures with configurable trigger
-                    (<code>eventservice.go:47-66</code>) — migrated to
-                    go-flightrecorder in this audit.</span
-                  >
-                </div>
-              </div>
-              <div class="strength">
-                <div class="check">+</div>
-                <div class="text">
-                  <strong>Companion-tooling cookbook</strong>
-                  <span
-                    >scenario/v4 DSL, testutil/v4 helpers, and cqrs-lint usage
-                    documented in the README — dev-only deps kept out of the
-                    module's own go.mod, correctly.</span
-                  >
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="findings">
-            <h2><span class="num">02</span>Findings</h2>
-            <p>Ordered by impact. The first two were fixed during this audit.</p>
-
-            <div class="issue issue-critical" id="issue-build-break">
-              <span class="severity severity-critical"
-                >Blocking &middot; FIXED 2026-09-04</span
-              >
-              <h3>
-                Module did not compile against projectionhost v4.4.0 — flight
-                recorder type changed upstream
-              </h3>
-              <div class="where">
-                cqrs/eventservice.go:212 (pre-fix) &middot; go-cqrs-lite
-                projectionhost/options.go:163
-              </div>
-              <p>
-                go-cqrs-lite unified its flight-recorder story:
-                <code>projectionhost.WithFlightRecorder</code> now takes
-                <code>*go-flightrecorder.Recorder</code> and a
-                <code>flightrecorder.TriggerFunc</code> instead of the internal
-                <code>flightrecorder/v4.Recorder</code>. The wrapper's
-                <code>EventConfig.FlightRecorder</code> still held the old
-                type, so <code>go build ./...</code> failed —
-                <code>cqrs-lint scorecard</code> silently reported 0% adoption
-                because package loading was poisoned (the exact README gotcha).
-                Fix executed: field migrated to <code>*fr.Recorder</code>,
-                <code>flightrecorder/v4</code> dropped from go.mod,
-                <code>go-flightrecorder v0.2.0</code> promoted to direct.
-              </p>
-              <pre><code><span class="tok-comment">// Before (broken against v4.4.0)</span>
+            <pre><code><span class="tok-comment">// Before (broken against v4.4.0)</span>
 <span class="tok-keyword">import</span> <span class="tok-string">"github.com/larsartmann/go-cqrs-lite/flightrecorder/v4"</span>
 FlightRecorder *flightrecorder.Recorder
 
@@ -1063,87 +1066,90 @@ FlightRecorder *flightrecorder.Recorder
 <span class="tok-keyword">import</span> fr <span class="tok-string">"github.com/larsartmann/go-flightrecorder"</span>
 FlightRecorder        *fr.Recorder
 FlightRecorderTrigger fr.TriggerFunc <span class="tok-comment">// nil = OnAlways</span></code></pre>
-              <div class="callout callout-teal">
-                <strong>Side effect: one recorder can now serve both layers</strong>
-                HTTP-level captures (appkit <code>flightrecorder</code>
-                middleware) and projection-level captures share ONE
-                <code>fr.Recorder</code> instance. Go still allows only one
-                active recorder per process — start it once at startup.
-              </div>
-            </div>
-
-            <div class="issue issue-important" id="issue-trigger">
-              <span class="severity severity-important"
-                >New capability adopted &middot; DONE</span
+            <div class="callout callout-teal">
+              <strong
+                >Side effect: one recorder can now serve both layers</strong
               >
-              <h3>
-                Upstream trigger customization was unreachable — now surfaced as
-                <code>FlightRecorderTrigger</code>
-              </h3>
-              <div class="where">
-                cqrs/eventservice.go:201-220 (hostOptions) &middot;
-                go-cqrs-lite projectionhost/worker.go:126-149
-              </div>
-              <p>
-                The wrapper passed <code>nil</code> for the trigger, and because
-                derived wiring wins over consumer <code>HostOptions</code>,
-                users could not install their own capture gate.
-                <code>EventConfig.FlightRecorderTrigger fr.TriggerFunc</code>
-                now passes through; upstream evaluates it synchronously with
-                <code>TriggerContext{Kind: "projection", Type: &lt;name&gt;,
-                Err: &lt;terminal error&gt;}</code>. Covered by a new test
-                asserting the context fields
-                (<code>flightrecorder_test.go</code>).
-              </p>
+              HTTP-level captures (appkit <code>flightrecorder</code>
+              middleware) and projection-level captures share ONE
+              <code>fr.Recorder</code> instance. Go still allows only one active
+              recorder per process — start it once at startup.
             </div>
+          </div>
 
-            <div class="issue issue-important" id="issue-race">
-              <span class="severity severity-important"
-                >Latent test race exposed &middot; FIXED</span
-              >
-              <h3>
-                v4.4.0 snapshots synchronously — the shared test buffer raced
-              </h3>
-              <div class="where">
-                cqrs/flightrecorder_test.go:33-100 &middot; go-cqrs-lite
-                projectionhost/worker.go:149 (<code>recorder.Snapshot(ctx)</code>)
-              </div>
-              <p>
-                The old internal recorder made the poll-then-read pattern in
-                tests survive <code>-race</code> by timing luck. v4.4.0 calls
-                <code>Snapshot</code> on the worker goroutine, and the race
-                detector fired immediately on the new trigger test. Root-cause
-                fix: a mutex-guarded <code>syncBuffer</code> writer shared by
-                the recorder and the test's length polls — applied to both
-                flight-recorder tests, suite green at <code>-race</code>.
-              </p>
+          <div class="issue issue-important" id="issue-trigger">
+            <span class="severity severity-important"
+              >New capability adopted &middot; DONE</span
+            >
+            <h3>
+              Upstream trigger customization was unreachable — now surfaced as
+              <code>FlightRecorderTrigger</code>
+            </h3>
+            <div class="where">
+              cqrs/eventservice.go:201-220 (hostOptions) &middot; go-cqrs-lite
+              projectionhost/worker.go:126-149
             </div>
+            <p>
+              The wrapper passed <code>nil</code> for the trigger, and because
+              derived wiring wins over consumer <code>HostOptions</code>, users
+              could not install their own capture gate.
+              <code>EventConfig.FlightRecorderTrigger fr.TriggerFunc</code>
+              now passes through; upstream evaluates it synchronously with
+              <code
+                >TriggerContext{Kind: "projection", Type: &lt;name&gt;, Err:
+                &lt;terminal error&gt;}</code
+              >. Covered by a new test asserting the context fields
+              (<code>flightrecorder_test.go</code>).
+            </p>
+          </div>
 
-            <div class="issue issue-important" id="issue-docs">
-              <span class="severity severity-important"
-                >Documentation gap &middot; FIXED</span
-              >
-              <h3>
-                Powerful host options were reachable but undocumented:
-                checkpoint batching and the failure callback
-              </h3>
-              <div class="where">
-                go-cqrs-lite projectionhost/options.go:172
-                (<code>WithCheckpointEvery</code>), options.go:145
-                (<code>WithOnFailed</code>) &middot; now in cqrs/README.md
-                config table
-              </div>
-              <p>
-                <code>WithCheckpointEvery(n)</code> batches live-phase
-                checkpoint saves (added upstream 2026-08-16) — fewer
-                fsync-per-event round-trips at the cost of reprocessing at most
-                n−1 events, a contract projections must already satisfy.
-                <code>WithOnFailed(fn)</code> delivers a synchronous failure
-                callback. Both flow through the wrapper's
-                <code>HostOptions</code> passthrough but appeared nowhere in
-                appkit docs; the README config table now names them.
-              </p>
-              <pre><code>eventSvc, _ := cqrs.NewEventService(cqrs.EventConfig{
+          <div class="issue issue-important" id="issue-race">
+            <span class="severity severity-important"
+              >Latent test race exposed &middot; FIXED</span
+            >
+            <h3>
+              v4.4.0 snapshots synchronously — the shared test buffer raced
+            </h3>
+            <div class="where">
+              cqrs/flightrecorder_test.go:33-100 &middot; go-cqrs-lite
+              projectionhost/worker.go:149 (<code>recorder.Snapshot(ctx)</code>)
+            </div>
+            <p>
+              The old internal recorder made the poll-then-read pattern in tests
+              survive <code>-race</code> by timing luck. v4.4.0 calls
+              <code>Snapshot</code> on the worker goroutine, and the race
+              detector fired immediately on the new trigger test. Root-cause
+              fix: a mutex-guarded <code>syncBuffer</code> writer shared by the
+              recorder and the test's length polls — applied to both
+              flight-recorder tests, suite green at <code>-race</code>.
+            </p>
+          </div>
+
+          <div class="issue issue-important" id="issue-docs">
+            <span class="severity severity-important"
+              >Documentation gap &middot; FIXED</span
+            >
+            <h3>
+              Powerful host options were reachable but undocumented: checkpoint
+              batching and the failure callback
+            </h3>
+            <div class="where">
+              go-cqrs-lite projectionhost/options.go:172
+              (<code>WithCheckpointEvery</code>), options.go:145
+              (<code>WithOnFailed</code>) &middot; now in cqrs/README.md config
+              table
+            </div>
+            <p>
+              <code>WithCheckpointEvery(n)</code> batches live-phase checkpoint
+              saves (added upstream 2026-08-16) — fewer fsync-per-event
+              round-trips at the cost of reprocessing at most n−1 events, a
+              contract projections must already satisfy.
+              <code>WithOnFailed(fn)</code> delivers a synchronous failure
+              callback. Both flow through the wrapper's
+              <code>HostOptions</code> passthrough but appeared nowhere in
+              appkit docs; the README config table now names them.
+            </p>
+            <pre><code>eventSvc, _ := cqrs.NewEventService(cqrs.EventConfig{
     SQLitePath: <span class="tok-string">"events.db"</span>,
     HostOptions: []projectionhost.HostOption{
         projectionhost.WithCheckpointEvery(<span class="tok-number">100</span>), <span class="tok-comment">// batch live-phase saves</span>
@@ -1152,64 +1158,64 @@ FlightRecorderTrigger fr.TriggerFunc <span class="tok-comment">// nil = OnAlways
         }),
     },
 })</code></pre>
-            </div>
+          </div>
 
-            <div class="issue issue-nice" id="issue-scorecard">
-              <span class="severity severity-nice"
-                >Context &middot; Not a defect</span
-              >
-              <h3>
-                The 24 "missing" scorecard modules: false negatives, routed
-              </h3>
-              <div class="where">
-                cqrs-lint scorecard 4.8.1 on go-appkit/cqrs &middot; go-cqrs-lite
-                stack/bundle.go:38-100
-              </div>
-              <p>
-                Three groups. <strong>(a) Reachable at runtime via
-                <code>Bundle()</code></strong> without a direct import:
-                SnapshotStore, ReadModels (kv), Query journals, codecs,
-                BackwardsSource — the wrapper exposes the whole Bundle.
-                <strong>(b) Companion packages by design</strong>: scenario,
-                testutil, prometheus (OTel→Prometheus bridge), catalog, otel/v4
-                — README routes them; appkit's Prometheus readers already go
-                through appkitotel. <strong>(c) Genuine future opt-in
-                candidates</strong> for <code>EventConfig</code>: event
-                encryption (encryption/v4), event signing (signing/v4),
-                idempotency stores, and scheduling — all security/reliability
-                features a consumer cannot get through the Bundle alone. Routed
-                to the ROADMAP list, not added now: premature wrapper surface
-                without a consumer demanding it is YAGNI.
-              </p>
+          <div class="issue issue-nice" id="issue-scorecard">
+            <span class="severity severity-nice"
+              >Context &middot; Not a defect</span
+            >
+            <h3>The 24 "missing" scorecard modules: false negatives, routed</h3>
+            <div class="where">
+              cqrs-lint scorecard 4.8.1 on go-appkit/cqrs &middot; go-cqrs-lite
+              stack/bundle.go:38-100
             </div>
-
-            <div class="issue issue-nice" id="issue-lint-version">
-              <span class="severity severity-nice"
-                >Tooling &middot; Recommendation</span
-              >
-              <h3>cqrs-lint installed at 4.6.0; latest is 4.8.1</h3>
-              <div class="where">
-                <code>cqrs-lint version</code> on PATH &middot; latest tag
-                cmd/cqrs-lint/v4.8.1
-              </div>
-              <p>
-                Verified during this audit: 4.8.1 (built from local source)
-                reports <strong>clean</strong> on this module, and both inline
-                suppressions (E014, P008) still fire — nothing stale to remove.
-                Upgrade the installed binary when convenient; also note 4.8.1
-                rejects the <code>./...</code> argument form (use
-                <code>cqrs-lint .</code> from inside the module).
-              </p>
-            </div>
-          </section>
-
-          <section id="target">
-            <h2><span class="num">03</span>Target state (achieved)</h2>
             <p>
-              One shared go-flightrecorder, one configuration surface, full
-              option visibility:
+              Three groups.
+              <strong
+                >(a) Reachable at runtime via <code>Bundle()</code></strong
+              >
+              without a direct import: SnapshotStore, ReadModels (kv), Query
+              journals, codecs, BackwardsSource — the wrapper exposes the whole
+              Bundle. <strong>(b) Companion packages by design</strong>:
+              scenario, testutil, prometheus (OTel→Prometheus bridge), catalog,
+              otel/v4 — README routes them; appkit's Prometheus readers already
+              go through appkitotel.
+              <strong>(c) Genuine future opt-in candidates</strong> for
+              <code>EventConfig</code>: event encryption (encryption/v4), event
+              signing (signing/v4), idempotency stores, and scheduling — all
+              security/reliability features a consumer cannot get through the
+              Bundle alone. Routed to the ROADMAP list, not added now: premature
+              wrapper surface without a consumer demanding it is YAGNI.
             </p>
-            <pre><code><span class="tok-comment">// main.go — one recorder serves HTTP middleware AND projections</span>
+          </div>
+
+          <div class="issue issue-nice" id="issue-lint-version">
+            <span class="severity severity-nice"
+              >Tooling &middot; Recommendation</span
+            >
+            <h3>cqrs-lint installed at 4.6.0; latest is 4.8.1</h3>
+            <div class="where">
+              <code>cqrs-lint version</code> on PATH &middot; latest tag
+              cmd/cqrs-lint/v4.8.1
+            </div>
+            <p>
+              Verified during this audit: 4.8.1 (built from local source)
+              reports <strong>clean</strong> on this module, and both inline
+              suppressions (E014, P008) still fire — nothing stale to remove.
+              Upgrade the installed binary when convenient; also note 4.8.1
+              rejects the <code>./...</code> argument form (use
+              <code>cqrs-lint .</code> from inside the module).
+            </p>
+          </div>
+        </section>
+
+        <section id="target">
+          <h2><span class="num">03</span>Target state (achieved)</h2>
+          <p>
+            One shared go-flightrecorder, one configuration surface, full option
+            visibility:
+          </p>
+          <pre><code><span class="tok-comment">// main.go — one recorder serves HTTP middleware AND projections</span>
 rec, _ := fr.New(fr.WithFile(<span class="tok-string">"trace.out"</span>))
 _ = rec.Start()
 
@@ -1226,212 +1232,211 @@ events, _ := cqrs.NewEventService(cqrs.EventConfig{
     },
 })
 svc.Config().ReadyCheck = events.ReadyCheck</code></pre>
-            <div class="callout callout-teal">
-              <strong>Why this is better</strong>
-              One runtime trace subsystem instead of two fighting over a
-              process-global slot; terminal projection failures and HTTP error
-              bursts land in the same ring; consumers can gate expensive
-              captures; the module compiles against the version it pins.
-            </div>
-          </section>
+          <div class="callout callout-teal">
+            <strong>Why this is better</strong>
+            One runtime trace subsystem instead of two fighting over a
+            process-global slot; terminal projection failures and HTTP error
+            bursts land in the same ring; consumers can gate expensive captures;
+            the module compiles against the version it pins.
+          </div>
+        </section>
 
-          <section id="plan">
-            <h2><span class="num">04</span>Action plan (Pareto-ranked)</h2>
-            <table class="compare">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Opportunity</th>
-                  <th>Impact</th>
-                  <th>Ease</th>
-                  <th>Priority</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Fix v4.4.0 WithFlightRecorder build break</td>
-                  <td class="yes">5</td>
-                  <td class="yes">5</td>
-                  <td><span class="highlight">25</span></td>
-                  <td class="yes">Done</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Surface FlightRecorderTrigger + test the contract</td>
-                  <td class="yes">4</td>
-                  <td class="yes">4</td>
-                  <td><span class="highlight">16</span></td>
-                  <td class="yes">Done</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>Race-harden flight-recorder tests (syncBuffer)</td>
-                  <td class="yes">4</td>
-                  <td class="yes">4</td>
-                  <td><span class="highlight">16</span></td>
-                  <td class="yes">Done</td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>
-                    Document WithCheckpointEvery / WithOnFailed / HostOptions
-                    surface
-                  </td>
-                  <td>3</td>
-                  <td class="yes">5</td>
-                  <td><span class="highlight">15</span></td>
-                  <td class="yes">Done</td>
-                </tr>
-                <tr>
-                  <td>5</td>
-                  <td>
-                    Update AGENTS.md + CHANGELOG (dep table, option set,
-                    Unreleased)
-                  </td>
-                  <td>3</td>
-                  <td class="yes">5</td>
-                  <td><span class="highlight">15</span></td>
-                  <td class="yes">Done</td>
-                </tr>
-                <tr>
-                  <td>6</td>
-                  <td>Re-run scorecard + cqrs-lint 4.8.1 on fixed build</td>
-                  <td>3</td>
-                  <td class="yes">4</td>
-                  <td><span class="highlight">12</span></td>
-                  <td class="yes">Done</td>
-                </tr>
-                <tr>
-                  <td>7</td>
-                  <td>Upgrade installed cqrs-lint 4.6.0 → 4.8.1</td>
-                  <td>2</td>
-                  <td class="yes">5</td>
-                  <td><span class="highlight">10</span></td>
-                  <td>Open</td>
-                </tr>
-                <tr>
-                  <td>8</td>
-                  <td>
-                    Encrypt/sign opt-ins in EventConfig (encryption/v4,
-                    signing/v4) when a consumer demands it
-                  </td>
-                  <td>3</td>
-                  <td>2</td>
-                  <td><span class="highlight">6</span></td>
-                  <td>Routed to ROADMAP</td>
-                </tr>
-                <tr>
-                  <td>9</td>
-                  <td>
-                    Idempotency store opt-in (idempotency/sqlstore) — same
-                    trigger
-                  </td>
-                  <td>2</td>
-                  <td>2</td>
-                  <td><span class="highlight">4</span></td>
-                  <td>Routed to ROADMAP</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+        <section id="plan">
+          <h2><span class="num">04</span>Action plan (Pareto-ranked)</h2>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Opportunity</th>
+                <th>Impact</th>
+                <th>Ease</th>
+                <th>Priority</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Fix v4.4.0 WithFlightRecorder build break</td>
+                <td class="yes">5</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">25</span></td>
+                <td class="yes">Done</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Surface FlightRecorderTrigger + test the contract</td>
+                <td class="yes">4</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">16</span></td>
+                <td class="yes">Done</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Race-harden flight-recorder tests (syncBuffer)</td>
+                <td class="yes">4</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">16</span></td>
+                <td class="yes">Done</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>
+                  Document WithCheckpointEvery / WithOnFailed / HostOptions
+                  surface
+                </td>
+                <td>3</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">15</span></td>
+                <td class="yes">Done</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>
+                  Update AGENTS.md + CHANGELOG (dep table, option set,
+                  Unreleased)
+                </td>
+                <td>3</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">15</span></td>
+                <td class="yes">Done</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Re-run scorecard + cqrs-lint 4.8.1 on fixed build</td>
+                <td>3</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">12</span></td>
+                <td class="yes">Done</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>Upgrade installed cqrs-lint 4.6.0 → 4.8.1</td>
+                <td>2</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">10</span></td>
+                <td>Open</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>
+                  Encrypt/sign opt-ins in EventConfig (encryption/v4,
+                  signing/v4) when a consumer demands it
+                </td>
+                <td>3</td>
+                <td>2</td>
+                <td><span class="highlight">6</span></td>
+                <td>Routed to ROADMAP</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>
+                  Idempotency store opt-in (idempotency/sqlstore) — same trigger
+                </td>
+                <td>2</td>
+                <td>2</td>
+                <td><span class="highlight">4</span></td>
+                <td>Routed to ROADMAP</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-          <section id="appendix">
-            <h2><span class="num">05</span>Appendix — evidence base</h2>
-            <p>
-              Version currency verified against go-cqrs-lite tags at commit
-              <code>8eb4054c2</code> (2026-09-04):
-            </p>
-            <table class="compare">
-              <thead>
-                <tr>
-                  <th>Module</th>
-                  <th>Pinned</th>
-                  <th>Latest tag</th>
-                  <th>Gap</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>stack/v4</td>
-                  <td>v4.3.0</td>
-                  <td>v4.3.0</td>
-                  <td class="yes">none</td>
-                </tr>
-                <tr>
-                  <td>projectionhost/v4</td>
-                  <td>v4.4.0</td>
-                  <td>v4.4.0</td>
-                  <td class="yes">none</td>
-                </tr>
-                <tr>
-                  <td>event/v4</td>
-                  <td>v4.9.0</td>
-                  <td>v4.9.0</td>
-                  <td class="yes">none</td>
-                </tr>
-                <tr>
-                  <td>storage/v4 (indirect)</td>
-                  <td>v4.8.1</td>
-                  <td>v4.8.1</td>
-                  <td class="yes">none</td>
-                </tr>
-                <tr>
-                  <td>projection/v4</td>
-                  <td>v4.3.0</td>
-                  <td>v4.3.0</td>
-                  <td class="yes">none</td>
-                </tr>
-                <tr>
-                  <td>id/v4</td>
-                  <td>v4.5.0</td>
-                  <td>v4.5.0</td>
-                  <td class="yes">none</td>
-                </tr>
-                <tr>
-                  <td>go-flightrecorder (now direct)</td>
-                  <td>v0.2.0</td>
-                  <td>v0.2.0</td>
-                  <td class="yes">none</td>
-                </tr>
-              </tbody>
-            </table>
-            <p>
-              Verification performed after the fixes
-              (<code>GOWORK=off GOEXPERIMENT=jsonv2</code>): <code>go build</code>,
-              <code>go vet</code>, <code>go test -race -count=1</code> (31
-              tests), <code>golangci-lint</code> 0 issues,
-              <code>cqrs-lint 4.8.1</code> clean (2 suppressions still firing),
-              docs-mod build unaffected.
-            </p>
-            <p>
-              Notable upstream changes reviewed for relevance
-              (go-cqrs-lite CHANGELOG.md): event v4.9.0 streaming-read
-              forwarding through decorators (ADR-0126, OOM-risk fix),
-              v4.8.0 actor propagation through scheduling, projectionhost
-              <code>ErrWorkerFailed</code> sentinel (2026-08-30) and checkpoint
-              batching (2026-08-16), <code>Host.ForceStop</code> hardening set
-              (T19).
-            </p>
-          </section>
+        <section id="appendix">
+          <h2><span class="num">05</span>Appendix — evidence base</h2>
+          <p>
+            Version currency verified against go-cqrs-lite tags at commit
+            <code>8eb4054c2</code> (2026-09-04):
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>Pinned</th>
+                <th>Latest tag</th>
+                <th>Gap</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>stack/v4</td>
+                <td>v4.3.0</td>
+                <td>v4.3.0</td>
+                <td class="yes">none</td>
+              </tr>
+              <tr>
+                <td>projectionhost/v4</td>
+                <td>v4.4.0</td>
+                <td>v4.4.0</td>
+                <td class="yes">none</td>
+              </tr>
+              <tr>
+                <td>event/v4</td>
+                <td>v4.9.0</td>
+                <td>v4.9.0</td>
+                <td class="yes">none</td>
+              </tr>
+              <tr>
+                <td>storage/v4 (indirect)</td>
+                <td>v4.8.1</td>
+                <td>v4.8.1</td>
+                <td class="yes">none</td>
+              </tr>
+              <tr>
+                <td>projection/v4</td>
+                <td>v4.3.0</td>
+                <td>v4.3.0</td>
+                <td class="yes">none</td>
+              </tr>
+              <tr>
+                <td>id/v4</td>
+                <td>v4.5.0</td>
+                <td>v4.5.0</td>
+                <td class="yes">none</td>
+              </tr>
+              <tr>
+                <td>go-flightrecorder (now direct)</td>
+                <td>v0.2.0</td>
+                <td>v0.2.0</td>
+                <td class="yes">none</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Verification performed after the fixes (<code
+              >GOWORK=off GOEXPERIMENT=jsonv2</code
+            >): <code>go build</code>, <code>go vet</code>,
+            <code>go test -race -count=1</code> (31 tests),
+            <code>golangci-lint</code> 0 issues,
+            <code>cqrs-lint 4.8.1</code> clean (2 suppressions still firing),
+            docs-mod build unaffected.
+          </p>
+          <p>
+            Notable upstream changes reviewed for relevance (go-cqrs-lite
+            CHANGELOG.md): event v4.9.0 streaming-read forwarding through
+            decorators (ADR-0126, OOM-risk fix), v4.8.0 actor propagation
+            through scheduling, projectionhost
+            <code>ErrWorkerFailed</code> sentinel (2026-08-30) and checkpoint
+            batching (2026-08-16), <code>Host.ForceStop</code> hardening set
+            (T19).
+          </p>
+        </section>
 
-          <footer class="footer">
-            <p>
-              <strong>Correction (2026-09-04 17:20):</strong> an earlier version
-              of this report stated 24 tests; the verified count is 31 test
-              functions in the cqrs module. Also observed post-publication:
-              the v0.3.0 release wave was pushed to origin (not by this
-              session), so all version tags cited are now public.
-            </p>
-            <p>
-              Generated 2026-09-04 &middot; Reviewed against go-cqrs-lite @
-              8eb4054c2 (projectionhost v4.4.0, event v4.9.0) &middot; All
-              claims verified against local source where noted
-            </p>
-          </footer>
-        </main>
-      </div>
+        <footer class="footer">
+          <p>
+            <strong>Correction (2026-09-04 17:20):</strong> an earlier version
+            of this report stated 24 tests; the verified count is 31 test
+            functions in the cqrs module. Also observed post-publication: the
+            v0.3.0 release wave was pushed to origin (not by this session), so
+            all version tags cited are now public.
+          </p>
+          <p>
+            Generated 2026-09-04 &middot; Reviewed against go-cqrs-lite @
+            8eb4054c2 (projectionhost v4.4.0, event v4.9.0) &middot; All claims
+            verified against local source where noted
+          </p>
+        </footer>
+      </main>
     </div>
 
     <!-- Progressive-enhancement scrollspy. Nav still works without JS via anchor links. -->
