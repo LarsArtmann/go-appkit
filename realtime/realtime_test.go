@@ -603,7 +603,7 @@ func (s *blockingStore) EventsAfter(lastID sse.EventID) ([]sse.Event, error) {
 // with three replay events, mounts it, and connects an SSE client resuming
 // from Last-Event-ID 1. The returned release channel unblocks the store
 // read; broadcasts issued before release are buffered, not lost.
-func connectReplayClient(t *testing.T) (hub *realtime.Hub, resp *http.Response, release chan struct{}) {
+func connectReplayClient(t *testing.T) (*realtime.Hub, *http.Response, chan struct{}) {
 	t.Helper()
 
 	store := &blockingStore{
@@ -615,7 +615,7 @@ func connectReplayClient(t *testing.T) (hub *realtime.Hub, resp *http.Response, 
 		release: make(chan struct{}),
 	}
 
-	hub = realtime.NewHub(realtime.WithStore(store))
+	hub := realtime.NewHub(realtime.WithStore(store))
 	mux := http.NewServeMux()
 	realtime.Mount(mux, "GET /events", hub, realtime.WithHeartbeat(0))
 
@@ -630,7 +630,7 @@ func connectReplayClient(t *testing.T) (hub *realtime.Hub, resp *http.Response, 
 
 	req.Header.Set("Last-Event-ID", "1")
 
-	resp, err = http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("connect: %v", err)
 	}
@@ -643,7 +643,7 @@ func connectReplayClient(t *testing.T) (hub *realtime.Hub, resp *http.Response, 
 func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
 	t.Parallel()
 
-	hub, resp, release := connectReplayClient(t)
+	hub, resp, release := connectReplayClient(t) //nolint:bodyclose // resp closed via t.Cleanup in the helper
 
 	// The handler subscribes before reading the store: once the subscriber
 	// count is 1 while the store read is still blocked, any broadcast is
@@ -674,7 +674,7 @@ func TestHandler_SubscribeBeforeReplay_ClosesGap(t *testing.T) {
 func TestHandler_ReplayLiveDedup(t *testing.T) {
 	t.Parallel()
 
-	hub, resp, release := connectReplayClient(t)
+	hub, resp, release := connectReplayClient(t) //nolint:bodyclose // resp closed via t.Cleanup in the helper
 
 	waitForSubscriber(t, hub, 1)
 
