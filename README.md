@@ -69,10 +69,11 @@ Each module is independently versioned and usable on its own:
 | [otel](otel/)                                 | `github.com/larsartmann/go-appkit/otel`                 | Opt-in OpenTelemetry: provider setup, otelhttp tracing/metrics middleware, trace-correlated logs |
 | [flightrecorder](flightrecorder/)             | `github.com/larsartmann/go-appkit/flightrecorder`       | On-demand runtime/trace capture middleware + snapshot endpoint                                   |
 | [flightrecorderhealth](flightrecorderhealth/) | `github.com/larsartmann/go-appkit/flightrecorderhealth` | Bridges flight recorder with go-health: dashboard visibility + auto-capture on health failures   |
+| [health](health/)                             | `github.com/larsartmann/go-appkit/health`               | go-health probes (critical/non-critical, startup latch) + real-time health dashboard, one wiring call |
 
-> Modules that depend on go-cqrs-lite (cqrs, docs) or templ-components
-> (errorpages) require `GOEXPERIMENT=jsonv2` to build; see each module's
-> README.
+> Most modules (all except otel) require `GOEXPERIMENT=jsonv2` to build —
+> go-cqrs-lite, templ-components, go-health, and go-sse all use
+> `encoding/json/v2`; see each module's README.
 
 ## Configuration
 

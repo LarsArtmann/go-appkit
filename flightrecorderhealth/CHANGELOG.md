@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Bumped `go-health` from v0.0.2 to v0.1.1. The compile-time contract
+  assertions still hold (`health.HealthRecorder`'s
+  `RecordHealthCheckWithContext(ctx, do.Injector) map[string]error`
+  signature is unchanged); the runtime code path never calls go-health, so
+  this is a hygiene bump picking up jsonv2 serialization, the method-set
+  handler guard, the `aggregate` package, and the 2026-09-04 probe
+  lifecycle race fix.
+- **Build requirement change:** the module now requires
+  `GOEXPERIMENT=jsonv2` (go-health v0.1.1 imports `encoding/json/v2`).
+  Previously advertised as jsonv2-free.
+- Go directive bumped 1.26.5 → 1.26.7.
+
 ## [0.1.0] - 2026-08-16
 
 First release of the flightrecorderhealth module. Bridges
@@ -51,9 +65,8 @@ health-check failures through the health dashboard.
 
 ### Notes
 
-- This module does NOT require `GOEXPERIMENT=jsonv2`. Its dependencies
-  (`go-flightrecorder`, `go-health`, `samber/do/v2`) all use plain
-  `encoding/json`.
+- Requires `GOEXPERIMENT=jsonv2` since the go-health v0.1.1 bump (see
+  Unreleased).
 - Process-global singleton constraint applies: Go's `runtime/trace` allows
   only ONE active `flightrecorder.Recorder` per process. See the package
   doc and `go-flightrecorder` README for details.

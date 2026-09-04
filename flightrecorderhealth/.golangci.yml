@@ -3,13 +3,19 @@ version: "2"
 # process-global flight-recorder singleton constraint).
 #
 # Deliberate divergences from go-flightrecorder's config:
-#   - no goexperiment.* build-tags: this module does not require any
-#     GOEXPERIMENT (verified: builds and tests clean without them)
+#   - goexperiment.* build-tags match this module's build requirements
+#     (GOEXPERIMENT=jsonv2 required since the go-health v0.1.1 bump)
 #   - noinlineerr additionally enabled (newer linter, catches inline err decls)
 #   - no gci formatter: goimports is sufficient here
 run:
   timeout: 3m
-  go: "1.26.5"
+  go: "1.26.7"
+  build-tags:
+    - goexperiment.arenas
+    - goexperiment.goroutineleakprofile
+    - goexperiment.jsonv2
+    - goexperiment.runtimesecret
+    - goexperiment.simd
   allow-parallel-runners: true
   allow-serial-runners: true
 output:

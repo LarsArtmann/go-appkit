@@ -4,21 +4,22 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 ## Project Type
 
-- Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.5.
-- Eight Go modules in one repo, independently versioned:
+- Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.7.
+- Nine Go modules in one repo, independently versioned:
   - **core** (`/`) — package `appkit`, HTTP service framework. v0.3.0 prepared 2026-08-16 (push pending); v1.0.0 target.
   - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite v4. v0.3.0 prepared 2026-08-16 (push pending).
   - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0 prepared 2026-08-16 (push pending; first CHANGELOG added same day).
   - **otel** (`/otel`) — package `otel` (alias `appkitotel`), OpenTelemetry provider setup + otelhttp middleware bridge + trace-correlated logging. Added 2026-08-18, unreleased — tag `otel/v0.1.0` with the next wave (drop the example's local `replace ../` at tag time).
   - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0 prepared 2026-08-16 (push pending; first CHANGELOG added same day).
-  - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. **v0.1.0 tagged** at `d3e3e51` (2026-08-16, push pending).
+  - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. **v0.1.0 tagged** at `d3e3e51` (2026-08-16, push pending); go-health bumped v0.0.2 → v0.1.1 on 2026-09-04 (Unreleased — now requires `GOEXPERIMENT=jsonv2`).
+  - **health** (`/health`) — package `health` (alias `appkithealth`), bridges go-health probes + go-health-dashboard real-time UI into appkit services. Added 2026-09-04, unreleased — drop the example's local `replace ../` at tag time. See the Health Module section below.
   - **docs** (`/docs-mod`) — opt-in auto-documentation via catalog/v4. v0.2.0 current (no re-tag needed: since-tag delta is config-only).
   - **errorpages** (`/errorpages`) — pretty classified error pages (HTML/JSON) via templ-components/errorpage. v0.1.0 current (no re-tag needed: since-tag delta is test-only, `83c91bc`).
 - Library consumed by Go applications. Reference consumer: cqrs-htmx `setup` (ADR-001 adoption, blocked only on the push).
 - Source in repository root. Example in `example/main.go`.
 - No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
-- **Six of eight modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly).
-- **`flightrecorderhealth` and `otel` do NOT require `GOEXPERIMENT=jsonv2`** — their deps (`go-health`, `samber/do/v2`, `go-flightrecorder`; OTel v1.45) all use plain `encoding/json`. Builds and tests run with plain `go build`/`go test`.
+- **Eight of nine modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly; **flightrecorderhealth since the go-health v0.1.1 bump, 2026-09-04**; health via go-health + go-sse).
+- **`otel` is the only module that does NOT require `GOEXPERIMENT=jsonv2`** — its deps (OTel v1.45 and friends) all use plain `encoding/json`. Builds and tests run with plain `go build`/`go test`.
 
 ## Release State (2026-08-16)
 
@@ -60,9 +61,13 @@ cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXP
 cd flightrecorder && GOEXPERIMENT=jsonv2 go test ./... -race -count=1
 cd flightrecorder && GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go build ./...
 
-# flightrecorderhealth module (no GOEXPERIMENT required — plain encoding/json)
-go test ./flightrecorderhealth/... -race -count=1
-cd flightrecorderhealth && go vet ./... && go build ./...
+# flightrecorderhealth module (GOEXPERIMENT=jsonv2 required since the go-health v0.1.1 bump, 2026-09-04)
+cd flightrecorderhealth && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
+cd flightrecorderhealth && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
+
+# health module (requires GOEXPERIMENT=jsonv2 — go-health json/v2 + go-sse)
+cd health && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
+cd health && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
 ```
 
 BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
@@ -74,7 +79,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | File              | Concern                                                                                                                                                                                                          |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `service.go`      | `Service` type: NewService, Start, Run, Shutdown (runs ShutdownHooks once, after connections are released; errors joined), Close, Addr, Running. Owns `http.Server` + `net.Listener` + `readyProbe atomic.Bool`. |
-| `config.go`       | `ServiceConfig` struct (`OuterMiddlewares`, `ShutdownHooks`), `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`. Sentinels: `NoTimeout` (-1), `NoDrainDelay` (-2).                                       |
+| `config.go`       | `ServiceConfig` struct (`OuterMiddlewares`, `DrainHooks`, `ShutdownHooks`), `DefaultServiceConfig()`, `applyDefaults()`, `Validate()`. Sentinels: `NoTimeout` (-1), `NoDrainDelay` (-2).                                       |
 | `middleware.go`   | `defaultMiddlewareStack()` + `buildMiddleware()` + `concatMiddlewares()`. Order: OuterMiddlewares → (Middlewares replacement                                                                                     |
 | `logger.go`       | `LogLevel`/`LogFormat` types, `InitLogger()` using charmbracelet/log (Logger IS slog.Handler).                                                                                                                   |
 | `health.go`       | `RegisterHealth(mux)` delegates to httputil. `ReadyHandlerWithProbe(ready)`.                                                                                                                                     |
@@ -134,7 +139,23 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - The `go-health` dependency exists solely for the compile-time interface assertion in `contract_test.go` — no runtime usage. If go-health's `HealthRecorder` interface changes, the build breaks instead of failing silently.
 - Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family) constructors: `flightrecorder.recorder_missing` is `Rejection`, `flightrecorder.recorder_disabled` is `Infrastructure`.
 - Tests use `do.New()` with registered `healthSvc` mocks, `WithMinAge(50ms)` + `WithMaxBytes(1MiB)` + 100ms warmup sleep for trace data.
-- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.0.2`, `samber/do v2.1.0`, `go-error-family v0.10.0`.
+- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.1.1` (bumped 2026-09-04, Unreleased), `samber/do v2.1.0`, `go-error-family v0.10.0`.
+
+## Health Module — Code Organization
+
+| File         | Concern                                                                                                                                        |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`     | Package doc: quick start, route map, lifecycle ordering (Start → Run; DrainHooks → ShutdownHooks), aliasing guidance, GOEXPERIMENT note.        |
+| `probe.go`   | `NewProbe(checks, opts...)` — injector-free go-health probe from a `map[string]CheckFunc`; concurrent per-check batches (`wg.Go`), per-check panic isolation (`errorfamily.Infrastructure` `health.check_panicked`), SDK options pass through (`WithCriticalServices`, `WithTimeout`, …). |
+| `mount.go`   | `New(probe, opts...)` + `Mounted.RegisterRoutes(mux)` + `Mount(mux, ...)` sugar; `Mounted` lifecycle: `Start(ctx)` (initial sync batch + refresh + pusher), `Drain()` (probe → 503), `Shutdown(ctx)` (idempotent, re-Start legal), `Ready()`, `Probe()`, `Dashboard()`; options `WithDashboard(opts...)` (opt-in), `WithProbeRoutes(health.Routes)`. |
+| `example/`   | Demo service: critical + flapping non-critical check, dashboard w/ trend + metrics, full appkit wiring; verified live E2E (lockstep drain 503s). Local `replace ../` to core — REMOVE AT RELEASE TIME. |
+
+- NO core dependency (mount works on any `*http.ServeMux`); the appkit composition is config-level (`DrainHooks`/`ShutdownHooks`/`ReadyCheck`).
+- Consumers alias this module as `appkithealth` when they also import go-health (both packages are named `health`).
+- Dashboard is opt-in (`WithDashboard`); it then registers the probe endpoints from ITS route config (WithBasePath applies uniformly) and serves `/health` — consumers must set `RegisterHealth: &false` (mux panics on the duplicate otherwise).
+- Without dashboard: probe routes only (`/healthz`, `/readyz`, `/startupz`), coexists with appkit's default health endpoints.
+- `Mounted.Drain` in `DrainHooks` = go-health readiness 503 for the WHOLE drain window, in lockstep with appkit's own ready probe (the reason core gained `DrainHooks`).
+- Dependencies: `go-health v0.1.1`, `go-health-dashboard v0.5.0`, `go-error-family v0.10.0`.
 
 ## otel Module — Code Organization
 
@@ -159,7 +180,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - appkit does NOT delegate to `httputil.Server` (it uses `ListenAndServe()` internally, no listener access). appkit owns `http.Server` + `net.Listener` directly for `Addr() net.Addr`.
 - httputil is used for: middleware (`Chain`, `Recovery`, `Logging`, etc.), health (`RegisterHealth`), and types (`Middleware`).
 - `ServiceConfig.RegisterHealth` is `*bool`: nil or `&true` = register health, `&false` = opt out.
-- Graceful drain: `Shutdown()` flips `readyProbe` to false → waits `DrainDelay` → `server.Shutdown(ctx)` → runs `ShutdownHooks` (once, in order; failures don't stop the rest; errors joined + classified Infrastructure).
+- Graceful drain: `Shutdown()` flips `readyProbe` to false → runs `DrainHooks` (external readiness signals flip in lockstep; errors joined, classified Infrastructure) → waits `DrainDelay` → `server.Shutdown(ctx)` → runs `ShutdownHooks` (once, in order; failures don't stop the rest; errors joined + classified Infrastructure).
 - `Run()` uses `signal.NotifyContext` for SIGINT/SIGTERM internally.
 - Errors use go-error-family constructors (`NewRejection`, `WrapInfrastructuref`) instead of `fmt.Errorf`.
 
@@ -276,6 +297,15 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 ## otel Module Gotchas
 
 - **One `Setup` per process** across go-appkit/otel AND go-cqrs-lite's otel module — both register globals; pick one owner for the tracer/meter providers.
+
+## Health Module Gotchas
+
+- **`GOEXPERIMENT=jsonv2` required** to build and test (go-health handlers + go-sse). Always prefix commands with it; `GOWORK=off` for hermetic runs.
+- **WithDashboard requires `RegisterHealth: &false`** — the dashboard owns `/health`; a forgotten opt-out panics in `RegisterRoutes` (duplicate pattern), not silently.
+- **No `GET /` method-qualified catch-all alongside the dashboard** — the dashboard registers method-agnostic `/health`; Go's ServeMux precedence panics on the pair. Register the root handler without a method (the example documents this inline).
+- **`NewProbe` bypasses the `HealthRecorder` path** — go-health ignores `WithHealthRecorder` for `NewWithHealthCheck` probes (documented in the SDK), so `flightrecorderhealth.Trigger` needs an injector-built `health.New` probe; do not promise trigger capture via `NewProbe`.
+- **Dashboard `Start` is not idempotent** (spawns a new pusher each call); `Mounted.Start` guards it — call `Mounted` methods, not the dashboard's, for lifecycle.
+- The pusher reads `CachedResponse` per tick; a probe that was never `Start`ed serves a zero-value response — `Mounted.Start` runs the initial batch synchronously, so use it before serving.
 - `Provider.Shutdown` ForceFlushes both providers BEFORE shutting down: plain Shutdown does not drain the batch processor's async queue and can silently drop final spans (cqrs-lite's otel module has this latent bug upstream — fix pending).
 - Span name carries the method prefix (`GET /users/{id}`); the `http.route` metric attribute does NOT (`/users/{id}`). Assert accordingly.
 - `tracetest.InMemoryExporter.Shutdown` RESETS its buffer — read spans after an explicit `ForceFlush`, BEFORE calling Shutdown.

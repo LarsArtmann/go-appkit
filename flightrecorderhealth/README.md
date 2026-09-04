@@ -5,9 +5,10 @@ and [go-health](https://github.com/LarsArtmann/go-health) — exposes flight
 recorder state in the health dashboard and auto-captures a trace snapshot when
 health checks fail.
 
-> **Build note:** this module does NOT require `GOEXPERIMENT=jsonv2`. Its
-> dependencies (`go-health`, `samber/do/v2`, `go-flightrecorder`) all use plain
-> `encoding/json`.
+> **Build note:** this module requires `GOEXPERIMENT=jsonv2` as of the
+> go-health v0.1.1 bump (go-health serializes health responses with
+> `encoding/json/v2`). `go-flightrecorder` also imports `encoding/json/v2`
+> directly; `samber/do/v2` stays on plain `encoding/json`.
 
 ## What you get
 
