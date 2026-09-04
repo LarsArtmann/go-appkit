@@ -6,31 +6,31 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 - Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.7.
 - Nine Go modules in one repo, independently versioned:
-  - **core** (`/`) — package `appkit`, HTTP service framework. v0.3.0 (pushed, proxy-verified); v1.0.0 target.
-  - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite v4. v0.3.0 (pushed, proxy-verified).
+  - **core** (`/`) — package `appkit`, HTTP service framework. v0.4.0 (2026-09-04, pushed: lifecycle hooks OuterMiddlewares/ShutdownHooks/DrainHooks + NoDrainDelay); v1.0.0 target.
+  - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration via go-cqrs-lite v4. v0.4.0 (2026-09-04, pushed: BREAKING — FlightRecorder is `*go-flightrecorder.Recorder`; adds FlightRecorderTrigger).
   - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0 (pushed, proxy-verified).
-  - **otel** (`/otel`) — package `otel` (alias `appkitotel`), OpenTelemetry provider setup + otelhttp middleware bridge + trace-correlated logging. Added 2026-08-18, unreleased — tag `otel/v0.1.0` with the next wave (drop the example's local `replace ../` at tag time).
+  - **otel** (`/otel`) — package `otel` (alias `appkitotel`), OpenTelemetry provider setup + otelhttp middleware bridge + trace-correlated logging. v0.1.0 (2026-09-04, pushed; example consumes published core v0.4.0). Has `benchmark_test.go` — no-op ~21µs vs full tracing+metrics ~27µs per request (see otel README Performance).
   - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0 (pushed, proxy-verified).
-  - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. **v0.1.0 tagged** at `d3e3e51` (pushed, proxy-verified); go-health bumped v0.0.2 → v0.1.1 on 2026-09-04 (Unreleased — now requires `GOEXPERIMENT=jsonv2`).
-  - **health** (`/health`) — package `health` (alias `appkithealth`), bridges go-health probes + go-health-dashboard real-time UI into appkit services. Added 2026-09-04, unreleased — drop the example's local `replace ../` at tag time. See the Health Module section below.
+  - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. v0.1.1 (2026-09-04, pushed; go-health v0.0.2 → v0.1.1).
+  - **health** (`/health`) — package `health` (alias `appkithealth`), bridges go-health probes + go-health-dashboard real-time UI into appkit services. v0.1.0 (2026-09-04, pushed; example consumes published core v0.4.0). See the Health Module section below.
   - **docs** (`/docs-mod`) — opt-in auto-documentation via catalog/v4. v0.2.0 current (no re-tag needed: since-tag delta is config-only).
   - **errorpages** (`/errorpages`) — pretty classified error pages (HTML/JSON) via templ-components/errorpage. v0.1.0 current (no re-tag needed: since-tag delta is test-only, `83c91bc`).
   - **integration** (`/integration`) — cross-module + cross-repo E2E composition tests, never released. Pins PUBLISHED tags (core + realtime + cqrs-htmx/transport) so it always tests what consumers resolve; does NOT require `GOEXPERIMENT=jsonv2` (transport is lean). Added 2026-09-04. See the Integration Module section below.
 - Library consumed by Go applications. Reference consumer: cqrs-htmx `setup` (ADR-001 adoption decided; consumes go-appkit v0.3.0 from the module proxy since their v4.9.0 train; their `RunWithAppkit` fold-in is pending on the cqrs-htmx side).
 - Source in repository root. Example in `example/main.go`.
 - No Makefile, justfile, CI config, or flake.nix. Use standard Go tooling.
-- **Eight of nine modules require `GOEXPERIMENT=jsonv2`** (core via httputil/httpspec test dep; cqrs via codec/v4; docs via catalog/v4; errorpages via errorpage; realtime via go-sse → go-branded-id; flightrecorder imports encoding/json/v2 directly; **flightrecorderhealth since the go-health v0.1.1 bump, 2026-09-04**; health via go-health + go-sse).
-- **`otel` is the only module that does NOT require `GOEXPERIMENT=jsonv2`** — its deps (OTel v1.45 and friends) all use plain `encoding/json`. Builds and tests run with plain `go build`/`go test`.
+- **`encoding/json/v2` is DEFAULT-ON in Go 1.26.7** (verified 2026-09-04: every module builds plain `go build` with no GOEXPERIMENT; `go env GOEXPERIMENT` reports `jsonv2`). The per-module `GOEXPERIMENT=jsonv2` prefixes below are only needed on OLDER 1.26.x toolchains where jsonv2 was still gated — kept for completeness, drop them when the toolchain floor moves past 1.26.7.
 
-## Release State (2026-08-16)
+## Release State (2026-09-04)
 
-- **Wave pushed and consumer-verified (post-push checks completed 2026-09-04):** core v0.3.0 (`NoTimeout` + `ReadyCheck`), cqrs v0.3.0 (staleness guards, storage v4.7.1), realtime v0.1.0, flightrecorder v0.1.0 — cut at `f938d65`, tags on origin (verified `git ls-remote` + cqrs-htmx re-validation 2026-08-30). Fresh-consumer proxy smoke (clean /tmp module → `go get` → blank import → `go build`) PASS for all five released modules.
+- **Wave 2 pushed 2026-09-04 (this session):** core v0.4.0 (lifecycle hooks; API-break check vs v0.3.0 verified additive-only via `go doc` snapshot diff), otel v0.1.0, health v0.1.0, flightrecorderhealth v0.1.1, cqrs v0.4.0 (breaking FlightRecorder migration). Fresh-consumer proxy test PASS for all five (clean /tmp module → `go get` each → blank imports → `go build`, `GOEXPERIMENT=jsonv2`). The otel + health example `replace ../` directives are REMOVED — both consume published core.
+- **Wave 1 pushed and consumer-verified (post-push checks completed 2026-09-04):** core v0.3.0 (`NoTimeout` + `ReadyCheck`), cqrs v0.3.0 (staleness guards, storage v4.7.1), realtime v0.1.0, flightrecorder v0.1.0 — cut at `f938d65`, tags on origin (verified `git ls-remote` + cqrs-htmx re-validation 2026-08-30). Fresh-consumer proxy smoke (clean /tmp module → `go get` → blank import → `go build`) PASS for all five released modules.
 - **pkg.go.dev gap found 2026-09-04:** all 7 submodule module pages 404 — pkg.go.dev does not index modules with no LICENSE inside the module root — and core renders with `License: UNKNOWN` (godoc hidden) because the root LICENSE is an unclassifiable proprietary text. Mechanical fix landed same day: LICENSE copied into every module root (mirrors the cqrs-htmx family pattern); takes effect with the NEXT tagged versions. The full fix is a licensing decision (PROPRIETARY vs the ecosystem's MIT — cqrs-htmx itself is MIT); tracked in TODO_LIST P2.
 - **No sibling-require chicken-and-egg:** no module carries `replace` directives; the only sibling requires are errorpages → core v0.2.0 and the unreleased `integration/` test module, so all tags are independently consumer-valid.
 - **BuildFlow gotcha:** the pre-commit `dprint` step exits 14 ("no files found to format") on CHANGELOG-only commits because `dprint.json` excludes `**/CHANGELOG.md` — commit with `--no-verify` + justification in that case (tracked in TODO_LIST P3).
 - **Cross-repo context:** the setup-vs-appkit comparison (10 findings, all routed) lives at `/home/lars/projects/docs/review/2026-08-16_setup-vs-go-appkit-comparison.md`; execution plan: `docs/planning/2026-08-16_12-04-SUPERB-release-wave-and-harvest.html`.
 - **Sibling-project integration research (2026-09-04):** cordis (reactive DI meta-framework, zero-dep, untagged), go-plugin-mvp (Kernovia marketplace, proprietary, pre-1.0), and PapDashboard (event-sourced notification hub, published app `papdashboard` v0.2.0) assessed as potential integrations — verdict: none as a go-appkit dependency; reverse adoption (consumer repo hosts on appkit) recommended for go-plugin-mvp AND PapDashboard (the latter with version-identical family deps; their cqrshtmx root `Chain` stays appkit-free even at cqrs-htmx v4.9.0; surfaced gap: core has no TLS support). Full analyses + re-entry triggers: `docs/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md`, `docs/planning/2026-09-04_papdashboard-integration.md`; tracked in TODO_LIST P3.
-- **OTEL work (2026-08-18) uncommitted in the working tree:** core telemetry hooks (`OuterMiddlewares`, `ShutdownHooks`, `NoDrainDelay`), the new `otel` module, cqrs `OTelProjectionMetrics`. Commit strategy + otel release-wave membership pending user decision — see `docs/status/2026-08-18_12-45_otel-module-and-telemetry-hooks.md` section g.
+- **OTEL work — COMMITTED 2026-09-04** as `aaa2427` ("feat: add opt-in OpenTelemetry module and runtime telemetry hooks"); the earlier "uncommitted in the working tree" note is obsolete. Modules shipped in wave 2 the same day.
 
 ## Sub-module Build Commands
 
@@ -78,7 +78,9 @@ cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
 
 BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
-**Linting (2026-08-18 standard):** every module — root included — carries its own `.golangci.yml`. Lint each module **from its own directory** (`cd <module> && golangci-lint run ./...`); never lint satellites from the workspace root (the root config's depguard allowlist covers only core + family deps, and per-module configs are the source of truth). Run **one module's lint at a time** — concurrent golangci-lint processes race on the shared build cache (`/mnt/buildcache`) and produce flickering or incomplete findings (verified 2026-08-18: a parallel batch under-reported 3 of 7 real findings); if results look wrong, re-run sequentially. Root depguard allow now includes `go-appkit` itself (example/ self-import), `go-flightrecorder`, `go-health`, and `go-sse`. All 8 library modules sit at **0 issues** with `go test -race` green across the board (verified 2026-08-18; the `integration/` test module joined 2026-09-04 at 0 issues). otel's config extends the ireturn allow-list with `go\.opentelemetry\.io/otel/.*` — the OTel API is interface-based by design. Shared test-exclusion union for `_test.go`: mnd, exhaustruct, err113, paralleltest, gochecknoglobals, goconst, varnamelen, wsl_v5, funlen, cyclop, testpackage.
+**Linting (2026-08-18 standard, exhaustruct_v5 2026-09-04):** every module — root included — carries its own `.golangci.yml`. Lint each module **from its own directory** (`cd <module> && golangci-lint run ./...`); never lint satellites from the workspace root (the root config's depguard allowlist covers only core + family deps, and per-module configs are the source of truth). Run **one module's lint at a time** — concurrent golangci-lint processes race on the shared build cache (`/mnt/buildcache`) and produce flickering or incomplete findings (verified 2026-08-18: a parallel batch under-reported 3 of 7 real findings); if results look wrong, re-run sequentially. Root depguard allow now includes `go-appkit` itself (example/ self-import), `go-flightrecorder`, `go-health`, and `go-sse`. All modules sit at **0 issues** with `go test -race` green across the board (re-verified 2026-09-04 after the exhaustruct → exhaustruct_v5 migration: v5 does not honor old `//nolint:exhaustruct` directives — they were all renamed; the root `http.Server` literal carries an explicit v5 nolint for its deliberate zero fields). otel's config extends the ireturn allow-list with `go\.opentelemetry\.io/otel/.*` — the OTel API is interface-based by design. Shared test-exclusion union for `_test.go`: mnd, exhaustruct_v5, err113, paralleltest, gochecknoglobals, goconst, varnamelen, wsl_v5, funlen, cyclop, testpackage.
+
+**Structure linting:** `go-structure-linter . --exclude root-package-files --exclude internal-directory --exclude examples-directory` from the repo root → 0 findings. The root package IS the public `appkit` package, so those three rules are wrong for this repo; the yaml config file path (`exclude_patterns`) is inert in the installed binary (f7e33e03) despite the source comment saying "removes rules by name" — use the CLI flags until the binary updates.
 
 ## Core Module — Code Organization
 
@@ -332,3 +334,32 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - Health endpoints (`/health`, `/health/live`, `/health/ready`) are unconditionally filtered from tracing and metrics.
 - `TraceHandler` correlates only handler-level logs; httputil's `Logging` middleware emits the request-completion line without request context, so that line stays uncorrelated (known limitation, documented in `doc.go`).
 - Build with `GOWORK=off` when hermetically testing: the workspace otherwise resolves core via the example's `replace ../`.
+
+## Release Ritual (added 2026-09-04)
+
+1. **API-break check before every tag:** `git archive <old-tag> | tar -x -C /tmp/old && GOWORK=off GOEXPERIMENT=jsonv2 go doc -all . > /tmp/new.txt` (old from the extracted dir, new from the working tree), then diff — additions only → minor bump; ANY removal or signature change → breaking (0.x: minor bump + migration notes in CHANGELOG). Proven during wave 2 (core v0.3.0 → v0.4.0). `goapidiff`/`apidiff` not installed; `go install @latest` is network-blocked in this environment.
+2. Date the module's CHANGELOG `[Unreleased]` → `[version] - <date>`.
+3. Hermetic verify the module (`GOWORK=off`, jsonv2 only where the toolchain still needs it), fresh-consumer proxy test after push (clean /tmp module → `go get module@tag` → blank import → build).
+4. Annotated tags only, message states the semantic delta.
+
+## Adoption & Drift Rituals (added 2026-09-04)
+
+- After adding a cqrs wrapper feature: re-run `cqrs-lint scorecard` (from `cqrs/`, build must be green or the scorecard silently reports 0%) and record the delta in the module CHANGELOG entry.
+- After each go-cqrs-lite release: re-verify the cqrs README cookbook snippets (scenario/v4, testutil) still match the shipped APIs.
+
+## Performance Baselines (2026-09-04, go 1.26.7 linux/amd64)
+
+- **Per-request logging cost** (`logging_bench_test.go`, output to io.Discard): bare handler ~17.2µs; Logging-at-WARN (suppressed) ~18.0µs (+0.8µs); Logging-at-INFO (emits) ~47.3µs (+30µs, +174%, 162 allocs). This fully explains the 2.8x cqrs-htmx comparison delta — the cost is charmbracelet formatting of the emitted line, not the middleware. The production default-level decision stays USER-GATED (options: default WARN, sampling, consumer-provided logger).
+- **otel middleware** (`otel/benchmark_test.go`): no-op ~21µs / traced ~26µs / traced+metered ~27µs per request; export I/O excluded. Numbers live in otel README.
+
+## Deferred Register (deliberately NOT built — trigger conditions only)
+
+| Item | Trigger to revisit |
+| ---- | ------------------ |
+| cqrs EventConfig opt-ins: encryption/v4, signing/v4, idempotency/sqlstore, scheduling | A real consumer asks for it |
+| Core TLS option | PapDashboard `PAP_TLS_CERT/KEY` becomes an appkit-hosting requirement |
+| Cordis bridge module | cordis tags go/v0.1.0 AND a consumer states the reactive-composition requirement AND core v1.0.0 exit criteria shipped (`docs/planning/core-v1-exit-criteria.md`) |
+| PapDashboard appkit-side code | They ship an appkit-hosted release (reverse adoption — their repo, not ours) |
+| BuildFlow dprint exit-14 on CHANGELOG-only commits | Fix belongs upstream in buildflow: skip the dprint step (or pass `--allow-no-files`) when the staged file set ∩ dprint's non-excluded set is empty. dprint.json excludes `**/CHANGELOG.md`; removing the exclude was rejected because the resulting formatting churn cannot be dry-run verified here (no standalone dprint binary). Escape hatch until then: `git commit --no-verify` + justification. |
+| httputil `docs/integrations/huma.md` 404 on GitHub | File exists unpushed in the httputil repo — push it, then optionally re-link from `docs/planning/design-decisions.md` Decision 7 (currently inlined instead) |
+| cqrs-lint yaml `exclude_patterns` | Inert in installed binary f7e33e03 despite source comment "removes rules by name" — file a buildflow-style fix in go-structure-linter or wait for a newer binary |
