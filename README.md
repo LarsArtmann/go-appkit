@@ -53,7 +53,8 @@ That gives you:
 go get github.com/larsartmann/go-appkit
 ```
 
-Requires Go 1.26.5 or later.
+Requires Go 1.26.7 or later (this is the toolchain the framework is
+verified on; `encoding/json/v2` must be available, see below).
 
 ## Modules in this repository
 
@@ -71,9 +72,13 @@ Each module is independently versioned and usable on its own:
 | [flightrecorderhealth](flightrecorderhealth/) | `github.com/larsartmann/go-appkit/flightrecorderhealth` | Bridges flight recorder with go-health: dashboard visibility + auto-capture on health failures   |
 | [health](health/)                             | `github.com/larsartmann/go-appkit/health`               | go-health probes (critical/non-critical, startup latch) + real-time health dashboard, one wiring call |
 
-> Most modules (all except otel) require `GOEXPERIMENT=jsonv2` to build —
-> go-cqrs-lite, templ-components, go-health, and go-sse all use
-> `encoding/json/v2`; see each module's README.
+> **JSON v2 requirement:** the dependency stack (go-cqrs-lite,
+> templ-components, go-health, go-sse) uses `encoding/json/v2`. Go 1.26.7
+> enables it **by default** — no configuration needed. On older 1.26.x
+> toolchains where it is still gated, prefix builds and tests with
+> `GOEXPERIMENT=jsonv2`. Each module's README documents its own history
+> with the experiment; the per-module notes in `AGENTS.md` track the
+> gory details.
 
 ## Configuration
 
