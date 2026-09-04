@@ -1,0 +1,145 @@
+# Status: Batteries Gap-Analysis Review, Triage, and Wave-1 Start
+
+**Date:** 2026-09-04 21:03 CEST
+**Session scope:** Review of `docs/feedback/new/2026-09-04_batteries-included-sdk-gap-analysis.md` (40 proposed batteries, 7 clusters A-G, from the CV consumer perspective), claim verification, execution of the two immediately-actionable quick wins (G3, F3), triage of all 40 items into project tracking, and honest self-audit.
+**Format note:** user explicitly requested `.md` at `docs/status/` — this overrides the status-report skill's HTML default (flagged per skill rules; not propagated as a new default).
+
+---
+
+## a) FULLY DONE
+
+| # | Work | Evidence | Scope |
+| --- | --- | --- | --- |
+| 1 | Feedback-doc claim verification: all **25/25 CV port-from paths exist**; appkit facts confirmed (go-etag v0.2.0 indirect-unused in core go.mod; `service.go` TLS zero-field seam at the `http.Server` literal; default stack Recovery→RequestID→Logging→(Timeout)→SecurityHeaders; `Hub.Health()`/`SubscriberCount()`; httputil rejects `*` in CSRF TrustedOrigins at `csrf.go:189`; errorpages taxonomy present). **One factual error found:** G3 listed drain phase order as "wait → hooks"; true order is hooks BEFORE the wait (lockstep drain window). | greps + file reads this session; corrected inline in the processed doc | CV repo, core, realtime, errorpages, httputil |
+| 2 | **G3 shutdown phase logging** implemented in core `Shutdown`: per-phase INFO lines (`shutdown phase complete` with `phase` ∈ ready_flip, drain_hooks, drain_wait, listener_close, shutdown_hooks + `duration`), `shutdown phase skipped` under `NoDrainDelay`, final `graceful shutdown complete` with `total` + `result` (ok/error). Never-started services log nothing. | commit `dd71a56` (+ `8a500a7` wsl fixes); 3 new tests in `shutdownlog_test.go` (sequence, drain_wait timing ≥ delay, error result); full `-race` suite green 6.0s; `golangci-lint` 0 issues | `service.go`, `shutdownlog_test.go` (new) |
+| 3 | **F3 README battery**: gopls false-`string literal not terminated` warning added to the JSON v2 note (the CV-reported trap that cost a misdiagnosed session); drain-sequence section fixed — it still said 3 steps and omitted `DrainHooks`/`ShutdownHooks` (drift since 0.4.0) — now documents all 5 phases + the log contract. | commit `8a500a7`; README `### Graceful drain sequence` + JSON v2 blockquote | `README.md` |
+| 4 | **TODO_LIST triage**: removed 4 stale entries, each independently re-verified before removal — "README GOEXPERIMENT" (done in execution wave; P1 closed-note lists it), "mechanical API-break check" (done — Release Ritual #1, proven v0.3.0→v0.4.0), "DrainDelay sweep" (done in wave; satellites re-verified clean by grep this session), "cqrs-lint 4.6.0→4.8.1" (done, zero remainder). Enriched F2 entry with the appkit-side half (request-ID-scoped logger + `X-Response-Time`, CV `timing.go` 116 LOC). | commit `6abe1d8`; grep re-verification for the sweep | `TODO_LIST.md` |
+| 5 | **Battery routing**: W1 leftovers (G2 metrics, F5 buildinfo, E1 testkit seed) + W2 security module (A1-A8 with the load-bearing traps: MaxKeys cap mandatory, fail-closed CSRF bypass, unsafe-eval NEVER, HSTS off in dev) → TODO_LIST **P2**; W3-W5 (httpx, worker, sqlite, polite, do-bridge, config, realtime C1-C3) → TODO_LIST **P3** with "canonical spec, do not duplicate" pointer. | commit `6abe1d8` | `TODO_LIST.md` |
+| 6 | **Feedback doc lifecycle**: `git mv docs/feedback/new/ → docs/feedback/processed/` (history preserved), triage header added (what shipped, what routed, what was corrected), F3 + G3 matrix rows and G3 section marked DONE with the phase-order correction inline. | commits `cdf22e5`/`6abe1d8` | processed doc |
+| 7 | **Memory + release docs**: AGENTS.md (Release State battery-triage bullet, core file table service.go row, Gotchas phase-logging contract), FEATURES.md (+1 FULLY_FUNCTIONAL row with evidence), CHANGELOG.md (`[Unreleased]` section with both shipped items). | commit `f02755a`, `6abe1d8` | AGENTS.md, FEATURES.md, CHANGELOG.md |
+| 8 | **Verification gate**: `go build`, `go vet`, full `-race -count=1` core suite (6.0s), `golangci-lint run` **0 issues** (after fixing 2 wsl_v5 findings my change introduced). | CLI runs this session | core module |
+
+## b) PARTIALLY DONE
+
+| # | Item | What works | What remains | Blocker / effort |
+| --- | --- | --- | --- | --- |
+| 1 | G3 phase logging | Coded, tested, race-clean | **Unreleased** — sits in `[Unreleased]`; will ship with the next core tag; no fresh-consumer proxy test until then (not meaningful pre-tag) | Release train timing; S |
+| 2 | W1 wave | 1 of 6 items shipped (G3); F2 enriched | G2, F5, E1 not started; G1 TLS stays demand-gated | Deliberate scope decision, not a blocker; M each |
+| 3 | Feedback-doc annotation | Matrix rows F3/G3 + G3 section + triage header done | The **Sequencing wave table** (bottom) and the A-F cluster section headers for routed-but-open items are NOT annotated (their open-ness is intentional; routing lives in TODO_LIST) | Cosmetic; S |
+| 4 | LSP golines warning (`shutdownlog_test.go:240`) | Authoritative checks clean: `golangci-lint run` 0 issues, `awk` shows no line >120 chars, `golines -w` is a no-op | **Root cause not determined** — LSP golangci-lint apparently evaluates golines with different settings than the module config (max-len 120); I discharged the warning via CLI evidence instead of fixing the config mismatch | Unknown — needs LSP config investigation; S |
+| 5 | F3 / F2 battery | README editor note shipped | The underlying F2 half (httputil `Logging` emit with request context) is a separate tracked TODO — enriched only | Tracked in TODO_LIST P3; M |
+| 6 | Git state at report time | Daemon committed all code + docs (`dd71a56`, `8a500a7`, `cdf22e5`, `6abe1d8`, `f02755a`); working tree clean | Commit messages are daemon-generated ("auto-commit N changed file(s)") — the session's work is NOT described in history; a squashed descriptive commit or tag note would help future archaeology | Daemon design; S |
+
+## c) NOT STARTED
+
+- **W2 security module (A1-A8)** — top consumer demand per the feedback doc; all 8 batteries are port-ready from CV (sources verified). Not started: module doesn't exist yet (scaffold + quick wins A2/A3/A4/A8/A6 first per the doc's own sequencing).
+- **W1 leftovers** — G2 opt-in Prometheus surface, F5 BuildInfo, E1 testkit seed harness.
+- **W3 httpx module (B1-B9)** — including the classification-parity oracle test vs errorpages and the ResponseWriter contract assertion.
+- **W4 ops & data (D1-D8, F1, F4)** — worker supervisor, sqlite ops kit, polite client, do bridge, idempotency store, atomic write, webhook, scheduler, koanf config, hot-reload.
+- **W5 realtime completions (C1-C3)** — drop counters, per-subscriber auth/filter, and the projection→broadcast folded contract (the doc's "must-have").
+- **Pre-existing user-gated items (untouched, correctly)** — licensing decision, logging posture decision, upstream cqrs-lite ForceFlush issue, Go toolchain bump past 1.26.7.
+
+Why not started: one session; the doc's own sequencing puts W0/W1 quick wins first, and both actionable W0/W1 items that were safely shippable without new-module scaffolding are done. Creating the `security/` module (go.mod, LICENSE, lint config, go.work, release ritual) is the next structural decision.
+
+## d) TOTALLY FUCKED UP
+
+Nothing destroyed, no data loss, no broken builds — but radical honesty per section:
+
+1. **Two malformed TODO edits (process error, self-caught).** I wrote "DONE … removed from this list" lines that *stayed in* TODO_LIST — directly contradicting docs-health's delete-don't-annotate rule. Took 2 extra edit rounds to fix. Root cause: I applied an annotate reflex to a living doc. Severity: none (caught immediately); cost: wasted rounds.
+2. **Tool-order fumbles.** Edited CHANGELOG before reading it in-session (tool rejected; re-read, retried). First `git mv` failed because `docs/feedback/processed/` didn't exist in this repo (convention known from cqrs-htmx, but I didn't check the target existed). Severity: friction only.
+3. **Verification scope narrower than my closing implied.** I reported "build + vet + tests + lint 0 issues" without labeling it **core-module-only**. The other 9 workspace modules were neither built nor tested this session. Defensible (zero cross-module impact: satellites either don't depend on core or pin published tags via proxy; no `replace`), but the AGENTS.md "all modules green" standard was not re-run. Severity: medium-honesty, low-technical.
+4. **Structure-lint gate skipped.** `go-structure-linter` (0-findings repo standard) and the formatter-verification path for edited markdown tables (dprint has no standalone binary here; formatting is daemon-trusted on commit) were not executed. Severity: low.
+5. **Unilateral API-surface decision.** The `shutdown phase skipped` line emits at INFO by my choice (explicit config visibility); DEBUG is equally defensible. Not "fucked up" — but it's a decision I made alone and should surface (see question 3).
+6. **Did I lie?** No. But item 3 above is the closest call: true statements, under-labeled scope.
+
+**Ghost systems / split brains (brutal-review checklist):** none created — G3 is integrated end-to-end (code, tests, README, CHANGELOG, FEATURES, AGENTS). One split brain *found and fixed*: README's 3-step drain sequence vs the code's 5-phase reality (drift since 0.4.0's DrainHooks). Remaining known split brain: the processed doc's Sequencing table vs TODO_LIST (wave status only partially mirrored) — item b3.
+
+## e) WHAT WE SHOULD IMPROVE
+
+1. **Workspace-wide verification as a gate** when core changes: one script/loop building + racing all 10 modules. Impact: kills the "core-only green" honesty gap permanently. Cost: minutes.
+2. **Root-cause LSP-vs-CLI linter config mismatch** (item b4) instead of discharging warnings with CLI evidence — the discrepancy will bite on every new file.
+3. **docs-health delete-rule on first pass**: when a TODO is done, delete it in the same edit that touches the entry — don't annotate-then-delete living docs.
+4. **Pre-check target paths for `git mv`/new dirs** (the feedback `processed/` convention exists in sibling repos but not automatically here).
+5. **Daemon commit quality**: auto-commits erase commit-message archaeology. Consider a session-end descriptive squash or at least a tag/notes convention for shipped features (G3 is discoverable only via CHANGELOG).
+6. **Run `go-structure-linter` + formatter checks as part of the "done" checklist** for any core change, not just `golangci-lint`.
+7. **Feedback-doc annotation completeness**: when marking items done, sweep the doc's own summary tables (Sequencing) in the same pass.
+8. **Unilateral observable-behavior decisions (log levels, line formats) should land as a listed review item**, even when small — they're contract-ish (grep-able) once shipped.
+
+## f) Up to 50 things to get done next
+
+> Harvest state: items 11-45 are ALREADY routed into TODO_LIST (P2/P3) from this session — HARVEST must not duplicate them. Items 1-10 and 46-50 are NEW candidates from this session's self-audit and need routing.
+
+**Session-audit follow-ups (new, need routing):**
+
+| # | Task | Impact | Effort | Category |
+| --- | --- | --- | --- | --- |
+| 1 | Add a workspace verify loop (build + `-race` all 10 modules) and run it as the wave gate | High | S | Quality |
+| 2 | Root-cause the golines LSP warning (LSP vs module `.golangci.yml` max-len/config path) and align | Medium | S | Bug |
+| 3 | Run `go-structure-linter` after the next core change; add it to the personal done-checklist | Medium | S | Quality |
+| 4 | Annotate the processed doc's Sequencing table (W0 done, W1 partial) | Low | S | Documentation |
+| 5 | Decide `shutdown phase skipped` log level: keep INFO (explicit) or drop to DEBUG (quiet default) | Low | S | Feature |
+| 6 | Improve daemon-commit archaeology: descriptive session-end note (CHANGELOG already carries it; consider git notes) | Medium | S | Cleanup |
+| 7 | Verify dprint formatting of the session's markdown table edits on next commit (watch for re-alignment churn) | Low | S | Quality |
+| 8 | When G3 ships in the next core tag: run the fresh-consumer proxy test + API-break snapshot diff per Release Ritual | High | S | Quality |
+| 9 | Fold the battery freeze-scope into `docs/planning/core-v1-exit-criteria.md` (G4.3 endorsement) | Medium | S | Documentation |
+| 10 | Pre-check `docs/reviews/` convention: brutal-self-review skill wants HTML there — decide if this session's audit graduates to one | Low | S | Documentation |
+
+**Battery waves (already routed to TODO_LIST — listed for the full picture):**
+
+| # | Task | Impact | Effort | Category |
+| --- | --- | --- | --- | --- |
+| 11 | Scaffold `security/` module (go.mod, LICENSE, `.golangci.yml`, doc.go, go.work, README, CHANGELOG) | High | S | Feature |
+| 12 | A2 API-key auth: SHA-256 + constant-time, `?key=` GET/HEAD-only; port CV's 4 pin tests (query-rejected-on-POST, header-wins, accepts-correct, missing-`Next()` empty-200 trap) | High | S | Feature |
+| 13 | A2b `APIKeyCSRFBypass`: fail-closed (header skips the dance, key still validated) + bypass-still-validates test | High | S | Feature |
+| 14 | A3 rate-limit profiles: `MaxKeys` cap mandatory (memory-DoS bound), 429-not-overwritten regression, `Retry-After`, XFF shared-bucket semantics documented | High | S | Feature |
+| 15 | A4 origin check (Origin→Referer fallback, 403 on miss) + port `origin_check_test.go` | Medium | S | Feature |
+| 16 | A8 body limit: typed error, never silent truncation | Medium | S | Feature |
+| 17 | A6 `SanitizeText`/`SanitizeURL` + the `&not=`→`¬=` bluemonday regression test | Medium | S | Feature |
+| 18 | A1 CSRF middleware: `*` in TrustedOrigins = log-and-degrade, NEVER allow-all | High | S | Feature |
+| 19 | A5 CSP nonce infra + policy builder: unsafe-eval NEVER any env, deterministic policy order, JSON-LD exemption; README documents `*`-does-not-imply-eval | High | M | Feature |
+| 20 | A7 env-tuned security headers: HSTS off dev/staging (LAN-over-http lockout trap) | Medium | S | Feature |
+| 21 | Release security v0.1.0 per ritual (tag message, fresh-consumer proxy test) | High | S | Quality |
+| 22 | E1 testkit seed: `Serve(t, svc)` with FullChainURL vs MuxURL + goroutine-baseline teardown assert (the doc's W1 gate: testkit verifies later batteries) | High | M | Feature |
+| 23 | F5 BuildInfo: `WithVersion` → /health version field + /version endpoint | Medium | S | Feature |
+| 24 | G2 opt-in Prometheus surface: `ServiceConfig.Metrics{Path}`, route-pattern histogram, in-flight gauge; document the unit-1 `_ratio` exporter trap | High | M | Feature |
+| 25 | F2 appkit half: handler-scoped request-ID logger + `X-Response-Time` (port CV `timing.go`) | Medium | S | Feature |
+| 26 | G1 TLS: `ServiceConfig.TLS{CertFile,KeyFile}` (demand-gated on PapDashboard hosting) | High | M | Feature |
+| 27 | B1 ResultHandler family: errors map through go-error-family, taxonomy identical to errorpages | High | M | Feature |
+| 28 | B-classification-parity test vs errorpages (one taxonomy, two renderings — the oracle) | High | S | Quality |
+| 29 | B2 bind+validation: tagged adapter types only (json/v2 case-sensitivity 400 trap), snake_case tags | High | S | Feature |
+| 30 | B9 no-leak error responses + leaked-detail matrix test (paths, hostnames, SQL scrubbed) | High | S | Feature |
+| 31 | B3 ResponseWriter contract: `WrapWriter` + `AssertForwardsInterfaces` must FAIL on the hidden-Flusher shape (discrimination proof) | High | S | Feature |
+| 32 | B4 conditional GET: promote go-etag; weak/comma/`*`/If-Modified-Since matrix; byte-determinism prerequisite | Medium | S | Feature |
+| 33 | B5 content negotiation (`Negotiate`) | Medium | S | Feature |
+| 34 | B7 per-route write deadlines: prefix-matched, must sit OUTSIDE compression (ordering regression test) | Medium | S | Feature |
+| 35 | B6 route introspection + golden-route test — first check what core registration seam is needed (`svc.Routes()` prerequisite in core) | High | M | Feature |
+| 36 | B8 route metadata → docs-mod live feed (docs cannot drift from routes) | Medium | M | Feature |
+| 37 | D7 idempotency store: `CheckAndRecord`, TTL expiry test, `Close()` JOINS the evict goroutine (CV's leak lesson) | High | S | Feature |
+| 38 | D4 atomic file write: pin go-atomic-write ≥ v0.5.1 floor (Windows `ERROR_SHARING_VIOLATION` trap), verify current version | Medium | S | Feature |
+| 39 | D6 best-effort webhook sender: bounded in-flight, per-attempt timeout, no-retry default, optional HMAC | Medium | S | Feature |
+| 40 | D1 worker supervisor + typed pool: instance-shaped (not CV's global singleton), panic-restart counts, start-during-shutdown joins ×100 baseline | High | M | Feature |
+| 41 | D5 polite outbound client: port `http_politeness_test.go` pins wholesale (revalidation, POST exclusion, cross-host spacing, byte budget) | High | M | Feature |
+| 42 | D3 sqlite ops kit: lease matrix (takeover/stale/foreign-host/refcount), VACUUM INTO backup round-trip, capped atomic JSON ledger, `SetMaxOpenConns(1)` discipline docs | High | L | Feature |
+| 43 | D2 samber/do bridge (~300 LOC): `Register` + error-propagating `Resolve[T]`; single shutdown owner | Medium | M | Feature |
+| 44 | D8 scheduler: tick + jitter + single-flight + missed-tick policy; explicitly NOT cron parsing | Medium | S | Feature |
+| 45 | C1/C3/C2 realtime completions: drop counters on `hub.Health`, per-subscriber `WithAuthorize`/`WithFilter`, then the folded-broadcast contract with CV's mid-fold discriminator test (the must-have) | High | M | Feature |
+
+**Process/user-gated (already tracked, restated for completeness):**
+
+| # | Task | Impact | Effort | Category |
+| --- | --- | --- | --- | --- |
+| 46 | Licensing decision (USER GATE) → then pkg.go.dev re-render check for all 9 modules (P1 blocker) | Critical | S | Decision |
+| 47 | Logging posture decision (USER GATE: default WARN vs sampling vs consumer-provided; benchstat before/after) | High | M | Decision |
+| 48 | Upstream cqrs-lite otel `Provider.Shutdown` ForceFlush issue (verify-before-filing) | Medium | S | Bug |
+| 49 | F1 koanf config module + env-override discoverability helper | Medium | M | Feature |
+| 50 | F4 config hot-reload: fsnotify + validate-gate → atomic swap → hook | Medium | M | Feature |
+
+## g) Questions I cannot figure out myself
+
+1. **License posture (blocks the P1 item):** keep PROPRIETARY (pkg.go.dev hides all godoc, submodule pages 404 — real adoption cost for a framework courting consumers) or adopt a standard license (cqrs-htmx itself is MIT)? This is a business/legal call only you can make, and it gates every external adopter and the P1 verification work.
+2. **Next-wave priority:** build the W2 `security` module next (hottest demand, CV sources verified port-ready), or E1 testkit first (the doc's own gate says "testkit verifies every later battery")? I can sequence either; the demand-vs-gate tradeoff is yours.
+3. **`shutdown phase skipped` at INFO:** keep it (explicit visibility that the drain wait was disabled by config — appears in every test run and CLI tool) or drop it to DEBUG (quieter production logs for the common enabled case)? Ops taste call; renaming/moving it later breaks the grep contract.
+
+---
+
+*Point-in-time snapshot 2026-09-04 21:03 CEST. Working tree clean; all session work committed by the auto-commit daemon (`dd71a56`, `8a500a7`, `cdf22e5`, `6abe1d8`, `f02755a`).*
