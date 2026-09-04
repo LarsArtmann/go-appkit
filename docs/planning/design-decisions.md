@@ -115,7 +115,12 @@ svc.Shutdown(shutdownCtx)
 
 **Decision:** appkit documents the Huma integration pattern but does NOT import Huma.
 
-**Rationale:** Huma wraps `svc.Mux` INSIDE via `humago.New(mux, config)`. httputil middleware wraps OUTSIDE via `httputil.Chain`. The layers never collide — httputil already [documented and proved this](https://github.com/LarsArtmann/httputil/blob/main/docs/integrations/huma.md). Huma is a consumer choice, not a framework dependency.
+**Rationale:** Huma wraps `svc.Mux` INSIDE via `humago.New(mux, config)`.
+httputil middleware wraps OUTSIDE via `httputil.Chain`. Each layer sees a
+clean interface — Huma hands appkit an `http.Handler` it never inspects, and
+appkit's chain wraps a mux it never rewraps — so composition order is
+explicit and the layers cannot collide. Huma is a consumer choice, not a
+framework dependency.
 
 **What appkit provides:**
 

@@ -1,0 +1,17 @@
+# go-appkit structure-linter config
+#
+# The root module IS the public `appkit` package (import path
+# github.com/larsartmann/go-appkit resolves to the package at root — that is
+# the framework's public layout, mirroring single-package module roots like
+# spf13/cobra). The rules below assume an application-style layout
+# (cmd/internal/pkg) and are deliberately disabled:
+#
+# - root-package-files: the 7 core package files (service.go, config.go,
+#   middleware.go, logger.go, health.go, errors.go, shutdown.go) at the root
+#   are the public API, not misplaced application code.
+# - internal-directory / examples-directory: there is no private
+#   implementation to hide; the example lives at example/ per Go convention.
+exclude_rules:
+  - root-package-files
+  - internal-directory
+  - examples-directory
