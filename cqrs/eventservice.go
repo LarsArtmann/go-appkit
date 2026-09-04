@@ -13,11 +13,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/larsartmann/go-cqrs-lite/flightrecorder/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
 	"github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4"
 	stack "github.com/larsartmann/go-cqrs-lite/stack/v4"
 	errorfamily "github.com/larsartmann/go-error-family"
+	fr "github.com/larsartmann/go-flightrecorder"
 )
 
 // EventConfig configures the CQRS event service.
@@ -45,14 +45,24 @@ type EventConfig struct {
 	DLQ *DLQConfig
 
 	// FlightRecorder captures a runtime/trace snapshot when a projection
-	// worker exhausts its restart budget and transitions to WorkerFailed —
-	// terminal failures are rare and high-signal, so every one is captured
-	// (OnAlways). The recorder must be started separately, typically at
-	// application startup; snapshots go to the recorder's configured writer.
-	// Go allows only ONE active flight recorder per process: coordinate with
-	// the HTTP-level github.com/larsartmann/go-flightrecorder used by the
-	// appkit/flightrecorder middleware module if you are tempted to run both.
-	FlightRecorder *flightrecorder.Recorder
+	// worker exhausts its restart budget and transitions to WorkerFailed.
+	// The type is github.com/larsartmann/go-flightrecorder — the same
+	// recorder the appkit/flightrecorder middleware module uses, so ONE
+	// shared recorder instance can serve both HTTP-level and
+	// projection-level captures. Go still allows only ONE active flight
+	// recorder per process; start it once, typically at application
+	// startup — snapshots go to the recorder's configured writer.
+	// Default trigger: capture on every terminal failure (rare and
+	// high-signal); customize via FlightRecorderTrigger.
+	FlightRecorder *fr.Recorder
+
+	// FlightRecorderTrigger decides whether a terminal projection-worker
+	// failure captures a trace snapshot. It receives an fr.TriggerContext
+	// (Kind "projection", Type = projection name, Err = terminal error)
+	// and is evaluated synchronously on the worker goroutine — keep it
+	// fast. Nil (default) captures every terminal failure (fr.OnAlways).
+	// Only consulted when FlightRecorder is set.
+	FlightRecorderTrigger fr.TriggerFunc
 
 	// Metrics observes projection host lifecycle events: processed and
 	// errored events, dead-letter captures, worker restarts and terminal
@@ -209,7 +219,8 @@ func (cfg EventConfig) hostOptions() []projectionhost.HostOption {
 	}
 
 	if cfg.FlightRecorder != nil {
-		opts = append(opts, projectionhost.WithFlightRecorder(cfg.FlightRecorder, nil))
+		opts = append(opts,
+			projectionhost.WithFlightRecorder(cfg.FlightRecorder, cfg.FlightRecorderTrigger))
 	}
 
 	if cfg.Metrics != nil {
