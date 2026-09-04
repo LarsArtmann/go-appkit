@@ -44,6 +44,9 @@ mounted, err := appkithealth.New(probe, appkithealth.WithDashboard(
 	dashboard.WithTrend(300),
 	dashboard.WithMetrics(true),
 ))
+if err != nil {
+	return // handle construction failure
+}
 
 cfg := appkit.DefaultServiceConfig()
 cfg.RegisterHealth = &no // this module serves the richer health surface
@@ -54,9 +57,14 @@ cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
 cfg.ShutdownHooks = append(cfg.ShutdownHooks, mounted.Shutdown)
 
 svc, err := appkit.NewService(cfg)
+if err != nil {
+	return // handle construction failure
+}
+
 mounted.RegisterRoutes(svc.Mux)
 
-_ = mounted.Start(ctx) // probe cache + dashboard pusher, initial batch runs synchronously
+ctx := context.Background()
+_ = mounted.Start(ctx) // probe cache + dashboard pusher; initial batch runs synchronously
 _ = svc.Run(ctx)       // blocks until SIGINT/SIGTERM
 ```
 

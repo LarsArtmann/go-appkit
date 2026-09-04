@@ -14,6 +14,13 @@
   infrastructure failures. The canonical use is flushing telemetry providers
   so their spans cover the final in-flight requests. A service that never
   started does not run its hooks.
+- `ServiceConfig.DrainHooks`: run once, in order, at the start of the
+  shutdown drain — after the ready probe flips to false but before the drain
+  wait and listener close. The hook point the `health` module needs to flip
+  mounted go-health readiness surfaces in lockstep with the framework's own
+  probe, so every readiness endpoint reports 503 for the whole drain window;
+  errors are joined with the shutdown result. A service that never started
+  does not run its hooks.
 - `NoDrainDelay` sentinel: skips the drain wait in `Shutdown`. Zero is not
   "no delay" — it applies the 5s default — so tests previously paid 5s per
   shutdown; `NoDrainDelay` is the explicit opt-out (the ready probe still
@@ -23,6 +30,13 @@
   (spans + semantic-convention metrics + W3C propagation, health endpoints
   filtered by default), HTTP histogram views, and slog trace correlation
   (`TraceHandler`). No core dependency: works on any `http.Handler`.
+- `health` module (package `health`, import alias `appkithealth`): bridges
+  go-health (three-probe checks with critical/non-critical classification,
+  background caching, startup latch, shutdown awareness) and the
+  go-health-dashboard real-time UI (SSE, trend, Prometheus, webhooks) into
+  appkit services. `NewProbe` for injector-free checks, `New`/`Mount` for
+  mux wiring, `Drain`/`Shutdown` wired via `DrainHooks`/`ShutdownHooks`. No
+  core dependency; requires `GOEXPERIMENT=jsonv2`.
 
 ### Fixed
 
