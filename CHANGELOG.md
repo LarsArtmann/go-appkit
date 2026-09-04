@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Shutdown phase logging: every phase of `Service.Shutdown` emits one INFO
+  line ("shutdown phase complete" carrying the phase name and its duration) —
+  `ready_flip`, `drain_hooks`, `drain_wait` (or a `shutdown phase skipped`
+  line when `NoDrainDelay` is set), `listener_close`, `shutdown_hooks` —
+  followed by a "graceful shutdown complete" line with the total duration and
+  the joined `result` (`ok`/`error`), so deploys are diagnosable from logs
+  alone. A service that never started still logs nothing and runs no hooks.
+- README: the JSON v2 build note now warns that gopls running without
+  `GOEXPERIMENT=jsonv2` (older-toolchain setups) reports FALSE `string
+  literal not terminated` diagnostics on files importing `encoding/json/v2`,
+  and the graceful drain sequence documents the hook phases plus the
+  per-phase log lines.
+
 ## [0.4.0] - 2026-09-04
 
 ### Added

@@ -1,5 +1,7 @@
 # Feedback: go-appkit's path to a REAL batteries-included SDK
 
+> **Triage (2026-09-04, same day):** claims verified against HEAD and the CV sources — all 25 port-from paths exist; the appkit facts check out (go-etag indirect-unused, `service.go` TLS seam, 5-middleware default stack, `Hub.Health`/`SubscriberCount`). One factual error found and corrected inline below (G3 phase order). **Shipped same day:** F3 (README gopls note), G3 (shutdown phase logging — core `CHANGELOG.md` [Unreleased]). **Routed:** W1 leftovers + W2 security → `TODO_LIST.md` P2; W3-W5 → `TODO_LIST.md` P3 (the doc stays the canonical spec — do not duplicate its sketches). Endorsed items already tracked: F2 (enriched), G1, G4.
+
 - **From:** the CV consumer perspective (`github.com/LarsArtmann/CV` — the family's deepest hand-rolled HTTP stack, 13,876 LOC runtime layer, 51 test files, every invariant scar-dated)
 - **Date:** 2026-09-04 (replaces the first draft — this version adds per-item API sketches, port-from source inventory, effort sizing, acceptance test names, and 8 previously-missed batteries)
 - **Method:** every gap verified against go-appkit HEAD (core `middleware.go`/`service.go`/`config.go`/go.mod, `realtime/`, `health/`, `errorpages/`, `cqrs/`, TODO_LIST) and against CV's production code. Nothing proposes a feature that exists; where TODO_LIST tracks an item, this doc marks it **ENDORSED** and adds consumer evidence.
@@ -71,12 +73,12 @@
 | E4 | Middleware chain-order snapshot | `testkit`+core | S | M | implicit in CV integration tests | NEW |
 | F1 | koanf config module | `config` | M | M | CV `internal/config` | NEW |
 | F2 | Request-ID log correlation + timing | core | S | M | `internal/middleware/timing.go` (116) | ENDORSED (TODO P3) |
-| F3 | README build notes (json/v2) | docs | S | M | — | ENDORSED (TODO P2) |
+| F3 | ~~README build notes (json/v2)~~ | docs | S | M | — | **DONE 2026-09-04** (README JSON v2 note existed since the execution wave; gopls false-`string literal not terminated` editor note added — core CHANGELOG [Unreleased]) |
 | F4 | Config hot-reload | `config` | M | M | `career-pipeline/profileagent/platform_spec.go` | NEW |
 | F5 | BuildInfo battery | core | S | M | `internal/version/version.go` | NEW |
 | G1 | TLS support | core | M | H | — | ENDORSED (TODO P3, PapDashboard demand) |
 | G2 | Prometheus surface in core | core | M | M | CV `/metrics` | NEW |
-| G3 | Shutdown phase logging | core | S | M | CV drain logs | NEW |
+| G3 | ~~Shutdown phase logging~~ | core | S | M | CV drain logs | **DONE 2026-09-04** (per-phase INFO lines + total line; core CHANGELOG [Unreleased]) |
 | G4 | Licensing + API-break check + v1 criteria | process | S | H | — | ENDORSED (TODO P1/P2) |
 
 ---
@@ -504,9 +506,9 @@ CV's `cv --version` stamps `main.version/commit/date`; go-health already takes `
 
 `ServiceConfig.Metrics{Path: "/metrics"}` → request-duration histogram by route pattern, in-flight gauge, response totals, build info — WITHOUT the otel module (CV's `/metrics` is pure Prometheus; Gatus feeds on it; the otel metered path (~27µs/req) stays the tool when tracing is on). Encode the unit-1 trap in the helper docs: OTEL's Prometheus exporter appends `_ratio` to unit-1 metrics — CV hit it live.
 
-## G3 — Shutdown phase logging · S · NEW
+## G3 — Shutdown phase logging · S · DONE 2026-09-04
 
-One INFO line per phase with duration: ready-flip → drain wait → drain hooks → listener close → shutdown hooks → joined errors. ~20 LOC; CV diagnoses deploys from exactly these logs.
+~~One INFO line per phase with duration: ready-flip → drain wait → drain hooks → listener close → shutdown hooks → joined errors.~~ Shipped 2026-09-04 with the TRUE execution order (the draft above had it wrong — drain hooks run inside the traffic window, BEFORE the wait): `ready_flip` → `drain_hooks` → `drain_wait` (or a `shutdown phase skipped` line under `NoDrainDelay`) → `listener_close` → `shutdown_hooks`, then `graceful shutdown complete` with total + `result` (`ok`/`error`). Phase names are a grep-able contract; `shutdownlog_test.go` pins the sequence. CV diagnoses deploys from exactly these logs.
 
 ## G4 — Process endorsements (no new work; priority signal)
 
