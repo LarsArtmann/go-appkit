@@ -62,6 +62,29 @@ _ = es.ResetProjection(ctx, "user-projection", projectionhost.WithPurgeDeadLette
 The default SQLite store also implements `projectionhost.DeadLetterStoreAdmin`
 (Count, ListPaged, PurgeBefore) — type-assert to use it for admin dashboards.
 
+### Sharing one flight recorder
+
+`FlightRecorder` takes `*go-flightrecorder.Recorder` — the same type the
+appkit `flightrecorder` middleware uses. Start ONE recorder at startup and
+hand it to both layers; Go allows only a single active recorder per process,
+and one instance serves both HTTP-level and projection-level captures:
+
+```go
+rec, _ := fr.New(fr.WithFile("trace.out"))
+_ = rec.Start()
+defer rec.Stop()
+
+appkitCfg.OuterMiddlewares = []httputil.Middleware{
+    flightrecorder.Middleware(rec, fr.OnError()),
+}
+cfg.FlightRecorder = rec        // projection captures on WorkerFailed
+cfg.FlightRecorderTrigger = nil // nil = capture every terminal failure
+```
+
+`FlightRecorderTrigger` gates projection captures per failure; it receives
+an `fr.TriggerContext` (Kind `"projection"`, Type = projection name,
+Err = terminal error) and must stay fast — it runs on the worker goroutine.
+
 ### Readiness
 
 `ReadyCheck()` reports whether every projection worker is live or fully
@@ -224,7 +247,7 @@ consumers for CQRS anti-patterns and API misuse:
 
 ```bash
 cqrs-lint init        # create .cqrs-lint.json (library-framework preset for framework wrappers)
-cqrs-lint ./...       # lint
+cqrs-lint .           # lint (4.8.1+ rejects the ./... form — run from inside the module)
 cqrs-lint scorecard   # which go-cqrs-lite capabilities you use / miss
 cqrs-lint rules       # rule reference
 ```
