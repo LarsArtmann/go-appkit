@@ -23,23 +23,31 @@ import (
 
 	"github.com/larsartmann/go-appkit"
 	appkithealth "github.com/larsartmann/go-appkit/health"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/go-health"
 	dashboard "github.com/larsartmann/go-health-dashboard"
+)
+
+const (
+	defaultPort         = "8081"
+	flapWindowSeconds   = 3
+	flapPeriodSeconds   = 15
+	dashboardTrendCount = 300
 )
 
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8081"
+		port = defaultPort
 	}
 
-	no := false
+	healthDisabled := false
 
 	checks := map[string]appkithealth.CheckFunc{
 		"database": func(context.Context) error { return nil },
 		"cache": func(context.Context) error {
-			if time.Now().Second()%15 < 3 {
-				return fmt.Errorf("cache evicting")
+			if time.Now().Second()%flapPeriodSeconds < flapWindowSeconds {
+				return errorfamily.NewInfrastructure("demo.cache_evicting", "cache evicting")
 			}
 
 			return nil
@@ -49,7 +57,7 @@ func main() {
 	probe := appkithealth.NewProbe(checks, health.WithCriticalServices("database"))
 
 	mounted, err := appkithealth.New(probe, appkithealth.WithDashboard(
-		dashboard.WithTrend(300),
+		dashboard.WithTrend(dashboardTrendCount),
 		dashboard.WithMetrics(true),
 	))
 	if err != nil {
@@ -58,7 +66,7 @@ func main() {
 
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = "localhost:" + port
-	cfg.RegisterHealth = &no
+	cfg.RegisterHealth = &healthDisabled
 	cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
 		mounted.Drain()
 
@@ -86,13 +94,14 @@ func main() {
 
 	ctx := context.Background()
 
-	if err := mounted.Start(ctx); err != nil {
+	if err := mounted.Start(ctx); err != nil { //nolint:noinlineerr // example brevity
 		log.Fatalf("start health surface: %v", err)
 	}
 
-	log.Printf("dashboard at http://localhost:%s/health", port)
+	log.Printf("dashboard at http://localhost:%s/health", port) //nolint:gosec // demo: port comes from the operator's own env
 
-	if err := svc.Run(ctx); err != nil {
+	err = svc.Run(ctx)
+	if err != nil {
 		log.Fatalf("run: %v", err)
 	}
 }

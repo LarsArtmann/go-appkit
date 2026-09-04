@@ -36,23 +36,23 @@ func NewProbe(checks map[string]CheckFunc, opts ...health.Option) *health.Probe 
 		results := make(map[string]error, len(checks))
 
 		var (
-			mu sync.Mutex
-			wg sync.WaitGroup
+			resultsMu sync.Mutex
+			batchWG   sync.WaitGroup
 		)
 
 		for name, check := range checks {
-			wg.Go(func() {
-				defer recordCheckPanic(name, results, &mu)
+			batchWG.Go(func() {
+				defer recordCheckPanic(name, results, &resultsMu)
 
 				err := check(ctx)
 
-				mu.Lock()
+				resultsMu.Lock()
 				results[name] = err
-				mu.Unlock()
+				resultsMu.Unlock()
 			})
 		}
 
-		wg.Wait()
+		batchWG.Wait()
 
 		return results
 	}
@@ -63,14 +63,14 @@ func NewProbe(checks map[string]CheckFunc, opts ...health.Option) *health.Probe 
 // recordCheckPanic converts a panic inside a check goroutine into that
 // check's error. Registered before the check runs so it also catches panics
 // thrown mid-execution; recover is nil-valued on the normal path.
-func recordCheckPanic(name string, results map[string]error, mu *sync.Mutex) {
+func recordCheckPanic(name string, results map[string]error, resultsMu *sync.Mutex) {
 	recovered := recover()
 	if recovered == nil {
 		return
 	}
 
-	mu.Lock()
-	defer mu.Unlock()
+	resultsMu.Lock()
+	defer resultsMu.Unlock()
 
 	results[name] = errorfamily.Newf(
 		errorfamily.Infrastructure,

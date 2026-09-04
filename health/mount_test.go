@@ -42,7 +42,8 @@ func getBody(t *testing.T, url string, header http.Header) (int, http.Header, st
 	if err != nil {
 		t.Fatalf("request %s: %v", url, err)
 	}
-	defer resp.Body.Close()
+
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -55,15 +56,18 @@ func getBody(t *testing.T, url string, header http.Header) (int, http.Header, st
 func TestMount_RejectsNilArguments(t *testing.T) {
 	t.Parallel()
 
-	if _, err := Mount(nil, nil); err == nil {
+	_, err := Mount(nil, nil)
+	if err == nil {
 		t.Error("nil mux must be rejected")
 	}
 
-	if _, err := Mount(http.NewServeMux(), nil); err == nil {
+	_, err = Mount(http.NewServeMux(), nil)
+	if err == nil {
 		t.Error("nil probe must be rejected")
 	}
 
-	if _, err := New(nil); err == nil {
+	_, err = New(nil)
+	if err == nil {
 		t.Error("nil probe must be rejected by New")
 	}
 }
@@ -218,7 +222,8 @@ func TestMount_WithDashboardServesHTMLJSONAndProbes(t *testing.T) {
 		Status string `json:"status"`
 	}
 
-	if err := json.Unmarshal([]byte(body), &payload); err != nil {
+	err = json.Unmarshal([]byte(body), &payload)
+	if err != nil {
 		t.Fatalf("decode json %q: %v", body, err)
 	}
 
