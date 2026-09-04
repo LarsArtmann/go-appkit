@@ -3,6 +3,7 @@ package health
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -316,5 +317,9 @@ func TestMount_StartPropagatesProbeValidationErrors(t *testing.T) {
 	err = mounted.Start(t.Context())
 	if err == nil {
 		t.Fatal("invalid probe configuration must fail Start")
+	}
+
+	if !errors.Is(err, health.ErrInvalidTimeout) {
+		t.Errorf("err = %v, want errors.Is match on health.ErrInvalidTimeout through the wrap", err)
 	}
 }

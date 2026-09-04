@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `example/` — runnable demo service (critical + flapping non-critical
   check, dashboard with trend + metrics, full appkit lifecycle wiring),
   verified live end to end.
-- 17 tests: probe classification, panic isolation, concurrency, bounded
+- 14 tests: probe classification, panic isolation, concurrency, bounded
   contexts; mount routes (probe-only, custom, dashboard), drain behavior,
   lifecycle guards, validation propagation. Race-clean.
 

@@ -98,7 +98,8 @@ func main() {
 		log.Fatalf("start health surface: %v", err)
 	}
 
-	log.Printf("dashboard at http://localhost:%s/health", port) //nolint:gosec // demo: port comes from the operator's own env
+	dashURL := fmt.Sprintf("http://localhost:%s/health", port)
+	log.Printf("dashboard at %s", dashURL) //nolint:gosec // demo: port comes from the operator's own env
 
 	err = svc.Run(ctx)
 	if err != nil {

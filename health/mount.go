@@ -142,9 +142,9 @@ type Mounted struct {
 // goroutine. Call it once before serving traffic; call it again only after
 // [Mounted.Shutdown].
 //
-// An invalid probe configuration surfaces here as the SDK's validation
-// error (match with errors.Is against health.ErrInvalidTimeout /
-// health.ErrInvalidRefreshInterval).
+// An invalid probe configuration surfaces here, wrapped as a rejection —
+// match with errors.Is against health.ErrInvalidTimeout /
+// health.ErrInvalidRefreshInterval.
 func (m *Mounted) Start(ctx context.Context) error {
 	m.mu.Lock()
 	if m.started {
@@ -166,13 +166,15 @@ func (m *Mounted) Start(ctx context.Context) error {
 		m.started = false
 		m.mu.Unlock()
 
-		return err
+		// Config-validation errors from the SDK stay matchable via
+		// errors.Is (e.g. health.ErrInvalidTimeout) through the wrap.
+		return errorfamily.WrapRejectionf(err, "health.probe_start_failed", "start health probe")
 	}
 
 	if m.dashboard != nil {
-		err := m.dashboard.Start(ctx)
+		err = m.dashboard.Start(ctx)
 		if err != nil {
-			return err
+			return errorfamily.WrapInfrastructuref(err, "health.dashboard_start_failed", "start dashboard pusher")
 		}
 	}
 
