@@ -107,3 +107,20 @@ README's observability section.
 
 Builds with plain `go build` — unlike six of the seven sibling modules, this
 one does not need `GOEXPERIMENT=jsonv2`.
+
+## Performance
+
+`BenchmarkMiddleware_*` (see `benchmark_test.go`; go 1.26.7, linux/amd64,
+median of 3x1s runs; `httptest` round-trip against `w.WriteHeader(200)`):
+
+| Variant                 | ns/op  | B/op   | allocs/op |
+| ----------------------- | ------ | ------ | --------- |
+| NoOp (no providers)     | 21,200 | 7,913  | 90        |
+| Traced (spans)          | 26,400 | 11,033 | 90        |
+| Traced + metered (full) | 27,400 | 11,042 | 90        |
+
+Full instrumentation costs ~6us/req (~+29%) and ~3.1KB over the no-op path,
+with zero additional allocations; export I/O is excluded by design (batching
+processor, no exporter wired). The no-op baseline is the cost of the
+middleware existing in the chain with the module imported but no providers —
+the strictly-opt-in guarantee in numbers.

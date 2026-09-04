@@ -22,15 +22,22 @@ func runMiddlewareBenchmark(b *testing.B, mw func(http.Handler) http.Handler) {
 	server := httptest.NewServer(mw(http.HandlerFunc(benchmarkHandler)))
 	b.Cleanup(server.Close)
 
+	client := server.Client()
+
 	b.ResetTimer()
 
 	for b.Loop() {
-		res, err := http.Get(server.URL)
+		req, err := http.NewRequestWithContext(b.Context(), http.MethodGet, server.URL, nil)
+		if err != nil {
+			b.Fatalf("build request: %v", err)
+		}
+
+		res, err := client.Do(req)
 		if err != nil {
 			b.Fatalf("request failed: %v", err)
 		}
 
-		res.Body.Close()
+		_ = res.Body.Close()
 	}
 }
 
