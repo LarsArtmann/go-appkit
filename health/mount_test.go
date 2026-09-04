@@ -62,6 +62,35 @@ func TestMount_RejectsNilArguments(t *testing.T) {
 	if _, err := Mount(http.NewServeMux(), nil); err == nil {
 		t.Error("nil probe must be rejected")
 	}
+
+	if _, err := New(nil); err == nil {
+		t.Error("nil probe must be rejected by New")
+	}
+}
+
+func TestNew_RegisterRoutesIsThePrimaryAppkitFlow(t *testing.T) {
+	t.Parallel()
+
+	mounted, err := New(NewProbe(healthyChecks()))
+	if err != nil {
+		t.Fatalf("new: %v", err)
+	}
+
+	mux := http.NewServeMux()
+	mounted.RegisterRoutes(mux)
+
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	err = mounted.Start(t.Context())
+	if err != nil {
+		t.Fatalf("start: %v", err)
+	}
+
+	code, _, _ := getBody(t, server.URL+"/readyz", nil)
+	if code != http.StatusOK {
+		t.Errorf("GET /readyz = %d, want 200", code)
+	}
 }
 
 func TestMount_ProbeOnlyRegistersKubeletRoutes(t *testing.T) {

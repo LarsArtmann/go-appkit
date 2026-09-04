@@ -24,24 +24,24 @@
 //
 //	probe := appkithealth.NewProbe(checks, health.WithCriticalServices("database"))
 //
-//	cfg := appkit.DefaultServiceConfig()
-//	cfg.RegisterHealth = &no // this module serves the richer health surface
-//	cfg.ReadyCheck = nil     // probe readiness is served by /readyz itself
-//
-//	svc, err := appkit.NewService(cfg)
-//	// ...
-//
-//	mounted, err := appkithealth.Mount(svc.Mux, probe, appkithealth.WithDashboard(
+//	mounted, err := appkithealth.New(probe, appkithealth.WithDashboard(
 //		dashboard.WithTrend(300),
 //		dashboard.WithMetrics(true),
 //	))
 //	// ...
 //
+//	cfg := appkit.DefaultServiceConfig()
+//	cfg.RegisterHealth = &no // this module serves the richer health surface
 //	cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
 //		mounted.Drain()
 //		return nil
 //	})
 //	cfg.ShutdownHooks = append(cfg.ShutdownHooks, mounted.Shutdown)
+//
+//	svc, err := appkit.NewService(cfg)
+//	// ...
+//
+//	mounted.RegisterRoutes(svc.Mux)
 //
 //	ctx := context.Background()
 //	if err := mounted.Start(ctx); err != nil { // probe cache + dashboard pusher

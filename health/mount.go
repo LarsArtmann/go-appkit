@@ -42,27 +42,26 @@ func WithProbeRoutes(routes health.Routes) MountOption {
 	return func(c *mountConfig) { c.probeRoutes = routes }
 }
 
-// Mount registers the health surface on the mux and returns lifecycle
-// handles for appkit's DrainHooks and ShutdownHooks. Without WithDashboard,
-// only the probe endpoints (/healthz, /readyz, /startupz by default) are
-// registered; with it, the dashboard owns all routes, including the probe
-// endpoints.
+// New creates the health surface lifecycle handle without registering any
+// routes. Use it when the config must reference the handle before the
+// service's mux exists — the primary appkit flow:
 //
-// Mount does not start anything: call [Mounted.Start] before serving
-// traffic.
-func Mount(mux *http.ServeMux, probe *health.Probe, opts ...MountOption) (*Mounted, error) {
-	if mux == nil {
-		return nil, errorfamily.Newf(
-			errorfamily.Rejection,
-			"health.mount_mux_missing",
-			"mux must not be nil",
-		)
-	}
-
+//	mounted, err := appkithealth.New(probe, appkithealth.WithDashboard())
+//	cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
+//		mounted.Drain()
+//		return nil
+//	})
+//	cfg.ShutdownHooks = append(cfg.ShutdownHooks, mounted.Shutdown)
+//	svc, err := appkit.NewService(cfg)
+//	mounted.RegisterRoutes(svc.Mux)
+//
+// Register the routes with [Mounted.RegisterRoutes] before serving. [Mount]
+// is the one-shot convenience for muxes that already exist.
+func New(probe *health.Probe, opts ...MountOption) (*Mounted, error) {
 	if probe == nil {
 		return nil, errorfamily.Newf(
 			errorfamily.Rejection,
-			"health.mount_probe_missing",
+			"health.probe_missing",
 			"probe must not be nil",
 		)
 	}
@@ -72,24 +71,61 @@ func Mount(mux *http.ServeMux, probe *health.Probe, opts ...MountOption) (*Mount
 		opt(&cfg)
 	}
 
-	m := &Mounted{probe: probe}
+	m := &Mounted{probe: probe, probeRoutes: cfg.probeRoutes}
 
 	if cfg.dashboardEnabled {
 		m.dashboard = dashboard.New(probe, cfg.dashboardOptions...)
-		m.dashboard.RegisterRoutes(mux)
-	} else {
-		probe.RegisterRoutes(mux, cfg.probeRoutes)
 	}
 
 	return m, nil
 }
 
-// Mounted is the lifecycle handle for a health surface registered by [Mount].
-// Wire [Mounted.Drain] into ServiceConfig.DrainHooks and [Mounted.Shutdown]
-// into ServiceConfig.ShutdownHooks; call [Mounted.Start] before serving.
+// Mount registers the health surface on the mux and returns lifecycle
+// handles for appkit's DrainHooks and ShutdownHooks. It is [New] followed by
+// [Mounted.RegisterRoutes] — use it when the mux already exists.
+func Mount(mux *http.ServeMux, probe *health.Probe, opts ...MountOption) (*Mounted, error) {
+	if mux == nil {
+		return nil, errorfamily.Newf(
+			errorfamily.Rejection,
+			"health.mount_mux_missing",
+			"mux must not be nil",
+		)
+	}
+
+	m, err := New(probe, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	m.RegisterRoutes(mux)
+
+	return m, nil
+}
+
+// RegisterRoutes registers the health surface's routes on the mux: the probe
+// endpoints (/healthz, /readyz, /startupz by default), plus the dashboard's
+// routes when mounted with [WithDashboard] — the dashboard then owns the
+// probe endpoints too, so its WithBasePath / WithRoutes options apply
+// uniformly. Register exactly once; the mux panics on duplicate patterns.
+func (m *Mounted) RegisterRoutes(mux *http.ServeMux) {
+	if m.dashboard != nil {
+		m.dashboard.RegisterRoutes(mux)
+
+		return
+	}
+
+	m.probe.RegisterRoutes(mux, m.probeRoutes)
+}
+
+// Mounted is the lifecycle handle for a health surface created by [New] and
+// registered with [Mounted.RegisterRoutes]. Wire [Mounted.Drain] into
+// ServiceConfig.DrainHooks and [Mounted.Shutdown] into
+// ServiceConfig.ShutdownHooks; call [Mounted.Start] before serving.
 type Mounted struct {
 	probe     *health.Probe
 	dashboard *dashboard.Dashboard
+
+	probeRoutes health.Routes
 
 	mu      sync.Mutex
 	started bool
