@@ -1,314 +1,549 @@
-# Feedback: What go-appkit needs to become a REAL batteries-included SDK
+# Feedback: go-appkit's path to a REAL batteries-included SDK
 
-- **From:** the CV consumer perspective (`github.com/LarsArtmann/CV` — the family's deepest hand-rolled HTTP stack)
-- **Date:** 2026-09-04
-- **Method:** every gap below was verified against go-appkit source at HEAD (core `middleware.go`/`service.go`/`config.go`, `realtime/`, `health/`, `errorpages/`, `cqrs/`, TODO_LIST) and against CV's production code. Nothing here proposes a feature that already exists; where TODO_LIST already tracks an item, this doc endorses it and adds consumer evidence instead of duplicating it.
-- **Audience:** go-appkit maintainer (you). References marked **[CV-AGENTS]** point at `CV/AGENTS.md` sections; **[appkit-TODO]** at `go-appkit/TODO_LIST.md`.
-
----
-
-## 0. Executive summary
-
-go-appkit's core is deliberately lean, and that is correct. But "batteries included" and "lean core" are **not** in tension — the module system is already the battery bay (`health`, `otel`, `realtime`, `errorpages`, `cqrs`, `docs`, `flightrecorder`). What is missing is the rest of the battery pack that real family services demonstrably need: **the security cluster, the handler-DX layer, long-running-worker supervision, storage/politeness kits, and a testing toolkit.**
-
-The evidence base is not hypothetical. CV runs a **13,876-LOC** hand-rolled HTTP/runtime layer (server 4,117 + httpx 2,752 + middleware 7,007, non-test) guarded by **51 test files**, of which at least 9 invariants exist **only because production broke without them** (SSE Flush hiding, 429 overwrite bypass, recycled-writer corruption, goroutine leaks, nosurf origin-trust mismatch, CSP eval kill). That stack consumes **20 distinct `httputil` symbols** — the same library appkit composes. Every item below is one of two things:
-
-1. **A module CV (or PapDashboard/cqrs-htmx) already hand-rolled** and would have consumed from appkit instead, or
-2. **A known TODO_LIST item** where this doc adds the missing consumer-demand signal.
-
-**Thesis: batteries as opt-in modules, core unchanged.** Each proposal names its target module. Core only grows where the battery is impossible to build outside it (TLS, metrics surface, one or two lifecycle hooks).
+- **From:** the CV consumer perspective (`github.com/LarsArtmann/CV` — the family's deepest hand-rolled HTTP stack, 13,876 LOC runtime layer, 51 test files, every invariant scar-dated)
+- **Date:** 2026-09-04 (replaces the first draft — this version adds per-item API sketches, port-from source inventory, effort sizing, acceptance test names, and 8 previously-missed batteries)
+- **Method:** every gap verified against go-appkit HEAD (core `middleware.go`/`service.go`/`config.go`/go.mod, `realtime/`, `health/`, `errorpages/`, `cqrs/`, TODO_LIST) and against CV's production code. Nothing proposes a feature that exists; where TODO_LIST tracks an item, this doc marks it **ENDORSED** and adds consumer evidence.
 
 ---
 
-## 1. The demand signal, in one table
+## How to read this
 
-What the reference consumers hand-rolled *while appkit existed*:
+- **Port-from** = the CV implementation to lift. These are running, production-scarred code paths with existing tests — the design work is done; the work is extraction + generalization.
+- **Effort** = S (<150 LOC), M (150–500), L (500+), measured against the port-from LOC plus module scaffolding.
+- **Acceptance** = the tests that must exist when the battery ships. Names in backticks are CV's actual tests — port them; they encode the failure that motivated the battery.
+- **Status** = NEW (nothing tracked appkit-side) or ENDORSED (appkit TODO_LIST already tracks it; this adds demand signal).
 
-| Consumer need | CV built it as | appkit today | Verdict |
-| --- | --- | --- | --- |
-| CSRF + API-key bypass | `httputil.CSRFMiddleware` + `APIKeyCSRFBypass` | nothing | **Battery gap A1/A2** |
-| API-key auth | `middleware/apikey.go` (const-time, header/query rules) | nothing | **A2** |
-| Rate limiting (profiles, keyed) | `ratelimit.go` — 4 profiles, ClientIP+XFF | nothing | **A3** |
-| Origin check | `origin_check.go` | nothing | **A4** |
-| CSP nonce plumbing | `csp_nonce.go` + ConsolidatedSecurityMiddleware + templ wiring | SecurityHeaders only | **A5** |
-| Input sanitization | bluemonday Text/URL | nothing | **A6** |
-| Typed handler result + error classification | `httpx` ResultHandler[T] + classification parity tests | go-error-family exports only; no handler seam | **B1** |
-| Bind/validate | httpx bind/validation | nothing | **B2** |
-| Conditional GET (ETag/Last-Modified) | ICS feed: sha256 ETag, RFC 9110 weak/comma, 304s | `go-etag` sits in core as an *indirect* dep, unused | **B4** |
-| Content negotiation | `/admin/health` HTML vs JSON | nothing generic | **B5** |
-| Route introspection + golden tests | `goldenRoutes` + `TestRouteDiscovery` | nothing | **B6** |
-| Long-request budgets | `ExtendWriteDeadline` per prefix (LLM missions) | `NoTimeout` global only | **B7** |
-| SSE observability + projection wiring | sse-stats drop counters, SubscribeFolded discipline | `Hub.Health()`/`SubscriberCount()` exist; no counters surface, no projection contract | **C1/C2** |
-| Background worker supervision | projection loops, reply-loop poller, warmups — all hand-rolled | nothing | **D1** |
-| DI bridge | CV is samber/do end-to-end | core is do-free (verified: no samber/do in core go.mod) | **D2** |
-| SQLite operational kit | PRAGMA discipline, leases, VACUUM backup | cqrs module has storage; no general kit | **D3** |
-| Atomic file writes | go-atomic-write ≥ v0.5.1 (Windows trap documented) | nothing | **D4** |
-| Polite outbound HTTP | HostPacer, ETag cache w/ byte budget, SSRF guard, Retry-After | nothing | **D5** |
-| Webhook sender | (go-health-dashboard has one internally) | nothing | **D6** |
-| Test harness kit | full-chain vs mux trap, SSE test client, leak assertions, XFF bucket helper | `integration/` module (cross-repo, not a consumer kit) | **E1–E4** |
-| Config + env-overrides | koanf + discoverability tests | nothing | **F1** |
-| TLS | — | **known gap** [appkit-TODO, PapDashboard demand] | **G1** |
-| Core metrics surface | `/metrics` (Prometheus) | otel module only | **G2** |
+### The thesis (one paragraph)
+
+"Batteries included" does not mean a fat core. It means: **when a family service needs a security posture, an SSE contract, a worker loop, or a SQLite lease, the answer is `go get github.com/larsartmann/go-appkit/<module>` — not a fresh 400-LOC hand-roll.** CV is the existence proof of the demand: it hand-rolled every battery below while appkit existed, because each battery shipped zero minutes too early. The module bay is already built (`health`, `otel`, `realtime`, `errorpages`, `cqrs`, `docs`, `flightrecorder`) — this doc fills the bay.
 
 ---
 
-## 2. Battery cluster A — Security (the biggest gap)
+## Top 7 quick wins (port ≈ 1:1, tests already exist)
 
-CV's security middleware is the single largest body of code appkit consumers must otherwise re-invent — and the only kind where a naive re-implementation is actively dangerous. All of it lives in `httputil`-compatible shapes today, so most items are *composition*, not invention.
-
-### A1 — CSRF middleware (module: `appkit/security` or promoted httputil default)
-
-- **What:** double-submit cookie CSRF with trusted-origin allowlist; config for Secure/SameSite; the trusted-origins propagation rule (`"*"` must NOT silently mean allow-all for CSRF — CV logs-and-degrades that misconfiguration **[CV-AGENTS: LAN development]**).
-- **Why:** every family service with browser forms needs it; CV got burned by the subtle half: a `Trusted-Origin` header does **not** bypass nosurf's token check (empirically verified 2026-08-29). That trap deserves to be codified once, upstream, with tests.
-- **Shape:** `security.CSRF(cfg)` + `security.CSRFConfig{TrustedOrigins, Secure, ...}` mirroring `httputil.CSRFConfig`.
-- **Accept:** same-site form POST flow test; cross-origin 403; `*`-origins behavior pinned; skip-rule integration with A2.
-
-### A2 — Non-ambient-credential auth: API-key middleware + CSRF bypass
-
-- **What:** `security.APIKey(key)` (SHA-256 + constant-time compare, `X-API-Key` header) plus the two rules CV learned the hard way: (1) `?key=` query fallback for **safe methods only** — a browser link or calendar client cannot set headers, but query strings land in access logs so writes must stay header-only (pinned: `TestAPIKeyAuth_QueryKeyRejectedOnPost`, header-wins precedence test); (2) requests bearing the header skip CSRF entirely (non-ambient credential: cross-site pages cannot set custom headers), while auth still validates downstream — fail-closed (`TestAPIKeyAuth_AcceptsCorrectKey` guards the `c.Next()` pass-through trap: returning without it serves an empty 200).
-- **Why:** CV's SystemNix `cv-scan.timer`, the interviews ICS feed, and every scripted client ride exactly this. PapDashboard's webhooks will want it the day they add an inbound control surface.
-- **Shape:** `security.APIKeyAuth(key)` + `security.APIKeyCSRFBypass(csrf Middleware)` (a wrapper, not a flag — the composition IS the design).
-- **Accept:** the four CV pin-tests ported upstream; docs state the ambient/non-ambient threat model in five sentences.
-
-### A3 — Keyed rate limiting with profiles
-
-- **What:** `security.RateLimit(security.RateLimitConfig{Limit, Burst, Key: KeyExtractorFromClientIP})` + named profiles (CV: general 60/min·100, analysis 10/min·15, export 5/min·8, contact 8/min·10) + `Retry-After` on 429 + **the short-circuit contract**: a rejected request must abort the chain so later handlers cannot overwrite the 429 with a 200. That bug made every CV limit bypassable on 2026-08-16.
-- **Why:** k6 load tests against CV are shaped around these profiles; the framework's own health endpoints will need them the first time a dashboard polls `/health/sse` in a loop (CV's admin-hub e2e blew the analysis bucket with 14 SSE connections — a documented flake).
-- **Shape:** profiles as `security.Profile` presets; `Key` pluggable (`KeyExtractorFromClientIP` already exists in httputil and honors `X-Forwarded-For` — document the shared-bucket consequence for test harnesses).
-- **Accept:** 429-not-overwritten regression test upstream; XFF uniqueness helper for tests (see E3).
-
-### A4 — Origin check
-
-- **What:** `security.OriginCheck(allowed []string)` — Origin→Referer fallback, 403 on miss, `"*"`/empty = allow-all (deliberately, but loudly).
-- **Why:** defense-in-depth behind CSRF for state-changing endpoints; CV applies it to pipeline/A.Team/chat/contact.
-- **Accept:** same contract as CV's `origin_check_test.go`.
-
-### A5 — CSP nonce infrastructure (the module that prevents the next DataStar incident)
-
-- **What:** per-request nonce minting + context helper (`NonceFromContext`), an optional nonce extractor seam for component libraries (CV feeds it to go-health-dashboard via `WithNonceExtractor`), and a documented production policy: `script-src 'self'` + nonce, `'unsafe-eval'` and `unsafe-inline` for scripts **never granted** — with the explanation of the subtle killer: `script-src *` does NOT imply eval, and DataStar/Alpine compile expressions via `new Function()` and die silently.
-- **Why:** the DataStar removal is the single most expensive CSP lesson in the family (a whole dashboard class died on it, 2026-08-16). appkit's consumers will hit the exact same wall the first time they mount an SSE-patch UI. `style-src 'unsafe-inline'` stays grantable by decision (dynamic inline styles can't be hashed) — encode that nuance in docs.
-- **Shape:** `security.CSPNonce()` middleware + `security.Nonce(r)` + option hooks matching what go-health-dashboard's `WithNonceExtractor` already consumes (upstream symmetry: dashboard and framework share one extractor contract).
-- **Accept:** production-CSP test (inline script blocked, nonced script executes, JSON-LD exempt); policy parse/determinism tests (CV's `csp_parse_test.go` is the port-ready oracle).
-
-### A6 — Input sanitization
-
-- **What:** `security.SanitizeText` (bluemonday strict + control-char strip) and `security.SanitizeURL` (parse → http/https scheme + host required — NO bluemonday, which entity-rewrites query strings: `&not=` → `¬=`, verified live in CV 2026-09-04).
-- **Why:** all CV form endpoints (contact, chat, A.Team) sanitize; the URL variant exists because the text variant corrupts URLs. One battery, two functions, hard-won edge case included.
-- **Accept:** the `&not=` regression test.
-
-### A7 — Environment-tuned security headers
-
-- **What:** extend the default `SecurityHeaders` composition with env awareness: HSTS `max-age=63072000; includeSubDomains; preload` **only in production** (CV's `securityHeadersConfig`), dev/staging leave it off so LAN http works.
-- **Why:** today every consumer re-derives this five-liner; getting HSTS wrong on a LAN host is a lockout.
+| # | Battery | Port-from | LOC | Why first |
+| --- | --- | --- | --- | --- |
+| 1 | **A2 API-key auth + CSRF bypass** | `internal/middleware/apikey.go` + `csrf_apikey_bypass.go` | 68+40 | Every scripted/timer client in the family needs it today |
+| 2 | **A3 Rate-limit profiles** | `internal/middleware/ratelimit.go` | 57 | Protects appkit's own `/health/sse` from pollers |
+| 3 | **A4 Origin check** | `internal/middleware/origin_check.go` | 109 | Defense-in-depth one-file middleware |
+| 4 | **A8 Body limit** | `internal/middleware/body_limit.go` | 26 | Smallest battery in the doc |
+| 5 | **A6 Sanitization** | `internal/sanitization/sanitization.go` | ~60 | Text + URL (with the `&not=`→`¬=` bluemonday trap) |
+| 6 | **B4 Conditional GET** | `internal/features/pipeline/handlers/interviews_ics_handler.go` | ~80 | Promotes `go-etag` (already an unused indirect dep) |
+| 7 | **D7 Idempotency store** | `career-pipeline/eventstore/idempotency.go` | 165 | Self-contained; closes a whole race class |
 
 ---
 
-## 3. Battery cluster B — Handler DX (the `httpx` layer, as a module)
+## Master matrix
 
-This is the layer appkit consumers currently cannot have at all: appkit core exposes stdlib mux + `http.HandlerFunc`, and every richer behavior (typed results, binding, negotiation) gets hand-rolled per service. CV's `internal/httpx` is the proof-of-concept; propose it as **`appkit/httpx`** (new module, core untouched, depends on httputil + go-error-family).
-
-### B1 — Typed result handlers with error classification
-
-- **What:** `httpx.ResultHandler[T](func(*httpx.Context) (T, error)) http.HandlerFunc` — auto-serialization (json/v2), success shaping, and error mapping through go-error-family's taxonomy (Rejection→400, Conflict→409, Transient→503, Corruption/Infrastructure→500/503 — the SAME taxonomy `errorpages` already speaks, so HTML error pages and JSON contracts stay consistent for free).
-- **Why:** CV pins classification parity between middleware and error pages (`error_classification_parity_test.go`) and fuzzes the result handler (`result_handler_fuzz_test.go`). Sharing the taxonomy with errorpages is the design win — one battery feeds the other.
-- **Accept:** classification table test + a fuzz seed corpus upstream.
-
-### B2 — Bind + validate
-
-- **What:** typed request binding (json/v2; case-sensitive matching documented loudly — CV's untagged-struct 400 bug on `{"appId":...}` is the cautionary tale), validation hooks, and the wire-DTO rule: bind tagged adapter types, never untagged domain structs.
-- **Shape:** `httpx.Bind[T](c) (T, error)` + tag-snake_case policy note (the family's `tagliatelle` stance).
-
-### B3 — Response-writer wrapper contract (as code, not docs)
-
-- **What:** a `httpx.WrapWriter` that forwards `Flush`/`Hijack`/`Unwrap`/`ResponseController` — plus a test helper that FAILS any wrapper which hides optional interfaces. The notFoundInterceptor bug (SSE frames stuck in net/http's 4KB buffer because an innermost wrapper hid `Flusher`) is exactly the failure this battery prevents; it compiles fine and passes unit tests with `httptest.Recorder`.
-- **Why:** CV's postmortem states the rule in prose; appkit can make the rule executable.
-
-### B4 — Conditional GET battery (promote `go-etag` from indirect dep to feature)
-
-- **What:** `httpx.Conditional(handler, ETagor/LastModifiedSource)` — strong/weak ETag handling (RFC 9110: `W/` prefix, comma lists, `*`), `If-Modified-Since`, 304 with correct Vary; byte-deterministic body ⇒ stable hash.
-- **Why:** CV's interviews ICS feed serves calendar clients that poll the entire feed; weak forms from Google Calendar had to be handled for real (`TestInterviewsICSHandler_ConditionalGET`). `go-etag v0.2.0` already sits in core's go.mod as an indirect dependency — this battery gives it a reason to exist.
-- **Accept:** the weak/`*`/comma matrix test, ported.
-
-### B5 — Content negotiation helper
-
-- **What:** `httpx.Negotiate(r, "text/html", "application/json")` with q-value-aware defaulting.
-- **Why:** CV content-negotiates `/admin/health` (browser→HTML, kubelet-ish→JSON); go-health-dashboard implements its own internally. Two implementations in the family already; batteries should be one.
-
-### B6 — Route introspection + golden-route test helper
-
-- **What:** `Service.Routes() []RouteInfo{Method, Pattern, Name}` (populated from a route-registration wrapper) + `httpxtest.AssertRouteSet(t, mux, golden)` — the golden-routes pattern (exact set AND count) that catches accidental route additions/removals in CI.
-- **Why:** CV's route golden is 115 routes and has caught multiple accidents; stdlib mux 1.22+ patterns make this trivially introspectable if registration goes through one seam. Bonus: the same metadata feeds `docs-mod` (see B8).
-
-### B7 — Per-route write-deadline budgets
-
-- **What:** `httpx.WriteDeadline(d, prefix)` middleware — extends the server write deadline for matching routes only, with the documented constraint that it must sit OUTSIDE compression (the gzip wrapper does not `Unwrap`, so `ResponseController` cannot reach the connection writer through it).
-- **Why:** CV's agent missions answer after minutes against a 30s server-wide write timeout; `NoTimeout` (appkit's current answer) is too blunt — the rest of the surface SHOULD keep deadlines.
-- **Accept:** the compression-ordering regression test (deadline reached through gzip wrapper = must fail the ordering).
-
-### B8 — docs-mod feed: register metadata at route registration
-
-- **What:** if B6's route wrapper carries optional metadata (summary, tags, request/response types), `docs-mod` generates OpenAPI from the LIVE route table instead of a separate catalog pass — docs cannot drift from routes.
-- **Why:** docs-mod v0.2.0 exists (catalog/v4) but is a parallel surface today; CV's route golden + docs drift is the failure mode this closes.
-
----
-
-## 4. Battery cluster C — Realtime/eventing additions
-
-The `realtime` module's bones are right (Last-Event-ID replay via `WithStore`, graceful `Shutdown` vs hard `Close`, `Health()`, `SubscriberCount()`, buffer sizing, subscribe hooks). Three additions make it production-complete for CV-shaped consumers:
-
-### C1 — Drop/backpressure observability surface
-
-- **What:** expose go-sse's per-subscriber drop counts + buffer saturation through `Hub.Health()` into a `GET /metrics`-shaped snapshot, and document the "dropped notifications only delay, next delivery re-syncs" invariant.
-- **Why:** CV's `/api/pipeline/sse-stats` (`droppedStoreNotifications`, `droppedFoldedNotifications`, `droppedBroadcasts`, `payloadDecodeFailures`) was built because SSE staleness was invisible; Gatus now alerts on it. Batteries should ship with the gauges the operator will eventually demand.
-
-### C2 — The projection→broadcast contract (kill the stale-broadcast race class)
-
-- **What:** a documented + helper-ized wiring for "broadcast AFTER the projection folded the event": `realtime.FoldedSource(subscribeFn, snapshotFn)` — the helper holds the ordering guarantee (emit only after fold returns), so every consumer gets CV's `SubscribeFolded` discipline without rediscovering the race (broadcast-on-raw-event can publish pre-fold state; SSE clients then never see the update because no follow-up broadcast exists).
-- **Why:** this exact race cost CV a 4-session flake hunt (2026-08-16, the SSE stale-broadcast root cause). It is a *framework-shaped* pitfall: anyone wiring cqrs projections (module D of this doc) to realtime hits it.
-- **Accept:** a test where a wrapper store appends mid-fold and the broadcast provably includes the trigger (CV's `TestProjectionIntegration_SubscribeFoldedReflectsEvent` is the oracle).
-
-### C3 — Per-subscriber auth + namespaced filtering
-
-- **What:** `realtime.Handler` option: `WithAuthorize(func(r *http.Request) error)` evaluated at subscribe; event namespace filtering per subscriber (`WithFilter(func(evt) bool)` or topic prefixes).
-- **Why:** CV's admin/pipeline SSE surfaces ride the API-key guard + rate budgets; today a consumer must wrap the whole handler and reimplement replay/dedup to filter. (AGENTS says filtering exists via go-sse duck-typing — surface it as a first-class option with the auth hook.)
+| ID | Battery | Module | Effort | Impact | Port-from (CV) | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| A1 | CSRF middleware | `security` | S | H | httputil `CSRFMiddleware` (already used by CV) | NEW |
+| A2 | API-key auth + CSRF bypass | `security` | S | H | `internal/middleware/apikey.go`, `csrf_apikey_bypass.go` | NEW |
+| A3 | Rate-limit profiles (keyed) | `security` | S | H | `internal/middleware/ratelimit.go` | NEW |
+| A4 | Origin check | `security` | S | M | `internal/middleware/origin_check.go` | NEW |
+| A5 | CSP nonce + policy build | `security` | M | H | `csp_nonce.go` + `consolidated_security.go` (690) | NEW |
+| A6 | Text/URL sanitization | `security` | S | M | `internal/sanitization/sanitization.go` | NEW |
+| A7 | Env-tuned security headers (HSTS) | core option | S | M | `middleware_chain.go` `securityHeadersConfig` | NEW |
+| A8 | Body limit | `security` | S | M | `internal/middleware/body_limit.go` (26) | NEW |
+| B1 | ResultHandler family | `httpx` | M | H | `internal/middleware/result_handler.go` (452) | NEW |
+| B2 | Bind + validation (integrated) | `httpx` | S | H | `ResultHandlerWithValidation[T,V]`, `httpx/validation.go` (154) | NEW |
+| B3 | ResponseWriter contract helper | `httpx`/`testkit` | S | H | `internal/httpx/response_writer.go` (149) | NEW |
+| B4 | Conditional GET (ETag/304) | `httpx` | S | M | ICS handler | NEW |
+| B5 | Content negotiation | `httpx` | S | M | `/admin/health` pattern | NEW |
+| B6 | Route introspection + golden test | `httpx`+`testkit` | M | H | `internal/server/routes_test.go` | NEW |
+| B7 | Per-route write deadlines | `httpx` | S | M | `internal/middleware/write_deadline.go` | NEW |
+| B8 | Route metadata → docs feed | `docs` | M | M | — | NEW |
+| B9 | No-leak error responses | `httpx` | S | H | `internal/security/error_handler.go`, `secure_error_handler.go` (64) | NEW |
+| C1 | SSE drop/backpressure counters | `realtime` | S | H | `/api/pipeline/sse-stats` | NEW |
+| C2 | Projection→broadcast contract | `realtime`+`cqrs` | M | H | `DashboardProjection.SubscribeFolded` | NEW |
+| C3 | Per-subscriber auth + filter | `realtime` | S | M | — | NEW |
+| D1 | Worker supervisor + pool | `worker` | M | H | `internal/pkg/worker/` (473) | NEW |
+| D2 | samber/do bridge | `do` | M | M | `internal/di/container.go` (`resolve[T]` pattern) | NEW |
+| D3 | SQLite ops kit (lease/backup/ledger) | `sqlite` | L | H | `eventstore` lease + `deadportals` ledger | NEW |
+| D4 | Atomic file write | `fs` | S | M | go-atomic-write ≥ v0.5.1 (Windows trap) | NEW |
+| D5 | Polite outbound client | `polite` | M | H | `career-pipeline/scanner/http_politeness.go` (205) | NEW |
+| D6 | Best-effort webhook sender | `webhook` | S | M | go-health-dashboard `WithWebhook` | NEW |
+| D7 | Idempotency store | `cqrs` or `worker` | S | H | `career-pipeline/eventstore/idempotency.go` (165) | NEW |
+| D8 | Scheduler (tick, jitter, single-flight) | `worker` | S | M | SystemNix timers are external; no CV port | NEW |
+| E1 | Full-chain test harness | `testkit` | M | H | `tests/integration` harness | NEW |
+| E2 | SSE test client + flake-triage helpers | `testkit` | S | H | `eventually`, `dumpFailureState` | NEW |
+| E3 | Rate-limit bucket isolation | `testkit` | S | M | `pipelineJourneyClient` XFF | NEW |
+| E4 | Middleware chain-order snapshot | `testkit`+core | S | M | implicit in CV integration tests | NEW |
+| F1 | koanf config module | `config` | M | M | CV `internal/config` | NEW |
+| F2 | Request-ID log correlation + timing | core | S | M | `internal/middleware/timing.go` (116) | ENDORSED (TODO P3) |
+| F3 | README build notes (json/v2) | docs | S | M | — | ENDORSED (TODO P2) |
+| F4 | Config hot-reload | `config` | M | M | `career-pipeline/profileagent/platform_spec.go` | NEW |
+| F5 | BuildInfo battery | core | S | M | `internal/version/version.go` | NEW |
+| G1 | TLS support | core | M | H | — | ENDORSED (TODO P3, PapDashboard demand) |
+| G2 | Prometheus surface in core | core | M | M | CV `/metrics` | NEW |
+| G3 | Shutdown phase logging | core | S | M | CV drain logs | NEW |
+| G4 | Licensing + API-break check + v1 criteria | process | S | H | — | ENDORSED (TODO P1/P2) |
 
 ---
 
-## 5. Battery cluster D — Operations & data
+# Cluster A — Security (`appkit/security`, new module)
 
-### D1 — Background worker supervisor (`appkit/worker`)
+The single largest body of code family services re-implement, and the only kind where a naive re-implementation is actively dangerous. None of it belongs in the default stack (see anti-recommendations) — all of it belongs behind one `go get`.
 
-- **What:** `worker.Supervisor` — run/stop lifecycle for pollers/persisters/warmups: ctx cancellation, stop-timeout join, panic recovery with restart+backoff+jitter, run counter metric, "started before/after shutdown" edge semantics (a worker started during shutdown must not leak — CV had to JOIN its boot-warm goroutine in `Shutdown` explicitly).
-- **Why:** EVERY family service hand-rolls this loop: CV's DashboardProjection fold loop, reply-loop poller, DI shutdown chain; PapDashboard's notification dispatch; cqrs projection hosts already have their own. The third hand-rolled copy is the signal.
-- **Accept:** goroutine-leak test (start/stop 100×, baseline stable); panic-restart test; start-during-shutdown test.
+## A1 — CSRF middleware · S · NEW
 
-### D2 — `appkit/do` bridge module (samber/do integration, opt-in)
+**Problem:** every family service with browser forms needs double-submit CSRF; the subtle half (a `Trusted-Origin` header does **not** bypass nosurf's token check — empirically verified CV 2026-08-29) is a trap each consumer re-discovers.
 
-- **What:** register the `*Service` in a do injector (`doappkit.Register(injector, svc)`), cascade `svc.Shutdown` via `do.Shutdowner`, expose `do.Healthchecker` for the service, and provide the error-propagating `resolve[T]` helper CV built after banning `do.MustInvoke` repo-wide (forbidigo-enforced! — lazy provider closures + boot-time `mustResolve` accessors only).
-- **Why:** core is do-free (verified), which is right for core — but the family's composition roots are ALL do-based (CV 37+ providers; PapDashboard; cqrs-htmx). Without the bridge, appkit's lifecycle and the DI lifecycle are two shutdown owners over one process — precisely the split-brain CV hunted down. The bridge makes ONE owner: do.
-- **Shape:** ~300 LOC module; the cordis-bridge research doc already sketches the pattern for a sibling problem — same layer discipline.
+**API sketch:**
 
-### D3 — SQLite operational kit (`appkit/sqlite`)
+```go
+csrf := security.CSRF(security.CSRFConfig{
+    TrustedOrigins: []string{"http://cv.home.lan:8088"}, // "*" must log-and-degrade, NEVER mean allow-all
+    Secure:         true,
+})
+```
 
-- **What:** the PRAGMA/open-conn discipline (WAL-ish setup, `busy_timeout`, `SetMaxOpenConns(1)` semantics documented as REQUIRED for PRAGMA persistence), an **ownership lease** (file-based, hostname+pid+liveness, stale-detect via Signal 0, reentrant refcount — CV's `StoreLeaseHeldError` pattern that ended the stale-reader class), `Backup(ctx, path)` via `VACUUM INTO` (refuse-overwrite, safe beside a running writer), and a ledger-file helper (atomic 0600 JSON with cap+dedupe — the deadportals/lessons-accounts pattern CV now has four instances of).
-- **Why:** the cqrs module covers the EVENT-SOURCED store, but every service also keeps non-CQRS state (CV: funnels, lessons, accounts, dead-portal markers; PapDashboard: notifications). The lease alone would have prevented the "CLI + server both open the DSN" incident class CV documented at length.
-- **Accept:** lease takeover/stale/refcount matrix; backup round-trip; the modernc-sqlite fsync/context-cancellation caveat in docs (`:memory:` for tests).
+**Accept:** same-site form POST passes; cross-origin 403; `*`-in-allowlist logs the misconfiguration and degrades (CV pins this — `httputil` CSRF rejects `*` in `TrustedOrigins` and only logs); skip-composition test with A2.
 
-### D4 — Atomic file write (`appkit/fs` or endorse go-atomic-write)
+## A2 — API-key auth + CSRF bypass · S (68+40 LOC port) · NEW
 
-- **What:** promote/wrap `go-atomic-write` (already family-standard) with the version floor documented: ≥ v0.5.1 — earlier versions reference `syscall.ERROR_SHARING_VIOLATION` and break every Windows build transitively (CV's documented release trap).
-- **Why:** CV writes ledgers, patches, session exports, eval summaries — all through it. Batteries: one call, correct perms (0600 option), refuse-overwrite option.
+**Problem:** machine clients (timers, scripts, calendar clients) cannot do the browser cookie dance; query-string keys leak into access logs.
 
-### D5 — Polite outbound HTTP client (`appkit/polite`)
+**API sketch:**
 
-- **What:** a client kit for crawling/API-polling services: per-host pacing (`HostPacer`: min interval per host, cross-host never waits, Retry-After honored WITHOUT stacking pacing), an ETag-revalidation response cache (GET+ETag ≤ N bytes cached, `If-None-Match` → 304 replay, POST never cached, total byte budget, replacement semantics), SSRF guard (host allowlist, redirect rejection, timeouts, streaming body-size caps that fail as typed oversize errors — never silent truncation), and typed error classification (`ScanErrorKind`: http/body-limit/decode/network + `Retryable`/`IsDead` predicates).
-- **Why:** CV's scanner layer is exactly this, battle-tested against real portals (ETag support live-verified against Greenhouse/Ashby/Lever; body-limit sized to Ashby's dual-description payloads). ANY family service doing outbound fetching (PapDashboard notification sources, job portals, webhooks verification) inherits the politeness/SSRF posture for free.
-- **Accept:** the CV pin list ports directly: revalidation, refetch-on-ETag-change, POST exclusion, cross-client cache survival, same-host spacing, byte budget, replacement.
+```go
+// guard: header X-API-Key (SHA-256 + constant-time); ?key= fallback for GET/HEAD ONLY
+mux.Handle("/api/pipeline/scan", security.APIKeyAuth(key)(scanHandler))
 
-### D6 — Best-effort webhook sender
+// wrap the CSRF middleware: header-bearing requests skip the token dance,
+// key still validated downstream — fail-closed, never auth-free
+chain := security.APIKeyCSRFBypass(csrf)(next)
+```
 
-- **What:** `appkit/webhook`: transition-triggered JSON pushes — bounded in-flight goroutines (a slow receiver can NEVER block the caller), per-attempt timeout, no-retry-by-default, optional HMAC signature header, `WithPublicMode`-style payload masking hook.
-- **Why:** go-health-dashboard v0.5.0 shipped one internally (`WithWebhook`, best-effort 10s, bounded in-flight — the exact right semantics). Extract to the framework so otel alert-fanout, cqrs DLQ notifications, and PapDashboard deliveries share one implementation.
+**Port-from:** `internal/middleware/apikey.go`, `internal/middleware/csrf_apikey_bypass.go` (the doc comment on `APIKeyCSRFBypass` is the threat model in 15 lines — lift it verbatim).
 
----
+**Accept:** port CV's four pins: `TestAPIKeyAuth_QueryKeyRejectedOnPost`, header-wins-over-query, `TestAPIKeyAuth_AcceptsCorrectKey` (guards the missing-`Next()` empty-200 trap), and the bypass-still-validates test.
 
-## 6. Battery cluster E — Testing toolkit (`appkit/testkit`)
+## A3 — Rate-limit profiles · S (57 LOC port) · NEW
 
-appkit's `integration/` module tests the framework cross-repo; consumers need the same caliber of harness for THEIR services. CV built all of these by hand:
+**Problem:** unprotected endpoints die under polling dashboards; the short-circuit contract (a 429 must abort the chain) is where naive implementations fail — CV's 2026-08-16 bug made every limit bypassable (later handlers overwrote 429 with 200).
 
-### E1 — Full-chain harness + the "mux ≠ handler" trap as API
+**API sketch:**
 
-- **What:** `testkit.Serve(t, svc)` returning BOTH the raw-mux URL and the full-chain URL, with teardown that (a) closes connections, (b) runs the shutdown chain LIFO, (c) asserts goroutine baseline — and docs stating loudly: raw-mux registrations (`HandleFunc`) are INVISIBLE to route discovery and skip stdlib middleware; tests that claim "full server" must use the full handler.
-- **Why:** that distinction hid three production bugs in CV (see §7) and the goroutine leak discipline (found ~25 leaked goroutines per test server) is what made the SSE journey suite stable.
+```go
+// profiles as presets; Key pluggable (ClientIP honoring X-Forwarded-For)
+analysis := security.RateLimit(security.AnalysisProfile) // 10/min, burst 15
+export   := security.RateLimit(security.ExportProfile)   // 5/min, burst 8
+custom   := security.RateLimit(security.RateLimitConfig{Limit: 30, Burst: 60, MaxKeys: 10_000})
+```
 
-### E2 — SSE test client
+`MaxKeys` is not optional — CV caps key-space per profile (5–10k) as an anti-memory-exhaustion bound; a keyed limiter without a key cap is a DoS vector.
 
-- **What:** `testkit.SSEClient(url)` — read frames with deadline, assert event names, resume with Last-Event-ID, count drops; plus the flake-triage trio as helpers: instrumented byte counters, goroutine dump at failure (`pprof.Lookup("goroutine").WriteTo(f, 2)`), and an `eventually` poll helper (CV's `eventually` pattern vs fixed sleeps).
-- **Why:** CV's Flake Triage Protocol exists because SSE tests flake differently; the helpers are the protocol in code.
+**Accept:** 429-not-overwritten regression (port `internal/httpx/adapters_regression_test.go`); `Retry-After` header; shared-bucket-under-XFF semantics documented (see E3).
 
-### E3 — Rate-limit isolation helper
+## A4 — Origin check · S (109 LOC port) · NEW
 
-- **What:** `testkit.UniqueXFFClient()` — per-test client identity via unique `X-Forwarded-For` so tests never share a limiter bucket (httptest clients all appear as 127.0.0.1 otherwise).
-- **Why:** CV learned this when two tests poisoned each other's buckets; with A3 batteries this becomes mandatory hygiene.
+**API sketch:**
 
-### E4 — Chain-order snapshot
+```go
+chain := security.OriginCheck([]string{"http://cv.home.lan"})(next) // Origin→Referer fallback, 403 on miss
+```
 
-- **What:** `testkit.AssertMiddlewareOrder(t, svc, []string{"recovery", "requestid", ...})` — snapshot the built chain (core knows the order; expose it) and diff.
-- **Why:** middleware ORDER is where the security properties live (A2's bypass AFTER rate limiting; B7's deadline OUTSIDE compression); today only CV's integration tests pin ordering implicitly.
+**Accept:** port `origin_check_test.go` + the integration variant.
 
----
+## A5 — CSP nonce infrastructure + policy builder · M (690 LOC port) · NEW
 
-## 7. Battery cluster F — Config & DX
+**Problem:** the family's most expensive CSP lesson — DataStar/Alpine-style clients compile `data-*` expressions via `new Function()`: dead under `script-src 'self'`, and `script-src *` does **not** imply eval. A whole dashboard class died on this (CV 2026-08-16).
 
-### F1 — `appkit/config` (koanf module)
+**API sketch:**
 
-- **What:** koanf load (defaults-YAML const → file → env overrides) with the family's hard-won knobs documented IN the type: `WeaklyTypedInput` coercion traps (use in-range invalid values, not out-of-range), unsigned types for numerics at the boundary, empty-string→nil `*string` hook — plus a **discoverability test helper**: assert every env override a feature documents is actually reachable by the pull-model loader (koanf only sees registered keys; CV pins this per feature because silent env overrides cost a debugging session each).
-- **Why:** every family service uses koanf the same way and re-trips the same traps.
+```go
+// mint + context + policy assembly, mirroring CV's proven surface:
+nonce, ctx := security.NewNonce(r.Context())
+policy := security.BuildCSP(security.CSPConfig{
+    Environment: security.Production, // script-src 'self' + 'nonce-…'; unsafe-eval NEVER, any env
+    Nonce:       nonce,
+    StyleInline: true, // style-src 'unsafe-inline' stays grantable BY DECISION (dynamic inline styles can't be hashed)
+})
+// component libraries consume the extractor contract (go-health-dashboard already takes WithNonceExtractor)
+```
 
-### F2 — Request-ID log correlation in core
+**Port-from:** `internal/middleware/csp_nonce.go` (`GenerateNonce`, `WithNonce`, `NonceFromContext`, `AddNonceToScriptSrc`) + `consolidated_security.go` (`CreateConsolidatedSecurityConfig`, `buildConsolidatedCSP`, `ConsolidatedSecurityMiddleware`).
 
-- **What:** seed the request ID into the handler-scoped logger so completion lines correlate without the otel module (the otel module's `TraceHandler` already does trace-ID correlation — this is the cheap core version).
-- **Why:** [appkit-TODO] already tracks "httputil Logging emit with request context" for span correlation; the request-ID-only variant is the same item at lower cost. Endorse + widen.
+**Accept:** port `TestCSPProductionBlocksInlineScripts`, `TestCSPHeaderParsesForEveryEnvironment` (validity-checked tokens, sorted/deterministic order), JSON-LD exemption test. Document the `*`-does-not-imply-eval semantics in the module README.
 
-### F3 — README: build-from-source notes
+## A6 — Text/URL sanitization · S (~60 LOC port) · NEW
 
-- **What:** document `GOEXPERIMENT=jsonv2` (older toolchains) and the per-module reasons in the user-facing README — [appkit-TODO already tracks this]; endorsing with consumer evidence: CV's gopls produces FALSE "string literal not terminated" errors on json/v2 imports when the LSP env lacks the experiment, which cost a misdiagnosed "file corruption" session. The README note prevents the consumer-side confusion, not just the build failure.
+**API sketch:**
 
----
+```go
+clean := security.SanitizeText(userInput)          // bluemonday strict + control-char strip
+u, ok := security.SanitizeURL(rawURL)              // parse → http/https + host; NO bluemonday
+```
 
-## 8. Battery cluster G — Core hygiene (the short list where CORE must move)
+**Why the URL variant exists:** `Text()` entity-rewrites query strings (`&not=` → `¬=` — verified live in CV, 2026-09-04). One battery, two functions, trap included.
 
-### G1 — TLS support in core — **endorse; demand is now real**
+**Accept:** the `&not=` regression test.
 
-[appkit-TODO] already records "core has NO TLS support" with PapDashboard's `PAP_TLS_CERT/KEY` as first concrete demand. Add CV's: the SystemNix deployment terminates TLS upstream today, but the day a CV-family service deploys WITHOUT a reverse proxy, `ServiceConfig.TLS{CertFile, KeyFile}` (or ACME) is the blocker. `http.Server` TLS fields are deliberate zero-values today (`service.go:67`) — the seam exists. **Acceptance:** `RunTLS`, graceful drain identical to HTTP path, docs for cert rotation.
+## A7 — Environment-tuned security headers · S · NEW
 
-### G2 — Prometheus metrics surface in core (opt-in, tiny)
+```go
+appkit.SecurityHeadersConfig{Environment: appkit.Production} // → HSTS max-age=63072000; includeSubDomains; preload
+```
 
-- **What:** `ServiceConfig.Metrics = &MetricsConfig{Path: "/metrics"}` → request duration histogram by route pattern, in-flight gauge, response total by code, build info — WITHOUT the otel module (many services want Prometheus but not tracing; CV's `/metrics` is pure Prometheus and Gatus/Alerter feed on it).
-- **Why:** the otel module's metered path (~27µs/req) is the right tool when tracing is on; a no-otel ~µs-scale counter path covers the rest. Health-dashboard already exposes its own `/health/metrics` when enabled — core-level metrics make the pattern uniform.
-- **Accept:** unit-1 label trap documented (CV/AGENTS: OTEL Prometheus exporter appends `_ratio` to unit-1 metrics — a real footgun worth encoding in the helper).
+Dev/staging must leave HSTS off (LAN-over-http lockout otherwise). Today `DefaultSecurityHeadersConfig()` is the only shape.
 
-### G3 — Shutdown observability
+## A8 — Body limit · S (26 LOC port) · NEW
 
-- **What:** log each shutdown phase with duration (ready-flip, drain wait, drain hooks, listener close, shutdown hooks, errors joined) at INFO.
-- **Why:** CV diagnoses drain behavior from logs during deploys; phases today are only visible in code. ~20 LOC, pure win.
-
-### G4 — Endorse existing tracked items (no new work proposed, just priority signal)
-
-1. **Licensing decision** — pkg.go.dev hides ALL godoc of the core module today (`License: UNKNOWN`) and submodule pages 404. For a framework courting consumers this is the highest-leverage non-code fix on the board. Every external adopter (and AI agent doing library research!) hits the hidden-docs wall first. **[appkit-TODO P2, USER GATE]**
-2. **Mechanical API-break check at tag time** — endorsed; CV's dep-wave experience says version drift between family repos is the #1 integration cost, and a silent API break is the worst variant.
-3. **v1.0.0 exit criteria** — the draft exists; this doc's §2–6 batteries are the practical definition of "API we can commit to": security cluster, httpx, testkit, worker, sqlite, polite. Until those stabilize, v1.0.0 would freeze a half-battery.
-4. **DrainDelay sweep in satellites** — endorsed (`NoDrainDelay` misuse is a hidden test tax).
-5. **Logging posture decision** — the +30µs/emit benchmark is real; CV's stance: keep pretty logging in dev, sample or demote in production docs, and never log per-request at INFO by default (CV logs at DEBUG for request lines; access logs live in the reverse proxy).
-
----
-
-## 9. Anti-recommendations (what NOT to build — scoped so the batteries don't rot)
-
-1. **No DI container in core.** The `do` bridge (D2) is the ceiling; core stays stdlib-composable.
-2. **No templ/UI components in core.** errorpages already bridges templ-components the right way — as a module.
-3. **No ORM/DB layer beyond D3's operational kit.** Storage ENGINES stay consumer choice; appkit owns operational discipline only.
-4. **No security cluster in the DEFAULT stack.** Defaults stay Recovery→RequestID→Logging→(Timeout)→SecurityHeaders. CSRF/auth/rate-limit are opt-in middlewares with docs — the DEFAULTS must stay harmless for the 12-line quick start (a batteries framework whose defaults break localhost demos fails its own design center).
-5. **No WebSocket in realtime.** The SSE-only constraint is stated, correct, and load-bearing — keep it.
-6. **Don't promote `realtime` into core.** CV's SSE discipline (folded-broadcast ordering, drop counters) shows the complexity budget; it belongs behind the module boundary even after C1–C3.
+```go
+chain := security.BodyLimit(2 << 20)(next) // oversize fails as a typed error, never silent truncation
+```
 
 ---
 
-## 10. Suggested sequencing (impact × effort, consumer-evidence-weighted)
+# Cluster B — Handler DX (`appkit/httpx`, new module)
 
-| Wave | Items | Why now |
+appkit core speaks `http.HandlerFunc` over stdlib mux; every richer behavior is hand-rolled per service. CV's `internal/httpx` (2,752 LOC) is the port-ready proof. Depends on httputil + go-error-family only — core untouched.
+
+## B1 — ResultHandler family · M (452 LOC port) · NEW
+
+**Problem:** the "return `(T, error)`, get a correct HTTP response" seam is the highest-DX battery in existence for this family, and its error mapping must share errorpages' taxonomy or HTML/JSON error surfaces drift.
+
+**API sketch:**
+
+```go
+// typed handler → auto-serialized response; errors map through go-error-family
+// (Rejection→400, Conflict→409, Transient→503, Corruption→500 — same taxonomy errorpages speaks)
+mux.Handle("GET /api/things/{id}", httpx.ResultHandler(func(c *httpx.Context) (*Thing, error) {
+    return svc.Get(c.Request.Context(), c.PathValue("id"))
+}))
+
+// with bind + validation (B2 integrated, CV ships exactly this):
+mux.Handle("POST /api/things", httpx.ResultHandlerWithValidation(
+    func(c *httpx.Context, in CreateThingRequest) (*Thing, error) { return svc.Create(c.Request.Context(), in) },
+))
+```
+
+**Accept:** classification-parity test vs `errorpages` (CV's `error_classification_parity_test.go` is the oracle — one taxonomy, two renderings); fuzz the response path (CV's `result_handler_fuzz_test.go`).
+
+## B2 — Bind + validation · S (154 LOC port) · NEW
+
+Folded into B1's family (above). Rules to encode in docs + tests: bind **tagged adapter types**, never untagged domain structs (json/v2 matches case-sensitively — CV's `{"appId":...}` 400 bug); wire tags snake_case (`tagliatelle` stance).
+
+## B3 — ResponseWriter wrapper contract as CODE · S (149 LOC port) · NEW
+
+**Problem:** wrappers that hide `http.Flusher` compile clean and pass `httptest.Recorder` tests, then stall SSE in production (CV's notFoundInterceptor: frames sat in net/http's 4KB buffer until client timeout).
+
+**API sketch:**
+
+```go
+w := httpx.WrapWriter(next)          // forwards Flusher, Hijacker, Unwrap, ResponseController
+httpxtest.AssertForwardsInterfaces(t, w) // fails any wrapper that hides optional interfaces
+```
+
+**Accept:** `AssertForwardsInterfaces` must fail on the buggy notFoundInterceptor shape (that's the discrimination proof).
+
+## B4 — Conditional GET battery · S (~80 LOC port) · NEW
+
+**Problem:** calendar clients/pollers fetch whole feeds; `go-etag v0.2.0` sits in core's go.mod as an unused indirect dep.
+
+**API sketch:**
+
+```go
+mux.Handle("GET /feed", httpx.Conditional(feedHandler, httpx.ETagFromSha256()))
+// strong sha256 ETag + Last-Modified; RFC 9110: weak W/ forms, comma lists, * → real 304s
+```
+
+**Accept:** port CV's `TestInterviewsICSHandler_ConditionalGET` matrix (weak/comma/`*`/If-Modified-Since); byte-determinism prerequisite documented.
+
+## B5 — Content negotiation · S · NEW
+
+```go
+switch httpx.Negotiate(r, "text/html", "application/json") { ... }
+```
+
+Two in-family implementations already (CV `/admin/health`, go-health-dashboard). One battery.
+
+## B6 — Route introspection + golden-route test · M · NEW
+
+**Problem:** accidental route additions/removals are invisible until production; CV's golden (115 routes, set AND count) has caught multiple.
+
+**API sketch:**
+
+```go
+for _, rt := range svc.Routes() { /* Method, Pattern, Name, Meta */ }
+httpxtest.AssertRouteSet(t, svc, "testdata/routes.golden")
+```
+
+Stdlib-mux 1.22+ patterns make this introspectable if registration flows through one seam (which B8 needs anyway).
+
+## B7 — Per-route write deadlines · S · NEW
+
+```go
+// extend the write deadline for matching prefixes ONLY (LLM missions, slow exports);
+// must sit OUTSIDE compression — gzip wrapper does not Unwrap, ResponseController can't pass through
+chain := httpx.WriteDeadline(3*time.Minute, "/api/agent/")(next)
+```
+
+**Accept:** the ordering regression (deadline through a gzip wrapper = fail). `NoTimeout` (today's only tool) is too blunt — the rest of the surface should keep deadlines.
+
+## B8 — Route metadata → docs feed · M · NEW
+
+If B6's seam carries optional metadata (summary, types), `docs-mod` generates from the LIVE route table — docs cannot drift from routes. Removes the parallel-catalog pass.
+
+## B9 — No-leak error responses · S (port ~64+error_handler) · NEW
+
+**Problem:** error bodies leaking internals (paths, SQL, stack) are a standing LAN-surface risk; CV has BOTH a middleware (`secure_error_handler.go`) and `SanitizeErrorMessage(err, cfg)`.
+
+**Accept:** leaked-detail matrix test (path fragments, hostnames, SQL keywords scrubbed); JSON contract matches errorpages' shape — one error rendering story across the module family.
+
+---
+
+# Cluster C — Realtime completions (existing module, three additions)
+
+## C1 — Drop/backpressure observability · S · NEW
+
+**Problem:** SSE staleness is invisible until a user complains; CV built `/api/pipeline/sse-stats` (`droppedStoreNotifications`, `droppedBroadcasts`, …) and Gatus alerts on it.
+
+```go
+health := hub.Health() // extend sse.BroadcasterHealth with drop counts + buffer saturation
+```
+
+Document the invariant: a dropped notification only delays — the next delivered broadcast re-syncs (full-state payloads).
+
+## C2 — The projection→broadcast contract · M · NEW — **the must-have of this cluster**
+
+**Problem:** broadcasting on raw-event notification races the projection's own fold → clients receive pre-fold state and never see the update (no follow-up broadcast exists). CV's 4-session flake hunt (2026-08-16) ended at `SubscribeFolded`: emit only after `Handle(evt)` returned.
+
+```go
+// helper that owns the ordering guarantee so consumers can't get it wrong:
+realtime.FoldedSource(projection.SubscribeFolded, func() any { return projection.Snapshot() }, hub.Broadcast)
+```
+
+**Accept:** port CV's discriminator — a wrapper store appends mid-fold; the broadcast must provably include its trigger (`TestProjectionIntegration_SubscribeFoldedReflectsEvent`). Without this wiring shipped as code, every cqrs+realtime consumer re-runs the race.
+
+## C3 — Per-subscriber auth + filtering · S · NEW
+
+```go
+h := realtime.NewHandler(hub,
+    realtime.WithAuthorize(func(r *http.Request) error { return keyGuard(r) }),
+    realtime.WithFilter(func(evt sse.Event, r *http.Request) bool { ... }),
+)
+```
+
+CV's admin/pipeline SSE rides the API-key guard; today a consumer must wrap the whole handler and reimplement replay/dedup to filter.
+
+---
+
+# Cluster D — Operations & data
+
+## D1 — Worker supervisor + typed pool · M (473 LOC port) · NEW
+
+**Problem:** every family service hand-rolls run/stop for background loops; CV's set: projection fold loop, reply-loop poller, boot-warm goroutine (had to be explicitly joined in `Shutdown` — leak class), PDF pool.
+
+**API sketch:**
+
+```go
+sup := worker.NewSupervisor(svc.Logger)
+sup.Go("reply-poller", worker.Config{Restart: worker.BackoffJitter()}, pollLoop) // panic → restart+backoff
+sup.Tick("funnel-scan", worker.Every(6*time.Hour, worker.WithJitter(30*time.Second)), scanOnce) // single-flight: overlap skipped, counted
+err := sup.Stop(ctx) // cancel → join with per-worker timeout; started-during-stop must NOT leak
+```
+
+**Port-from:** `internal/pkg/worker/` (`Manager`, `RegisterPool`, `StopAll(timeout)`, `WorkerPool[T]`, `Task/TaskResult`) — CV's manager is global-singleton shaped; generalize to instance-shaped.
+
+**Accept:** start/stop ×100 goroutine-baseline stable; panic-restart counts; start-during-shutdown joins (CV's boot-warm lesson as a test).
+
+## D2 — samber/do bridge · M · NEW
+
+Core is do-free (verified) and stays so — but every family composition root is do-based, and without a bridge, appkit's lifecycle and the DI lifecycle are two shutdown owners over one process (CV's split-brain class). ~300 LOC module:
+
+```go
+doappkit.Register(injector, svc)   // *Service as do service: Shutdown cascades, Healthcheck reflects drain state
+// plus the error-propagating resolve helper CV standardized after banning do.MustInvoke repo-wide:
+svc, err := doappkit.Resolve[*MyService](injector)
+```
+
+## D3 — SQLite ops kit · L · NEW
+
+Four batteries in one module (the cqrs module covers event-sourced storage; this covers everything else):
+
+```go
+db, err := sqlite.Open("app.db", sqlite.WithLease("poller"), sqlite.WithPRAGMAs(sqlite.Defaults))
+// lease: hostname+pid file, Signal(0) stale-detect, reentrant refcount → second process fails FAST
+// with a typed *LeaseHeldError naming owner pid/host + fix hint (CV ended the stale-reader class with this)
+err = sqlite.Backup(ctx, db, "backup.db")      // VACUUM INTO: consistent snapshot, safe beside a writer, refuse-overwrite
+led, err := sqlite.OpenLedger("dead.json", sqlite.WithCap(50), sqlite.WithPerms(0o600)) // atomic JSON, cap+dedupe
+```
+
+Plus the discipline docs CV paid for: `SetMaxOpenConns(1)` REQUIRED for PRAGMA persistence; modernc sqlite ignores ctx cancellation under fsync contention → `:memory:` for tests; WAL trade-offs.
+
+**Accept:** lease matrix (takeover/stale/foreign-host/refcount); backup round-trip; ledger atomicity under concurrent writers.
+
+## D4 — Atomic file write · S · NEW
+
+Wrap/promote go-atomic-write with the floor documented in code comments: **≥ v0.5.1** — earlier versions reference `syscall.ERROR_SHARING_VIOLATION` (undefined on Windows) and break every `GOOS=windows` build transitively. CV hit this as a release-blocking trap.
+
+## D5 — Polite outbound client · M (205 LOC port) · NEW
+
+**Problem:** any service doing outbound fetching needs pacing, caching, SSRF posture, and typed failure classification — CV's scanner layer is the battle-tested implementation (ETag behavior live-verified against Greenhouse/Ashby/Lever).
+
+```go
+client := polite.New(polite.Config{
+    MinIntervalPerHost: time.Second,     // cross-host never waits for each other
+    ResponseCache:      polite.Cache64MiB, // GET+ETag ≤4MiB entries; If-None-Match → 304 replay; POST never cached
+    AllowHosts:         []string{"api.lever.co"}, // SSRF: allowlist + redirect rejection
+    BodyLimit:          32 << 20,        // streaming cap; oversize = typed ErrBodyLimit, never truncation
+})
+cls := polite.Classify(err) // http/body-limit/decode/network + Retryable/IsDead predicates
+```
+
+**Accept:** port `http_politeness_test.go` pins wholesale (revalidation, refetch-on-ETag-change, POST exclusion, cross-client cache survival, same-host spacing, byte budget, replacement semantics).
+
+## D6 — Best-effort webhook sender · S · NEW
+
+Extract from go-health-dashboard v0.5.0's `WithWebhook` (right semantics already shipped there): bounded in-flight (slow receiver NEVER blocks the push loop), per-attempt timeout, no-retry default, optional HMAC header.
+
+## D7 — Idempotency store · S (165 LOC port) · NEW
+
+**Problem:** at-most-once work under notification races (projections, webhooks, SSE bridges) — CV folds every event through `CheckAndRecord`.
+
+```go
+store := worker.NewIdempotencyStore(worker.WithTTL(time.Hour))
+if store.CheckAndRecord(worker.ProcessorKey("crm-sync", evt.ID())) { /* first delivery */ }
+store.Close() // owns its evict goroutine — Close() must JOIN it (CV's evictLoop leak, found by the teardown suite)
+```
+
+**Accept:** double-delivery collapse test; evict-loop shutdown joins (goroutine baseline); TTL expiry frees keys.
+
+## D8 — Scheduler · S · NEW
+
+See `sup.Tick` in D1 (6h tick + jitter + single-flight + missed-tick policy documented). CV runs these as SystemNix timers today — in-process scheduling is the battery for non-Nix consumers; keep it tick-shaped (NOT cron-expression parsing — see anti-recommendations).
+
+---
+
+# Cluster E — Testing toolkit (`appkit/testkit`)
+
+## E1 — Full-chain harness + the mux≠handler trap as API · M · NEW
+
+```go
+srv := testkit.Serve(t, svc)   // returns FullChainURL (stdlib chain + engine) AND MuxURL
+                              // teardown: close conns → shutdown chain LIFO → goroutine-baseline assert
+```
+
+Encode the lessons as API docs: raw-mux registrations are INVISIBLE to route discovery and skip the stdlib chain (three CV production bugs were only visible through the full chain); a test server that leaks ~25 goroutines makes every SSE test load-flaky (CV's teardown suite caught a real evictLoop leak on first run).
+
+## E2 — SSE test client + flake-triage helpers · S · NEW
+
+```go
+c := testkit.SSE(t, srv.FullChainURL+"/health/sse")
+c.ExpectEvent(t, "datastar-patch-elements", 5*time.Second)
+testkit.Eventually(t, 10*time.Second, cond) // poll, never fixed sleeps
+testkit.DumpGoroutines(t.Failed())          // pprof goroutine dump on failure — the triage protocol as code
+```
+
+## E3 — Rate-limit bucket isolation · S · NEW
+
+```go
+client := testkit.UniqueXFFClient(t) // unique X-Forwarded-For per test — httptest clients all appear as 127.0.0.1
+```
+
+Mandatory once A3 ships; CV learned this when sibling tests poisoned each other's buckets.
+
+## E4 — Chain-order snapshot · S · NEW
+
+```go
+testkit.AssertChainOrder(t, svc, "recovery", "requestid", "logging", "securityheaders")
+```
+
+Middleware ORDER is where the security properties live (A2 bypass AFTER rate limiting; B7 deadline OUTSIDE compression). Core must expose the built chain names; the test pins them.
+
+---
+
+# Cluster F — Config & DX
+
+## F1 — koanf module (`appkit/config`) · M · NEW
+
+Defaults-YAML const → file → env overrides, with the family's traps encoded in the type system or docs: `WeaklyTypedInput` silent coercion (validate with in-range invalid values, never out-of-range overflow), unsigned numerics at boundaries, empty-string→nil `*string` hook, and the **env-override discoverability helper**:
+
+```go
+configtest.AssertEnvOverridesReachable(t, map[string]string{"CV_AGENT_API_KEY": "…"}) // koanf pull-model only sees registered keys
+```
+
+CV pins this per feature because silent env overrides each cost a debugging session.
+
+## F2 — Request-ID log correlation + timing header · S · ENDORSED (TODO P3 tracks the httputil emit)
+
+Seed request ID into the handler-scoped logger (cheap core version of otel's `TraceHandler` trace correlation) + `X-Response-Time` (CV `timing.go`, 116 LOC).
+
+## F3 — README build notes · S · ENDORSED (TODO P2)
+
+Add consumer-side evidence: CV's gopls produces FALSE "string literal not terminated" on json/v2 imports when the LSP env lacks `GOEXPERIMENT=jsonv2` — cost a misdiagnosed file-corruption session. The README note prevents confusion, not just build failures.
+
+## F4 — Config hot-reload · M · NEW
+
+```go
+cfg, err := config.Watch(file, config.WithValidateGate(myValidate)) // fsnotify + validate → atomic swap → hook
+```
+
+Port-from: `career-pipeline/profileagent/platform_spec.go` (hot-reloadable automation YAML). Never serve a half-swapped config: validate-gate then swap atomically.
+
+## F5 — BuildInfo · S · NEW
+
+```go
+// internal/version: linker-mutated var (GoReleaser -X), "dev" default
+appkit.WithVersion(version.Version) // → /health version field + /version endpoint + build info metric (G2)
+```
+
+CV's `cv --version` stamps `main.version/commit/date`; go-health already takes `WithVersion` — one story.
+
+---
+
+# Cluster G — Core hygiene (the short list where CORE must move)
+
+## G1 — TLS · M · ENDORSED (TODO P3; PapDashboard's `PAP_TLS_CERT/KEY` is first demand)
+
+`service.go:67` deliberately zeroes `http.Server` TLS fields — the seam exists. Add `ServiceConfig.TLS{CertFile, KeyFile}` (+ ACME later); drain sequence identical to the HTTP path; cert-rotation docs.
+
+## G2 — Prometheus surface in core (opt-in) · M · NEW
+
+`ServiceConfig.Metrics{Path: "/metrics"}` → request-duration histogram by route pattern, in-flight gauge, response totals, build info — WITHOUT the otel module (CV's `/metrics` is pure Prometheus; Gatus feeds on it; the otel metered path (~27µs/req) stays the tool when tracing is on). Encode the unit-1 trap in the helper docs: OTEL's Prometheus exporter appends `_ratio` to unit-1 metrics — CV hit it live.
+
+## G3 — Shutdown phase logging · S · NEW
+
+One INFO line per phase with duration: ready-flip → drain wait → drain hooks → listener close → shutdown hooks → joined errors. ~20 LOC; CV diagnoses deploys from exactly these logs.
+
+## G4 — Process endorsements (no new work; priority signal)
+
+1. **Licensing decision** — pkg.go.dev hides ALL core godoc today (`License: UNKNOWN`); submodule pages 404. Highest-leverage non-code fix on the board; blocks every external adopter AND every AI agent doing library research.
+2. **Mechanical API-break check at tag time** — family dep drift is the #1 integration cost (CV's dep-wave lockstep trap); a silent API break is the worst variant.
+3. **v1.0.0 exit criteria** — the draft exists; this doc's batteries ARE the practical freeze-scope. v1.0.0 before security/httpx/testkit stabilize would freeze a half-battery.
+4. **DrainDelay sweep + logging posture** — both already tracked; endorsed.
+
+---
+
+# Anti-recommendations (keep the batteries from rotting the core)
+
+1. **No security cluster in the DEFAULT stack.** Defaults stay Recovery→RequestID→Logging→(Timeout)→SecurityHeaders. CSRF/auth/rate-limit are opt-in with docs — a batteries framework whose defaults break the 12-line localhost demo fails its own design center.
+2. **No DI container in core.** D2's bridge is the ceiling.
+3. **No templ/UI in core.** errorpages already bridges templ-components correctly — as a module.
+4. **No cron-expression parser.** D8 stays tick+jitter+single-flight; cron DSLs are a dependency and complexity magnet with no family consumer.
+5. **No WebSocket in realtime.** SSE-only is stated, correct, load-bearing.
+6. **No storage engines.** D3 owns operational discipline (lease/backup/ledger), never schema/ORM choices.
+7. **Don't promote realtime/httpx into core** — CV's SSE and result-handler complexity budgets prove they belong behind module boundaries.
+
+---
+
+# Sequencing
+
+| Wave | Items | Gate to next wave |
 | --- | --- | --- |
-| **W1 (foundations other batteries need)** | G1 TLS, G2 metrics, G3 shutdown logs, F2 request-ID logs, E1 testkit core | TLS unblocks PapDashboard hosting; metrics+logs are referenced by A3/C1; testkit is how every later battery gets verified |
-| **W2 (security battery)** | A1 CSRF, A2 API-key, A3 rate limit, A4 origin, A5 CSP nonce, A6 sanitize, A7 HSTS | Largest hand-rolled surface in the family; highest re-implementation risk; pure composition of existing httputil pieces + CV's pinned tests port nearly 1:1 |
-| **W3 (handler DX)** | B1–B8 as `appkit/httpx` | The CV seam consumers cannot get otherwise; B6 feeds docs-mod (B8) |
-| **W4 (ops & data)** | D1 worker, D2 do-bridge, D3 sqlite kit, D4 atomic write, D5 polite client, D6 webhook | Each has a running in-family implementation to port from (CV + go-health-dashboard) — low design risk, high payoff |
-| **W5 (realtime completions)** | C1–C3 | Smallest delta on an existing module; C2's race contract is the must-have |
-| **Continuous** | G4 endorsements (licensing!, API-break check, v1 criteria), F3 README | Non-code, adoption-critical |
+| **W0 (process, parallel)** | G4 licensing, F3 README | pkg.go.dev renders all modules |
+| **W1 foundations** | G1 TLS, G2 metrics, G3 shutdown logs, F2 timing, E1 testkit core, F5 buildinfo | testkit verifies every later battery |
+| **W2 security** | A2, A3, A4, A8, A6 (quick wins) then A1, A5, A7 | 429-bypass + CSP-pin tests green upstream |
+| **W3 handler DX** | B1, B2, B9 then B3, B4, B5, B7, then B6, B8 | classification-parity vs errorpages pinned |
+| **W4 ops & data** | D7, D4, D6 (small) then D1, D5, then D3, D2, D8, F1, F4 | lease + politeness pin-tests ported |
+| **W5 realtime** | C1, C3, then C2 | folded-broadcast discriminator green |
 
 ---
 
-## 11. Traceability
+# Traceability
 
-- CV invariants cited: **[CV-AGENTS]** sections *Traps → Shell & Git*, *Browser & Load Testing*, *Health Probes & DI Audit*, *PipelineStore*, *Portal Scanners*, *API-Key Guard*, *Continuous Funnel*, *One-Click Apply Funnel*, *Reply Loop + Calendar Feed*, *Operator Admin Hub*.
-- appkit facts verified at HEAD 2026-09-04: core go.mod (httputil v0.12.0, go-error-family v0.10.0, go-etag v0.2.0 indirect, NO samber/do), `middleware.go` default stack (5 middlewares), `service.go` drain sequence + TLS zero-values (`:67`), `realtime/hub.go` (store replay, Shutdown/Close, Health, SubscriberCount), `errorpages/README.md` (taxonomy parity with HTTPStatus), `cqrs/README.md` (EventService, DLQ), TODO_LIST (TLS gap, licensing, logging posture, API-break check, v1 criteria, DrainDelay sweep, F2 request-ID correlation).
-- Cross-repo research already on file: `docs/review/2026-08-16_setup-vs-go-appkit-comparison.md` (10 findings — this doc endorses findings it overlaps: #7 logging), `docs/planning/core-v1-exit-criteria.md` (draft), `docs/planning/2026-09-04_papdashboard-integration.md` (TLS demand).
+- **CV port-from paths** (all verified to exist 2026-09-04): `internal/middleware/{apikey,ratelimit,origin_check,csp_nonce,consolidated_security,body_limit,timing,secure_error_handler,result_handler,write_deadline,csrf_apikey_bypass}.go`; `internal/sanitization/sanitization.go`; `internal/security/error_handler.go`; `internal/httpx/{result,validation,response_writer,adapters}.go`; `internal/server/routes_test.go`; `internal/pkg/worker/{manager,pool}.go`; `internal/version/version.go`; `career-pipeline/scanner/http_politeness.go`; `career-pipeline/eventstore/idempotency.go`; `career-pipeline/profileagent/platform_spec.go`; `internal/features/pipeline/handlers/interviews_ics_handler.go`.
+- **appkit facts verified at HEAD 2026-09-04:** core go.mod (httputil v0.12.0, go-error-family v0.10.0, go-etag v0.2.0 indirect, NO samber/do); `middleware.go` 5-middleware default stack; `service.go` drain sequence + TLS zero-fields at `:67`; `realtime/hub.go` (store replay, Shutdown/Close, Health, SubscriberCount); `errorpages/README.md` taxonomy parity; `cqrs/README.md` EventService+DLQ; TODO_LIST (TLS gap, licensing, logging posture, API-break check, v1 criteria draft, DrainDelay sweep, request-context logging).
+- **Cross-repo research on file:** `docs/review/2026-08-16_setup-vs-go-appkit-comparison.md` (finding 7 = F2's logging posture); `docs/planning/core-v1-exit-criteria.md`; `docs/planning/2026-09-04_papdashboard-integration.md` (TLS demand).
