@@ -152,6 +152,7 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	}
 
 	phaseStart := time.Now()
+
 	s.readyProbe.Store(false)
 	s.logPhase("ready_flip", phaseStart)
 
@@ -182,6 +183,7 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	}
 
 	phaseStart = time.Now()
+
 	err := s.server.Shutdown(ctx)
 	if err != nil {
 		err = errorfamily.WrapInfrastructuref(err, "server.shutdown_failed", "shutdown failed")

@@ -79,6 +79,11 @@ Each module is independently versioned and usable on its own:
 > `GOEXPERIMENT=jsonv2`. Each module's README documents its own history
 > with the experiment; the per-module notes in `AGENTS.md` track the
 > gory details.
+>
+> Editor note: gopls running under a toolchain/environment without the
+> experiment reports FALSE `string literal not terminated` diagnostics on
+> files importing `encoding/json/v2` — set `GOEXPERIMENT=jsonv2` in your
+> editor's Go environment before suspecting the source.
 
 ## Configuration
 
@@ -153,8 +158,16 @@ err := svc.Shutdown(ctx)
 When `Shutdown` is called:
 
 1. Ready probe flips to 503 (load balancer stops sending new traffic)
-2. Wait `DrainDelay` (default 5s) for LB propagation
-3. `server.Shutdown(ctx)` stops accepting + finishes in-flight requests
+2. `DrainHooks` run while traffic is still served (e.g. the health module flips its readiness surfaces in lockstep)
+3. Wait `DrainDelay` (default 5s) for LB propagation
+4. `server.Shutdown(ctx)` stops accepting + finishes in-flight requests
+5. `ShutdownHooks` run after connections are released (e.g. telemetry flush)
+
+Each phase emits one INFO log line with its name and duration — `ready_flip`,
+`drain_hooks`, `drain_wait` (or a `shutdown phase skipped` line when
+`NoDrainDelay` is set), `listener_close`, `shutdown_hooks` — followed by a
+`graceful shutdown complete` line carrying the total, so deploys are
+diagnosable from logs alone.
 
 ## Error handling
 
