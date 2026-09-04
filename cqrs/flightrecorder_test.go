@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
-	fr "github.com/larsartmann/go-flightrecorder"
 	"github.com/larsartmann/go-cqrs-lite/projection/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
+	fr "github.com/larsartmann/go-flightrecorder"
 )
 
 // recorderMu serializes tests that hold the process-global flight recorder
@@ -30,7 +30,7 @@ func (s *syncBuffer) Write(p []byte) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	return s.buf.Write(p)
+	return s.buf.Write(p) //nolint:wrapcheck // pass-through writer, caller is go-flightrecorder
 }
 
 func (s *syncBuffer) Len() int {
