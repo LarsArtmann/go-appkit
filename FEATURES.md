@@ -21,6 +21,7 @@ aspirations.
 | `OuterMiddlewares` outermost hook          | FULLY_FUNCTIONAL | `config.go:65`, `middleware_test.go`           |
 | `ShutdownHooks` post-shutdown flush hooks  | FULLY_FUNCTIONAL | `service.go`, `shutdownhooks_test.go`          |
 | `DrainHooks` drain-start readiness hooks   | FULLY_FUNCTIONAL | `config.go`, `service.go`, `drainhooks_test.go` |
+| Shutdown phase logging (per-phase INFO)    | FULLY_FUNCTIONAL | `service.go` (`logPhase`), `shutdownlog_test.go` |
 | `NoDrainDelay` fast-test shutdown sentinel | FULLY_FUNCTIONAL | `config.go:37`, `config_test.go`               |
 | charmbracelet/logging (`InitLogger`)       | FULLY_FUNCTIONAL | `logger.go`                                    |
 | error-family re-exports (`HTTPStatus`…)    | FULLY_FUNCTIONAL | `errors.go`                                    |
