@@ -1400,7 +1400,7 @@ svc.Config().ReadyCheck = events.ReadyCheck</code></pre>
             <p>
               Verification performed after the fixes
               (<code>GOWORK=off GOEXPERIMENT=jsonv2</code>): <code>go build</code>,
-              <code>go vet</code>, <code>go test -race -count=1</code> (24
+              <code>go vet</code>, <code>go test -race -count=1</code> (31
               tests), <code>golangci-lint</code> 0 issues,
               <code>cqrs-lint 4.8.1</code> clean (2 suppressions still firing),
               docs-mod build unaffected.
@@ -1417,6 +1417,13 @@ svc.Config().ReadyCheck = events.ReadyCheck</code></pre>
           </section>
 
           <footer class="footer">
+            <p>
+              <strong>Correction (2026-09-04 17:20):</strong> an earlier version
+              of this report stated 24 tests; the verified count is 31 test
+              functions in the cqrs module. Also observed post-publication:
+              the v0.3.0 release wave was pushed to origin (not by this
+              session), so all version tags cited are now public.
+            </p>
             <p>
               Generated 2026-09-04 &middot; Reviewed against go-cqrs-lite @
               8eb4054c2 (projectionhost v4.4.0, event v4.9.0) &middot; All

@@ -93,8 +93,9 @@ func freeAddr(t *testing.T) string {
 }
 
 // connect opens an SSE connection to the service, optionally carrying a
-// Last-Event-ID cursor, and returns the live response.
-func connect(t *testing.T, svc *appkit.Service, lastEventID string) *http.Response {
+// Last-Event-ID cursor. readTimeout caps the whole connection (headers plus
+// body reads) via http.Client.Timeout.
+func connect(t *testing.T, svc *appkit.Service, lastEventID string, readTimeout time.Duration) *http.Response {
 	t.Helper()
 
 	req, err := http.NewRequestWithContext(
@@ -107,7 +108,7 @@ func connect(t *testing.T, svc *appkit.Service, lastEventID string) *http.Respon
 		req.Header.Set("Last-Event-ID", lastEventID)
 	}
 
-	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
+	resp, err := (&http.Client{Timeout: readTimeout}).Do(req)
 	if err != nil {
 		t.Fatalf("connect: %v", err)
 	}
@@ -138,7 +139,7 @@ func TestSSEHeadersFlushThroughAppkitDefaultStack(t *testing.T) {
 
 	start := time.Now()
 
-	resp := connect(t, svc, "")
+	resp := connect(t, svc, "", 10*time.Second)
 	headerElapsed := time.Since(start)
 
 	if ct := resp.Header.Get("Content-Type"); ct != "text/event-stream" {
@@ -164,8 +165,10 @@ func TestSSEHeadersFlushThroughAppkitDefaultStack(t *testing.T) {
 // TestJournalBackedReplayThroughAppkitService exercises the wiring documented
 // in the realtime module notes: cqrs-htmx's transport.NewJournalSSEStore
 // bridges a go-cqrs-lite journal into realtime.NewHub(realtime.WithStore(...)),
-// mounted on an appkit.Service. It proves journal replay, live broadcast, and
-// Last-Event-ID cursor semantics end-to-end across the two repositories.
+// mounted on an appkit.Service. It proves the store contract end-to-end across
+// the two repositories: first connections get NO history replay (a fresh
+// subscriber never receives the whole journal), Last-Event-ID reconnects
+// replay exactly the missed suffix, and live broadcasts interleave.
 func TestJournalBackedReplayThroughAppkitService(t *testing.T) {
 	store := memory.NewMemoryStore()
 	events := seedEvents(t, 2)
@@ -175,22 +178,30 @@ func TestJournalBackedReplayThroughAppkitService(t *testing.T) {
 		realtime.WithStore(transport.NewJournalSSEStore(store, transport.DomainEventToSSE)))
 	svc := newSSEService(t, hub)
 
-	resp := connect(t, svc, "")
+	// A first connection without a cursor must NOT receive the journal
+	// history: replay is a reconnect mechanism, not a cold-start backfill.
+	// The heartbeat (15s) lies far beyond the 300ms probe budget, so any
+	// frame within the budget would have to be a replayed journal event.
+	fresh := connect(t, svc, "", 300*time.Millisecond)
 
-	replayed := ssetest.MustReadNEvents(t, resp.Body, 2)
-	ssetest.RequireEventID(t, replayed[0], events[0].ID().String())
-	ssetest.RequireEventID(t, replayed[1], events[1].ID().String())
-	ssetest.RequireEventType(t, replayed[0], "event")
+	_, readErr := ssetest.ReadNEvents(fresh.Body, 1)
+	if readErr == nil {
+		t.Fatal("first connection received an event, want no cold-start replay")
+	}
 
-	hub.Broadcast(sse.Event{Event: "live", Data: "{}", ID: sse.NewEventID("live-1")})
-
-	live := ssetest.MustReadNEvents(t, resp.Body, 1)[0]
-	ssetest.RequireEventID(t, live, "live-1")
-
-	reconnected := connect(t, svc, events[0].ID().String())
+	// Reconnect with a Last-Event-ID cursor: exactly the missed suffix
+	// (event 2) is replayed from the journal through the full stack.
+	reconnected := connect(t, svc, events[0].ID().String(), 10*time.Second)
 
 	after := ssetest.MustReadNEvents(t, reconnected.Body, 1)[0]
 	ssetest.RequireEventID(t, after, events[1].ID().String())
+	ssetest.RequireEventType(t, after, "event")
+
+	// Live broadcasts interleave on the reconnected stream.
+	hub.Broadcast(sse.Event{Event: "live", Data: "{}", ID: sse.NewEventID("live-1")})
+
+	live := ssetest.MustReadNEvents(t, reconnected.Body, 1)[0]
+	ssetest.RequireEventID(t, live, "live-1")
 }
 
 func seedEvents(t *testing.T, count int) []event.Event {
