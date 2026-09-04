@@ -45,6 +45,7 @@
 - [ ] **otel: middleware benchmark (no-op vs configured) + benchstat** — quantify overhead, record numbers in module README. Status report §f P3-15.
 - [ ] **Propose httputil `Logging` emit with request context** so completion lines correlate with spans via `TraceHandler` (today only handler-level logs correlate). Status report §f P2-12.
 - [ ] **Define v1.0.0 exit criteria for core** (AGENTS.md names v1.0.0 as the core target; no written criteria exist). Ideas live in `docs/planning/framework-architecture.md`; graduate to actionable when the consumer count grows. `OuterMiddlewares`/`ShutdownHooks` are v1-shaped — fold into criteria. Deeper OTEL backlog lives in `docs/status/2026-08-18_12-45_otel-module-and-telemetry-hooks.md` §f.
+- [ ] **Revisit cordis bridge module when triggers fire** (researched 2026-09-04, verdict: NOT NOW). `docs/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md` — all three required: (1) cordis tags `go/v0.1.0` (today proxy-pinned to a pseudo-version), (2) a real consumer states the reactive-composition requirement, (3) core v1.0.0 exit criteria shipped. Bridge sketch (~300-500 LOC, zero third-party deps) is in the doc §4 Option B. go-plugin-mvp marketplace integration: rejected as appkit dependency (wrong layer, pre-1.0 churn); recommended reverse adoption (their repo embeds appkit, cqrs-htmx ADR-001 pattern) — proposal to their TODO_LIST is user-gated.
 
 ---
 
