@@ -47,6 +47,9 @@
 - [ ] **Define v1.0.0 exit criteria for core** (AGENTS.md names v1.0.0 as the core target; no written criteria exist). Ideas live in `docs/planning/framework-architecture.md`; graduate to actionable when the consumer count grows. `OuterMiddlewares`/`ShutdownHooks` are v1-shaped — fold into criteria. Deeper OTEL backlog lives in `docs/status/2026-08-18_12-45_otel-module-and-telemetry-hooks.md` §f.
 - [ ] **Revisit cordis bridge module when triggers fire** (researched 2026-09-04, verdict: NOT NOW). `docs/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md` — all three required: (1) cordis tags `go/v0.1.0` (today proxy-pinned to a pseudo-version), (2) a real consumer states the reactive-composition requirement, (3) core v1.0.0 exit criteria shipped. Bridge sketch (~300-500 LOC, zero third-party deps) is in the doc §4 Option B. go-plugin-mvp marketplace integration: rejected as appkit dependency (wrong layer, pre-1.0 churn); recommended reverse adoption (their repo embeds appkit, cqrs-htmx ADR-001 pattern) — proposal to their TODO_LIST is user-gated.
 
+- [ ] **Upgrade installed cqrs-lint 4.6.0 → 4.8.1** (`go install github.com/larsartmann/go-cqrs-lite/cmd/cqrs-lint@latest` from the cqrs-lite repo). Verified 2026-09-04: 4.8.1 reports clean on `cqrs/` (both inline suppressions still fire), but it rejects the `./...` argument form — use `cqrs-lint .` inside the module. Source: `docs/research/2026-09-04_go-cqrs-lite-deep-dive.html`.
+- [ ] **cqrs: EventConfig opt-ins for event encryption/signing when a consumer demands it** (encryption/v4, signing/v4; candidates: idempotency/sqlstore, scheduling). Deliberately NOT added now — wrapper surface stays demand-driven. Routed from `docs/research/2026-09-04_go-cqrs-lite-deep-dive.html` finding 5.
+
 ---
 
 _For completed work, see each module's `CHANGELOG.md` and `git log`._
