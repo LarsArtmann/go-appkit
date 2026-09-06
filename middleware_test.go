@@ -69,7 +69,7 @@ func TestMiddleware_RequestID_HeaderPresent(t *testing.T) {
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/test-reqid")
 	defer func() { _ = resp.Body.Close() }()
 
-	if resp.Header.Get("X-Request-Id") == "" {
+	if resp.Header.Get("X-Request-ID") == "" {
 		t.Error("expected X-Request-Id header to be set")
 	}
 
@@ -157,7 +157,7 @@ func TestMiddleware_ReplacedStack(t *testing.T) {
 	defer func() { _ = resp.Body.Close() }()
 
 	// With replaced stack, default RequestID middleware is gone — no X-Request-Id header.
-	if resp.Header.Get("X-Request-Id") != "" {
+	if resp.Header.Get("X-Request-ID") != "" {
 		t.Error("replaced stack should not include default RequestID middleware")
 	}
 
@@ -230,7 +230,7 @@ func TestMiddleware_OuterMiddlewares_RunOutsideDefaultStack(t *testing.T) {
 	}
 
 	// Default stack still active underneath: RequestID header present.
-	if resp.Header.Get("X-Request-Id") == "" {
+	if resp.Header.Get("X-Request-ID") == "" {
 		t.Error("default RequestID middleware should still run under the outer middleware")
 	}
 
