@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "**/*.md"
+      - docs/**
+      - LICENSE
+      - .gitignore
+      - "**/*.svg"
+      - "**/*.png"
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - "**/*.md"
+      - docs/**
+      - LICENSE
+      - .gitignore
+      - "**/*.svg"
+      - "**/*.png"
+
+permissions:
+  contents: read
+
+env:
+  GOEXPERIMENT: jsonv2
+  GOPRIVATE: "github.com/larsartmann/*,github.com/LarsArtmann/*"
+
+jobs:
+  # Per-module build + vet + test + race, mirroring the documented local
+  # commands in AGENTS.md ("Sub-module Build Commands"). The root core module
+  # has no go.work-safe standalone build issue; each module builds standalone
+  # so published-tag drift is caught before tagging.
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [".", ./cqrs, ./realtime, ./otel, ./health, ./flightrecorder, ./flightrecorderhealth, ./errorpages, ./docs-mod]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Configure Git for private repos
+        run: git config --global url."ssh://git@github.com/LarsArtmann/".insteadOf "https://github.com/LarsArtmann/"
+      - uses: webfactory/ssh-agent@dc588b651fe13675774614f8e6a936a468676387 # v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+      - name: Build
+        working-directory: ${{ matrix.module }}
+        run: GOWORK=off go build ./...
+      - name: Vet
+        working-directory: ${{ matrix.module }}
+        run: GOWORK=off go vet ./...
+      - name: Test (race)
+        working-directory: ${{ matrix.module }}
+        run: GOWORK=off go test ./... -race -count=1
+
+  # Fresh-consumer proxy smoke: a clean module resolves each RELEASED module
+  # from the module proxy, imports it, and builds. Catches proxy-unresolvable
+  # tags and missing-dep packaging before consumers do.
+  proxy-smoke:
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [github.com/larsartmann/go-appkit, github.com/larsartmann/go-appkit/cqrs, github.com/larsartmann/go-appkit/realtime]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+      - name: Resolve latest tag of ${{ matrix.module }}
+        id: latest
+        run: echo "version=$(go list -m -versions ${{ matrix.module }} | tr ' ' '\n' | grep -E '^v[0-9]+\.' | sort -V | tail -1)" >> "$GITHUB_OUTPUT"
+      - name: Build fresh consumer against ${{ matrix.module }}@${{ steps.latest.outputs.version }}
+        run: |
+          set -euo pipefail
+          dir=$(mktemp -d)
+          cd "$dir"
+          go mod init smoke
+          go get ${{ matrix.module }}@${{ steps.latest.outputs.version }}
+          cat > main.go <<EOF
+          package main
+
+          import (
+              "fmt"
+
+              _ "${{ matrix.module }}"
+          )
+
+          func main() { fmt.Println("import OK") }
+          EOF
+          go mod tidy
+          go build ./...
+          echo "proxy smoke OK for ${{ matrix.module }}@${{ steps.latest.outputs.version }}"
+
+  # cqrs-lint over the framework modules that consume go-cqrs-lite.
+  # Arg form is "." (not ./...) — a single --path flag.
+  cqrs-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+      - name: Install cqrs-lint
+        run: go install github.com/larsartmann/go-cqrs-lite/cmd/cqrs-lint/v4@latest
+      - name: Lint cqrs module
+        working-directory: cqrs
+        run: GOWORK=off cqrs-lint .
