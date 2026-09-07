@@ -17,6 +17,7 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/query/v4"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
 	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/embedded"
 )
 
 // ── Facade test domain ──
@@ -303,7 +304,9 @@ func TestDefaultCommandMiddleware_ComposesRecoveryTracingLogging(t *testing.T) {
 	}
 }
 
-type fakeTracer struct{}
+type fakeTracer struct{
+	embedded.Tracer
+}
 
 func (fakeTracer) Start(
 	ctx context.Context,

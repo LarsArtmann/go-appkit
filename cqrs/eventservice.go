@@ -188,7 +188,7 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		return nil, err
 	}
 
-	sys, inFile, err := buildSystem(cfg, deployment, cpStore)
+	sys, inFile, err := buildSystem(cfg, deployment, cpStore, dlqStore)
 	if err != nil {
 		return nil, closeOnConstructionFailure(aux, err)
 	}
@@ -396,6 +396,12 @@ func buildAuxStores(
 	cpStore := cfg.CheckpointStore
 
 	if cpStore == nil {
+		if _, err := db.ExecContext(ctx, eventstore.SQLiteCheckpointSchema()); err != nil {
+			return nil, nil, errorfamily.WrapInfrastructure(
+				err, "cqrs.checkpoint_provision_failed", "failed to create checkpoint schema",
+			)
+		}
+
 		store, err := eventstore.NewSQLiteCheckpointStore(db)
 		if err != nil {
 			return nil, nil, errorfamily.WrapInfrastructure(
@@ -409,21 +415,39 @@ func buildAuxStores(
 	return dlqStore, cpStore, nil
 }
 
+// hostBootstrapDeclaration names the zero-entry count projection that
+// guarantees system.New creates the projection host even when consumers only
+// register raw host projections (the host is built exclusively when
+// DomainConfig.Projections is non-empty). It counters no event types and has
+// no read-model cost.
+const hostBootstrapDeclaration = "appkit-host"
+
 // buildSystem constructs the system.System with derived host options and
 // middleware wiring for the C/Q facade. The in-flight drain tracker is
-// installed outermost so Shutdown waits for entire command chains.
+// installed outermost so Shutdown waits for entire command chains. dlqStore
+// is the resolved default dead-letter store (nil when DLQ is disabled or
+// consumer-supplied).
 func buildSystem(
 	cfg EventConfig,
 	deployment system.DeploymentConfig,
 	cpStore event.CheckpointStore,
+	dlqStore projectionhost.DeadLetterStore,
 ) (*system.System, *inFlightTracker, error) {
 	inFile := newInFlightTracker()
 
 	middleware := append([]command.Middleware{inFile.commandMiddleware()}, cfg.CommandMiddleware...)
 
 	domain := system.DomainConfig{
-		Middleware:            middleware,
-		ProjectionHostOptions: cfg.hostOptions(),
+		Middleware: middleware,
+		Projections: []system.ProjectionDeclaration{
+			// Host bootstrap: a count over an event type no domain emits, so
+			// system.New always creates the projection host even when
+			// consumers only register raw host projections.
+			system.Count(hostBootstrapDeclaration).
+				On("appkit.internal.never", struct{ ID string }{}, 1, "ID").
+				Done(),
+		},
+		ProjectionHostOptions: cfg.hostOptions(dlqStore),
 		CheckpointStore:       cpStore,
 	}
 
@@ -450,6 +474,10 @@ func closeOnConstructionFailure(aux io.Closer, err error) error {
 		return err
 	}
 
+	if db, ok := aux.(*sql.DB); ok && db == nil {
+		return err
+	}
+
 	closeErr := aux.Close()
 	if closeErr != nil {
 		return errors.Join(err, closeErr)
@@ -461,7 +489,9 @@ func closeOnConstructionFailure(aux io.Closer, err error) error {
 // hostOptions maps EventConfig onto projectionhost options.
 // Nil-valued config fields are skipped so projectionhost defaults apply.
 // Consumer-supplied HostOptions come first; derived wiring wins conflicts.
-func (cfg EventConfig) hostOptions() []projectionhost.HostOption {
+// dlqStore is the default (SQL-backed) store resolved at construction; a
+// consumer-supplied DLQConfig.Store takes precedence.
+func (cfg EventConfig) hostOptions(dlqStore projectionhost.DeadLetterStore) []projectionhost.HostOption { //nolint:ireturn // upstream interface
 	opts := append([]projectionhost.HostOption{}, cfg.HostOptions...)
 
 	if cfg.Logger != nil {
@@ -477,9 +507,16 @@ func (cfg EventConfig) hostOptions() []projectionhost.HostOption {
 		opts = append(opts, projectionhost.WithMetrics(cfg.Metrics))
 	}
 
-	if cfg.DLQ != nil && cfg.DLQ.Store != nil {
-		opts = append(opts,
-			projectionhost.WithDeadLetterStore(cfg.DLQ.Store, cfg.DLQ.Threshold))
+	if cfg.DLQ != nil {
+		store := cfg.DLQ.Store
+		if store == nil {
+			store = dlqStore
+		}
+
+		if store != nil {
+			opts = append(opts,
+				projectionhost.WithDeadLetterStore(store, cfg.DLQ.Threshold))
+		}
 	}
 
 	return opts
@@ -553,13 +590,15 @@ func (es *EventService) DB() (*sql.DB, error) {
 // worker must be live (caught up and processing) or stopped (fully drained,
 // normal for batch-style hosts). A worker that is idle before
 // StartProjections, still catching up, backing off after a crash, draining,
-// or terminally failed makes the service NOT ready. Wire it into
-// appkit.ServiceConfig.ReadyCheck so /health/ready serves 503 until
-// projections are caught up and flips back if one dies:
+// or terminally failed makes the service NOT ready — a not-yet-started
+// service is never ready. Wire it into appkit.ServiceConfig.ReadyCheck so
+// /health/ready serves 503 until projections are caught up and flips back if
+// one dies:
 //
 //	cfg.ReadyCheck = eventSvc.ReadyCheck
 //
-// With no registered projections it reports true.
+// The service always runs the system auto-projection worker (the metaengine
+// read models); its presence after StartProjections does not block readiness.
 func (es *EventService) ReadyCheck() bool {
 	for _, state := range es.host().Status() {
 		switch state.Status {
