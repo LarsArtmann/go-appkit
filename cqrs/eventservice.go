@@ -1,6 +1,13 @@
 // Package cqrs provides CQRS/ES integration for go-appkit services.
-// It wraps go-cqrs-lite/stack/sqlite and projectionhost into a lifecycle-managed
-// EventService that integrates with appkit.Service for graceful shutdown.
+// It wraps go-cqrs-lite/system (the strategic composition layer) and
+// projectionhost into a lifecycle-managed EventService that integrates with
+// appkit.Service for graceful shutdown.
+//
+// v0.5.0 BREAKING: the engine room moved from the deprecated stack/sqlite
+// preset (removed at go-cqrs-lite v5, ADR-0123) to system.New with a
+// DomainConfig/DeploymentConfig split. Operators can swap engines at
+// deployment time (Driver/DSN/Pragmas, or a koanf YAML config file);
+// developers register commands, queries, and projections on the service.
 //
 // cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a post-command drain
 package cqrs
@@ -9,26 +16,65 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	"sync"
 	"time"
 
+	"github.com/larsartmann/go-cqrs-lite/event/v4"
+	_ "github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4" // registers the "sqlite" driver (blank-import contract)
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
-	"github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4"
-	stack "github.com/larsartmann/go-cqrs-lite/stack/v4"
+	"github.com/larsartmann/go-cqrs-lite/storage/v4/eventstore"
+	"github.com/larsartmann/go-cqrs-lite/system/v4"
 	errorfamily "github.com/larsartmann/go-error-family"
 	fr "github.com/larsartmann/go-flightrecorder"
 )
 
+// Engine names used by the default deployment built from EventConfig.
+const (
+	defaultEngineName    = "primary"
+	defaultSQLiteDriver  = "sqlite"
+	memoryDriver         = "memory"
+	auxCloserName        = "appkit-cqrs-aux-db"
+	deploymentConfigName = "deployment"
+)
+
 // EventConfig configures the CQRS event service.
+//
+// Storage is resolved in this precedence: Deployment (a fully pre-loaded
+// operator config) > ConfigPath (koanf YAML + CQRS_ env overrides) >
+// Driver/DSN/Pragmas (defaults: sqlite driver, file-backed).
 type EventConfig struct {
-	// SQLitePath is the path to the SQLite database file.
-	// Required — must not be empty.
+	// DSN is the database path or connection string. Required unless
+	// ConfigPath or Deployment is set, or Driver is "memory" for an
+	// in-process store (tests).
+	DSN string
+
+	// Driver is the metaengine driver name: "sqlite" (default), "memory",
+	// "pebble", "postgres", ... Drivers beyond "sqlite" and "memory" must be
+	// blank-imported by the consumer so they self-register — a missing
+	// blank import fails construction with "unknown driver".
+	Driver string
+
+	// Pragmas are SQLite pragmas passed to the sqlite driver (e.g.
+	// "journal_mode=WAL"). Ignored by other drivers.
+	Pragmas []string
+
+	// SQLitePath is the deprecated v0.4.0 alias for DSN with the sqlite
+	// driver. It will be removed at v0.6.0.
+	//
+	// Deprecated: use DSN.
 	SQLitePath string
 
-	// StackOptions are passed through to stack/sqlite.New.
-	// Use these to customize WAL, foreign keys, optimizations, etc.
-	StackOptions []sqlite.Option
+	// ConfigPath loads the DeploymentConfig from a YAML file (system.LoadConfig:
+	// koanf tags + CQRS_ env overrides, e.g. CQRS_ENGINES__PRIMARY__DRIVER).
+	// When set, DSN/Driver/Pragmas/SQLitePath are ignored. Optional.
+	ConfigPath string
+
+	// Deployment is a fully pre-loaded operator config. When set it wins over
+	// every other storage field. The config MUST declare a RoleProjections
+	// instance so the projection host exists. Optional.
+	Deployment *system.DeploymentConfig
 
 	// Logger receives projection host lifecycle events: worker crashes,
 	// restarts, dead-letter captures, and shutdowns. Wire the same logger
@@ -73,11 +119,27 @@ type EventConfig struct {
 	// stats sink. Nil (default) disables metrics.
 	Metrics projectionhost.MetricsRecorder
 
-	// HostOptions are passed through to projectionhost.New for advanced
+	// CheckpointStore overrides the projection checkpoint store. When nil
+	// (default) a persistent SQL checkpoint store is created on the config's
+	// own SQLite database (driver "sqlite" with a DSN); other drivers get
+	// in-memory checkpoints (full replays after restart). Use this to force
+	// a custom store for any driver.
+	CheckpointStore event.CheckpointStore
+
+	// CommandMiddleware wraps every command dispatched through the service
+	// (see RegisterCommand). Nil (default) installs no middleware — compose
+	// a chain via DefaultCommandMiddleware and append your own.
+	CommandMiddleware []CommandMiddleware
+
+	// QueryMiddleware wraps every query dispatched through the service
+	// (see RegisterQuery). Nil (default) installs no middleware.
+	QueryMiddleware []QueryMiddleware
+
+	// HostOptions are passed through to the projection host for advanced
 	// tuning (WithMaxRestarts, WithBackoff, WithBatchSize,
 	// WithShutdownTimeout, ...). Options derived from Logger, Metrics,
-	// and FlightRecorder are appended after these, so derived wiring wins
-	// conflicts. (DLQ wiring is derived in NewEventService.)
+	// FlightRecorder, and DLQ are appended after these, so derived wiring
+	// wins conflicts.
 	HostOptions []projectionhost.HostOption
 }
 
@@ -88,124 +150,298 @@ type DLQConfig struct {
 	Threshold int
 
 	// Store persists dead-letter entries. When nil (default), a SQLite-backed
-	// store is created in the event store's own database (table
-	// projection_dead_letters), so entries survive restarts. Provide
+	// store is created in the service's own SQLite database (table
+	// projection_dead_letters), so entries survive restarts. Required when
+	// the resolved driver is not "sqlite". Provide
 	// projectionhost.NewMemoryDeadLetterStore for ephemeral tests.
 	Store projectionhost.DeadLetterStore
 }
 
-// EventService manages a CQRS/ES event store backed by SQLite.
-// It wraps stack/sqlite.Bundle and projectionhost.Host with lifecycle
+// EventService manages a CQRS/ES event store via go-cqrs-lite/system.
+// It wraps a system.System and its projection host with lifecycle
 // management that integrates with appkit.Service.
 type EventService struct {
-	bundle *stack.Bundle
-	host   *projectionhost.Host
+	sys    *system.System
 	dlq    projectionhost.DeadLetterStore
+	auxDB  *sql.DB
 	mu     sync.Mutex
 	closed bool
+	inFile *inFlightTracker
 }
 
 // NewEventService creates an EventService from the given config.
-// The SQLite database is opened, schema is auto-migrated, and the
-// projection host is initialized (but not started).
+// The engines declared by the resolved deployment config are opened
+// (schema is auto-migrated by the drivers) and the projection host is
+// initialized (but not started).
 func NewEventService(cfg EventConfig) (*EventService, error) {
-	if cfg.SQLitePath == "" {
-		return nil, errorfamily.NewRejection("cqrs.path_required", "SQLitePath is required")
-	}
-
-	bundle, err := sqlite.New(cfg.SQLitePath, cfg.StackOptions...)
+	deployment, err := resolveDeployment(cfg)
 	if err != nil {
-		return nil, errorfamily.WrapInfrastructuref(
-			err,
-			"cqrs.open_failed",
-			"failed to open event store at %s",
-			cfg.SQLitePath,
-		)
+		return nil, err
 	}
 
-	hostOpts := cfg.hostOptions()
-
-	dlqStore, dlqErr := resolveDLQ(cfg.DLQ, bundle)
-	if dlqErr != nil {
-		return nil, closeOnConstructionFailure(bundle, dlqErr)
-	}
-
-	if dlqStore != nil {
-		hostOpts = append(hostOpts,
-			projectionhost.WithDeadLetterStore(dlqStore, cfg.DLQ.Threshold))
-	}
-
-	//cqrs-lint:ignore(P008) batch-size tuning belongs to consumers via HostOptions; this wrapper forwards them unchanged
-	host, err := projectionhost.New(
-		bundle.SeekableJournal,
-		bundle.CheckpointStore,
-		hostOpts...,
-	)
+	aux, dlqStore, cpStore, err := openAuxResources(cfg, deployment)
 	if err != nil {
-		return nil, closeOnConstructionFailure(
-			bundle,
-			errorfamily.WrapInfrastructuref(
-				err,
-				"cqrs.projection_host_failed",
-				"failed to create projection host",
-			),
-		)
+		return nil, err
 	}
 
-	return &EventService{ //nolint:exhaustruct_v5 // zero-value mu and closed
-		bundle: bundle,
-		host:   host,
+	sys, inFile, err := buildSystem(cfg, deployment, cpStore)
+	if err != nil {
+		return nil, closeOnConstructionFailure(aux, err)
+	}
+
+	if aux != nil {
+		sys.RegisterCloser(auxCloserName, aux)
+	}
+
+	return &EventService{
+		sys:    sys,
 		dlq:    dlqStore,
+		auxDB:  aux,
+		inFile: inFile,
 	}, nil
 }
 
-// closeOnConstructionFailure tears down the half-built bundle when
+// resolveDeployment maps EventConfig onto a system.DeploymentConfig using
+// the documented precedence: Deployment > ConfigPath > Driver/DSN/Pragmas.
+func resolveDeployment(cfg EventConfig) (system.DeploymentConfig, error) {
+	if cfg.Deployment != nil {
+		return *cfg.Deployment, nil
+	}
+
+	if cfg.ConfigPath != "" {
+		loaded, err := system.LoadConfig(cfg.ConfigPath)
+		if err != nil {
+			return system.DeploymentConfig{}, errorfamily.WrapInfrastructuref(
+				err, "cqrs.config_load_failed", "failed to load config %q", cfg.ConfigPath,
+			)
+		}
+
+		return loaded, nil
+	}
+
+	driver, dsn, pragmas, err := resolveStorage(cfg)
+	if err != nil {
+		return system.DeploymentConfig{}, err
+	}
+
+	return defaultDeployment(driver, dsn, pragmas), nil
+}
+
+// resolveStorage resolves the Driver/DSN/Pragmas triple, honoring the
+// deprecated SQLitePath alias and defaulting an empty DSN target to an
+// explicit decision: memory requires Driver "memory", anything else
+// requires a DSN.
+func resolveStorage(cfg EventConfig) (driver, dsn string, pragmas []string, err error) {
+	driver = cfg.Driver
+	dsn = cfg.DSN
+
+	if cfg.SQLitePath != "" {
+		dsn = cfg.SQLitePath
+
+		if driver == "" {
+			driver = defaultSQLiteDriver
+		}
+	}
+
+	if driver == "" {
+		driver = defaultSQLiteDriver
+	}
+
+	if dsn == "" && driver != memoryDriver {
+		return "", "", nil, errorfamily.NewRejection(
+			"cqrs.path_required",
+			"DSN is required (use Driver \"memory\" for an in-process store)",
+		)
+	}
+
+	return driver, dsn, cfg.Pragmas, nil
+}
+
+// defaultDeployment builds the single-engine deployment mirroring the
+// reference consumer pattern: one engine, one source-of-truth instance and
+// one projections instance.
+func defaultDeployment(driver, dsn string, pragmas []string) system.DeploymentConfig {
+	return system.DeploymentConfig{
+		Engines: map[string]system.EngineConfig{
+			defaultEngineName: {Driver: driver, DSN: dsn, Pragmas: pragmas},
+		},
+		Instances: []system.InstanceConfig{
+			{Role: system.RoleSourceOfTruth, Engine: defaultEngineName},
+			{Role: system.RoleProjections, Engine: defaultEngineName},
+		},
+	}
+}
+
+// openAuxResources opens the auxiliary *sql.DB used for the default
+// persistent checkpoint store and DLQ store. It returns nil aux for
+// memory deployments or when both stores are consumer-supplied/absent.
+func openAuxResources(
+	cfg EventConfig,
+	deployment system.DeploymentConfig,
+) (*sql.DB, projectionhost.DeadLetterStore, event.CheckpointStore, error) {
+	if !needsAuxDB(cfg, deployment) {
+		return nil, dlqStoreOrNil(cfg), cfg.CheckpointStore, nil
+	}
+
+	dsn := auxDSN(cfg, deployment)
+
+	db, err := sql.Open(defaultSQLiteDriver, dsn)
+	if err != nil {
+		return nil, nil, nil, errorfamily.WrapInfrastructuref(
+			err, "cqrs.open_failed", "failed to open auxiliary database at %s", dsn,
+		)
+	}
+
+	dlqStore, cpStore, err := buildAuxStores(context.Background(), cfg, db)
+	if err != nil {
+		_ = db.Close()
+
+		return nil, nil, nil, err
+	}
+
+	return db, dlqStore, cpStore, nil
+}
+
+// needsAuxDB reports whether the deployment requires the auxiliary SQL
+// handle: a sqlite-backed file store wanting the default checkpoint store
+// or the default DLQ store.
+func needsAuxDB(cfg EventConfig, deployment system.DeploymentConfig) bool {
+	if cfg.CheckpointStore != nil && (cfg.DLQ == nil || cfg.DLQ.Store != nil) {
+		return false
+	}
+
+	engine, ok := deployment.Engines[defaultEngineName]
+
+	if !ok || engine.Driver != defaultSQLiteDriver || engine.DSN == "" {
+		if cfg.CheckpointStore == nil && (cfg.DLQ == nil || cfg.DLQ.Store != nil) {
+			return false
+		}
+	}
+
+	if deploymentUsesSQLiteFile(deployment) {
+		return cfg.CheckpointStore == nil || wantsDefaultDLQ(cfg)
+	}
+
+	return wantsDefaultDLQ(cfg) && deploymentUsesSQLiteFile(deployment)
+}
+
+// deploymentUsesSQLiteFile reports whether the deployment resolves to a
+// sqlite driver with a file DSN (the only shape the aux handle supports).
+func deploymentUsesSQLiteFile(deployment system.DeploymentConfig) bool {
+	for _, eng := range deployment.Engines {
+		if eng.Driver == defaultSQLiteDriver && eng.DSN != "" {
+			return true
+		}
+	}
+
+	return false
+}
+
+// wantsDefaultDLQ reports whether the config needs a default (SQL-backed)
+// dead-letter store.
+func wantsDefaultDLQ(cfg EventConfig) bool {
+	return cfg.DLQ != nil && cfg.DLQ.Store == nil
+}
+
+// auxDSN picks the file DSN the aux handle opens (the first sqlite file
+// engine, falling back to the config-level DSN).
+func auxDSN(cfg EventConfig, deployment system.DeploymentConfig) string {
+	for _, name := range sortedEngineNames(deployment) {
+		eng := deployment.Engines[name]
+
+		if eng.Driver == defaultSQLiteDriver && eng.DSN != "" {
+			return eng.DSN
+		}
+	}
+
+	if cfg.SQLitePath != "" {
+		return cfg.SQLitePath
+	}
+
+	return cfg.DSN
+}
+
+// buildAuxStores creates the default DLQ and checkpoint stores on the aux
+// handle, honoring consumer overrides.
+func buildAuxStores(
+	ctx context.Context,
+	cfg EventConfig,
+	db *sql.DB,
+) (projectionhost.DeadLetterStore, event.CheckpointStore, error) {
+	var dlqStore projectionhost.DeadLetterStore
+
+	if wantsDefaultDLQ(cfg) {
+		store, err := projectionhost.NewSQLiteDeadLetterStore(ctx, db)
+		if err != nil {
+			return nil, nil, errorfamily.WrapInfrastructure(
+				err, "cqrs.dlq_provision_failed", "failed to create dead-letter store",
+			)
+		}
+
+		dlqStore = store
+	}
+
+	cpStore := cfg.CheckpointStore
+
+	if cpStore == nil {
+		store, err := eventstore.NewSQLiteCheckpointStore(db)
+		if err != nil {
+			return nil, nil, errorfamily.WrapInfrastructure(
+				err, "cqrs.checkpoint_provision_failed", "failed to create checkpoint store",
+			)
+		}
+
+		cpStore = store
+	}
+
+	return dlqStore, cpStore, nil
+}
+
+// buildSystem constructs the system.System with derived host options and
+// the middleware wiring for the C/Q facade.
+func buildSystem(
+	cfg EventConfig,
+	deployment system.DeploymentConfig,
+	cpStore event.CheckpointStore,
+) (*system.System, *inFlightTracker, error) {
+	domain := system.DomainConfig{
+		Middleware:            toCommandMiddleware(cfg.CommandMiddleware),
+		ProjectionHostOptions: cfg.hostOptions(),
+		CheckpointStore:       cpStore,
+	}
+
+	sys, err := system.New(context.Background(), domain, deployment)
+	if err != nil {
+		return nil, nil, errorfamily.WrapInfrastructuref(
+			err, "cqrs.system_failed", "failed to create CQRS system",
+		)
+	}
+
+	if len(cfg.QueryMiddleware) > 0 {
+		sys.QueryDispatcher().Use(toQueryMiddleware(cfg.QueryMiddleware)...)
+	}
+
+	inFile := newInFlightTracker()
+	sys.UseCommandMiddleware(inFile.commandMiddleware())
+
+	return sys, inFile, nil
+}
+
+// closeOnConstructionFailure tears down the half-built aux handle when
 // NewEventService aborts. The primary error is returned untouched when the
 // close succeeds; a close failure is appended with errors.Join so a double
 // failure is never silently discarded.
-func closeOnConstructionFailure(bundle *stack.Bundle, err error) error {
-	closeErr := bundle.GracefulClose(context.Background())
+func closeOnConstructionFailure(aux *sql.DB, err error) error {
+	if aux == nil {
+		return err
+	}
+
+	closeErr := aux.Close()
 	if closeErr != nil {
 		return errors.Join(err, closeErr)
 	}
 
 	return err
-}
-
-// resolveDLQ determines the dead-letter store for a config. A nil cfg or a
-// cfg with an explicit Store needs no bundle access; the default store is
-// provisioned in the bundle's own database.
-func resolveDLQ( //nolint:ireturn // upstream interface
-	cfg *DLQConfig,
-	bundle *stack.Bundle,
-) (projectionhost.DeadLetterStore, error) {
-	if cfg == nil {
-		return nil, nil //nolint:nilnil // nil store + nil error is the documented "DLQ disabled" state
-	}
-
-	if cfg.Store != nil {
-		return cfg.Store, nil
-	}
-
-	sqlDB, err := asSQLDB(bundle.Database())
-	if err != nil {
-		return nil, errorfamily.WrapInfrastructure(
-			err,
-			"cqrs.dlq_db_unavailable",
-			"cannot provision SQLite dead-letter store",
-		)
-	}
-
-	store, err := projectionhost.NewSQLiteDeadLetterStore(context.Background(), sqlDB)
-	if err != nil {
-		return nil, errorfamily.WrapInfrastructuref(
-			err,
-			"cqrs.dlq_provision_failed",
-			"failed to create dead-letter store",
-		)
-	}
-
-	return store, nil
 }
 
 // hostOptions maps EventConfig onto projectionhost options.
@@ -227,19 +463,25 @@ func (cfg EventConfig) hostOptions() []projectionhost.HostOption {
 		opts = append(opts, projectionhost.WithMetrics(cfg.Metrics))
 	}
 
+	if cfg.DLQ != nil && cfg.DLQ.Store != nil {
+		opts = append(opts,
+			projectionhost.WithDeadLetterStore(cfg.DLQ.Store, cfg.DLQ.Threshold))
+	}
+
 	return opts
 }
 
-// Bundle returns the underlying stack.Bundle.
-// Use this to access EventSink, EventSource, CommandSink, Publisher, etc.
-func (es *EventService) Bundle() *stack.Bundle {
-	return es.bundle
+// System returns the underlying system.System.
+// Use it for advanced wiring: MetaEngine, Publisher, EventStore,
+// SnapshotStore, ProjectionPlan, introspection, and more.
+func (es *EventService) System() *system.System {
+	return es.sys
 }
 
 // Host returns the underlying projectionhost.Host.
 // Use this to register projections before starting the service.
 func (es *EventService) Host() *projectionhost.Host {
-	return es.host
+	return es.sys.ProjectionHost()
 }
 
 // DeadLetterStore returns the configured dead-letter store, or nil when the
@@ -264,7 +506,7 @@ func (es *EventService) ReplayDeadLetters(
 			errorfamily.NewRejection("cqrs.dlq_disabled", "DLQ is not configured")
 	}
 
-	return es.host.ReplayDeadLetters(ctx, projectionName) //nolint:wrapcheck // delegation
+	return es.host().ReplayDeadLetters(ctx, projectionName) //nolint:wrapcheck // delegation
 }
 
 // ResetProjection rewinds a projection's checkpoint to the beginning (or to a
@@ -276,28 +518,20 @@ func (es *EventService) ResetProjection(
 	name string,
 	opts ...projectionhost.ResetOption,
 ) error {
-	return es.host.Reset(ctx, name, opts...) //nolint:wrapcheck // delegation
+	return es.host().Reset(ctx, name, opts...) //nolint:wrapcheck // delegation
 }
 
-// DB extracts the *sql.DB from the bundle's Database() method.
-// Returns a Rejection error if the database is not backed by *sql.DB.
+// DB returns the auxiliary *sql.DB backing the default checkpoint and DLQ
+// stores. Returns a Rejection when no auxiliary database exists (memory
+// deployments, or fully consumer-supplied stores).
 func (es *EventService) DB() (*sql.DB, error) {
-	return asSQLDB(es.bundle.Database())
-}
-
-// asSQLDB type-asserts a stack bundle database handle to *sql.DB.
-func asSQLDB(bundleDB any) (*sql.DB, error) {
-	sqlDB, ok := bundleDB.(*sql.DB)
-	if !ok {
-		return nil, errorfamily.Newf(
-			errorfamily.Rejection,
-			"cqrs.db_not_sql",
-			"database is not *sql.DB (got %T)",
-			bundleDB,
+	if es.auxDB == nil {
+		return nil, errorfamily.NewRejection(
+			"cqrs.db_not_sql", "no auxiliary SQL database for this deployment",
 		)
 	}
 
-	return sqlDB, nil
+	return es.auxDB, nil
 }
 
 // ReadyCheck reports whether all registered projections are serving: every
@@ -312,7 +546,7 @@ func asSQLDB(bundleDB any) (*sql.DB, error) {
 //
 // With no registered projections it reports true.
 func (es *EventService) ReadyCheck() bool {
-	for _, state := range es.host.Status() {
+	for _, state := range es.host().Status() {
 		switch state.Status {
 		case projectionhost.WorkerLive, projectionhost.WorkerStopped:
 			continue
@@ -332,7 +566,7 @@ func (es *EventService) ReadyCheck() bool {
 // by projection name. Useful for dashboards and alerting; the same data
 // drives staleness decisions in production.
 func (es *EventService) LagPerProjection() map[string]time.Duration {
-	return es.host.LagPerProjection()
+	return es.host().LagPerProjection()
 }
 
 // CheckStaleness reports a Transient error when the maximum projection lag
@@ -343,7 +577,7 @@ func (es *EventService) LagPerProjection() map[string]time.Duration {
 // drains the backlog. A maxStaleness <= 0 disables the check; a projection
 // that has not processed any event yet counts as fresh.
 func (es *EventService) CheckStaleness(maxStaleness time.Duration) error {
-	return es.host.CheckStaleness(maxStaleness) //nolint:wrapcheck // delegation
+	return es.host().CheckStaleness(maxStaleness) //nolint:wrapcheck // delegation
 }
 
 // CheckProjectionStaleness is the per-projection variant of CheckStaleness:
@@ -351,17 +585,19 @@ func (es *EventService) CheckStaleness(maxStaleness time.Duration) error {
 // across all workers. Rejects (400-class) when the projection is not
 // registered; a maxStaleness <= 0 disables the check first.
 func (es *EventService) CheckProjectionStaleness(name string, maxStaleness time.Duration) error {
-	return es.host.CheckProjectionStaleness(name, maxStaleness) //nolint:wrapcheck // delegation
+	return es.host().CheckProjectionStaleness(name, maxStaleness) //nolint:wrapcheck // delegation
 }
 
 // StartProjections starts the projection host workers.
 // Must be called after all projections are registered and before the service begins serving.
 func (es *EventService) StartProjections(ctx context.Context) error {
-	return es.host.Start(ctx) //nolint:wrapcheck // delegation
+	return es.sys.Start(ctx) //nolint:wrapcheck // delegation
 }
 
 // Shutdown gracefully stops projections and closes the event store.
-// Safe to call multiple times (idempotent via mutex guard).
+// In-flight commands are drained first (bounded by the context), then the
+// system closes in dependency order. Safe to call multiple times (idempotent
+// via mutex guard).
 func (es *EventService) Shutdown(ctx context.Context) error {
 	es.mu.Lock()
 
@@ -374,5 +610,14 @@ func (es *EventService) Shutdown(ctx context.Context) error {
 	es.closed = true
 	es.mu.Unlock()
 
-	return errors.Join(es.host.Stop(), es.bundle.GracefulClose(ctx))
+	if err := es.inFile.drain(ctx); err != nil {
+		return fmt.Errorf("cqrs: drain in-flight commands: %w", err)
+	}
+
+	return es.sys.GracefulClose(ctx) //nolint:wrapcheck // delegation
+}
+
+// host returns the projection host, tolerating deployments without one.
+func (es *EventService) host() *projectionhost.Host {
+	return es.sys.ProjectionHost()
 }
