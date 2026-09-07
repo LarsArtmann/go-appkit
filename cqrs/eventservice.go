@@ -231,6 +231,12 @@ func resolveDeployment(cfg EventConfig) (system.DeploymentConfig, error) {
 	return defaultDeployment(driver, dsn, pragmas), nil
 }
 
+// defaultPragmas are applied when the resolved driver is sqlite and the
+// consumer supplied none. WAL enables concurrent readers next to the
+// projection host's checkpoint/DLQ writes; busy_timeout absorbs transient
+// lock contention. v0.4.0 (stack/sqlite) shipped the same defaults.
+var defaultPragmas = []string{"journal_mode=WAL", "busy_timeout=5000"}
+
 // resolveStorage resolves the Driver/DSN/Pragmas triple, honoring the
 // deprecated SQLitePath alias. A missing DSN is a Rejection unless the
 // driver is explicitly "memory" (in-process store for tests).
@@ -257,7 +263,13 @@ func resolveStorage(cfg EventConfig) (driver, dsn string, pragmas []string, err 
 		)
 	}
 
-	return driver, dsn, cfg.Pragmas, nil
+	pragmas = cfg.Pragmas
+
+	if driver == defaultSQLiteDriver && len(pragmas) == 0 {
+		pragmas = defaultPragmas
+	}
+
+	return driver, dsn, pragmas, nil
 }
 
 // defaultDeployment builds the single-engine deployment mirroring the

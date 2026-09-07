@@ -73,7 +73,8 @@ func newFacadeService(t *testing.T) *EventService {
 		func(ctx context.Context, cmd *command.BasicCommand) system.Op[facadeState] {
 			return system.Execute(ctx, cmd.StreamID(), "Facade",
 				func(state facadeState, ver event.Version) ([]event.Event, error) {
-					evt, err := event.New("facade.bumped", cmd.StreamID(), "Facade", ver+1, nil)
+					evt, err := event.New("facade.bumped", cmd.StreamID(), "Facade", ver+1,
+						struct{ N int }{N: 1})
 					if err != nil {
 						return nil, err
 					}

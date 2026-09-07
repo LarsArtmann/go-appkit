@@ -114,7 +114,8 @@ func (es *EventService) QueryDispatcher() *query.Dispatcher {
 // inFlightTracker counts commands executing through the outermost
 // middleware slot so Shutdown can wait for them before closing engines.
 type inFlightTracker struct {
-	wg sync.WaitGroup
+	mu      sync.Mutex
+	pending int
 }
 
 // newInFlightTracker creates a tracker.
@@ -126,29 +127,50 @@ func newInFlightTracker() *inFlightTracker {
 func (t *inFlightTracker) commandMiddleware() command.Middleware {
 	return func(next command.Handler) command.Handler {
 		return func(ctx context.Context, cmd command.Command) error {
-			t.wg.Add(1)
-			defer t.wg.Done()
+			t.enter()
+			defer t.exit()
 
 			return next(ctx, cmd)
 		}
 	}
 }
 
+// enter records an in-flight command.
+func (t *inFlightTracker) enter() {
+	t.mu.Lock()
+	t.pending++
+	t.mu.Unlock()
+}
+
+// exit records a completed command.
+func (t *inFlightTracker) exit() {
+	t.mu.Lock()
+	t.pending--
+	t.mu.Unlock()
+}
+
+// pendingCount snapshots the in-flight count.
+func (t *inFlightTracker) pendingCount() int {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	return t.pending
+}
+
 // drain blocks until all in-flight commands complete or the context
 // expires. It never aborts running commands — that is the engines' job via
 // context cancellation in GracefulClose.
 func (t *inFlightTracker) drain(ctx context.Context) error {
-	done := make(chan struct{})
+	ticker := time.NewTicker(2 * time.Millisecond)
+	defer ticker.Stop()
 
-	go func() {
-		t.wg.Wait()
-		close(done)
-	}()
-
-	select {
-	case <-done:
-		return nil
-	case <-ctx.Done():
-		return ctx.Err()
+	for t.pendingCount() > 0 {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-ticker.C:
+		}
 	}
+
+	return nil
 }
