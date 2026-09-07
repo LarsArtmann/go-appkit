@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/larsartmann/go-appkit/cqrs"
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
@@ -13,9 +14,9 @@ import (
 )
 
 // The canonical wiring: SQLite event store and projection lifecycle
-// logging. With no projections registered the service reports ready, so
-// the appkit service can start serving immediately and /health/ready
-// flips as soon as workers are registered and catching up.
+// logging. The service is NOT ready before StartProjections — the
+// system auto-projection worker is idle until started, so /health/ready
+// serves 503 during startup and flips once workers are caught up.
 func ExampleNewEventService() {
 	dir, err := os.MkdirTemp("", "cqrs-example")
 	if err != nil {
@@ -27,8 +28,8 @@ func ExampleNewEventService() {
 	defer func() { _ = os.RemoveAll(dir) }()
 
 	es, err := cqrs.NewEventService(cqrs.EventConfig{
-		DSN: filepath.Join(dir, "events.db"),
-		Logger:     slog.Default(),
+		DSN:    filepath.Join(dir, "events.db"),
+		Logger: slog.Default(),
 	})
 	if err != nil {
 		fmt.Println("construct:", err)
@@ -38,7 +39,7 @@ func ExampleNewEventService() {
 
 	defer func() { _ = es.Shutdown(context.Background()) }()
 
-	fmt.Println("ready before any projection:", es.ReadyCheck())
+	fmt.Println("ready before start:", es.ReadyCheck())
 
 	err = es.Host().Register(projection.NewProjection(
 		"example-projection",
@@ -53,9 +54,25 @@ func ExampleNewEventService() {
 
 	fmt.Println("registered workers:", len(es.Host().Status()))
 
+	err = es.StartProjections(context.Background())
+	if err != nil {
+		fmt.Println("start:", err)
+
+		return
+	}
+
+	deadline := time.Now().Add(5 * time.Second)
+
+	for !es.ReadyCheck() && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	fmt.Println("ready after start:", es.ReadyCheck())
+
 	// Output:
-	// ready before any projection: true
-	// registered workers: 1
+	// ready before start: false
+	// registered workers: 2
+	// ready after start: true
 }
 
 // The DLQ keeps a poison event from stalling a projection: after Threshold
@@ -75,7 +92,7 @@ func ExampleEventService_ReplayDeadLetters() {
 
 	es, err := cqrs.NewEventService(cqrs.EventConfig{
 		DSN: filepath.Join(dir, "events.db"),
-		DLQ:        &cqrs.DLQConfig{}, // SQLite store in the event database, threshold 3
+		DLQ: &cqrs.DLQConfig{}, // SQLite store in the event database, threshold 3
 	})
 	if err != nil {
 		fmt.Println("construct:", err)

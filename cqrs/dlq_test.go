@@ -17,7 +17,7 @@ func newDLQService(t *testing.T, threshold int) *EventService {
 
 	eventSvc, err := NewEventService(EventConfig{
 		DSN: t.TempDir() + "/test.db",
-		DLQ:        &DLQConfig{Threshold: threshold},
+		DLQ: &DLQConfig{Threshold: threshold},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -154,7 +154,7 @@ func TestEventService_DLQ_MemoryStorePassthrough(t *testing.T) {
 
 	eventSvc, err := NewEventService(EventConfig{
 		DSN: t.TempDir() + "/test.db",
-		DLQ:        &DLQConfig{Threshold: 1, Store: store},
+		DLQ: &DLQConfig{Threshold: 1, Store: store},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

@@ -62,8 +62,8 @@ func TestEventConfig_Metrics_RecordsProjectionLifecycle(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-		Metrics:    rec,
+		DSN:     t.TempDir() + "/test.db",
+		Metrics: rec,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -103,8 +103,8 @@ func TestEventConfig_Metrics_RecordsErrors(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-		Metrics:    rec,
+		DSN:     t.TempDir() + "/test.db",
+		Metrics: rec,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -144,8 +144,8 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-		Metrics:    rec,
+		DSN:     t.TempDir() + "/test.db",
+		Metrics: rec,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

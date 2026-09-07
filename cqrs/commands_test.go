@@ -305,7 +305,7 @@ func TestDefaultCommandMiddleware_ComposesRecoveryTracingLogging(t *testing.T) {
 	}
 }
 
-type fakeTracer struct{
+type fakeTracer struct {
 	embedded.Tracer
 }
 
@@ -368,7 +368,7 @@ type eventCounter struct {
 	expected int
 	fresh    bool
 
-	mu            sync.Mutex
+	mu             sync.Mutex
 	processedCount int
 }
 

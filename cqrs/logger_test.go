@@ -125,8 +125,8 @@ func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 	handler := &capturingHandler{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-		Logger:     slog.New(handler),
+		DSN:    t.TempDir() + "/test.db",
+		Logger: slog.New(handler),
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

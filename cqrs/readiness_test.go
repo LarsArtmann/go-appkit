@@ -9,7 +9,7 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
 )
 
-func TestEventService_ReadyCheck_NoProjectionsReady(t *testing.T) {
+func TestEventService_ReadyCheck_NotStartedNotReady(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
@@ -21,9 +21,18 @@ func TestEventService_ReadyCheck_NoProjectionsReady(t *testing.T) {
 
 	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	if !eventSvc.ReadyCheck() {
-		t.Error("expected ready with no projections registered")
+	// The service always runs the system auto-projection worker; before
+	// StartProjections the worker is idle and the service is NOT ready.
+	if eventSvc.ReadyCheck() {
+		t.Error("expected not ready before StartProjections")
 	}
+
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "auto-projection worker caught up", eventSvc.ReadyCheck)
 }
 
 func TestEventService_ReadyCheck_503To200Transition(t *testing.T) {

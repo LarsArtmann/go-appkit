@@ -20,6 +20,7 @@ import (
 	"io"
 	"log/slog"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -355,21 +356,37 @@ func dlqStoreOrNil(cfg EventConfig) projectionhost.DeadLetterStore {
 }
 
 // auxDSN picks the file DSN the aux handle opens: the first sqlite file
-// engine in the deployment, falling back to the config-level DSN.
+// engine in the deployment, falling back to the config-level DSN. A busy
+// timeout is injected so checkpoint/DLQ writes wait out engine-side lock
+// contention instead of failing with SQLITE_BUSY.
 func auxDSN(cfg EventConfig, deployment system.DeploymentConfig) string {
+	dsn := ""
+
 	for _, name := range sortedEngineNames(deployment) {
 		eng := deployment.Engines[name]
 
 		if eng.Driver == defaultSQLiteDriver && eng.DSN != "" {
-			return eng.DSN
+			dsn = eng.DSN
+
+			break
 		}
 	}
 
-	if cfg.SQLitePath != "" {
-		return cfg.SQLitePath
+	if dsn == "" {
+		if cfg.SQLitePath != "" {
+			dsn = cfg.SQLitePath
+		} else {
+			dsn = cfg.DSN
+		}
 	}
 
-	return cfg.DSN
+	const busyParam = "_pragma=busy_timeout(5000)"
+
+	if strings.Contains(dsn, "?") {
+		return dsn + "&" + busyParam
+	}
+
+	return dsn + "?" + busyParam
 }
 
 // sortedEngineNames returns the deployment's engine names in deterministic
@@ -392,7 +409,7 @@ func buildAuxStores(
 	cfg EventConfig,
 	db *sql.DB,
 ) (projectionhost.DeadLetterStore, event.CheckpointStore, error) {
-	var dlqStore projectionhost.DeadLetterStore
+	dlqStore := dlqStoreOrNil(cfg)
 
 	if wantsDefaultDLQ(cfg) {
 		store, err := projectionhost.NewSQLiteDeadLetterStore(ctx, db)
