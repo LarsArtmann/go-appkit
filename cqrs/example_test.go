@@ -27,7 +27,7 @@ func ExampleNewEventService() {
 	defer func() { _ = os.RemoveAll(dir) }()
 
 	es, err := cqrs.NewEventService(cqrs.EventConfig{
-		SQLitePath: filepath.Join(dir, "events.db"),
+		DSN: filepath.Join(dir, "events.db"),
 		Logger:     slog.Default(),
 	})
 	if err != nil {
@@ -74,7 +74,7 @@ func ExampleEventService_ReplayDeadLetters() {
 	defer func() { _ = os.RemoveAll(dir) }()
 
 	es, err := cqrs.NewEventService(cqrs.EventConfig{
-		SQLitePath: filepath.Join(dir, "events.db"),
+		DSN: filepath.Join(dir, "events.db"),
 		DLQ:        &cqrs.DLQConfig{}, // SQLite store in the event database, threshold 3
 	})
 	if err != nil {

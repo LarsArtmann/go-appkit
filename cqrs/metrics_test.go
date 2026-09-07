@@ -62,7 +62,7 @@ func TestEventConfig_Metrics_RecordsProjectionLifecycle(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 		Metrics:    rec,
 	})
 	if err != nil {
@@ -103,7 +103,7 @@ func TestEventConfig_Metrics_RecordsErrors(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 		Metrics:    rec,
 	})
 	if err != nil {
@@ -144,7 +144,7 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 		Metrics:    rec,
 	})
 	if err != nil {

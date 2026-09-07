@@ -16,7 +16,7 @@ func newDLQService(t *testing.T, threshold int) *EventService {
 	t.Helper()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 		DLQ:        &DLQConfig{Threshold: threshold},
 	})
 	if err != nil {
@@ -129,7 +129,7 @@ func TestEventService_DLQ_DisabledByDefault(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -153,7 +153,7 @@ func TestEventService_DLQ_MemoryStorePassthrough(t *testing.T) {
 	store := projectionhost.NewMemoryDeadLetterStore()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 		DLQ:        &DLQConfig{Threshold: 1, Store: store},
 	})
 	if err != nil {

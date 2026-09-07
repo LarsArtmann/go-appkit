@@ -124,7 +124,7 @@ func newInFlightTracker() *inFlightTracker {
 
 // commandMiddleware returns the outermost tracking middleware.
 func (t *inFlightTracker) commandMiddleware() command.Middleware {
-	return func(next command.HandlerFunc) command.HandlerFunc {
+	return func(next command.Handler) command.Handler {
 		return func(ctx context.Context, cmd command.Command) error {
 			t.wg.Add(1)
 			defer t.wg.Done()

@@ -5,27 +5,27 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4"
-	stack "github.com/larsartmann/go-cqrs-lite/stack/v4"
 	errorfamily "github.com/larsartmann/go-error-family"
 )
 
-func TestNewEventService_EmptyPath(t *testing.T) {
+func TestNewEventService_EmptyConfigRejected(t *testing.T) {
 	t.Parallel()
 
 	_, err := NewEventService(EventConfig{})
 	if err == nil {
-		t.Fatal("expected error for empty SQLitePath")
+		t.Fatal("expected error for empty config (no DSN)")
+	}
+
+	if !errors.Is(err, errPathRequired()) {
+		t.Errorf("expected cqrs.path_required rejection, got: %v", err)
 	}
 }
 
-func TestNewEventService_ValidPath(t *testing.T) {
+func TestNewEventService_FileBackedSQLite(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
-
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: dir + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -33,42 +33,135 @@ func TestNewEventService_ValidPath(t *testing.T) {
 
 	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	if eventSvc.Bundle() == nil {
-		t.Fatal("expected non-nil Bundle")
+	if eventSvc.System() == nil {
+		t.Fatal("expected non-nil System")
 	}
 
 	if eventSvc.Host() == nil {
 		t.Fatal("expected non-nil Host")
 	}
 
-	if eventSvc.Bundle().EventSink == nil {
-		t.Error("expected non-nil EventSink")
+	if eventSvc.System().EventStore() == nil {
+		t.Error("expected non-nil EventStore")
 	}
 
-	if eventSvc.Bundle().EventSource == nil {
-		t.Error("expected non-nil EventSource")
-	}
-
-	if eventSvc.Bundle().Publisher == nil {
+	if eventSvc.System().Publisher() == nil {
 		t.Error("expected non-nil Publisher")
 	}
 
-	if eventSvc.Bundle().Subscriber == nil {
-		t.Error("expected non-nil Subscriber")
+	if eventSvc.System().MetaEngine() == nil {
+		t.Error("expected non-nil MetaEngine")
+	}
+}
+
+func TestNewEventService_MemoryDriver(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		Driver: "memory",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if eventSvc.Bundle().CheckpointStore == nil {
-		t.Error("expected non-nil CheckpointStore")
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	_, err = eventSvc.DB()
+	if err == nil {
+		t.Error("expected DB() rejection for memory deployment (no aux database)")
+	}
+}
+
+func TestNewEventService_DeprecatedSQLitePathAlias(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		SQLitePath: t.TempDir() + "/test.db",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	if _, err := eventSvc.DB(); err != nil {
+		t.Errorf("expected aux DB via deprecated SQLitePath alias, got: %v", err)
+	}
+}
+
+func TestNewEventService_DeploymentOverride(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		Deployment: memoryDeployment(),
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	if eventSvc.Host() == nil {
+		t.Fatal("expected projection host from RoleProjections instance")
+	}
+}
+
+func TestNewEventService_ConfigPath(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	configPath := dir + "deployment.yaml"
+	dsn := dir + "/events.db"
+
+	yaml := "engines:\n  primary:\n    driver: sqlite\n    dsn: " + dsn + `
+instances:
+  - role: source-of-truth
+    engine: primary
+  - role: projections
+    engine: primary
+`
+	if err := writeFile(configPath, yaml); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	eventSvc, err := NewEventService(EventConfig{ConfigPath: configPath})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	if _, err := eventSvc.DB(); err != nil {
+		t.Errorf("expected aux DB from config-file DSN, got: %v", err)
+	}
+}
+
+func TestNewEventService_DLQDefaultRequiresSQLite(t *testing.T) {
+	t.Parallel()
+
+	_, err := NewEventService(EventConfig{
+		Driver: "memory",
+		DLQ:    &DLQConfig{Threshold: 2},
+	})
+	if err == nil {
+		t.Fatal("expected error for default DLQ store on non-sqlite driver")
+	}
+
+	familyErr, ok := errors.AsType[*errorfamily.Error](err)
+	if !ok {
+		t.Fatalf("expected *errorfamily.Error, got %T", err)
+	}
+
+	if familyErr.Code() != "cqrs.dlq_store_required" {
+		t.Errorf("expected code cqrs.dlq_store_required, got %q", familyErr.Code())
 	}
 }
 
 func TestEventService_DB(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
-
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: dir + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -90,10 +183,8 @@ func TestEventService_DB(t *testing.T) {
 func TestEventService_Shutdown_Idempotent(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
-
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: dir + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -110,101 +201,24 @@ func TestEventService_Shutdown_Idempotent(t *testing.T) {
 	}
 }
 
-func TestAsSQLDB_RejectsNonSQLDB(t *testing.T) {
+func TestCloseOnConstructionFailure_NilAuxReturnsErrUntouched(t *testing.T) {
 	t.Parallel()
-
-	db, err := asSQLDB("not a database")
-	if err == nil {
-		t.Fatal("expected error for non *sql.DB value")
-	}
-
-	if db != nil {
-		t.Errorf("expected nil *sql.DB, got %v", db)
-	}
-
-	familyErr, ok := errors.AsType[*errorfamily.Error](err)
-	if !ok {
-		t.Fatalf("expected *errorfamily.Error, got %T", err)
-	}
-
-	if familyErr.Family() != errorfamily.Rejection {
-		t.Errorf("expected family %q, got %q", errorfamily.Rejection, familyErr.Family())
-	}
-
-	if familyErr.Code() != "cqrs.db_not_sql" {
-		t.Errorf("expected code cqrs.db_not_sql, got %q", familyErr.Code())
-	}
-
-	if got := errorfamily.HTTPStatus(err); got != 400 {
-		t.Errorf("expected HTTP status 400 for Rejection, got %d", got)
-	}
-}
-
-func TestAsSQLDB_AcceptsSQLDB(t *testing.T) {
-	t.Parallel()
-
-	dir := t.TempDir()
-
-	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: dir + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
-	db, err := asSQLDB(eventSvc.Bundle().Database())
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if db == nil {
-		t.Fatal("expected non-nil *sql.DB")
-	}
-}
-
-func TestCloseOnConstructionFailure_CloseSucceeds(t *testing.T) {
-	t.Parallel()
-
-	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
 
 	sentinel := errors.New("primary construction failure")
 
-	// When GracefulClose succeeds, the primary error is returned unchanged.
-	result := closeOnConstructionFailure(eventSvc.Bundle(), sentinel)
+	result := closeOnConstructionFailure(nil, sentinel)
 
 	if !errors.Is(result, sentinel) {
 		t.Errorf("expected sentinel error in result, got: %v", result)
-	}
-
-	// No close error joined — result should be the sentinel itself.
-	if !errors.Is(result, sentinel) {
-		t.Errorf("expected exact sentinel (no join), got: %v", result)
 	}
 }
 
 func TestCloseOnConstructionFailure_CloseFailureJoinsErrors(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
-		StackOptions: []sqlite.Option{
-			sqlite.WithStack(stack.WithCloser(failingCloser{})),
-		},
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
 	sentinel := errors.New("primary construction failure")
 
-	result := closeOnConstructionFailure(eventSvc.Bundle(), sentinel)
+	result := closeOnConstructionFailure(failingCloser{}, sentinel)
 
 	// The primary error must be present in the joined result.
 	if !errors.Is(result, sentinel) {

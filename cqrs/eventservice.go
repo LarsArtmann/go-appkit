@@ -17,6 +17,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"sort"
 	"sync"
@@ -444,7 +445,7 @@ func buildSystem(
 // NewEventService aborts. The primary error is returned untouched when the
 // close succeeds; a close failure is appended with errors.Join so a double
 // failure is never silently discarded.
-func closeOnConstructionFailure(aux *sql.DB, err error) error {
+func closeOnConstructionFailure(aux io.Closer, err error) error {
 	if aux == nil {
 		return err
 	}

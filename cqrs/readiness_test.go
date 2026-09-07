@@ -13,7 +13,7 @@ func TestEventService_ReadyCheck_NoProjectionsReady(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -30,7 +30,7 @@ func TestEventService_ReadyCheck_503To200Transition(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -70,7 +70,7 @@ func TestEventService_ReadyCheck_FailedProjectionNotReady(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 		HostOptions: []projectionhost.HostOption{
 			projectionhost.WithMaxRestarts(0),
 			projectionhost.WithBackoff(1, 1),
@@ -119,7 +119,7 @@ func TestEventService_LagPerProjection(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

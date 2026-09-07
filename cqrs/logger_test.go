@@ -96,7 +96,7 @@ func appendTestEvent(t *testing.T, eventSvc *EventService, eventType event.Type)
 
 	ref := id.NewStreamRef("test-stream", streamID)
 
-	err = eventSvc.Bundle().EventSink.Save(context.Background(), ref, []event.Event{evt}, 0)
+	err = eventSvc.System().EventStore().Save(context.Background(), ref, []event.Event{evt}, 0)
 	if err != nil {
 		t.Fatalf("save event: %v", err)
 	}
@@ -125,7 +125,7 @@ func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 	handler := &capturingHandler{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 		Logger:     slog.New(handler),
 	})
 	if err != nil {

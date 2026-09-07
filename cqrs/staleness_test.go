@@ -16,7 +16,7 @@ func TestEventService_CheckStaleness_FreshWithoutProcessedEvents(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -35,7 +35,7 @@ func TestEventService_CheckStaleness_DisabledByNonPositiveBudget(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -55,7 +55,7 @@ func TestEventService_CheckStaleness_FreshProjectionWithinBudget(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -94,7 +94,7 @@ func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -151,7 +151,7 @@ func TestEventService_CheckProjectionStaleness_FreshProjectionWithinBudget(t *te
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -189,7 +189,7 @@ func TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient(t *tes
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -244,7 +244,7 @@ func TestEventService_CheckProjectionStaleness_UnknownProjectionRejected(t *test
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -282,7 +282,7 @@ func TestEventService_CheckProjectionStaleness_DisabledBeforeRegistrationCheck(t
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
+		DSN: t.TempDir() + "/test.db",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

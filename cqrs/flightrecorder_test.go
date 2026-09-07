@@ -72,7 +72,7 @@ func TestEventConfig_FlightRecorder_CapturesOnWorkerFailure(t *testing.T) {
 	defer rec.Stop()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath:     t.TempDir() + "/test.db",
+		DSN:     t.TempDir() + "/test.db",
 		FlightRecorder: rec,
 		// Fail fast: first handler error exhausts the restart budget, no
 		// backoff sleeps.
@@ -154,7 +154,7 @@ func TestEventConfig_FlightRecorderTrigger_ReceivesProjectionContext(t *testing.
 	}
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath:            t.TempDir() + "/test.db",
+		DSN:            t.TempDir() + "/test.db",
 		FlightRecorder:        rec,
 		FlightRecorderTrigger: trigger,
 		HostOptions: []projectionhost.HostOption{
@@ -228,7 +228,7 @@ func TestEventConfig_FlightRecorderTrigger_FalseGateSkipsCapture(t *testing.T) {
 	defer rec.Stop()
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath:     t.TempDir() + "/test.db",
+		DSN:     t.TempDir() + "/test.db",
 		FlightRecorder: rec,
 		// Gate refuses every capture.
 		FlightRecorderTrigger: func(fr.TriggerContext) bool { return false },
@@ -312,7 +312,7 @@ func TestEventConfig_FlightRecorder_DerivedWiringWinsOverHostOptions(t *testing.
 	}
 
 	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath:     t.TempDir() + "/test.db",
+		DSN:     t.TempDir() + "/test.db",
 		FlightRecorder: rec,
 		HostOptions: []projectionhost.HostOption{
 			projectionhost.WithFlightRecorder(other, nil),
