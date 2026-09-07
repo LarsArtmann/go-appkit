@@ -1,8 +1,12 @@
 # go-appkit/cqrs
 
 CQRS/event-sourcing integration for [go-appkit](../README.md) services, wrapping
-[go-cqrs-lite](https://github.com/LarsArtmann/go-cqrs-lite) v4 (`stack/sqlite` + `projectionhost`)
-behind a lifecycle-managed `EventService`.
+[go-cqrs-lite](https://github.com/LarsArtmann/go-cqrs-lite) v4's `system` composition
+layer (metaengine + `projectionhost`) behind a lifecycle-managed `EventService`.
+
+> **v0.5.0 breaking change:** the engine room moved off the deprecated `stack/sqlite`
+> preset (removed at go-cqrs-lite v5) onto `system.New`. Operators can swap engines at
+> deployment time; see the Configuration table and the C/Q facade section below.
 
 > **Build note:** requires `GOEXPERIMENT=jsonv2` (go-cqrs-lite's codec/v4 uses
 > `encoding/json/jsontext`), available from Go 1.25.
@@ -11,9 +15,9 @@ behind a lifecycle-managed `EventService`.
 
 ```go
 es, err := cqrs.NewEventService(cqrs.EventConfig{
-    SQLitePath: "app.db",
-    Logger:     svc.Logger,     // projection worker logs flow into your service log
-    DLQ:        &cqrs.DLQConfig{}, // poison events quarantined, not fatal
+    DSN:    "app.db",          // or ConfigPath: "cqrs.yaml", or Driver: "memory"
+    Logger: svc.Logger,        // projection worker logs flow into your service log
+    DLQ:    &cqrs.DLQConfig{}, // poison events quarantined, not fatal
 })
 if err != nil {
     return err
@@ -23,9 +27,18 @@ defer func() { _ = es.Shutdown(context.Background()) }()
 // Register projections on the host, then start them.
 err = es.Host().Register(myProjection)
 
-err = es.StartProjections(ctx)
+// Register commands and queries (the typed C/Q facade):
+_ = cqrs.RegisterDecider(es, "Task", myDecider)
+_ = cqrs.RegisterCommand[*command.BasicCommand, TaskState](es, "task.create", myHandler)
+_ = cqrs.RegisterQuery[TaskQuery, TaskView](es, "task.view", myQueryHandler)
 
-// Graceful stop: projections drain, then the event store closes.
+_ = es.StartProjections(ctx)
+
+// Dispatch:
+_ = es.Dispatch(ctx, cmd)
+view, _ := cqrs.DispatchQueryChecked[TaskQuery, TaskView](ctx, es, 2*time.Second, q)
+
+// Graceful stop: in-flight commands drain, projections stop, engines close.
 err = es.Shutdown(ctx)
 ```
 
@@ -33,8 +46,14 @@ err = es.Shutdown(ctx)
 
 | Field                   | Type                             | Default          | Effect                                                                                                                                                                                                                                                                       |
 | ----------------------- | -------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SQLitePath`            | `string`                         | — (required)     | Path of the SQLite database file.                                                                                                                                                                                                                                            |
-| `StackOptions`          | `[]sqlite.Option`                | none             | Passed through to `stack/sqlite.New` (v4 option set).                                                                                                                                                                                                                        |
+| `DSN`                   | `string`                         | — (required)     | Database path/connection string. `SQLitePath` still works as a deprecated alias. Required unless `ConfigPath`/`Deployment` is set or `Driver: "memory"`.                                                                                                                    |
+| `Driver`                | `string`                         | `sqlite`         | metaengine driver name (`sqlite`, `memory`, `pebble`, `postgres`, ...). Drivers beyond `sqlite`/`memory` must be blank-imported by your module so they self-register.                                                                                                        |
+| `Pragmas`               | `[]string`                       | WAL + busy_timeout | SQLite pragmas. The defaults match the old `stack/sqlite` preset (`journal_mode=WAL`, `busy_timeout=5000`).                                                                                                                                                              |
+| `ConfigPath`            | `string`                         | —                | Load the deployment from YAML via `system.LoadConfig` (koanf tags + `CQRS_` env overrides, e.g. `CQRS_ENGINES__PRIMARY__DRIVER`). Wins over `DSN`/`Driver`/`Pragmas`.                                                                                                        |
+| `Deployment`            | `*system.DeploymentConfig`       | —                | Fully pre-loaded operator config; wins over everything. Must declare a `RoleProjections` instance.                                                                                                                                                                           |
+| `CheckpointStore`       | `event.CheckpointStore`          | persistent SQL   | Projection checkpoint store override. Default: SQLite table on the service's database (driver `sqlite` + DSN); in-memory for other drivers.                                                                                                                                  |
+| `CommandMiddleware`     | `[]command.Middleware`           | none             | Wraps every dispatched command. Compose via `DefaultCommandMiddleware(logger, tracer)` + your own. An in-flight drain tracker is installed outermost automatically.                                                                                                           |
+| `QueryMiddleware`       | `[]query.Middleware`             | none             | Wraps every dispatched query.                                                                                                                                                                                                                                                |
 | `Logger`                | `*slog.Logger`                   | `slog.Default()` | Receives projection worker lifecycle events (crashes, restarts, dead-letter captures). Wire the same logger you gave `appkit.Service`.                                                                                                                                       |
 | `DLQ`                   | `*DLQConfig`                     | nil (disabled)   | Enables poison-event capture. Default store: SQLite table in the event database; default threshold: 3.                                                                                                                                                                       |
 | `FlightRecorder`        | `*fr.Recorder`                   | nil (disabled)   | Captures a runtime/trace snapshot when a worker terminally fails (WorkerFailed). Type is `github.com/larsartmann/go-flightrecorder` — the same recorder the appkit `flightrecorder` middleware uses, so ONE shared instance can serve both. One active recorder per process. |
@@ -134,8 +153,8 @@ whatever backend you run:
 
 ```go
 es, _ := cqrs.NewEventService(cqrs.EventConfig{
-    SQLitePath: "events.db",
-    Metrics:    myRecorder, // implements projectionhost.MetricsRecorder
+    DSN:     "events.db",
+    Metrics: myRecorder, // implements projectionhost.MetricsRecorder
 })
 
 mux.HandleFunc("/metrics", func(w http.ResponseWriter, _ *http.Request) {
@@ -160,8 +179,8 @@ defer provider.Shutdown(ctx)
 projectionMetrics, _ := cqrs.NewOTelProjectionMetrics(otel.Meter("myapp"))
 
 es, _ := cqrs.NewEventService(cqrs.EventConfig{
-    SQLitePath: "events.db",
-    Metrics:    projectionMetrics,
+    DSN:     "events.db",
+    Metrics: projectionMetrics,
 })
 ```
 
@@ -175,7 +194,7 @@ HTTP spans and projection metrics.
 
 | Method                                   | Returns                          | Purpose                                                           |
 | ---------------------------------------- | -------------------------------- | ----------------------------------------------------------------- |
-| `Bundle()`                               | `*stack.Bundle`                  | Event/command/query sinks and sources, journal, snapshots.        |
+| `System()`                               | `*system.System`                 | Full go-cqrs-lite surface: MetaEngine, Publisher, EventStore, SnapshotStore, introspection. |
 | `Host()`                                 | `*projectionhost.Host`           | Register projections before `StartProjections`.                   |
 | `DB()`                                   | `(*sql.DB, error)`               | Raw SQLite handle for own queries.                                |
 | `DeadLetterStore()`                      | `projectionhost.DeadLetterStore` | The configured DLQ store, or nil when disabled.                   |
@@ -188,8 +207,33 @@ HTTP spans and projection metrics.
 | `StartProjections(ctx)`                  | `error`                          | Starts projection workers.                                        |
 | `Shutdown(ctx)`                          | `error`                          | Stops workers and closes the store. Idempotent.                   |
 
-`Shutdown` joins and returns both the projection-host stop error and the
-bundle-close error instead of swallowing them.
+`Shutdown` drains in-flight commands first, then stops workers and closes
+engines, joining any errors instead of swallowing them.
+
+## Command/query facade
+
+The service exposes go-cqrs-lite's typed C/Q surface directly — no need to
+reach for `System()`:
+
+```go
+// Registration (before dispatching):
+_ = cqrs.RegisterDecider(es, "Task", TaskDecider)
+_ = cqrs.RegisterCommand[*command.BasicCommand, TaskState](es, "task.create", createHandler)
+_ = cqrs.RegisterQuery[TaskQuery, TaskView](es, "task.view", viewHandler)
+
+// Dispatch:
+_ = es.Dispatch(ctx, cmd)                                            // command
+view, _ := cqrs.DispatchQuery[TaskQuery, TaskView](ctx, es, q)       // query
+
+// Staleness-gated query: returns the Transient staleness error INSTEAD of
+// answering when the read model lags beyond the budget:
+view, _ = cqrs.DispatchQueryChecked[TaskQuery, TaskView](ctx, es, 2*time.Second, q)
+```
+
+`DefaultCommandMiddleware(logger, tracer)` composes recovery + optional OTel
+tracing + logging as a starting chain; retry, idempotency, and circuit
+breaking change command semantics, so they stay opt-in — append them via
+`EventConfig.CommandMiddleware`.
 
 ## Cookbook: testing and linting your CQRS code
 
