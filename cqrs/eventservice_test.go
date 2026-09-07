@@ -16,8 +16,13 @@ func TestNewEventService_EmptyConfigRejected(t *testing.T) {
 		t.Fatal("expected error for empty config (no DSN)")
 	}
 
-	if !errors.Is(err, errPathRequired()) {
-		t.Errorf("expected cqrs.path_required rejection, got: %v", err)
+	familyErr, ok := errors.AsType[*errorfamily.Error](err)
+	if !ok {
+		t.Fatalf("expected *errorfamily.Error, got %T", err)
+	}
+
+	if familyErr.Code() != "cqrs.path_required" {
+		t.Errorf("expected code cqrs.path_required, got %q", familyErr.Code())
 	}
 }
 
