@@ -18,30 +18,32 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"sort"
 	"sync"
 	"time"
 
+	"github.com/larsartmann/go-cqrs-lite/command/v4"
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
 	_ "github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4" // registers the "sqlite" driver (blank-import contract)
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
+	"github.com/larsartmann/go-cqrs-lite/query/v4"
 	"github.com/larsartmann/go-cqrs-lite/storage/v4/eventstore"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
 	errorfamily "github.com/larsartmann/go-error-family"
 	fr "github.com/larsartmann/go-flightrecorder"
 )
 
-// Engine names used by the default deployment built from EventConfig.
+// Engine names and driver identifiers used by the default deployment.
 const (
-	defaultEngineName    = "primary"
-	defaultSQLiteDriver  = "sqlite"
-	memoryDriver         = "memory"
-	auxCloserName        = "appkit-cqrs-aux-db"
-	deploymentConfigName = "deployment"
+	defaultEngineName   = "primary"
+	defaultSQLiteDriver = "sqlite"
+	memoryDriver        = "memory"
+	auxCloserName       = "appkit-cqrs-aux-db"
 )
 
 // EventConfig configures the CQRS event service.
 //
-// Storage is resolved in this precedence: Deployment (a fully pre-loaded
+// Storage resolves in this precedence: Deployment (a fully pre-loaded
 // operator config) > ConfigPath (koanf YAML + CQRS_ env overrides) >
 // Driver/DSN/Pragmas (defaults: sqlite driver, file-backed).
 type EventConfig struct {
@@ -127,13 +129,14 @@ type EventConfig struct {
 	CheckpointStore event.CheckpointStore
 
 	// CommandMiddleware wraps every command dispatched through the service
-	// (see RegisterCommand). Nil (default) installs no middleware — compose
-	// a chain via DefaultCommandMiddleware and append your own.
-	CommandMiddleware []CommandMiddleware
+	// (see RegisterCommand). The in-flight drain tracker is installed
+	// outermost automatically. Nil (default) installs no middleware —
+	// compose a chain via DefaultCommandMiddleware and append your own.
+	CommandMiddleware []command.Middleware
 
 	// QueryMiddleware wraps every query dispatched through the service
 	// (see RegisterQuery). Nil (default) installs no middleware.
-	QueryMiddleware []QueryMiddleware
+	QueryMiddleware []query.Middleware
 
 	// HostOptions are passed through to the projection host for advanced
 	// tuning (WithMaxRestarts, WithBackoff, WithBatchSize,
@@ -164,9 +167,9 @@ type EventService struct {
 	sys    *system.System
 	dlq    projectionhost.DeadLetterStore
 	auxDB  *sql.DB
+	inFile *inFlightTracker
 	mu     sync.Mutex
 	closed bool
-	inFile *inFlightTracker
 }
 
 // NewEventService creates an EventService from the given config.
@@ -228,9 +231,8 @@ func resolveDeployment(cfg EventConfig) (system.DeploymentConfig, error) {
 }
 
 // resolveStorage resolves the Driver/DSN/Pragmas triple, honoring the
-// deprecated SQLitePath alias and defaulting an empty DSN target to an
-// explicit decision: memory requires Driver "memory", anything else
-// requires a DSN.
+// deprecated SQLitePath alias. A missing DSN is a Rejection unless the
+// driver is explicitly "memory" (in-process store for tests).
 func resolveStorage(cfg EventConfig) (driver, dsn string, pragmas []string, err error) {
 	driver = cfg.Driver
 	dsn = cfg.DSN
@@ -272,23 +274,33 @@ func defaultDeployment(driver, dsn string, pragmas []string) system.DeploymentCo
 	}
 }
 
-// openAuxResources opens the auxiliary *sql.DB used for the default
-// persistent checkpoint store and DLQ store. It returns nil aux for
-// memory deployments or when both stores are consumer-supplied/absent.
+// openAuxResources opens the auxiliary *sql.DB backing the default
+// persistent checkpoint and DLQ stores. It returns no aux handle when the
+// deployment is not sqlite-with-file (or both stores are consumer-supplied
+// or absent).
 func openAuxResources(
 	cfg EventConfig,
 	deployment system.DeploymentConfig,
 ) (*sql.DB, projectionhost.DeadLetterStore, event.CheckpointStore, error) {
-	if !needsAuxDB(cfg, deployment) {
+	wantDefaultDLQ := wantsDefaultDLQ(cfg)
+	wantDefaultCP := cfg.CheckpointStore == nil
+	sqliteFile := deploymentUsesSQLiteFile(deployment)
+
+	if (!wantDefaultDLQ && !wantDefaultCP) || !sqliteFile {
+		if wantDefaultDLQ && !sqliteFile {
+			return nil, nil, nil, errorfamily.NewRejection(
+				"cqrs.dlq_store_required",
+				`DLQConfig.Store is required when the driver is not "sqlite"`,
+			)
+		}
+
 		return nil, dlqStoreOrNil(cfg), cfg.CheckpointStore, nil
 	}
 
-	dsn := auxDSN(cfg, deployment)
-
-	db, err := sql.Open(defaultSQLiteDriver, dsn)
+	db, err := sql.Open(defaultSQLiteDriver, auxDSN(cfg, deployment))
 	if err != nil {
 		return nil, nil, nil, errorfamily.WrapInfrastructuref(
-			err, "cqrs.open_failed", "failed to open auxiliary database at %s", dsn,
+			err, "cqrs.open_failed", "failed to open auxiliary database at %s", auxDSN(cfg, deployment),
 		)
 	}
 
@@ -300,29 +312,6 @@ func openAuxResources(
 	}
 
 	return db, dlqStore, cpStore, nil
-}
-
-// needsAuxDB reports whether the deployment requires the auxiliary SQL
-// handle: a sqlite-backed file store wanting the default checkpoint store
-// or the default DLQ store.
-func needsAuxDB(cfg EventConfig, deployment system.DeploymentConfig) bool {
-	if cfg.CheckpointStore != nil && (cfg.DLQ == nil || cfg.DLQ.Store != nil) {
-		return false
-	}
-
-	engine, ok := deployment.Engines[defaultEngineName]
-
-	if !ok || engine.Driver != defaultSQLiteDriver || engine.DSN == "" {
-		if cfg.CheckpointStore == nil && (cfg.DLQ == nil || cfg.DLQ.Store != nil) {
-			return false
-		}
-	}
-
-	if deploymentUsesSQLiteFile(deployment) {
-		return cfg.CheckpointStore == nil || wantsDefaultDLQ(cfg)
-	}
-
-	return wantsDefaultDLQ(cfg) && deploymentUsesSQLiteFile(deployment)
 }
 
 // deploymentUsesSQLiteFile reports whether the deployment resolves to a
@@ -343,8 +332,17 @@ func wantsDefaultDLQ(cfg EventConfig) bool {
 	return cfg.DLQ != nil && cfg.DLQ.Store == nil
 }
 
-// auxDSN picks the file DSN the aux handle opens (the first sqlite file
-// engine, falling back to the config-level DSN).
+// dlqStoreOrNil returns the consumer-supplied dead-letter store, if any.
+func dlqStoreOrNil(cfg EventConfig) projectionhost.DeadLetterStore {
+	if cfg.DLQ == nil {
+		return nil
+	}
+
+	return cfg.DLQ.Store
+}
+
+// auxDSN picks the file DSN the aux handle opens: the first sqlite file
+// engine in the deployment, falling back to the config-level DSN.
 func auxDSN(cfg EventConfig, deployment system.DeploymentConfig) string {
 	for _, name := range sortedEngineNames(deployment) {
 		eng := deployment.Engines[name]
@@ -359,6 +357,19 @@ func auxDSN(cfg EventConfig, deployment system.DeploymentConfig) string {
 	}
 
 	return cfg.DSN
+}
+
+// sortedEngineNames returns the deployment's engine names in deterministic
+// order.
+func sortedEngineNames(deployment system.DeploymentConfig) []string {
+	names := make([]string, 0, len(deployment.Engines))
+	for name := range deployment.Engines {
+		names = append(names, name)
+	}
+
+	sort.Strings(names)
+
+	return names
 }
 
 // buildAuxStores creates the default DLQ and checkpoint stores on the aux
@@ -398,14 +409,19 @@ func buildAuxStores(
 }
 
 // buildSystem constructs the system.System with derived host options and
-// the middleware wiring for the C/Q facade.
+// middleware wiring for the C/Q facade. The in-flight drain tracker is
+// installed outermost so Shutdown waits for entire command chains.
 func buildSystem(
 	cfg EventConfig,
 	deployment system.DeploymentConfig,
 	cpStore event.CheckpointStore,
 ) (*system.System, *inFlightTracker, error) {
+	inFile := newInFlightTracker()
+
+	middleware := append([]command.Middleware{inFile.commandMiddleware()}, cfg.CommandMiddleware...)
+
 	domain := system.DomainConfig{
-		Middleware:            toCommandMiddleware(cfg.CommandMiddleware),
+		Middleware:            middleware,
 		ProjectionHostOptions: cfg.hostOptions(),
 		CheckpointStore:       cpStore,
 	}
@@ -418,11 +434,8 @@ func buildSystem(
 	}
 
 	if len(cfg.QueryMiddleware) > 0 {
-		sys.QueryDispatcher().Use(toQueryMiddleware(cfg.QueryMiddleware)...)
+		sys.QueryDispatcher().Use(cfg.QueryMiddleware...)
 	}
-
-	inFile := newInFlightTracker()
-	sys.UseCommandMiddleware(inFile.commandMiddleware())
 
 	return sys, inFile, nil
 }
@@ -478,8 +491,9 @@ func (es *EventService) System() *system.System {
 	return es.sys
 }
 
-// Host returns the underlying projectionhost.Host.
-// Use this to register projections before starting the service.
+// Host returns the underlying projectionhost.Host, or nil for deployments
+// without a RoleProjections instance.
+// Use it to register projections before starting the service.
 func (es *EventService) Host() *projectionhost.Host {
 	return es.sys.ProjectionHost()
 }
