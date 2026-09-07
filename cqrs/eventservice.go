@@ -198,7 +198,7 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		sys.RegisterCloser(auxCloserName, aux)
 	}
 
-	return &EventService{
+	return &EventService{ //nolint:exhaustruct_v5 // zero-value mu and closed
 		sys:    sys,
 		dlq:    dlqStore,
 		auxDB:  aux,
@@ -232,18 +232,21 @@ func resolveDeployment(cfg EventConfig) (system.DeploymentConfig, error) {
 	return defaultDeployment(driver, dsn, pragmas), nil
 }
 
-// defaultPragmas are applied when the resolved driver is sqlite and the
-// consumer supplied none. WAL enables concurrent readers next to the
-// projection host's checkpoint/DLQ writes; busy_timeout absorbs transient
-// lock contention. v0.4.0 (stack/sqlite) shipped the same defaults.
-var defaultPragmas = []string{"journal_mode=WAL", "busy_timeout=5000"}
+// defaultSQLitePragmas returns the pragmas applied when the resolved
+// driver is sqlite and the consumer supplied none. WAL enables concurrent
+// readers next to the projection host's checkpoint/DLQ writes; busy_timeout
+// absorbs transient lock contention. v0.4.0 (stack/sqlite) shipped the
+// same defaults.
+func defaultSQLitePragmas() []string {
+	return []string{"journal_mode=WAL", "busy_timeout=5000"}
+}
 
 // resolveStorage resolves the Driver/DSN/Pragmas triple, honoring the
 // deprecated SQLitePath alias. A missing DSN is a Rejection unless the
 // driver is explicitly "memory" (in-process store for tests).
-func resolveStorage(cfg EventConfig) (driver, dsn string, pragmas []string, err error) {
-	driver = cfg.Driver
-	dsn = cfg.DSN
+func resolveStorage(cfg EventConfig) (string, string, []string, error) {
+	driver := cfg.Driver
+	dsn := cfg.DSN
 
 	if cfg.SQLitePath != "" {
 		dsn = cfg.SQLitePath
@@ -264,10 +267,10 @@ func resolveStorage(cfg EventConfig) (driver, dsn string, pragmas []string, err 
 		)
 	}
 
-	pragmas = cfg.Pragmas
+	pragmas := cfg.Pragmas
 
 	if driver == defaultSQLiteDriver && len(pragmas) == 0 {
-		pragmas = defaultPragmas
+		pragmas = defaultSQLitePragmas()
 	}
 
 	return driver, dsn, pragmas, nil
@@ -277,13 +280,19 @@ func resolveStorage(cfg EventConfig) (driver, dsn string, pragmas []string, err 
 // reference consumer pattern: one engine, one source-of-truth instance and
 // one projections instance.
 func defaultDeployment(driver, dsn string, pragmas []string) system.DeploymentConfig {
-	return system.DeploymentConfig{
+	return system.DeploymentConfig{ //nolint:exhaustruct_v5 // optional operator fields intentionally zero
 		Engines: map[string]system.EngineConfig{
-			defaultEngineName: {Driver: driver, DSN: dsn, Pragmas: pragmas},
+			defaultEngineName: { //nolint:exhaustruct_v5 // priority and views intentionally default
+				Driver: driver, DSN: dsn, Pragmas: pragmas,
+			},
 		},
 		Instances: []system.InstanceConfig{
-			{Role: system.RoleSourceOfTruth, Engine: defaultEngineName},
-			{Role: system.RoleProjections, Engine: defaultEngineName},
+			{ //nolint:exhaustruct_v5 // optional instance fields intentionally zero
+				Role: system.RoleSourceOfTruth, Engine: defaultEngineName,
+			},
+			{ //nolint:exhaustruct_v5 // optional instance fields intentionally zero
+				Role: system.RoleProjections, Engine: defaultEngineName,
+			},
 		},
 	}
 }
@@ -292,7 +301,7 @@ func defaultDeployment(driver, dsn string, pragmas []string) system.DeploymentCo
 // persistent checkpoint and DLQ stores. It returns no aux handle when the
 // deployment is not sqlite-with-file (or both stores are consumer-supplied
 // or absent).
-func openAuxResources(
+func openAuxResources( //nolint:ireturn // upstream interface
 	cfg EventConfig,
 	deployment system.DeploymentConfig,
 ) (*sql.DB, projectionhost.DeadLetterStore, event.CheckpointStore, error) {
@@ -311,21 +320,24 @@ func openAuxResources(
 		return nil, dlqStoreOrNil(cfg), cfg.CheckpointStore, nil
 	}
 
-	db, err := sql.Open(defaultSQLiteDriver, auxDSN(cfg, deployment))
-	if err != nil {
+	aux, openErr := sql.Open(defaultSQLiteDriver, auxDSN(cfg, deployment))
+	if openErr != nil {
 		return nil, nil, nil, errorfamily.WrapInfrastructuref(
-			err, "cqrs.open_failed", "failed to open auxiliary database at %s", auxDSN(cfg, deployment),
+			openErr,
+			"cqrs.open_failed",
+			"failed to open auxiliary database at %s",
+			auxDSN(cfg, deployment),
 		)
 	}
 
-	dlqStore, cpStore, err := buildAuxStores(context.Background(), cfg, db)
-	if err != nil {
-		_ = db.Close()
+	dlqStore, cpStore, storeErr := buildAuxStores(context.Background(), cfg, aux)
+	if storeErr != nil {
+		_ = aux.Close()
 
-		return nil, nil, nil, err
+		return nil, nil, nil, storeErr
 	}
 
-	return db, dlqStore, cpStore, nil
+	return aux, dlqStore, cpStore, nil
 }
 
 // deploymentUsesSQLiteFile reports whether the deployment resolves to a
@@ -347,7 +359,7 @@ func wantsDefaultDLQ(cfg EventConfig) bool {
 }
 
 // dlqStoreOrNil returns the consumer-supplied dead-letter store, if any.
-func dlqStoreOrNil(cfg EventConfig) projectionhost.DeadLetterStore {
+func dlqStoreOrNil(cfg EventConfig) projectionhost.DeadLetterStore { //nolint:ireturn // upstream interface
 	if cfg.DLQ == nil {
 		return nil
 	}
@@ -404,15 +416,15 @@ func sortedEngineNames(deployment system.DeploymentConfig) []string {
 
 // buildAuxStores creates the default DLQ and checkpoint stores on the aux
 // handle, honoring consumer overrides.
-func buildAuxStores(
+func buildAuxStores( //nolint:ireturn // upstream interface
 	ctx context.Context,
 	cfg EventConfig,
-	db *sql.DB,
+	handle *sql.DB,
 ) (projectionhost.DeadLetterStore, event.CheckpointStore, error) {
 	dlqStore := dlqStoreOrNil(cfg)
 
 	if wantsDefaultDLQ(cfg) {
-		store, err := projectionhost.NewSQLiteDeadLetterStore(ctx, db)
+		store, err := projectionhost.NewSQLiteDeadLetterStore(ctx, handle)
 		if err != nil {
 			return nil, nil, errorfamily.WrapInfrastructure(
 				err, "cqrs.dlq_provision_failed", "failed to create dead-letter store",
@@ -425,13 +437,12 @@ func buildAuxStores(
 	cpStore := cfg.CheckpointStore
 
 	if cpStore == nil {
-		if _, err := db.ExecContext(ctx, eventstore.SQLiteCheckpointSchema()); err != nil {
-			return nil, nil, errorfamily.WrapInfrastructure(
-				err, "cqrs.checkpoint_provision_failed", "failed to create checkpoint schema",
-			)
+		schemaErr := applyCheckpointSchema(ctx, handle)
+		if schemaErr != nil {
+			return nil, nil, schemaErr
 		}
 
-		store, err := eventstore.NewSQLiteCheckpointStore(db)
+		store, err := eventstore.NewSQLiteCheckpointStore(handle)
 		if err != nil {
 			return nil, nil, errorfamily.WrapInfrastructure(
 				err, "cqrs.checkpoint_provision_failed", "failed to create checkpoint store",
@@ -444,12 +455,30 @@ func buildAuxStores(
 	return dlqStore, cpStore, nil
 }
 
+// applyCheckpointSchema creates the checkpoint table on the aux handle.
+func applyCheckpointSchema(ctx context.Context, handle *sql.DB) error {
+	_, err := handle.ExecContext(ctx, eventstore.SQLiteCheckpointSchema())
+	if err != nil {
+		return errorfamily.WrapInfrastructure(
+			err, "cqrs.checkpoint_provision_failed", "failed to create checkpoint schema",
+		)
+	}
+
+	return nil
+}
+
 // hostBootstrapDeclaration names the zero-entry count projection that
 // guarantees system.New creates the projection host even when consumers only
 // register raw host projections (the host is built exclusively when
 // DomainConfig.Projections is non-empty). It counters no event types and has
 // no read-model cost.
 const hostBootstrapDeclaration = "appkit-host"
+
+// bootstrapSample is the decoder sample for the never-emitted bootstrap
+// event type.
+type bootstrapSample struct {
+	ID string
+}
 
 // buildSystem constructs the system.System with derived host options and
 // middleware wiring for the C/Q facade. The in-flight drain tracker is
@@ -466,14 +495,14 @@ func buildSystem(
 
 	middleware := append([]command.Middleware{inFile.commandMiddleware()}, cfg.CommandMiddleware...)
 
-	domain := system.DomainConfig{
+	domain := system.DomainConfig{ //nolint:exhaustruct_v5 // domain registration is the consumer's job
 		Middleware: middleware,
 		Projections: []system.ProjectionDeclaration{
 			// Host bootstrap: a count over an event type no domain emits, so
 			// system.New always creates the projection host even when
 			// consumers only register raw host projections.
 			system.Count(hostBootstrapDeclaration).
-				On("appkit.internal.never", struct{ ID string }{}, 1, "ID").
+				On("appkit.internal.never", bootstrapSample{ID: ""}, 1, "ID").
 				Done(),
 		},
 		ProjectionHostOptions: cfg.hostOptions(dlqStore),
@@ -520,7 +549,9 @@ func closeOnConstructionFailure(aux io.Closer, err error) error {
 // Consumer-supplied HostOptions come first; derived wiring wins conflicts.
 // dlqStore is the default (SQL-backed) store resolved at construction; a
 // consumer-supplied DLQConfig.Store takes precedence.
-func (cfg EventConfig) hostOptions(dlqStore projectionhost.DeadLetterStore) []projectionhost.HostOption { //nolint:ireturn // upstream interface
+func (cfg EventConfig) hostOptions(
+	dlqStore projectionhost.DeadLetterStore,
+) []projectionhost.HostOption {
 	opts := append([]projectionhost.HostOption{}, cfg.HostOptions...)
 
 	if cfg.Logger != nil {
@@ -693,8 +724,9 @@ func (es *EventService) Shutdown(ctx context.Context) error {
 	es.closed = true
 	es.mu.Unlock()
 
-	if err := es.inFile.drain(ctx); err != nil {
-		return fmt.Errorf("cqrs: drain in-flight commands: %w", err)
+	drainErr := es.inFile.drain(ctx)
+	if drainErr != nil {
+		return fmt.Errorf("cqrs: drain in-flight commands: %w", drainErr)
 	}
 
 	return es.sys.GracefulClose(ctx) //nolint:wrapcheck // delegation

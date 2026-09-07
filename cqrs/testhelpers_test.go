@@ -22,5 +22,10 @@ func memoryDeployment() *system.DeploymentConfig {
 
 // writeFile writes content to path with 0o600 permissions.
 func writeFile(path, content string) error {
-	return os.WriteFile(path, []byte(content), 0o600)
+	err := os.WriteFile(path, []byte(content), 0o600)
+	if err != nil {
+		return err //nolint:wrapcheck // test helper
+	}
+
+	return nil
 }

@@ -1,7 +1,8 @@
-// Tests for the command/query facade: typed registration, dispatch,
-// staleness-gated queries, the default middleware builder, in-flight drain,
-// and checkpoint durability across restarts.
 package cqrs
+
+// The facade tests cover typed registration, dispatch, staleness-gated
+// queries, the default middleware builder, in-flight drain, and checkpoint
+// durability across restarts.
 
 import (
 	"context"
@@ -73,10 +74,10 @@ func newFacadeService(t *testing.T) *EventService {
 		func(ctx context.Context, cmd *command.BasicCommand) system.Op[facadeState] {
 			return system.Execute(ctx, cmd.StreamID(), "Facade",
 				func(state facadeState, ver event.Version) ([]event.Event, error) {
-					evt, err := event.New("facade.bumped", cmd.StreamID(), "Facade", ver+1,
+					evt, evtErr := event.New("facade.bumped", cmd.StreamID(), "Facade", ver+1,
 						struct{ N int }{N: 1})
-					if err != nil {
-						return nil, err
+					if evtErr != nil {
+						return nil, evtErr //nolint:wrapcheck // test boundary
 					}
 
 					return []event.Event{evt}, nil
@@ -275,12 +276,14 @@ func TestEventService_Shutdown_DrainsInFlightCommands(t *testing.T) {
 
 	close(release)
 
-	if err := <-done; err != nil {
-		t.Fatalf("in-flight dispatch failed: %v", err)
+	dispatchErr := <-done
+	if dispatchErr != nil {
+		t.Fatalf("in-flight dispatch failed: %v", dispatchErr)
 	}
 
-	if err := <-shutdownDone; err != nil {
-		t.Fatalf("shutdown after drain: %v", err)
+	shutdownErr := <-shutdownDone
+	if shutdownErr != nil {
+		t.Fatalf("shutdown after drain: %v", shutdownErr)
 	}
 
 	mu.Lock()
@@ -309,7 +312,7 @@ type fakeTracer struct {
 	embedded.Tracer
 }
 
-func (fakeTracer) Start(
+func (fakeTracer) Start( //nolint:ireturn // implements the otel interface
 	ctx context.Context,
 	_ string,
 	_ ...trace.SpanStartOption,
@@ -348,8 +351,9 @@ func TestEventService_DefaultCheckpointStore_PersistsAcrossRestart(t *testing.T)
 			return counter.processed() >= counter.expected
 		})
 
-		if err := eventSvc.Shutdown(context.Background()); err != nil {
-			t.Fatalf("shutdown: %v", err)
+		shutdownErr := eventSvc.Shutdown(context.Background())
+		if shutdownErr != nil {
+			t.Fatalf("shutdown: %v", shutdownErr)
 		}
 	}
 

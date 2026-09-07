@@ -1,5 +1,50 @@
 # Changelog
 
+## [0.5.0] - 2026-09-07
+
+### Changed
+
+- **Breaking (v5-survival migration):** the engine room moved from the
+  deprecated `stack/sqlite` preset (removed at go-cqrs-lite v5, ADR-0123) to
+  `system.New` with the `DomainConfig`/`DeploymentConfig` split. `EventService`
+  now holds a `*system.System`; `Bundle()` is replaced by `System()` with
+  direct accessors for the common surface (`Host()`, `DB()`,
+  `DeadLetterStore()`, staleness guards, `ReadyCheck`).
+- `EventConfig.SQLitePath` → `DSN` + `Driver` + `Pragmas`. `SQLitePath` still
+  works as a deprecated alias (removed at v0.6.0). An empty DSN is a
+  construction Rejection unless `Driver: "memory"`. SQLite defaults to WAL +
+  busy_timeout pragmas (same defaults the old preset shipped); `StackOptions`
+  are gone — use `Pragmas`.
+- `ReadyCheck` now reports NOT-ready before `StartProjections` (the system
+  auto-projection worker is idle until started). Previously an idle,
+  never-started service reported ready — the new semantics are safer for
+  /health/ready.
+- Dead letters + checkpoints for the SQLite default now live on an auxiliary
+  `*sql.DB` opened on the same database file (registered as a System closer),
+  not inside a bundle. `DLQConfig.Store` is REQUIRED for non-sqlite drivers.
+
+### Added
+
+- **Command/query facade:** `RegisterDecider`, `RegisterCommand`,
+  `RegisterQuery` (typed passthroughs), `Dispatch`, `DispatchQuery`,
+  `DispatchQueryChecked` (staleness-gated query answering), and
+  `CommandDispatcher()`/`QueryDispatcher()` accessors.
+- `DefaultCommandMiddleware(logger, tracer)` — recovery + optional OTel
+  tracing + logging; retry/idempotency/circuit-breaking stay consumer
+  opt-ins via `EventConfig.CommandMiddleware`/`QueryMiddleware`.
+- Operator config surfaces: `EventConfig.ConfigPath` (koanf YAML +
+  `CQRS_` env overrides via `system.LoadConfig`) and
+  `EventConfig.Deployment` (fully pre-loaded `*system.DeploymentConfig`).
+  Storage resolution precedence: Deployment > ConfigPath > Driver/DSN/Pragmas.
+- `EventConfig.CheckpointStore` override; default is a persistent
+  SQLite checkpoint store (v0.4.0 parity — checkpoints survive restarts).
+- In-flight command drain: `Shutdown` waits for commands executing through
+  the middleware chain before closing engines (bounded by the context).
+- Default engine pool: one `primary` engine with RoleSourceOfTruth +
+  RoleProjections instances (mirrors the reference consumer). Drivers
+  beyond `sqlite`/`memory` must be blank-imported by the consumer
+  (engine self-registration contract).
+
 ## [0.4.0] - 2026-09-04
 
 ### Changed

@@ -89,8 +89,9 @@ func TestNewEventService_DeprecatedSQLitePathAlias(t *testing.T) {
 
 	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	if _, err := eventSvc.DB(); err != nil {
-		t.Errorf("expected aux DB via deprecated SQLitePath alias, got: %v", err)
+	_, dbErr := eventSvc.DB()
+	if dbErr != nil {
+		t.Errorf("expected aux DB via deprecated SQLitePath alias, got: %v", dbErr)
 	}
 }
 
@@ -125,8 +126,9 @@ instances:
   - role: projections
     engine: primary
 `
-	if err := writeFile(configPath, yaml); err != nil {
-		t.Fatalf("write config: %v", err)
+	writeErr := writeFile(configPath, yaml)
+	if writeErr != nil {
+		t.Fatalf("write config: %v", writeErr)
 	}
 
 	eventSvc, err := NewEventService(EventConfig{ConfigPath: configPath})
@@ -136,8 +138,9 @@ instances:
 
 	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
 
-	if _, err := eventSvc.DB(); err != nil {
-		t.Errorf("expected aux DB from config-file DSN, got: %v", err)
+	_, dbErr := eventSvc.DB()
+	if dbErr != nil {
+		t.Errorf("expected aux DB from config-file DSN, got: %v", dbErr)
 	}
 }
 

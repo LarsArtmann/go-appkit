@@ -1,6 +1,3 @@
-// Command/query facade on EventService: typed registration and dispatch
-// passthroughs to the underlying system.System, the default middleware
-// builder, and the in-flight command drain used by Shutdown.
 package cqrs
 
 import (
@@ -15,6 +12,7 @@ import (
 	cqrsotel "github.com/larsartmann/go-cqrs-lite/otel/v4"
 	"github.com/larsartmann/go-cqrs-lite/query/v4"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // DefaultCommandMiddleware composes a sane command chain: recovery,
@@ -22,6 +20,10 @@ import (
 // idempotency, and circuit breaking are deliberately NOT defaults — they
 // change command semantics and belong to the consumer (append them via
 // EventConfig.CommandMiddleware).
+//
+// The rest of this file is the typed C/Q facade: registration and dispatch
+// passthroughs to the underlying system.System, and the in-flight command
+// drain used by Shutdown.
 func DefaultCommandMiddleware(logger *slog.Logger, tracer cqrsotel.Tracer) []command.Middleware {
 	chain := []command.Middleware{middleware.CommandRecovery()}
 
@@ -40,45 +42,45 @@ func DefaultCommandMiddleware(logger *slog.Logger, tracer cqrsotel.Tracer) []com
 // to system.RegisterDecider). Must be called before the matching
 // RegisterCommand.
 func RegisterDecider[State any](
-	es *EventService,
+	svc *EventService,
 	streamType string,
 	d decider.Decider[State],
 	opts ...system.RegisterDeciderOption,
 ) error {
-	return system.RegisterDecider(es.sys, streamType, d, opts...) //nolint:wrapcheck // delegation
+	return system.RegisterDecider(svc.sys, streamType, d, opts...) //nolint:wrapcheck // delegation
 }
 
 // RegisterCommand registers a typed command handler that returns an
 // system.Op (typed passthrough to system.RegisterCommand).
 func RegisterCommand[Cmd command.Command, State any](
-	es *EventService,
+	svc *EventService,
 	name command.Type,
 	handler func(ctx context.Context, cmd Cmd) system.Op[State],
 ) error {
-	return system.RegisterCommand[Cmd, State](es.sys, name, handler) //nolint:wrapcheck // delegation
+	return system.RegisterCommand[Cmd, State](svc.sys, name, handler)
 }
 
 // RegisterQuery registers a typed query handler (typed passthrough to
 // system.RegisterQuery).
 func RegisterQuery[Q any, R any](
-	es *EventService,
+	svc *EventService,
 	name string,
-	handler func(ctx context.Context, q Q) (R, error),
+	handler func(ctx context.Context, query Q) (R, error),
 ) error {
-	return system.RegisterQuery[Q, R](es.sys, name, handler) //nolint:wrapcheck // delegation
+	return system.RegisterQuery[Q, R](svc.sys, name, handler)
 }
 
 // Dispatch sends a command through the service's command dispatcher
 // (domain middleware included). The handler must have been registered via
 // RegisterCommand.
-func (es *EventService) Dispatch(ctx context.Context, cmd command.Command) error {
-	return es.sys.CommandDispatcher().Dispatch(ctx, cmd) //nolint:wrapcheck // delegation
+func (svc *EventService) Dispatch(ctx context.Context, cmd command.Command) error {
+	return svc.sys.CommandDispatcher().Dispatch(ctx, cmd) //nolint:wrapcheck // delegation
 }
 
 // DispatchQuery dispatches a typed query and returns the result (typed
 // passthrough to system.DispatchQuery).
-func DispatchQuery[Q query.Query, R any](ctx context.Context, es *EventService, q Q) (R, error) {
-	return system.DispatchQuery[Q, R](ctx, es.sys, q) //nolint:wrapcheck // delegation
+func DispatchQuery[Q query.Query, R any](ctx context.Context, svc *EventService, query Q) (R, error) {
+	return system.DispatchQuery[Q, R](ctx, svc.sys, query)
 }
 
 // DispatchQueryChecked guards a typed query with the read-your-writes
@@ -87,28 +89,29 @@ func DispatchQuery[Q query.Query, R any](ctx context.Context, es *EventService, 
 // 503s) is returned instead. A maxStaleness <= 0 disables the check.
 func DispatchQueryChecked[Q query.Query, R any](
 	ctx context.Context,
-	es *EventService,
+	svc *EventService,
 	maxStaleness time.Duration,
-	q Q,
+	query Q,
 ) (R, error) {
 	var zero R
 
-	if err := es.CheckStaleness(maxStaleness); err != nil {
-		return zero, err
+	staleErr := svc.CheckStaleness(maxStaleness)
+	if staleErr != nil {
+		return zero, staleErr
 	}
 
-	return DispatchQuery[Q, R](ctx, es, q)
+	return DispatchQuery[Q, R](ctx, svc, query)
 }
 
 // CommandDispatcher exposes the raw command dispatcher for advanced wiring
 // (publish middleware, per-name inspection).
-func (es *EventService) CommandDispatcher() *command.Dispatcher {
-	return es.sys.CommandDispatcher()
+func (svc *EventService) CommandDispatcher() *command.Dispatcher {
+	return svc.sys.CommandDispatcher()
 }
 
 // QueryDispatcher exposes the raw query dispatcher for advanced wiring.
-func (es *EventService) QueryDispatcher() *query.Dispatcher {
-	return es.sys.QueryDispatcher()
+func (svc *EventService) QueryDispatcher() *query.Dispatcher {
+	return svc.sys.QueryDispatcher()
 }
 
 // inFlightTracker counts commands executing through the outermost
@@ -120,7 +123,7 @@ type inFlightTracker struct {
 
 // newInFlightTracker creates a tracker.
 func newInFlightTracker() *inFlightTracker {
-	return &inFlightTracker{}
+	return &inFlightTracker{} //nolint:exhaustruct_v5 // zero-value fields
 }
 
 // commandMiddleware returns the outermost tracking middleware.
@@ -167,7 +170,8 @@ func (t *inFlightTracker) drain(ctx context.Context) error {
 	for t.pendingCount() > 0 {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return errorfamily.Wrap(ctx.Err(), errorfamily.Transient,
+				"cqrs.drain_cancelled", "drain cancelled before in-flight commands finished")
 		case <-ticker.C:
 		}
 	}
