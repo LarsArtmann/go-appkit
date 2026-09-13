@@ -5,7 +5,7 @@ go 1.26.7
 require (
 	github.com/larsartmann/go-appkit v0.4.0
 	github.com/larsartmann/go-error-family v0.10.0
-	github.com/larsartmann/templ-components/errorpage v1.13.2
+	github.com/larsartmann/templ-components/errorpage v1.16.0
 )
 
 require (
@@ -22,17 +22,17 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
-	github.com/larsartmann/go-etag v0.2.0 // indirect
-	github.com/larsartmann/httputil v0.12.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.13.2 // indirect
-	github.com/larsartmann/templ-components/utils v1.13.2 // indirect
+	github.com/larsartmann/go-etag v0.3.1 // indirect
+	github.com/larsartmann/httputil v1.1.1 // indirect
+	github.com/larsartmann/templ-components/icons v1.16.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.16.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
-	github.com/mattn/go-runewidth v0.0.29 // indirect
+	github.com/mattn/go-runewidth v0.0.30 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v1.0.0 // indirect
-	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/time v0.15.0 // indirect
+	golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/time v0.16.0 // indirect
 )
