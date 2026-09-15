@@ -172,7 +172,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `doc.go`          | Package doc: wiring recipe, emitted signals, shutdown ordering, log correlation, one-Setup-per-process rule.                                                                                                                                                                                                                                       |
 | `setup.go`        | `Setup(opts...)` + `Provider` (`AsTracerProvider`/`AsMeterProvider`/`Shutdown`). Options: `WithService`, `WithSpanExporter`, `WithSampler`, `WithMetricReader`, `WithPropagator`, `WithStdoutExporter`, `WithoutGlobalRegistration`. Registers globals + W3C propagator; Shutdown ForceFlushes BOTH providers first.                               |
-| `middleware.go`   | `Middleware(opts...)` bridging otelhttp v0.68. Span named by matched ServeMux pattern (`r.Pattern`, e.g. `GET /users/{id}`) falling back to method. Options: `WithTracerProvider`, `WithMeterProvider`, `WithServerName`, `WithPublicEndpoint` (remote parents → links), `WithFilter`, `WithFilteredPaths`. Health paths unconditionally filtered. |
+| `middleware.go`   | `Middleware(opts...)` bridging otelhttp v0.71. Span named by matched ServeMux pattern (`r.Pattern`, e.g. `GET /users/{id}`) falling back to method — works only when the middleware is ADJACENT to the mux; through `OuterMiddlewares` the pattern is lost (see otel Gotchas). Options: `WithTracerProvider`, `WithMeterProvider`, `WithServerName`, `WithPublicEndpoint` (remote parents → links), `WithFilter`, `WithFilteredPaths`. Health paths unconditionally filtered. |
 | `logging.go`      | `TraceHandler` slog decorator stamping `trace_id`/`span_id` when ctx carries a span; `TraceIDFromContext`/`SpanIDFromContext`/`ContextLogger` (return `"none"` without a span).                                                                                                                                                                    |
 | `views.go`        | `NewHTTPViews()` pinning `http.server.request.duration` to `HTTPDurationBoundaries` (semconv 0..10s, 15 values); exact-name match only.                                                                                                                                                                                                            |
 | `attributes.go`   | `ServiceResourceAttributes` (semconv v1.26.0), `NewTextMapPropagator` (TraceContext+Baggage).                                                                                                                                                                                                                                                      |
@@ -220,9 +220,9 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 | Module                                           | Version | Role                                           |
 | ------------------------------------------------ | ------- | ---------------------------------------------- |
-| `go.opentelemetry.io/contrib/.../otelhttp`       | v0.68.0 | Server spans, semconv metrics, W3C propagation |
-| `go.opentelemetry.io/otel` (+sdk, metric, trace) | v1.45.0 | Tracer/meter providers, SDK, stdout exporter   |
-| `github.com/larsartmann/httputil`                | v0.12.0 | `Middleware` type (bridge target)              |
+| `go.opentelemetry.io/contrib/.../otelhttp`       | v0.71.0 | Server spans, semconv metrics, W3C propagation |
+| `go.opentelemetry.io/otel` (+sdk, metric, trace) | v1.46.0 | Tracer/meter providers, SDK, stdout exporter   |
+| `github.com/larsartmann/httputil`                | v1.1.1  | `Middleware` type (bridge target)              |
 
 ## cqrs Module Dependencies
 
@@ -321,6 +321,9 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 ## otel Module Gotchas
 
 - **One `Setup` per process** across go-appkit/otel AND go-cqrs-lite's otel module — both register globals; pick one owner for the tracer/meter providers.
+- **Span names + `http.route` metrics are LOST through `OuterMiddlewares` (verified 2026-09-15).** otelhttp reads `r.Pattern` on its own request fork after the handler; any middleware between otel and the mux that re-forks the request (`RequestID`, `Timeout`, Logging's ctx helper — all `r.WithContext`) means ServeMux's `r.Pattern = ...` lands on a fork otel never sees → live spans flush as bare `GET` and metrics carry no `http.route`. Version-independent (not the v0.68→v0.71 bump). The 23 tests pass because they wrap the mux directly. Fix lives in httputil (forking middlewares propagate `r.Pattern` back up); tracked TODO_LIST P2 with the full bisection.
+- **Benchmark drift (2026-09-15):** same-box re-run measured no-op ~26.4µs / traced ~29.8µs vs the README-recorded 21.2/26.4/27.4µs — re-baseline with benchstat before trusting the README table; don't chase phantom regressions.
+- **go-cqrs-lite's otel `Provider.Shutdown` ForceFlush bug is FIXED upstream** (verified 2026-09-15: their setup.go flushes tracer AND meter before Shutdown, pinned by `TestProvider_Shutdown_FlushesBeforeShutdown`) — older session notes calling it "latent upstream" are obsolete.
 
 ## Health Module Gotchas
 
@@ -330,7 +333,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - **`NewProbe` bypasses the `HealthRecorder` path** — go-health ignores `WithHealthRecorder` for `NewWithHealthCheck` probes (documented in the SDK), so `flightrecorderhealth.Trigger` needs an injector-built `health.New` probe; do not promise trigger capture via `NewProbe`.
 - **Dashboard `Start` is not idempotent** (spawns a new pusher each call); `Mounted.Start` guards it — call `Mounted` methods, not the dashboard's, for lifecycle.
 - The pusher reads `CachedResponse` per tick; a probe that was never `Start`ed serves a zero-value response — `Mounted.Start` runs the initial batch synchronously, so use it before serving.
-- `Provider.Shutdown` ForceFlushes both providers BEFORE shutting down: plain Shutdown does not drain the batch processor's async queue and can silently drop final spans (cqrs-lite's otel module has this latent bug upstream — fix pending).
+- `Provider.Shutdown` ForceFlushes both providers BEFORE shutting down: plain Shutdown does not drain the batch processor's async queue and can silently drop final spans (go-cqrs-lite's otel module had this same bug — fixed upstream, verified 2026-09-15).
 - Span name carries the method prefix (`GET /users/{id}`); the `http.route` metric attribute does NOT (`/users/{id}`). Assert accordingly.
 - `tracetest.InMemoryExporter.Shutdown` RESETS its buffer — read spans after an explicit `ForceFlush`, BEFORE calling Shutdown.
 - Health endpoints (`/health`, `/health/live`, `/health/ready`) are unconditionally filtered from tracing and metrics.
