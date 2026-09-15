@@ -29,11 +29,11 @@ require (
 	github.com/larsartmann/go-etag v0.3.1 // indirect
 	github.com/larsartmann/go-sse v0.6.0 // indirect
 	github.com/larsartmann/httputil v1.1.1 // indirect
-	github.com/larsartmann/templ-components v1.16.0 // indirect
-	github.com/larsartmann/templ-components/datastar v1.16.0 // indirect
-	github.com/larsartmann/templ-components/htmx v1.16.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.16.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.16.0 // indirect
+	github.com/larsartmann/templ-components v1.17.0 // indirect
+	github.com/larsartmann/templ-components/datastar v1.17.0 // indirect
+	github.com/larsartmann/templ-components/htmx v1.17.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.17.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.17.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.30 // indirect
@@ -41,7 +41,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/samber/do/v2 v2.1.0 // indirect
 	github.com/samber/go-type-to-string v1.8.0 // indirect
-	github.com/xo/terminfo v1.0.0 // indirect
+	github.com/xo/terminfo v1.2.0 // indirect
 	golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/time v0.16.0 // indirect

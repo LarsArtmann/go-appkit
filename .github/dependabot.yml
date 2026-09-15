@@ -108,4 +108,4 @@ updates:
     groups:
       actions:
         patterns:
-          - '*'
+          - "*"
