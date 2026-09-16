@@ -19,6 +19,12 @@ const defaultHeartbeat = 15 * time.Second
 // Consumers should tighten this for production via [WithCORSOrigin].
 const defaultCORSOrigin = "*"
 
+// streamErrorRetryMillis is the Retry hint carried by the SSE `event: error`
+// emitted before a store-failure abort: it tells the browser to wait 30s
+// before reconnecting, turning a persistently failing store from a silent
+// reconnect storm into a client-side backoff loop.
+const streamErrorRetryMillis = 30_000
+
 // MountOption configures the SSE endpoint handler registered by [Mount].
 type MountOption func(*mountConfig)
 
@@ -84,6 +90,12 @@ func Handler(hub *Hub, opts ...MountOption) http.Handler {
 		if cfg.cors != "" {
 			w.Header().Set("Access-Control-Allow-Origin", cfg.cors)
 		}
+
+		// Nginx buffers proxied responses by default, queuing SSE events for
+		// seconds (heartbeats only partially mitigate the latency). This header
+		// must be set before the first write — sse.NewStream writes the SSE
+		// headers and the 200 status.
+		w.Header().Set("X-Accel-Buffering", "no")
 
 		stream := sse.NewStream(w, r)
 		defer func() { _ = stream.Close() }()
@@ -201,6 +213,13 @@ func replayMissedEvents(
 			"err", err,
 		)
 
+		// Tell the client the replay failed BEFORE dropping the connection.
+		// A silent abort looks identical to a network blip, so the browser
+		// reconnects immediately and hits the same failing store — a reconnect
+		// storm. The named error event is observable, and the Retry hint makes
+		// a spec-compliant browser wait before the next attempt.
+		sendStreamError(ctx, stream, "replay store read failed")
+
 		return nil, false
 	}
 
@@ -258,6 +277,21 @@ func eventsAfter(
 	}
 
 	return events, nil
+}
+
+// sendStreamError emits the named `error` SSE event with a reconnect-backoff
+// Retry hint. Best-effort: a client that already disconnected gets no error
+// event, and the write failure is only logged.
+func sendStreamError(ctx context.Context, stream *sse.Stream, msg string) {
+	errEvt := sse.Event{
+		Event: "error",
+		Data:  msg,
+		Retry: streamErrorRetryMillis,
+	}
+
+	if err := stream.Send(errEvt); err != nil {
+		slog.WarnContext(ctx, "realtime: error event send failed", "err", err)
+	}
 }
 
 // safeFilter applies pred with panic recovery, treating a panic as a

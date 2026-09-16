@@ -2,6 +2,8 @@ package realtime_test
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -701,5 +703,82 @@ func TestHandler_ReplayLiveDedup(t *testing.T) {
 		if !strings.Contains(joined, want) {
 			t.Fatalf("expected %s among delivered events:\n%s", want, joined)
 		}
+	}
+}
+
+// --- Reverse-proxy and failure-path behavior (2026-09-16) ---
+
+// failingStore is an sse.EventStore whose read always fails, simulating a
+// dead replay backend (database offline, journal unavailable).
+type failingStore struct{}
+
+func (failingStore) EventsAfter(sse.EventID) ([]sse.Event, error) {
+	return nil, errors.New("store offline")
+}
+
+func TestHandler_AccelBufferingHeader(t *testing.T) {
+	t.Parallel()
+
+	hub := realtime.NewHub()
+	mux := http.NewServeMux()
+	realtime.Mount(mux, "GET /events", hub)
+
+	server := httptest.NewServer(mux)
+	t.Cleanup(server.Close)
+
+	resp, err := httpGetURL(t, server.URL+"/events")
+	if err != nil {
+		t.Fatalf("GET /events: %v", err)
+	}
+
+	t.Cleanup(func() { _ = resp.Body.Close() })
+
+	if got := resp.Header.Get("X-Accel-Buffering"); got != "no" {
+		t.Errorf("X-Accel-Buffering = %q, want %q (nginx buffers SSE without it)", got, "no")
+	}
+}
+
+func TestHandler_StoreFailure_SendsErrorEventBeforeAbort(t *testing.T) {
+	t.Parallel()
+
+	hub := realtime.NewHub(realtime.WithStore(failingStore{}))
+	mux := http.NewServeMux()
+	realtime.Mount(mux, "GET /events", hub)
+
+	server := httptest.NewServer(mux)
+	t.Cleanup(server.Close)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	t.Cleanup(cancel)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, server.URL+"/events", nil)
+	if err != nil {
+		t.Fatalf("build GET: %v", err)
+	}
+
+	req.Header.Set("Last-Event-ID", "01J000000000000000000000001")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("GET with Last-Event-ID: %v", err)
+	}
+
+	t.Cleanup(func() { _ = resp.Body.Close() })
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil && !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("read body: %v", err)
+	}
+
+	// The failure must be OBSERVABLE: a named error event carrying the
+	// reconnect-backoff hint, not a silent connection drop (which a browser
+	// cannot distinguish from a network blip and answers with an immediate
+	// reconnect against the same dead store — a reconnect storm).
+	if !strings.Contains(string(body), "event: error") {
+		t.Errorf("expected `event: error` frame before abort, got:\n%s", body)
+	}
+
+	if !strings.Contains(string(body), "retry: 30000") {
+		t.Errorf("expected `retry: 30000` backoff hint on the error event, got:\n%s", body)
 	}
 }

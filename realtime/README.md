@@ -87,8 +87,14 @@ Wire `hub.Shutdown` into `ServiceConfig.DrainHooks` or call it ahead of
   replay read are dropped; clients heal via `Last-Event-ID` reconnect.
 - Single-process broadcaster only — no cross-instance fan-out (put a real bus
   in front if you scale horizontally).
-- Missing `X-Accel-Buffering: no`: behind nginx with default
-  `proxy_buffering`, event latency degrades; tracked in the repo TODO_LIST.
+- Store-failure replay aborts now send a named `event: error` with a
+  `retry: 30000` backoff hint before dropping the connection (fixed
+  2026-09-16 — previously the abort was silent, causing immediate reconnects
+  against the same dead store). The hint is advisory: non-browser clients
+  choose their own backoff.
+- The handler sets `X-Accel-Buffering: no` so nginx does not buffer the
+  stream (fixed 2026-09-16); other proxies may need their own
+  buffering-off configuration.
 
 ## License
 

@@ -11,6 +11,17 @@
 
 ### Fixed
 
+- Reverse-proxy buffering: the SSE handler now sets `X-Accel-Buffering: no`
+  (before the first write) so nginx with default `proxy_buffering` forwards
+  events immediately instead of queuing them — previously latency degraded
+  from milliseconds to seconds behind a default nginx. Pinned by
+  `TestHandler_AccelBufferingHeader`.
+- Replay/store failure is no longer silent: before aborting the connection,
+  the handler emits a named `event: error` carrying a `retry: 30000`
+  reconnection-backoff hint. A silent abort is indistinguishable from a
+  network blip, so browsers reconnected immediately into the same failing
+  store — a reconnect storm. Pinned by
+  `TestHandler_StoreFailure_SendsErrorEventBeforeAbort`.
 - Resolved all golangci-lint findings: extracted `forwardLive` to bring `Handler` under the gocognit threshold, context-aware HTTP test helper (`httpGetURL`), array-based read buffers (makezero), justified nolint directives on store pass-throughs and the recover-dependent named return.
 
 
