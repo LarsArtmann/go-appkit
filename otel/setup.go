@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 
+	errorfamily "github.com/larsartmann/go-error-family"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
@@ -118,10 +120,14 @@ func (p *Provider) AsMeterProvider() *sdkmetric.MeterProvider {
 	return p.meterProvider
 }
 
+// Classified sentinels: shutdown and SDK-build failures are environmental
+// (Infrastructure), so consumers get HTTPStatus 503 and correct retry
+// semantics instead of an unclassified error. Messages are pinned — tests
+// and grep-based ops runbooks match on them.
 var (
-	errShutdown    = errors.New("otel provider shutdown incomplete")
-	errBuildRes    = errors.New("failed to build OTel resource")
-	errStdoutSetup = errors.New("failed to build stdout exporter")
+	errShutdown    = errorfamily.NewInfrastructure("otel.shutdown_incomplete", "otel provider shutdown incomplete")
+	errBuildRes    = errorfamily.NewInfrastructure("otel.resource_build_failed", "failed to build OTel resource")
+	errStdoutSetup = errorfamily.NewInfrastructure("otel.stdout_exporter_failed", "failed to build stdout exporter")
 )
 
 // Shutdown flushes pending spans and metrics, then releases resources.
