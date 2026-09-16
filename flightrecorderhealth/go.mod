@@ -3,9 +3,9 @@ module github.com/larsartmann/go-appkit/flightrecorderhealth
 go 1.26.7
 
 require (
-	github.com/larsartmann/go-error-family v0.10.0
+	github.com/larsartmann/go-error-family v0.10.1
 	github.com/larsartmann/go-flightrecorder v0.2.0
-	github.com/larsartmann/go-health v0.1.1
+	github.com/larsartmann/go-health v0.1.3
 	github.com/samber/do/v2 v2.1.0
 )
 

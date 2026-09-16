@@ -55,14 +55,14 @@ Daemon auto-commits this session: `83ebcbd`, `ce8b245` (dep drift).
 
 ## b) PARTIALLY DONE ⏳
 
-1. **M12 commit + sweep.** All code changes are in the working tree, verified
+~~1. **M12 commit + sweep.** All code changes are in the working tree, verified~~ resolved — push happened 2026-08-30; templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT reported
    green per-module (core, realtime, cqrs, docs-mod), but NOT committed; the
    plan's M12.3 all-module sweep (single pass incl. flightrecorder +
    errorpages) not yet run as one command.
-2. **cqrs lint debt (session-2 ledger item #3).** 15 of 17 findings fixed
+~~2. **cqrs lint debt (session-2 ledger item #3).** 15 of 17 findings fixed~~ resolved — push happened 2026-08-30; templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT reported
    (renames verified green under -race). Remaining: `metrics_test.go:185`
    `srv.Client().Get` → `Do(NewRequestWithContext)`.
-3. **M11 loose ends.** cqrs-htmx branch not merged to master, not pushed;
+~~3. **M11 loose ends.** cqrs-htmx branch not merged to master, not pushed;~~ resolved — push happened 2026-08-30; templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT reported
    no root release containing `transport/` (blocks dashboardui migration);
    go-appkit side documents the composition path in AGENTS.md but ships no
    compile-tested consumer example of transport→realtime.Hub.
@@ -85,27 +85,27 @@ Daemon auto-commits this session: `83ebcbd`, `ce8b245` (dep drift).
 
 ## d) TOTALLY FUCKED UP 💥 (honest)
 
-1. **Misdiagnosed my own Wrap bug scope.** Ledger claimed `/health/` vs
+~~1. **Misdiagnosed my own Wrap bug scope.** Ledger claimed `/health/` vs~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
    `/health` triggered it; actually stdlib 404s `/health/` by design. Only
    `path.Clean`-rewritten paths redirect. Cost: one wrong test table + one
    doc-comment correction. Commit message states the corrected scope.
-2. **Overstated cqrs-htmx's weight.** Claimed "single-package framework with
+~~2. **Overstated cqrs-htmx's weight.** Claimed "single-package framework with~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
    casbin+ginkgo compiling in" — user called it out ("It is not??!").
    Truth: 21+ sub-packages exist; root package compiles ~22 external pkgs
    (no casbin — it's not in root deps; ginkgo is test-only). Root-cause of my
    error: reasoning from the AGENTS.md architecture section instead of
    running `go list -deps` first.
-3. **Wrote a test against unverified store semantics.** My gap/dedup tests
+~~3. **Wrote a test against unverified store semantics.** My gap/dedup tests~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
    seeded cursor "1" not present in `memStore` → empty replay → false test
    failures and a 10-minute package timeout (hung `readSSEFrame`). Debug
    cycle wasted before checking `memStore.EventsAfter` (cursor must exist).
-4. **Two malformed question-tool calls** (invalid `type`, then missing
+~~4. **Two malformed question-tool calls** (invalid `type`, then missing~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
    `description`) before the successful one.
-5. **Mechanical renames committed-to-tree without immediate build.** Regex
+~~5. **Mechanical renames committed-to-tree without immediate build.** Regex~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
    rename of `db`→`bundleDB` missed a reference in an error-format call
    (`eventservice.go:270`) — caught by the verification build minutes later,
    but it sat broken in the tree between edit and check.
-6. **Question drift:** posed the delivery decision as 3 options (A/B/C);
+~~6. **Question drift:** posed the delivery decision as 3 options (A/B/C);~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
    user invented a better 4th (D: transport/ sub-package). Should have
    offered the sub-package option myself — it was derivable from the facts.
 
@@ -125,66 +125,66 @@ Daemon auto-commits this session: `83ebcbd`, `ce8b245` (dep drift).
 
 ## f) NEXT 50 (priority order)
 
-1. Commit M12 + cqrs lint cleanup (tree is green; includes metrics_test noctx fix first)
-2. M12.3 all-module sweep as one pass (6 modules, jsonv2 flags, -race)
-3. Merge cqrs-htmx `feat/transport-package` → master (needs Q1 approval)
-4. Push cqrs-htmx master (needs Q1)
-5. Tag cqrs-htmx root release containing `transport/` (unblocks dashboardui)
-6. Migrate dashboardui to `transport.NewJournalSSEStore` (code note marks it)
-7. Bump errorpages to templ-components v1.8.3 (now in cache; was blocked)
-8. M13.1 README: v4 migration note, new options, errorpages + transport story
-9. M13.2 FEATURES.md + CHANGELOG.md for cqrs, docs-mod, errorpages, realtime
-10. M13.3 AGENTS.md: six-module list, updated dep tables, transport gotchas
-11. Restore M09.4 render-failure-fallback test (carry-over ledger #2)
-12. M14.1 verify FamilyOrchestration exists in go-error-family v0.10.0 source
-13. M14.2 reproduce missing mapping in templ-components v1.8.3
-14. M14.3 fix + test in templ-components (own branch there)
-15. M14.4 PR upstream (needs Q3 approval)
-16. M15.1 pre-release verification: all modules test/vet/build green
-17. M15.2 cut CHANGELOGs + version bumps
-18. M15.3 tag `cqrs/v0.2.0`, `docs/v0.2.0`, `errorpages/v0.1.0`
-19. M15.4 fresh-consumer `go get` smoke test (clean cache, GOWORK=off)
-20. M16.1 evaluate go-cqrs-lite `system` package vs EventService fit
-21. M16.2 write ADR-002 (sqlite-first vs stack-generic vs system)
-22. M16.3 add chosen-path follow-ups to TODO_LIST.md
-23. M17.1 cqrs README cookbook: scenario DSL usage
-24. M17.1 cookbook: testutil leverage (fakes, harness)
-25. M17.1 cookbook: cqrs-lint adoption (`library` preset reference)
-26. M17.2 link cookbook from AGENTS.md
-27. M18.0 core: SSE-safe WriteTimeout opt-out (ADR-001 P1) + tests
-28. M18.1 spike: appkit.Service behind cqrs-htmx `setup.Run` (flag/branch)
-29. M18.2 wire appkit drain probe ↔ `ProjectionReadinessCheck`
-30. M18.3 verify SSE header flush survives appkit middleware chain
-31. M18.4 smoke benchmark vs baseline server path
-32. M18.5 adopt/reject report + follow-up tasks
-33. Push 13 go-appkit commits (needs Q1)
-34. errorpages README: document redirect-preserving Wrap semantics (new)
-35. realtime README/AGENTS: document 64-buffer drop limit + heal semantics
-36. go-appkit integration example: transport store → realtime.Hub (compile-tested)
-37. docs/planning/integrations.md: add transport/ package entry
-38. design-decisions.md ADR-001: note P1–P3 prerequisite status after M18
-39. Fix go.work `use ./docs-mod` path-mismatch BuildFlow warning
-40. Install go-licenses in devshell (BuildFlow preflight warning)
-41. realtime: extract memStore/blockingStore into a testutil helper package
-42. cqrs: coverage check after metrics/DLQ additions (project gate)
-43. erraudit sweep on changed modules (skipped in pre-commit mode)
-44. templ-components v1.8.3 CHANGELOG review for errorpage fixes
-45. Add errorpages Wrap 405-Allow-header test (covered implicitly, make explicit)
-46. Consider `WithMaxReplay(0)` true-unlimited upstream fix (transport doc vs code now truthful; decide semantics)
-47. cqrs-htmx dashboardui: add dedup to its sseHandler (mirrors realtime fix)
-48. Re-run full BuildFlow on final tree before tagging (warnings-only expected)
-49. Sweep remaining `es`/`db` varnamelen (verify zero findings in cqrs)
-50. Final status report + update this file's follow-ups
+~~1. Commit M12 + cqrs lint cleanup (tree is green; includes metrics_test noctx fix first)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~2. M12.3 all-module sweep as one pass (6 modules, jsonv2 flags, -race)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~3. Merge cqrs-htmx `feat/transport-package` → master (needs Q1 approval)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~4. Push cqrs-htmx master (needs Q1)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~5. Tag cqrs-htmx root release containing `transport/` (unblocks dashboardui)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~6. Migrate dashboardui to `transport.NewJournalSSEStore` (code note marks it)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~7. Bump errorpages to templ-components v1.8.3 (now in cache; was blocked)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~8. M13.1 README: v4 migration note, new options, errorpages + transport story~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~9. M13.2 FEATURES.md + CHANGELOG.md for cqrs, docs-mod, errorpages, realtime~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~10. M13.3 AGENTS.md: six-module list, updated dep tables, transport gotchas~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~11. Restore M09.4 render-failure-fallback test (carry-over ledger #2)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~12. M14.1 verify FamilyOrchestration exists in go-error-family v0.10.0 source~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~13. M14.2 reproduce missing mapping in templ-components v1.8.3~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~14. M14.3 fix + test in templ-components (own branch there)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~15. M14.4 PR upstream (needs Q3 approval)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~16. M15.1 pre-release verification: all modules test/vet/build green~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~17. M15.2 cut CHANGELOGs + version bumps~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~18. M15.3 tag `cqrs/v0.2.0`, `docs/v0.2.0`, `errorpages/v0.1.0`~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~19. M15.4 fresh-consumer `go get` smoke test (clean cache, GOWORK=off)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~20. M16.1 evaluate go-cqrs-lite `system` package vs EventService fit~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~21. M16.2 write ADR-002 (sqlite-first vs stack-generic vs system)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~22. M16.3 add chosen-path follow-ups to TODO_LIST.md~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~23. M17.1 cqrs README cookbook: scenario DSL usage~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~24. M17.1 cookbook: testutil leverage (fakes, harness)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~25. M17.1 cookbook: cqrs-lint adoption (`library` preset reference)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~26. M17.2 link cookbook from AGENTS.md~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~27. M18.0 core: SSE-safe WriteTimeout opt-out (ADR-001 P1) + tests~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~28. M18.1 spike: appkit.Service behind cqrs-htmx `setup.Run` (flag/branch)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~29. M18.2 wire appkit drain probe ↔ `ProjectionReadinessCheck`~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~30. M18.3 verify SSE header flush survives appkit middleware chain~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~31. M18.4 smoke benchmark vs baseline server path~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~32. M18.5 adopt/reject report + follow-up tasks~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~33. Push 13 go-appkit commits (needs Q1)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~34. errorpages README: document redirect-preserving Wrap semantics (new)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~35. realtime README/AGENTS: document 64-buffer drop limit + heal semantics~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~36. go-appkit integration example: transport store → realtime.Hub (compile-tested)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~37. docs/planning/integrations.md: add transport/ package entry~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~38. design-decisions.md ADR-001: note P1–P3 prerequisite status after M18~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~39. Fix go.work `use ./docs-mod` path-mismatch BuildFlow warning~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~40. Install go-licenses in devshell (BuildFlow preflight warning)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~41. realtime: extract memStore/blockingStore into a testutil helper package~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~42. cqrs: coverage check after metrics/DLQ additions (project gate)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~43. erraudit sweep on changed modules (skipped in pre-commit mode)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~44. templ-components v1.8.3 CHANGELOG review for errorpage fixes~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~45. Add errorpages Wrap 405-Allow-header test (covered implicitly, make explicit)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~46. Consider `WithMaxReplay(0)` true-unlimited upstream fix (transport doc vs code now truthful; decide semantics)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~47. cqrs-htmx dashboardui: add dedup to its sseHandler (mirrors realtime fix)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~48. Re-run full BuildFlow on final tree before tagging (warnings-only expected)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~49. Sweep remaining `es`/`db` varnamelen (verify zero findings in cqrs)~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
+~~50. Final status report + update this file's follow-ups~~ executed across sessions 4-5 and the release waves; remainder routed to TODO_LIST (which now owns open items)
 
 ## Open Questions for the User
 
-1. **Push/merge approval (blocking #3–5, #33):** May I merge
+~~1. **Push/merge approval (blocking #3–5, #33):** May I merge~~ Answered: pushed 2026-08-30; templ fix merged upstream; cqrs-htmx dispositioned
    `feat/transport-package` → master in cqrs-htmx and push? May I push the 13
    local commits on go-appkit master? Both repos are yours; nothing has been
    pushed.
-2. **cqrs-htmx release timing (blocking #5–6):** tag a root release
+~~2. **cqrs-htmx release timing (blocking #5–6):** tag a root release~~ Answered: pushed 2026-08-30; templ fix merged upstream; cqrs-htmx dispositioned
    containing `transport/` now (e.g. v4.9.0) so dashboardui can migrate, or
    batch it with M15?
-3. **Cross-repo PRs (blocking #15):** for M14, may I push a branch to
+~~3. **Cross-repo PRs (blocking #15):** for M14, may I push a branch to~~ Answered: pushed 2026-08-30; templ fix merged upstream; cqrs-htmx dispositioned
    templ-components and open a PR? (M18 spike stays local in cqrs-htmx unless
    you say otherwise.)

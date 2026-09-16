@@ -27,79 +27,79 @@
 
 ## b) PARTIALLY DONE / BLOCKED
 
-1. **go-appkit push** — 22 commits on master + local tags `cqrs/v0.2.0`, `docs/v0.2.0`, `errorpages/v0.1.0` (at `e4a4e9d`). Post-push steps (tidy sweep, true fresh-consumer `go get` vs proxy) scripted in prior reports, unrun.
-2. **templ-components PR** — fix + tests complete on local branch `c6df43c`; never pushed, never filed.
-3. **cqrs-htmx branch disposition** — `spike/appkit-server` `8028bf2f` and `feat/transport-package` `ac743f30` local-only.
-4. **cqrs-htmx `go.work.sum`** — dirty from the commit-time BuildFlow run; deliberately left for the auto-git daemon.
+~~1. **go-appkit push** — 22 commits on master + local tags `cqrs/v0.2.0`, `docs/v0.2.0`, `errorpages/v0.1.0` (at `e4a4e9d`). Post-push steps (tidy sweep, true fresh-consumer `go get` vs proxy) scripted in prior reports, unrun.~~ resolved — push 2026-08-30 (wave 1) + 2026-09-04 (wave 2); templ-components fix merged upstream; cqrs-htmx branches dispositioned; go.work.sum committed
+~~2. **templ-components PR** — fix + tests complete on local branch `c6df43c`; never pushed, never filed.~~ resolved — push 2026-08-30 (wave 1) + 2026-09-04 (wave 2); templ-components fix merged upstream; cqrs-htmx branches dispositioned; go.work.sum committed
+~~3. **cqrs-htmx branch disposition** — `spike/appkit-server` `8028bf2f` and `feat/transport-package` `ac743f30` local-only.~~ resolved — push 2026-08-30 (wave 1) + 2026-09-04 (wave 2); templ-components fix merged upstream; cqrs-htmx branches dispositioned; go.work.sum committed
+~~4. **cqrs-htmx `go.work.sum`** — dirty from the commit-time BuildFlow run; deliberately left for the auto-git daemon.~~ resolved — push 2026-08-30 (wave 1) + 2026-09-04 (wave 2); templ-components fix merged upstream; cqrs-htmx branches dispositioned; go.work.sum committed
 
 ## c) NOT STARTED (deliberately, with reasons)
 
-1. appkit core v0.3.0 release carrying `NoTimeout` + `ReadyCheck` — the single blocker to folding the spike into `setup.RunHandler`.
-2. dashboardui migration to `transport.NewJournalSSEStore` — marked at `dashboardui/dashboard.go:63` area; blocked on pushed tags.
-3. go-appkit `TODO_LIST.md` — plan §8 flagged the gap and scoped creation out; now unblocked post-plan.
-4. Benchmark hardening (`-benchmem`, multi-run + benchstat) — smoke number documented as directional.
+~~1. appkit core v0.3.0 release carrying `NoTimeout` + `ReadyCheck` — the single blocker to folding the spike into `setup.RunHandler`.~~ done at core v0.3.0 (2026-08-30)
+~~2. dashboardui migration to `transport.NewJournalSSEStore` — marked at `dashboardui/dashboard.go:63` area; blocked on pushed tags.~~ done — consumer-side (cqrs-htmx)
+~~3. go-appkit `TODO_LIST.md` — plan §8 flagged the gap and scoped creation out; now unblocked post-plan.~~ done — TODO_LIST created 2026-08-16
+~~4. Benchmark hardening (`-benchmem`, multi-run + benchstat) — smoke number documented as directional.~~ done — M18.4 baseline documented
 
 ## d) TOTALLY FUCKED UP (owned, all caught before ship)
 
-1. **Benchmark needed TWO fix rounds.** Draft 1 (prior session): placeholder garbage. Draft 2: scope bug (`undefined: bundle`). Draft 3: drain counted into `ns/op`. The timer bug was caught only because the number came back as ~exactly one 2s "op" — a 200ms drain would have shipped a subtly wrong benchmark. Lesson: read the number, not just PASS.
-2. **Session started on a hidden build failure I caused** — prior session's last command piped through `rg`, swallowing the compile error. This session's first act was re-running it unfiltered. Filtering error output of a failing build is self-sabotage.
-3. **Nearly shipped a guessed AGENTS.md reason** — wrote "flightrecorder needs jsonv2 via dep chain"; `go list` proved it imports `encoding/json/v2` directly. Caught by verification, corrected before commit. The guess shouldn't have been written down first.
-4. **DoD "Zero public API breaks" ticked without mechanical proof** — ticked from session knowledge (all changes additive by construction), but no api-diff tool ran. An honest tick would say "verified by construction, not by diff."
-5. **Inherited-state mistake in the sweep** — ran core/flightrecorder with the OLD documented flags first and only discovered the jsonv2 requirement from the failure. The parallel agent's `83c91bc` landed at 01:40:18; my sweep at ~01:47 still used stale assumptions. Cheap to catch (it failed loudly), but I burned a round trip ignoring "docs may lag code mid-session".
+~~1. **Benchmark needed TWO fix rounds.** Draft 1 (prior session): placeholder garbage. Draft 2: scope bug (`undefined: bundle`). Draft 3: drain counted into `ns/op`. The timer bug was caught only because the number came back as ~exactly one 2s "op" — a 200ms drain would have shipped a subtly wrong benchmark. Lesson: read the number, not just PASS.~~ owned; lessons recorded (benchstat, no filtered builds, go-list verification, api-diff ritual — all now in AGENTS.md Release Ritual)
+~~2. **Session started on a hidden build failure I caused** — prior session's last command piped through `rg`, swallowing the compile error. This session's first act was re-running it unfiltered. Filtering error output of a failing build is self-sabotage.~~ owned; lessons recorded (benchstat, no filtered builds, go-list verification, api-diff ritual — all now in AGENTS.md Release Ritual)
+~~3. **Nearly shipped a guessed AGENTS.md reason** — wrote "flightrecorder needs jsonv2 via dep chain"; `go list` proved it imports `encoding/json/v2` directly. Caught by verification, corrected before commit. The guess shouldn't have been written down first.~~ owned; lessons recorded (benchstat, no filtered builds, go-list verification, api-diff ritual — all now in AGENTS.md Release Ritual)
+~~4. **DoD "Zero public API breaks" ticked without mechanical proof** — ticked from session knowledge (all changes additive by construction), but no api-diff tool ran. An honest tick would say "verified by construction, not by diff."~~ owned; lessons recorded (benchstat, no filtered builds, go-list verification, api-diff ritual — all now in AGENTS.md Release Ritual)
+~~5. **Inherited-state mistake in the sweep** — ran core/flightrecorder with the OLD documented flags first and only discovered the jsonv2 requirement from the failure. The parallel agent's `83c91bc` landed at 01:40:18; my sweep at ~01:47 still used stale assumptions. Cheap to catch (it failed loudly), but I burned a round trip ignoring "docs may lag code mid-session".~~ owned; lessons recorded (benchstat, no filtered builds, go-list verification, api-diff ritual — all now in AGENTS.md Release Ritual)
 
 ## e) WHAT WE SHOULD IMPROVE
 
-1. **Ask the blocking questions through a real channel** — three sessions of listing questions in report files the user may not read. This session: questions go in the chat reply too.
-2. **Never filter failing-build output.** Full error first, grep second.
-3. **Verify flag requirements per module per sweep** — one `go list -deps -test` check beats a failed 60s test round trip. AGENTS.md is now uniform (all six modules jsonv2), which removes the trap.
-4. **Mechanize the "no API breaks" claim** — a tiny api-diff step (goapidiff or `go doc` snapshot compare) at release time.
-5. **Benchmarks: timer discipline by default** — any deferred teardown in a `b.Run` body must StopTimer first; worth a note in cqrs-htmx's cookbook.
-6. **Tolerate parallel agents gracefully** — this session it worked (read, judge, don't touch, re-verify against it), but the sweep assumption staleness shows coordination lag. Cheap fix: always re-derive facts (go list, git log) at sweep time, never from memory.
-7. **Stop leaving `go.work.sum` drift to the daemon** — it's a one-line commit; deterministic beats eventual.
+~~1. **Ask the blocking questions through a real channel** — three sessions of listing questions in report files the user may not read. This session: questions go in the chat reply too.~~ absorbed (chat-channel questions, unfiltered builds, per-sweep verification, api-diff at tag time — all standard now)
+~~2. **Never filter failing-build output.** Full error first, grep second.~~ absorbed (chat-channel questions, unfiltered builds, per-sweep verification, api-diff at tag time — all standard now)
+~~3. **Verify flag requirements per module per sweep** — one `go list -deps -test` check beats a failed 60s test round trip. AGENTS.md is now uniform (all six modules jsonv2), which removes the trap.~~ absorbed (chat-channel questions, unfiltered builds, per-sweep verification, api-diff at tag time — all standard now)
+~~4. **Mechanize the "no API breaks" claim** — a tiny api-diff step (goapidiff or `go doc` snapshot compare) at release time.~~ absorbed (chat-channel questions, unfiltered builds, per-sweep verification, api-diff at tag time — all standard now)
+~~5. **Benchmarks: timer discipline by default** — any deferred teardown in a `b.Run` body must StopTimer first; worth a note in cqrs-htmx's cookbook.~~ absorbed (chat-channel questions, unfiltered builds, per-sweep verification, api-diff at tag time — all standard now)
+~~6. **Tolerate parallel agents gracefully** — this session it worked (read, judge, don't touch, re-verify against it), but the sweep assumption staleness shows coordination lag. Cheap fix: always re-derive facts (go list, git log) at sweep time, never from memory.~~ absorbed (chat-channel questions, unfiltered builds, per-sweep verification, api-diff at tag time — all standard now)
+~~7. **Stop leaving `go.work.sum` drift to the daemon** — it's a one-line commit; deterministic beats eventual.~~ absorbed (chat-channel questions, unfiltered builds, per-sweep verification, api-diff at tag time — all standard now)
 
 ## f) NEXT (impact-sorted, ~35 items — brainstorm-grade below the top 10, route via TODO_LIST harvest)
 
-1. **[ANSWER-GATED] Push go-appkit master + 3 tags** → then `GOWORK=off go mod tidy` sweep on sub-modules → true fresh-consumer `go get` vs proxy (dress-rehearsed in M15, proxy test still pending).
-2. **[ANSWER-GATED] Push templ-components branch + file PR** (base: master; note errorpage submodule max tag is v1.8.2 — decide PR base accordingly).
-3. **[ANSWER-GATED] cqrs-htmx: merge/push `feat/transport-package`, hold-or-advance `spike/appkit-server`.**
-4. **Cut appkit core v0.3.0** (`NoTimeout`, `ReadyCheck`, `WithoutCancel`, `NewRequestWithContext` from [Unreleased]) — unblocks cqrs-htmx adoption end-to-end.
-5. **Fold `RunWithAppkit` into `setup.RunHandler`** behind the unchanged signature once v0.3.0 tag resolves; drop the spike `replace`.
-6. **Create go-appkit `TODO_LIST.md`** (plan §8 gap, now unblocked) and harvest sessions 3–5 reports into it.
-7. **Mechanical API-break check** wired into release prep (closes the honest-tick gap in d.4).
-8. **Expose `Addr()` from cqrs-htmx setup** (new capability appkit enables; additive).
-9. **Decide appkit Logging posture for adoption** — sampling/level option or logger wiring; the 29µs/req is the whole benchmark delta.
-10. **dashboardui → `transport.NewJournalSSEStore` migration** (marked at `dashboardui/dashboard.go:63` area).
-11. Commit cqrs-htmx `go.work.sum` now instead of daemon-absorbing.
-12. Benchmark hardening: `-benchmem`, 5× runs + benchstat, document in cqrs-htmx README cookbook.
-13. Fix lychee 404: `design-decisions.md:118` → httputil `docs/integrations/huma.md` (stale upstream path).
-14. MD013 long lines in `design-decisions.md` (71 findings) — reflow or set per-file exemption.
-15. health_test.go `noctx` warnings → `httptest.NewRequestWithContext` (3 findings, pre-existing).
-16. exhaustruct/config.go:49 + logger.go:70 field-list noise — consider a targeted nolint or field init where sensible (pre-existing, only if touching).
-17. Spike test speed: inject shorter `DrainDelay` via option — each spike test pays 2s; suite is 8s, would drop to ~3s.
-18. ADR-001 follow-through: update `docs/planning/integrations.md` when adoption actually lands (currently describes the spike state).
-19. go-appkit README: state the jsonv2 requirement for BUILDING/TESTING from source (upstream consumers of published tags unaffected, but contributors hit it immediately).
-20. cqrs-htmx TODO_LIST P3 item: after v0.3.0, `spike` E009 lint ignores should fall away when folded into `run.go`.
-21. Add an SSE-flush end-to-end test to go-appkit realtime module mirroring the spike's (full-stack proof on our own module, not just the consumer's).
-22. Consider `appkit.WithDrainDelay(0)`-style test ergonomics (mirrors the existing `DrainDelay: 0` test advice in AGENTS.md — document pattern).
-23. Verify `example/main.go` quick start still compiles with plain `go build` (no test deps → maybe no flag needed; if needed, README note).
-24. Session reports: number the "3 blocking questions" answers when they arrive and close them out explicitly in the next report (traceability of decisions).
-25. go-appkit `FEATURES.md`: add cqrs-htmx spike as evidence under a "consumers" note.
-26. templ-components: while filing the PR, re-verify FamilyOrchestration mapping against go-error-family master (may have evolved past v0.10.0).
-27. cqrs-htmx: benchmark suite already exists (`benchmark_server_test.go` etc.) — consider folding the baseline-vs-appkit bench there permanently post-adoption.
-28. Sweep cqrs/docs/errorpages CHANGELOGs when v0.3.0 cuts (Unreleased sections currently carry NoTimeout/ReadyCheck/WithoutCancel).
-29. Add `GOEXPERIMENT=jsonv2` to go-appkit docs-mod's rendered docs (if the docs site renders build instructions).
-30. Post-push: verify pkg.go.dev picks up all four tagged modules and renders correctly.
-31. Post-push: `go get github.com/larsartmann/go-appkit@v0.2.0` in a throwaway module for each sub-module path — the actual proxy test.
-32. Consider a tiny `run_appkit_test.go` comment noting TOCTOU acceptance rationale is documented (already done — verify it survives merges).
-33. Check BuildFlow "parallel golangci-lint is running" flakes (cqrs-htmx hook) — serialize or retry once.
-34. go-appkit: `httpspec_test.go` `init` function finding (golangci) — refactor to explicit registration if touching.
-35. Retro: this 5-session plan's DoD said "BuildFlow pre-commit passes" per task — two justified `--no-verify` commits exist (e4a4e9d, templ c6df43c). Document the dprint-quirk workaround in AGENTS.md so it's not re-derived.
+~~1. **[ANSWER-GATED] Push go-appkit master + 3 tags** → then `GOWORK=off go mod tidy` sweep on sub-modules → true fresh-consumer `go get` vs proxy (dress-rehearsed in M15, proxy test still pending).~~ done — push 2026-08-30 + proxy tests 2026-09-04
+~~2. **[ANSWER-GATED] Push templ-components branch + file PR** (base: master; note errorpage submodule max tag is v1.8.2 — decide PR base accordingly).~~ done — templ-components fix merged upstream
+~~3. **[ANSWER-GATED] cqrs-htmx: merge/push `feat/transport-package`, hold-or-advance `spike/appkit-server`.**~~ done — transport merged; spike ADOPT reported
+~~4. **Cut appkit core v0.3.0** (`NoTimeout`, `ReadyCheck`, `WithoutCancel`, `NewRequestWithContext` from [Unreleased]) — unblocks cqrs-htmx adoption end-to-end.~~ done at core v0.3.0
+~~5. **Fold `RunWithAppkit` into `setup.RunHandler`** behind the unchanged signature once v0.3.0 tag resolves; drop the spike `replace`.~~ done — consumer-side fold-in tracked in cqrs-htmx
+~~6. **Create go-appkit `TODO_LIST.md`** (plan §8 gap, now unblocked) and harvest sessions 3–5 reports into it.~~ done — TODO_LIST created
+~~7. **Mechanical API-break check** wired into release prep (closes the honest-tick gap in d.4).~~ done — go-doc snapshot diff in Release Ritual
+~~8. **Expose `Addr()` from cqrs-htmx setup** (new capability appkit enables; additive).~~ done — consumer-side
+~~9. **Decide appkit Logging posture for adoption** — sampling/level option or logger wiring; the 29µs/req is the whole benchmark delta.~~ tracked in TODO_LIST P2 (logging posture)
+~~10. **dashboardui → `transport.NewJournalSSEStore` migration** (marked at `dashboardui/dashboard.go:63` area).~~ done — consumer-side
+~~11. Commit cqrs-htmx `go.work.sum` now instead of daemon-absorbing.~~ done — committed
+~~12. Benchmark hardening: `-benchmem`, 5× runs + benchstat, document in cqrs-htmx README cookbook.~~ done — benchstat noted in TODO_LIST P3
+~~13. Fix lychee 404: `design-decisions.md:118` → httputil `docs/integrations/huma.md` (stale upstream path).~~ done — link inlined 2026-09-04
+~~14. MD013 long lines in `design-decisions.md` (71 findings) — reflow or set per-file exemption.~~ NOT-DO — style exemptions acceptable
+~~15. health_test.go `noctx` warnings → `httptest.NewRequestWithContext` (3 findings, pre-existing).~~ done 2026-08-17 (noctx fixes)
+~~16. exhaustruct/config.go:49 + logger.go:70 field-list noise — consider a targeted nolint or field init where sensible (pre-existing, only if touching).~~ NOT-DO — pre-existing, only-if-touching
+~~17. Spike test speed: inject shorter `DrainDelay` via option — each spike test pays 2s; suite is 8s, would drop to ~3s.~~ done — consumer-side
+~~18. ADR-001 follow-through: update `docs/planning/integrations.md` when adoption actually lands (currently describes the spike state).~~ done — ADR-001 + integrations updated
+~~19. go-appkit README: state the jsonv2 requirement for BUILDING/TESTING from source (upstream consumers of published tags unaffected, but contributors hit it immediately).~~ done — README jsonv2 note
+~~20. cqrs-htmx TODO_LIST P3 item: after v0.3.0, `spike` E009 lint ignores should fall away when folded into `run.go`.~~ done — consumer-side
+~~21. Add an SSE-flush end-to-end test to go-appkit realtime module mirroring the spike's (full-stack proof on our own module, not just the consumer's).~~ done — integration module SSE flush test
+~~22. Consider `appkit.WithDrainDelay(0)`-style test ergonomics (mirrors the existing `DrainDelay: 0` test advice in AGENTS.md — document pattern).~~ NOT-DO — NoDrainDelay superseded this
+~~23. Verify `example/main.go` quick start still compiles with plain `go build` (no test deps → maybe no flag needed; if needed, README note).~~ done — verified plain build
+~~24. Session reports: number the "3 blocking questions" answers when they arrive and close them out explicitly in the next report (traceability of decisions).~~ done — answered + closed in waves
+~~25. go-appkit `FEATURES.md`: add cqrs-htmx spike as evidence under a "consumers" note.~~ done — FEATURES Consumers section
+~~26. templ-components: while filing the PR, re-verify FamilyOrchestration mapping against go-error-family master (may have evolved past v0.10.0).~~ done — verified merged upstream
+~~27. cqrs-htmx: benchmark suite already exists (`benchmark_server_test.go` etc.) — consider folding the baseline-vs-appkit bench there permanently post-adoption.~~ done — consumer-side
+~~28. Sweep cqrs/docs/errorpages CHANGELOGs when v0.3.0 cuts (Unreleased sections currently carry NoTimeout/ReadyCheck/WithoutCancel).~~ done — CHANGELOGs cut in waves
+~~29. Add `GOEXPERIMENT=jsonv2` to go-appkit docs-mod's rendered docs (if the docs site renders build instructions).~~ NOT-DO — docs-mod unaffected
+~~30. Post-push: verify pkg.go.dev picks up all four tagged modules and renders correctly.~~ done — pkg.go.dev checked 2026-09-04 (license gap found)
+~~31. Post-push: `go get github.com/larsartmann/go-appkit@v0.2.0` in a throwaway module for each sub-module path — the actual proxy test.~~ done — proxy smoke 2026-09-04
+~~32. Consider a tiny `run_appkit_test.go` comment noting TOCTOU acceptance rationale is documented (already done — verify it survives merges).~~ done — TOCTOU note survives
+~~33. Check BuildFlow "parallel golangci-lint is running" flakes (cqrs-htmx hook) — serialize or retry once.~~ NOT-DO — BuildFlow upstream
+~~34. go-appkit: `httpspec_test.go` `init` function finding (golangci) — refactor to explicit registration if touching.~~ done 2026-08-17 (init deleted)
+~~35. Retro: this 5-session plan's DoD said "BuildFlow pre-commit passes" per task — two justified `--no-verify` commits exist (e4a4e9d, templ c6df43c). Document the dprint-quirk workaround in AGENTS.md so it's not re-derived.~~ done — dprint gotcha documented in AGENTS
 
 ## g) QUESTIONS I CANNOT ANSWER MYSELF
 
-1. **Push approval, and sequencing:** push go-appkit master + the 3 tags now, or hold and batch with a core v0.3.0 (NoTimeout/ReadyCheck) so cqrs-htmx adoption is unblocked in the same wave?
-2. **templ-components:** OK to push `fix/errorpage-orchestration-status` and file the upstream PR? If yes: PR base master, or a maintenance branch given the errorpage submodule tags top out at v1.8.2?
-3. **cqrs-htmx disposition:** hold `spike/appkit-server` local until appkit v0.3.0 exists (my recommendation), or push it now as a visible branch? And `feat/transport-package` — merge to master, push as branch, or keep local?
+~~1. **Push approval, and sequencing:** push go-appkit master + the 3 tags now, or hold and batch with a core v0.3.0 (NoTimeout/ReadyCheck) so cqrs-htmx adoption is unblocked in the same wave?~~ Answered: pushed (2026-08-30 + 2026-09-04 waves); templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT
+~~2. **templ-components:** OK to push `fix/errorpage-orchestration-status` and file the upstream PR? If yes: PR base master, or a maintenance branch given the errorpage submodule tags top out at v1.8.2?~~ Answered: pushed (2026-08-30 + 2026-09-04 waves); templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT
+~~3. **cqrs-htmx disposition:** hold `spike/appkit-server` local until appkit v0.3.0 exists (my recommendation), or push it now as a visible branch? And `feat/transport-package` — merge to master, push as branch, or keep local?~~ Answered: pushed (2026-08-30 + 2026-09-04 waves); templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT
 
 ---
 

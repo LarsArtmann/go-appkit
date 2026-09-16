@@ -31,22 +31,22 @@ One real finding this session: **all six go-appkit modules now require `GOEXPERI
 
 ## b) PARTIALLY DONE / BLOCKED ON USER
 
-1. **Push go-appkit** (20+ commits on master, 3 local tags `cqrs/v0.2.0`, `docs/v0.2.0`, `errorpages/v0.1.0` at `e4a4e9d`). After push: `go mod tidy` sweep on sub-modules, true fresh-consumer `go get` against the proxy.
-2. **templ-components PR**: fix + tests sit on local branch `fix/errorpage-orchestration-status` @ `c6df43c` (FamilyOrchestration → 500 in `errorpage/styles.go`, map-entry + end-to-end tests).
-3. **cqrs-htmx branches**: `feat/transport-package` @ `ac743f30` and the new `spike/appkit-server` @ `8028bf2f` are local-only; merge/push/disposition is the user's call.
+~~1. **Push go-appkit** (20+ commits on master, 3 local tags `cqrs/v0.2.0`, `docs/v0.2.0`, `errorpages/v0.1.0` at `e4a4e9d`). After push: `go mod tidy` sweep on sub-modules, true fresh-consumer `go get` against the proxy.~~ resolved — push 2026-08-30; templ-components fix merged upstream; cqrs-htmx branches dispositioned
+~~2. **templ-components PR**: fix + tests sit on local branch `fix/errorpage-orchestration-status` @ `c6df43c` (FamilyOrchestration → 500 in `errorpage/styles.go`, map-entry + end-to-end tests).~~ resolved — push 2026-08-30; templ-components fix merged upstream; cqrs-htmx branches dispositioned
+~~3. **cqrs-htmx branches**: `feat/transport-package` @ `ac743f30` and the new `spike/appkit-server` @ `8028bf2f` are local-only; merge/push/disposition is the user's call.~~ resolved — push 2026-08-30; templ-components fix merged upstream; cqrs-htmx branches dispositioned
 
 ## c) NOT STARTED (deliberately)
 
-1. dashboardui migration to `transport.NewJournalSSEStore` — marked at `dashboardui/dashboard.go:63` area; only sensible after the tags are pushed and resolvable.
-2. appkit core v0.3.0 release carrying `NoTimeout` + `ReadyCheck` — prerequisite for folding the spike into cqrs-htmx `setup.RunHandler`.
+~~1. dashboardui migration to `transport.NewJournalSSEStore` — marked at `dashboardui/dashboard.go:63` area; only sensible after the tags are pushed and resolvable.~~ done at core v0.3.0 (2026-08-30 wave)
+~~2. appkit core v0.3.0 release carrying `NoTimeout` + `ReadyCheck` — prerequisite for folding the spike into cqrs-htmx `setup.RunHandler`.~~ done — consumer-side, tracked in cqrs-htmx
 
 ---
 
 ## Honest mistakes ledger (this session)
 
-1. The benchmark's first fixed draft still contained a second bug (drain counted in timing) — found only because the appkit number came back as exactly one 2s "operation". Lesson restated: read the number, not just PASS/FAIL.
-2. Initially wrote a wrong AGENTS.md reason for flightrecorder's jsonv2 need ("dep chain"); `go list` showed the module imports `encoding/json/v2` directly. Corrected before commit.
-3. Sessions 3–5 have now asked the three blocking questions (push, PR, cqrs-htmx disposition) three times with no answer; everything remains local-only by default.
+~~1. The benchmark's first fixed draft still contained a second bug (drain counted in timing) — found only because the appkit number came back as exactly one 2s "operation". Lesson restated: read the number, not just PASS/FAIL.~~ owned; lessons recorded (AGENTS.md + memory)
+~~2. Initially wrote a wrong AGENTS.md reason for flightrecorder's jsonv2 need ("dep chain"); `go list` showed the module imports `encoding/json/v2` directly. Corrected before commit.~~ owned; lessons recorded (AGENTS.md + memory)
+~~3. Sessions 3–5 have now asked the three blocking questions (push, PR, cqrs-htmx disposition) three times with no answer; everything remains local-only by default.~~ owned; lessons recorded (AGENTS.md + memory)
 
 ## Verification commands (current truth)
 

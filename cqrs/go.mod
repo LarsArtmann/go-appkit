@@ -15,7 +15,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/query/v4 v4.8.0
 	github.com/larsartmann/go-cqrs-lite/storage/v4 v4.9.0
 	github.com/larsartmann/go-cqrs-lite/system/v4 v4.7.0
-	github.com/larsartmann/go-error-family v0.10.0
+	github.com/larsartmann/go-error-family v0.10.1
 	github.com/larsartmann/go-flightrecorder v0.2.0
 	go.opentelemetry.io/otel v1.46.0
 	go.opentelemetry.io/otel/metric v1.46.0

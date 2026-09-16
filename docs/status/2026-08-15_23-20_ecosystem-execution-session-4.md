@@ -17,20 +17,20 @@
 | M17           | `4ebc6cb`              | cqrs README cookbook: scenario/v4 DSL (Given/When/Then, GivenProjection), testutil/v4 helpers table, cqrs-lint 4.6.0 usage+gotchas — every API verified against pinned sources. AGENTS.md links it.                                                                                                                                                                                                   |
 | M18 P1        | `1e19ef5`              | `appkit.NoTimeout` sentinel: disables Read/Write deadline at BOTH layers (http.Server field + default-stack Timeout middleware omission); Validate accepts exactly -1 on Read/Write; end-to-end test pair (150ms response survives NoTimeout, dies under 40ms WriteTimeout). README/CHANGELOG/FEATURES/AGENTS updated.                                                                                |
 
-## c. M18 spike — half done, UNTESTED (in cqrs-htmx on `spike/appkit-server`, uncommitted)
+~~## c. M18 spike — half done, UNTESTED (in cqrs-htmx on `spike/appkit-server`, uncommitted)~~ done — session 5 fixed and validated the spike (ADOPT verdict, ADR-001 confirmed)
 
-- `setup/run_appkit.go`: `RunWithAppkit` = RunHandler with the server layer swapped to `appkit.Service` — NoTimeout policy parity, `ReadyCheck` wired to `ProjectionReadinessCheck` (M18.2), drain delay 2s added (first uplift), Close-on-every-exit mirrored.
-- `setup/run_appkit_test.go`: SSE-header-flush-through-full-stack test (M18.3), readiness 503→200 + clean-shutdown test, response parity test, baseline-vs-appkit benchmark (M18.4).
-- `setup/go.mod`: spike-only `replace go-appkit => ../../go-appkit`.
-- **NOTHING has been built or run.** First benchmark draft was garbage (placeholder symbols); second draft looks right but is unverified. The adopt/reject report (M18.5) is not written.
+~~- `setup/run_appkit.go`: `RunWithAppkit` = RunHandler with the server layer swapped to `appkit.Service` — NoTimeout policy parity, `ReadyCheck` wired to `ProjectionReadinessCheck` (M18.2), drain delay 2s added (first uplift), Close-on-every-exit mirrored.~~ done — session 5 fixed and validated the spike (ADOPT verdict, ADR-001 confirmed)
+~~- `setup/run_appkit_test.go`: SSE-header-flush-through-full-stack test (M18.3), readiness 503→200 + clean-shutdown test, response parity test, baseline-vs-appkit benchmark (M18.4).~~ done — session 5 fixed and validated the spike (ADOPT verdict, ADR-001 confirmed)
+~~- `setup/go.mod`: spike-only `replace go-appkit => ../../go-appkit`.~~ done — session 5 fixed and validated the spike (ADOPT verdict, ADR-001 confirmed)
+~~- **NOTHING has been built or run.** First benchmark draft was garbage (placeholder symbols); second draft looks right but is unverified. The adopt/reject report (M18.5) is not written.~~ done — session 5 fixed and validated the spike (ADOPT verdict, ADR-001 confirmed)
 
 ## d. What is fucked up / I got wrong (honest)
 
-1. **I never asked the 3 blocking questions** the session-3 report mandated (push approval, cqrs-htmx tag timing, templ-components PR). I chose autonomy per the mandate and kept everything local — correct for safety, but the questions are now 2 sessions stale and still gate completion (see §f).
-2. **Round trips wasted by writing code before checking the API:** first `notimeout_test.go` invented nonexistent helpers; first metrics_test fix used `httptest.NewRequestWithContext` with `client.Do` (RequestURI panic — fixed with `http.NewRequestWithContext`); first benchmark draft was nonsense. All caught by tests/builds, but each was avoidable.
-3. **Two commits used `--no-verify`:** templ-components fix (repo pre-commit fails on pre-existing findings in untouched modules) and go-appkit release-prep (dprint exits "no files found" when the staged set is only go.mod/go.sum/CHANGELOG.md, which dprint excludes). Both documented in commit bodies; both manually verified. The dprint quirk deserves a BuildFlow fix (`--allow-no-files`).
-4. **Plan file checkboxes never updated** (plan DoD checklist still unchecked).
-5. **No TODO_LIST.md exists** — plan explicitly deferred it; every follow-up item below therefore lives only in reports.
+~~1. **I never asked the 3 blocking questions** the session-3 report mandated (push approval, cqrs-htmx tag timing, templ-components PR). I chose autonomy per the mandate and kept everything local — correct for safety, but the questions are now 2 sessions stale and still gate completion (see §f).~~ owned and fixed in session 5 (read-the-number lesson recorded)
+~~2. **Round trips wasted by writing code before checking the API:** first `notimeout_test.go` invented nonexistent helpers; first metrics_test fix used `httptest.NewRequestWithContext` with `client.Do` (RequestURI panic — fixed with `http.NewRequestWithContext`); first benchmark draft was nonsense. All caught by tests/builds, but each was avoidable.~~ owned and fixed in session 5 (read-the-number lesson recorded)
+~~3. **Two commits used `--no-verify`:** templ-components fix (repo pre-commit fails on pre-existing findings in untouched modules) and go-appkit release-prep (dprint exits "no files found" when the staged set is only go.mod/go.sum/CHANGELOG.md, which dprint excludes). Both documented in commit bodies; both manually verified. The dprint quirk deserves a BuildFlow fix (`--allow-no-files`).~~ owned and fixed in session 5 (read-the-number lesson recorded)
+~~4. **Plan file checkboxes never updated** (plan DoD checklist still unchecked).~~ owned and fixed in session 5 (read-the-number lesson recorded)
+~~5. **No TODO_LIST.md exists** — plan explicitly deferred it; every follow-up item below therefore lives only in reports.~~ owned and fixed in session 5 (read-the-number lesson recorded)
 
 ## e. Ledger (carried + new)
 
@@ -42,13 +42,13 @@
 
 ## f. Next tasks (in order)
 
-1. **Run the spike:** `cd cqrs-htmx/setup && GOEXPERIMENT=jsonv2 GOWORK=off go test -race -count=1 -run TestRunWithAppkit ./...` then the benchmark; fix whatever breaks; commit on the branch; write M18.5 adopt/reject report.
-2. Push go-appkit master + tags; push templ-components branch + PR (M14.4); merge cqrs-htmx `feat/transport-package` and tag a root release; migrate dashboardui to `transport.NewJournalSSEStore`.
-3. Post-push: `go mod tidy` sanity + true fresh-consumer `go get` against the proxy (the pre-push smoke test used local replaces).
-4. Tick plan DoD checkboxes; harvest a TODO_LIST.md.
+~~1. **Run the spike:** `cd cqrs-htmx/setup && GOEXPERIMENT=jsonv2 GOWORK=off go test -race -count=1 -run TestRunWithAppkit ./...` then the benchmark; fix whatever breaks; commit on the branch; write M18.5 adopt/reject report.~~ executed in session 5 + release waves; remainder owned by TODO_LIST
+~~2. Push go-appkit master + tags; push templ-components branch + PR (M14.4); merge cqrs-htmx `feat/transport-package` and tag a root release; migrate dashboardui to `transport.NewJournalSSEStore`.~~ executed in session 5 + release waves; remainder owned by TODO_LIST
+~~3. Post-push: `go mod tidy` sanity + true fresh-consumer `go get` against the proxy (the pre-push smoke test used local replaces).~~ executed in session 5 + release waves; remainder owned by TODO_LIST
+~~4. Tick plan DoD checkboxes; harvest a TODO_LIST.md.~~ executed in session 5 + release waves; remainder owned by TODO_LIST
 
 ## g. Open questions (blocking, 2 sessions old)
 
-1. **Push approval:** go-appkit 19 commits + 3 tags; templ-components branch + PR; cqrs-htmx merge + root tag. All local, all verified. Say "push" and I go.
-2. **cqrs-htmx release timing:** tag root release containing `transport/` immediately (unblocks dashboardui) or batch with post-spike adoption release?
-3. **templ-components PR:** file from `fix/errorpage-orchestration-status` once pushed?
+~~1. **Push approval:** go-appkit 19 commits + 3 tags; templ-components branch + PR; cqrs-htmx merge + root tag. All local, all verified. Say "push" and I go.~~ Answered: pushed 2026-08-30; templ-components PR merged upstream; cqrs-htmx spike ADOPT reported
+~~2. **cqrs-htmx release timing:** tag root release containing `transport/` immediately (unblocks dashboardui) or batch with post-spike adoption release?~~ Answered: pushed 2026-08-30; templ-components PR merged upstream; cqrs-htmx spike ADOPT reported
+~~3. **templ-components PR:** file from `fix/errorpage-orchestration-status` once pushed?~~ Answered: pushed 2026-08-30; templ-components PR merged upstream; cqrs-htmx spike ADOPT reported
