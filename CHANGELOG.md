@@ -17,6 +17,12 @@
   and the graceful drain sequence documents the hook phases plus the
   per-phase log lines.
 
+### Changed
+
+- Bumped `go-error-family` v0.10.0 → v0.10.1 (docs/CI-only release
+  upstream: zero code changes; readme/licensing/CI work). Hygiene pin — no
+  consumer-visible behavior change.
+
 ## [0.4.0] - 2026-09-04
 
 ### Added

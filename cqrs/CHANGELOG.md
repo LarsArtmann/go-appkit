@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Bumped `go-error-family` v0.10.0 → v0.10.1 (docs/CI-only release
+  upstream: zero code changes; readme/licensing/CI work). Hygiene pin — no
+  consumer-visible behavior change.
+
 ## [0.5.0] - 2026-09-07
 
 ### Changed
