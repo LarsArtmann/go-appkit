@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Report Title</title>
+    <title>go-appkit × LarsArtmann Library Family — Utilization Audit</title>
     <style>
       /* =========================================================================
          BAUHAUS LIGHT — Editorial template
@@ -848,24 +848,26 @@
     </style>
   </head>
   <body>
-    <!-- Full-bleed top bar (optional — remove for quieter reports) -->
+    <!-- Full-bleed top bar -->
     <div class="top-bar">
-      <span>REPORT TYPE</span>
-      <span>YYYY-MM-DD</span>
-      <span>AUTHOR / TEAM</span>
+      <span>LIBRARY UTILIZATION AUDIT</span>
+      <span>2026-09-16</span>
+      <span>go-appkit &times; LarsArtmann family</span>
     </div>
 
     <div class="layout">
-      <!-- Sidebar TOC (hidden below 1024px; use inline .toc if you prefer) -->
+      <!-- Sidebar TOC -->
       <aside class="sidebar" data-nav>
         <nav>
           <div class="label">Contents</div>
           <a href="#summary">Summary</a>
           <a href="#scorecard">Scorecard</a>
-          <a href="#strengths">Strengths</a>
+          <a href="#strengths">What's already superb</a>
           <a href="#findings">Findings</a>
-          <a href="#proposal">Proposal</a>
-          <a href="#appendix">Appendix</a>
+          <a href="#scores">Per-library scores</a>
+          <a href="#versions">Version currency</a>
+          <a href="#proposal">Top opportunities</a>
+          <a href="#appendix">Methodology</a>
         </nav>
       </aside>
 
@@ -873,43 +875,48 @@
       <main class="main">
         <!-- Hero -->
         <header class="hero">
-          <!-- Optional Bauhaus signature: geometric shape cluster. Remove for quieter hero. -->
           <div class="hero-shapes">
             <div class="bar"></div>
             <div class="circle"></div>
             <div class="square"></div>
             <div class="tri"></div>
           </div>
-          <div class="eyebrow">REPORT TYPE &middot; YYYY-MM-DD</div>
-          <h1>Report Title</h1>
+          <div class="eyebrow">ECOSYSTEM DEEP DIVE &middot; 2026-09-16</div>
+          <h1>go-appkit &times; the LarsArtmann Library Family: Adoption &amp; Utilization Audit</h1>
           <p class="subtitle">
-            One or two sentences that set the frame: who this is for, what was
-            reviewed, and what the reader will take away.
+            Nine modules audited against nine first-party libraries (httputil, go-error-family, go-sse,
+            go-flightrecorder, go-health, go-health-dashboard, go-cqrs-lite, templ-components, plus three
+            transitive-only). Verdict: the core of every library is used well, but three big levers sit
+            unused, and two version pins are behind.
           </p>
           <div class="meta">
-            <span class="tag amber">Scope: example</span>
-            <span class="tag">Version: 1.0.0</span>
-            <span class="tag teal">Status: draft</span>
+            <span class="tag amber">Overall adoption: 64/100</span>
+            <span class="tag">9 libraries &middot; 9 modules</span>
+            <span class="tag teal">0 anti-patterns</span>
           </div>
         </header>
 
         <!-- Scorecard -->
         <section id="scorecard" class="scorecard">
-          <div class="score-card score-good">
-            <div class="score">8</div>
-            <div class="label">Items passing</div>
+          <div class="score-card score-warn">
+            <div class="score">64</div>
+            <div class="label">Overall adoption / 100</div>
           </div>
           <div class="score-card score-warn">
-            <div class="score">3</div>
-            <div class="label">Warnings</div>
+            <div class="score">6/9</div>
+            <div class="label">Pins on latest tag</div>
           </div>
           <div class="score-card score-bad">
-            <div class="score">1</div>
-            <div class="label">Blockers</div>
+            <div class="score">7</div>
+            <div class="label">Missed opportunities</div>
           </div>
-          <div class="score-card">
-            <div class="score">12</div>
-            <div class="label">Total reviewed</div>
+          <div class="score-card score-good">
+            <div class="score">0</div>
+            <div class="label">Anti-patterns / misuse</div>
+          </div>
+          <div class="score-card score-good">
+            <div class="score">8</div>
+            <div class="label">Capability clusters fully leveraged</div>
           </div>
         </section>
 
@@ -917,40 +924,94 @@
         <section id="summary">
           <h2><span class="num">00</span>Summary</h2>
           <p>
-            Replace this with the bottom-line verdict. A good summary tells the
-            reader whether the subject is ready, what the biggest risk is, and
-            what one action would unlock the most value.
+            go-appkit composes nine LarsArtmann libraries. This audit compared the touched API surface
+            (exhaustive grep over all 27 non-test and 26 test files) with the full exported capability
+            surface of each pinned version, verified against the local checkouts of the libraries
+            themselves. The good news: nothing is misused, the core paths of every library are wired
+            correctly, and six of nine pins sit on the newest tag. The gaps are concentration, not
+            corrosion: the biggest unused surfaces are <strong>httputil.Server</strong> (go-appkit still
+            hand-rolls its HTTP server lifecycle on a justification that httputil v1.1.x made obsolete),
+            <strong>go-health-dashboard's hardening options</strong> (only 2 of ~35 options are ever
+            passed), and <strong>go-flightrecorder's operational options</strong> (compression, snapshot
+            persistence, metrics hooks).
           </p>
           <div class="callout callout-amber">
             <strong>The bottom line</strong>
-            State the verdict plainly. If the report is blocking, say so. If
-            it's mostly positive, lead with that.
+            You are using the family well but not to the max. The single highest-leverage change: compose
+            <code>httputil.Server</code> into core's <code>Service</code> instead of owning
+            <code>http.Server</code> directly. The old "no listener access" blocker is gone
+            (<code>ListenerAddr()</code> exists since the v1.1.x line), and that one refactor buys TLS via
+            <code>StartTLS</code> (the deferred Core TLS option), a double-start guard, and ephemeral-port
+            resolution for free. Two version bumps (go-health-dashboard v0.7.0 &rarr; v0.8.1, go-error-family
+            v0.10.0 &rarr; v0.10.1) are one-line follow-ups.
           </div>
         </section>
 
         <!-- Strengths -->
         <section id="strengths">
-          <h2><span class="num">&#9670;</span>What's already excellent</h2>
+          <h2><span class="num">&#9670;</span>What's already superb</h2>
           <p>
-            Before the criticism: acknowledge what works. This builds trust and
-            keeps the report from reading like a pure complaint list.
+            Evidence-backed wins, each verified in code. These are the patterns to keep and the reason the
+            baseline score is solid despite the gaps below.
           </p>
-
           <div class="strengths">
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength one</strong>
-                <span>Explain why it matters and what it enables.</span>
+                <strong>go-cqrs-lite: every pin is the newest tag</strong>
+                <span>All 12+ pinned subpackages (event v4.11.0, command v4.10.0, system v4.7.0, storage v4.9.0,
+                projectionhost v4.4.0, ...) match the latest local tags, verified 2026-09-16. The wrapper
+                architecture is the right shape: it provisions checkpoint/DLQ stores and bootstrap projections
+                itself while leaving <code>HostOptions</code> as a passthrough, so consumers are never boxed in.</span>
               </div>
             </div>
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength two</strong>
-                <span
-                  >Reference files, metrics, or patterns where possible.</span
-                >
+                <strong>go-sse: deep, idiomatic use of the hard parts</strong>
+                <span>Broadcaster generics, <code>SubscribeFilter</code>, <code>OnSubscribe</code>/<code>OnUnsubscribe</code>
+                hooks, <code>BroadcasterHealth</code> surfaced into Hub.Health (realtime/hub.go:54-146), immediate header
+                flush after <code>NewStream</code>, and full <code>ssetest</code> adoption in tests. The replay
+                dedup re-implementation is a deliberate, documented divergence: <code>sse.ReplayFiltered</code>
+                has no live-subscription dedup (verified replay.go:81-126).</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>go-error-family: classified errors everywhere it matters</strong>
+                <span>~91 usages across 17 files; every config validation is <code>errorfamily.Newf(Rejection, ...)</code>,
+                every shutdown/lifecycle failure is <code>WrapInfrastructuref</code>, and the family&rarr;HTTP mapping
+                is re-exported once (errors.go:12-21) instead of reimplemented.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>templ-components/errorpage: the full integration path</strong>
+                <span>errorpages uses <code>ErrorHandler</code> end to end: cause chains (auto-filled via
+                <code>FromError</code> &rarr; <code>ExtractCauseChain</code>, handler.go:53), JSON negotiation,
+                Nonce/Lang passthrough, and a layered Override hook that composes with forced synthetic statuses
+                (errorpages/errorpages.go:135-164).</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>go-health + drain lockstep: the composition story works</strong>
+                <span><code>Mounted.Drain</code> in <code>DrainHooks</code> flips go-health readiness 503 in lockstep
+                with appkit's own ready probe; the health module stays core-free and works on any mux
+                (health/mount.go:165-221).</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>httputil: the default stack is exactly the intended composition</strong>
+                <span>Recovery &rarr; RequestID &rarr; Logging &rarr; Timeout &rarr; SecurityHeaders with the
+                documented replacement semantics (<code>Middlewares</code> replaces, <code>ExtraMiddlewares</code>
+                appends, <code>OuterMiddlewares</code> prepends; middleware.go:14-51), plus
+                <code>httpspec.Run</code> in tests.</span>
               </div>
             </div>
           </div>
@@ -959,117 +1020,512 @@
         <!-- Findings -->
         <section id="findings">
           <h2><span class="num">01</span>Findings</h2>
-          <p>These are the issues that need attention, ordered by impact.</p>
+          <p>Ordered by impact. Every claim cites code or a verified library source location.</p>
 
-          <!-- Issue 1 -->
-          <div class="issue issue-critical" id="issue-1">
-            <span class="severity severity-critical"
-              >Blocking &middot; High impact</span
-            >
-            <h3>Critical issue title</h3>
+          <!-- Finding 1 -->
+          <div class="issue issue-critical" id="httputil-server">
+            <span class="severity severity-critical">Missed opportunity &middot; High impact</span>
+            <h3>httputil.Server unused &mdash; Service hand-rolls http.Server on an obsolete justification</h3>
             <div class="where">
-              path/to/file.go:42-58 &middot; short context
+              service.go (Service owns http.Server + net.Listener directly) &middot; httputil/server.go:162-324 &middot; AGENTS.md Architecture note
             </div>
             <p>
-              Describe the problem, cite the code or behavior, and explain why
-              it matters to the reader's goals.
+              httputil v1.1.x <code>Server</code> wraps <code>http.Server</code> with
+              <code>Start</code>/<code>StartTLS</code> (TLSConfig support), a double-start guard returning
+              <code>server.already_started</code>, graceful shutdown, and
+              <code>ListenerAddr() (net.Addr, bool)</code> for ephemeral ports (httputil/server.go:162,
+              :199, :324; CHANGELOG v1.1.0). go-appkit's documented reason for not delegating &mdash;
+              "it uses ListenAndServe() internally, no listener access" &mdash; no longer holds. Owning the
+              server directly costs appkit: no TLS story (the Core TLS option sits in the deferred register),
+              hand-maintained start/stop state, and duplicate lifecycle logic the family already
+              battle-tested.
             </p>
-            <pre><code>// Example of the problematic pattern
-func BadExample() {}</code></pre>
-            <div class="callout callout-teal">
-              <strong>Fix: recommended action</strong>
-              State the concrete fix, including file names, function names, or
-              configuration changes.
-            </div>
-          </div>
+            <pre><code><span class="tok-comment">// After: Service composes httputil.Server</span>
+<span class="tok-keyword">type</span> <span class="tok-type">Service</span> <span class="tok-keyword">struct</span> {
+    server  *httputil.Server   <span class="tok-comment">// was: http.Server + net.Listener + atomic.Bool</span>
+    <span class="tok-comment">// Addr() becomes:</span>
+}
 
-          <!-- Issue 2 -->
-          <div class="issue issue-important" id="issue-2">
-            <span class="severity severity-important"
-              >Important &middot; Medium impact</span
-            >
-            <h3>Important issue title</h3>
-            <div class="where">path/to/another.go:12-19</div>
-            <p>
-              Explain the risk. Important issues are not blockers but would make
-              a careful reviewer hesitate before shipping.
-            </p>
-          </div>
-
-          <!-- Issue 3 -->
-          <div class="issue issue-nice" id="issue-3">
-            <span class="severity severity-nice"
-              >Nice to have &middot; Low impact</span
-            >
-            <h3>Nice-to-have improvement</h3>
-            <div class="where">docs/ or config</div>
-            <p>
-              Minor polish, documentation gaps, or future-proofing suggestions
-              go here.
-            </p>
-          </div>
-        </section>
-
-        <!-- Proposal -->
-        <section id="proposal">
-          <h2><span class="num">02</span>What the solution could look like</h2>
-          <p>
-            If the findings were fixed, what would the new state be? Show the
-            target API, structure, or workflow.
-          </p>
-          <pre><code>// Target state after the recommended changes
-type BetterAPI struct {
-    Field string
+<span class="tok-keyword">func</span> (s *Service) Addr() net.Addr {
+    a, _ := s.server.ListenerAddr()   <span class="tok-comment">// httputil/server.go:324</span>
+    <span class="tok-keyword">return</span> a
 }</code></pre>
-          <div class="callout callout-teal">
-            <strong>This is the target</strong>
-            Summarize why this state is better and what it unlocks.
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Refactor <code>Service</code> to compose <code>httputil.Server</code> (map the
+              <code>NoTimeout</code> sentinel to zero-timeout fields, keep drain phase semantics in appkit).
+              This unlocks the deferred Core TLS option nearly for free via <code>StartTLS</code>. Verify
+              drain ordering (ready flip &rarr; hooks &rarr; wait &rarr; close) still pins in
+              shutdownlog_test.go.
+            </div>
+          </div>
+
+          <!-- Finding 2 -->
+          <div class="issue issue-critical" id="dashboard-options">
+            <span class="severity severity-critical">Missed opportunity &middot; High impact</span>
+            <h3>go-health-dashboard: 2 of ~35 options used, and the pin is two releases behind</h3>
+            <div class="where">
+              health/go.mod (dashboard v0.7.0; local latest v0.8.1) &middot; health/mount.go:82 &middot; example only passes WithTrend/WithMetrics (health/example/main.go:60-61)
+            </div>
+            <p>
+              The dashboard ships an operator-trust surface go-appkit never turns on:
+              <code>WithShutdownDrain</code> (SSE drain on shutdown &mdash; literally appkit's drain story,
+              name-checked in mount.go comments but never passed), <code>WithNonce</code> +
+              <code>RecommendedCSP</code> (the dashboard serves HTML+JS; appkit consumers get no CSP wiring),
+              <code>WithRateLimit</code>, <code>WithIntrospection</code>, <code>WithWebhook</code> (alerting),
+              push modes, grouping/collapse UX. v0.8.0 ("operator trust release", 2026-09-16) adds the
+              failure-evidence truth strip (proven greens vs unproven ones, per the health-washing thesis),
+              WCAG AA status colors, and a consolidated nonce-carried bootstrap &mdash; appkit pins v0.7.0
+              and consumers get none of it.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Bump <code>go-health-dashboard</code> to v0.8.1, then extend <code>WithDashboard(opts...)</code>
+              docs/examples to pass <code>WithShutdownDrain</code>, <code>WithNonce</code> +
+              <code>RecommendedCSP</code>, and <code>WithRateLimit</code> in the production-recommended
+              preset (keep zero-options for tests).
+            </div>
+          </div>
+
+          <!-- Finding 3 -->
+          <div class="issue issue-important" id="mark-shutting-down">
+            <span class="severity severity-important">Partially used &middot; Medium-high impact</span>
+            <h3>Mounted.Drain stops the probe's refresh loop; go-health built the exact two-phase API for this</h3>
+            <div class="where">
+              health/mount.go:198 (<code>Drain</code> calls <code>m.probe.Shutdown()</code>) &middot; go-health/probe.go:552-558 (<code>MarkShuttingDown</code>)
+            </div>
+            <p>
+              <code>Probe.Shutdown()</code> marks shutting-down AND kills the background refresh loop
+              (go-health/probe.go, Shutdown doc). <code>Probe.MarkShuttingDown()</code> flips the flag
+              without stopping the loop &mdash; its doc describes precisely appkit's drain window:
+              "mark first so load balancers start draining, then call Shutdown after a grace period".
+              Today, a long drain serves a stale cached response and the dashboard trend freezes
+              mid-drain. Readiness still 503s either way, so this is about freshness, not correctness.
+            </p>
+            <pre><code><span class="tok-comment">// Before (mount.go:198)</span>
+<span class="tok-keyword">func</span> (m *Mounted) Drain() { m.probe.Shutdown() }
+
+<span class="tok-comment">// After: loop keeps refreshing during the drain window</span>
+<span class="tok-keyword">func</span> (m *Mounted) Drain() { m.probe.MarkShuttingDown() }
+<span class="tok-comment">// Mounted.Shutdown keeps probe.Shutdown() (already does)</span></code></pre>
+          </div>
+
+          <!-- Finding 4 -->
+          <div class="issue issue-important" id="fr-options">
+            <span class="severity severity-important">Missed opportunity &middot; Medium impact</span>
+            <h3>go-flightrecorder operational options unused: compression, snapshot persistence, metrics</h3>
+            <div class="where">
+              flightrecorder/middleware.go:69-96 &middot; flightrecorderhealth/adapter.go:93-212 &middot; used options: only WithFile/WithWriter/WithMinAge/WithMaxBytes
+            </div>
+            <p>
+              Both capture paths construct recorders with buffer/file + age/size limits only. Unused:
+              <code>WithCompression</code> (smaller traces for the same capture budget),
+              <code>WithSnapshotDir</code>/<code>WithSnapshotPrefix</code>/<code>WithMaxSnapshots</code>
+              (persistent, rotating snapshots &mdash; the middleware currently yields an in-memory artifact
+              a human must fish out via the snapshot endpoint), <code>WithMetrics</code> +
+              <code>MetricsHook</code> (capture counters for the otel module to export),
+              <code>WithLogger</code>, and the <code>OnAll</code>/<code>OnAny</code> trigger combinators
+              (appkit composes trigger logic by hand where the library composes it).
+            </p>
+            <pre><code><span class="tok-comment">// Production-recommended recorder preset</span>
+rec := fr.New(
+    fr.WithSnapshotDir(<span class="tok-string">"/var/lib/app/traces"</span>),
+    fr.WithMaxSnapshots(<span class="tok-number">5</span>),
+    fr.WithCompression(<span class="tok-keyword">true</span>),
+    fr.WithMinAge(<span class="tok-number">30</span>*time.Second), fr.WithMaxBytes(<span class="tok-number">8</span>&lt;&lt;<span class="tok-number">20</span>),
+    fr.WithMetrics(hooks), fr.WithLogger(logger),
+)</code></pre>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Expose a <code>WithRecorderOptions(fr.Option...)</code> passthrough on the flightrecorder
+              middleware and a documented production preset in the README; wire
+              <code>MetricsHook</code> counters into the otel module's meter.
+            </div>
+          </div>
+
+          <!-- Finding 5 -->
+          <div class="issue issue-important" id="errorfamily-depth">
+            <span class="severity severity-important">Partially used &middot; Medium impact</span>
+            <h3>go-error-family: Orchestration never used, errorfamilytest unused, a few unclassified sentinels</h3>
+            <div class="where">
+              Orchestration: 0 references repo-wide &middot; errorfamilytest Assert*: 0 uses (tests hand-roll in cqrs/staleness_test.go:136-141) &middot; unclassified: flightrecorder/middleware.go:120-131 (errHTTPStatus fmt sentinel), otel/setup.go:122-155, cqrs/eventservice.go:729
+            </div>
+            <p>
+              The library offers six families, registries, templates with Fix text,
+              <code>HandleErrorDetailed*</code>, <code>AutoWrap</code>/<code>WrapOnce</code>, an
+              <code>HTTPHandler</code> bridge, and a dedicated <code>errorfamilytest</code> assertion
+              package. go-appkit uses three families and the two re-exports; its own tests hand-roll
+              family assertions the <code>errorfamilytest.AssertFamily</code>/<code>AssertHTTPStatus</code>
+              helpers already provide. Three sites encode meaning in bare sentinels +
+              <code>fmt.Errorf</code> where a classified error would flow through appkit's own
+              <code>HTTPStatus</code>/<code>LogError</code> contract. Also: v0.10.0 is one patch behind
+              v0.10.1 (docs/CI-only, zero API change &mdash; trivial bump that carries the
+              conditional-request classification guidance).
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Bump to go-error-family v0.10.1; switch test assertions to <code>errorfamilytest</code>;
+              classify the errHTTPStatus sentinel as Rejection-with-code and the otel shutdown failures
+              as Infrastructure via <code>WrapInfrastructuref</code>. Adopting
+              <code>Orchestration</code> is optional &mdash; appkit has no orchestrator surface yet
+              (not applicable today, revisit with the worker battery).
+            </div>
+          </div>
+
+          <!-- Finding 6 -->
+          <div class="issue issue-important" id="health-payload">
+            <span class="severity severity-important">Partially used &middot; Medium impact</span>
+            <h3>go-health: rich /health payload options and the aggregate package unwired</h3>
+            <div class="where">
+              health/probe.go:60 (only WithCriticalServices wired in prod) &middot; unused: WithBootTime, WithVersion, WithInstanceID, WithLiveThrottle, WithGETOnly, WithAllowedMethods, NewWithDetailedCheck, aggregate/*
+            </div>
+            <p>
+              go-health can serve a much richer <code>/healthz</code>: boot time, service version, and
+              instance id (battery item F5 "buildinfo" is already routed to TODO_LIST P3 &mdash; the
+              library options exist today, only the wiring is missing). <code>WithLiveThrottle</code> and
+              <code>WithGETOnly</code> harden public liveness endpoints;
+              <code>NewWithDetailedCheck</code> + <code>CheckDetail</code> expose per-check diagnostics;
+              the <code>aggregate</code> package (multi-source merge-on-read, worst-of status, source
+              namespacing &mdash; shipped through v0.1.3) enables fleet-level views appkit's
+              single-probe <code>NewProbe</code> cannot express.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Wire <code>WithVersion</code>/<code>WithBootTime</code>/<code>WithInstanceID</code> from
+              buildinfo into <code>NewProbe</code> defaults (closes F5 with library options, no new
+              schema); document <code>WithGETOnly</code>/<code>WithLiveThrottle</code> as the public
+              exposure preset; note <code>aggregate</code> for multi-instance dashboards.
+            </div>
+          </div>
+
+          <!-- Finding 7 -->
+          <div class="issue issue-important" id="sse-ondrop">
+            <span class="severity severity-important">Partially used &middot; Low-medium impact</span>
+            <h3>go-sse drops are invisible: Broadcaster's WithOnDrop hook unused</h3>
+            <div class="where">
+              realtime/hub.go:51-61 (sets WithBufferSize + OnSubscribe/OnUnsubscribe only) &middot; go-sse/fanout.go:67 (<code>WithOnDrop</code> fires per subscriber whose buffer is full)
+            </div>
+            <p>
+              The realtime docs correctly state that bursts larger than the subscriber buffer (64) drop
+              events and clients heal via Last-Event-ID reconnect. But the hub never counts the drops:
+              go-sse's <code>WithOnDrop</code> hook exists precisely for this and appkit never sets it,
+              so operators cannot see drop rates (no log line, no metric) even though the recovery
+              contract depends on clients noticing gaps.
+            </p>
+            <pre><code>b, _ := sse.NewBroadcaster[sse.Event](store,
+    sse.WithBufferSize[sse.Event](opts.BufferSize),
+    sse.WithOnDrop[sse.Event](<span class="tok-keyword">func</span>(evt sse.Event) {
+        opts.Logger.Warn(<span class="tok-string">"sse subscriber buffer overflow"</span>, <span class="tok-string">"event"</span>, evt.ID.Get())
+        atomic.AddInt64(&amp;dropped, <span class="tok-number">1</span>)  <span class="tok-comment">// surface in Hub.Health()</span>
+    }),
+)</code></pre>
+          </div>
+
+          <!-- Finding 8 -->
+          <div class="issue issue-nice" id="statusrecorder">
+            <span class="severity severity-nice">Duplication &middot; Low impact</span>
+            <h3>errorpages hand-rolls a ResponseRecorder that httputil already ships</h3>
+            <div class="where">
+              errorpages/errorpages.go:206-215 (<code>statusRecorder</code>) &middot; cf. flightrecorder/middleware.go:83 (<code>httputil.NewResponseRecorder</code>)
+            </div>
+            <p>
+              errorpages carries a local status-capturing <code>ResponseWriter</code> wrapper while
+              flightrecorder (same repo) uses <code>httputil.NewResponseRecorder</code> for the identical
+              job. errorpages deliberately avoids an httputil dependency today, so this is a tradeoff, not
+              a bug &mdash; but if the errorpages module ever takes httputil (it already pulls it
+              transitively at v1.1.1 via templ-components' family), the wrapper should go.
+            </p>
+          </div>
+
+          <!-- Finding 9 -->
+          <div class="issue issue-nice" id="transitive">
+            <span class="severity severity-nice">Not applicable &middot; verified deliberate</span>
+            <h3>Transitive-only libraries are correctly not force-adopted</h3>
+            <div class="where">
+              go-branded-id v0.5.1 (via go-sse; realtime uses sse.EventID, the branded type) &middot; go-etag v0.3.1 (via httputil) &middot; go-datastar v0.5.0 (via dashboard; realtime duck-types PatchLike, hub.go:109-114)
+            </div>
+            <p>
+              None of these are underused &mdash; they are intentionally indirect, and the duck-typing
+              that keeps go-datastar out of realtime is a documented design decision with tests.
+              One reach item for later: an appkit conditional-GET story (go-etag + go-error-family's
+              new 304/412/428 classification guidance from v0.10.1) is unexplored territory, relevant
+              only once a consumer asks for HTTP caching semantics.
+            </p>
           </div>
         </section>
 
-        <!-- Appendix -->
-        <section id="appendix">
-          <h2><span class="num">03</span>Appendix</h2>
+        <!-- Per-library scores -->
+        <section id="scores">
+          <h2><span class="num">02</span>Per-library scores</h2>
           <p>
-            Methodology, links to related files, or a priority matrix can live
-            here.
+            Adoption is scored on the used-vs-offered capability ratio, weighted by operational impact.
+            "Fully leveraged" clusters count where the project uses the library's strongest available
+            path.
           </p>
           <table class="compare">
             <thead>
               <tr>
-                <th>Issue</th>
-                <th>Severity</th>
-                <th>Effort</th>
-                <th>Status</th>
+                <th>Library</th>
+                <th>Pin &rarr; Latest</th>
+                <th>Score</th>
+                <th>Verdict</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Issue one</td>
-                <td class="no">Critical</td>
-                <td>Low</td>
-                <td class="no">Open</td>
+                <td>go-cqrs-lite (12+ subpackages)</td>
+                <td class="yes">all latest</td>
+                <td class="yes">80</td>
+                <td>Wrapper exposes the right surface; encryption/signing/idempotency/scheduling deliberately deferred</td>
               </tr>
               <tr>
-                <td>Issue two</td>
-                <td class="no">Important</td>
-                <td>Medium</td>
-                <td class="yes">In progress</td>
+                <td>go-sse (+ssetest)</td>
+                <td class="yes">v0.6.0 = latest</td>
+                <td class="yes">85</td>
+                <td>Deepest integration in the repo; only drop-visibility missing</td>
+              </tr>
+              <tr>
+                <td>templ-components/errorpage</td>
+                <td class="yes">v1.17.0 = latest</td>
+                <td class="yes">75</td>
+                <td>Full ErrorHandler path incl. cause chains; alert/detail components left to consumers</td>
+              </tr>
+              <tr>
+                <td>go-health</td>
+                <td class="yes">v0.1.3 = latest</td>
+                <td>70</td>
+                <td>Core probe wired; payload richness + aggregate unused</td>
+              </tr>
+              <tr>
+                <td>go-flightrecorder</td>
+                <td class="yes">v0.2.0 = latest</td>
+                <td>65</td>
+                <td>Trigger model used well; ops options (compression, snapshots, metrics) unused</td>
+              </tr>
+              <tr>
+                <td>go-error-family</td>
+                <td>v0.10.0 &rarr; v0.10.1</td>
+                <td>55</td>
+                <td>3 of 6 families; test-assertion package unused; a few bare sentinels</td>
+              </tr>
+              <tr>
+                <td>httputil</td>
+                <td class="yes">v1.1.1 = latest</td>
+                <td class="no">45</td>
+                <td>Default stack + health + ResponseRecorder yes; Server, Metrics, Compression, CORS, CSRF, RateLimiter, Nonce/CSP, ServerTiming untouched</td>
+              </tr>
+              <tr>
+                <td>go-health-dashboard</td>
+                <td class="no">v0.7.0 &rarr; v0.8.1</td>
+                <td class="no">40</td>
+                <td>Minimal wiring; hardening + operator-trust features unused</td>
+              </tr>
+              <tr>
+                <td>go-branded-id / go-etag / go-datastar</td>
+                <td class="yes">transitive (current)</td>
+                <td>&mdash;</td>
+                <td>Not applicable by design (verified deliberate)</td>
               </tr>
             </tbody>
           </table>
         </section>
 
+        <!-- Version currency -->
+        <section id="versions">
+          <h2><span class="num">03</span>Version currency</h2>
+          <p>
+            Latest tags verified against local checkouts (2026-09-15/16 HEAD) and go.mod pins. httputil's
+            unreleased master already contains the <code>r.Pattern</code> propagation fix that the otel
+            module's span-name finding depends on.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Library</th>
+                <th>Pinned</th>
+                <th>Latest tag</th>
+                <th>Gap contents</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>go-health-dashboard</td>
+                <td class="no">v0.7.0</td>
+                <td class="no">v0.8.1</td>
+                <td>v0.8.0: failure-evidence truth strip, WCAG AA colors, nonce-carried bootstrap, templ-components v1.17.0</td>
+              </tr>
+              <tr>
+                <td>go-error-family</td>
+                <td>v0.10.0</td>
+                <td>v0.10.1</td>
+                <td>Docs/CI only; conditional-request classification guidance (304/412/428/416)</td>
+              </tr>
+              <tr>
+                <td>go-health (in flightrecorderhealth)</td>
+                <td class="no">v0.1.1</td>
+                <td>v0.1.3</td>
+                <td>health module already pins v0.1.3; flightrecorderhealth's compile-only assertion pin is stale</td>
+              </tr>
+              <tr>
+                <td>httputil</td>
+                <td class="yes">v1.1.1</td>
+                <td class="yes">v1.1.1 (master &rarr; v1.2)</td>
+                <td>Unreleased: <code>r.Pattern</code> propagation (fixes otel span names through OuterMiddlewares, commit ff44c5f); Compression absent-encoding default change; CSRF/CORS hardening</td>
+              </tr>
+              <tr>
+                <td>go-sse, go-flightrecorder, go-health (health module), templ-components, go-branded-id, all cqrs-lite subpackages</td>
+                <td class="yes">current</td>
+                <td class="yes">= pin</td>
+                <td class="yes">Nothing missed</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Top opportunities -->
+        <section id="proposal">
+          <h2><span class="num">04</span>Top opportunities (Pareto-ranked)</h2>
+          <p>
+            Impact &times; ease, descending. Items 1-4 deliver most of the value.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Opportunity</th>
+                <th>Impact</th>
+                <th>Ease</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Bump go-health-dashboard v0.7.0 &rarr; v0.8.1 (truth strip, WCAG AA, nonce bootstrap)</td>
+                <td class="yes">4</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">20</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Compose httputil.Server into core Service (unlocks TLS, kills stale justification)</td>
+                <td class="yes">5</td>
+                <td>3</td>
+                <td><span class="highlight">15</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Drain via <code>probe.MarkShuttingDown()</code>; keep <code>Shutdown</code> for real shutdown</td>
+                <td class="yes">4</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">20</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Recorder preset: WithSnapshotDir/MaxSnapshots/Compression + WithMetrics wired to otel</td>
+                <td class="yes">4</td>
+                <td>3</td>
+                <td><span class="highlight">12</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Wire go-health payload options (WithVersion/BootTime/InstanceID) from buildinfo &mdash; closes battery F5</td>
+                <td>3</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">12</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Expose WithOnDrop drop counters in realtime Hub (log line + Hub.Health field)</td>
+                <td>3</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">12</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>Dashboard hardening passthrough: WithShutdownDrain, WithNonce+RecommendedCSP, WithRateLimit</td>
+                <td class="yes">4</td>
+                <td>2</td>
+                <td><span class="highlight">8</span></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>Bump go-error-family to v0.10.1; adopt errorfamilytest assertions in tests</td>
+                <td>2</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">10</span></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>Classify the 3 bare-sentinel error sites (flightrecorder status sentinel, otel setup, cqrs drain)</td>
+                <td>2</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">8</span></td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>Bump flightrecorderhealth's go-health assertion pin v0.1.1 &rarr; v0.1.3</td>
+                <td>1</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">5</span></td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>When httputil v1.2 tags: bump, re-verify otel span names through OuterMiddlewares, close TODO P2</td>
+                <td class="yes">4</td>
+                <td>2</td>
+                <td><span class="highlight">8</span></td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>Upstream ask: dedup-aware <code>sse.ReplayFiltered</code> variant (appkit's handler.go re-implements it for replay/live dedup)</td>
+                <td>3</td>
+                <td>2</td>
+                <td><span class="highlight">6</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-teal">
+            <strong>Target state</strong>
+            After items 1-6 the audit score moves from 64 to roughly 80/100: current pins everywhere, a
+            server lifecycle owned by the family instead of duplicated, dashboards that operators can
+            trust, and observability hooks (drops, captures, payload richness) that the libraries
+            already ship and go-appkit simply switches on.
+          </div>
+        </section>
+
+        <!-- Appendix -->
+        <section id="appendix">
+          <h2><span class="num">05</span>Methodology &amp; evidence</h2>
+          <p>
+            Phase 1 cataloged the touched API surface with exhaustive greps over all 53 Go files (27
+            non-test, 26 test) across the 9 modules. Phase 2 rebuilt each library's full exported
+            capability surface from its local checkout (symbol-level extraction of every exported
+            <code>func</code>/<code>type</code>/<code>const</code>/<code>var</code>, plus CHANGELOGs and
+            targeted source reads). Phase 3 graded every capability cluster; Phase 4 scored and ranked.
+          </p>
+          <p>
+            Claims verified on 2026-09-16 against: go.mod pins in all 9 modules; library checkouts at
+            ~/projects/{httputil, go-error-family, go-sse, go-flightrecorder, go-health,
+            go-health-dashboard, go-cqrs-lite, templ-components, go-branded-id, go-etag, go-datastar};
+            httputil server.go (v1.1.x listener API), go-sse replay.go:81-126 (no live-dedup) and
+            fanout.go:67 (WithOnDrop), go-health probe.go:552-558 (MarkShuttingDown),
+            templ-components errorpage/handler.go:52-64 (cause chain auto-fill), and the
+            go-health-dashboard v0.8.0 changelog. AGENTS.md stale facts found during this audit were
+            corrected in place (dependency version tables, the httputil.Server justification, and the
+            otel Pattern-fix status: fix merged upstream, unreleased as of today).
+          </p>
+        </section>
+
         <!-- Footer -->
         <footer class="footer">
           <p>
-            Generated YYYY-MM-DD &middot; Reviewed against version X.Y.Z
-            &middot; All claims verified against source code where noted
+            Generated 2026-09-16 &middot; Evidence verified against local library checkouts and go.mod
+            pins of go-appkit &middot; Every finding cites code; every capability claim cites library source
           </p>
         </footer>
       </main>
     </div>
-
     <!-- Progressive-enhancement scrollspy. Nav still works without JS via anchor links. -->
     <script>
       (function () {
