@@ -32,11 +32,11 @@
 
 ~~- The **next cqrs release wave** (version decision, tag, push-gate process for the breaking change).~~ done at cqrs/v0.5.0 (2026-09-07, system-based engine)
 
-- **EventConfig opt-ins** for encryption/v4, signing/v4, idempotency/sqlstore, scheduling (routed to TODO_LIST).
-- **Installed cqrs-lint 4.8.1 upgrade** (`~/go/bin/cqrs-lint` still 4.6.0).
-- **Cross-module verification wave** — I verified cqrs + docs-mod only; a parallel session's health-module work (noticed in TODO_LIST/git log, not mine) makes a full 9-module build+test sweep due.
+- ~~- **EventConfig opt-ins** for encryption/v4, signing/v4, idempotency/sqlstore, scheduling (routed to TODO_LIST).~~ done (owned by TODO_LIST P3 cqrs opt-ins — demand-gated)
+- ~~- **Installed cqrs-lint 4.8.1 upgrade** (`~/go/bin/cqrs-lint` still 4.6.0).~~ done (installed 2026-09-04, built from local source — 18-57 a14)
+- ~~- **Cross-module verification wave** — I verified cqrs + docs-mod only; a parallel session's health-module work (noticed in TODO_LIST/git log, not mine) makes a full 9-module build+test sweep due.~~ done (10/10-module sweep 2026-09-04, 18-57 a19; re-verified 2026-09-16)
   ~~- **AGENTS.md Release State refresh** (push happened; breaking change untagged) — held off because a parallel session is editing the same doc.~~ done — Release State refreshed multiple times since; current as of 2026-09-16
-- Negative-path trigger test (trigger returns `false` → no capture).
+- ~~- Negative-path trigger test (trigger returns `false` → no capture).~~ done (18-57 a12 — gated capture skips, deterministic after WorkerFailed)
 
 ## d) TOTALLY FUCKED UP
 
@@ -60,56 +60,56 @@
 
 | #  | Task                                                                                                     | Impact | Effort |
 | -- | -------------------------------------------------------------------------------------------------------- | ------ | ------ |
-| 1  | Decide next cqrs version (breaking → v0.4.0), cut + tag                                                  | 5      | 2      |
-| 2  | Refresh AGENTS.md Release State (wave pushed 2026-09-04; breaking change untagged)                       | 4      | 1      |
-| 3  | Annotate TODO_LIST P1 (push gate resolved; tags on origin) — docs-health ANNOTATE, don't rewrite         | 4      | 1      |
-| 4  | Post-push verification per old P1 checklist: fresh-consumer `go get` + pkg.go.dev for cqrs v0.3.0        | 4      | 2      |
-| 5  | Full 9-module build+test+lint sweep (covers parallel health session's work too)                          | 4      | 2      |
-| 6  | Install cqrs-lint 4.8.1 to `~/go/bin`                                                                    | 2      | 1      |
-| 7  | Negative-path test: trigger returns false → no snapshot                                                  | 3      | 1      |
-| 8  | Document-by-test: HostOptions cannot override derived wiring (Logger/Metrics/FR precedence)              | 3      | 1      |
-| 9  | AGENTS.md: refresh "Six of eight modules require jsonv2" → current 9-module truth                        | 2      | 1      |
-| 10 | Add `cqrs-lint .` (not `./...`) to README gotcha list                                                    | 1      | 1      |
-| 11 | Review `.cqrs-lint.json` pinned feature profile against 4.8.1 schema                                     | 2      | 1      |
-| 12 | Update docs-health trail: annotate the 2026-08-16 comparison doc where the flight-recorder story changed | 2      | 2      |
-| 13 | cqrs/example: shared `fr.Recorder` across appkit middleware + projections                                | 3      | 2      |
-| 14 | Bench `WithCheckpointEvery` 1 vs 100 into README                                                         | 2      | 2      |
-| 15 | Document `ErrWorkerFailed` sentinel for dashboards/alerts                                                | 2      | 1      |
-| 16 | Decide: expose `Status()` passthrough on EventService or keep `Host()` only (one-line ADR in AGENTS)     | 2      | 1      |
-| 17 | `ForceStop` policy note (when graceful drain is not enough)                                              | 1      | 1      |
-| 18 | Encryption/v4 EventConfig opt-in design sketch (when a consumer appears)                                 | 3      | 3      |
-| 19 | Signing/v4 opt-in (same trigger)                                                                         | 3      | 3      |
-| 20 | Idempotency/sqlstore opt-in (same trigger)                                                               | 2      | 2      |
-| 21 | Scheduling `Timer.Actor` audit-trail doc in cookbook                                                     | 1      | 1      |
-| 22 | Prometheus bridge pairing snippet (cqrs.NewOTelProjectionMetrics + prometheus.Setup)                     | 2      | 1      |
-| 23 | DLQ admin dashboard example (Count/ListPaged/PurgeBefore assertions)                                     | 2      | 2      |
-| 24 | ReplayResult contract example: caller must Delete/Purge replayed entries                                 | 2      | 1      |
-| 25 | LagPerProjection → alert-threshold example in README                                                     | 1      | 1      |
-| 26 | CBOR→JSON transcoding helper decision for SSE raw-payload consumers                                      | 3      | 3      |
-| 27 | Per-projection readiness helper (`CheckProjectionReadiness(name)`) — demand-gated                        | 2      | 2      |
-| 28 | Staleness budget defaults guidance (what number to pick)                                                 | 1      | 1      |
-| 29 | Metrics cardinality note for high-projection-count apps                                                  | 1      | 1      |
-| 30 | Worker lifecycle log-noise filtering guidance (log levels)                                               | 1      | 1      |
-| 31 | SQLite WAL checkpoint tuning + busy_timeout doc under contention                                         | 2      | 2      |
-| 32 | Multi-recorder coordination ADR (HTTP + projections, one process)                                        | 2      | 2      |
-| 33 | SnapshotStore/ReadModels accessor examples (Bundle-reachable, undocumented)                              | 2      | 2      |
-| 34 | BackwardsSource/journal replay tooling example                                                           | 1      | 2      |
-| 35 | DLQ dead-letter age alerting recipe                                                                      | 1      | 1      |
-| 36 | `.golangci.yml` refresh: exhaustruct → exhaustruct_v5 migration (deprecation warning seen in-session)    | 2      | 2      |
-| 37 | go.mod toolchain-line consistency check across all 9 modules                                             | 2      | 1      |
-| 38 | Verify flightrecorderhealth against go-flightrecorder v0.2.0 after the wave push                         | 2      | 1      |
-| 39 | Upstream (user-gated, verify-before-filing): document synchronous-Snapshot semantics for test pollers    | 1      | 2      |
-| 40 | logger_test chanMutex → stdlib consideration (simplification review)                                     | 1      | 1      |
-| 41 | Decision: single source of truth for release state (AGENTS vs TODO_LIST)                                 | 2      | 1      |
-| 42 | CI-less cross-module verification script (no flake.nix here; plain go.work sweep)                        | 2      | 2      |
-| 43 | scenario/v4 drift guard: re-verify README cookbook after next cqrs-lite release                          | 1      | 1      |
-| 44 | ERROR-pages + cqrs composition example (family-aware failures)                                           | 1      | 2      |
-| 45 | Query-journal example (Bundle-reachable, no docs)                                                        | 1      | 2      |
-| 46 | Dependabot-style dep sweep cadence decision (cqrs-lite moves fast)                                       | 2      | 1      |
-| 47 | `DeadLetterStoreAdmin` interface assertion example for wrappers                                          | 1      | 1      |
-| 48 | Document FlightRecorderTrigger log-noise tradeoff (sync on worker goroutine)                             | 1      | 1      |
-| 49 | Add module-level example_test.go for EventConfig (godoc-checked quick start)                             | 2      | 2      |
-| 50 | Re-run go-cqrs-lite scorecard after each wrapper feature to track adoption trend                         | 1      | 1      |
+| ~~1~~  | ~~Decide next cqrs version (breaking → v0.4.0), cut + tag~~ done — cqrs/v0.4.0 (2026-09-04); superseded by cqrs/v0.5.0 (2026-09-07, system engine) | ~~5~~ | ~~2~~ |
+| ~~2~~  | ~~Refresh AGENTS.md Release State (wave pushed 2026-09-04; breaking change untagged)~~ done — AGENTS Release State current through cqrs v0.5.0 (re-verified 2026-09-16) | ~~4~~ | ~~1~~ |
+| ~~3~~  | ~~Annotate TODO_LIST P1 (push gate resolved; tags on origin) — docs-health ANNOTATE, don't rewrite~~ done — TODO_LIST rebuilt 2026-09-16 (docs-health passes) | ~~4~~ | ~~1~~ |
+| ~~4~~  | ~~Post-push verification per old P1 checklist: fresh-consumer `go get` + pkg.go.dev for cqrs v0.3.0~~ done — fresh-consumer proxy smoke 2026-09-04 (18-57 a2) | ~~4~~ | ~~2~~ |
+| ~~5~~  | ~~Full 9-module build+test+lint sweep (covers parallel health session's work too)~~ done — 10/10-module sweep 2026-09-04 (18-57 a19); re-verified 2026-09-16 | ~~4~~ | ~~2~~ |
+| ~~6~~  | ~~Install cqrs-lint 4.8.1 to `~/go/bin`~~ done — 2026-09-04 (18-57 a14, built from local source) | ~~2~~ | ~~1~~ |
+| ~~7~~  | ~~Negative-path test: trigger returns false → no snapshot~~ done — 18-57 a12 (gated capture skips, deterministic after WorkerFailed) | ~~3~~ | ~~1~~ |
+| ~~8~~  | ~~Document-by-test: HostOptions cannot override derived wiring (Logger/Metrics/FR precedence)~~ done — 18-57 a12 (unstarted second recorder as detector) | ~~3~~ | ~~1~~ |
+| ~~9~~  | ~~AGENTS.md: refresh "Six of eight modules require jsonv2" → current 9-module truth~~ done — GOEXPERIMENT lore corrected 2026-09-04 (18-57 a7) | ~~2~~ | ~~1~~ |
+| ~~10~~ | ~~Add `cqrs-lint .` (not `./...`) to README gotcha list~~ done — cqrs-lint arg form documented (18-57 a14) | ~~1~~ | ~~1~~ |
+| ~~11~~ | ~~Review `.cqrs-lint.json` pinned feature profile against 4.8.1 schema~~ done — cqrs-lint runs clean on 4.8.1 (2026-09-04); profile not individually re-audited, acceptable as-is | ~~2~~ | ~~1~~ |
+| ~~12~~ | ~~Update docs-health trail: annotate the 2026-08-16 comparison doc where the flight-recorder story changed~~ **Won't implement — superseded — the flight-recorder story lives in AGENTS/CHANGELOG; the comparison doc stays point-in-time.** | ~~2~~ | ~~2~~ |
+| ~~13~~ | ~~cqrs/example: shared `fr.Recorder` across appkit middleware + projections~~ done — ROADMAP raw ideas (cqrs ops/recipes backlog) | ~~3~~ | ~~2~~ |
+| ~~14~~ | ~~Bench `WithCheckpointEvery` 1 vs 100 into README~~ done — ROADMAP raw ideas (cqrs ops/recipes backlog) | ~~2~~ | ~~2~~ |
+| ~~15~~ | ~~Document `ErrWorkerFailed` sentinel for dashboards/alerts~~ **Won't implement — not scheduled — sentinel visible in package docs.** | ~~2~~ | ~~1~~ |
+| ~~16~~ | ~~Decide: expose `Status()` passthrough on EventService or keep `Host()` only (one-line ADR in AGENTS)~~ **Won't implement — decision not made — Host() accessors suffice; no consumer asked.** | ~~2~~ | ~~1~~ |
+| ~~17~~ | ~~`ForceStop` policy note (when graceful drain is not enough)~~ **Won't implement — not scheduled.** | ~~1~~ | ~~1~~ |
+| ~~18~~ | ~~Encryption/v4 EventConfig opt-in design sketch (when a consumer appears)~~ done — owned by TODO_LIST P3 cqrs opt-ins (demand-gated) | ~~3~~ | ~~3~~ |
+| ~~19~~ | ~~Signing/v4 opt-in (same trigger)~~ done — owned by TODO_LIST P3 cqrs opt-ins (demand-gated) | ~~3~~ | ~~3~~ |
+| ~~20~~ | ~~Idempotency/sqlstore opt-in (same trigger)~~ done — owned by TODO_LIST P3 cqrs opt-ins (demand-gated) | ~~2~~ | ~~2~~ |
+| ~~21~~ | ~~Scheduling `Timer.Actor` audit-trail doc in cookbook~~ **Won't implement — not scheduled (scheduling opt-in itself is demand-gated).** | ~~1~~ | ~~1~~ |
+| ~~22~~ | ~~Prometheus bridge pairing snippet (cqrs.NewOTelProjectionMetrics + prometheus.Setup)~~ **Won't implement — demand-gated — NewOTelProjectionMetrics documented; pairing snippet on consumer ask.** | ~~2~~ | ~~1~~ |
+| ~~23~~ | ~~DLQ admin dashboard example (Count/ListPaged/PurgeBefore assertions)~~ done — ROADMAP raw ideas (DLQ admin/age-alerting recipes) | ~~2~~ | ~~2~~ |
+| ~~24~~ | ~~ReplayResult contract example: caller must Delete/Purge replayed entries~~ done — ExampleEventService_ReplayDeadLetters (cqrs/example_test.go) | ~~2~~ | ~~1~~ |
+| ~~25~~ | ~~LagPerProjection → alert-threshold example in README~~ **Won't implement — not scheduled.** | ~~1~~ | ~~1~~ |
+| ~~26~~ | ~~CBOR→JSON transcoding helper decision for SSE raw-payload consumers~~ done — ROADMAP raw ideas (CBOR→JSON transcode helper decision) | ~~3~~ | ~~3~~ |
+| ~~27~~ | ~~Per-projection readiness helper (`CheckProjectionReadiness(name)`) — demand-gated~~ **Won't implement — demand-gated — no consumer.** | ~~2~~ | ~~2~~ |
+| ~~28~~ | ~~Staleness budget defaults guidance (what number to pick)~~ **Won't implement — not scheduled.** | ~~1~~ | ~~1~~ |
+| ~~29~~ | ~~Metrics cardinality note for high-projection-count apps~~ **Won't implement — not scheduled.** | ~~1~~ | ~~1~~ |
+| ~~30~~ | ~~Worker lifecycle log-noise filtering guidance (log levels)~~ **Won't implement — not scheduled.** | ~~1~~ | ~~1~~ |
+| ~~31~~ | ~~SQLite WAL checkpoint tuning + busy_timeout doc under contention~~ done — README documents WAL + busy_timeout defaults (v0.5.0 storage posture) | ~~2~~ | ~~2~~ |
+| ~~32~~ | ~~Multi-recorder coordination ADR (HTTP + projections, one process)~~ done — ROADMAP raw ideas (multi-recorder coordination ADR) | ~~2~~ | ~~2~~ |
+| ~~33~~ | ~~SnapshotStore/ReadModels accessor examples (Bundle-reachable, undocumented)~~ done — ROADMAP raw ideas (SnapshotStore/ReadModels accessor examples) | ~~2~~ | ~~2~~ |
+| ~~34~~ | ~~BackwardsSource/journal replay tooling example~~ **Won't implement — not scheduled.** | ~~1~~ | ~~2~~ |
+| ~~35~~ | ~~DLQ dead-letter age alerting recipe~~ done — ROADMAP raw ideas (DLQ admin/age-alerting recipes) | ~~1~~ | ~~1~~ |
+| ~~36~~ | ~~`.golangci.yml` refresh: exhaustruct → exhaustruct_v5 migration (deprecation warning seen in-session)~~ done — 2026-09-04 — all 10 configs migrated (18-57 a10) | ~~2~~ | ~~2~~ |
+| ~~37~~ | ~~go.mod toolchain-line consistency check across all 9 modules~~ done — all modules at go 1.26.7 (verified 2026-09-16) | ~~2~~ | ~~1~~ |
+| ~~38~~ | ~~Verify flightrecorderhealth against go-flightrecorder v0.2.0 after the wave push~~ done — flightrecorderhealth pins go-flightrecorder v0.2.0; contract tests green (re-verified 2026-09-16) | ~~2~~ | ~~1~~ |
+| ~~39~~ | ~~Upstream (user-gated, verify-before-filing): document synchronous-Snapshot semantics for test pollers~~ **Won't implement — user-gated upstream; not filed.** | ~~1~~ | ~~2~~ |
+| ~~40~~ | ~~logger_test chanMutex → stdlib consideration (simplification review)~~ **Won't implement — not scheduled (cosmetic).** | ~~1~~ | ~~1~~ |
+| ~~41~~ | ~~Decision: single source of truth for release state (AGENTS vs TODO_LIST)~~ done — routed to TODO_LIST P3 (single-owner decision for release-state facts) | ~~2~~ | ~~1~~ |
+| ~~42~~ | ~~CI-less cross-module verification script (no flake.nix here; plain go.work sweep)~~ done — superseded — CI matrix automates per-module verification | ~~2~~ | ~~2~~ |
+| ~~43~~ | ~~scenario/v4 drift guard: re-verify README cookbook after next cqrs-lite release~~ done — AGENTS Adoption & Drift Rituals | ~~1~~ | ~~1~~ |
+| ~~44~~ | ~~ERROR-pages + cqrs composition example (family-aware failures)~~ **Won't implement — not scheduled.** | ~~1~~ | ~~2~~ |
+| ~~45~~ | ~~Query-journal example (Bundle-reachable, no docs)~~ **Won't implement — not scheduled.** | ~~1~~ | ~~2~~ |
+| ~~46~~ | ~~Dependabot-style dep sweep cadence decision (cqrs-lite moves fast)~~ done — dependabot.yml weekly grouped gomod updates per module | ~~2~~ | ~~1~~ |
+| ~~47~~ | ~~`DeadLetterStoreAdmin` interface assertion example for wrappers~~ **Won't implement — not scheduled.** | ~~1~~ | ~~1~~ |
+| ~~48~~ | ~~Document FlightRecorderTrigger log-noise tradeoff (sync on worker goroutine)~~ done — documented — AGENTS notes the synchronous snapshot on the worker goroutine (race-hardened tests pin it) | ~~1~~ | ~~1~~ |
+| ~~49~~ | ~~Add module-level example_test.go for EventConfig (godoc-checked quick start)~~ done — ExampleNewEventService + ExampleEventService_ReplayDeadLetters (cqrs/example_test.go) | ~~2~~ | ~~2~~ |
+| ~~50~~ | ~~Re-run go-cqrs-lite scorecard after each wrapper feature to track adoption trend~~ done — AGENTS Adoption & Drift Rituals | ~~1~~ | ~~1~~ |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
