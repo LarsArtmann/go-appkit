@@ -7,7 +7,6 @@ import (
 	"io"
 
 	errorfamily "github.com/larsartmann/go-error-family"
-
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
