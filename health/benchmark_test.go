@@ -7,10 +7,12 @@ import (
 	"github.com/larsartmann/go-appkit/health"
 )
 
-// benchmarkNewProbe measures the injector-free probe's full batch cost at
+// probeBatchBench measures the injector-free probe's full batch cost at
 // N=1/5/20 checks (the frh-module house bar; the parity TODO's numbers).
 // The batch is the unit of cost — every check runs concurrently per batch.
 func probeBatchBench(b *testing.B, n int) {
+	b.Helper()
+
 	checks := make(map[string]health.CheckFunc, n)
 	for i := range n {
 		checks[string(rune('a'+i))] = func(context.Context) error { return nil }
