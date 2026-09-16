@@ -107,6 +107,16 @@ All config is via `ServiceConfig`. Zero-value fields get production defaults:
 | `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                     |
 | `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`)     |
 
+### Log volume
+
+The default level is INFO, and the request-completion line is the only
+per-request emission. Measured per-request cost (2026-09-04 benchmark,
+output discarded): bare handler ~17µs; log suppressed at WARN ~18µs
+(+0.8µs); emitting at INFO ~47µs (+30µs — the charmbracelet line
+formatting dominates, 162 allocs/emission). High-throughput services
+should set `LogLevel: LogLevelWarn`; the middleware overhead itself is
+negligible either way.
+
 ## Middleware
 
 The default stack is opinionated but replaceable:
