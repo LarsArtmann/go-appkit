@@ -3,7 +3,6 @@ package appkit
 import (
 	"context"
 	"errors"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -72,29 +71,6 @@ func newMockShutdown(called chan struct{}) func(context.Context) error {
 
 		return nil
 	}
-}
-
-func expectError(t *testing.T, err error, msg string) {
-	t.Helper()
-
-	if err == nil {
-		t.Fatal(msg)
-	}
-}
-
-func freePort(t *testing.T) string {
-	t.Helper()
-
-	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "localhost:0")
-	if err != nil {
-		t.Fatalf("failed to get free port: %v", err)
-	}
-
-	addr := listener.Addr().String()
-
-	_ = listener.Close()
-
-	return addr
 }
 
 func waitForRunning(t *testing.T, svc *Service) {
