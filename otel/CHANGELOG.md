@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Documented
+
+- README known-issue section: pattern-named spans (`GET /users/{id}`) and
+  `http.route` metrics are LOST through the documented `OuterMiddlewares`
+  wiring (verified 2026-09-15) — otelhttp reads `r.Pattern` on its own request
+  fork, and the forking middlewares between otel and the mux shadow the
+  pattern. Fixed upstream in httputil master (2026-09-16); the README block
+  is removed once the release train ships it. Benchmark table re-baselined
+  (n=10, mean±sd) with the dated methodology.
+
 ## [0.1.0] - 2026-09-04
 
 ### Added

@@ -4,7 +4,10 @@
 
 ### Added
 
-- Nothing yet.
+- README.md: module overview, quick start, options table, shutdown ordering,
+  journal-backed replay via cqrs-htmx `transport.JournalSSEStore`, and known
+  limitations (burst drops healed by Last-Event-ID reconnect, nginx
+  `X-Accel-Buffering` caveat).
 
 ### Fixed
 
