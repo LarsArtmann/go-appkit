@@ -68,43 +68,43 @@ sub-module wraps catalog/docserver for AsyncAPI/OpenAPI/D2 auto-documentation.
 
 ## b) PARTIALLY DONE
 
-| Item                                  | What works                                                                    | What's missing                                                                                                                                        |
-| ------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-~~| **CQRS E2E**                          | EventService creates, bundle accessors work, DB pings, shutdown is idempotent | No actual command dispatch → event stored → projection read cycle tested. No integration with Service.Run() shutdown coordination.                    |~~ resolved
-~~| **Docs E2E**                          | Routes serve JSON, builder returns non-nil                                    | No actual AddCommand/AddEvent → schema verification tested. No integration with Service.Mux.                                                          |~~ resolved
-~~| **Service.Run integration with CQRS** | Service.Run handles its own graceful drain/shutdown                           | EventService.Shutdown is NOT called by Service.Run(). Consumer must wire it manually. This may be intentional (loose coupling) but it's undocumented. |~~ resolved
-~~| **Error-family in CQRS**              | EventService uses NewRejection and WrapInfrastructuref for errors             | No RegisterClassifier for third-party errors. No LogError in shutdown paths.                                                                          |~~ resolved
+| Item | What works                            | What's missing                                                                |
+| ---- | ------------------------------------- | ----------------------------------------------------------------------------- |
+| ~~   | **CQRS E2E**                          | EventService creates, bundle accessors work, DB pings, shutdown is idempotent |
+| ~~   | **Docs E2E**                          | Routes serve JSON, builder returns non-nil                                    |
+| ~~   | **Service.Run integration with CQRS** | Service.Run handles its own graceful drain/shutdown                           |
+| ~~   | **Error-family in CQRS**              | EventService uses NewRejection and WrapInfrastructuref for errors             |
 
 ---
 
 ## c) NOT STARTED
 
-| Item                               | Impact   | Notes                                                                                                                                               |
-| ---------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-~~| **Tag v1.0.0**                     | Critical | Core module is ready. No git tag exists.                                                                                                            |~~ NOT-DO — superseded by 0.x waves (core v0.2.0-v0.4.0 shipped)
-~~| **Tag cqrs v0.1.0**                | Medium   | CQRS module is ready. No git tag exists.                                                                                                            |~~ done at cqrs/v0.2.0
-~~| **Tag docs v0.1.0**                | Low      | Docs module is ready. No git tag exists.                                                                                                            |~~ done at docs/v0.2.0
-~~| **CQRS README section**            | Medium   | No usage documentation for the cqrs sub-module                                                                                                      |~~ done 2026-08-15 (cqrs/README.md)
-~~| **Docs README section**            | Low      | No usage documentation for the docs sub-module                                                                                                      |~~ done 2026-08-15
-~~| **docs-mod → docs rename**         | High     | Directory is `docs-mod/` but module path is `github.com/larsartmann/go-appkit/docs`. This is confusing. The `docs/` directory holds Markdown files. |~~ NOT-DO — kept; mismatch is the GHOST RELEASE (TODO_LIST P1)
-~~| **CQRS + Service.Run integration** | Medium   | No `ServiceConfig.CQRS` field or `Service.UseCQRS()` method                                                                                         |~~ NOT-DO — superseded by ShutdownHooks composition (v0.4.0)
-~~| **flake.nix**                      | Low      | AGENTS.md says "no flake.nix, use standard Go tooling"                                                                                              |~~ Won't implement — plain Go tooling standard
-~~| **CHANGELOG.md**                   | Low      | No changelog for the rewrite                                                                                                                        |~~ done at v0.2.0
-~~| **golangci-lint for sub-modules**  | Medium   | depguard config doesn't cover cqrs/docs sub-module imports                                                                                          |~~ done 2026-08-16/17 (per-module configs)
+| Item | Impact                             | Notes    |
+| ---- | ---------------------------------- | -------- |
+| ~~   | **Tag v1.0.0**                     | Critical |
+| ~~   | **Tag cqrs v0.1.0**                | Medium   |
+| ~~   | **Tag docs v0.1.0**                | Low      |
+| ~~   | **CQRS README section**            | Medium   |
+| ~~   | **Docs README section**            | Low      |
+| ~~   | **docs-mod → docs rename**         | High     |
+| ~~   | **CQRS + Service.Run integration** | Medium   |
+| ~~   | **flake.nix**                      | Low      |
+| ~~   | **CHANGELOG.md**                   | Low      |
+| ~~   | **golangci-lint for sub-modules**  | Medium   |
 
 ---
 
 ## d) TOTALLY FUCKED UP / BROKEN / RISKY
 
-| Issue                                                      | Severity  | Detail                                                                                                                                                                                                                                                                                                                                                    |
-| ---------------------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-~~| **`docs-mod/` directory name vs `docs/` module path**      | **HIGH**  | The module is `github.com/larsartmann/go-appkit/docs` but the directory is `docs-mod/`. Go module tooling resolves it via go.work replace directive, but ANY external consumer importing `github.com/larsartmann/go-appkit/docs` will get a 404 from the repo because the directory doesn't match the module path. **This must be fixed before tagging.** |~~ NOT-DO — became the GHOST RELEASE (TODO_LIST P1)
-~~| **README mentions `os` import but example doesn't use it** | Low       | README quick-start code shows `errorfamily.HandleError(err)` but doesn't import `os`. Copy-paste will fail.                                                                                                                                                                                                                                               |~~ done 2026-08-17 (README build checks)
-~~| **LSP stale typecheck warnings**                           | Cosmetic  | 5 stale "other declaration of defaultReadTimeout" warnings from LSP cache. `go build` and `go vet` pass clean. LSP hasn't refreshed after server.go deletion.                                                                                                                                                                                             |~~ NOT-DO — transient LSP cache
-~~| **Test runtime 5-6s**                                      | Low       | Default DrainDelay=5s makes some tests slow. Non-drain tests use DrainDelay:0 but some still wait on Close().                                                                                                                                                                                                                                             |~~ done at v0.4.0 (NoDrainDelay)
-~~| **`httpspec_test.go` uses `init()` hack**                  | Low       | The `init()` function suppresses unused import for httptest. Should be removed — httptest is used by httpspec internally, not by our test.                                                                                                                                                                                                                |~~ done 2026-08-17 (init deleted)
-~~| **No `ServiceConfig.CQRS` integration**                    | Medium    | The plan called for `Service.Run()` to call `EventService.Shutdown()` during graceful drain. This is NOT implemented. Consumer must manually coordinate.                                                                                                                                                                                                  |~~ NOT-DO — superseded by ShutdownHooks composition
-~~| **Uncommitted go.sum changes**                             | **FIXED** | go.work pulled newer indirect dep versions. Committed at 9356d1d.                                                                                                                                                                                                                                                                                         |~~ done at 9356d1d
+| Issue | Severity                                                   | Detail    |
+| ----- | ---------------------------------------------------------- | --------- |
+| ~~    | **`docs-mod/` directory name vs `docs/` module path**      | **HIGH**  |
+| ~~    | **README mentions `os` import but example doesn't use it** | Low       |
+| ~~    | **LSP stale typecheck warnings**                           | Cosmetic  |
+| ~~    | **Test runtime 5-6s**                                      | Low       |
+| ~~    | **`httpspec_test.go` uses `init()` hack**                  | Low       |
+| ~~    | **No `ServiceConfig.CQRS` integration**                    | Medium    |
+| ~~    | **Uncommitted go.sum changes**                             | **FIXED** |
 
 ---
 
@@ -135,58 +135,58 @@ sub-module wraps catalog/docserver for AsyncAPI/OpenAPI/D2 auto-documentation.
 
 ## f) Next 50 Tasks (Sorted by Impact ÷ Effort)
 
-| #  | Task                                            | Impact   | Effort | Priority |
-| -- | ----------------------------------------------- | -------- | ------ | -------- |
-~~| 1  | Fix docs-mod → docs directory problem           | Critical | 15m    | P0       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 2  | Tag core v1.0.0                                 | Critical | 5m     | P0       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 3  | Tag cqrs v0.1.0                                 | Medium   | 5m     | P0       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 4  | Tag docs v0.1.0                                 | Low      | 5m     | P0       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 5  | Fix README imports (os, errorfamily)            | Medium   | 5m     | P0       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 6  | Remove init() hack in httpspec_test.go          | Low      | 5m     | P1       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 7  | Add CQRS README section                         | Medium   | 20m    | P1       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 8  | Add docs README section                         | Low      | 15m    | P1       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 9  | Wire Service.Run + EventService.Shutdown        | High     | 30m    | P1       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 10 | CQRS E2E: command dispatch → event stored       | High     | 45m    | P1       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 11 | CQRS E2E: projection read model                 | Medium   | 30m    | P2       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 12 | CQRS E2E: health check integration              | Medium   | 15m    | P2       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 13 | Docs E2E: AddCommand → OpenAPI schema verify    | Medium   | 20m    | P2       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 14 | Docs E2E: AddEvent → AsyncAPI schema verify     | Medium   | 20m    | P2       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 15 | CHANGELOG.md for v1.0.0 rewrite                 | Medium   | 15m    | P2       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 16 | golangci-lint config for cqrs sub-module        | Medium   | 15m    | P2       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 17 | golangci-lint config for docs sub-module        | Low      | 10m    | P2       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 18 | Fix test DrainDelay helper (near-zero default)  | Low      | 10m    | P3       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 19 | Add `WithLogger(logger)` option                 | Low      | 15m    | P3       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 20 | Add structured shutdown logging                 | Low      | 15m    | P3       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 21 | Document httputil.Server non-delegation         | Medium   | 10m    | P3       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 22 | Test errorfamily.HTTPHandler through middleware | Medium   | 15m    | P3       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 23 | Add `svc.HealthCheck(fn)` convenience           | Low      | 15m    | P3       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 24 | Consolidate planning docs (DRY)                 | Low      | 20m    | P3       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 25 | Add CI config (GitHub Actions)                  | Medium   | 30m    | P4       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 26 | Add `DisableHealth bool` consideration          | Low      | 10m    | P4       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 27 | Add flake.nix (optional, AGENTS.md says no)     | Low      | 30m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 28 | Huma integration example in README              | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 29 | Error-family bridge pattern docs                | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 30 | CQRS: Bus exposure docs (Publisher/Subscriber)  | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 31 | CQRS: Repository builder example                | Medium   | 20m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 32 | Docs: D2 diagram endpoint test                  | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 33 | Docs: EventCatalog MDX export                   | Low      | 30m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 34 | Docs: Huma + catalog side-by-side example       | Low      | 20m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 35 | Benchmark: Service startup time                 | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 36 | Benchmark: middleware overhead                  | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 37 | Add `-tags integration` for slow E2E tests      | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 38 | CQRS: Snapshot store integration                | Low      | 20m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 39 | CQRS: Idempotency integration                   | Low      | 20m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 40 | Docs: OpenAPI YAML endpoint test                | Low      | 10m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 41 | Add Go doc examples (testable examples)         | Low      | 20m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 42 | Add version string constant                     | Low      | 5m     | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 43 | Add `svc.Mount(pattern, handler)` convenience   | Low      | 10m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 44 | Consider metrics middleware integration         | Low      | 30m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 45 | Consider request rate limiting                  | Low      | 20m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 46 | Consider CORS middleware                        | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 47 | Add graceful shutdown timeout test              | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 48 | Add signal delivery test for Run()              | Medium   | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 49 | Document drain sequence with diagram            | Low      | 15m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
-~~| 50 | Final brutal-self-review skill run              | Medium   | 30m    | P5       |~~ done, superseded, or routed — executed across sessions 3-5 and the 2026-08/09 release waves
+| #  | Task | Impact                                          | Effort   | Priority |
+| -- | ---- | ----------------------------------------------- | -------- | -------- |
+| ~~ | 1    | Fix docs-mod → docs directory problem           | Critical | 15m      |
+| ~~ | 2    | Tag core v1.0.0                                 | Critical | 5m       |
+| ~~ | 3    | Tag cqrs v0.1.0                                 | Medium   | 5m       |
+| ~~ | 4    | Tag docs v0.1.0                                 | Low      | 5m       |
+| ~~ | 5    | Fix README imports (os, errorfamily)            | Medium   | 5m       |
+| ~~ | 6    | Remove init() hack in httpspec_test.go          | Low      | 5m       |
+| ~~ | 7    | Add CQRS README section                         | Medium   | 20m      |
+| ~~ | 8    | Add docs README section                         | Low      | 15m      |
+| ~~ | 9    | Wire Service.Run + EventService.Shutdown        | High     | 30m      |
+| ~~ | 10   | CQRS E2E: command dispatch → event stored       | High     | 45m      |
+| ~~ | 11   | CQRS E2E: projection read model                 | Medium   | 30m      |
+| ~~ | 12   | CQRS E2E: health check integration              | Medium   | 15m      |
+| ~~ | 13   | Docs E2E: AddCommand → OpenAPI schema verify    | Medium   | 20m      |
+| ~~ | 14   | Docs E2E: AddEvent → AsyncAPI schema verify     | Medium   | 20m      |
+| ~~ | 15   | CHANGELOG.md for v1.0.0 rewrite                 | Medium   | 15m      |
+| ~~ | 16   | golangci-lint config for cqrs sub-module        | Medium   | 15m      |
+| ~~ | 17   | golangci-lint config for docs sub-module        | Low      | 10m      |
+| ~~ | 18   | Fix test DrainDelay helper (near-zero default)  | Low      | 10m      |
+| ~~ | 19   | Add `WithLogger(logger)` option                 | Low      | 15m      |
+| ~~ | 20   | Add structured shutdown logging                 | Low      | 15m      |
+| ~~ | 21   | Document httputil.Server non-delegation         | Medium   | 10m      |
+| ~~ | 22   | Test errorfamily.HTTPHandler through middleware | Medium   | 15m      |
+| ~~ | 23   | Add `svc.HealthCheck(fn)` convenience           | Low      | 15m      |
+| ~~ | 24   | Consolidate planning docs (DRY)                 | Low      | 20m      |
+| ~~ | 25   | Add CI config (GitHub Actions)                  | Medium   | 30m      |
+| ~~ | 26   | Add `DisableHealth bool` consideration          | Low      | 10m      |
+| ~~ | 27   | Add flake.nix (optional, AGENTS.md says no)     | Low      | 30m      |
+| ~~ | 28   | Huma integration example in README              | Low      | 15m      |
+| ~~ | 29   | Error-family bridge pattern docs                | Low      | 15m      |
+| ~~ | 30   | CQRS: Bus exposure docs (Publisher/Subscriber)  | Low      | 15m      |
+| ~~ | 31   | CQRS: Repository builder example                | Medium   | 20m      |
+| ~~ | 32   | Docs: D2 diagram endpoint test                  | Low      | 15m      |
+| ~~ | 33   | Docs: EventCatalog MDX export                   | Low      | 30m      |
+| ~~ | 34   | Docs: Huma + catalog side-by-side example       | Low      | 20m      |
+| ~~ | 35   | Benchmark: Service startup time                 | Low      | 15m      |
+| ~~ | 36   | Benchmark: middleware overhead                  | Low      | 15m      |
+| ~~ | 37   | Add `-tags integration` for slow E2E tests      | Low      | 15m      |
+| ~~ | 38   | CQRS: Snapshot store integration                | Low      | 20m      |
+| ~~ | 39   | CQRS: Idempotency integration                   | Low      | 20m      |
+| ~~ | 40   | Docs: OpenAPI YAML endpoint test                | Low      | 10m      |
+| ~~ | 41   | Add Go doc examples (testable examples)         | Low      | 20m      |
+| ~~ | 42   | Add version string constant                     | Low      | 5m       |
+| ~~ | 43   | Add `svc.Mount(pattern, handler)` convenience   | Low      | 10m      |
+| ~~ | 44   | Consider metrics middleware integration         | Low      | 30m      |
+| ~~ | 45   | Consider request rate limiting                  | Low      | 20m      |
+| ~~ | 46   | Consider CORS middleware                        | Low      | 15m      |
+| ~~ | 47   | Add graceful shutdown timeout test              | Low      | 15m      |
+| ~~ | 48   | Add signal delivery test for Run()              | Medium   | 15m      |
+| ~~ | 49   | Document drain sequence with diagram            | Low      | 15m      |
+| ~~ | 50   | Final brutal-self-review skill run              | Medium   | 30m      |
 
 ---
 

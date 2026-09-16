@@ -10,15 +10,15 @@ Scope: THIS session only (the `r.Pattern`-through-`OuterMiddlewares` regression 
 
 ## Stat snapshot
 
-| Signal | Value |
-| --- | --- |
-| Fork sites fixed (httputil) | 5 (RequestID, Timeout, ClientIPMiddleware, Nonce, ServerTimingMiddlewareWhen) |
-| Regression tests added | 6 (5 in root package incl. 4-way table + chain + 404; 1 in server_timing) |
-| E2E verification | A/B through real appkit `Service`: published v1.1.1 → `"GET"` broken; fixed → `"GET /users/{id}"` + `http.route /users/{id}` |
-| Fix overhead | 0 added allocations; ns-level, within run noise (`-count=10` before/after) |
-| otel benchmark re-baseline | 20.0 / 21.8 / 23.3 µs (n=10, mean±sd) — README table updated |
-| Shipped to consumers | **NO** — fix exists only in httputil master (`ff44c5f`, daemon-committed) |
-| Session incidents | 2 (build-cache ENOSPC; accidental stale-stash pop) — both recovered, nothing lost |
+| Signal                      | Value                                                                                                                        |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Fork sites fixed (httputil) | 5 (RequestID, Timeout, ClientIPMiddleware, Nonce, ServerTimingMiddlewareWhen)                                                |
+| Regression tests added      | 6 (5 in root package incl. 4-way table + chain + 404; 1 in server_timing)                                                    |
+| E2E verification            | A/B through real appkit `Service`: published v1.1.1 → `"GET"` broken; fixed → `"GET /users/{id}"` + `http.route /users/{id}` |
+| Fix overhead                | 0 added allocations; ns-level, within run noise (`-count=10` before/after)                                                   |
+| otel benchmark re-baseline  | 20.0 / 21.8 / 23.3 µs (n=10, mean±sd) — README table updated                                                                 |
+| Shipped to consumers        | **NO** — fix exists only in httputil master (`ff44c5f`, daemon-committed)                                                    |
+| Session incidents           | 2 (build-cache ENOSPC; accidental stale-stash pop) — both recovered, nothing lost                                            |
 
 ---
 
@@ -29,7 +29,7 @@ Scope: THIS session only (the `r.Pattern`-through-`OuterMiddlewares` regression 
 3. **The fix, at all five sites** (httputil commit `ff44c5f`, daemon-committed): each forking middleware now retains its fork and copies `forked.Pattern` back onto the request it received after `next.ServeHTTP` returns. One-line pattern per site, with a contract comment.
 4. **Regression tests that genuinely pin the bug** (`pattern_propagation_test.go` in both packages, commit `19790db`): outer pattern-capture middleware around each forking middleware + mux; a full four-fork chain test; a no-route-matches test. Proven honest: run against HEAD~1 in an isolated `git worktree`, **every fork-site case fails** pre-fix and passes post-fix. Full httputil `-race` suite + `golangci-lint` (0 issues) green; `gofmt` clean.
 5. **End-to-end A/B through the documented wiring** (`/tmp/appkit-otel-verify` scratch module): real `appkit.Service`, `OuterMiddlewares = [appkitotel.Middleware(...)]`, in-memory span exporter + manual metric reader. Run A (published httputil v1.1.1): span `"GET"`, no route attribute — the production bug reproduced. Run B (identical, only httputil replaced with fixed local): span `"GET /users/{id}"`, `http.route /users/{id}`. The variable was isolated to exactly the fix.
-6. **Overhead measurement** — `BenchmarkRequestID/Timeout/ClientIP/Nonce/NonceAttr` at `-count=10` before and after: allocs/op identical everywhere (0 added); ns/op deltas within noise (RequestID −0.1%, Timeout +1.2%; ClientIP/Nonce measured *faster*, which an additive field-copy cannot cause — proving run-to-run drift).
+6. **Overhead measurement** — `BenchmarkRequestID/Timeout/ClientIP/Nonce/NonceAttr` at `-count=10` before and after: allocs/op identical everywhere (0 added); ns/op deltas within noise (RequestID −0.1%, Timeout +1.2%; ClientIP/Nonce measured _faster_, which an additive field-copy cannot cause — proving run-to-run drift).
 7. **go-appkit otel suite green against the fixed httputil** — temporary `replace` in `otel/go.mod`, full `-race` suite + vet, then byte-identical revert (no replace directives in committed state, per repo doctrine).
 8. **otel benchmark re-baseline** (n=10): NoOp 20.0µs ± 0.4 / Traced 21.8µs ± 0.9 / Traced+Metered 23.3µs ± 2.0. README table corrected with dated methodology; resolves the 2026-09-15 "+25%" anomaly as machine load (same box measured ~25% lower one day later).
 9. **Docs updated in all four places**: otel `README.md` (known-issue now scoped to published modules with fix-landed status block; design-note caveat reworded), httputil `CHANGELOG.md` (Fixed entry, commit `007b107`), go-appkit `TODO_LIST.md` (P2 regression item → `[~]` with the enumerated release train; benchstat item → baseline recorded), go-appkit `AGENTS.md` (otel gotchas + middleware table row updated, **merged non-destructively with a parallel session's concurrent edits** rather than overwritten).
@@ -41,7 +41,7 @@ Scope: THIS session only (the `r.Pattern`-through-`OuterMiddlewares` regression 
 
 1. **The fix itself is the definition of partially done**: complete locally, shipped nowhere. Every published go-appkit/httputil consumer still runs the broken wiring. Remaining: httputil v1.2.0 tag → core/otel `go.mod` bumps → otel re-tag → fresh-consumer proxy test → delete the README known-issue block. Blocker: tagging/pushing is user-gated (harness: never push without explicit request). Effort: S once authorized.
 2. **Integration-module pin test does not exist and cannot until tags move** (integration pins published tags by design). My ready-made implementation lives ONLY in `/tmp/appkit-otel-verify/verify_test.go` — **ephemeral, will be wiped on reboot**. What survives in-repo is the recipe in AGENTS/TODO, not the code. This is this session's biggest gap (see §d-4, §e).
-3. **The fork contract is documented in the wrong repo(s)** — "any middleware that forks with `r.WithContext` must propagate `r2.Pattern` back" is written into go-appkit's AGENTS.md, but NOT into httputil's README/AGENTS middleware-pattern section where custom-middleware authors (the people who need it) actually look. Also: the contract only helps httputil's own middlewares — a *consumer's* forking middleware between otelhttp and the mux still silently loses patterns; nothing warns them.
+3. **The fork contract is documented in the wrong repo(s)** — "any middleware that forks with `r.WithContext` must propagate `r2.Pattern` back" is written into go-appkit's AGENTS.md, but NOT into httputil's README/AGENTS middleware-pattern section where custom-middleware authors (the people who need it) actually look. Also: the contract only helps httputil's own middlewares — a _consumer's_ forking middleware between otelhttp and the mux still silently loses patterns; nothing warns them.
 4. **benchstat was never used** — not installed, `go install` is network-blocked, and I did not attempt `nix run nixpkgs#benchstat` (assumed blocked without testing). The comparison is a hand-rolled mean±sd + Welch-style t over 10 runs — sound but weaker than the tool the TODO asked for.
 5. **The "nosurf forks internally" claim is unverified** — I encoded it into AGENTS.md and the TODO without reading justinas/nosurf's source this session (it follows from nosurf storing the token in the request context, which requires a fork, but "very likely" is not "verified"). Violates the verify-before-encoding rule. Effort to close: S.
 6. **The AGENTS.md otel gotcha bullet now has two voices** — the parallel session's text (listing four files) plus my appended verification sentence (five sites). Consistent in substance, mildly contradictory in enumeration; a careful reader stumbles. Effort: S to harmonize.
@@ -54,23 +54,23 @@ Scope: THIS session only (the `r.Pattern`-through-`OuterMiddlewares` regression 
 
 Standing TODO_LIST backlog — untouched this session, reported as-is:
 
-| Item | Why unstarted | Priority |
-| --- | --- | --- |
-| License posture decision (pkg.go.dev hides everything) | USER GATE | High (blocks pkg.go.dev verification + adoption) |
-| pkg.go.dev crawl/re-render verification | Blocked by license decision | Medium |
-| Logging posture decision (WARN default vs sampling vs consumer logger) | USER GATE (options enumerated, data exists) | Medium |
-| W2 `security` module (A2, A3 with hard `MaxKeys` cap, A4, A8, A6, then A1, A5, A7) | Feature build; regression fix took the session | High (top consumer demand) |
-| W1 batteries: G2 Prometheus surface (with auth + stable metric names), F5 BuildInfo, E1 testkit seed | Not started; spec exists in battery doc | Medium-High |
-| Go toolchain bump past 1.26.7 | Gated on nixpkgs carrying it | Medium |
-| BuildFlow dprint exit-14 on CHANGELOG-only commits | Upstream fix in buildflow | Low |
-| Realtime: `X-Accel-Buffering: no`; SSE `event: error` before abort + failure-path test | Harvested 2026-09-16, never routed to code | High (reconnect-storm risk) |
-| httputil `Logging` ctx-aware emit (trace-correlated completion lines) + F2 timing battery | Cross-repo proposal | Medium |
-| Core v1.0.0 exit criteria graduation | Draft waits on consumer count; must fold in this regression's lesson first | Medium |
-| Telemetry doc bundle (emission catalogue, backpressure semantics, incident recipe, umbrella doc) | Not started | Medium-Low |
-| W3-W5 batteries (httpx, worker, sqlite, polite, C1/C2/C3 realtime completions) | Long-term, canonical spec in battery doc | Low-Medium |
-| cqrs encryption/signing opt-ins | Demand-gated | Low |
-| cordis / PapDashboard integrations | Trigger-gated / user-gated | Low |
-| OTLP worked example, `WithStdoutMetricReader`, baggage helpers + `Transport()`, errorpages trace_id, flightrecorder span link, route-cardinality fuzz guard, otel v0.2.0 hardening | otel backlog items | Low-Medium |
+| Item                                                                                                                                                                               | Why unstarted                                                              | Priority                                         |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------ |
+| License posture decision (pkg.go.dev hides everything)                                                                                                                             | USER GATE                                                                  | High (blocks pkg.go.dev verification + adoption) |
+| pkg.go.dev crawl/re-render verification                                                                                                                                            | Blocked by license decision                                                | Medium                                           |
+| Logging posture decision (WARN default vs sampling vs consumer logger)                                                                                                             | USER GATE (options enumerated, data exists)                                | Medium                                           |
+| W2 `security` module (A2, A3 with hard `MaxKeys` cap, A4, A8, A6, then A1, A5, A7)                                                                                                 | Feature build; regression fix took the session                             | High (top consumer demand)                       |
+| W1 batteries: G2 Prometheus surface (with auth + stable metric names), F5 BuildInfo, E1 testkit seed                                                                               | Not started; spec exists in battery doc                                    | Medium-High                                      |
+| Go toolchain bump past 1.26.7                                                                                                                                                      | Gated on nixpkgs carrying it                                               | Medium                                           |
+| BuildFlow dprint exit-14 on CHANGELOG-only commits                                                                                                                                 | Upstream fix in buildflow                                                  | Low                                              |
+| Realtime: `X-Accel-Buffering: no`; SSE `event: error` before abort + failure-path test                                                                                             | Harvested 2026-09-16, never routed to code                                 | High (reconnect-storm risk)                      |
+| httputil `Logging` ctx-aware emit (trace-correlated completion lines) + F2 timing battery                                                                                          | Cross-repo proposal                                                        | Medium                                           |
+| Core v1.0.0 exit criteria graduation                                                                                                                                               | Draft waits on consumer count; must fold in this regression's lesson first | Medium                                           |
+| Telemetry doc bundle (emission catalogue, backpressure semantics, incident recipe, umbrella doc)                                                                                   | Not started                                                                | Medium-Low                                       |
+| W3-W5 batteries (httpx, worker, sqlite, polite, C1/C2/C3 realtime completions)                                                                                                     | Long-term, canonical spec in battery doc                                   | Low-Medium                                       |
+| cqrs encryption/signing opt-ins                                                                                                                                                    | Demand-gated                                                               | Low                                              |
+| cordis / PapDashboard integrations                                                                                                                                                 | Trigger-gated / user-gated                                                 | Low                                              |
+| OTLP worked example, `WithStdoutMetricReader`, baggage helpers + `Transport()`, errorpages trace_id, flightrecorder span link, route-cardinality fuzz guard, otel v0.2.0 hardening | otel backlog items                                                         | Low-Medium                                       |
 
 ---
 
@@ -108,48 +108,48 @@ Standing TODO_LIST backlog — untouched this session, reported as-is:
 
 Ranked by impact; effort S <30min / M 30min–2hr / L >2hr. Items 1–9 are this session's direct follow-ups; 10–40 are the standing backlog (harvest ground for docs-health HARVEST — extra rigor applies, most of 30+ are ROADMAP fuel).
 
-| # | Task | Impact | Effort | Category |
-| --- | --- | --- | --- | --- |
-| 1 | Authorize + run the release train: tag httputil v1.2.0 (pattern fix rides with the pending v1.2 wave) | Critical | S | Release |
-| 2 | Bump core + otel `go.mod` to httputil v1.2.0; full suite re-run per module | Critical | S | Release |
-| 3 | Re-tag otel as v0.2.0 (fix + hardening; core re-tag only if API surface changed — it didn't) | Critical | M | Release |
-| 4 | Add integration-module test pinning span name `GET /users/{id}` + `http.route /users/{id}` through the full default stack (port the /tmp scratch test — recover it or re-derive from the AGENTS recipe) | Critical | M | Bug (regression pin) |
-| 5 | **Recover the /tmp E2E test into the repo NOW** (before reboot wipes it): commit as integration-module dev test or doc-embedded recipe | High | S | Cleanup (ghost system) |
-| 6 | Fresh-consumer proxy test for every re-tagged module (clean /tmp module → `go get` → blank import → build) | High | S | Release |
-| 7 | Delete the otel README known-issue block + flip TODO_LIST P2 regression item to closed | High | S | Documentation |
-| 8 | Read justinas/nosurf source; verify or correct the "nosurf forks internally" claim in go-appkit docs; add httputil-side known-limitation note for CSRF | High | S | Bug (docs truth) |
-| 9 | Add the fork contract ("fork with `WithContext` ⇒ propagate `r2.Pattern` back") + consumer warning to httputil README/AGENTS middleware section | High | S | Documentation |
-| 10 | Add an in-repo composition test to the otel module itself pinning the documented `OuterMiddlewares` wiring (closes the blind spot even between trains) | High | M | Quality |
-| 11 | Install/verify benchstat (`nix run nixpkgs#benchstat`) and re-confirm the ±25% drift figure with real statistics | Medium | S | Quality |
-| 12 | Harmonize the two-voice AGENTS.md otel gotcha bullet (4-file enumeration vs five-site verification) | Low | S | Documentation |
-| 13 | Annotate the 2026-09-15 status doc: correct the "Logging's context helper" mislabel (ClientIPMiddleware) | Low | S | Documentation |
-| 14 | Evaluate an upstream otelhttp issue/PR: fragile `r.Pattern` read design (verify-before-filing: local repro first) | Medium | M | Bug (upstream) |
-| 15 | Investigate `/mnt/buildcache` growth policy (36G go-build cache; 83% after purge) — BuildFlow pruning step or larger disk | Medium | M | Cleanup |
-| 16 | Audit httputil `stash@{0}` (foreign WIP on `890b7eb`): apply deliberately or drop | Low | S | Cleanup |
-| 17 | Run the core module `-race` suite against fixed httputil via temporary replace (extra pre-train assurance) | Medium | S | Quality |
-| 18 | Decide the license posture (proprietary vs MIT) — USER GATE; then ship in the wave and re-verify pkg.go.dev renders all modules with visible godoc | High | S+M | Decision/Release |
-| 19 | Decide the logging posture (default WARN vs sampling vs consumer-provided logger) — USER GATE; then implement + benchstat | Medium | M | Decision/Feature |
-| 20 | Realtime: send `X-Accel-Buffering: no` on SSE responses | High | S | Bug |
-| 21 | Realtime: emit SSE `event: error` before aborting on replay/store failure + failure-path test (reconnect-storm guard) | High | M | Bug |
-| 22 | G2 Prometheus surface in core: `ServiceConfig.Metrics{Path}`, basic-auth wired (Stalwart anti-pattern hardening), stable published metric names, `_ratio` exporter-trap doc | High | L | Feature |
-| 23 | W2 security module quick wins: A2 API-key auth, A3 rate-limit profiles (hard `MaxKeys` cap), A4 origin check, A8 body limit, A6 sanitization | High | L | Feature |
-| 24 | W2 remainder: A1 CSRF, A5 CSP nonce + policy builder (never unsafe-eval), A7 env-tuned headers | Medium | L | Feature |
-| 25 | F5 BuildInfo: `WithVersion` → `/health` version field + `/version` endpoint | Medium | M | Feature |
-| 26 | E1 testkit seed: full-chain harness (`FullChainURL` vs `MuxURL`) + goroutine-baseline teardown assert | Medium | M | Feature |
-| 27 | httputil proposal: `Logging` completion line with request context (trace-correlated via `TraceHandler`) | Medium | M | Feature |
-| 28 | F2 timing battery: request-ID-seeded handler logger + `X-Response-Time` header | Medium | M | Feature |
-| 29 | Route-cardinality fuzz guard (10k paths → bounded series) — double-relevant post-fix | Medium | M | Quality |
-| 30 | Fold this regression's lesson into core v1 exit criteria (telemetry seam = documented-wiring-tested) | Medium | S | Documentation |
-| 31 | Telemetry emission catalogue doc (every line/metric/attribute + default levels) | Medium | M | Documentation |
-| 32 | Bump Go toolchain past 1.26.7 when nixpkgs carries it | Medium | S | Maintenance |
-| 33 | OTLP worked example + local jaeger viewing note | Low | S | Documentation |
-| 34 | `WithStdoutMetricReader` (metrics dev-parity with spans) | Low | S | Feature |
-| 35 | Baggage correlation helpers + export `appkitotel.Transport()` | Low | M | Feature |
-| 36 | errorpages: render trace_id; flightrecorder: snapshot span link | Low | M | Feature |
-| 37 | Telemetry umbrella doc (nix-email `TELEMETRY.md` as template) | Low | M | Documentation |
-| 38 | W3 httpx module: B1 ResultHandler first (classification-parity test vs errorpages taxonomy is the gate) | Medium | L | Feature |
-| 39 | W5 C2 projection→broadcast folded contract (must-have for every cqrs+realtime consumer) | High* | L | Feature (*when consumers exist) |
-| 40 | BuildFlow upstream: skip dprint when staged set ∩ non-excluded set is empty (exit-14 fix) | Low | M | Tooling |
+| #  | Task                                                                                                                                                                                                    | Impact   | Effort | Category                        |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ------------------------------- |
+| 1  | Authorize + run the release train: tag httputil v1.2.0 (pattern fix rides with the pending v1.2 wave)                                                                                                   | Critical | S      | Release                         |
+| 2  | Bump core + otel `go.mod` to httputil v1.2.0; full suite re-run per module                                                                                                                              | Critical | S      | Release                         |
+| 3  | Re-tag otel as v0.2.0 (fix + hardening; core re-tag only if API surface changed — it didn't)                                                                                                            | Critical | M      | Release                         |
+| 4  | Add integration-module test pinning span name `GET /users/{id}` + `http.route /users/{id}` through the full default stack (port the /tmp scratch test — recover it or re-derive from the AGENTS recipe) | Critical | M      | Bug (regression pin)            |
+| 5  | **Recover the /tmp E2E test into the repo NOW** (before reboot wipes it): commit as integration-module dev test or doc-embedded recipe                                                                  | High     | S      | Cleanup (ghost system)          |
+| 6  | Fresh-consumer proxy test for every re-tagged module (clean /tmp module → `go get` → blank import → build)                                                                                              | High     | S      | Release                         |
+| 7  | Delete the otel README known-issue block + flip TODO_LIST P2 regression item to closed                                                                                                                  | High     | S      | Documentation                   |
+| 8  | Read justinas/nosurf source; verify or correct the "nosurf forks internally" claim in go-appkit docs; add httputil-side known-limitation note for CSRF                                                  | High     | S      | Bug (docs truth)                |
+| 9  | Add the fork contract ("fork with `WithContext` ⇒ propagate `r2.Pattern` back") + consumer warning to httputil README/AGENTS middleware section                                                         | High     | S      | Documentation                   |
+| 10 | Add an in-repo composition test to the otel module itself pinning the documented `OuterMiddlewares` wiring (closes the blind spot even between trains)                                                  | High     | M      | Quality                         |
+| 11 | Install/verify benchstat (`nix run nixpkgs#benchstat`) and re-confirm the ±25% drift figure with real statistics                                                                                        | Medium   | S      | Quality                         |
+| 12 | Harmonize the two-voice AGENTS.md otel gotcha bullet (4-file enumeration vs five-site verification)                                                                                                     | Low      | S      | Documentation                   |
+| 13 | Annotate the 2026-09-15 status doc: correct the "Logging's context helper" mislabel (ClientIPMiddleware)                                                                                                | Low      | S      | Documentation                   |
+| 14 | Evaluate an upstream otelhttp issue/PR: fragile `r.Pattern` read design (verify-before-filing: local repro first)                                                                                       | Medium   | M      | Bug (upstream)                  |
+| 15 | Investigate `/mnt/buildcache` growth policy (36G go-build cache; 83% after purge) — BuildFlow pruning step or larger disk                                                                               | Medium   | M      | Cleanup                         |
+| 16 | Audit httputil `stash@{0}` (foreign WIP on `890b7eb`): apply deliberately or drop                                                                                                                       | Low      | S      | Cleanup                         |
+| 17 | Run the core module `-race` suite against fixed httputil via temporary replace (extra pre-train assurance)                                                                                              | Medium   | S      | Quality                         |
+| 18 | Decide the license posture (proprietary vs MIT) — USER GATE; then ship in the wave and re-verify pkg.go.dev renders all modules with visible godoc                                                      | High     | S+M    | Decision/Release                |
+| 19 | Decide the logging posture (default WARN vs sampling vs consumer-provided logger) — USER GATE; then implement + benchstat                                                                               | Medium   | M      | Decision/Feature                |
+| 20 | Realtime: send `X-Accel-Buffering: no` on SSE responses                                                                                                                                                 | High     | S      | Bug                             |
+| 21 | Realtime: emit SSE `event: error` before aborting on replay/store failure + failure-path test (reconnect-storm guard)                                                                                   | High     | M      | Bug                             |
+| 22 | G2 Prometheus surface in core: `ServiceConfig.Metrics{Path}`, basic-auth wired (Stalwart anti-pattern hardening), stable published metric names, `_ratio` exporter-trap doc                             | High     | L      | Feature                         |
+| 23 | W2 security module quick wins: A2 API-key auth, A3 rate-limit profiles (hard `MaxKeys` cap), A4 origin check, A8 body limit, A6 sanitization                                                            | High     | L      | Feature                         |
+| 24 | W2 remainder: A1 CSRF, A5 CSP nonce + policy builder (never unsafe-eval), A7 env-tuned headers                                                                                                          | Medium   | L      | Feature                         |
+| 25 | F5 BuildInfo: `WithVersion` → `/health` version field + `/version` endpoint                                                                                                                             | Medium   | M      | Feature                         |
+| 26 | E1 testkit seed: full-chain harness (`FullChainURL` vs `MuxURL`) + goroutine-baseline teardown assert                                                                                                   | Medium   | M      | Feature                         |
+| 27 | httputil proposal: `Logging` completion line with request context (trace-correlated via `TraceHandler`)                                                                                                 | Medium   | M      | Feature                         |
+| 28 | F2 timing battery: request-ID-seeded handler logger + `X-Response-Time` header                                                                                                                          | Medium   | M      | Feature                         |
+| 29 | Route-cardinality fuzz guard (10k paths → bounded series) — double-relevant post-fix                                                                                                                    | Medium   | M      | Quality                         |
+| 30 | Fold this regression's lesson into core v1 exit criteria (telemetry seam = documented-wiring-tested)                                                                                                    | Medium   | S      | Documentation                   |
+| 31 | Telemetry emission catalogue doc (every line/metric/attribute + default levels)                                                                                                                         | Medium   | M      | Documentation                   |
+| 32 | Bump Go toolchain past 1.26.7 when nixpkgs carries it                                                                                                                                                   | Medium   | S      | Maintenance                     |
+| 33 | OTLP worked example + local jaeger viewing note                                                                                                                                                         | Low      | S      | Documentation                   |
+| 34 | `WithStdoutMetricReader` (metrics dev-parity with spans)                                                                                                                                                | Low      | S      | Feature                         |
+| 35 | Baggage correlation helpers + export `appkitotel.Transport()`                                                                                                                                           | Low      | M      | Feature                         |
+| 36 | errorpages: render trace_id; flightrecorder: snapshot span link                                                                                                                                         | Low      | M      | Feature                         |
+| 37 | Telemetry umbrella doc (nix-email `TELEMETRY.md` as template)                                                                                                                                           | Low      | M      | Documentation                   |
+| 38 | W3 httpx module: B1 ResultHandler first (classification-parity test vs errorpages taxonomy is the gate)                                                                                                 | Medium   | L      | Feature                         |
+| 39 | W5 C2 projection→broadcast folded contract (must-have for every cqrs+realtime consumer)                                                                                                                 | High*    | L      | Feature (*when consumers exist) |
+| 40 | BuildFlow upstream: skip dprint when staged set ∩ non-excluded set is empty (exit-14 fix)                                                                                                               | Low      | M      | Tooling                         |
 
 ---
 
@@ -161,4 +161,4 @@ Ranked by impact; effort S <30min / M 30min–2hr / L >2hr. Items 1–9 are this
 
 ---
 
-*Point-in-time snapshot — goes stale. Section (f) is the harvest input for `docs-health` HARVEST (items 1–16 belong in TODO_LIST; 30+ are ROADMAP fuel). Format note: written as `.md` per explicit user instruction; the status-report skill's canonical `.html` dashboard was overridden.*
+_Point-in-time snapshot — goes stale. Section (f) is the harvest input for `docs-health` HARVEST (items 1–16 belong in TODO_LIST; 30+ are ROADMAP fuel). Format note: written as `.md` per explicit user instruction; the status-report skill's canonical `.html` dashboard was overridden._

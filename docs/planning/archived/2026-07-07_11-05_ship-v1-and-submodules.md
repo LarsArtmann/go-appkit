@@ -77,84 +77,84 @@ exists and works**:
 
 ### Phase 1: Ship v1.0.0 (Tasks 1-8 → 34 subtasks)
 
-| #  | Subtask                                         | Parent | Est |
-| -- | ----------------------------------------------- | ------ | --- |
-~~| 1  | Read current README to preserve install section | T1     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 2  | Write README: headline + 12-line example        | T1     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 3  | Write README: ServiceConfig table               | T1     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 4  | Write README: middleware section                | T1     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 5  | Write README: "When NOT to use" section         | T1     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 6  | Write README: Huma integration pattern          | T1     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 7  | Write README: error-family section              | T1     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 8  | Create example/main.go                          | T2     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 9  | Verify example builds + runs                    | T2     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 10 | Read current AGENTS.md sections                 | T3     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 11 | Rewrite AGENTS.md: project type + commands      | T3     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 12 | Rewrite AGENTS.md: code organization (file map) | T3     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 13 | Rewrite AGENTS.md: architecture + control flow  | T3     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 14 | Replace http.Get with context-aware requests    | T4     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 15 | Write panic recovery test                       | T5     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 16 | Write request ID header test                    | T5     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 17 | Write security headers test                     | T5     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 18 | Write timeout middleware test                   | T5     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 19 | Add httpspec.Run to service_test.go             | T6     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 20 | Write config validation table test              | T7     | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 21 | Run go test -race ./...                         | T8     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 22 | Run go vet ./...                                | T8     | 2m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 23 | Run go build ./...                              | T8     | 2m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 24 | Commit core v1.0.0 milestone                    | T8     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
+| #  | Subtask | Parent                                          | Est |
+| -- | ------- | ----------------------------------------------- | --- |
+| ~~ | 1       | Read current README to preserve install section | T1  |
+| ~~ | 2       | Write README: headline + 12-line example        | T1  |
+| ~~ | 3       | Write README: ServiceConfig table               | T1  |
+| ~~ | 4       | Write README: middleware section                | T1  |
+| ~~ | 5       | Write README: "When NOT to use" section         | T1  |
+| ~~ | 6       | Write README: Huma integration pattern          | T1  |
+| ~~ | 7       | Write README: error-family section              | T1  |
+| ~~ | 8       | Create example/main.go                          | T2  |
+| ~~ | 9       | Verify example builds + runs                    | T2  |
+| ~~ | 10      | Read current AGENTS.md sections                 | T3  |
+| ~~ | 11      | Rewrite AGENTS.md: project type + commands      | T3  |
+| ~~ | 12      | Rewrite AGENTS.md: code organization (file map) | T3  |
+| ~~ | 13      | Rewrite AGENTS.md: architecture + control flow  | T3  |
+| ~~ | 14      | Replace http.Get with context-aware requests    | T4  |
+| ~~ | 15      | Write panic recovery test                       | T5  |
+| ~~ | 16      | Write request ID header test                    | T5  |
+| ~~ | 17      | Write security headers test                     | T5  |
+| ~~ | 18      | Write timeout middleware test                   | T5  |
+| ~~ | 19      | Add httpspec.Run to service_test.go             | T6  |
+| ~~ | 20      | Write config validation table test              | T7  |
+| ~~ | 21      | Run go test -race ./...                         | T8  |
+| ~~ | 22      | Run go vet ./...                                | T8  |
+| ~~ | 23      | Run go build ./...                              | T8  |
+| ~~ | 24      | Commit core v1.0.0 milestone                    | T8  |
 
 ### Phase 2: CQRS Sub-Module (Tasks 9-13 → 20 subtasks)
 
-| #  | Subtask                                        | Parent | Est |
-| -- | ---------------------------------------------- | ------ | --- |
-~~| 25 | Create go.work at repo root                    | T9     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 26 | Create cqrs/ directory + cqrs/go.mod           | T9     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 27 | Read stack/sqlite.New + Bundle API             | T10    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 28 | Define EventConfig + EventService types        | T10    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 29 | Implement NewEventService                      | T10    | 15m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 30 | Implement EventService.Shutdown                | T10    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 31 | Read projectionhost API                        | T11    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 32 | Implement RegisterProjection                   | T11    | 15m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 33 | Wire Service.Run to call EventService.Shutdown | T11    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 34 | Write cqrs E2E test: create EventService       | T12    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 35 | Write cqrs E2E test: dispatch command          | T12    | 15m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 36 | Write cqrs E2E test: verify event stored       | T12    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 37 | Write cqrs E2E test: health + shutdown         | T12    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 38 | Write cqrs README section                      | T13    | 15m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 39 | Run cqrs tests -race                           | T12    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 40 | Commit cqrs module                             | T12    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 41 | Tag cqrs v0.1.0                                | T12    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 42 | Verify go.work builds all modules              | T9     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 43 | Update cqrs depguard in golangci.yml           | T9     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 44 | Run golangci-lint on cqrs                      | T9     | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
+| #  | Subtask | Parent                                         | Est |
+| -- | ------- | ---------------------------------------------- | --- |
+| ~~ | 25      | Create go.work at repo root                    | T9  |
+| ~~ | 26      | Create cqrs/ directory + cqrs/go.mod           | T9  |
+| ~~ | 27      | Read stack/sqlite.New + Bundle API             | T10 |
+| ~~ | 28      | Define EventConfig + EventService types        | T10 |
+| ~~ | 29      | Implement NewEventService                      | T10 |
+| ~~ | 30      | Implement EventService.Shutdown                | T10 |
+| ~~ | 31      | Read projectionhost API                        | T11 |
+| ~~ | 32      | Implement RegisterProjection                   | T11 |
+| ~~ | 33      | Wire Service.Run to call EventService.Shutdown | T11 |
+| ~~ | 34      | Write cqrs E2E test: create EventService       | T12 |
+| ~~ | 35      | Write cqrs E2E test: dispatch command          | T12 |
+| ~~ | 36      | Write cqrs E2E test: verify event stored       | T12 |
+| ~~ | 37      | Write cqrs E2E test: health + shutdown         | T12 |
+| ~~ | 38      | Write cqrs README section                      | T13 |
+| ~~ | 39      | Run cqrs tests -race                           | T12 |
+| ~~ | 40      | Commit cqrs module                             | T12 |
+| ~~ | 41      | Tag cqrs v0.1.0                                | T12 |
+| ~~ | 42      | Verify go.work builds all modules              | T9  |
+| ~~ | 43      | Update cqrs depguard in golangci.yml           | T9  |
+| ~~ | 44      | Run golangci-lint on cqrs                      | T9  |
 
 ### Phase 3: Docs Sub-Module (Tasks 14-17 → 14 subtasks)
 
-| #  | Subtask                                     | Parent | Est |
-| -- | ------------------------------------------- | ------ | --- |
-~~| 45 | Create docs/ dir + docs/go.mod              | T14    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 46 | Read catalog.Builder + docserver API        | T14    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 47 | Implement CatalogBuilder wrapper            | T14    | 15m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 48 | Implement RegisterDocs                      | T15    | 15m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 49 | Write docs E2E test: register types         | T16    | 10m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 50 | Write docs E2E test: serve + verify schemas | T16    | 15m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 51 | Write docs README section                   | T17    | 15m |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 52 | Run docs tests -race                        | T16    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 53 | Commit docs module                          | T16    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 54 | Tag docs v0.1.0                             | T16    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 55 | Update docs depguard in golangci.yml        | T14    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 56 | Run golangci-lint on docs                   | T14    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 57 | Verify go.work builds all 3 modules         | T14    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
+| #  | Subtask | Parent                                      | Est |
+| -- | ------- | ------------------------------------------- | --- |
+| ~~ | 45      | Create docs/ dir + docs/go.mod              | T14 |
+| ~~ | 46      | Read catalog.Builder + docserver API        | T14 |
+| ~~ | 47      | Implement CatalogBuilder wrapper            | T14 |
+| ~~ | 48      | Implement RegisterDocs                      | T15 |
+| ~~ | 49      | Write docs E2E test: register types         | T16 |
+| ~~ | 50      | Write docs E2E test: serve + verify schemas | T16 |
+| ~~ | 51      | Write docs README section                   | T17 |
+| ~~ | 52      | Run docs tests -race                        | T16 |
+| ~~ | 53      | Commit docs module                          | T16 |
+| ~~ | 54      | Tag docs v0.1.0                             | T16 |
+| ~~ | 55      | Update docs depguard in golangci.yml        | T14 |
+| ~~ | 56      | Run golangci-lint on docs                   | T14 |
+| ~~ | 57      | Verify go.work builds all 3 modules         | T14 |
 
 ### Phase 4: Polish (Tasks 18-20 → 4 subtasks)
 
-| #  | Subtask                                | Parent | Est |
-| -- | -------------------------------------- | ------ | --- |
-~~| 58 | Update planning docs: httputil v0.5.0  | T18    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 59 | Full verification: go work build ./... | T19    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 60 | Full verification: all tests -race     | T19    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
-~~| 61 | Final commit + push                    | T20    | 5m  |~~ executed across sessions 1-2 (2026-07-07) or superseded (v1.0.0 → 0.x waves)
+| #  | Subtask | Parent                                 | Est |
+| -- | ------- | -------------------------------------- | --- |
+| ~~ | 58      | Update planning docs: httputil v0.5.0  | T18 |
+| ~~ | 59      | Full verification: go work build ./... | T19 |
+| ~~ | 60      | Full verification: all tests -race     | T19 |
+| ~~ | 61      | Final commit + push                    | T20 |
 
 **Total: 61 tasks. Adjusted with buffer: ~70 tasks at ~8min avg = ~9.5h.**
 

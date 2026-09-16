@@ -56,16 +56,16 @@ Daemon auto-commits this session: `83ebcbd`, `ce8b245` (dep drift).
 ## b) PARTIALLY DONE ⏳
 
 ~~1. **M12 commit + sweep.** All code changes are in the working tree, verified~~ resolved — push happened 2026-08-30; templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT reported
-   green per-module (core, realtime, cqrs, docs-mod), but NOT committed; the
-   plan's M12.3 all-module sweep (single pass incl. flightrecorder +
-   errorpages) not yet run as one command.
+green per-module (core, realtime, cqrs, docs-mod), but NOT committed; the
+plan's M12.3 all-module sweep (single pass incl. flightrecorder +
+errorpages) not yet run as one command.
 ~~2. **cqrs lint debt (session-2 ledger item #3).** 15 of 17 findings fixed~~ resolved — push happened 2026-08-30; templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT reported
-   (renames verified green under -race). Remaining: `metrics_test.go:185`
-   `srv.Client().Get` → `Do(NewRequestWithContext)`.
+(renames verified green under -race). Remaining: `metrics_test.go:185`
+`srv.Client().Get` → `Do(NewRequestWithContext)`.
 ~~3. **M11 loose ends.** cqrs-htmx branch not merged to master, not pushed;~~ resolved — push happened 2026-08-30; templ-components fix merged upstream; cqrs-htmx transport merged, spike ADOPT reported
-   no root release containing `transport/` (blocks dashboardui migration);
-   go-appkit side documents the composition path in AGENTS.md but ships no
-   compile-tested consumer example of transport→realtime.Hub.
+no root release containing `transport/` (blocks dashboardui migration);
+go-appkit side documents the composition path in AGENTS.md but ships no
+compile-tested consumer example of transport→realtime.Hub.
 
 ## c) NOT STARTED ❌
 
@@ -86,28 +86,28 @@ Daemon auto-commits this session: `83ebcbd`, `ce8b245` (dep drift).
 ## d) TOTALLY FUCKED UP 💥 (honest)
 
 ~~1. **Misdiagnosed my own Wrap bug scope.** Ledger claimed `/health/` vs~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
-   `/health` triggered it; actually stdlib 404s `/health/` by design. Only
-   `path.Clean`-rewritten paths redirect. Cost: one wrong test table + one
-   doc-comment correction. Commit message states the corrected scope.
+`/health` triggered it; actually stdlib 404s `/health/` by design. Only
+`path.Clean`-rewritten paths redirect. Cost: one wrong test table + one
+doc-comment correction. Commit message states the corrected scope.
 ~~2. **Overstated cqrs-htmx's weight.** Claimed "single-package framework with~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
-   casbin+ginkgo compiling in" — user called it out ("It is not??!").
-   Truth: 21+ sub-packages exist; root package compiles ~22 external pkgs
-   (no casbin — it's not in root deps; ginkgo is test-only). Root-cause of my
-   error: reasoning from the AGENTS.md architecture section instead of
-   running `go list -deps` first.
+casbin+ginkgo compiling in" — user called it out ("It is not??!").
+Truth: 21+ sub-packages exist; root package compiles ~22 external pkgs
+(no casbin — it's not in root deps; ginkgo is test-only). Root-cause of my
+error: reasoning from the AGENTS.md architecture section instead of
+running `go list -deps` first.
 ~~3. **Wrote a test against unverified store semantics.** My gap/dedup tests~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
-   seeded cursor "1" not present in `memStore` → empty replay → false test
-   failures and a 10-minute package timeout (hung `readSSEFrame`). Debug
-   cycle wasted before checking `memStore.EventsAfter` (cursor must exist).
+seeded cursor "1" not present in `memStore` → empty replay → false test
+failures and a 10-minute package timeout (hung `readSSEFrame`). Debug
+cycle wasted before checking `memStore.EventsAfter` (cursor must exist).
 ~~4. **Two malformed question-tool calls** (invalid `type`, then missing~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
-   `description`) before the successful one.
+`description`) before the successful one.
 ~~5. **Mechanical renames committed-to-tree without immediate build.** Regex~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
-   rename of `db`→`bundleDB` missed a reference in an error-format call
-   (`eventservice.go:270`) — caught by the verification build minutes later,
-   but it sat broken in the tree between edit and check.
+rename of `db`→`bundleDB` missed a reference in an error-format call
+(`eventservice.go:270`) — caught by the verification build minutes later,
+but it sat broken in the tree between edit and check.
 ~~6. **Question drift:** posed the delivery decision as 3 options (A/B/C);~~ owned and fixed in sessions 4-5 (benchstat discipline recorded)
-   user invented a better 4th (D: transport/ sub-package). Should have
-   offered the sub-package option myself — it was derivable from the facts.
+user invented a better 4th (D: transport/ sub-package). Should have
+offered the sub-package option myself — it was derivable from the facts.
 
 ## e) HOW TO IMPROVE (concrete)
 
@@ -179,12 +179,12 @@ Daemon auto-commits this session: `83ebcbd`, `ce8b245` (dep drift).
 ## Open Questions for the User
 
 ~~1. **Push/merge approval (blocking #3–5, #33):** May I merge~~ Answered: pushed 2026-08-30; templ fix merged upstream; cqrs-htmx dispositioned
-   `feat/transport-package` → master in cqrs-htmx and push? May I push the 13
-   local commits on go-appkit master? Both repos are yours; nothing has been
-   pushed.
+`feat/transport-package` → master in cqrs-htmx and push? May I push the 13
+local commits on go-appkit master? Both repos are yours; nothing has been
+pushed.
 ~~2. **cqrs-htmx release timing (blocking #5–6):** tag a root release~~ Answered: pushed 2026-08-30; templ fix merged upstream; cqrs-htmx dispositioned
-   containing `transport/` now (e.g. v4.9.0) so dashboardui can migrate, or
-   batch it with M15?
+containing `transport/` now (e.g. v4.9.0) so dashboardui can migrate, or
+batch it with M15?
 ~~3. **Cross-repo PRs (blocking #15):** for M14, may I push a branch to~~ Answered: pushed 2026-08-30; templ fix merged upstream; cqrs-htmx dispositioned
-   templ-components and open a PR? (M18 spike stays local in cqrs-htmx unless
-   you say otherwise.)
+templ-components and open a PR? (M18 spike stays local in cqrs-htmx unless
+you say otherwise.)

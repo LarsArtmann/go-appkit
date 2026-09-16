@@ -34,11 +34,11 @@ gaps in testing, convention adherence, and missing deliverables.
 
 ## b) PARTIALLY DONE
 
-~~| Item           | What exists                                                    | What's missing                                                                                |~~ resolved
+~~| Item | What exists | What's missing |~~ resolved
 ~~| -------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |~~ resolved
-~~| Test coverage  | 16 tests covering happy paths, options, nil trigger            | No concurrent/race tests, no coverage % measured, no benchmark, no test for disabled recorder |~~ resolved
-~~| AGENTS.md docs | Module section added, gotchas documented                       | Build commands section doesn't include `go build ./...` line (inconsistent with cqrs pattern) |~~ resolved
-~~| doc.go         | Package doc written with quick-start, architecture explanation | **Quick-start example is BROKEN** (see section d)                                             |~~ resolved
+~~| Test coverage | 16 tests covering happy paths, options, nil trigger | No concurrent/race tests, no coverage % measured, no benchmark, no test for disabled recorder |~~ resolved
+~~| AGENTS.md docs | Module section added, gotchas documented | Build commands section doesn't include `go build ./...` line (inconsistent with cqrs pattern) |~~ resolved
+~~| doc.go | Package doc written with quick-start, architecture explanation | **Quick-start example is BROKEN** (see section d) |~~ resolved
 
 ---
 
@@ -115,35 +115,35 @@ convention.
 ### Architecture & API Design
 
 ~~1. **Consider a `Recorder` wrapper type** — Instead of requiring users to import~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-   `go-flightrecorder` directly (creating the package name collision problem),
-   this module could re-export or wrap the `Recorder` type. Users would only
-   need one import.
+`go-flightrecorder` directly (creating the package name collision problem),
+this module could re-export or wrap the `Recorder` type. Users would only
+need one import.
 
 ~~2. **`Middleware` should expose the `TriggerContext` it constructs** — Currently~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-   the trigger context is hardcoded to `Kind: "http"`. For CQRS or other
-   contexts, users might want to customize this.
+the trigger context is hardcoded to `Kind: "http"`. For CQRS or other
+contexts, users might want to customize this.
 
 ~~3. **Missing `WithSnapshotDir` option** — Production users want snapshots to go~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-   to a directory with timestamp-based filenames, not overwrite a single file.
-   The current API forces them to use `WithWriter` and implement this themselves.
+to a directory with timestamp-based filenames, not overwrite a single file.
+The current API forces them to use `WithWriter` and implement this themselves.
 
 ~~4. **No health/status endpoint** — No way to check if the recorder is enabled,~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-   how many snapshots have been captured, last capture time, etc.
+how many snapshots have been captured, last capture time, etc.
 
 ~~5. **No rate limiting on captures** — Under sustained errors, the middleware~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-   will capture on every request (with autoReset). A production system needs
-   rate limiting (e.g., max 1 capture per 30s).
+will capture on every request (with autoReset). A production system needs
+rate limiting (e.g., max 1 capture per 30s).
 
 ### Testing
 
 ~~6. **Measure and report coverage** — Never ran `go test -cover`.~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
 ~~7. **Add concurrent stress test** — 100 goroutines hitting the middleware~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-   simultaneously to verify the once-latch works under real load.
+simultaneously to verify the once-latch works under real load.
 ~~8. **Add test for the "recorder not enabled" edge case** in both middleware~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-   and handler.
+and handler.
 ~~9. **Add test for status code 0 (no WriteHeader call)** — What happens when a~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-   handler panics and Recovery middleware catches it? The ResponseRecorder
-   status would be 0.
+handler panics and Recovery middleware catches it? The ResponseRecorder
+status would be 0.
 ~~10. **Add benchmark** — Measure middleware overhead per request.~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
 
 ### Documentation
@@ -152,14 +152,14 @@ convention.
 ~~12. **Write design doc** at `docs/planning/flightrecorder-design.md`.~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
 ~~13. **Add example file** showing full integration with `appkit.NewService`.~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
 ~~14. **Document the `TriggerContext` mapping** — Explain that HTTP status codes~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-    become `Err` in the trigger context and how that interacts with each
-    trigger type.
+become `Err` in the trigger context and how that interacts with each
+trigger type.
 
 ### Convention Compliance
 
 ~~15. **Use `errorfamily` constructors** instead of `fmt.Errorf`.~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
 ~~16. **Run through BuildFlow pre-commit hook** — Never verified gofumpt/golines/gci~~ done, Won't, or routed — the API-design ideas stayed upstream (fr owns them); testing items covered by the race suite; docs fixed 2026-09-16
-    compliance.
+compliance.
 
 ---
 

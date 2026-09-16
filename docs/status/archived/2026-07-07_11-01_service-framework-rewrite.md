@@ -39,41 +39,41 @@ is ~12 lines for a production service.
 
 ## b) PARTIALLY DONE (Functional but incomplete)
 
-| Item                      | What works                                                                           | What's missing                                                                                                                                      |
-| ------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-~~| **Service tests**         | Construction, defaults, validation, health, custom route, drain, close, addr/running | No middleware-specific tests (panic recovery, request ID presence, logging capture). No httpspec.Run test.                                          |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **Error-family adoption** | Constructors used in config.go, logger.go, service.go. Re-exports in errors.go.      | No RegisterClassifier for third-party errors. HTTPHandler pattern not yet documented in example.                                                    |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **Planning docs**         | 5 .md files + README index written and committed.                                    | Overlapping content (error-family 3-layer adoption appears in design-decisions.md, integrations.md, AND framework-architecture.md — DRY violation). |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **Graceful drain**        | Works: readyProbe flips → DrainDelay → server.Shutdown. Tested.                      | No integration test verifying LoadBalancer behavior. DrainDelay=0 in some tests for speed (not testing drain there).                                |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+| Item | What works                | What's missing                                                                       |
+| ---- | ------------------------- | ------------------------------------------------------------------------------------ |
+| ~~   | **Service tests**         | Construction, defaults, validation, health, custom route, drain, close, addr/running |
+| ~~   | **Error-family adoption** | Constructors used in config.go, logger.go, service.go. Re-exports in errors.go.      |
+| ~~   | **Planning docs**         | 5 .md files + README index written and committed.                                    |
+| ~~   | **Graceful drain**        | Works: readyProbe flips → DrainDelay → server.Shutdown. Tested.                      |
 
 ---
 
 ## c) NOT STARTED
 
-| Item                                   | Impact | Notes                                                                       |
-| -------------------------------------- | ------ | --------------------------------------------------------------------------- |
-~~| **example/main.go**                    | High   | 12-line demo service with HandleError CLI terminator.                       |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **README.md rewrite**                  | High   | Currently describes old "5 helpers" library. Must show framework API.       |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **AGENTS.md update**                   | Medium | Still describes old architecture (server.go, sqlite.go, HealthStatus enum). |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **CQRS sub-module** (`go-appkit/cqrs`) | Medium | EventService wrapping stack/sqlite.New. Separate go.mod.                    |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **Docs sub-module** (`go-appkit/docs`) | Low    | Catalog wrapper for AsyncAPI/OpenAPI/D2. Separate go.mod.                   |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **go.work workspace**                  | Medium | Multi-module workspace file for developing cqrs/docs alongside core.        |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **flake.nix**                          | Medium | AGENTS.md mandates flake.nix but it doesn't exist.                          |~~ Won't implement — project standard is plain Go tooling (AGENTS.md)
-~~| **Tag v1.0.0**                         | High   | Blocked on README + example + AGENTS.md update.                             |~~ NOT-DO — superseded by the 0.x wave strategy; v1.0.0 exit criteria drafted 2026-09-04
+| Item | Impact                                 | Notes  |
+| ---- | -------------------------------------- | ------ |
+| ~~   | **example/main.go**                    | High   |
+| ~~   | **README.md rewrite**                  | High   |
+| ~~   | **AGENTS.md update**                   | Medium |
+| ~~   | **CQRS sub-module** (`go-appkit/cqrs`) | Medium |
+| ~~   | **Docs sub-module** (`go-appkit/docs`) | Low    |
+| ~~   | **go.work workspace**                  | Medium |
+| ~~   | **flake.nix**                          | Medium |
+| ~~   | **Tag v1.0.0**                         | High   |
 
 ---
 
 ## d) WHAT'S BROKEN / RISKY / CONCERNING
 
-| Issue                                       | Severity | Detail                                                                                                                                                           |
-| ------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-~~| **httputil v0.5.0, not v0.4.0**             | Low      | Plan docs say v0.4.0. Actual resolved version is v0.5.0 (latest). Plan docs are stale on version numbers.                                                        |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **LSP typecheck warnings**                  | Cosmetic | 5 stale "other declaration of defaultReadTimeout" warnings from LSP cache. `go build` and `go vet` pass clean. LSP hasn't refreshed after file deletion.         |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **Test runtime ~5s**                        | Low      | Default DrainDelay=5s makes some tests slow. Mitigated with DrainDelay:0 in non-drain tests, but default-config test still waits 5s.                             |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **`http.Get` in tests triggers noctx lint** | Low      | Tests use `http.Get` directly. golangci-lint flags this. BuildFlow's repair pass auto-fixed it at commit time, but the source should use context-aware requests. |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **README is completely stale**              | High     | Describes old library. Anyone reading the repo RIGHT NOW will be confused.                                                                                       |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **AGENTS.md is stale**                      | Medium   | References deleted files (server.go, sqlite.go, HealthStatus enum). Will confuse future AI sessions.                                                             |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **Planning docs have DRY violations**       | Low      | Error-family 3-layer adoption duplicated across 3 docs.                                                                                                          |~~ Won't implement — internal docs, deliberately not consolidated
+| Issue | Severity                                    | Detail   |
+| ----- | ------------------------------------------- | -------- |
+| ~~    | **httputil v0.5.0, not v0.4.0**             | Low      |
+| ~~    | **LSP typecheck warnings**                  | Cosmetic |
+| ~~    | **Test runtime ~5s**                        | Low      |
+| ~~    | **`http.Get` in tests triggers noctx lint** | Low      |
+| ~~    | **README is completely stale**              | High     |
+| ~~    | **AGENTS.md is stale**                      | Medium   |
+| ~~    | **Planning docs have DRY violations**       | Low      |
 
 ---
 
@@ -93,33 +93,33 @@ is ~12 lines for a production service.
 
 ## f) Next 25 Tasks (Sorted by Impact ÷ Effort)
 
-| #  | Task                                                   | Impact   | Effort | Priority |
-| -- | ------------------------------------------------------ | -------- | ------ | -------- |
-~~| 1  | Rewrite README.md for framework API                    | Critical | 30m    | P0       |~~ done at 9356d1d (session 2)
-~~| 2  | Create example/main.go (12-line service)               | High     | 15m    | P0       |~~ done at 9356d1d
-~~| 3  | Update AGENTS.md (architecture, file map)              | High     | 20m    | P0       |~~ done at 9356d1d
-~~| 4  | Fix test HTTP requests (noctx lint)                    | Medium   | 15m    | P1       |~~ done 2026-08-17 (noctx fixes)
-~~| 5  | Add middleware test: panic → 500                       | High     | 15m    | P1       |~~ done 2026-07-07 (middleware tests)
-~~| 6  | Add middleware test: X-Request-ID present              | Medium   | 10m    | P1       |~~ done 2026-07-07
-~~| 7  | Add middleware test: logging captured                  | Medium   | 15m    | P1       |~~ done 2026-07-07
-~~| 8  | Add httpspec.Run conformance test                      | Medium   | 15m    | P1       |~~ done 2026-07-07 (httpspec_test.go)
-~~| 9  | Add ServiceConfig_test.go (table-driven validation)    | Medium   | 15m    | P2       |~~ done 2026-07-07 (config_test.go)
-~~| 10 | Fix DrainDelay test helper (near-zero default)         | Low      | 10m    | P2       |~~ done at v0.4.0 (NoDrainDelay)
-~~| 11 | Tag v1.0.0 (after README + example)                    | Critical | 5m     | P2       |~~ NOT-DO — superseded by 0.x wave strategy
-~~| 12 | Consolidate error-family docs (DRY)                    | Low      | 20m    | P2       |~~ Won't implement — internal docs
-~~| 13 | Update planning docs version numbers (v0.5.0)          | Low      | 10m    | P2       |~~ NOT-DO — obsolete
-~~| 14 | Add `WithLogger(logger)` option                        | Low      | 15m    | P3       |~~ done 2026-08-15 (v4 migration, jsonv2)
-~~| 15 | Add structured shutdown logging                        | Low      | 15m    | P3       |~~ done 2026-08-15 (READMEs created)
-~~| 16 | Document httputil.Server non-delegation decision       | Medium   | 10m    | P3       |~~ done 2026-08-15 (cqrs/README.md)
-~~| 17 | Create go.work workspace file                          | Medium   | 10m    | P3       |~~ done 2026-08-15
-~~| 18 | Create cqrs/go.mod + EventService stub                 | Medium   | 30m    | P4       |~~ done 2026-08-15 (M05 logger wiring)
-~~| 19 | Implement cqrs EventService (stack/sqlite.New wrapper) | Medium   | 45m    | P4       |~~ done 2026-08-15 (staleness guards replaced this design)
-~~| 20 | cqrs: Service integration (Shutdown calls es.Shutdown) | Medium   | 30m    | P4       |~~ done 2026-08-15 (M08 readiness)
-~~| 21 | cqrs: E2E test (command → event → projection → health) | High     | 60m    | P4       |~~ done 2026-08-15 (M06 DLQ)
-~~| 22 | Create docs/go.mod + catalog wrapper                   | Low      | 30m    | P5       |~~ done 2026-08-15 (M03)
-~~| 23 | Implement docs RegisterDocs (catalog routes)           | Low      | 45m    | P5       |~~ NOT-DO — superseded: ServiceConfig composes instead
-~~| 24 | Create flake.nix (build/lint/test automation)          | Medium   | 30m    | P5       |~~ Won't implement — no demand
-~~| 25 | Final review: brutal-self-review skill                 | Medium   | 30m    | P5       |~~ done 2026-08-16 (go.work + workspace verification)
+| #  | Task | Impact                                                 | Effort   | Priority |
+| -- | ---- | ------------------------------------------------------ | -------- | -------- |
+| ~~ | 1    | Rewrite README.md for framework API                    | Critical | 30m      |
+| ~~ | 2    | Create example/main.go (12-line service)               | High     | 15m      |
+| ~~ | 3    | Update AGENTS.md (architecture, file map)              | High     | 20m      |
+| ~~ | 4    | Fix test HTTP requests (noctx lint)                    | Medium   | 15m      |
+| ~~ | 5    | Add middleware test: panic → 500                       | High     | 15m      |
+| ~~ | 6    | Add middleware test: X-Request-ID present              | Medium   | 10m      |
+| ~~ | 7    | Add middleware test: logging captured                  | Medium   | 15m      |
+| ~~ | 8    | Add httpspec.Run conformance test                      | Medium   | 15m      |
+| ~~ | 9    | Add ServiceConfig_test.go (table-driven validation)    | Medium   | 15m      |
+| ~~ | 10   | Fix DrainDelay test helper (near-zero default)         | Low      | 10m      |
+| ~~ | 11   | Tag v1.0.0 (after README + example)                    | Critical | 5m       |
+| ~~ | 12   | Consolidate error-family docs (DRY)                    | Low      | 20m      |
+| ~~ | 13   | Update planning docs version numbers (v0.5.0)          | Low      | 10m      |
+| ~~ | 14   | Add `WithLogger(logger)` option                        | Low      | 15m      |
+| ~~ | 15   | Add structured shutdown logging                        | Low      | 15m      |
+| ~~ | 16   | Document httputil.Server non-delegation decision       | Medium   | 10m      |
+| ~~ | 17   | Create go.work workspace file                          | Medium   | 10m      |
+| ~~ | 18   | Create cqrs/go.mod + EventService stub                 | Medium   | 30m      |
+| ~~ | 19   | Implement cqrs EventService (stack/sqlite.New wrapper) | Medium   | 45m      |
+| ~~ | 20   | cqrs: Service integration (Shutdown calls es.Shutdown) | Medium   | 30m      |
+| ~~ | 21   | cqrs: E2E test (command → event → projection → health) | High     | 60m      |
+| ~~ | 22   | Create docs/go.mod + catalog wrapper                   | Low      | 30m      |
+| ~~ | 23   | Implement docs RegisterDocs (catalog routes)           | Low      | 45m      |
+| ~~ | 24   | Create flake.nix (build/lint/test automation)          | Medium   | 30m      |
+| ~~ | 25   | Final review: brutal-self-review skill                 | Medium   | 30m      |
 
 ---
 

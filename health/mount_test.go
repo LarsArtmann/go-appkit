@@ -334,6 +334,7 @@ func TestMount_DrainKeepsRefreshLoopRunning(t *testing.T) {
 			if fail.Load() {
 				return errors.New("connection refused")
 			}
+
 			return nil
 		},
 	}

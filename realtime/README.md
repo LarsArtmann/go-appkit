@@ -57,13 +57,13 @@ hub.BroadcastPatch(datastar.NewElementsPatch("<div>Hi</div>",
 
 ## Options
 
-| Option                                   | Default | Effect                                                     |
-| ---------------------------------------- | ------- | ---------------------------------------------------------- |
-| `NewHub(WithStore(store))`               | nil     | Enable `Last-Event-ID` replay                              |
-| `NewHub(WithBufferSize(n))`              | 64      | Per-subscriber event buffer                                |
-| `Mount(..., WithHeartbeat(d))`           | 15s     | Comment-ping interval; `0` disables                        |
-| `Mount(..., WithCORSOrigin(origin))`     | `*`     | Tighten for production                                     |
-| `Mount(..., WithFilter(pred))`           | nil     | Per-endpoint event predicate                               |
+| Option                               | Default | Effect                              |
+| ------------------------------------ | ------- | ----------------------------------- |
+| `NewHub(WithStore(store))`           | nil     | Enable `Last-Event-ID` replay       |
+| `NewHub(WithBufferSize(n))`          | 64      | Per-subscriber event buffer         |
+| `Mount(..., WithHeartbeat(d))`       | 15s     | Comment-ping interval; `0` disables |
+| `Mount(..., WithCORSOrigin(origin))` | `*`     | Tighten for production              |
+| `Mount(..., WithFilter(pred))`       | nil     | Per-endpoint event predicate        |
 
 The handler flushes headers immediately after `NewStream`, so clients and
 reverse proxies get the 200 OK without waiting for the first event.

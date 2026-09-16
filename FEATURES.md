@@ -29,19 +29,19 @@ aspirations.
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
-| Feature                              | Status           | Evidence                 |
-| ------------------------------------ | ---------------- | ------------------------ |
-| `EventService` over go-cqrs-lite `system` engine (v0.5.0) | FULLY_FUNCTIONAL | `eventservice.go`        |
-| Command/query facade (`RegisterDecider`/`RegisterCommand`/`RegisterQuery`, `Dispatch`, `DispatchQueryChecked`) | FULLY_FUNCTIONAL | `commands.go`, `commands_test.go` |
-| Operator config (`DSN`/`Driver`/`Pragmas`, `ConfigPath` YAML+env, `Deployment`) | FULLY_FUNCTIONAL | `eventservice.go`, `example_test.go` |
-| In-flight command drain on `Shutdown` | FULLY_FUNCTIONAL | `eventservice_test.go`   |
-| `EventConfig.Logger` worker logging  | FULLY_FUNCTIONAL | `logger_test.go`         |
-| DLQ (SQLite) + replay/purge          | FULLY_FUNCTIONAL | `dlq_test.go`            |
-| `EventConfig.FlightRecorder` (shared `*fr.Recorder`) | FULLY_FUNCTIONAL | `flightrecorder_test.go` |
-| `EventConfig.Metrics` recorder hook  | FULLY_FUNCTIONAL | `metrics_test.go`        |
-| Projection readiness + lag accessors (`ReadyCheck` reports NOT-ready before `StartProjections`) | FULLY_FUNCTIONAL | `readiness_test.go`      |
-| Read-your-writes staleness guards    | FULLY_FUNCTIONAL | `staleness_test.go`      |
-| OTel projection metrics adapter      | FULLY_FUNCTIONAL | `otelmetrics.go`         |
+| Feature                                                                                                        | Status           | Evidence                             |
+| -------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------ |
+| `EventService` over go-cqrs-lite `system` engine (v0.5.0)                                                      | FULLY_FUNCTIONAL | `eventservice.go`                    |
+| Command/query facade (`RegisterDecider`/`RegisterCommand`/`RegisterQuery`, `Dispatch`, `DispatchQueryChecked`) | FULLY_FUNCTIONAL | `commands.go`, `commands_test.go`    |
+| Operator config (`DSN`/`Driver`/`Pragmas`, `ConfigPath` YAML+env, `Deployment`)                                | FULLY_FUNCTIONAL | `eventservice.go`, `example_test.go` |
+| In-flight command drain on `Shutdown`                                                                          | FULLY_FUNCTIONAL | `eventservice_test.go`               |
+| `EventConfig.Logger` worker logging                                                                            | FULLY_FUNCTIONAL | `logger_test.go`                     |
+| DLQ (SQLite) + replay/purge                                                                                    | FULLY_FUNCTIONAL | `dlq_test.go`                        |
+| `EventConfig.FlightRecorder` (shared `*fr.Recorder`)                                                           | FULLY_FUNCTIONAL | `flightrecorder_test.go`             |
+| `EventConfig.Metrics` recorder hook                                                                            | FULLY_FUNCTIONAL | `metrics_test.go`                    |
+| Projection readiness + lag accessors (`ReadyCheck` reports NOT-ready before `StartProjections`)                | FULLY_FUNCTIONAL | `readiness_test.go`                  |
+| Read-your-writes staleness guards                                                                              | FULLY_FUNCTIONAL | `staleness_test.go`                  |
+| OTel projection metrics adapter                                                                                | FULLY_FUNCTIONAL | `otelmetrics.go`                     |
 
 ## docs (`github.com/larsartmann/go-appkit/docs`)
 
@@ -120,20 +120,20 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
 
-| Feature                                                  | Status           | Evidence                              |
-| -------------------------------------------------------- | ---------------- | ------------------------------------- |
-| Provider setup (`Setup`, options incl. `WithSampler`)    | FULLY_FUNCTIONAL | `setup.go`, `setup_test.go`           |
-| Flush-safe shutdown (ForceFlush before Shutdown)         | FULLY_FUNCTIONAL | `setup.go:135`, `setup_test.go`       |
+| Feature                                                  | Status               | Evidence                                                                                                                                                                 |
+| -------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Provider setup (`Setup`, options incl. `WithSampler`)    | FULLY_FUNCTIONAL     | `setup.go`, `setup_test.go`                                                                                                                                              |
+| Flush-safe shutdown (ForceFlush before Shutdown)         | FULLY_FUNCTIONAL     | `setup.go:135`, `setup_test.go`                                                                                                                                          |
 | otelhttp middleware bridge (server spans)                | PARTIALLY_FUNCTIONAL | `middleware.go`, `middleware_test.go`; pattern-named spans + `http.route` metrics are LOST through `OuterMiddlewares` (verified 2026-09-15, see otel README known issue) |
-| W3C trace-context + baggage propagation                  | FULLY_FUNCTIONAL | `attributes.go`, `middleware_test.go` |
-| Health-endpoint tracing/metrics filter (unconditional)   | FULLY_FUNCTIONAL | `middleware.go:170`                   |
-| Public-endpoint mode (remote parents → links)            | FULLY_FUNCTIONAL | `middleware_test.go`                  |
-| Custom path/predicate filters                            | FULLY_FUNCTIONAL | `middleware_test.go`                  |
-| Route-attributed, cardinality-safe HTTP metrics          | PARTIALLY_FUNCTIONAL | `metrics_test.go`; route attribute only survives adjacent-to-mux wiring (known issue above) |
-| Semconv histogram views (`http.server.request.duration`) | FULLY_FUNCTIONAL | `views.go`, `metrics_test.go`         |
-| Trace-correlated logging (`TraceHandler`, ID helpers)    | FULLY_FUNCTIONAL | `logging.go`, `logging_test.go`       |
-| Strictly opt-in no-op mode (no provider → pass-through)  | FULLY_FUNCTIONAL | `middleware_test.go`                  |
-| Runnable example (PORT-aware, E2E-verified)              | FULLY_FUNCTIONAL | `example/main.go`                     |
+| W3C trace-context + baggage propagation                  | FULLY_FUNCTIONAL     | `attributes.go`, `middleware_test.go`                                                                                                                                    |
+| Health-endpoint tracing/metrics filter (unconditional)   | FULLY_FUNCTIONAL     | `middleware.go:170`                                                                                                                                                      |
+| Public-endpoint mode (remote parents → links)            | FULLY_FUNCTIONAL     | `middleware_test.go`                                                                                                                                                     |
+| Custom path/predicate filters                            | FULLY_FUNCTIONAL     | `middleware_test.go`                                                                                                                                                     |
+| Route-attributed, cardinality-safe HTTP metrics          | PARTIALLY_FUNCTIONAL | `metrics_test.go`; route attribute only survives adjacent-to-mux wiring (known issue above)                                                                              |
+| Semconv histogram views (`http.server.request.duration`) | FULLY_FUNCTIONAL     | `views.go`, `metrics_test.go`                                                                                                                                            |
+| Trace-correlated logging (`TraceHandler`, ID helpers)    | FULLY_FUNCTIONAL     | `logging.go`, `logging_test.go`                                                                                                                                          |
+| Strictly opt-in no-op mode (no provider → pass-through)  | FULLY_FUNCTIONAL     | `middleware_test.go`                                                                                                                                                     |
+| Runnable example (PORT-aware, E2E-verified)              | FULLY_FUNCTIONAL     | `example/main.go`                                                                                                                                                        |
 
 Known limitation: httputil's `Logging` middleware emits the request-completion
 line without request context, so only handler-level logs correlate with spans

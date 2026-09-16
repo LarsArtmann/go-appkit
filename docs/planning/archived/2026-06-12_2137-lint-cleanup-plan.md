@@ -6,22 +6,22 @@
 
 ## Issue Inventory (42 total, sorted by linter and impact)
 
-~~| #  | Linter             | File:Line                                              | Category         | Impact | Effort | Priority |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| # | Linter | File:Line | Category | Impact | Effort | Priority |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
 ~~| -- | ------------------ | ------------------------------------------------------ | ---------------- | ------ | ------ | -------- |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 1  | `depguard`         | sqlite.go:9                                            | Security/Cfg     | High   | Low    | 1        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 2  | `errcheck`         | shutdown_test.go:82                                    | Test correctness | Med    | Low    | 2        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 3  | `errchkjson`       | health.go:44                                           | Correctness      | High   | Low    | 3        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 4  | `wrapcheck`        | server.go:119                                          | API contract     | Med    | Low    | 4        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 5  | `contextcheck`     | shutdown.go:44,48                                      | Correctness      | High   | Low    | 5        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 6  | `forcetypeassert`  | server_test.go:194                                     | Test safety      | Med    | Low    | 6        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 7  | `gosec`            | server_test.go:189                                     | Test safety      | Med    | Low    | 7        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 8  | `gochecknoglobals` | sqlite.go:12                                           | Style            | Low    | Med    | 8        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 9  | `goconst`          | sqlite.go:13                                           | Style            | Low    | Low    | 9        |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 10 | `exhaustruct`      | server.go:23,70,72; logger.go:75                       | Style            | Low    | Low    | 10       |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 11 | `mnd`              | server.go:24-27, shutdown.go:21                        | Readability      | Med    | Low    | 11       |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 12 | `err113`           | logger.go:38,51; sqlite.go:45,74; shutdown_test.go:42  | Quality          | Med    | Low    | 12       |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 13 | `varnamelen`       | logger.go:42,66; sqlite.go:48; sqlite_test.go:15,56,79 | Readability      | Low    | Low    | 13       |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
-~~| 14 | `noctx`            | server.go:84; sqlite.go:77; tests                      | Correctness      | High   | Med    | 14       |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 1 | `depguard` | sqlite.go:9 | Security/Cfg | High | Low | 1 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 2 | `errcheck` | shutdown_test.go:82 | Test correctness | Med | Low | 2 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 3 | `errchkjson` | health.go:44 | Correctness | High | Low | 3 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 4 | `wrapcheck` | server.go:119 | API contract | Med | Low | 4 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 5 | `contextcheck` | shutdown.go:44,48 | Correctness | High | Low | 5 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 6 | `forcetypeassert` | server_test.go:194 | Test safety | Med | Low | 6 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 7 | `gosec` | server_test.go:189 | Test safety | Med | Low | 7 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 8 | `gochecknoglobals` | sqlite.go:12 | Style | Low | Med | 8 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 9 | `goconst` | sqlite.go:13 | Style | Low | Low | 9 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 10 | `exhaustruct` | server.go:23,70,72; logger.go:75 | Style | Low | Low | 10 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 11 | `mnd` | server.go:24-27, shutdown.go:21 | Readability | Med | Low | 11 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 12 | `err113` | logger.go:38,51; sqlite.go:45,74; shutdown_test.go:42 | Quality | Med | Low | 12 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 13 | `varnamelen` | logger.go:42,66; sqlite.go:48; sqlite_test.go:15,56,79 | Readability | Low | Low | 13 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
+~~| 14 | `noctx` | server.go:84; sqlite.go:77; tests | Correctness | High | Med | 14 |~~ resolved — 42 findings cleared June 2026; lint infra later replaced by per-module golangci configs (2026-08-16/17 standard)
 
 ## Strategy
 
@@ -39,33 +39,33 @@ The most efficient order is **by file** (one pass per file fixes multiple linter
 
 ## Tasks (≤ 12 min each)
 
-~~| #   | Task                                                                                                       | Time | Why                                     |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| # | Task | Time | Why |~~ executed June/July 2026; infra later replaced by per-module configs
 ~~| --- | ---------------------------------------------------------------------------------------------------------- | ---- | --------------------------------------- |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T1  | Add `modernc.org/sqlite` to `depguard.rules.main.allow`                                                    | 2m   | Required dep, depguard should permit it |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T2  | Extract `server.go` magic numbers to `defaultPort`/`defaultReadTimeout`/`...` consts                       | 4m   | mnd                                     |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T3  | Add `//nolint:exhaustruct` or fill missing fields in `ServerConfig{}`/`Server{}`/`http.Server{}`           | 5m   | exhaustruct                             |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T4  | Replace `net.Listen("tcp", addr)` with `&net.ListenConfig{}.Listen(ctx, "tcp", addr)`                      | 5m   | noctx                                   |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T5  | Wrap `s.server.Shutdown(ctx)` error with `fmt.Errorf("shutdown: %w", err)`                                 | 2m   | wrapcheck                               |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T6  | Replace `fmt.Errorf("unsupported log level %q", l)` with `fmt.Errorf("%w: %q", errUnsupportedLogLevel, l)` | 4m   | err113                                  |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T7  | Same for log format in `logger.go`                                                                         | 3m   | err113                                  |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T8  | Rename `w` to `writer` in `logger.go` (param + var)                                                        | 3m   | varnamelen                              |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T9  | Add `AddSource: false` to `slog.HandlerOptions`                                                            | 2m   | exhaustruct                             |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T10 | Replace `errors.New("sqlite path is required")` with `fmt.Errorf("%w", errSQLitePathRequired)`             | 3m   | err113                                  |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T11 | Same for `unsupported PRAGMA` error in `sqlite.go`                                                         | 3m   | err113                                  |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T12 | Define `pragmaJournalMode`/etc consts and use them in `DefaultSQLitePRAGMAs` + map                         | 6m   | goconst + gochecknoglobals              |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T13 | Change `db.Exec` to `db.ExecContext` in `sqlite.go`, threading ctx                                         | 5m   | noctx                                   |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T14 | Rename `db` to `database` in `sqlite.go` and `sqlite_test.go`                                              | 3m   | varnamelen                              |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T15 | Refactor `shutdown.go` to pass ctx directly (inline the helper)                                            | 5m   | contextcheck                            |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T16 | Extract `defaultShutdownTimeout = 15 * time.Second` const                                                  | 2m   | mnd                                     |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T17 | Check `json.NewEncoder(w).Encode(...)` error in `health.go`                                                | 3m   | errchkjson                              |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T18 | Replace all `httptest.NewRequest(...)` with `httptest.NewRequestWithContext(...)` in test files            | 5m   | noctx                                   |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T19 | Replace `http.Get(...)` with `http.NewRequestWithContext` + `client.Do` in `server_test.go`                | 5m   | noctx                                   |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T20 | Replace `db.Ping()` with `db.PingContext(ctx)` in `sqlite_test.go`                                         | 3m   | noctx                                   |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T21 | Handle `syscall.Kill` return value in `shutdown_test.go`                                                   | 2m   | errcheck                                |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T22 | Use static sentinel error in `shutdown_test.go` instead of `errors.New("shutdown failed")`                 | 3m   | err113                                  |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T23 | Use `_, ok := ln.Addr().(*net.TCPAddr)` pattern in `freePort`                                              | 2m   | forcetypeassert                         |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T24 | Use `127.0.0.1:0` (or `localhost:0`) in `freePort` to avoid G102                                           | 2m   | gosec                                   |~~ executed June/July 2026; infra later replaced by per-module configs
-~~| T25 | Run `golangci-lint run ./...` + `go test ./... -race` + `go vet ./...` — must all pass                     | 5m   | Verification                            |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T1 | Add `modernc.org/sqlite` to `depguard.rules.main.allow` | 2m | Required dep, depguard should permit it |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T2 | Extract `server.go` magic numbers to `defaultPort`/`defaultReadTimeout`/`...` consts | 4m | mnd |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T3 | Add `//nolint:exhaustruct` or fill missing fields in `ServerConfig{}`/`Server{}`/`http.Server{}` | 5m | exhaustruct |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T4 | Replace `net.Listen("tcp", addr)` with `&net.ListenConfig{}.Listen(ctx, "tcp", addr)` | 5m | noctx |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T5 | Wrap `s.server.Shutdown(ctx)` error with `fmt.Errorf("shutdown: %w", err)` | 2m | wrapcheck |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T6 | Replace `fmt.Errorf("unsupported log level %q", l)` with `fmt.Errorf("%w: %q", errUnsupportedLogLevel, l)` | 4m | err113 |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T7 | Same for log format in `logger.go` | 3m | err113 |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T8 | Rename `w` to `writer` in `logger.go` (param + var) | 3m | varnamelen |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T9 | Add `AddSource: false` to `slog.HandlerOptions` | 2m | exhaustruct |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T10 | Replace `errors.New("sqlite path is required")` with `fmt.Errorf("%w", errSQLitePathRequired)` | 3m | err113 |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T11 | Same for `unsupported PRAGMA` error in `sqlite.go` | 3m | err113 |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T12 | Define `pragmaJournalMode`/etc consts and use them in `DefaultSQLitePRAGMAs` + map | 6m | goconst + gochecknoglobals |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T13 | Change `db.Exec` to `db.ExecContext` in `sqlite.go`, threading ctx | 5m | noctx |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T14 | Rename `db` to `database` in `sqlite.go` and `sqlite_test.go` | 3m | varnamelen |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T15 | Refactor `shutdown.go` to pass ctx directly (inline the helper) | 5m | contextcheck |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T16 | Extract `defaultShutdownTimeout = 15 * time.Second` const | 2m | mnd |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T17 | Check `json.NewEncoder(w).Encode(...)` error in `health.go` | 3m | errchkjson |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T18 | Replace all `httptest.NewRequest(...)` with `httptest.NewRequestWithContext(...)` in test files | 5m | noctx |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T19 | Replace `http.Get(...)` with `http.NewRequestWithContext` + `client.Do` in `server_test.go` | 5m | noctx |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T20 | Replace `db.Ping()` with `db.PingContext(ctx)` in `sqlite_test.go` | 3m | noctx |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T21 | Handle `syscall.Kill` return value in `shutdown_test.go` | 2m | errcheck |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T22 | Use static sentinel error in `shutdown_test.go` instead of `errors.New("shutdown failed")` | 3m | err113 |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T23 | Use `_, ok := ln.Addr().(*net.TCPAddr)` pattern in `freePort` | 2m | forcetypeassert |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T24 | Use `127.0.0.1:0` (or `localhost:0`) in `freePort` to avoid G102 | 2m | gosec |~~ executed June/July 2026; infra later replaced by per-module configs
+~~| T25 | Run `golangci-lint run ./...` + `go test ./... -race` + `go vet ./...` — must all pass | 5m | Verification |~~ executed June/July 2026; infra later replaced by per-module configs
 
 ## Out of Scope
 

@@ -4,14 +4,14 @@
 **Scope:** this session's own work only — (1) scoped OTEL/telemetry status verification, (2) learnings from `~/projects/nix-email/docs/TELEMETRY.md`, (3) this review. No unrelated research.
 **Format note:** user explicitly requested `.md` at `docs/status/` — an override of both `status-report` and `brutal-self-review` skills' HTML default; honored here and flagged per the skill contract.
 
-| Signals | Count |
-| --- | --- |
-| a) Fully done | 7 |
-| b) Partially done | 4 |
-| c) Not started | 5 |
-| d) Totally fucked up | 4 |
-| f) Next tasks listed | 30 |
-| g) Questions asked | 3 |
+| Signals              | Count |
+| -------------------- | ----- |
+| a) Fully done        | 7     |
+| b) Partially done    | 4     |
+| c) Not started       | 5     |
+| d) Totally fucked up | 4     |
+| f) Next tasks listed | 30    |
+| g) Questions asked   | 3     |
 
 ---
 
@@ -42,8 +42,8 @@
 
 ## d) TOTALLY FUCKED UP
 
-1. **I published a false claim in yesterday's report.** The HTML report's §e said AGENTS had a "23 tests vs 27 listed entries" drift. Verified today: the 27 entries are **23 tests + 3 benchmarks + 1 example** — AGENTS was right, my drift claim was wrong. This is the exact failure mode `verify-external-claims` exists for, applied to *my own output*: I counted a raw `go test -list` total and encoded it as drift without a breakdown. Corrected today with an inline CORRECTION in the HTML report.
-2. **A broken repro harness burned ~6 tool cycles and nearly shipped a wrong conclusion.** My `run()` helper applied `inner` *outside* the otel middleware, so every httptest variant accidentally tested the passing configuration (otel adjacent to the mux). From that broken evidence I stated in chat "my copying-middleware theory is wrong" and went theorizing about ServeMux internals — the theory was fine; the instrument was broken. When evidence contradicts a mechanism-level expectation, inspect the instrument first.
+1. **I published a false claim in yesterday's report.** The HTML report's §e said AGENTS had a "23 tests vs 27 listed entries" drift. Verified today: the 27 entries are **23 tests + 3 benchmarks + 1 example** — AGENTS was right, my drift claim was wrong. This is the exact failure mode `verify-external-claims` exists for, applied to _my own output_: I counted a raw `go test -list` total and encoded it as drift without a breakdown. Corrected today with an inline CORRECTION in the HTML report.
+2. **A broken repro harness burned ~6 tool cycles and nearly shipped a wrong conclusion.** My `run()` helper applied `inner` _outside_ the otel middleware, so every httptest variant accidentally tested the passing configuration (otel adjacent to the mux). From that broken evidence I stated in chat "my copying-middleware theory is wrong" and went theorizing about ServeMux internals — the theory was fine; the instrument was broken. When evidence contradicts a mechanism-level expectation, inspect the instrument first.
 3. **Scratch-file surgery churn:** patched repro files via `sed`/inline Python instead of clean rewrites — one corrupted file state (orphaned function body), three file-modified-guard round trips, and an H2 variant constructed wrong (disclosed and discarded at the time).
 4. **Known-false sales claims left standing in `otel/README.md`** (pattern-named spans; "cardinality safety") even after the regression was proven — the standing doctrine is "trivial, already-understood doc staleness → fix on sight," and I skirted it by filing the note as next-task #3 instead of spending the five minutes.
 
@@ -60,38 +60,38 @@
 
 ## f) UP TO 30 THINGS TO GET DONE NEXT (impact-sorted, from this session only)
 
-| # | Pri | Task |
-| --- | --- | --- |
-| 1 | P0 | Decide fix path (§g Q1) — gates everything below |
-| 2 | P0 | httputil: propagate `r.Pattern` back up in forking middlewares (`requestid.go:82`, `timeout.go:18`, `context.go:31`, logging ctx helper) |
-| 3 | P0 | integration module: pin span name `GET /users/{id}` + `http.route` through the full default stack |
-| 4 | P0 | otel/README: known-issue note (pattern naming + `http.route` lost via `OuterMiddlewares`) until the fix ships; soften the cardinality-safety claim |
-| 5 | P1 | Clean authored commit of the pending doc patches (user-authorized; `--no-verify` + justification if dprint exit-14) |
-| 6 | P1 | benchstat re-baseline at the recorded protocol (3×1s median); correct README table |
-| 7 | P1 | Release train after fix: httputil patch → otel re-tag (v0.1.1/v0.2.0) → fresh-consumer proxy test → integration re-pin |
-| 8 | P1 | Emission catalogue doc: every log line / metric / attribute appkit emits, with default levels (Stalwart §6/§7 pattern) |
-| 9 | P1 | Backpressure doc: lossy-vs-blocking semantics per sink (OTel batcher drops, charm formatting cost, SSE buffer overflow) |
-| 10 | P2 | G2 Prometheus surface: ship basic-auth wired + publish exact metric names as an alert-expression contract |
-| 11 | P2 | Incident-debug recipe: second exporter/verbose tracer toggled without touching the baseline (Stalwart pre-provisioned-tracer pattern) |
-| 12 | P2 | cqrs doctrine note: DLQ/telemetry stores separate from the event store (Stalwart history lesson) |
-| 13 | P2 | SSE filtered live-telemetry battery candidate (realtime + otel/health) → battery spec |
-| 14 | P2 | httputil Logging ctx-aware emit (completion-line correlation) |
-| 15 | P2 | Metrics allow-list option (include-policy) for G2/otel views |
-| 16 | P2 | otel hardening to v0.2.0 (core v1 exit criteria) |
-| 17 | P3 | Runnable OTLP example + jaeger/docker viewing note |
-| 18 | P3 | `WithStdoutMetricReader` (metrics dev-parity with spans) |
-| 19 | P3 | Baggage correlation helpers |
-| 20 | P3 | `appkitotel.Transport()` export (outbound client spans) |
-| 21 | P3 | errorpages: render `trace_id` when a span is active |
-| 22 | P3 | flightrecorder: link snapshot file to active span attribute |
-| 23 | P3 | Telemetry umbrella doc — use the nix-email TELEMETRY.md as the structural template (mental model → baseline → anti-patterns → catalogue → wiring checklist → open items) |
-| 24 | P3 | Route-cardinality fuzz guard (10k distinct paths → bounded series) — double-relevant post-regression |
-| 25 | P3 | Logging-posture decision (default WARN / sampling / consumer logger) — now enriched by the lossy-vs-blocking framing |
-| 26 | P3 | Evaluate per-route sampling/verbosity override (Stalwart `EventTracingLevel` analog) |
-| 27 | P3 | Policy: "verified <date>" stamps on performance/behavior claims in README/AGENTS |
-| 28 | P3 | Re-home the bisection (repo test/doc) when the fix lands; kill the `/tmp` ghost reference |
-| 29 | P3 | HARVEST pass: fold this session's unfiled §f ideas into TODO_LIST/ROADMAP per docs-health |
-| 30 | P3 | Extend a future E2E with the `/boom` error-span path |
+| #  | Pri | Task                                                                                                                                                                     |
+| -- | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1  | P0  | Decide fix path (§g Q1) — gates everything below                                                                                                                         |
+| 2  | P0  | httputil: propagate `r.Pattern` back up in forking middlewares (`requestid.go:82`, `timeout.go:18`, `context.go:31`, logging ctx helper)                                 |
+| 3  | P0  | integration module: pin span name `GET /users/{id}` + `http.route` through the full default stack                                                                        |
+| 4  | P0  | otel/README: known-issue note (pattern naming + `http.route` lost via `OuterMiddlewares`) until the fix ships; soften the cardinality-safety claim                       |
+| 5  | P1  | Clean authored commit of the pending doc patches (user-authorized; `--no-verify` + justification if dprint exit-14)                                                      |
+| 6  | P1  | benchstat re-baseline at the recorded protocol (3×1s median); correct README table                                                                                       |
+| 7  | P1  | Release train after fix: httputil patch → otel re-tag (v0.1.1/v0.2.0) → fresh-consumer proxy test → integration re-pin                                                   |
+| 8  | P1  | Emission catalogue doc: every log line / metric / attribute appkit emits, with default levels (Stalwart §6/§7 pattern)                                                   |
+| 9  | P1  | Backpressure doc: lossy-vs-blocking semantics per sink (OTel batcher drops, charm formatting cost, SSE buffer overflow)                                                  |
+| 10 | P2  | G2 Prometheus surface: ship basic-auth wired + publish exact metric names as an alert-expression contract                                                                |
+| 11 | P2  | Incident-debug recipe: second exporter/verbose tracer toggled without touching the baseline (Stalwart pre-provisioned-tracer pattern)                                    |
+| 12 | P2  | cqrs doctrine note: DLQ/telemetry stores separate from the event store (Stalwart history lesson)                                                                         |
+| 13 | P2  | SSE filtered live-telemetry battery candidate (realtime + otel/health) → battery spec                                                                                    |
+| 14 | P2  | httputil Logging ctx-aware emit (completion-line correlation)                                                                                                            |
+| 15 | P2  | Metrics allow-list option (include-policy) for G2/otel views                                                                                                             |
+| 16 | P2  | otel hardening to v0.2.0 (core v1 exit criteria)                                                                                                                         |
+| 17 | P3  | Runnable OTLP example + jaeger/docker viewing note                                                                                                                       |
+| 18 | P3  | `WithStdoutMetricReader` (metrics dev-parity with spans)                                                                                                                 |
+| 19 | P3  | Baggage correlation helpers                                                                                                                                              |
+| 20 | P3  | `appkitotel.Transport()` export (outbound client spans)                                                                                                                  |
+| 21 | P3  | errorpages: render `trace_id` when a span is active                                                                                                                      |
+| 22 | P3  | flightrecorder: link snapshot file to active span attribute                                                                                                              |
+| 23 | P3  | Telemetry umbrella doc — use the nix-email TELEMETRY.md as the structural template (mental model → baseline → anti-patterns → catalogue → wiring checklist → open items) |
+| 24 | P3  | Route-cardinality fuzz guard (10k distinct paths → bounded series) — double-relevant post-regression                                                                     |
+| 25 | P3  | Logging-posture decision (default WARN / sampling / consumer logger) — now enriched by the lossy-vs-blocking framing                                                     |
+| 26 | P3  | Evaluate per-route sampling/verbosity override (Stalwart `EventTracingLevel` analog)                                                                                     |
+| 27 | P3  | Policy: "verified <date>" stamps on performance/behavior claims in README/AGENTS                                                                                         |
+| 28 | P3  | Re-home the bisection (repo test/doc) when the fix lands; kill the `/tmp` ghost reference                                                                                |
+| 29 | P3  | HARVEST pass: fold this session's unfiled §f ideas into TODO_LIST/ROADMAP per docs-health                                                                                |
+| 30 | P3  | Extend a future E2E with the `/boom` error-span path                                                                                                                     |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
@@ -101,4 +101,4 @@
 
 ---
 
-*Everything behavioral above was re-verified inside this session (race suite, vet/build, live E2E, benchmark re-run, upstream source inspection, count breakdown). The one claim found false — mine — is corrected in `docs/status/2026-09-15_19-48_otel-telemetry-status.html` (inline CORRECTION, 2026-09-16).*
+_Everything behavioral above was re-verified inside this session (race suite, vet/build, live E2E, benchmark re-run, upstream source inspection, count breakdown). The one claim found false — mine — is corrected in `docs/status/2026-09-15_19-48_otel-telemetry-status.html` (inline CORRECTION, 2026-09-16)._

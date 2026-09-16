@@ -65,12 +65,12 @@ Read and understood before implementing:
 
 The design doc says "drain `hub.Shutdown(ctx)` BEFORE `svc.Shutdown(ctx)`", but the consumer must wire this manually. There's no hook in appkit's `Service.Shutdown` to register cleanup callbacks. The consumer writes:
 
-~~```go~~ done — ShutdownHooks (v0.4.0) automate the ordering
+~~`go~~ done — ShutdownHooks (v0.4.0) automate the ordering
 errCh := svc.Start()
 <-errCh
 hub.Shutdown(ctx)
 svc.Shutdown(ctx)
-~~```~~ done — ShutdownHooks (v0.4.0) automate the ordering
+~~`~~ done — ShutdownHooks (v0.4.0) automate the ordering
 
 This works but is error-prone — if the consumer forgets, SSE connections are killed instantly on HTTP shutdown instead of draining.
 

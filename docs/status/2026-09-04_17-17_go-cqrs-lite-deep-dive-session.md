@@ -31,10 +31,11 @@
 ## c) NOT STARTED
 
 ~~- The **next cqrs release wave** (version decision, tag, push-gate process for the breaking change).~~ done at cqrs/v0.5.0 (2026-09-07, system-based engine)
+
 - **EventConfig opt-ins** for encryption/v4, signing/v4, idempotency/sqlstore, scheduling (routed to TODO_LIST).
 - **Installed cqrs-lint 4.8.1 upgrade** (`~/go/bin/cqrs-lint` still 4.6.0).
 - **Cross-module verification wave** — I verified cqrs + docs-mod only; a parallel session's health-module work (noticed in TODO_LIST/git log, not mine) makes a full 9-module build+test sweep due.
-~~- **AGENTS.md Release State refresh** (push happened; breaking change untagged) — held off because a parallel session is editing the same doc.~~ done — Release State refreshed multiple times since; current as of 2026-09-16
+  ~~- **AGENTS.md Release State refresh** (push happened; breaking change untagged) — held off because a parallel session is editing the same doc.~~ done — Release State refreshed multiple times since; current as of 2026-09-16
 - Negative-path trigger test (trigger returns `false` → no capture).
 
 ## d) TOTALLY FUCKED UP
