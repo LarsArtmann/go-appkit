@@ -1,6 +1,6 @@
 # Status Report — SUPERB Execution Wave (Plan → Ship)
 
-**Date:** 2026-09-04 18:57 CEST · **Scope:** this session's execution run only (the `docs/planning/2026-09-04_17-40_SUPERB-release-visibility-and-quality-plan.md` plan, tasks C1–C26 / F1–F77) plus what it noticed in passing. No new research was done for this report.
+**Date:** 2026-09-04 18:57 CEST · **Scope:** this session's execution run only (the `docs/planning/archived/2026-09-04_17-40_SUPERB-release-visibility-and-quality-plan.md` plan (archived 2026-09-16), tasks C1–C26 / F1–F77) plus what it noticed in passing. No new research was done for this report.
 
 **Session one-liner:** executed the whole plan — cut, tagged, pushed and consumer-verified **release wave 2** (core v0.4.0, cqrs v0.4.0, otel v0.1.0, health v0.1.0, flightrecorderhealth v0.1.1), proved the mechanical API-break check on a real release, discovered `encoding/json/v2` is default-on in Go 1.26.7 (invalidating the repo-wide GOEXPERIMENT lore), quantified the logging tax (+30µs/req emitting vs +0.8µs suppressed) and the otel middleware overhead (~6µs, +0 allocs), migrated all 10 modules to exhaustruct_v5, hardened cqrs tests + godoc examples, and left **10/10 modules green** (build + vet + race + lint 0 issues), all pushed.
 
