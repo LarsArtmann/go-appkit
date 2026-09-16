@@ -4,7 +4,7 @@ go 1.26.7
 
 require (
 	github.com/larsartmann/go-flightrecorder v0.2.0
-	github.com/larsartmann/httputil v1.1.1
+	github.com/larsartmann/httputil v1.2.0
 )
 
 require (
