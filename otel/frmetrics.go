@@ -31,20 +31,20 @@ func NewFlightRecorderMetricsHook(meter metric.Meter) flightrecorderMetricsHook 
 		return func(fr.SnapshotEvent, error) {}
 	}
 
-	counter, err := meter.Int64Counter(
+	counter, counterErr := meter.Int64Counter(
 		frSnapshotsTotal,
 		metric.WithDescription("Flight recorder snapshots by source and kind"),
 	)
-	if err != nil {
+	if counterErr != nil {
 		return func(fr.SnapshotEvent, error) {}
 	}
 
-	duration, err := meter.Float64Histogram(
+	duration, durationErr := meter.Float64Histogram(
 		frSnapshotDuration,
 		metric.WithDescription("Snapshot write duration"),
 		metric.WithUnit("s"),
 	)
-	if err != nil {
+	if durationErr != nil {
 		return func(fr.SnapshotEvent, error) {}
 	}
 

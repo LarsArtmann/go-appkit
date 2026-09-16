@@ -18,6 +18,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- `NewFlightRecorderMetricsHook(meter)`: bridges go-flightrecorder's
+  `MetricsHook` into an OTel meter (`appkit_flightrecorder_snapshots_total`
+  by source/kind + `appkit_flightrecorder_snapshot_duration_seconds`).
+  Nil-meter returns a no-op hook.
+
 ## [0.1.0] - 2026-09-04
 
 ### Added

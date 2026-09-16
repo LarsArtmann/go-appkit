@@ -3,6 +3,7 @@ module github.com/larsartmann/go-appkit/otel
 go 1.26.7
 
 require (
+	github.com/larsartmann/go-flightrecorder v0.2.0
 	github.com/larsartmann/httputil v1.2.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.71.0
 	go.opentelemetry.io/otel v1.46.0

@@ -4,6 +4,21 @@
 
 ### Added
 
+- `OpsRecorderPreset(dir, maxSnapshots, maxBytes)`: the documented production
+  option preset (snapshot dir/prefix, retention caps, gzip level 3, 10s
+  minimum trace age).
+
+### Changed
+
+- `SnapshotHandler` returns an explicit 503 "recorder not enabled" when the
+  recorder is disabled — previously a disabled recorder answered 200
+  "snapshot captured" (silent data loss on a debug endpoint).
+- The middleware's synthetic status errors are now go-error-family
+  Infrastructure (`flightrecorder.http_status_error`), so consumer routing
+  classifies them like any other dependency failure.
+
+### Added
+
 - Nothing yet.
 
 ### Fixed
