@@ -5,10 +5,11 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 ## Project Type
 
 - Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.26.7.
-- Ten Go modules in one repo, independently versioned (nine released + the unreleased `integration` test module):
+- Eleven Go modules in one repo, independently versioned (ten released + the unreleased `integration` test module):
   - **core** (`/`) — package `appkit`, HTTP service framework. v0.4.0 (2026-09-04, pushed: lifecycle hooks OuterMiddlewares/ShutdownHooks/DrainHooks + NoDrainDelay); v1.0.0 target.
   - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration over go-cqrs-lite's `system` engine. v0.5.0 (2026-09-07, pushed: BREAKING — engine room moved off the deprecated `stack/sqlite` preset onto `system.New`; `Bundle()` → `System()`; `SQLitePath` → `DSN`/`Driver`/`Pragmas`; adds the typed command/query facade and operator config via `ConfigPath`/`Deployment`). v0.4.0 had aligned `FlightRecorder` to `*go-flightrecorder.Recorder`.
   - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.0 (pushed, proxy-verified).
+  - **security** (`/security`) — package `security`, opt-in HTTP security batteries ported from CV per the canonical battery spec (W2): API-key auth (+GET/HEAD-only `?key=`), CSRF + API-key bypass, keyed rate limits (mandatory `MaxKeys`, 429 aborts chain), origin check, typed body limit, text/URL sanitization (`&not=` trap), CSP nonce + policy builder (unsafe-eval NEVER), env-tuned headers (HSTS production-only). ALL opt-in — nothing joins the default stack. v0.1.0 (2026-09-16). See the Security Module section below.
   - **otel** (`/otel`) — package `otel` (alias `appkitotel`), OpenTelemetry provider setup + otelhttp middleware bridge + trace-correlated logging. v0.1.1 (2026-09-16, pushed: httputil v1.2.0 bump ships pattern-named spans + `http.route` through `OuterMiddlewares`; no API changes). Has `benchmark_test.go` — no-op ~21µs vs full tracing+metrics ~27µs per request (see otel README Performance).
   - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0 (pushed, proxy-verified).
   - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. v0.1.1 (2026-09-04, pushed; go-health v0.0.2 → v0.1.1).

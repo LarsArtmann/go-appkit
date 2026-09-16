@@ -56,6 +56,22 @@ from the module proxy (module path said `.../docs` while the directory was
 the path-A repath (`docs-mod/` → `docs/`, project docs moved to `doc/`) and
 re-tagged as `docs/v0.3.0`, which is the first fetchable docs release.
 
+## security (`github.com/larsartmann/go-appkit/security`)
+
+| Feature                                                      | Status           | Evidence                                              |
+| ------------------------------------------------------------ | ---------------- | ----------------------------------------------------- |
+| API-key auth (header any method; `?key=` GET/HEAD only)      | FULLY_FUNCTIONAL | `apikey.go`, `apikey_test.go` (4 CV pins ported)      |
+| CSRF + fail-closed API-key bypass                            | FULLY_FUNCTIONAL | `csrf.go`, `csrf_bypass_test.go`                      |
+| Keyed rate limits (mandatory `MaxKeys`; 429 aborts chain)    | FULLY_FUNCTIONAL | `ratelimit.go`, `ratelimit_test.go` (429-overwrite pin) |
+| Origin check (Origin→Referer, same-origin always allowed)    | FULLY_FUNCTIONAL | `origin_check.go`, `origin_check_test.go`             |
+| Typed body limit (`*http.MaxBytesError`)                     | FULLY_FUNCTIONAL | `bodylimit.go`, `bodylimit_test.go`                   |
+| Text/URL sanitization (bluemonday; `&not=` trap handled)     | FULLY_FUNCTIONAL | `sanitize.go`, `sanitize_test.go`                     |
+| CSP nonce infra + deterministic policy builder (eval NEVER)  | FULLY_FUNCTIONAL | `csp_nonce.go`, `csp.go`, `csp_test.go`               |
+| Env-tuned security headers (HSTS production-only)            | FULLY_FUNCTIONAL | `headers.go`, `headers_test.go`                       |
+
+ALL opt-in — nothing joins the default stack (anti-recommendation held).
+Ported from the CV production stack per the canonical battery spec (W2).
+
 ## errorpages (`github.com/larsartmann/go-appkit/errorpages`)
 
 | Feature                            | Status           | Evidence                             |
