@@ -75,3 +75,6 @@ appkit never grows application-shaped code.
   linking the snapshot file to the active span (support-handoff UX).
 - Multi-instance realtime: external-bus driver story (NATS/Redis) behind the
   Hub, if a consumer actually scales out.
+- Multi-recorder coordination ADR: one `fr.Recorder` serving the HTTP
+  middleware + projection host + health triggers in one process (the READMEs
+  claim it works; an ADR should own the contract).
