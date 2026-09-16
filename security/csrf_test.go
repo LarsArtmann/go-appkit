@@ -3,8 +3,8 @@ package security_test
 import (
 	"log/slog"
 	"net/http"
-	"strings"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/larsartmann/go-appkit/security"

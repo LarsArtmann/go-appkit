@@ -141,7 +141,7 @@ func TestNonceContextRoundTrip(t *testing.T) {
 // scriptSrcHas reports whether the script-src directive's source list
 // contains the exact token.
 func scriptSrcHas(policy, token string) bool {
-	for _, directive := range strings.Split(policy, "; ") {
+	for directive := range strings.SplitSeq(policy, "; ") {
 		parts := strings.Fields(directive)
 		if len(parts) > 0 && parts[0] == "script-src" {
 			for _, p := range parts[1:] {

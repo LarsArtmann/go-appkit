@@ -28,7 +28,10 @@ func TestSecurityHeaders_HSTSOffOutsideProduction(t *testing.T) {
 	t.Parallel()
 
 	for _, env := range []security.Environment{security.Development, security.Staging} {
-		if got := headerOf(security.SecurityHeaders(security.HeadersConfig{Environment: env}), "Strict-Transport-Security"); got != "" {
+		if got := headerOf(
+			security.SecurityHeaders(security.HeadersConfig{Environment: env}),
+			"Strict-Transport-Security",
+		); got != "" {
 			t.Errorf("%s: Strict-Transport-Security = %q, want empty (HSTS off outside production)", env, got)
 		}
 	}
@@ -47,7 +50,10 @@ func TestSecurityHeaders_HSTSOffOutsideProduction(t *testing.T) {
 func TestSecurityHeaders_HSTSOnInProduction(t *testing.T) {
 	t.Parallel()
 
-	got := headerOf(security.SecurityHeaders(security.HeadersConfig{Environment: security.Production}), "Strict-Transport-Security")
+	got := headerOf(
+		security.SecurityHeaders(security.HeadersConfig{Environment: security.Production}),
+		"Strict-Transport-Security",
+	)
 	if got != "max-age=63072000; includeSubDomains; preload" {
 		t.Errorf("production HSTS = %q", got)
 	}
@@ -64,11 +70,17 @@ func TestSecurityHeaders_HSTSOnInProduction(t *testing.T) {
 func TestSecurityHeaders_StandardHeadersPresent(t *testing.T) {
 	t.Parallel()
 
-	if got := headerOf(security.SecurityHeaders(security.HeadersConfig{Environment: security.Development}), "X-Content-Type-Options"); got != "nosniff" {
+	if got := headerOf(
+		security.SecurityHeaders(security.HeadersConfig{Environment: security.Development}),
+		"X-Content-Type-Options",
+	); got != "nosniff" {
 		t.Errorf("X-Content-Type-Options = %q, want nosniff", got)
 	}
 
-	if got := headerOf(security.SecurityHeaders(security.HeadersConfig{Environment: security.Development}), "X-Frame-Options"); got == "" {
+	if got := headerOf(
+		security.SecurityHeaders(security.HeadersConfig{Environment: security.Development}),
+		"X-Frame-Options",
+	); got == "" {
 		t.Error("X-Frame-Options missing")
 	}
 }

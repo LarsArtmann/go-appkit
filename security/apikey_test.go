@@ -10,7 +10,11 @@ import (
 
 const testKey = "test-secret-key-0123456789"
 
-func serveWithAPIKey(t *testing.T, middleware func(http.Handler) http.Handler, method, target string) *httptest.ResponseRecorder {
+func serveWithAPIKey(
+	t *testing.T,
+	middleware func(http.Handler) http.Handler,
+	method, target string,
+) *httptest.ResponseRecorder {
 	t.Helper()
 
 	var reached bool
@@ -37,16 +41,22 @@ func TestAPIKeyAuth_AcceptsCorrectKey(t *testing.T) {
 	t.Parallel()
 
 	mw := security.APIKeyAuth(testKey)
+	okHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 
-	rec := serveWithAPIKey(t, mw, http.MethodGet, "/resource")
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/resource", nil)
+	req.Header.Set(security.APIKeyHeader, testKey)
+	rec := httptest.NewRecorder()
+	mw(okHandler).ServeHTTP(rec, req)
 	if rec.Code != http.StatusOK {
 		t.Errorf("header GET: status = %d, want 200", rec.Code)
 	}
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/resource", nil)
-	req.Header.Set(security.APIKeyHeader, testKey)
+	req2 := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/resource", nil)
+	req2.Header.Set(security.APIKeyHeader, testKey)
 	rec2 := httptest.NewRecorder()
-	mw(http.NotFoundHandler()).ServeHTTP(rec2, req)
+	mw(okHandler).ServeHTTP(rec2, req2)
 	if rec2.Code != http.StatusOK {
 		t.Errorf("header POST: status = %d, want 200", rec2.Code)
 	}
@@ -89,7 +99,9 @@ func TestAPIKeyAuth_HeaderWinsOverQuery(t *testing.T) {
 	req.Header.Set(security.APIKeyHeader, "wrong-key")
 
 	rec := httptest.NewRecorder()
-	mw(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })).ServeHTTP(rec, req)
+	mw(
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) }),
+	).ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusUnauthorized {
 		t.Errorf("wrong header + right query: status = %d, want 401", rec.Code)

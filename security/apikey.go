@@ -16,7 +16,7 @@ const APIKeyHeader = "X-Api-Key"
 // cannot set headers on a navigation (a browser link click, a calendar
 // client's ICS poll). Only honored on safe methods — see APIKeyAuth.
 //
-//nolint:gosec // G101 false positive: query-param NAME, not a credential
+
 const APIKeyQueryParam = "key"
 
 // APIKeyAuth guards routes with a shared secret.
@@ -61,7 +61,9 @@ func APIKeyAuth(apiKey string) func(http.Handler) http.Handler {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			_, _ = w.Write([]byte(`{"error":"missing or invalid ` + APIKeyHeader + ` header (GET links may use ?key=" + "only)"}`))
+			_, _ = w.Write(
+				[]byte(`{"error":"missing or invalid ` + APIKeyHeader + ` header (GET links may use ?key=" + "only)"}`),
+			)
 		})
 	}
 }

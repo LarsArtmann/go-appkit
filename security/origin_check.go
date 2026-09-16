@@ -30,7 +30,9 @@ import (
 func OriginCheck(allowedOrigins []string, logger *slog.Logger) func(http.Handler) http.Handler {
 	allowAll := len(allowedOrigins) == 0 || slices.Contains(allowedOrigins, "*")
 	if allowAll && logger != nil {
-		logger.Warn("security.OriginCheck: allow-all origins configured (empty list or '*') — defense-in-depth disabled")
+		logger.Warn(
+			"security.OriginCheck: allow-all origins configured (empty list or '*') — defense-in-depth disabled",
+		)
 	}
 
 	normalized := make(map[string]struct{}, len(allowedOrigins))
@@ -72,7 +74,9 @@ func OriginCheck(allowedOrigins []string, logger *slog.Logger) func(http.Handler
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusForbidden)
-			_, _ = w.Write([]byte(`{"error":{"code":"ORIGIN_REJECTED","message":"The origin of this request is not allowed"}}`))
+			_, _ = w.Write(
+				[]byte(`{"error":{"code":"ORIGIN_REJECTED","message":"The origin of this request is not allowed"}}`),
+			)
 		})
 	}
 }

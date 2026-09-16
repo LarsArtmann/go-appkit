@@ -13,16 +13,14 @@ import (
 // 16 bytes (128 bits) is the OWASP-recommended minimum.
 const nonceBytes = 16
 
-// scriptSrcDirective is the CSP directive controlling script execution.
-const scriptSrcDirective = "script-src"
-
 // GenerateNonce generates a cryptographically random nonce suitable for CSP.
 // Returns a base64-encoded string.
 func GenerateNonce() (string, error) {
-	b := make([]byte, nonceBytes)
+	b := make([]byte, nonceBytes) //nolint:makezero // zeroed intentionally: rand.Read fills every byte
 
-	if _, err := rand.Read(b); err != nil {
-		return "", fmt.Errorf("generate CSP nonce: %w", err)
+	_, randErr := rand.Read(b)
+	if randErr != nil {
+		return "", fmt.Errorf("generate CSP nonce: %w", randErr)
 	}
 
 	return base64.StdEncoding.EncodeToString(b), nil

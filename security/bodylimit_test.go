@@ -27,8 +27,7 @@ func TestBodyLimit_TypedErrorOnOversize(t *testing.T) {
 			return
 		}
 
-		var maxErr *http.MaxBytesError
-		if !errors.As(err, &maxErr) {
+		if _, ok := errors.AsType[*http.MaxBytesError](err); !ok {
 			t.Errorf("oversize read: err = %T, want *http.MaxBytesError (typed, not silent truncation)", err)
 		}
 

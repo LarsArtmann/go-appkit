@@ -8,6 +8,9 @@ import (
 	"github.com/larsartmann/httputil"
 )
 
+// limiterTTL is how long an idle bucket is kept before eviction.
+const limiterTTL = 10 * time.Minute
+
 // RateLimitConfig configures one keyed rate-limit profile.
 type RateLimitConfig struct {
 	// Limit is the maximum requests per Window per key.
@@ -39,21 +42,39 @@ type RateLimitConfig struct {
 // They are VALUES, not singletons: build one RateLimit per endpoint group
 // that needs isolation — two endpoints sharing one built middleware share
 // one bucket set, so a busy group can starve another.
+//
+//nolint:gochecknoglobals // public preset values, immutable by convention
 var (
 	// GeneralProfile fits broad endpoints (health, root, metrics):
 	// 60 req/min, burst 100.
-	GeneralProfile = RateLimitConfig{Limit: 60, Burst: 100, MaxKeys: 10_000}
+	GeneralProfile = RateLimitConfig{
+		Limit:   60,
+		Burst:   100,
+		MaxKeys: 10_000,
+	} //nolint:exhaustruct_v5,mnd // documented preset; Window/KeyExtractor defaulted by RateLimit
 
 	// AnalysisProfile fits interactive analysis endpoints:
 	// 10 req/min, burst 15.
-	AnalysisProfile = RateLimitConfig{Limit: 10, Burst: 15, MaxKeys: 5_000}
+	AnalysisProfile = RateLimitConfig{
+		Limit:   10,
+		Burst:   15,
+		MaxKeys: 5_000,
+	} //nolint:exhaustruct_v5,mnd // documented preset; Window/KeyExtractor defaulted by RateLimit
 
 	// ExportProfile fits heavy export endpoints (PDF/report generation):
 	// 5 req/min, burst 8.
-	ExportProfile = RateLimitConfig{Limit: 5, Burst: 8, MaxKeys: 5_000}
+	ExportProfile = RateLimitConfig{
+		Limit:   5,
+		Burst:   8,
+		MaxKeys: 5_000,
+	} //nolint:exhaustruct_v5,mnd // documented preset; Window/KeyExtractor defaulted by RateLimit
 
 	// ContactProfile fits form submissions: 8 req/min, burst 10.
-	ContactProfile = RateLimitConfig{Limit: 8, Burst: 10, MaxKeys: 5_000}
+	ContactProfile = RateLimitConfig{
+		Limit:   8,
+		Burst:   10,
+		MaxKeys: 5_000,
+	} //nolint:exhaustruct_v5,mnd // documented preset; Window/KeyExtractor defaulted by RateLimit
 )
 
 // RateLimit builds a keyed rate-limit middleware from a profile.
@@ -73,14 +94,16 @@ func RateLimit(cfg RateLimitConfig) func(http.Handler) http.Handler {
 		keyExtractor = remoteAddrHostKey
 	}
 
-	return httputil.KeyedRateLimiterMiddleware(httputil.KeyedRateLimiterConfig{
-		Limit:        cfg.Limit,
-		Window:       window,
-		Burst:        cfg.Burst,
-		KeyExtractor: keyExtractor,
-		TTL:          10 * time.Minute,
-		MaxKeys:      cfg.MaxKeys,
-	})
+	return httputil.KeyedRateLimiterMiddleware(
+		httputil.KeyedRateLimiterConfig{ //nolint:exhaustruct_v5 // event hooks are optional
+			Limit:        cfg.Limit,
+			Window:       window,
+			Burst:        cfg.Burst,
+			KeyExtractor: keyExtractor,
+			TTL:          limiterTTL,
+			MaxKeys:      cfg.MaxKeys,
+		},
+	)
 }
 
 // remoteAddrHostKey extracts the host part of RemoteAddr, falling back to

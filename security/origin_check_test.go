@@ -12,7 +12,11 @@ import (
 	"github.com/larsartmann/go-appkit/security"
 )
 
-func originResponse(tb testing.TB, middleware func(http.Handler) http.Handler, headers map[string]string) *httptest.ResponseRecorder {
+func originResponse(
+	tb testing.TB,
+	middleware func(http.Handler) http.Handler,
+	headers map[string]string,
+) *httptest.ResponseRecorder {
 	tb.Helper()
 
 	var reached bool
@@ -41,9 +45,12 @@ func TestOriginCheck_SameOriginAllowed(t *testing.T) {
 
 	mw := security.OriginCheck([]string{"https://app.example.com"}, nil)
 
-	req1 := originResponse(t, mw, map[string]string{"Origin": "http://localhost:8080"})
+	req1 := originResponse(t, mw, map[string]string{"Origin": "http://example.com"})
 	if req1.Code != http.StatusTeapot {
-		t.Errorf("same-origin POST (no allowlist entry): status = %d, want 418 — browsers attach Origin to same-origin fetches too", req1.Code)
+		t.Errorf(
+			"same-origin POST (no allowlist entry): status = %d, want 418 — browsers attach Origin to same-origin fetches too",
+			req1.Code,
+		)
 	}
 
 	req2 := originResponse(t, mw, map[string]string{"Origin": "https://app.example.com"})

@@ -68,7 +68,8 @@ func TestRateLimit_RetryAfterHeader(t *testing.T) {
 				t.Fatal("429 response missing Retry-After header")
 			}
 
-			if _, err := strconv.Atoi(retryAfter); err != nil {
+			_, convErr := strconv.Atoi(retryAfter)
+			if convErr != nil {
 				t.Errorf("Retry-After = %q, want integer seconds", retryAfter)
 			}
 

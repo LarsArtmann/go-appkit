@@ -5,6 +5,12 @@ import (
 	"strings"
 )
 
+// scriptSrcDirective is the CSP directive controlling script execution.
+const scriptSrcDirective = "script-src"
+
+// selfSrc is the CSP 'self' source token.
+const selfSrc = "'self'"
+
 // Environment names the deployment tier a CSP policy is built for.
 type Environment string
 
@@ -64,15 +70,18 @@ type CSPConfig struct {
 // Directives are emitted in a fixed, sorted order so the header is
 // byte-identical across requests and parseable by policy tests.
 func BuildCSP(cfg CSPConfig) string {
-	directives := []string{
-		"default-src 'self'",
-		"base-uri 'self'",
-		"form-action 'self'",
+	const directiveCount = 9 // default, base-uri, form-action, frame-ancestors, object-src, script-src, style-src, connect-src, img-src
+
+	directives := make([]string, 0, directiveCount)
+	directives = append(directives,
+		"default-src "+selfSrc,
+		"base-uri "+selfSrc,
+		"form-action "+selfSrc,
 		"frame-ancestors 'none'",
 		"object-src 'none'",
-	}
+	)
 
-	scriptSrc := []string{"'self'"}
+	scriptSrc := []string{selfSrc}
 	if cfg.Nonce != "" {
 		scriptSrc = append(scriptSrc, fmtNonce(cfg.Nonce))
 	}
@@ -83,14 +92,15 @@ func BuildCSP(cfg CSPConfig) string {
 
 	directives = append(directives, "script-src "+strings.Join(scriptSrc, " "))
 
-	styleSrc := []string{"'self'"}
+	styleSrc := []string{selfSrc}
 	if cfg.StyleInline {
 		styleSrc = append(styleSrc, "'unsafe-inline'")
 	}
 
 	directives = append(directives, "style-src "+strings.Join(styleSrc, " "))
 
-	connectSrc := []string{"'self'"}
+	connectSrc := []string{selfSrc}
+
 	switch cfg.Environment {
 	case Development, Staging:
 		connectSrc = append(connectSrc, "ws:", "wss:")
@@ -101,7 +111,8 @@ func BuildCSP(cfg CSPConfig) string {
 	connectSrc = append(connectSrc, cfg.ConnectSrc...)
 	directives = append(directives, "connect-src "+strings.Join(connectSrc, " "))
 
-	imgSrc := []string{"'self'", "data:"}
+	imgSrc := make([]string, 0, 2+len(cfg.ImgSrc))
+	imgSrc = append(imgSrc, selfSrc, "data:")
 	imgSrc = append(imgSrc, cfg.ImgSrc...)
 	directives = append(directives, "img-src "+strings.Join(imgSrc, " "))
 
