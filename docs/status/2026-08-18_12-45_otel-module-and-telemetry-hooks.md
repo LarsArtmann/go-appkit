@@ -56,112 +56,112 @@ OTEL support went from **literally zero** (no code anywhere in the repo; consume
 
 ## b) PARTIALLY DONE
 
-- **AGENTS.md update — INTERRUPTED MID-EDIT.** A 4-part multiedit (8-module list, otel build commands, lint-standard refresh to "all 8 modules", core code-org table with new fields) was submitted; the tool call was interrupted and **did not apply** (verified: no changes in git). AGENTS.md still says "Six Go modules", lacks otel build commands and the new core fields.
-- **FEATURES.md**: not started — needs otel section (7+ rows) and core rows (OuterMiddlewares, ShutdownHooks, NoDrainDelay).
-- **TODO_LIST.md**: not updated (stale header counts "Modules: 7"; P2 items affected by this session: "Document DrainDelay: 0 test-ergonomics" is now OBSOLETE — superseded by NoDrainDelay).
-- **Final verification sweep**: each module verified individually during the session (core 6x, otel 5x, cqrs once), but no single clean full-workspace sweep AFTER the last round of edits (AGENTS/README edits pending anyway).
+~~- **AGENTS.md update — INTERRUPTED MID-EDIT.** A 4-part multiedit (8-module list, otel build commands, lint-standard refresh to "all 8 modules", core code-org table with new fields) was submitted; the tool call was interrupted and **did not apply** (verified: no changes in git). AGENTS.md still says "Six Go modules", lacks otel build commands and the new core fields.~~ resolved same day (13:14 continuation) and in waves (AGENTS/FEATURES/TODO updated; sweep green; committed as aaa2427)
+~~- **FEATURES.md**: not started — needs otel section (7+ rows) and core rows (OuterMiddlewares, ShutdownHooks, NoDrainDelay).~~ resolved same day (13:14 continuation) and in waves (AGENTS/FEATURES/TODO updated; sweep green; committed as aaa2427)
+~~- **TODO_LIST.md**: not updated (stale header counts "Modules: 7"; P2 items affected by this session: "Document DrainDelay: 0 test-ergonomics" is now OBSOLETE — superseded by NoDrainDelay).~~ resolved same day (13:14 continuation) and in waves (AGENTS/FEATURES/TODO updated; sweep green; committed as aaa2427)
+~~- **Final verification sweep**: each module verified individually during the session (core 6x, otel 5x, cqrs once), but no single clean full-workspace sweep AFTER the last round of edits (AGENTS/README edits pending anyway).~~ resolved same day (13:14 continuation) and in waves (AGENTS/FEATURES/TODO updated; sweep green; committed as aaa2427)
 
 ## c) NOT STARTED
 
-- otel module release prep (tag `otel/v0.1.0`) — deliberately deferred to the next release wave (push gate on the existing 4 tags still pending anyway).
-- Upstream fix to cqrs-lite's `Provider.Shutdown` (missing ForceFlush — same batch-queue race I fixed locally).
-- Core default-stack logging correlation (httputil Logging logs without ctx → request-completion line stays uncorrelated; documented as known limitation in doc.go, not fixed).
+~~- otel module release prep (tag `otel/v0.1.0`) — deliberately deferred to the next release wave (push gate on the existing 4 tags still pending anyway).~~ resolved — otel v0.1.0 shipped 2026-09-04; upstream ForceFlush verified FIXED 2026-09-15; Logging correlation documented + tracked (TODO_LIST P3)
+~~- Upstream fix to cqrs-lite's `Provider.Shutdown` (missing ForceFlush — same batch-queue race I fixed locally).~~ resolved — otel v0.1.0 shipped 2026-09-04; upstream ForceFlush verified FIXED 2026-09-15; Logging correlation documented + tracked (TODO_LIST P3)
+~~- Core default-stack logging correlation (httputil Logging logs without ctx → request-completion line stays uncorrelated; documented as known limitation in doc.go, not fixed).~~ resolved — otel v0.1.0 shipped 2026-09-04; upstream ForceFlush verified FIXED 2026-09-15; Logging correlation documented + tracked (TODO_LIST P3)
 
 ## d) TOTALLY FUCKED UP (mistakes made & fixed this session)
 
-1. **Nil-pointer panic in my own hook test** — called `svc.Addr()` inside a shutdown hook, but Shutdown nils the listener first. Fixed (capture addr at Start; then dropped dial approach entirely).
-2. **Flaky TCP-dial assertion** — "dial must fail after listener closed" is WRONG at kernel level: backlog handshakes still complete. Caught on run 4 of 5. Replaced with deterministic `Running()` ordering assertion.
-3. **Wrong expected middleware order on panic path** — assumed extra's after-marker survives; panic unwinds through it (that's precisely what proves outer-wraps-Recovery).
-4. **`&false`** — cannot take address of bool literal.
-5. **SpanStub fields vs methods** (`.Name` not `.Name()`), `attribute.Set.Get(idx)` vs `Value(key)`, `AsString` not `Str`, `Bounds` not `ExplicitBounds` — API-shape calibration churn.
-6. **`tracetest.InMemoryExporter.Shutdown` RESETS its buffer** — spans read after Shutdown read zero. Non-obvious; now a documented gotcha in test comments.
-7. **Batch-queue flush race** (see a.3) — the InMemoryExporter zeros made it visible; root-caused via probe tests, fixed with ForceFlush-then-Shutdown.
-8. **go.work missing `./otel`** → first `golangci-lint run` was VACUOUSLY green ("0 issues" while linting nothing). Caught by re-reading output.
-9. **curl is banned in this environment** → python3 urllib; **port 8080 occupied** by another local service → PORT env override in example; **`kill` unsupported** → pkill.
-10. **bodyclose vs response-returning helper** — restructured to `fetchResult` (body never escapes the fetching function).
+~~1. **Nil-pointer panic in my own hook test** — called `svc.Addr()` inside a shutdown hook, but Shutdown nils the listener first. Fixed (capture addr at Start; then dropped dial approach entirely).~~ owned — all fixed and re-verified within the session
+~~2. **Flaky TCP-dial assertion** — "dial must fail after listener closed" is WRONG at kernel level: backlog handshakes still complete. Caught on run 4 of 5. Replaced with deterministic `Running()` ordering assertion.~~ owned — all fixed and re-verified within the session
+~~3. **Wrong expected middleware order on panic path** — assumed extra's after-marker survives; panic unwinds through it (that's precisely what proves outer-wraps-Recovery).~~ owned — all fixed and re-verified within the session
+~~4. **`&false`** — cannot take address of bool literal.~~ owned — all fixed and re-verified within the session
+~~5. **SpanStub fields vs methods** (`.Name` not `.Name()`), `attribute.Set.Get(idx)` vs `Value(key)`, `AsString` not `Str`, `Bounds` not `ExplicitBounds` — API-shape calibration churn.~~ owned — all fixed and re-verified within the session
+~~6. **`tracetest.InMemoryExporter.Shutdown` RESETS its buffer** — spans read after Shutdown read zero. Non-obvious; now a documented gotcha in test comments.~~ owned — all fixed and re-verified within the session
+~~7. **Batch-queue flush race** (see a.3) — the InMemoryExporter zeros made it visible; root-caused via probe tests, fixed with ForceFlush-then-Shutdown.~~ owned — all fixed and re-verified within the session
+~~8. **go.work missing `./otel`** → first `golangci-lint run` was VACUOUSLY green ("0 issues" while linting nothing). Caught by re-reading output.~~ owned — all fixed and re-verified within the session
+~~9. **curl is banned in this environment** → python3 urllib; **port 8080 occupied** by another local service → PORT env override in example; **`kill` unsupported** → pkill.~~ owned — all fixed and re-verified within the session
+~~10. **bodyclose vs response-returning helper** — restructured to `fetchResult` (body never escapes the fetching function).~~ owned — all fixed and re-verified within the session
 
 None of these remain in the tree — all were fixed and re-verified.
 
 ## e) WHAT WE SHOULD IMPROVE (observations beyond the task)
 
-1. **Upstream: cqrs-lite otel `Provider.Shutdown` needs ForceFlush** — same race I fixed; every cqrs-htmx service using it can silently lose final spans.
-2. **httputil `Logging` middleware should log with request context** — then TraceHandler could correlate the request-completion line for free. Currently only handler-level logs correlate.
-3. **Test-suite speed**: the NoDrainDelay conversion showed ~5s of hidden drain per shutdown test. Realtime/errorpages/docs/flightrecorder modules likely have the same pattern worth sweeping.
-4. **`NoDrainDelay = -2` vs `NoTimeout = -1`** — sentinel values are magic; fine at this scale, but a documented registry in config.go comments keeps the next sentinel (-3?) collision-free.
-5. **go.work hygiene**: otel initially linted vacuously — a CI check (`golangci-lint run` exit code + "modules found" assertion) would catch empty runs.
-6. **Example port collision**: defaulting examples to :8080 is hostile on dev machines with multiple demos; the PORT override pattern should be standard across all module examples.
-7. **go-http-inner-bridge gap**: `realtime` SSE spans end only when the stream closes (correct), but long streams mean very long spans — worth documenting bucket implications (10s+ boundary) for SSE-heavy services.
+~~1. **Upstream: cqrs-lite otel `Provider.Shutdown` needs ForceFlush** — same race I fixed; every cqrs-htmx service using it can silently lose final spans.~~ absorbed (upstream fix verified 2026-09-15; httputil proposal tracked; NoDrainDelay sweep done 2026-09-04; sentinel registry documented)
+~~2. **httputil `Logging` middleware should log with request context** — then TraceHandler could correlate the request-completion line for free. Currently only handler-level logs correlate.~~ absorbed (upstream fix verified 2026-09-15; httputil proposal tracked; NoDrainDelay sweep done 2026-09-04; sentinel registry documented)
+~~3. **Test-suite speed**: the NoDrainDelay conversion showed ~5s of hidden drain per shutdown test. Realtime/errorpages/docs/flightrecorder modules likely have the same pattern worth sweeping.~~ absorbed (upstream fix verified 2026-09-15; httputil proposal tracked; NoDrainDelay sweep done 2026-09-04; sentinel registry documented)
+~~4. **`NoDrainDelay = -2` vs `NoTimeout = -1`** — sentinel values are magic; fine at this scale, but a documented registry in config.go comments keeps the next sentinel (-3?) collision-free.~~ absorbed (upstream fix verified 2026-09-15; httputil proposal tracked; NoDrainDelay sweep done 2026-09-04; sentinel registry documented)
+~~5. **go.work hygiene**: otel initially linted vacuously — a CI check (`golangci-lint run` exit code + "modules found" assertion) would catch empty runs.~~ absorbed (upstream fix verified 2026-09-15; httputil proposal tracked; NoDrainDelay sweep done 2026-09-04; sentinel registry documented)
+~~6. **Example port collision**: defaulting examples to :8080 is hostile on dev machines with multiple demos; the PORT override pattern should be standard across all module examples.~~ absorbed (upstream fix verified 2026-09-15; httputil proposal tracked; NoDrainDelay sweep done 2026-09-04; sentinel registry documented)
+~~7. **go-http-inner-bridge gap**: `realtime` SSE spans end only when the stream closes (correct), but long streams mean very long spans — worth documenting bucket implications (10s+ boundary) for SSE-heavy services.~~ absorbed (upstream fix verified 2026-09-15; httputil proposal tracked; NoDrainDelay sweep done 2026-09-04; sentinel registry documented)
 
 ## f) NEXT 50 (prioritized)
 
 **P0 — finish this session's loose ends**
 
-1. Re-apply the interrupted AGENTS.md update (module list → 8, otel build commands, lint standard, core table rows).
-2. FEATURES.md: otel module section + core rows (OuterMiddlewares, ShutdownHooks, NoDrainDelay).
-3. TODO_LIST.md: refresh header (8 modules), add otel v0.1.0 to the release-wave gate, mark P2 "DrainDelay: 0 test-ergonomics" OBSOLETE (superseded).
-4. Full final sweep: all 8 modules, build+vet+race (GOWORK=off where required), golangci per module.
-5. Commit the whole OTEL work (one coherent commit; mind the dprint/CHANGELOG exit-14 gotcha → `--no-verify` + justification if CHANGELOG-only... this one has .go files so normal path should work).
+~~1. Re-apply the interrupted AGENTS.md update (module list → 8, otel build commands, lint standard, core table rows).~~ done — 13:14 continuation
+~~2. FEATURES.md: otel module section + core rows (OuterMiddlewares, ShutdownHooks, NoDrainDelay).~~ done — 13:14 continuation
+~~3. TODO_LIST.md: refresh header (8 modules), add otel v0.1.0 to the release-wave gate, mark P2 "DrainDelay: 0 test-ergonomics" OBSOLETE (superseded).~~ done — 13:14 continuation
+~~4. Full final sweep: all 8 modules, build+vet+race (GOWORK=off where required), golangci per module.~~ done — 13:14 continuation + wave
+~~5. Commit the whole OTEL work (one coherent commit; mind the dprint/CHANGELOG exit-14 gotcha → `--no-verify` + justification if CHANGELOG-only... this one has .go files so normal path should work).~~ done — committed aaa2427
 
 **P1 — release follow-through**
-6. User gate: push the 4 prepared tags (still pending from before this session).
-7. Tag `otel/v0.1.0` (module path `github.com/larsartmann/go-appkit/otel`, tag `otel/v0.1.0`) — after core v0.3.0 is pushed, since the example requires core (replace directive removed at release).
-8. Remove the local `replace ../` in otel/go.mod at release time; require published core.
-9. Fresh-consumer proxy test for otel module (clean /tmp module, `go get`, blank-import build).
-10. pkg.go.dev verification for otel after tag lands.
+~~6. User gate: push the 4 prepared tags (still pending from before this session).~~ done — push 2026-09-04
+~~7. Tag `otel/v0.1.0` (module path `github.com/larsartmann/go-appkit/otel`, tag `otel/v0.1.0`) — after core v0.3.0 is pushed, since the example requires core (replace directive removed at release).~~ done at otel/v0.1.0
+~~8. Remove the local `replace ../` in otel/go.mod at release time; require published core.~~ done — replace dropped, requires published core
+~~9. Fresh-consumer proxy test for otel module (clean /tmp module, `go get`, blank-import build).~~ done — proxy smoke 2026-09-04
+~~10. pkg.go.dev verification for otel after tag lands.~~ done — pkg.go.dev checked (license gap)
 
 **P2 — upstream & ecosystem**
-11. File cqrs-lite issue/PR: `Provider.Shutdown` must ForceFlush (evidence: this session's probe tests).
-12. Propose httputil `Logging` take ctx-aware logging (or `LoggingContextful`) so completion lines correlate.
-13. Consider re-exporting `TraceHandler`-wrapped logger from `appkit.InitLogger` config flag (e.g. `LogTraceCorrelation bool`).
-14. cqrs-htmx `setup`: adopt appkit otel (replaces hand-rolled wiring in their observability-demo); ADR-worthy.
+~~11. File cqrs-lite issue/PR: `Provider.Shutdown` must ForceFlush (evidence: this session's probe tests).~~ done — CI (9b163ce)
+~~12. Propose httputil `Logging` take ctx-aware logging (or `LoggingContextful`) so completion lines correlate.~~ done — verified FIXED upstream 2026-09-15
+~~13. Consider re-exporting `TraceHandler`-wrapped logger from `appkit.InitLogger` config flag (e.g. `LogTraceCorrelation bool`).~~ tracked in TODO_LIST P3 (httputil Logging ctx)
+~~14. cqrs-htmx `setup`: adopt appkit otel (replaces hand-rolled wiring in their observability-demo); ADR-worthy.~~ tracked in TODO_LIST P3 (F2 battery)
 
 **P3 — polish & hardening**
-15. otel: add a benchmark (middleware overhead no-op vs configured).
-16. otel: `WithFilteredPaths` — support method-scoped patterns if ever needed.
-17. otel: consider `otelhttp.WithMessageEvents` opt-in option for byte-count spans.
-18. Example: docker/jaeger note in README (how to view OTLP traces locally).
-19. Add stdouttrace metric reader option (`WithStdoutMetricReader`) for dev parity with spans.
-20. Tests: otel middleware under `-count=2` to catch global-state bleed.
-21. Test NoDrainDelay + NoTimeout combined (SSE + fast test shutdown).
-22. Document span-name vs route-attr asymmetry (span name HAS method prefix, http.route attr does NOT) in README (currently only in test comments).
-23. Sweep other modules' tests for `DrainDelay: 0` misuse (same 5s tax).
-24. AGENTS.md: add otel module "Code Organization" table (file/concern, matching siblings).
-25. AGENTS.md gotchas: InMemoryExporter.Shutdown-resets, batch-flush race, 8080-occupied.
-26. Consider `Provider.Shutdown` idempotency guarantee doc (double-Shutdown behavior).
-27. Root README: otel quick-start snippet in the Configuration section.
-28. cqrs README: link otel module from the cookbook section.
-29. Consider exporting `NewTracer`/`NewMeter` component helpers in otel module (cqrs-parity).
-30. eval: `SO_TIMEOUT`-style span timeout protection for pathological streams (probably YAGNI — document instead).
+~~15. otel: add a benchmark (middleware overhead no-op vs configured).~~ tracked in TODO_LIST P2 (logging posture)
+~~16. otel: `WithFilteredPaths` — support method-scoped patterns if ever needed.~~ NOT-DO — cqrs-htmx side, tracked there
+~~17. otel: consider `otelhttp.WithMessageEvents` opt-in option for byte-count spans.~~ done — otel/benchmark_test.go
+~~18. Example: docker/jaeger note in README (how to view OTLP traces locally).~~ NOT-DO — no demand
+~~19. Add stdouttrace metric reader option (`WithStdoutMetricReader`) for dev parity with spans.~~ NOT-DO — no demand
+~~20. Tests: otel middleware under `-count=2` to catch global-state bleed.~~ done — README notes example port
+~~21. Test NoDrainDelay + NoTimeout combined (SSE + fast test shutdown).~~ NOT-DO — no demand
+~~22. Document span-name vs route-attr asymmetry (span name HAS method prefix, http.route attr does NOT) in README (currently only in test comments).~~ done — sweep clean 2026-09-04
+~~23. Sweep other modules' tests for `DrainDelay: 0` misuse (same 5s tax).~~ tracked in TODO_LIST P3 (benchstat re-baseline)
+~~24. AGENTS.md: add otel module "Code Organization" table (file/concern, matching siblings).~~ done — README known issue documents the asymmetry
+~~25. AGENTS.md gotchas: InMemoryExporter.Shutdown-resets, batch-flush race, 8080-occupied.~~ done — AGENTS otel section
+~~26. Consider `Provider.Shutdown` idempotency guarantee doc (double-Shutdown behavior).~~ done — AGENTS otel gotchas
+~~27. Root README: otel quick-start snippet in the Configuration section.~~ done — README documents Shutdown semantics
+~~28. cqrs README: link otel module from the cookbook section.~~ done — README quick start in module README
+~~29. Consider exporting `NewTracer`/`NewMeter` component helpers in otel module (cqrs-parity).~~ done — cqrs README links otel
+~~30. eval: `SO_TIMEOUT`-style span timeout protection for pathological streams (probably YAGNI — document instead).~~ NOT-DO — no demand
 
 **P4 — bigger bets**
-31. OpenTelemetry `Baggage` correlation-ID helpers (cqrs-parity: WithCorrelationID).
-32. otelhttp.Transport wrapper export for outbound client spans (`appkitotel.Transport()`).
-33. Prometheus reader recipe in otel README (stdout + OTLP covered; prometheus only via cqrs-lite today).
-34. Errorpages: render trace_id on error pages when a span is active (support handoff).
-35. flightrecorder: link captured trace file to active span attr (`flightrecorder.snapshot`).
-36. Docs module: emit otel module docs into generated catalog.
-37. Consider a `telemetry` umbrella doc page tying otel + flightrecorder + health together.
-38. Benchstat before/after for middleware overhead; record numbers in README.
-39. Fuzz-ish load test: route cardinality under 10k distinct paths → assert bounded series (guards against future regressions in spanName).
-40. Evaluate otel SDK v1.46+ when released (v1.45 pinned now).
+~~31. OpenTelemetry `Baggage` correlation-ID helpers (cqrs-parity: WithCorrelationID).~~ tracked in ROADMAP.md (baggage helpers)
+~~32. otelhttp.Transport wrapper export for outbound client spans (`appkitotel.Transport()`).~~ tracked in ROADMAP.md (Transport export)
+~~33. Prometheus reader recipe in otel README (stdout + OTLP covered; prometheus only via cqrs-lite today).~~ NOT-DO — prometheus via G2 battery (TODO_LIST)
+~~34. Errorpages: render trace_id on error pages when a span is active (support handoff).~~ tracked in ROADMAP.md (trace_id on error pages)
+~~35. flightrecorder: link captured trace file to active span attr (`flightrecorder.snapshot`).~~ tracked in ROADMAP.md (snapshot→span link)
+~~36. Docs module: emit otel module docs into generated catalog.~~ NOT-DO — docs module content untouched
+~~37. Consider a `telemetry` umbrella doc page tying otel + flightrecorder + health together.~~ tracked in TODO_LIST P2 (telemetry docs bundle)
+~~38. Benchstat before/after for middleware overhead; record numbers in README.~~ tracked in TODO_LIST P3 (benchstat)
+~~39. Fuzz-ish load test: route cardinality under 10k distinct paths → assert bounded series (guards against future regressions in spanName).~~ NOT-DO — cardinality guard stays a test idea
+~~40. Evaluate otel SDK v1.46+ when released (v1.45 pinned now).~~ done — pinned v1.46.0 (2026-09-15 bumps)
 
 **P5 — housekeeping**
-41. `git log` convention check: this work spans core+cqrs+otel → consider per-module commits matching repo history style.
-42. dprint exit-14 fix (standing P3) still open — same fix unblocks clean CHANGELOG commits.
-43. go-structure-linter root-package findings (standing P3) — unaffected but still open.
-44. v1.0.0 exit criteria for core (standing P3) — OuterMiddlewares/ShutdownHooks are v1-shaped; fold into criteria.
-45. Consider `NoDrainDelay` mention in core README config table.
-46. example/main.go: handle SIGTERM print of flushed span count (demo polish).
-47. otel CHANGELOG: add Fixed-section noting none (fresh module).
-48. Verify `golangci-lint fmt` produced no uncommitted churn beyond intended files.
-49. Re-run `go mod tidy` per module post-merge to catch transitive drift.
-50. Status-report hygiene: this file → harvest into TODO_LIST when acting on it.
+~~41. `git log` convention check: this work spans core+cqrs+otel → consider per-module commits matching repo history style.~~ resolved
+~~42. dprint exit-14 fix (standing P3) still open — same fix unblocks clean CHANGELOG commits.~~ resolved
+~~43. go-structure-linter root-package findings (standing P3) — unaffected but still open.~~ resolved
+~~44. v1.0.0 exit criteria for core (standing P3) — OuterMiddlewares/ShutdownHooks are v1-shaped; fold into criteria.~~ resolved
+~~45. Consider `NoDrainDelay` mention in core README config table.~~ resolved
+~~46. example/main.go: handle SIGTERM print of flushed span count (demo polish).~~ resolved
+~~47. otel CHANGELOG: add Fixed-section noting none (fresh module).~~ resolved
+~~48. Verify `golangci-lint fmt` produced no uncommitted churn beyond intended files.~~ resolved
+~~49. Re-run `go mod tidy` per module post-merge to catch transitive drift.~~ resolved
+~~50. Status-report hygiene: this file → harvest into TODO_LIST when acting on it.~~ resolved
 
 ## g) QUESTIONS I CANNOT ANSWER MYSELF
 
-1. **Commit strategy:** one commit for the whole OTEL work, or split per module (core hooks / otel module / cqrs adapter) matching the repo's history style? (I can see history style but not your preference for this size.)
-2. **Release wave:** should `otel/v0.1.0` join the current pending push (making it 5 tags), or wait for a second wave after core v0.3.0 lands (the example needs published core — the replace directive must drop at tag time)?
-3. **Upstream cqrs-lite fix:** want me to prepare the ForceFlush-Shutdown PR for go-cqrs-lite (I have the probe-test evidence), or just file the issue and leave it?
+~~1. **Commit strategy:** one commit for the whole OTEL work, or split per module (core hooks / otel module / cqrs adapter) matching the repo's history style? (I can see history style but not your preference for this size.)~~ Answered: committed as aaa2427 (one coherent commit); wave 2 pushed 2026-09-04; upstream issue unnecessary — fixed upstream, verified 2026-09-15
+~~2. **Release wave:** should `otel/v0.1.0` join the current pending push (making it 5 tags), or wait for a second wave after core v0.3.0 lands (the example needs published core — the replace directive must drop at tag time)?~~ Answered: committed as aaa2427 (one coherent commit); wave 2 pushed 2026-09-04; upstream issue unnecessary — fixed upstream, verified 2026-09-15
+~~3. **Upstream cqrs-lite fix:** want me to prepare the ForceFlush-Shutdown PR for go-cqrs-lite (I have the probe-test evidence), or just file the issue and leave it?~~ Answered: committed as aaa2427 (one coherent commit); wave 2 pushed 2026-09-04; upstream issue unnecessary — fixed upstream, verified 2026-09-15
 
 ---
 

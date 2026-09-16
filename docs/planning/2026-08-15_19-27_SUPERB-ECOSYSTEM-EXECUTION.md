@@ -46,24 +46,24 @@ Sorted by priority score (Impact × (6 − Effort)); Exec # = recommended execut
 
 | Exec # | ID  | Task                                                                                                  | Tier | Impact | Effort | Priority | Est.    | Depends on |
 | ------ | --- | ----------------------------------------------------------------------------------------------------- | ---- | ------ | ------ | -------- | ------- | ---------- |
-| 1      | M01 | ADR-001: decide cqrs-htmx ↔ appkit relationship (write ADR, update integrations.md)                   | 1    | 5      | 1      | 25       | 30 min  | —          |
-| 2      | M02 | Fix `fmt.Errorf` → error-family + surface `host.Stop()` error (cqrs module)                           | 1    | 3      | 1      | 15       | 30 min  | —          |
-| 3      | M03 | Migrate cqrs module to go-cqrs-lite v4 (paths, API, jsonv2, tests)                                    | 2    | 5      | 3      | 15       | 100 min | M02        |
-| 4      | M04 | Migrate docs module to catalog/v4 + docserver v4                                                      | 2    | 4      | 2      | 16       | 45 min  | M03        |
-| 5      | M05 | `EventConfig.Logger` → `projectionhost.WithLogger` + test                                             | 2    | 4      | 1      | 20       | 30 min  | M03        |
-| 6      | M06 | `EventConfig.DLQ` (SQLite dead-letter store) + replay/purge accessors + tests                         | 3    | 4      | 2      | 16       | 60 min  | M03        |
-| 7      | M07 | `EventConfig.FlightRecorder` → `WithFlightRecorder` + test + cross-link docs                          | 3    | 3      | 1      | 15       | 30 min  | M03        |
-| 8      | M08 | Projection readiness: `Status()`/`LagPerProjection()` → `/health/ready` integration + tests           | 3    | 4      | 2      | 16       | 60 min  | M03        |
-| 9      | M09 | New opt-in `errorpages` module wrapping templ-components/errorpage (Mount, JSON mode, tests, example) | 3    | 4      | 3      | 12       | 90 min  | —          |
-| 10     | M10 | Metrics path: otel/prometheus accessors for the event store                                           | 4    | 3      | 3      | 9        | 60 min  | M03        |
-| 11     | M11 | Journal→SSE bridge: cqrs `event.Journal` → `sse.EventStore` adapter in its own module                 | 4    | 4      | 3      | 12       | 100 min | M03        |
-| 12     | M12 | Context hygiene: realtime/handler.go, service.go, docs_test.go request contexts                       | 4    | 2      | 1      | 10       | 30 min  | —          |
-| 13     | M13 | Docs refresh: README, FEATURES, CHANGELOGs, AGENTS.md (v4, options, jsonv2)                           | 4    | 3      | 1      | 15       | 45 min  | M04–M09    |
-| 14     | M14 | Upstream courtesy fix: FamilyOrchestration in templ-components/errorpage status map (verify → PR)     | 4    | 2      | 2      | 8        | 45 min  | —          |
-| 15     | M15 | Releases: verify all modules, cut CHANGELOGs, tag cqrs v0.2.0 + docs v0.2.0 + errorpages v0.1.0       | 4    | 3      | 2      | 12       | 45 min  | M13        |
-| 16     | M16 | ADR-002: EventService future — sqlite-first vs stack-generic vs `system` package adoption             | 4    | 3      | 3      | 9        | 45 min  | M03, M01   |
-| 17     | M17 | cqrs README cookbook: scenario DSL, testutil, cqrs-lint leverage                                      | 4    | 2      | 1      | 10       | 30 min  | —          |
-| 18     | M18 | cqrs-htmx prototype spike: appkit.Service behind `setup.Run` (conditional on ADR-001)                 | 4    | 4      | 4      | 8        | 100 min | M01        |
+~~| 1      | M01 | ADR-001: decide cqrs-htmx ↔ appkit relationship (write ADR, update integrations.md)                   | 1    | 5      | 1      | 25       | 30 min  | —          |~~ done at 98d84f2
+~~| 2      | M02 | Fix `fmt.Errorf` → error-family + surface `host.Stop()` error (cqrs module)                           | 1    | 3      | 1      | 15       | 30 min  | —          |~~ done at afd840c
+~~| 3      | M03 | Migrate cqrs module to go-cqrs-lite v4 (paths, API, jsonv2, tests)                                    | 2    | 5      | 3      | 15       | 100 min | M02        |~~ done at 43554a8
+~~| 4      | M04 | Migrate docs module to catalog/v4 + docserver v4                                                      | 2    | 4      | 2      | 16       | 45 min  | M03        |~~ done at 18a2da4
+~~| 5      | M05 | `EventConfig.Logger` → `projectionhost.WithLogger` + test                                             | 2    | 4      | 1      | 20       | 30 min  | M03        |~~ done at c101f05
+~~| 6      | M06 | `EventConfig.DLQ` (SQLite dead-letter store) + replay/purge accessors + tests                         | 3    | 4      | 2      | 16       | 60 min  | M03        |~~ done at 9f65cc4
+~~| 7      | M07 | `EventConfig.FlightRecorder` → `WithFlightRecorder` + test + cross-link docs                          | 3    | 3      | 1      | 15       | 30 min  | M03        |~~ done at 95a2fe0 (later re-typed to go-flightrecorder in v0.4.0)
+~~| 8      | M08 | Projection readiness: `Status()`/`LagPerProjection()` → `/health/ready` integration + tests           | 3    | 4      | 2      | 16       | 60 min  | M03        |~~ done at 737bc9c
+~~| 9      | M09 | New opt-in `errorpages` module wrapping templ-components/errorpage (Mount, JSON mode, tests, example) | 3    | 4      | 3      | 12       | 90 min  | —          |~~ done at 9912231
+~~| 10     | M10 | Metrics path: otel/prometheus accessors for the event store                                           | 4    | 3      | 3      | 9        | 60 min  | M03        |~~ done at 3cd9297 (session 3)
+~~| 11     | M11 | Journal→SSE bridge: cqrs `event.Journal` → `sse.EventStore` adapter in its own module                 | 4    | 4      | 3      | 12       | 100 min | M03        |~~ done — re-designed: cqrs-htmx transport package + realtime side (a19f080)
+~~| 12     | M12 | Context hygiene: realtime/handler.go, service.go, docs_test.go request contexts                       | 4    | 2      | 1      | 10       | 30 min  | —          |~~ done — session 3
+~~| 13     | M13 | Docs refresh: README, FEATURES, CHANGELOGs, AGENTS.md (v4, options, jsonv2)                           | 4    | 3      | 1      | 15       | 45 min  | M04–M09    |~~ done — sessions 4-5 + waves
+~~| 14     | M14 | Upstream courtesy fix: FamilyOrchestration in templ-components/errorpage status map (verify → PR)     | 4    | 2      | 2      | 8        | 45 min  | —          |~~ done — fixed upstream, merged; verified 2026-09-15
+~~| 15     | M15 | Releases: verify all modules, cut CHANGELOGs, tag cqrs v0.2.0 + docs v0.2.0 + errorpages v0.1.0       | 4    | 3      | 2      | 12       | 45 min  | M13        |~~ done — waves pushed 2026-08-30/09-04
+~~| 16     | M16 | ADR-002: EventService future — sqlite-first vs stack-generic vs `system` package adoption             | 4    | 3      | 3      | 9        | 45 min  | M03, M01   |~~ superseded — cqrs v0.5.0 adopted system directly (2026-09-07)
+~~| 17     | M17 | cqrs README cookbook: scenario DSL, testutil, cqrs-lint leverage                                      | 4    | 2      | 1      | 10       | 30 min  | —          |~~ done — cqrs README cookbook
+~~| 18     | M18 | cqrs-htmx prototype spike: appkit.Service behind `setup.Run` (conditional on ADR-001)                 | 4    | 4      | 4      | 8        | 100 min | M01        |~~ done — spike ADOPT (session 5)
 
 **Total: 905 min ≈ 15.1 h focused work.**
 

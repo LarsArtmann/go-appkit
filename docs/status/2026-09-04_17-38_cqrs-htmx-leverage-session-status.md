@@ -100,7 +100,7 @@ The session turned the cqrs-htmx relationship from _documented_ into _enforced_:
 | 16 | Turn the proxy smoke test into a repeatable script (`scripts/verify-consumers.sh` over a module@version list)                                            | Medium   | S      | Tooling       |
 | 17 | Define core v1.0.0 exit criteria (absorb `OuterMiddlewares`/`ShutdownHooks` discussion)                                                                  | High     | M      | Planning      |
 | 18 | README: document `GOEXPERIMENT=jsonv2` per-module build requirements for source builders                                                                 | Medium   | S      | Documentation |
-| 19 | Upstream cqrs-lite otel `Provider.Shutdown` ForceFlush issue (verify-before-filing applies)                                                              | Medium   | M      | Bug           |
+~~| 19 | Upstream cqrs-lite otel `Provider.Shutdown` ForceFlush issue (verify-before-filing applies)                                                              | Medium   | M      | Bug           |~~ closed — fixed upstream, verified 2026-09-15 (nothing to file)
 | 20 | Fix dprint exit-14 on CHANGELOG-only commits (`--allow-no-files` in the BuildFlow hook)                                                                  | Medium   | S      | Tooling       |
 | 21 | Sweep all module `.golangci.yml` files for stale `go:` pins (realtime still says 1.26.5)                                                                 | Medium   | S      | Cleanup       |
 | 22 | Add a LICENSE-presence check to CI so no future module ships without one                                                                                 | Medium   | S      | Quality       |
