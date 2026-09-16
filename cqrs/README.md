@@ -137,7 +137,10 @@ mux.HandleFunc("GET /tasks", func(w http.ResponseWriter, r *http.Request) {
 `CheckStaleness(budget)` guards against the maximum lag across all workers,
 `CheckProjectionStaleness(name, budget)` against one named read model. A
 budget <= 0 disables the check; a worker that has not processed any event yet
-counts as fresh. On large streams, tune catch-up throughput with
+counts as fresh. For dashboards, `EventService.Status()` returns the
+projection states as a SLICE (one entry per registered projection), and
+`LagPerProjection()` maps each projection to its lag. On large streams, tune
+catch-up throughput with
 `HostOptions: []projectionhost.HostOption{projectionhost.WithBatchSize(n)}` —
 the default batch size trades throughput for latency smoothness.
 
