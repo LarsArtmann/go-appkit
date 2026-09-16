@@ -38,44 +38,52 @@ type RateLimitConfig struct {
 	KeyExtractor httputil.KeyExtractor
 }
 
-// Named profiles (per-minute request limits from the CV production stack).
-// They are VALUES, not singletons: build one RateLimit per endpoint group
-// that needs isolation — two endpoints sharing one built middleware share
-// one bucket set, so a busy group can starve another.
-//
-//nolint:gochecknoglobals // public preset values, immutable by convention
-var (
-	// GeneralProfile fits broad endpoints (health, root, metrics):
-	// 60 req/min, burst 100.
-	GeneralProfile = RateLimitConfig{
-		Limit:   60,
-		Burst:   100,
-		MaxKeys: 10_000,
-	} //nolint:exhaustruct_v5,mnd // documented preset; Window/KeyExtractor defaulted by RateLimit
-
-	// AnalysisProfile fits interactive analysis endpoints:
-	// 10 req/min, burst 15.
-	AnalysisProfile = RateLimitConfig{
-		Limit:   10,
-		Burst:   15,
-		MaxKeys: 5_000,
-	} //nolint:exhaustruct_v5,mnd // documented preset; Window/KeyExtractor defaulted by RateLimit
-
-	// ExportProfile fits heavy export endpoints (PDF/report generation):
-	// 5 req/min, burst 8.
-	ExportProfile = RateLimitConfig{
-		Limit:   5,
-		Burst:   8,
-		MaxKeys: 5_000,
-	} //nolint:exhaustruct_v5,mnd // documented preset; Window/KeyExtractor defaulted by RateLimit
-
-	// ContactProfile fits form submissions: 8 req/min, burst 10.
-	ContactProfile = RateLimitConfig{
-		Limit:   8,
-		Burst:   10,
-		MaxKeys: 5_000,
-	} //nolint:exhaustruct_v5,mnd // documented preset; Window/KeyExtractor defaulted by RateLimit
+// Named profile limits (per-minute request limits from the CV production
+// stack). They are VALUES, not singletons: build one RateLimit per endpoint
+// group that needs isolation — two endpoints sharing one built middleware
+// share one bucket set, so a busy group can starve another.
+const (
+	generalLimit  uint = 60
+	generalBurst  uint = 100
+	generalCap    uint = 10_000
+	analysisLimit uint = 10
+	analysisBurst uint = 15
+	analysisCap   uint = 5_000
+	exportLimit   uint = 5
+	exportBurst   uint = 8
+	exportCap     uint = 5_000
+	contactLimit  uint = 8
+	contactBurst  uint = 10
+	contactCap    uint = 5_000
 )
+
+// profile builds a config with every field explicit (Window and
+// KeyExtractor zero means "RateLimit applies its defaults").
+func profile(limit, burst, maxKeys uint) RateLimitConfig {
+	return RateLimitConfig{
+		Limit:        limit,
+		Burst:        burst,
+		Window:       0,
+		MaxKeys:      maxKeys,
+		KeyExtractor: nil,
+	}
+}
+
+// GeneralProfile fits broad endpoints (health, root, metrics):
+// 60 req/min, burst 100.
+var GeneralProfile = profile(generalLimit, generalBurst, generalCap) //nolint:gochecknoglobals // public preset value
+
+// AnalysisProfile fits interactive analysis endpoints: 10 req/min, burst 15.
+//
+//nolint:gochecknoglobals // public preset value
+var AnalysisProfile = profile(analysisLimit, analysisBurst, analysisCap)
+
+// ExportProfile fits heavy export endpoints (PDF/report generation):
+// 5 req/min, burst 8.
+var ExportProfile = profile(exportLimit, exportBurst, exportCap) //nolint:gochecknoglobals // public preset value
+
+// ContactProfile fits form submissions: 8 req/min, burst 10.
+var ContactProfile = profile(contactLimit, contactBurst, contactCap) //nolint:gochecknoglobals // public preset value
 
 // RateLimit builds a keyed rate-limit middleware from a profile.
 //
@@ -109,7 +117,8 @@ func RateLimit(cfg RateLimitConfig) func(http.Handler) http.Handler {
 // remoteAddrHostKey extracts the host part of RemoteAddr, falling back to
 // the raw address when it carries no port.
 func remoteAddrHostKey(r *http.Request) string {
-	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil && host != "" {
+	host, _, splitErr := net.SplitHostPort(r.RemoteAddr)
+	if splitErr == nil && host != "" {
 		return host
 	}
 
