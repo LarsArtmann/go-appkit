@@ -41,10 +41,10 @@ is ~12 lines for a production service.
 
 | Item                      | What works                                                                           | What's missing                                                                                                                                      |
 | ------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Service tests**         | Construction, defaults, validation, health, custom route, drain, close, addr/running | No middleware-specific tests (panic recovery, request ID presence, logging capture). No httpspec.Run test.                                          |
-| **Error-family adoption** | Constructors used in config.go, logger.go, service.go. Re-exports in errors.go.      | No RegisterClassifier for third-party errors. HTTPHandler pattern not yet documented in example.                                                    |
-| **Planning docs**         | 5 .md files + README index written and committed.                                    | Overlapping content (error-family 3-layer adoption appears in design-decisions.md, integrations.md, AND framework-architecture.md — DRY violation). |
-| **Graceful drain**        | Works: readyProbe flips → DrainDelay → server.Shutdown. Tested.                      | No integration test verifying LoadBalancer behavior. DrainDelay=0 in some tests for speed (not testing drain there).                                |
+~~| **Service tests**         | Construction, defaults, validation, health, custom route, drain, close, addr/running | No middleware-specific tests (panic recovery, request ID presence, logging capture). No httpspec.Run test.                                          |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **Error-family adoption** | Constructors used in config.go, logger.go, service.go. Re-exports in errors.go.      | No RegisterClassifier for third-party errors. HTTPHandler pattern not yet documented in example.                                                    |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **Planning docs**         | 5 .md files + README index written and committed.                                    | Overlapping content (error-family 3-layer adoption appears in design-decisions.md, integrations.md, AND framework-architecture.md — DRY violation). |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **Graceful drain**        | Works: readyProbe flips → DrainDelay → server.Shutdown. Tested.                      | No integration test verifying LoadBalancer behavior. DrainDelay=0 in some tests for speed (not testing drain there).                                |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
 
 ---
 
@@ -52,14 +52,14 @@ is ~12 lines for a production service.
 
 | Item                                   | Impact | Notes                                                                       |
 | -------------------------------------- | ------ | --------------------------------------------------------------------------- |
-| **example/main.go**                    | High   | 12-line demo service with HandleError CLI terminator.                       |
-| **README.md rewrite**                  | High   | Currently describes old "5 helpers" library. Must show framework API.       |
-| **AGENTS.md update**                   | Medium | Still describes old architecture (server.go, sqlite.go, HealthStatus enum). |
-| **CQRS sub-module** (`go-appkit/cqrs`) | Medium | EventService wrapping stack/sqlite.New. Separate go.mod.                    |
-| **Docs sub-module** (`go-appkit/docs`) | Low    | Catalog wrapper for AsyncAPI/OpenAPI/D2. Separate go.mod.                   |
-| **go.work workspace**                  | Medium | Multi-module workspace file for developing cqrs/docs alongside core.        |
-| **flake.nix**                          | Medium | AGENTS.md mandates flake.nix but it doesn't exist.                          |
-| **Tag v1.0.0**                         | High   | Blocked on README + example + AGENTS.md update.                             |
+~~| **example/main.go**                    | High   | 12-line demo service with HandleError CLI terminator.                       |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **README.md rewrite**                  | High   | Currently describes old "5 helpers" library. Must show framework API.       |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **AGENTS.md update**                   | Medium | Still describes old architecture (server.go, sqlite.go, HealthStatus enum). |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **CQRS sub-module** (`go-appkit/cqrs`) | Medium | EventService wrapping stack/sqlite.New. Separate go.mod.                    |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **Docs sub-module** (`go-appkit/docs`) | Low    | Catalog wrapper for AsyncAPI/OpenAPI/D2. Separate go.mod.                   |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **go.work workspace**                  | Medium | Multi-module workspace file for developing cqrs/docs alongside core.        |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **flake.nix**                          | Medium | AGENTS.md mandates flake.nix but it doesn't exist.                          |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **Tag v1.0.0**                         | High   | Blocked on README + example + AGENTS.md update.                             |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
 
 ---
 
@@ -67,27 +67,27 @@ is ~12 lines for a production service.
 
 | Issue                                       | Severity | Detail                                                                                                                                                           |
 | ------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **httputil v0.5.0, not v0.4.0**             | Low      | Plan docs say v0.4.0. Actual resolved version is v0.5.0 (latest). Plan docs are stale on version numbers.                                                        |
-| **LSP typecheck warnings**                  | Cosmetic | 5 stale "other declaration of defaultReadTimeout" warnings from LSP cache. `go build` and `go vet` pass clean. LSP hasn't refreshed after file deletion.         |
-| **Test runtime ~5s**                        | Low      | Default DrainDelay=5s makes some tests slow. Mitigated with DrainDelay:0 in non-drain tests, but default-config test still waits 5s.                             |
-| **`http.Get` in tests triggers noctx lint** | Low      | Tests use `http.Get` directly. golangci-lint flags this. BuildFlow's repair pass auto-fixed it at commit time, but the source should use context-aware requests. |
-| **README is completely stale**              | High     | Describes old library. Anyone reading the repo RIGHT NOW will be confused.                                                                                       |
-| **AGENTS.md is stale**                      | Medium   | References deleted files (server.go, sqlite.go, HealthStatus enum). Will confuse future AI sessions.                                                             |
-| **Planning docs have DRY violations**       | Low      | Error-family 3-layer adoption duplicated across 3 docs.                                                                                                          |
+~~| **httputil v0.5.0, not v0.4.0**             | Low      | Plan docs say v0.4.0. Actual resolved version is v0.5.0 (latest). Plan docs are stale on version numbers.                                                        |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **LSP typecheck warnings**                  | Cosmetic | 5 stale "other declaration of defaultReadTimeout" warnings from LSP cache. `go build` and `go vet` pass clean. LSP hasn't refreshed after file deletion.         |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **Test runtime ~5s**                        | Low      | Default DrainDelay=5s makes some tests slow. Mitigated with DrainDelay:0 in non-drain tests, but default-config test still waits 5s.                             |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **`http.Get` in tests triggers noctx lint** | Low      | Tests use `http.Get` directly. golangci-lint flags this. BuildFlow's repair pass auto-fixed it at commit time, but the source should use context-aware requests. |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **README is completely stale**              | High     | Describes old library. Anyone reading the repo RIGHT NOW will be confused.                                                                                       |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **AGENTS.md is stale**                      | Medium   | References deleted files (server.go, sqlite.go, HealthStatus enum). Will confuse future AI sessions.                                                             |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **Planning docs have DRY violations**       | Low      | Error-family 3-layer adoption duplicated across 3 docs.                                                                                                          |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
 
 ---
 
 ## e) WHAT WE SHOULD IMPROVE
 
-1. **Fix test HTTP requests to use context** — Replace `http.Get` with `http.NewRequestWithContext` + `client.Do`. Fixes noctx lint warnings at source.
-2. **Add middleware integration tests** — Panic → 500, X-Request-ID header present, logging output captured. These are the middleware contract tests.
-3. **Add httpspec.Run test** — 18 free specs from httputil. `httpspec.Run(t, handler, httpspec.SkipSpec(httpspec.IndexNot404))`.
-4. **Reduce default test DrainDelay** — Default test config uses 5s drain. Should use near-zero in test helper.
-5. **Consolidate error-family docs** — Single source of truth for the 3-layer adoption pattern.
-6. **Fix RegisterHealth ergonomics** — Current `*bool` pointer pattern works but is awkward. Consider a `DisableHealth bool` field instead (inverted logic, but zero-value = default behavior).
-7. **Add `svc.WithLogger(logger)` option** — Allow injecting a pre-configured logger instead of always creating one.
-8. **Add structured shutdown logging** — Log drain start, drain complete, shutdown start, shutdown complete with timestamps.
-9. **Document the httputil.Server NON-delegation** — Plan says "delegate to httputil.Server" but we CAN'T because httputil.Server uses ListenAndServe() internally (no listener access). appkit owns http.Server + net.Listener directly. This deviation from the plan is correct but undocumented.
+~~1. **Fix test HTTP requests to use context** — Replace `http.Get` with `http.NewRequestWithContext` + `client.Do`. Fixes noctx lint warnings at source.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~2. **Add middleware integration tests** — Panic → 500, X-Request-ID header present, logging output captured. These are the middleware contract tests.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~3. **Add httpspec.Run test** — 18 free specs from httputil. `httpspec.Run(t, handler, httpspec.SkipSpec(httpspec.IndexNot404))`.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~4. **Reduce default test DrainDelay** — Default test config uses 5s drain. Should use near-zero in test helper.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~5. **Consolidate error-family docs** — Single source of truth for the 3-layer adoption pattern.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~6. **Fix RegisterHealth ergonomics** — Current `*bool` pointer pattern works but is awkward. Consider a `DisableHealth bool` field instead (inverted logic, but zero-value = default behavior).~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~7. **Add `svc.WithLogger(logger)` option** — Allow injecting a pre-configured logger instead of always creating one.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~8. **Add structured shutdown logging** — Log drain start, drain complete, shutdown start, shutdown complete with timestamps.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~9. **Document the httputil.Server NON-delegation** — Plan says "delegate to httputil.Server" but we CAN'T because httputil.Server uses ListenAndServe() internally (no listener access). appkit owns http.Server + net.Listener directly. This deviation from the plan is correct but undocumented.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
 
 ---
 

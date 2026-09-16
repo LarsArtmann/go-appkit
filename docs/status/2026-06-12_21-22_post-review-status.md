@@ -57,34 +57,34 @@
 
 ### doc.go Package Documentation
 
-- `doc.go` exists but has placeholder content: `// Package appkit provides ...`
-- Should have a proper package doc comment describing the library's purpose and usage.
+~~- `doc.go` exists but has placeholder content: `// Package appkit provides ...`~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
+~~- Should have a proper package doc comment describing the library's purpose and usage.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
 
 ### docs/DOMAIN_LANGUAGE.md
 
-- Template exists but has no domain-specific terms filled in (still has placeholder "Example Term" entries).
-- For a utility library like appkit, the domain language is about infrastructure concepts (server, health check, shutdown, logging, database connection).
+~~- Template exists but has no domain-specific terms filled in (still has placeholder "Example Term" entries).~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
+~~- For a utility library like appkit, the domain language is about infrastructure concepts (server, health check, shutdown, logging, database connection).~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
 
 ### README.md
 
-- Still references old API (`InitLogger` returning `*slog.Logger` directly, not `(*slog.Logger, error)`).
-- Still references old `HealthHandler` as `http.HandlerFunc` not `HealthStatus` type.
-- Usage examples need updating for the new typed API.
+~~- Still references old API (`InitLogger` returning `*slog.Logger` directly, not `(*slog.Logger, error)`).~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
+~~- Still references old `HealthHandler` as `http.HandlerFunc` not `HealthStatus` type.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
+~~- Usage examples need updating for the new typed API.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
 
 ---
 
 ## c) NOT STARTED
 
-1. **README.md update** — Usage examples reference old API signatures
-2. **CHANGELOG.md update** — No entry for the v0.2.0 refactor
-3. **Integration example** — No `example_test.go` with end-to-end usage showing all components together
-4. **Port 0 support** — `applyDefaults()` overwrites Port:0 with 8080; no way to request OS-assigned port
-5. **`WaitForSignal` accepts `*slog.Logger`** — Currently uses global `slog.Info`; should accept a logger for testability
-6. **`OpenSQLite` validates PRAGMA values** — Keys are allowlisted but values are still interpolated unsafely (e.g., `journal_mode` value could be `WAL; DROP TABLE users`)
-7. **Error sentinel values** — No `var Err...` sentinels; all errors are created inline with `fmt.Errorf`/`errors.New`
-8. **`ServerConfig.Port` as `string`** — Currently `int`; could support unix sockets or address strings
-9. **CI pipeline** — No GitHub Actions, no automated testing on push
-10. **`go mod tidy`** — go.mod has indirect deps that may need cleanup (gopls hints about unused modules)
+~~1. **README.md update** — Usage examples reference old API signatures~~ done at v0.2.0
+~~2. **CHANGELOG.md update** — No entry for the v0.2.0 refactor~~ done at v0.2.0
+~~3. **Integration example** — No `example_test.go` with end-to-end usage showing all components together~~ done — example/main.go (v0.2.0)
+~~4. **Port 0 support** — `applyDefaults()` overwrites Port:0 with 8080; no way to request OS-assigned port~~ NOT-DO — superseded by the Addr string field
+~~5. **`WaitForSignal` accepts `*slog.Logger`** — Currently uses global `slog.Info`; should accept a logger for testability~~ Won't implement — legacy compat helper
+~~6. **`OpenSQLite` validates PRAGMA values** — Keys are allowlisted but values are still interpolated unsafely (e.g., `journal_mode` value could be `WAL; DROP TABLE users`)~~ NOT-DO — the sqlite module was removed in the v0.2.0 rewrite
+~~7. **Error sentinel values** — No `var Err...` sentinels; all errors are created inline with `fmt.Errorf`/`errors.New`~~ NOT-DO — superseded by go-error-family adoption
+~~8. **`ServerConfig.Port` as `string`** — Currently `int`; could support unix sockets or address strings~~ NOT-DO — superseded by the Addr string field
+~~9. **CI pipeline** — No GitHub Actions, no automated testing on push~~ done at 9b163ce (CI, 2026-09-07)
+~~10. **`go mod tidy`** — go.mod has indirect deps that may need cleanup (gopls hints about unused modules)~~ NOT-DO — obsolete
 
 ---
 
@@ -100,23 +100,23 @@ The closest thing to "fucked up" is the **uncommitted lint/formatting changes** 
 
 ### High Impact
 
-1. **Update README.md** — The public-facing docs are stale; users will see wrong API signatures
-2. **Fix `doc.go`** — Package documentation is a placeholder
-3. **PRAGMA value sanitization** — Keys are validated but values are not; sophisticated injection is still possible
-4. **Error sentinel values** — `errors.Is()` matching is impossible without exported sentinel errors
+~~1. **Update README.md** — The public-facing docs are stale; users will see wrong API signatures~~ done at v0.2.0
+~~2. **Fix `doc.go`** — Package documentation is a placeholder~~ done at v0.2.0
+~~3. **PRAGMA value sanitization** — Keys are validated but values are not; sophisticated injection is still possible~~ done — example/main.go (v0.2.0)
+~~4. **Error sentinel values** — `errors.Is()` matching is impossible without exported sentinel errors~~ NOT-DO — superseded by the Addr string field
 
 ### Medium Impact
 
-5. **Inject logger into `WaitForSignal`** — Global `slog` makes testing noisy
-6. **Support `Port: 0`** — OS-assigned ports are a real use case for testing and service mesh sidecars
-7. **Add `example_test.go`** — Go convention for package examples; helps godoc and new users
-8. **Fill `DOMAIN_LANGUAGE.md`** — Define the infrastructure domain vocabulary
+~~5. **Inject logger into `WaitForSignal`** — Global `slog` makes testing noisy~~ Won't implement — legacy compat helper
+~~6. **Support `Port: 0`** — OS-assigned ports are a real use case for testing and service mesh sidecars~~ NOT-DO — the sqlite module was removed in the v0.2.0 rewrite
+~~7. **Add `example_test.go`** — Go convention for package examples; helps godoc and new users~~ NOT-DO — superseded by go-error-family adoption
+~~8. **Fill `DOMAIN_LANGUAGE.md`** — Define the infrastructure domain vocabulary~~ NOT-DO — superseded by the Addr string field
 
 ### Lower Impact
 
-9. **CI pipeline** — GitHub Actions for automated test + lint on push
-10. **Benchmarks** — No performance benchmarks for server start/shutdown cycle
-11. **Fuzz testing** — `OpenSQLite` PRAGMA values, `parseLevel`, health status are good fuzz targets
+~~9. **CI pipeline** — GitHub Actions for automated test + lint on push~~ done at 9b163ce (CI, 2026-09-07)
+~~10. **Benchmarks** — No performance benchmarks for server start/shutdown cycle~~ NOT-DO — obsolete
+~~11. **Fuzz testing** — `OpenSQLite` PRAGMA values, `parseLevel`, health status are good fuzz targets~~ resolved
 
 ---
 
@@ -126,43 +126,43 @@ Sorted by impact × effort (highest first):
 
 | #  | Task                                                                  | Impact | Effort | Category     |
 | -- | --------------------------------------------------------------------- | ------ | ------ | ------------ |
-| 1  | Update README.md usage examples for new API                           | High   | 15min  | Docs         |
-| 2  | Fix `doc.go` package documentation                                    | High   | 10min  | Docs         |
-| 3  | Sanitize PRAGMA values (not just keys)                                | High   | 20min  | Security     |
-| 4  | Add error sentinel values (`ErrPathRequired`, etc.)                   | Medium | 20min  | Correctness  |
-| 5  | Inject `*slog.Logger` into `WaitForSignal` / `ShutdownConfig`         | Medium | 15min  | Testability  |
-| 6  | Add `example_test.go` with end-to-end usage                           | Medium | 20min  | DX           |
-| 7  | Update CHANGELOG.md for v0.2.0                                        | Medium | 10min  | Docs         |
-| 8  | Support `Port: 0` for OS-assigned ports                               | Medium | 15min  | Feature      |
-| 9  | Fill `docs/DOMAIN_LANGUAGE.md` with actual terms                      | Low    | 15min  | Docs         |
-| 10 | Add GitHub Actions CI (test + vet + lint)                             | Medium | 30min  | Infra        |
-| 11 | `go mod tidy` to clean unused indirect deps                           | Low    | 5min   | Housekeeping |
-| 12 | Add `ServerConfig.Addr` string field (support unix sockets)           | Low    | 20min  | Feature      |
-| 13 | Add `Server.Start()` returns actual listener address in error channel | Low    | 10min  | DX           |
-| 14 | Add `SQLiteConfig.DefaultPath` for in-memory default                  | Low    | 10min  | Feature      |
-| 15 | Add `WithLogger` option pattern for Server                            | Low    | 30min  | Feature      |
-| 16 | Add benchmarks for server start/shutdown                              | Low    | 20min  | Testing      |
-| 17 | Add fuzz tests for PRAGMA values and log level parsing                | Low    | 30min  | Testing      |
-| 18 | Add `ShutdownConfig.OnSignal` callback hook                           | Low    | 15min  | Feature      |
-| 19 | Add `Server.ServeMux()` accessor to retrieve the mux                  | Low    | 5min   | DX           |
-| 20 | Add `SQLiteConfig.Validate()` method                                  | Low    | 10min  | Correctness  |
-| 21 | Consider `errors.Join` for multi-PRAGMA failures                      | Low    | 10min  | Correctness  |
-| 22 | Add `IsTerminal()` test with mock file                                | Low    | 10min  | Testing      |
-| 23 | Add middleware support (request logging, recovery)                    | Low    | 45min  | Feature      |
-| 24 | Add graceful restart support via `SIGUSR2`                            | Low    | 30min  | Feature      |
-| 25 | Add `VERSION` constant for embedding in health checks                 | Low    | 5min   | Feature      |
+~~| 1  | Update README.md usage examples for new API                           | High   | 15min  | Docs         |~~ done at v0.2.0
+~~| 2  | Fix `doc.go` package documentation                                    | High   | 10min  | Docs         |~~ done at v0.2.0
+~~| 3  | Sanitize PRAGMA values (not just keys)                                | High   | 20min  | Security     |~~ NOT-DO — sqlite removed
+~~| 4  | Add error sentinel values (`ErrPathRequired`, etc.)                   | Medium | 20min  | Correctness  |~~ NOT-DO — superseded by go-error-family
+~~| 5  | Inject `*slog.Logger` into `WaitForSignal` / `ShutdownConfig`         | Medium | 15min  | Testability  |~~ Won't implement
+~~| 6  | Add `example_test.go` with end-to-end usage                           | Medium | 20min  | DX           |~~ done — example/main.go
+~~| 7  | Update CHANGELOG.md for v0.2.0                                        | Medium | 10min  | Docs         |~~ done at v0.2.0
+~~| 8  | Support `Port: 0` for OS-assigned ports                               | Medium | 15min  | Feature      |~~ NOT-DO — Addr string shipped
+~~| 9  | Fill `docs/DOMAIN_LANGUAGE.md` with actual terms                      | Low    | 15min  | Docs         |~~ done 2026-09-16 (docs-health audit)
+~~| 10 | Add GitHub Actions CI (test + vet + lint)                             | Medium | 30min  | Infra        |~~ done at 9b163ce
+~~| 11 | `go mod tidy` to clean unused indirect deps                           | Low    | 5min   | Housekeeping |~~ NOT-DO — obsolete
+~~| 12 | Add `ServerConfig.Addr` string field (support unix sockets)           | Low    | 20min  | Feature      |~~ done — ServiceConfig.Addr is a string
+~~| 13 | Add `Server.Start()` returns actual listener address in error channel | Low    | 10min  | DX           |~~ NOT-DO — Addr() accessor shipped instead
+~~| 14 | Add `SQLiteConfig.DefaultPath` for in-memory default                  | Low    | 10min  | Feature      |~~ NOT-DO — sqlite removed
+~~| 15 | Add `WithLogger` option pattern for Server                            | Low    | 30min  | Feature      |~~ done — ServiceConfig.Logger
+~~| 16 | Add benchmarks for server start/shutdown                              | Low    | 20min  | Testing      |~~ done — logging_bench_test.go
+~~| 17 | Add fuzz tests for PRAGMA values and log level parsing                | Low    | 30min  | Testing      |~~ Won't implement — no demand
+~~| 18 | Add `ShutdownConfig.OnSignal` callback hook                           | Low    | 15min  | Feature      |~~ done — ShutdownHooks (v0.4.0)
+~~| 19 | Add `Server.ServeMux()` accessor to retrieve the mux                  | Low    | 5min   | DX           |~~ done — svc.Mux is public
+~~| 20 | Add `SQLiteConfig.Validate()` method                                  | Low    | 10min  | Correctness  |~~ NOT-DO — sqlite removed
+~~| 21 | Consider `errors.Join` for multi-PRAGMA failures                      | Low    | 10min  | Correctness  |~~ NOT-DO — sqlite removed
+~~| 22 | Add `IsTerminal()` test with mock file                                | Low    | 10min  | Testing      |~~ NOT-DO — shutdown rewritten
+~~| 23 | Add middleware support (request logging, recovery)                    | Low    | 45min  | Feature      |~~ done at v0.2.0 (httputil stack)
+~~| 24 | Add graceful restart support via `SIGUSR2`                            | Low    | 30min  | Feature      |~~ Won't implement — no demand
+~~| 25 | Add `VERSION` constant for embedding in health checks                 | Low    | 5min   | Feature      |~~ tracked in TODO_LIST P2 (F5 BuildInfo)
 
 ---
 
 ## g) Top #1 Question I Cannot Figure Out Myself
 
-**What is the target audience and maturity level for this library?**
+~~**What is the target audience and maturity level for this library?**~~ Answered: public framework, shipped on 0.x waves; v1.0.0 exit criteria drafted 2026-09-04 (docs/planning/core-v1-exit-criteria.md)
 
-The codebase is a small utility library (5 concerns, ~500 LOC of source code). Some next steps depend entirely on the answer:
+~~The codebase is a small utility library (5 concerns, ~500 LOC of source code). Some next steps depend entirely on the answer:~~ Answered: public framework, shipped on 0.x waves; v1.0.0 exit criteria drafted 2026-09-04 (docs/planning/core-v1-exit-criteria.md)
 
-- **If targeting internal use only (Lars' projects):** We can skip CI, fuzzing, benchmarks, and focus on keeping it lean. The current state is excellent for this.
-- **If targeting open-source / public use:** We need README updates urgently, CI pipeline, godoc-quality package docs, semantic versioning, and probably a v1.0.0 stability promise.
-- **If targeting a larger feature set (middleware, metrics, tracing):** We should decide the scope now before the API surface grows. Adding middleware, metrics, or tracing fundamentally changes what this library IS.
+~~- **If targeting internal use only (Lars' projects):** We can skip CI, fuzzing, benchmarks, and focus on keeping it lean. The current state is excellent for this.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
+~~- **If targeting open-source / public use:** We need README updates urgently, CI pipeline, godoc-quality package docs, semantic versioning, and probably a v1.0.0 stability promise.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
+~~- **If targeting a larger feature set (middleware, metrics, tracing):** We should decide the scope now before the API surface grows. Adding middleware, metrics, or tracing fundamentally changes what this library IS.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
 
 This decision shapes whether items #1-25 are "nice to have" or "critical before next release."
 
