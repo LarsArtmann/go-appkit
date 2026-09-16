@@ -1,5 +1,9 @@
 github.com/Masterminds/semver/v3 v3.5.0 h1:kQceYJfbupGfZOKZQg0kou0DgAKhzDg2NZPAwZ/2OOE=
 github.com/Masterminds/semver/v3 v3.5.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
+github.com/Oudwins/tailwind-merge-go v0.2.3 h1:RCiZ/DlLpoJnE5QSs1sRPDtIs3We0RQpsLH7bBWfbUI=
+github.com/Oudwins/tailwind-merge-go v0.2.3/go.mod h1:kkZodgOPvZQ8f7SIrlWkG/w1g9JTbtnptnePIh3V72U=
+github.com/a-h/templ v0.3.1020 h1:ypAT/L5ySWEnZ6Zft/5yfoWXYYkhFNvEFOeeqecg4tw=
+github.com/a-h/templ v0.3.1020/go.mod h1:A2DlK61v+K+NRoGnhmYbNYVmtYHcFO5/AisMvBdDxTM=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ2ASbcXHWsFqH8hp8=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
@@ -55,6 +59,8 @@ github.com/larsartmann/cqrs-htmx/v4 v4.9.0 h1:w2iyy/TSzmlYa2TH1KlklZSnRgcbCLXhVE
 github.com/larsartmann/cqrs-htmx/v4 v4.9.0/go.mod h1:4gcksTwUE6hBD4F4lG5B0gLg6PLWiQDSr8hXI48FXFw=
 github.com/larsartmann/go-appkit v0.4.0 h1:B1GRLQkpGmj7Fmp4+EoFBwX8+d00RRC50YkuInuZhpQ=
 github.com/larsartmann/go-appkit v0.4.0/go.mod h1:TU67e7UZCdNSmOJBBVbSwKiADXOv7gwHZbmx7fbeJQo=
+github.com/larsartmann/go-appkit/errorpages v0.1.0 h1:3j89JvenmKz+shcFC0dVIE1UJEc2/AGUoPDTsCgWOiY=
+github.com/larsartmann/go-appkit/errorpages v0.1.0/go.mod h1:fkatfj0k3HjL0bEojte2aYVUMT51uuOHuwupxPLMiKY=
 github.com/larsartmann/go-appkit/otel v0.1.1 h1:afeBX4PvFGZEatmBa+RdkZqB0J08cw4qUZWw+DRx/pg=
 github.com/larsartmann/go-appkit/otel v0.1.1/go.mod h1:IJDsh+6C3hlM98G9k2wKtMasztSPHSbAzXF1vF1G6A8=
 github.com/larsartmann/go-appkit/realtime v0.1.0 h1:4teS1M+/akOb8eM6Zh+k69viMc2JQ8LQb+KIkjUD0Zs=
@@ -99,6 +105,12 @@ github.com/larsartmann/httputil v1.2.0 h1:EVU5GS4iUFGu+iuO1tbDt8zRJ56zjsn8cXZuIS
 github.com/larsartmann/httputil v1.2.0/go.mod h1:7tPYJfS0PcoSlmzMUUB5MXbLgHqLPLgf2nKolA8g7Fc=
 github.com/larsartmann/httputil/server_timing v1.0.1 h1:9T2YwZfrj71F1NFblFwIDsJZ7rnLU8K1BYlxBmrwfn8=
 github.com/larsartmann/httputil/server_timing v1.0.1/go.mod h1:QumWlp/L8NhkwNXZkN/IeLjtE5Y97axZ9LCK9NzSVck=
+github.com/larsartmann/templ-components/errorpage v1.8.2 h1:QmvRvLP61rMdY4Ao5aOVQRqHzi4T5yrmdrdDDaUXa2Y=
+github.com/larsartmann/templ-components/errorpage v1.8.2/go.mod h1:ExVmotoNgWEtou/PBku44ucNnLQw+R0Uqk8QXUAfxdE=
+github.com/larsartmann/templ-components/icons v1.8.2 h1:77BasZrA6c7dMhh/KQI7Mof87sF3MRHrPQihX/sY4lA=
+github.com/larsartmann/templ-components/icons v1.8.2/go.mod h1:LtJXgvY/5f7bXW9JsWlxRwu/t4dTHLnhwaod+cdxMWg=
+github.com/larsartmann/templ-components/utils v1.8.2 h1:I03nhji+P5rfKCyNs335slHcoXqu7O8yLLNHKyQy6FY=
+github.com/larsartmann/templ-components/utils v1.8.2/go.mod h1:vYC5Ysy6Gl3KSQGFu68e6xMXivRIMK5qExFtn3l02uk=
 github.com/lucasb-eyer/go-colorful v1.4.1 h1:1EO+WB73+EH8EVbzlrG3KLAfEypQWVHIBqlTf+2hNss=
 github.com/lucasb-eyer/go-colorful v1.4.1/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/maruel/natural v1.3.0 h1:VsmCsBmEyrR46RomtgHs5hbKADGRVtliHTyCOLFBpsg=
