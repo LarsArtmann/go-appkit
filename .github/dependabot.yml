@@ -21,7 +21,7 @@ updates:
           - minor
           - patch
   - package-ecosystem: gomod
-    directory: /docs-mod
+    directory: /docs
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

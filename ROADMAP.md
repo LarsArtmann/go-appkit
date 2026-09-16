@@ -64,7 +64,7 @@ appkit never grows application-shaped code.
 - `httpx` handler-DX module (ResultHandler family, bind+validate, no-leak
   errors) — W3 of the battery program; requires a core route-registration seam
   (`svc.Routes()`) for introspection that core has not agreed to yet.
-- Route metadata → docs-mod live feed: generated docs that cannot drift from
+- Route metadata → docs live feed: generated docs that cannot drift from
   routes (B8; same core seam prerequisite).
 - Config modules (koanf wrapper, hot-reload via fsnotify with
   validate-gate → atomic swap) — F1/F4; demand-gated on a consumer with

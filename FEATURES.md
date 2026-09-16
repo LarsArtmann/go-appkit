@@ -50,11 +50,11 @@ aspirations.
 | Catalog builder (OpenAPI/AsyncAPI/D2) | FULLY_FUNCTIONAL | `docs.go`, `docs_test.go` |
 | `RegisterDocs` docserver mounting     | FULLY_FUNCTIONAL | `docs.go:34`              |
 
-Release gap: the source builds and tests green, but the published `docs/v0.2.0`
-tag is UNFETCHABLE from the module proxy — the module path says `.../docs`
-while the directory is `docs-mod/`, so the proxy finds no `docs/go.mod`. The
-published module is a ghost until the directory/module-path mismatch is fixed
-and re-tagged (TODO_LIST P1).
+Release gap CLOSED 2026-09-16: the historical `docs/v0.2.0` tag was UNFETCHABLE
+from the module proxy (module path said `.../docs` while the directory was
+`docs-mod/`, so the proxy found no `docs/go.mod` — a ghost release). Fixed by
+the path-A repath (`docs-mod/` → `docs/`, project docs moved to `doc/`) and
+re-tagged as `docs/v0.3.0`, which is the first fetchable docs release.
 
 ## errorpages (`github.com/larsartmann/go-appkit/errorpages`)
 
