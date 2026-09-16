@@ -23,6 +23,17 @@ import (
 // Or use [Mount] for stdlib mux convenience.
 func SnapshotHandler(rec *fr.Recorder) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Explicit not-enabled status: a silent 200 "snapshot captured" on a
+		// disabled recorder is data loss on a debug endpoint — the operator
+		// believes they have a trace they do not have.
+		if !rec.Enabled() {
+			writeSnapshotResponse(w, http.StatusServiceUnavailable,
+				"recorder not enabled",
+				"start the recorder at boot (or via its own lifecycle) before requesting snapshots")
+
+			return
+		}
+
 		// Re-arm the latch so a manual snapshot works even if the
 		// middleware already captured an automatic one.
 		rec.Reset()

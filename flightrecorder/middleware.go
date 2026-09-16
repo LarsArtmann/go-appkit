@@ -1,12 +1,11 @@
 package flightrecorder
 
 import (
-	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	fr "github.com/larsartmann/go-flightrecorder"
 	"github.com/larsartmann/httputil"
 )
@@ -117,14 +116,18 @@ func Middleware(rec *fr.Recorder, trigger fr.TriggerFunc, opts ...MiddlewareOpti
 
 // errHTTPStatus is the sentinel underlying status-class errors, so callers
 // can match any threshold-exceeding status with errors.Is.
-var errHTTPStatus = errors.New("http status")
-
-// statusError returns an error if the status code indicates a server error,
-// nil otherwise. This populates [fr.TriggerContext].Err so that [fr.OnError]
-// and [fr.OnErrorOrLatency] triggers fire on error responses.
+// statusError returns a classified error if the status code indicates a
+// server error, nil otherwise. This populates [fr.TriggerContext].Err so
+// that [fr.OnError] and [fr.OnErrorOrLatency] triggers fire on error
+// responses. The error is Infrastructure (environmental failure surfaced by
+// the served request), classified so consumer error routing treats it like
+// any other dependency failure instead of an unclassified string.
 func statusError(status, threshold int) error {
 	if status >= threshold {
-		return fmt.Errorf("%w %d", errHTTPStatus, status)
+		return errorfamily.Newf(errorfamily.Infrastructure,
+			"flightrecorder.http_status_error",
+			"http status %d (threshold %d)", status, threshold,
+		)
 	}
 
 	return nil
