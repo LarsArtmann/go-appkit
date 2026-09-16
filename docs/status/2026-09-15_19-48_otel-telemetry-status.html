@@ -1077,15 +1077,18 @@
 
         <div class="issue issue-important">
           <span class="severity severity-important">Docs must match measured reality</span>
-          <h3>README/AGENTS claims drifted from code three ways</h3>
+          <h3>README/AGENTS claims drifted from code — two ways (corrected 2026-09-16)</h3>
           <div class="where">otel/README.md &middot; AGENTS.md otel sections</div>
           <p>
             AGENTS pinned otelhttp v0.68 / otel v1.45 / httputil v0.12 (real: v0.71 /
-            v1.46 / v1.1.1 — fixed today); the "23 tests" count vs 27 listed entries;
-            benchmark table vs today's re-run; README "SSE-safe / panic-correct /
-            cardinality-safe" design notes sold the broken pattern feature without a
-            known-issues caveat. Lesson: docs that state performance or behavior need a
-            re-verify date attached.
+            v1.46 / v1.1.1 — fixed today); benchmark table vs today's re-run; README
+            "SSE-safe / panic-correct / cardinality-safe" design notes sold the broken
+            pattern feature without a known-issues caveat. CORRECTION (2026-09-16): an
+            earlier version of this card also claimed a "23 tests vs 27 listed entries"
+            doc drift — that was WRONG. The 27 entries are 23 tests + 3 benchmarks +
+            1 example (verified via <code>go test -list</code> breakdown); the AGENTS
+            count was accurate. Lesson: docs that state performance or behavior need a
+            re-verify date attached — and that includes claims I make about doc drift.
           </p>
         </div>
 
