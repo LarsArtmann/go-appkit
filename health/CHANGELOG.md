@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-16
+
 ### Changed
 
 - `Mounted.Drain` now uses go-health's two-phase API
