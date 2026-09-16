@@ -16,7 +16,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"io"
 	"log/slog"
 	"sort"
@@ -726,7 +725,12 @@ func (es *EventService) Shutdown(ctx context.Context) error {
 
 	drainErr := es.inFile.drain(ctx)
 	if drainErr != nil {
-		return fmt.Errorf("cqrs: drain in-flight commands: %w", drainErr)
+		// Classified Infrastructure: a failed in-flight drain is environmental
+		// (stuck command handlers), not a caller mistake — consumers get 503
+		// semantics and the correct retry classification.
+		return errorfamily.WrapInfrastructuref(
+			drainErr, "cqrs.drain_inflight_failed", "cqrs: drain in-flight commands",
+		)
 	}
 
 	return es.sys.GracefulClose(ctx) //nolint:wrapcheck // delegation
