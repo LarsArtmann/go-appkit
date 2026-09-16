@@ -248,3 +248,26 @@ func (m *Mounted) Probe() *health.Probe {
 func (m *Mounted) Dashboard() *dashboard.Dashboard {
 	return m.dashboard
 }
+
+// DashboardHardenedPreset bundles the hardened-posture dashboard options:
+// everything mounts under basePath and the dashboard's per-request CSP nonce
+// is extracted with nonceFn (pair it with a nonce-carrying Content-Security-
+// Policy — build the policy with the security module's BuildCSP and serve it
+// from a middleware OUTSIDE this module: rate limiting belongs in the chain
+// in front of the mux, by decision, because the health module is core-free).
+//
+// Usage:
+//
+//	mounted, err := appkithealth.New(probe, appkithealth.WithDashboard(
+//	    appkithealth.DashboardHardenedPreset("/ops", security.NonceFromContext),
+//	)...)
+//
+// The extractor signature matches the security module's [security.
+// NonceFromContext] and the extractor contract go-health-dashboard already
+// takes via WithNonceExtractor.
+func DashboardHardenedPreset(basePath string, nonceFn func(*http.Request) string) []dashboard.Option {
+	return []dashboard.Option{
+		dashboard.WithBasePath(basePath),
+		dashboard.WithNonceExtractor(nonceFn),
+	}
+}

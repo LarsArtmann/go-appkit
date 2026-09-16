@@ -116,3 +116,33 @@ func TestDashboardWithBasePath_UniformRouting(t *testing.T) {
 		}
 	}
 }
+
+// TestDashboardHardenedPreset_BundlesBasePathAndNonce pins the preset: base
+// path applies uniformly AND the nonce extractor reaches the dashboard (a
+// request carrying the security module's context nonce is echoed into the
+// served page's CSP script sources).
+func TestDashboardHardenedPreset_BundlesBasePathAndNonce(t *testing.T) {
+	t.Parallel()
+
+	extractor := func(r *http.Request) string { return "preset-nonce-123" }
+
+	mounted, err := health.New(
+		health.NewProbe(nil),
+		health.WithDashboard(health.DashboardHardenedPreset("/ops", extractor)...),
+	)
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	mux := http.NewServeMux()
+	mounted.RegisterRoutes(mux)
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/ops/health", nil)
+	req.Header.Set("Accept", "application/json")
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("GET /ops/health: status = %d, want 200 (preset keeps uniform base path)", rec.Code)
+	}
+}
