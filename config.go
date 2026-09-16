@@ -90,6 +90,21 @@ type ServiceConfig struct {
 	// Uses a pointer so the zero-value (nil) defaults to true. Set to false to opt out.
 	RegisterHealth *bool
 
+	// Metrics, when set, enables the opt-in Prometheus surface: a
+	// dependency-free text-exposition endpoint (default /metrics) plus the
+	// request-duration histogram, response totals, in-flight gauge, and
+	// build-info metrics. The exported metric names are a stable contract —
+	// see MetricsConfig for the names and the OTEL `_ratio` exporter trap.
+	// Authentication is mandatory by default (BasicAuthUser/BasicAuthPass,
+	// or an explicit AllowUnauthenticated). Optional; nil disables it.
+	Metrics *MetricsConfig
+
+	// Version stamps the service build (e.g. the GoReleaser-injected
+	// version). When non-empty, GET /version serves it as JSON and the
+	// appkit_build_info metric carries it as a label. Optional; "" (the
+	// default) renders as "dev" in the build-info metric only.
+	Version string
+
 	// ReadyCheck, when set, is consulted by /health/ready in addition to the
 	// internal drain probe: the endpoint reports 200 only while BOTH the
 	// drain probe is up AND ReadyCheck returns true. Use it to gate traffic

@@ -61,7 +61,29 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 		mux.HandleFunc("GET /health/ready", httputil.ReadyHandlerWithProbe(svc.ready))
 	}
 
+	var collector *metricsCollector
+	if cfg.Metrics != nil {
+		cfg.Metrics.applyMetricsDefaults()
+
+		if err := cfg.Metrics.validate(); err != nil {
+			return nil, err
+		}
+
+		collector = newMetricsCollector(cfg.Version)
+		mux.Handle("GET "+cfg.Metrics.Path, metricsAuth(cfg.Metrics, collector.handler()))
+	}
+
+	if cfg.Version != "" && (cfg.RegisterHealth == nil || *cfg.RegisterHealth) {
+		mux.HandleFunc("GET /version", versionHandler(cfg.Version))
+	}
+
 	mws := buildMiddleware(logger, cfg)
+	if collector != nil {
+		// The collector wraps the mux directly (inside the default stack's
+		// outermost layer) so it observes route patterns stamped by the mux
+		// while still counting requests that the default middlewares admit.
+		mws = append(mws, collector.middleware)
+	}
 	wrapped := httputil.Chain(mux, mws...)
 
 	svc.server = &http.Server{ //nolint:exhaustruct_v5 // unset fields (TLS, HTTP2, ConnState...) are deliberate zero values; lifecycle is appkit's
