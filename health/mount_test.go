@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -321,5 +322,64 @@ func TestMount_StartPropagatesProbeValidationErrors(t *testing.T) {
 
 	if !errors.Is(err, health.ErrInvalidTimeout) {
 		t.Errorf("err = %v, want errors.Is match on health.ErrInvalidTimeout through the wrap", err)
+	}
+}
+
+func TestMount_DrainKeepsRefreshLoopRunning(t *testing.T) {
+	t.Parallel()
+
+	var fail atomic.Bool
+	checks := map[string]CheckFunc{
+		"database": func(context.Context) error {
+			if fail.Load() {
+				return errors.New("connection refused")
+			}
+			return nil
+		},
+	}
+
+	mux := http.NewServeMux()
+	mounted, err := Mount(mux, NewProbe(checks, health.WithRefreshInterval(20*time.Millisecond)))
+	if err != nil {
+		t.Fatalf("mount: %v", err)
+	}
+
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	err = mounted.Start(t.Context())
+	if err != nil {
+		t.Fatalf("start: %v", err)
+	}
+
+	mounted.Drain()
+
+	code, _, body := getBody(t, server.URL+"/readyz", nil)
+	if code != http.StatusServiceUnavailable {
+		t.Fatalf("GET /readyz after drain = %d, want 503", code)
+	}
+	if !strings.Contains(body, `"shutting_down":true`) {
+		t.Errorf("readyz body = %s, want shutting_down flag", body)
+	}
+
+	// Two-phase drain contract: Drain must NOT stop the background refresh
+	// loop, so a check that degrades during the drain window still propagates
+	// into the served cache instead of freezing a stale snapshot.
+	fail.Store(true)
+	deadline := time.Now().Add(testTimeout)
+	for {
+		_, _, body := getBody(t, server.URL+"/readyz", nil)
+		if strings.Contains(body, `"fail"`) {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("readyz cache never reflected the failed check after drain; refresh loop was stopped")
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+
+	err = mounted.Shutdown(t.Context())
+	if err != nil {
+		t.Fatalf("shutdown: %v", err)
 	}
 }

@@ -193,8 +193,14 @@ func (m *Mounted) Start(ctx context.Context) error {
 //	})
 //
 // Safe to call multiple times; [Mounted.Shutdown] drains too.
+//
+// Drain uses the probe's two-phase API (go-health Probe.MarkShuttingDown):
+// readiness surfaces flip to 503 immediately, while the background refresh
+// loop KEEPS RUNNING, so the cached response stays fresh during a long drain
+// window (dashboards and trend data keep updating). Mounted.Shutdown then
+// stops the loop with Probe.Shutdown.
 func (m *Mounted) Drain() {
-	m.probe.Shutdown()
+	m.probe.MarkShuttingDown()
 }
 
 // Shutdown drains the probe, stops the SSE pusher (draining connected
@@ -208,6 +214,7 @@ func (m *Mounted) Drain() {
 // afterwards.
 func (m *Mounted) Shutdown(_ context.Context) error {
 	m.Drain()
+	m.probe.Shutdown()
 
 	m.mu.Lock()
 	m.started = false

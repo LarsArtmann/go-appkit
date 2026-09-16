@@ -58,8 +58,8 @@ is ~12 lines for a production service.
 ~~| **CQRS sub-module** (`go-appkit/cqrs`) | Medium | EventService wrapping stack/sqlite.New. Separate go.mod.                    |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
 ~~| **Docs sub-module** (`go-appkit/docs`) | Low    | Catalog wrapper for AsyncAPI/OpenAPI/D2. Separate go.mod.                   |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
 ~~| **go.work workspace**                  | Medium | Multi-module workspace file for developing cqrs/docs alongside core.        |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **flake.nix**                          | Medium | AGENTS.md mandates flake.nix but it doesn't exist.                          |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **Tag v1.0.0**                         | High   | Blocked on README + example + AGENTS.md update.                             |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **flake.nix**                          | Medium | AGENTS.md mandates flake.nix but it doesn't exist.                          |~~ Won't implement — project standard is plain Go tooling (AGENTS.md)
+~~| **Tag v1.0.0**                         | High   | Blocked on README + example + AGENTS.md update.                             |~~ NOT-DO — superseded by the 0.x wave strategy; v1.0.0 exit criteria drafted 2026-09-04
 
 ---
 
@@ -73,7 +73,7 @@ is ~12 lines for a production service.
 ~~| **`http.Get` in tests triggers noctx lint** | Low      | Tests use `http.Get` directly. golangci-lint flags this. BuildFlow's repair pass auto-fixed it at commit time, but the source should use context-aware requests. |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
 ~~| **README is completely stale**              | High     | Describes old library. Anyone reading the repo RIGHT NOW will be confused.                                                                                       |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
 ~~| **AGENTS.md is stale**                      | Medium   | References deleted files (server.go, sqlite.go, HealthStatus enum). Will confuse future AI sessions.                                                             |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
-~~| **Planning docs have DRY violations**       | Low      | Error-family 3-layer adoption duplicated across 3 docs.                                                                                                          |~~ resolved in session 2 (2026-07-07 15:03 report) and later waves
+~~| **Planning docs have DRY violations**       | Low      | Error-family 3-layer adoption duplicated across 3 docs.                                                                                                          |~~ Won't implement — internal docs, deliberately not consolidated
 
 ---
 
@@ -84,10 +84,10 @@ is ~12 lines for a production service.
 ~~3. **Add httpspec.Run test** — 18 free specs from httputil. `httpspec.Run(t, handler, httpspec.SkipSpec(httpspec.IndexNot404))`.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
 ~~4. **Reduce default test DrainDelay** — Default test config uses 5s drain. Should use near-zero in test helper.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
 ~~5. **Consolidate error-family docs** — Single source of truth for the 3-layer adoption pattern.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
-~~6. **Fix RegisterHealth ergonomics** — Current `*bool` pointer pattern works but is awkward. Consider a `DisableHealth bool` field instead (inverted logic, but zero-value = default behavior).~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~6. **Fix RegisterHealth ergonomics** — Current `*bool` pointer pattern works but is awkward. Consider a `DisableHealth bool` field instead (inverted logic, but zero-value = default behavior).~~ Won't implement — `*bool` kept by decision (anti-Verslimmbessern, 2026-07-07 plan)
 ~~7. **Add `svc.WithLogger(logger)` option** — Allow injecting a pre-configured logger instead of always creating one.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
 ~~8. **Add structured shutdown logging** — Log drain start, drain complete, shutdown start, shutdown complete with timestamps.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
-~~9. **Document the httputil.Server NON-delegation** — Plan says "delegate to httputil.Server" but we CAN'T because httputil.Server uses ListenAndServe() internally (no listener access). appkit owns http.Server + net.Listener directly. This deviation from the plan is correct but undocumented.~~ done or superseded in later waves (tags at v0.2.0+, per-module lint standard 2026-08-17, CHANGELOGs exist)
+~~9. **Document the httputil.Server NON-delegation** — Plan says "delegate to httputil.Server" but we CAN'T because httputil.Server uses ListenAndServe() internally (no listener access). appkit owns http.Server + net.Listener directly. This deviation from the plan is correct but undocumented.~~ superseded 2026-09-16 — httputil v1.1.x Server exposes ListenerAddr/StartTLS; composition is the recommended refactor (AGENTS.md)
 
 ---
 
@@ -95,31 +95,31 @@ is ~12 lines for a production service.
 
 | #  | Task                                                   | Impact   | Effort | Priority |
 | -- | ------------------------------------------------------ | -------- | ------ | -------- |
-| 1  | Rewrite README.md for framework API                    | Critical | 30m    | P0       |
-| 2  | Create example/main.go (12-line service)               | High     | 15m    | P0       |
-| 3  | Update AGENTS.md (architecture, file map)              | High     | 20m    | P0       |
-| 4  | Fix test HTTP requests (noctx lint)                    | Medium   | 15m    | P1       |
-| 5  | Add middleware test: panic → 500                       | High     | 15m    | P1       |
-| 6  | Add middleware test: X-Request-ID present              | Medium   | 10m    | P1       |
-| 7  | Add middleware test: logging captured                  | Medium   | 15m    | P1       |
-| 8  | Add httpspec.Run conformance test                      | Medium   | 15m    | P1       |
-| 9  | Add ServiceConfig_test.go (table-driven validation)    | Medium   | 15m    | P2       |
-| 10 | Fix DrainDelay test helper (near-zero default)         | Low      | 10m    | P2       |
-| 11 | Tag v1.0.0 (after README + example)                    | Critical | 5m     | P2       |
-| 12 | Consolidate error-family docs (DRY)                    | Low      | 20m    | P2       |
-| 13 | Update planning docs version numbers (v0.5.0)          | Low      | 10m    | P2       |
-| 14 | Add `WithLogger(logger)` option                        | Low      | 15m    | P3       |
-| 15 | Add structured shutdown logging                        | Low      | 15m    | P3       |
-| 16 | Document httputil.Server non-delegation decision       | Medium   | 10m    | P3       |
-| 17 | Create go.work workspace file                          | Medium   | 10m    | P3       |
-| 18 | Create cqrs/go.mod + EventService stub                 | Medium   | 30m    | P4       |
-| 19 | Implement cqrs EventService (stack/sqlite.New wrapper) | Medium   | 45m    | P4       |
-| 20 | cqrs: Service integration (Shutdown calls es.Shutdown) | Medium   | 30m    | P4       |
-| 21 | cqrs: E2E test (command → event → projection → health) | High     | 60m    | P4       |
-| 22 | Create docs/go.mod + catalog wrapper                   | Low      | 30m    | P5       |
-| 23 | Implement docs RegisterDocs (catalog routes)           | Low      | 45m    | P5       |
-| 24 | Create flake.nix (build/lint/test automation)          | Medium   | 30m    | P5       |
-| 25 | Final review: brutal-self-review skill                 | Medium   | 30m    | P5       |
+~~| 1  | Rewrite README.md for framework API                    | Critical | 30m    | P0       |~~ done at 9356d1d (session 2)
+~~| 2  | Create example/main.go (12-line service)               | High     | 15m    | P0       |~~ done at 9356d1d
+~~| 3  | Update AGENTS.md (architecture, file map)              | High     | 20m    | P0       |~~ done at 9356d1d
+~~| 4  | Fix test HTTP requests (noctx lint)                    | Medium   | 15m    | P1       |~~ done 2026-08-17 (noctx fixes)
+~~| 5  | Add middleware test: panic → 500                       | High     | 15m    | P1       |~~ done 2026-07-07 (middleware tests)
+~~| 6  | Add middleware test: X-Request-ID present              | Medium   | 10m    | P1       |~~ done 2026-07-07
+~~| 7  | Add middleware test: logging captured                  | Medium   | 15m    | P1       |~~ done 2026-07-07
+~~| 8  | Add httpspec.Run conformance test                      | Medium   | 15m    | P1       |~~ done 2026-07-07 (httpspec_test.go)
+~~| 9  | Add ServiceConfig_test.go (table-driven validation)    | Medium   | 15m    | P2       |~~ done 2026-07-07 (config_test.go)
+~~| 10 | Fix DrainDelay test helper (near-zero default)         | Low      | 10m    | P2       |~~ done at v0.4.0 (NoDrainDelay)
+~~| 11 | Tag v1.0.0 (after README + example)                    | Critical | 5m     | P2       |~~ NOT-DO — superseded by 0.x wave strategy
+~~| 12 | Consolidate error-family docs (DRY)                    | Low      | 20m    | P2       |~~ Won't implement — internal docs
+~~| 13 | Update planning docs version numbers (v0.5.0)          | Low      | 10m    | P2       |~~ NOT-DO — obsolete
+~~| 14 | Add `WithLogger(logger)` option                        | Low      | 15m    | P3       |~~ done 2026-08-15 (v4 migration, jsonv2)
+~~| 15 | Add structured shutdown logging                        | Low      | 15m    | P3       |~~ done 2026-08-15 (READMEs created)
+~~| 16 | Document httputil.Server non-delegation decision       | Medium   | 10m    | P3       |~~ done 2026-08-15 (cqrs/README.md)
+~~| 17 | Create go.work workspace file                          | Medium   | 10m    | P3       |~~ done 2026-08-15
+~~| 18 | Create cqrs/go.mod + EventService stub                 | Medium   | 30m    | P4       |~~ done 2026-08-15 (M05 logger wiring)
+~~| 19 | Implement cqrs EventService (stack/sqlite.New wrapper) | Medium   | 45m    | P4       |~~ done 2026-08-15 (staleness guards replaced this design)
+~~| 20 | cqrs: Service integration (Shutdown calls es.Shutdown) | Medium   | 30m    | P4       |~~ done 2026-08-15 (M08 readiness)
+~~| 21 | cqrs: E2E test (command → event → projection → health) | High     | 60m    | P4       |~~ done 2026-08-15 (M06 DLQ)
+~~| 22 | Create docs/go.mod + catalog wrapper                   | Low      | 30m    | P5       |~~ done 2026-08-15 (M03)
+~~| 23 | Implement docs RegisterDocs (catalog routes)           | Low      | 45m    | P5       |~~ NOT-DO — superseded: ServiceConfig composes instead
+~~| 24 | Create flake.nix (build/lint/test automation)          | Medium   | 30m    | P5       |~~ Won't implement — no demand
+~~| 25 | Final review: brutal-self-review skill                 | Medium   | 30m    | P5       |~~ done 2026-08-16 (go.work + workspace verification)
 
 ---
 

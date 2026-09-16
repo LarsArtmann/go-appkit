@@ -117,22 +117,22 @@ I proposed `app.CLI().Command(...)` without choosing or even discussing what CLI
 
 ### Design process improvements
 
-1. **Read ALL planning docs before designing** — design-decisions.md, framework-architecture.md, execution-plan.md, and all prior status reports. Designing without reading locked decisions is malpractice.
-2. **Verify external APIs before writing code samples** — every function name, type, and category I referenced from go-error-family and system should have been verified against actual source, not assumed from READMEs.
-3. **Address version compatibility explicitly** — the v3 → v4 gap is a project-defining constraint. It should have been the FIRST thing discussed, buried in a footnote.
-4. **Impact analysis before proposing deletion** — "X dies" requires knowing what depends on X.
-5. **Choose frameworks, don't hand-wave them** — CLI framework, SSE library (or raw stdlib), WebSocket library — these are real decisions with real dependency costs.
+~~1. **Read ALL planning docs before designing** — design-decisions.md, framework-architecture.md, execution-plan.md, and all prior status reports. Designing without reading locked decisions is malpractice.~~ resolved
+~~2. **Verify external APIs before writing code samples** — every function name, type, and category I referenced from go-error-family and system should have been verified against actual source, not assumed from READMEs.~~ resolved
+~~3. **Address version compatibility explicitly** — the v3 → v4 gap is a project-defining constraint. It should have been the FIRST thing discussed, buried in a footnote.~~ resolved
+~~4. **Impact analysis before proposing deletion** — "X dies" requires knowing what depends on X.~~ resolved
+~~5. **Choose frameworks, don't hand-wave them** — CLI framework, SSE library (or raw stdlib), WebSocket library — these are real decisions with real dependency costs.~~ resolved
 
 ### Design gaps to close
 
-6. **Shutdown ordering** — must reconcile my proposed ordering with Decision 10's locked sequence. The System's `Close()` stops projections then closes engines. appkit's `Shutdown()` drains HTTP then closes. These must compose correctly.
-7. **Health integration** — `system.Health()` and `system.Explain()` exist. appkit's `/health/ready` should integrate with system health, not just the HTTP ready probe.
-8. **SSE authentication** — no discussion of how auth tokens reach the SSE endpoint (query param? cookie? header?). SSE cannot set custom headers from the browser side.
-9. **Event replay on reconnect** — when an SSE client reconnects, it needs to catch up. The event store supports `SeekableJournal` — the design should specify how the Hub uses `Last-Event-ID` header to replay missed events from the store.
-10. **CORS for SSE** — browser SSE requires CORS headers. No discussion.
-11. **Projection host lifecycle in CLI mode** — CLI commands that produce events need projections to process them. But projections are async by default. Does CLI mode wait for projection catch-up? How?
-12. **DeploymentConfig loading** — `system/config_loader.go` exists for YAML loading. The design should specify how appkit loads deployment config (env vars? YAML file? code?).
-13. **Multi-instance realtime** — if the app scales to multiple processes, the in-process `simpleBus` doesn't fan out across instances. The design should acknowledge this limitation and point to external bus drivers (NATS, Redis) for horizontal scaling.
+~~6. **Shutdown ordering** — must reconcile my proposed ordering with Decision 10's locked sequence. The System's `Close()` stops projections then closes engines. appkit's `Shutdown()` drains HTTP then closes. These must compose correctly.~~ done at v0.4.0 (DrainHooks/ShutdownHooks)
+~~7. **Health integration** — `system.Health()` and `system.Explain()` exist. appkit's `/health/ready` should integrate with system health, not just the HTTP ready probe.~~ done — health module (2026-09-04)
+~~8. **SSE authentication** — no discussion of how auth tokens reach the SSE endpoint (query param? cookie? header?). SSE cannot set custom headers from the browser side.~~ Won't implement — consumer middleware, per the shipped design
+~~9. **Event replay on reconnect** — when an SSE client reconnects, it needs to catch up. The event store supports `SeekableJournal` — the design should specify how the Hub uses `Last-Event-ID` header to replay missed events from the store.~~ done — go-sse EventStore replay in realtime.Handler
+~~10. **CORS for SSE** — browser SSE requires CORS headers. No discussion.~~ done — WithCORSOrigin
+~~11. **Projection host lifecycle in CLI mode** — CLI commands that produce events need projections to process them. But projections are async by default. Does CLI mode wait for projection catch-up? How?~~ Won't implement — no CLI runtime was ever built
+~~12. **DeploymentConfig loading** — `system/config_loader.go` exists for YAML loading. The design should specify how appkit loads deployment config (env vars? YAML file? code?).~~ done at cqrs v0.5.0 (ConfigPath/Deployment operator config)
+~~13. **Multi-instance realtime** — if the app scales to multiple processes, the in-process `simpleBus` doesn't fan out across instances. The design should acknowledge this limitation and point to external bus drivers (NATS, Redis) for horizontal scaling.~~ tracked in ROADMAP.md (multi-instance realtime)
 
 ---
 
@@ -140,73 +140,73 @@ I proposed `app.CLI().Command(...)` without choosing or even discussing what CLI
 
 ### Validation (do these FIRST — before any code)
 
-1. **Read `docs/planning/execution-plan.md`** — understand the current execution plan
-2. **Read all status reports in `docs/status/`** — understand what's been tried and decided
-3. **Read `docs/planning/improvement-audit.md`** — understand known issues
-4. **Read `docs/planning/integrations.md`** — understand integration plans
-5. **Verify go-error-family actual API** — `Classify` vs `Family`, actual error categories, `HandleError` signature
-6. **Verify `system` package actual public API** — does `DefaultSQLiteDeployment` exist? What constructors are available?
-7. **Check if `system/v4` is stable or experimental** — go-cqrs-lite ROADMAP.md and FEATURES.md
-8. **Verify `event.Bus` interface** — exact method signatures for Publish, Subscribe, SubscribeAll
-9. **Check `system/config_loader.go`** — how DeploymentConfig loads from YAML/env
-10. **Read `system/introspection.go`** — Health(), Explain(), Snapshot() signatures
+~~1. **Read `docs/planning/execution-plan.md`** — understand the current execution plan~~ resolved
+~~2. **Read all status reports in `docs/status/`** — understand what's been tried and decided~~ resolved
+~~3. **Read `docs/planning/improvement-audit.md`** — understand known issues~~ resolved
+~~4. **Read `docs/planning/integrations.md`** — understand integration plans~~ resolved
+~~5. **Verify go-error-family actual API** — `Classify` vs `Family`, actual error categories, `HandleError` signature~~ resolved
+~~6. **Verify `system` package actual public API** — does `DefaultSQLiteDeployment` exist? What constructors are available?~~ done at v0.4.0 (DrainHooks/ShutdownHooks)
+~~7. **Check if `system/v4` is stable or experimental** — go-cqrs-lite ROADMAP.md and FEATURES.md~~ done — health module (2026-09-04)
+~~8. **Verify `event.Bus` interface** — exact method signatures for Publish, Subscribe, SubscribeAll~~ Won't implement — consumer middleware, per the shipped design
+~~9. **Check `system/config_loader.go`** — how DeploymentConfig loads from YAML/env~~ done — go-sse EventStore replay in realtime.Handler
+~~10. **Read `system/introspection.go`** — Health(), Explain(), Snapshot() signatures~~ done — WithCORSOrigin
 
 ### Design reconciliation
 
-11. **Reconcile proposed design with Decision 4** (stack/sqlite as separate module) — either amend the decision or design within its constraint
-12. **Reconcile proposed design with Decision 9** (versioning) — define version strategy for new realtime module and cqrs rewrite
-13. **Reconcile shutdown ordering with Decision 10** — compose System.Close() with Service.Shutdown() correctly
-14. **Reconcile ErrorRenderer with Decision 6** — Decision 6 already defines boundary terminators; extend, don't replace
-15. **Decide: evolve `EventService` or replace it** — impact analysis of each path
-16. **Decide CLI framework** — cobra vs urfave/cli vs custom, with dependency cost analysis
-17. **Decide SSE implementation** — raw `net/http` (stdio) vs library (depends on complexity)
-18. **Decide WebSocket strategy** — opt-in submodule? part of realtime? deferred?
-19. **Design the v3 → v4 migration path** — if cqrs moves to system/v4, all transitive deps bump
-20. **Design SSE auth model** — cookie, query param, or token-in-header via EventSource polyfill
-21. **Design SSE reconnect/replay** — Last-Event-ID → SeekableJournal.Seek → replay missed events
-22. **Design projection catch-up in CLI mode** — synchronous wait or fire-and-forget
-23. **Design `AppConfig` type** — what fields, what defaults, what validation
-24. **Design `AppOption` functional options** — logger, middleware, realtime, CLI config
-25. **Design health integration** — `/health/ready` calls `system.Health()` in addition to ready probe
+~~11. **Reconcile proposed design with Decision 4** (stack/sqlite as separate module) — either amend the decision or design within its constraint~~ Won't implement — no CLI runtime was ever built
+~~12. **Reconcile proposed design with Decision 9** (versioning) — define version strategy for new realtime module and cqrs rewrite~~ done at cqrs v0.5.0 (ConfigPath/Deployment operator config)
+~~13. **Reconcile shutdown ordering with Decision 10** — compose System.Close() with Service.Shutdown() correctly~~ tracked in ROADMAP.md (multi-instance realtime)
+~~14. **Reconcile ErrorRenderer with Decision 6** — Decision 6 already defines boundary terminators; extend, don't replace~~ resolved
+~~15. **Decide: evolve `EventService` or replace it** — impact analysis of each path~~ resolved
+~~16. **Decide CLI framework** — cobra vs urfave/cli vs custom, with dependency cost analysis~~ resolved
+~~17. **Decide SSE implementation** — raw `net/http` (stdio) vs library (depends on complexity)~~ resolved
+~~18. **Decide WebSocket strategy** — opt-in submodule? part of realtime? deferred?~~ resolved
+~~19. **Design the v3 → v4 migration path** — if cqrs moves to system/v4, all transitive deps bump~~ resolved
+~~20. **Design SSE auth model** — cookie, query param, or token-in-header via EventSource polyfill~~ resolved
+~~21. **Design SSE reconnect/replay** — Last-Event-ID → SeekableJournal.Seek → replay missed events~~ resolved
+~~22. **Design projection catch-up in CLI mode** — synchronous wait or fire-and-forget~~ resolved
+~~23. **Design `AppConfig` type** — what fields, what defaults, what validation~~ resolved
+~~24. **Design `AppOption` functional options** — logger, middleware, realtime, CLI config~~ resolved
+~~25. **Design health integration** — `/health/ready` calls `system.Health()` in addition to ready probe~~ resolved
 
 ### Implementation (after design is validated)
 
-26. **Create `app.go`** — App type with New(), RunCLI(), Serve(), Run(), Close()
-27. **Create `app_test.go`** — test all three runtime modes
-28. **Create `cli.go`** — CLI subcommand registry and dispatch
-29. **Create `cli_test.go`** — test CLI dispatch and exit codes
-30. **Create `errorrender.go`** — audience-aware error rendering (CLI, HTTP, SSE)
-31. **Create `errorrender_test.go`** — test all classification → audience mappings
-32. **Create `appkit/realtime/` module** — go.mod, hub.go, sse.go
-33. **Create `realtime/hub.go`** — Hub type subscribing to event.Bus, fan-out to clients
-34. **Create `realtime/sse.go`** — SSE HTTP handler with Last-Event-ID support
-35. **Create `realtime/hub_test.go`** — test fan-out, backpressure, client lifecycle
-36. **Create `realtime/sse_test.go`** — test SSE encoding, reconnect, filtering
-37. **Rewrite `cqrs/systemservice.go`** — wrap system.System instead of stack/sqlite.Bundle
-38. **Create `cqrs/systemservice_test.go`** — test lifecycle integration
-39. **Update `cqrs/go.mod`** — v3 → v4 dependencies (if migration is approved)
-40. **Update `example/main.go`** — show CLI + HTTP + realtime in one example
-41. **Create `example/main_test.go`** — test the example end-to-end
-42. **Add SSE CORS middleware** — configurable CORS for realtime endpoints
-43. **Add SSE filtering** — query param filtering by event type and stream ID
-44. **Add backpressure strategy config** — DropOldest vs CloseClient, buffer size
-45. **Integrate system introspection** — `/health/system` endpoint calling system.Health()
+~~26. **Create `app.go`** — App type with New(), RunCLI(), Serve(), Run(), Close()~~ resolved
+~~27. **Create `app_test.go`** — test all three runtime modes~~ resolved
+~~28. **Create `cli.go`** — CLI subcommand registry and dispatch~~ resolved
+~~29. **Create `cli_test.go`** — test CLI dispatch and exit codes~~ resolved
+~~30. **Create `errorrender.go`** — audience-aware error rendering (CLI, HTTP, SSE)~~ resolved
+~~31. **Create `errorrender_test.go`** — test all classification → audience mappings~~ resolved
+~~32. **Create `appkit/realtime/` module** — go.mod, hub.go, sse.go~~ resolved
+~~33. **Create `realtime/hub.go`** — Hub type subscribing to event.Bus, fan-out to clients~~ resolved
+~~34. **Create `realtime/sse.go`** — SSE HTTP handler with Last-Event-ID support~~ resolved
+~~35. **Create `realtime/hub_test.go`** — test fan-out, backpressure, client lifecycle~~ resolved
+~~36. **Create `realtime/sse_test.go`** — test SSE encoding, reconnect, filtering~~ resolved
+~~37. **Rewrite `cqrs/systemservice.go`** — wrap system.System instead of stack/sqlite.Bundle~~ resolved
+~~38. **Create `cqrs/systemservice_test.go`** — test lifecycle integration~~ resolved
+~~39. **Update `cqrs/go.mod`** — v3 → v4 dependencies (if migration is approved)~~ resolved
+~~40. **Update `example/main.go`** — show CLI + HTTP + realtime in one example~~ resolved
+~~41. **Create `example/main_test.go`** — test the example end-to-end~~ resolved
+~~42. **Add SSE CORS middleware** — configurable CORS for realtime endpoints~~ resolved
+~~43. **Add SSE filtering** — query param filtering by event type and stream ID~~ resolved
+~~44. **Add backpressure strategy config** — DropOldest vs CloseClient, buffer size~~ resolved
+~~45. **Integrate system introspection** — `/health/system` endpoint calling system.Health()~~ resolved
 
 ### Documentation
 
-46. **Update `AGENTS.md`** — add App, CLI, realtime to module table
-47. **Update `docs/planning/design-decisions.md`** — add decisions for CLI, realtime, error rendering
-48. **Update `docs/planning/framework-architecture.md`** — add realtime module to the diagram
-49. **Write realtime module README** — SSE usage, auth, backpressure, scaling limitations
-50. **Write migration guide** — EventService → SystemService for existing consumers
+~~46. **Update `AGENTS.md`** — add App, CLI, realtime to module table~~ resolved
+~~47. **Update `docs/planning/design-decisions.md`** — add decisions for CLI, realtime, error rendering~~ resolved
+~~48. **Update `docs/planning/framework-architecture.md`** — add realtime module to the diagram~~ resolved
+~~49. **Write realtime module README** — SSE usage, auth, backpressure, scaling limitations~~ resolved
+~~50. **Write migration guide** — EventService → SystemService for existing consumers~~ resolved
 
 ---
 
 ## g) Questions I Cannot Answer Myself
 
-### 1. Should cqrs migrate from go-cqrs-lite v3 to v4 (system)?
+~~### 1. Should cqrs migrate from go-cqrs-lite v3 to v4 (system)?~~ Answered: v4 migration done 2026-08-15; realtime shipped as a module; App type rejected — Hub+Mount compose with Service
 
-The `system` package is v4. The current `cqrs` module depends on v3 (`stack/sqlite/v3`, `projectionhost/v3`, etc.). Migrating to `system/v4` means bumping 20+ transitive dependencies across major versions. This is a project-defining decision that depends on:
+~~The `system` package is v4. The current `cqrs` module depends on v3 (`stack/sqlite/v3`, `projectionhost/v3`, etc.). Migrating to `system/v4` means bumping 20+ transitive dependencies across major versions. This is a project-defining decision that depends on:~~ Answered: v4 migration done 2026-08-15; realtime shipped as a module; App type rejected — Hub+Mount compose with Service
 
 - Is `system/v4` considered stable by go-cqrs-lite's own roadmap?
 - Are there breaking changes in event/command/query/decider between v3 and v4?
@@ -214,7 +214,7 @@ The `system` package is v4. The current `cqrs` module depends on v3 (`stack/sqli
 
 I cannot determine this from code alone. **What is the intended relationship between `stack/v3` and `system/v4` in go-cqrs-lite? Is system meant to replace stack, or coexist?**
 
-### 2. Is the realtime/SSE feature in scope for go-appkit, or should it be a separate repo?
+~~### 2. Is the realtime/SSE feature in scope for go-appkit, or should it be a separate repo?~~ Answered: v4 migration done 2026-08-15; realtime shipped as a module; App type rejected — Hub+Mount compose with Service
 
 The modular design principle (Decision 4) keeps heavy deps out of core. But `realtime` would add either:
 
@@ -223,8 +223,8 @@ The modular design principle (Decision 4) keeps heavy deps out of core. But `rea
 
 Given that appkit is currently a thin HTTP lifecycle shell, real-time event streaming feels like it might belong in a separate consumer-facing framework, not in the infrastructure library. **Is realtime a first-class appkit concern, or should it be documented as a pattern (like Huma in Decision 7) rather than shipped as a module?**
 
-### 3. Should the `App` type replace `Service`, or compose alongside it?
+~~### 3. Should the `App` type replace `Service`, or compose alongside it?~~ Answered: v4 migration done 2026-08-15; realtime shipped as a module; App type rejected — Hub+Mount compose with Service
 
 My design proposed `App` as a new orchestrator that owns `Service` internally. But Decision 1 locks `Service` as the v1.0.0 API contract. If `App` replaces `Service`, that's a breaking change to the locked v1 API. If `App` composes `Service`, the consumer has two entry points (`NewService` vs `NewApp`) which may confuse.
 
-**Is the intent to keep `Service` as the stable v1 API forever, or is `App` meant to eventually supersede it as the primary entry point?**
+~~**Is the intent to keep `Service` as the stable v1 API forever, or is `App` meant to eventually supersede it as the primary entry point?**~~ Answered: v4 migration done 2026-08-15; realtime shipped as a module; App type rejected — Hub+Mount compose with Service
