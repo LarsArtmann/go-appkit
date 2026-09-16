@@ -269,8 +269,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 
 ## Testing
 
-- Standard `testing` package; no external frameworks.
-- Tests run with `t.Parallel()`.
+- Standard `testing` package, no external frameworks; tests run with `t.Parallel()`.
 - Server tests use `freePort()` and `waitForRunning()` helpers (no `time.Sleep`).
 - All tests pass with `-race` flag and `-count=1`.
 - Default `DrainDelay` (5s) makes tests slow; use `DrainDelay: NoDrainDelay` in non-drain tests — `DrainDelay: 0` applies the 5s default (zero-value production safety), it does NOT disable the wait. Converting the suite dropped wall time ~30s → ~6s.
@@ -287,6 +286,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 - `NoTimeout` sentinel (`-1`): `ReadTimeout`/`WriteTimeout` = `NoTimeout` disables the deadline (server field 0 AND drops the Timeout middleware from the default stack). Required for SSE services; `ReadHeaderTimeout`/`IdleTimeout` reaping stays on. Only `-1` exactly — other negatives are rejected by Validate.
 - `NoDrainDelay` sentinel (`-2`): skips the drain wait in Shutdown (ready probe still flips immediately). Only `-2` exactly — other negatives rejected by Validate. Sentinel registry so far: `NoTimeout` = -1, `NoDrainDelay` = -2; the next sentinel takes -3.
 - BuildFlow auto-fixes lint on commit (gofumpt, golines, gci).
+- Doc snippets are code: compile-check README/doc.go examples in a scratch module before shipping (the health README check caught two real bugs).
 
 ## Flightrecorder Module Gotchas
 

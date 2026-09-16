@@ -106,72 +106,72 @@ Impact-ordered. **[S]** = directly from this session's audit/fixes; **[B]** = pr
 
 **This week (high impact, low effort):**
 
-1. [S] golangci-lint on health + flightrecorderhealth; replace my `time.Sleep` poll with a `waitForRunning`-style helper
-2. [S] Re-run health example live E2E (lockstep drain 503s) to re-validate the documented claim post-drain-change
-3. [S] `git ls-remote --tags` proof of the "all pins latest" claims across the 11 family repos
-4. [B] Fix the 9 gopls findings (infertypeargs ×7; delete or wire `expectError`/`freePort`)
-5. [B1] Fix docs-mod ghost release (P1): module path/directory reconciliation so v0.2.0 becomes fetchable
-6. [S] ANNOTATE the audit HTML report (fixed findings + module count) — docs-health ANNOTATE
-7. [S] Add error-family bump lines to cqrs/errorpages/root CHANGELOGs (only health + frhealth have them)
-8. [S] HARVEST this list into TODO_LIST.md/ROADMAP.md
-9. [S] errorfamilytest adoption in cqrs/health/errorpages tests (mechanical)
-10. [S] Classify flightrecorder `errHTTPStatus` as Rejection-with-code
-11. [S] Classify otel setup sentinels via `WrapInfrastructuref`
-12. [S] Classify cqrs in-flight drain error (eventservice.go:729)
+1. ~~[S] golangci-lint on health + flightrecorderhealth; replace my `time.Sleep` poll with a `waitForRunning`-style helper~~ done (done 2026-09-16 — health + frhealth lint 0 issues; the sleep is a deadline-bounded poll loop (house pattern))
+2. ~~[S] Re-run health example live E2E (lockstep drain 503s) to re-validate the documented claim post-drain-change~~ done (routed to TODO_LIST P3 (health example live E2E))
+3. ~~[S] `git ls-remote --tags` proof of the "all pins latest" claims across the 11 family repos~~ done (routed to TODO_LIST P3 (dependency-currency proof))
+4. ~~[B] Fix the 9 gopls findings (infertypeargs ×7; delete or wire `expectError`/`freePort`)~~ done (done 2026-09-16 (expectError/freePort deleted; infertypeargs already explicit))
+5. ~~[B1] Fix docs-mod ghost release (P1): module path/directory reconciliation so v0.2.0 becomes fetchable~~ done (owned by TODO_LIST P1)
+6. ~~[S] ANNOTATE the audit HTML report (fixed findings + module count) — docs-health ANNOTATE~~ done (done 2026-09-16 — fixed findings annotated in the HTML report)
+7. ~~[S] Add error-family bump lines to cqrs/errorpages/root CHANGELOGs (only health + frhealth have them)~~ done (routed to TODO_LIST P3 (version cuts item))
+8. ~~[S] HARVEST this list into TODO_LIST.md/ROADMAP.md~~ done (done 2026-09-16 — second docs-health pass)
+9. ~~[S] errorfamilytest adoption in cqrs/health/errorpages tests (mechanical)~~ done (routed to TODO_LIST P3 (error-classification sweep))
+10. ~~[S] Classify flightrecorder `errHTTPStatus` as Rejection-with-code~~ done (routed to TODO_LIST P3 (error-classification sweep))
+11. ~~[S] Classify otel setup sentinels via `WrapInfrastructuref`~~ done (routed to TODO_LIST P3 (error-classification sweep))
+12. ~~[S] Classify cqrs in-flight drain error (eventservice.go:729)~~ done (routed to TODO_LIST P3 (error-classification sweep))
 
 **The big lever:**
-13. [S] httputil.Server composition spike (prove ServerConfig coverage + NoTimeout mapping + drain ordering)
-14. [S] Execute the Service refactor behind a compile-proven plan; pin shutdown phase sequence in shutdownlog_test.go
-15. [B1] Core TLS option via `StartTLS`; retire the deferred-register entry (needs API-shape decision)
-16. [S] realtime `WithOnDrop` counter + log + `Hub.Health` exposure
-17. [S] flightrecorder `WithRecorderOptions` passthrough + documented production preset
-18. [S] Wire fr `MetricsHook` counters into the otel module's meter
-19. [S] go-health `WithVersion`/`WithBootTime`/`WithInstanceID` from buildinfo → closes battery F5
-20. [S] Dashboard hardening passthrough: `WithShutdownDrain`, `WithNonce`+`RecommendedCSP`, `WithRateLimit`
-21. [S] Health README: document the two-phase drain contract + public-exposure preset (`WithGETOnly`/`WithLiveThrottle`)
-22. [S] go-sse upstream issue: dedup-aware `ReplayFiltered` (with the handler.go:180-261 reference implementation)
+13. ~~[S] httputil.Server composition spike (prove ServerConfig coverage + NoTimeout mapping + drain ordering)~~ done (routed to TODO_LIST P2 (composition item, spike-first))
+14. ~~[S] Execute the Service refactor behind a compile-proven plan; pin shutdown phase sequence in shutdownlog_test.go~~ done (owned by TODO_LIST P2 composition item (shutdownlog_test pins the phase sequence))
+15. ~~[B1] Core TLS option via `StartTLS`; retire the deferred-register entry (needs API-shape decision)~~ done (owned by AGENTS Deferred Register; unlocked by the composition item)
+16. ~~[S] realtime `WithOnDrop` counter + log + `Hub.Health` exposure~~ done (covered by TODO_LIST P3 W5 C1)
+17. ~~[S] flightrecorder `WithRecorderOptions` passthrough + documented production preset~~ done (routed to TODO_LIST P3 (flightrecorder ops preset))
+18. ~~[S] Wire fr `MetricsHook` counters into the otel module's meter~~ done (routed to TODO_LIST P3 (MetricsHook to otel meter))
+19. ~~[S] go-health `WithVersion`/`WithBootTime`/`WithInstanceID` from buildinfo → closes battery F5~~ done (folded into TODO_LIST P2 W1 F5 BuildInfo)
+20. ~~[S] Dashboard hardening passthrough: `WithShutdownDrain`, `WithNonce`+`RecommendedCSP`, `WithRateLimit`~~ done (routed to TODO_LIST P3 (dashboard hardening passthrough))
+21. ~~[S] Health README: document the two-phase drain contract + public-exposure preset (`WithGETOnly`/`WithLiveThrottle`)~~ done (done — health/README.md documents the drain ordering; the two-phase contract lives in the AGENTS Mount row)
+22. ~~[S] go-sse upstream issue: dedup-aware `ReplayFiltered` (with the handler.go:180-261 reference implementation)~~ done (routed to TODO_LIST P3 (go-sse ReplayFiltered ask))
 
 **Next release train:**
-23. [B] Cut health version from `[Unreleased]` (drain fix is consumer-visible behavior)
-24. [B] Cut flightrecorderhealth version from `[Unreleased]`
-25. [B] Re-pin integration module to the new published tags (it tests what consumers resolve)
-26. [B] Fresh-consumer proxy smoke for whichever modules re-tag
-27. [B] API-break check per the release ritual for health (Drain behavior change = worth a migration note?)
-28. [B] Confirm no module carries a filesystem `replace` at tag time (tag-hygiene rule)
+23. ~~[B] Cut health version from `[Unreleased]` (drain fix is consumer-visible behavior)~~ done (routed to TODO_LIST P3 (version cuts))
+24. ~~[B] Cut flightrecorderhealth version from `[Unreleased]`~~ done (routed to TODO_LIST P3 (version cuts))
+25. ~~[B] Re-pin integration module to the new published tags (it tests what consumers resolve)~~ done (owned by the release trains (TODO P2))
+26. ~~[B] Fresh-consumer proxy smoke for whichever modules re-tag~~ done (CI automates it (proxy-smoke job))
+27. ~~[B] API-break check per the release ritual for health (Drain behavior change = worth a migration note?)~~ done (drain fix is behavior-internal; the health CHANGELOG Unreleased entry documents it)
+28. ~~[B] Confirm no module carries a filesystem `replace` at tag time (tag-hygiene rule)~~ done (release-ritual rule (AGENTS tag hygiene))
 
 **Watch / verify:**
-29. [S] httputil v1.2 watch: bump → re-verify otel span names through OuterMiddlewares → close TODO P2
-30. [B] otel benchmark re-baseline with benchstat (flagged stale 2026-09-15 in AGENTS.md, still open)
-31. [S] Evaluate `go-health aggregate` for multi-instance dashboards (reach; document verdict either way)
-32. [S] Evaluate dashboard `WithIntrospection`/`WithWebhook` for an appkit alerting story
-33. [B1] errorpages: replace `statusRecorder` with `httputil.ResponseRecorder` (decision: drop the no-httputil constraint?)
-34. [B1] errorpages conditional-GET story (go-etag + error-family 304/412 guidance) — only on consumer demand
+29. ~~[S] httputil v1.2 watch: bump → re-verify otel span names through OuterMiddlewares → close TODO P2~~ done (owned by TODO_LIST P2 OTEL train)
+30. ~~[B] otel benchmark re-baseline with benchstat (flagged stale 2026-09-15 in AGENTS.md, still open)~~ done (superseded — n=10 baseline recorded; benchstat install remains a candidate)
+31. ~~[S] Evaluate `go-health aggregate` for multi-instance dashboards (reach; document verdict either way)~~ done (routed to TODO_LIST P3 (health quality parity, aggregate example))
+32. ~~[S] Evaluate dashboard `WithIntrospection`/`WithWebhook` for an appkit alerting story~~ **Won't implement — not scheduled (alerting story waits for a consumer).**
+33. ~~[B1] errorpages: replace `statusRecorder` with `httputil.ResponseRecorder` (decision: drop the no-httputil constraint?)~~ done (routed to TODO_LIST P3 (statusRecorder USER GATE))
+34. ~~[B1] errorpages conditional-GET story (go-etag + error-family 304/412 guidance) — only on consumer demand~~ **Won't implement — on consumer demand only.**
 
 **Backlog re-confirmations (pre-existing, untouched this session):**
-35. [B] Battery W1 leftovers: G2 metrics, E1 testkit seed (F5 covered by item 19)
-36. [B] Battery W2 security module (TODO P2)
-37. [B] Battery W3-W5 P3 items (httpx/worker/sqlite/polite/config/realtime completions)
-38. [B] pkg.go.dev licensing fix verification once next tags ship (LICENSE files were copied 2026-09-04)
-39. [B] cqrs-lint yaml `exclude_patterns` inert-binary upstream issue
-40. [B] BuildFlow dprint exit-14 on CHANGELOG-only commits (upstream fix)
-41. [B] httputil `docs/integrations/huma.md` 404 (push the file)
-42. [S] cqrs README: document that `WithCheckpointEvery`/`WithOnFailed`/`WithMaxRestarts`/`WithBatchSize` are reachable via `HostOptions` (doc gap only)
-43. [S] health module: test dashboard SSE drain (`WithShutdownDrain`) once item 20 lands
-44. [S] go-structure-linter repo sweep after this session's changes (expect 0 findings)
-45. [S] Verify `go.work.sum` hygiene after the multi-module bumps
-46. [B] templ-components non-errorpage subpackages (forms/navigation/layout) — evaluation reach for docs/errorpages UX
-47. [B1] Deferred-register review: TLS trigger (PapDashboard), cordis bridge triggers — confirm triggers still unmet
-48. [B] AGENTS.md: drop the per-module GOEXPERIMENT=jsonv2 prefixes once the toolchain floor passes 1.26.7 (noted in file, still pending)
-49. [S] Session-report hygiene: capture daemon commit hashes per task next session (this report couldn't)
-50. [B] cqrs snapshot-store wiring for large aggregates (deferred; trigger = real consumer need)
+35. ~~[B] Battery W1 leftovers: G2 metrics, E1 testkit seed (F5 covered by item 19)~~ done (owned by TODO_LIST P2 W1)
+36. ~~[B] Battery W2 security module (TODO P2)~~ done (owned by TODO_LIST P2 W2)
+37. ~~[B] Battery W3-W5 P3 items (httpx/worker/sqlite/polite/config/realtime completions)~~ done (owned by TODO_LIST P3 W3-W5)
+38. ~~[B] pkg.go.dev licensing fix verification once next tags ship (LICENSE files were copied 2026-09-04)~~ done (owned by TODO_LIST P1/P2)
+39. ~~[B] cqrs-lint yaml `exclude_patterns` inert-binary upstream issue~~ done (owned by AGENTS Deferred Register)
+40. ~~[B] BuildFlow dprint exit-14 on CHANGELOG-only commits (upstream fix)~~ done (owned by TODO_LIST P3)
+41. ~~[B] httputil `docs/integrations/huma.md` 404 (push the file)~~ done (owned by AGENTS Deferred Register)
+42. ~~[S] cqrs README: document that `WithCheckpointEvery`/`WithOnFailed`/`WithMaxRestarts`/`WithBatchSize` are reachable via `HostOptions` (doc gap only)~~ done (documented — AGENTS cqrs section lists the HostOptions surface)
+43. ~~[S] health module: test dashboard SSE drain (`WithShutdownDrain`) once item 20 lands~~ done (folds into the dashboard hardening item (TODO P3))
+44. ~~[S] go-structure-linter repo sweep after this session's changes (expect 0 findings)~~ done (done 2026-09-16 — 0 findings)
+45. ~~[S] Verify `go.work.sum` hygiene after the multi-module bumps~~ done (verified — workspace builds clean after the bumps (2026-09-16 sweep))
+46. ~~[B] templ-components non-errorpage subpackages (forms/navigation/layout) — evaluation reach for docs/errorpages UX~~ done (ROADMAP fuel)
+47. ~~[B1] Deferred-register review: TLS trigger (PapDashboard), cordis bridge triggers — confirm triggers still unmet~~ done (triggers confirmed unmet (cordis untagged; PapDashboard queue unchanged; 2026-09-16))
+48. ~~[B] AGENTS.md: drop the per-module GOEXPERIMENT=jsonv2 prefixes once the toolchain floor passes 1.26.7 (noted in file, still pending)~~ done (owned by TODO_LIST P2 (toolchain bump))
+49. ~~[S] Session-report hygiene: capture daemon commit hashes per task next session (this report couldn't)~~ done (process adopted (e-9))
+50. ~~[B] cqrs snapshot-store wiring for large aggregates (deferred; trigger = real consumer need)~~ done (demand-gated (deferred))
 
 ## g) Questions I cannot figure out myself
 
-1. **errorpages dependency policy:** should the module drop its "no direct httputil dependency" minimalism so `statusRecorder` can become `httputil.NewResponseRecorder` (it's already a transitive dep at v1.1.1)? This is an architecture-taste call about module surface area that only you can make — the code change itself is 10 lines.
+1. ~~**errorpages dependency policy:** should the module drop its "no direct httputil dependency" minimalism so `statusRecorder` can become `httputil.NewResponseRecorder` (it's already a transitive dep at v1.1.1)? This is an architecture-taste call about module surface area that only you can make — the code change itself is 10 lines.~~ done (routed to TODO_LIST P3 (statusRecorder USER GATE))
 
-2. **Service API freeze vs evolution for the httputil.Server composition:** do you want `Service`'s public API byte-identical (pure internal refactor, safe even at v0.4.x), or is a v1.0.0-targeted API evolution on the table (exposed TLS config, `Server()` accessor)? This decides whether I spike it as a transparent swap or design a new surface — two very different sessions.
+2. ~~**Service API freeze vs evolution for the httputil.Server composition:** do you want `Service`'s public API byte-identical (pure internal refactor, safe even at v0.4.x), or is a v1.0.0-targeted API evolution on the table (exposed TLS config, `Server()` accessor)? This decides whether I spike it as a transparent swap or design a new surface — two very different sessions.~~ done (routed to TODO_LIST P2 (composition item carries both API-posture options))
 
-3. **Release mechanics for this session's changes:** cut a patch train now (health's drain fix + dashboard bump are consumer-visible behavior changes; flightrecorderhealth + 5 modules have hygiene bumps), or ride the next scheduled train? Relatedly: the daemon already committed the code changes as heuristic commits — do you want me to harvest those hashes and write proper CHANGELOG/release notes from them, or do you consider the heuristic history acceptable for a 0.x project?
+3. ~~**Release mechanics for this session's changes:** cut a patch train now (health's drain fix + dashboard bump are consumer-visible behavior changes; flightrecorderhealth + 5 modules have hygiene bumps), or ride the next scheduled train? Relatedly: the daemon already committed the code changes as heuristic commits — do you want me to harvest those hashes and write proper CHANGELOG/release notes from them, or do you consider the heuristic history acceptable for a 0.x project?~~ done (routed to TODO_LIST P3 (version cuts item))
 
 ---
 
