@@ -13,7 +13,7 @@ version: "2"
 #   - goexperiment.* build-tags match this module's build requirements
 run:
   timeout: 5m
-  go: 1.26.5
+  go: 1.26.7
   build-tags:
     - goexperiment.arenas
     - goexperiment.goroutineleakprofile
