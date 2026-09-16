@@ -104,7 +104,7 @@ go test ./... -race -count=1: ok (3.5s)
 
 ## b) PARTIALLY DONE
 
-### Staleness tests — coverage gap
+~~### Staleness tests — coverage gap~~ resolved
 
 **What's done:** 5 tests in `staleness_test.go` covering:
 
@@ -115,7 +115,7 @@ go test ./... -race -count=1: ok (3.5s)
 
 **What's missing:** No test exercises the actual stale path — a projection that has processed an event, then lag exceeds the budget, returning a Transient error. The test named `TestEventService_CheckStaleness_StaleProjectionIsTransient` does NOT test this — it tests a generous budget with no processed events, which passes trivially. The test name is misleading.
 
-### closeOnConstructionFailure — error-join path untested
+~~### closeOnConstructionFailure — error-join path untested~~ resolved
 
 The helper joins the primary error with the close error via `errors.Join`. No test triggers a `GracefulClose` failure to verify the join actually surfaces both errors. The existing tests only cover successful construction and idempotent shutdown.
 
@@ -123,31 +123,31 @@ The helper joins the primary error with the close error via `errors.Join`. No te
 
 ## c) NOT STARTED
 
-### Workspace-root cqrs-lint re-run
+~~### Workspace-root cqrs-lint re-run~~ done 2026-08-16 10:55 (doctor, library-framework preset, scorecard, root-scope note, FEATURES.md, workspace build) or routed (upstream issues verified/absorbed)
 
 The original paste was from the repo root. I proved the root-level A018 is a workspace attribution artifact and fixed it by running cqrs-lint from inside `cqrs/`. I did NOT re-run cqrs-lint from the repo root to confirm the root-level output improved (A018 should still fire from root because it's a workspace artifact that the `.cqrs-lint.json` in `cqrs/` doesn't affect when running from root).
 
-### Other submodules — cqrs-lint not run
+~~### Other submodules — cqrs-lint not run~~ done 2026-08-16 10:55 (doctor, library-framework preset, scorecard, root-scope note, FEATURES.md, workspace build) or routed (upstream issues verified/absorbed)
 
 `docs-mod` imports `go-cqrs-lite/catalog/v4`. I did not run cqrs-lint there. The original paste only showed root + cqrs. There may be findings in docs-mod.
 
-### `cqrs-lint doctor` verification
+~~### `cqrs-lint doctor` verification~~ done 2026-08-16 10:55 (doctor, library-framework preset, scorecard, root-scope note, FEATURES.md, workspace build) or routed (upstream issues verified/absorbed)
 
 I created `.cqrs-lint.json` with `"preset": "library"` but did not run `cqrs-lint doctor` to verify the config is loaded correctly and the feature profile is accurate.
 
-### `cqrs-lint scorecard`
+~~### `cqrs-lint scorecard`~~ done 2026-08-16 10:55 (doctor, library-framework preset, scorecard, root-scope note, FEATURES.md, workspace build) or routed (upstream issues verified/absorbed)
 
 Did not run the scorecard to see the adoption profile (which go-cqrs-lite capabilities are used/missed).
 
-### FEATURES.md update
+~~### FEATURES.md update~~ done 2026-08-16 10:55 (doctor, library-framework preset, scorecard, root-scope note, FEATURES.md, workspace build) or routed (upstream issues verified/absorbed)
 
 `FEATURES.md` has a row for `EventService over go-cqrs-lite v4`. The new `CheckStaleness`/`CheckProjectionStaleness` accessors are not reflected there. Did not check or update.
 
-### Full workspace build verification
+~~### Full workspace build verification~~ done 2026-08-16 10:55 (doctor, library-framework preset, scorecard, root-scope note, FEATURES.md, workspace build) or routed (upstream issues verified/absorbed)
 
 Only tested `cqrs` module. Did not run `GOEXPERIMENT=jsonv2 go build ./...` from root or other submodules after the AGENTS.md change. The AGENTS.md change is documentation-only (no code), but a full workspace build would confirm no breakage.
 
-### go-cqrs-lite issues filed
+~~### go-cqrs-lite issues filed~~ done 2026-08-16 10:55 (doctor, library-framework preset, scorecard, root-scope note, FEATURES.md, workspace build) or routed (upstream issues verified/absorbed)
 
 Found three real problems in go-cqrs-lite / cqrs-lint:
 
@@ -161,15 +161,15 @@ Did not file issues or create TODO items for these. Did not verify whether cqrs-
 
 ## d) TOTALLY FUCKED UP
 
-### Nothing catastrophic
+~~### Nothing catastrophic~~ owned — misleading test rewritten 10:55; preset switched to library-framework same day
 
 No data loss, no broken builds, no reverted changes, no force pushes. All tests pass, lint is clean.
 
-### Closest to a mistake: misleading test name
+~~### Closest to a mistake: misleading test name~~ owned — misleading test rewritten 10:55; preset switched to library-framework same day
 
 `TestEventService_CheckStaleness_StaleProjectionIsTransient` does NOT test a stale projection. It tests a fresh projection with a generous budget. The name promises a behavioral assertion (Transient error on staleness) that the test body never exercises. A reader trusting the test name would believe the stale path is covered when it is not. This is the kind of lying name the AGENTS.md naming-review skill warns about.
 
-### Near-miss: `library` vs `library-framework` preset
+~~### Near-miss: `library` vs `library-framework` preset~~ owned — misleading test rewritten 10:55; preset switched to library-framework same day
 
 I chose `"preset": "library"` without reflecting on whether `"library-framework"` is more appropriate. `library-framework` disables ALL F-series adoption-coaching rules, which might be the right choice for a framework that wraps go-cqrs-lite for consumers. I did not investigate the difference or verify with `cqrs-lint doctor`. The `library` preset may leave F-series rules active that would fire on future code.
 
@@ -179,39 +179,39 @@ I chose `"preset": "library"` without reflecting on whether `"library-framework"
 
 ### Test quality
 
-1. **Rename or rewrite `TestEventService_CheckStaleness_StaleProjectionIsTransient`** — either rename to match what it actually tests (generous budget, no staleness), or rewrite it to actually produce a stale projection (process an event, let lag grow, assert Transient error with `errors.Is(err, projectionhost.ErrProjectionStale)`).
+~~1. **Rename or rewrite `TestEventService_CheckStaleness_StaleProjectionIsTransient`** — either rename to match what it actually tests (generous budget, no staleness), or rewrite it to actually produce a stale projection (process an event, let lag grow, assert Transient error with `errors.Is(err, projectionhost.ErrProjectionStale)`).~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-2. **Add a test for `closeOnConstructionFailure` error-join path** — inject a `GracefulClose` failure (e.g. via a closing bundle) and assert `errors.Is` finds both the primary error and the close error in the joined result.
+~~2. **Add a test for `closeOnConstructionFailure` error-join path** — inject a `GracefulClose` failure (e.g. via a closing bundle) and assert `errors.Is` finds both the primary error and the close error in the joined result.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-3. **Add a test for the actual stale path** — append an event, start projections, let the worker process it, then call `CheckStaleness` with a sub-nanosecond budget after the event timestamp. Assert Transient family + `ErrProjectionStale`.
+~~3. **Add a test for the actual stale path** — append an event, start projections, let the worker process it, then call `CheckStaleness` with a sub-nanosecond budget after the event timestamp. Assert Transient family + `ErrProjectionStale`.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
 ### Lint configuration
 
-4. **Run `cqrs-lint doctor`** to verify `.cqrs-lint.json` is loaded and the feature profile is correct.
+~~4. **Run `cqrs-lint doctor`** to verify `.cqrs-lint.json` is loaded and the feature profile is correct.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-5. **Evaluate `library-framework` preset** — appkit/cqrs IS a framework. The `library-framework` preset disables all F-series rules, which may be more honest than `library` which leaves them active.
+~~5. **Evaluate `library-framework` preset** — appkit/cqrs IS a framework. The `library-framework` preset disables all F-series rules, which may be more honest than `library` which leaves them active.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-6. **Run `cqrs-lint scorecard`** to see the adoption profile and identify unused go-cqrs-lite capabilities.
+~~6. **Run `cqrs-lint scorecard`** to see the adoption profile and identify unused go-cqrs-lite capabilities.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-7. **Re-run cqrs-lint from workspace root** to confirm the root-level A018 finding behavior (should still fire — `.cqrs-lint.json` in `cqrs/` doesn't affect root-scope runs).
+~~7. **Re-run cqrs-lint from workspace root** to confirm the root-level A018 finding behavior (should still fire — `.cqrs-lint.json` in `cqrs/` doesn't affect root-scope runs).~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
 ### Broader verification
 
-8. **Run cqrs-lint in `docs-mod`** — it imports `go-cqrs-lite/catalog/v4`. May have its own findings.
+~~8. **Run cqrs-lint in `docs-mod`** — it imports `go-cqrs-lite/catalog/v4`. May have its own findings.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-9. **Run full workspace build** — `GOEXPERIMENT=jsonv2 go build ./...` from root to confirm no breakage from the AGENTS.md change.
+~~9. **Run full workspace build** — `GOEXPERIMENT=jsonv2 go build ./...` from root to confirm no breakage from the AGENTS.md change.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-10. **Update FEATURES.md** — add `CheckStaleness`/`CheckProjectionStaleness` to the EventService feature row if the inventory format supports it.
+~~10. **Update FEATURES.md** — add `CheckStaleness`/`CheckProjectionStaleness` to the EventService feature row if the inventory format supports it.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
 ### go-cqrs-lite upstream
 
-11. **File cqrs-lint issue: E014 suggests phantom APIs** — `host.Sync()`/`host.Drain()` don't exist in any tagged version or master. The suggestion should reference `CheckStaleness` (the real read-your-writes API in v4.3.0) or be removed.
+~~11. **File cqrs-lint issue: E014 suggests phantom APIs** — `host.Sync()`/`host.Drain()` don't exist in any tagged version or master. The suggestion should reference `CheckStaleness` (the real read-your-writes API in v4.3.0) or be removed.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-12. **File cqrs-lint issue: V003 fabricates version data** — claims `flightrecorder/v4 v4.3.x` exists; `git tag` shows only `v4.0.0`. The linter should not invent target versions.
+~~12. **File cqrs-lint issue: V003 fabricates version data** — claims `flightrecorder/v4 v4.3.x` exists; `git tag` shows only `v4.0.0`. The linter should not invent target versions.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-13. **File go-cqrs-lite issue: flightrecorder/v4 needs re-tagging** — frozen at v4.0.0 while other modules are at v4.3–v4.7. V006 fires on every consumer and is unactionable from the consumer side.
+~~13. **File go-cqrs-lite issue: flightrecorder/v4 needs re-tagging** — frozen at v4.0.0 while other modules are at v4.3–v4.7. V006 fires on every consumer and is unactionable from the consumer side.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
-14. **Consider filing: D005 parser is fragile** — parsing "v4.6.0+" in prose as a go-cqrs-lite version reference is a false positive. The linter should distinguish version references in code/import paths from version mentions in prose.
+~~14. **Consider filing: D005 parser is fragile** — parsing "v4.6.0+" in prose as a go-cqrs-lite version reference is a false positive. The linter should distinguish version references in code/import paths from version mentions in prose.~~ done 2026-08-16 10:55 (tests, doctor, preset, scorecard, FEATURES) or routed to TODO_LIST/upstream where noted
 
 ---
 
@@ -219,96 +219,96 @@ I chose `"preset": "library"` without reflecting on whether `"library-framework"
 
 ### High priority (correctness gaps)
 
-1. Rewrite `TestEventService_CheckStaleness_StaleProjectionIsTransient` to actually test staleness (process event, tight budget, assert Transient).
-2. Add test for `closeOnConstructionFailure` error-join path (inject close failure, assert both errors surface).
-3. Add test for actual stale-path: `CheckProjectionStaleness` returns `ErrProjectionStale` when lag > budget.
-4. Verify `errors.Join` behavior when `GracefulClose` returns nil (primary error alone is returned, not wrapped).
+~~1. Rewrite `TestEventService_CheckStaleness_StaleProjectionIsTransient` to actually test staleness (process event, tight budget, assert Transient).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~2. Add test for `closeOnConstructionFailure` error-join path (inject close failure, assert both errors surface).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~3. Add test for actual stale-path: `CheckProjectionStaleness` returns `ErrProjectionStale` when lag > budget.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~4. Verify `errors.Join` behavior when `GracefulClose` returns nil (primary error alone is returned, not wrapped).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### Lint configuration
 
-5. Run `cqrs-lint doctor` to verify config loading and feature profile.
-6. Evaluate `library-framework` vs `library` preset — appkit/cqrs is a framework wrapper.
-7. Run `cqrs-lint scorecard` for adoption profile.
-8. Re-run cqrs-lint from workspace root — confirm A018 behavior (expected: still fires, root has no `.cqrs-lint.json`).
-9. Consider creating a root-level `.cqrs-lint.json` that disables A018 for workspace-root runs.
-10. Verify no stale suppressions flagged by cqrs-lint v4.6.0 (E014, P008 suppressions should stay active).
+~~5. Run `cqrs-lint doctor` to verify config loading and feature profile.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~6. Evaluate `library-framework` vs `library` preset — appkit/cqrs is a framework wrapper.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~7. Run `cqrs-lint scorecard` for adoption profile.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~8. Re-run cqrs-lint from workspace root — confirm A018 behavior (expected: still fires, root has no `.cqrs-lint.json`).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~9. Consider creating a root-level `.cqrs-lint.json` that disables A018 for workspace-root runs.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~10. Verify no stale suppressions flagged by cqrs-lint v4.6.0 (E014, P008 suppressions should stay active).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### Documentation
 
-11. Update FEATURES.md with new staleness accessors.
-12. Update cqrs/README accessor table (already done — verify formatting renders correctly).
-13. Add `CheckStaleness`/`CheckProjectionStaleness` to cqrs/README "Configuration" or "Accessors" section (verify table alignment).
-14. Consider adding a "Read-your-writes" section to AGENTS.md cqrs section (partially done — verify completeness).
-15. Update cqrs/CHANGELOG with the test file addition (staleness_test.go not mentioned).
+~~11. Update FEATURES.md with new staleness accessors.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~12. Update cqrs/README accessor table (already done — verify formatting renders correctly).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~13. Add `CheckStaleness`/`CheckProjectionStaleness` to cqrs/README "Configuration" or "Accessors" section (verify table alignment).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~14. Consider adding a "Read-your-writes" section to AGENTS.md cqrs section (partially done — verify completeness).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~15. Update cqrs/CHANGELOG with the test file addition (staleness_test.go not mentioned).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### Broader verification
 
-16. Run `GOEXPERIMENT=jsonv2 go build ./...` from root — full workspace build.
-17. Run `GOEXPERIMENT=jsonv2 go test ./... -race -count=1` from root — full workspace test.
-18. Run cqrs-lint in `docs-mod` — it imports catalog/v4.
-19. Run cqrs-lint in `errorpages` — does it import go-cqrs-lite? (No, but verify.)
-20. Run cqrs-lint in `realtime` — does it import go-cqrs-lite? (No, but verify.)
-21. Run cqrs-lint in `flightrecorder` — does it import go-cqrs-lite? (No, but verify.)
+~~16. Run `GOEXPERIMENT=jsonv2 go build ./...` from root — full workspace build.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~17. Run `GOEXPERIMENT=jsonv2 go test ./... -race -count=1` from root — full workspace test.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~18. Run cqrs-lint in `docs-mod` — it imports catalog/v4.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~19. Run cqrs-lint in `errorpages` — does it import go-cqrs-lite? (No, but verify.)~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~20. Run cqrs-lint in `realtime` — does it import go-cqrs-lite? (No, but verify.)~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~21. Run cqrs-lint in `flightrecorder` — does it import go-cqrs-lite? (No, but verify.)~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### go-cqrs-lite upstream issues
 
-22. Verify cqrs-lint has a GitHub repo (check go-cqrs-lite repo for `cmd/cqrs-lint` or separate repo).
-23. File cqrs-lint issue: E014 suggests phantom `host.Sync()`/`host.Drain()` APIs.
-24. File cqrs-lint issue: V003 fabricates flightrecorder/v4 v4.3.x (only v4.0.0 tagged).
-25. File cqrs-lint issue: D005 false positive on prose version mentions ("v4.6.0+" parsed as go.mod version).
-26. File go-cqrs-lite issue: flightrecorder/v4 needs re-tagging (frozen at v4.0.0, other modules at v4.3–v4.7).
-27. File go-cqrs-lite issue: inconsistent module versioning across v4 line (storage v4.7, command v4.7.1, query v4.6.1, flightrecorder v4.0.0).
+~~22. Verify cqrs-lint has a GitHub repo (check go-cqrs-lite repo for `cmd/cqrs-lint` or separate repo).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~23. File cqrs-lint issue: E014 suggests phantom `host.Sync()`/`host.Drain()` APIs.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~24. File cqrs-lint issue: V003 fabricates flightrecorder/v4 v4.3.x (only v4.0.0 tagged).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~25. File cqrs-lint issue: D005 false positive on prose version mentions ("v4.6.0+" parsed as go.mod version).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~26. File go-cqrs-lite issue: flightrecorder/v4 needs re-tagging (frozen at v4.0.0, other modules at v4.3–v4.7).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~27. File go-cqrs-lite issue: inconsistent module versioning across v4 line (storage v4.7, command v4.7.1, query v4.6.1, flightrecorder v4.0.0).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### Test coverage
 
-28. Add test: `CheckStaleness` with multiple projections, one stale, one fresh — max-lag semantics.
-29. Add test: `CheckProjectionStaleness` on a registered projection with lag > budget — assert Transient family.
-30. Add test: `CheckProjectionStaleness` on a registered projection with lag <= budget — assert nil.
-31. Add test: `closeOnConstructionFailure` with nil primary error (edge case — should it return the close error alone?).
-32. Add test: `closeOnConstructionFailure` with both errors non-nil — assert `errors.Is` finds both.
-33. Add benchmark: `CheckStaleness` overhead on N projections (should be O(N) lock-hold).
+~~28. Add test: `CheckStaleness` with multiple projections, one stale, one fresh — max-lag semantics.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~29. Add test: `CheckProjectionStaleness` on a registered projection with lag > budget — assert Transient family.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~30. Add test: `CheckProjectionStaleness` on a registered projection with lag <= budget — assert nil.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~31. Add test: `closeOnConstructionFailure` with nil primary error (edge case — should it return the close error alone?).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~32. Add test: `closeOnConstructionFailure` with both errors non-nil — assert `errors.Is` finds both.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~33. Add benchmark: `CheckStaleness` overhead on N projections (should be O(N) lock-hold).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### Code quality
 
-34. Verify `closeOnConstructionFailure` is the right name — it's a constructor-teardown helper, not a general close helper. Consider `closeBundleOnConstructionError`.
-35. Check if `closeOnConstructionFailure` should accept a context (currently hardcoded `context.Background()` — same as original, but the caller has no ctx at construction time).
-36. Verify the `//cqrs-lint:ignore` comments are on their own line and correctly formatted (linter parses both `//cqrs-lint:` and `// cqrs-lint:`).
-37. Verify the `.cqrs-lint.json` JSONC comments are valid (no trailing commas, valid JSON after comment stripping).
+~~34. Verify `closeOnConstructionFailure` is the right name — it's a constructor-teardown helper, not a general close helper. Consider `closeBundleOnConstructionError`.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~35. Check if `closeOnConstructionFailure` should accept a context (currently hardcoded `context.Background()` — same as original, but the caller has no ctx at construction time).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~36. Verify the `//cqrs-lint:ignore` comments are on their own line and correctly formatted (linter parses both `//cqrs-lint:` and `// cqrs-lint:`).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~37. Verify the `.cqrs-lint.json` JSONC comments are valid (no trailing commas, valid JSON after comment stripping).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### Release hygiene
 
-38. Tag cqrs module v0.1.1 or v0.2.0 with these changes (C023 fix is a bug fix, staleness API is a feature addition — semver minor).
-39. Update cqrs/CHANGELOG with a release date when ready.
-40. Consider whether the `CheckStaleness`/`CheckProjectionStaleness` API is stable enough to tag (it's a thin delegate to projectionhost — low risk).
+~~38. Tag cqrs module v0.1.1 or v0.2.0 with these changes (C023 fix is a bug fix, staleness API is a feature addition — semver minor).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~39. Update cqrs/CHANGELOG with a release date when ready.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~40. Consider whether the `CheckStaleness`/`CheckProjectionStaleness` API is stable enough to tag (it's a thin delegate to projectionhost — low risk).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### go-cqrs-lite investigation follow-up
 
-41. Check if `nixos.qcow2` (44MB) is still on disk in go-cqrs-lite — it's in `.gitignore` but not removed from history.
-42. Check if go-cqrs-lite has a BFG/filter-branch cleanup planned for the qcow2 history bloat.
-43. Investigate whether go-cqrs-lite's `system/v4` composition root (ADR-002 trigger) would change appkit/cqrs's API surface.
-44. Check if projectionhost has a newer version (v4.4.0+?) that adds `Sync`/`Drain` — would change the E014 suppression.
+~~41. Check if `nixos.qcow2` (44MB) is still on disk in go-cqrs-lite — it's in `.gitignore` but not removed from history.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~42. Check if go-cqrs-lite has a BFG/filter-branch cleanup planned for the qcow2 history bloat.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~43. Investigate whether go-cqrs-lite's `system/v4` composition root (ADR-002 trigger) would change appkit/cqrs's API surface.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~44. Check if projectionhost has a newer version (v4.4.0+?) that adds `Sync`/`Drain` — would change the E014 suppression.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ### Process
 
-45. Add `.cqrs-lint.json` to AGENTS.md "Code Organization" or "Gotchas" section for the cqrs module.
-46. Document the `library` preset choice and its implications in cqrs/README or AGENTS.md.
-47. Add a "How to run cqrs-lint" section to cqrs/README (correct scope, config file, suppression mechanics).
-48. Consider adding a CI step for cqrs-lint (pre-commit or GitHub Action) to prevent regressions.
-49. Verify BuildFlow (pre-commit hook) doesn't conflict with the new `.cqrs-lint.json`.
-50. Run `go mod tidy` in cqrs/ to verify go.mod/go.sum are still clean after the new test file imports.
+~~45. Add `.cqrs-lint.json` to AGENTS.md "Code Organization" or "Gotchas" section for the cqrs module.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~46. Document the `library` preset choice and its implications in cqrs/README or AGENTS.md.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~47. Add a "How to run cqrs-lint" section to cqrs/README (correct scope, config file, suppression mechanics).~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~48. Consider adding a CI step for cqrs-lint (pre-commit or GitHub Action) to prevent regressions.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~49. Verify BuildFlow (pre-commit hook) doesn't conflict with the new `.cqrs-lint.json`.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
+~~50. Run `go mod tidy` in cqrs/ to verify go.mod/go.sum are still clean after the new test file imports.~~ done across 2026-08-16/17 sessions or routed — staleness/coverage tests done, cqrs-lint config settled, upstream issues absorbed (E014/V003 documented in AGENTS/README), module tagged v0.2.0-v0.5.0 since
 
 ---
 
 ## g) Questions I cannot figure out myself
 
-### 1. Should I file the cqrs-lint issues against go-cqrs-lite, or is cqrs-lint a separate repo?
+~~### 1. Should I file the cqrs-lint issues against go-cqrs-lite, or is cqrs-lint a separate repo?~~ answered
 
 I found that cqrs-lint is a standalone binary (v4.6.0) but I don't know where its source lives. Is it in the go-cqrs-lite repo under `cmd/cqrs-lint` or similar, or is it a separate repo? I need to know where to file the E014 phantom-API and V003 fabricated-version bugs. I checked `ls /home/lars/projects/go-cqrs-lite/cmd` exists but did not look inside it this session.
 
-### 2. Should the `library` or `library-framework` preset be used for appkit/cqrs?
+~~### 2. Should the `library` or `library-framework` preset be used for appkit/cqrs?~~ answered
 
 The `library` preset disables E003, E016, F002, F006, F010, F011, F015, F022–F026, S002, S003. The `library-framework` preset additionally disables ALL F-series adoption-coaching rules (F001–F029). appkit/cqrs is a framework that wraps go-cqrs-lite for consumers — it never calls Save/Publish/Dispatch itself (consumer's job). The `library-framework` preset seems more honest, but I don't know if disabling all F-series rules would hide future real findings. Your call on how much adoption coaching you want visible on this wrapper.
 
-### 3. Should I tag a cqrs release (v0.1.1 or v0.2.0) for these changes, or wait for more work?
+~~### 3. Should I tag a cqrs release (v0.1.1 or v0.2.0) for these changes, or wait for more work?~~ answered
 
 The C023 fix is a bug fix (error swallowing). The `CheckStaleness`/`CheckProjectionStaleness` accessors are a feature addition. Semver says v0.1.1 for the fix alone, or v0.2.0 for fix + feature. But I don't know if you want to batch this with other pending cqrs work or ship it now. The changes are tested, lint-clean, and backward-compatible (new API, no removed API).

@@ -147,7 +147,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - The `go-health` dependency exists solely for the compile-time interface assertion in `contract_test.go` — no runtime usage. If go-health's `HealthRecorder` interface changes, the build breaks instead of failing silently.
 - Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family) constructors: `flightrecorder.recorder_missing` is `Rejection`, `flightrecorder.recorder_disabled` is `Infrastructure`.
 - Tests use `do.New()` with registered `healthSvc` mocks, `WithMinAge(50ms)` + `WithMaxBytes(1MiB)` + 100ms warmup sleep for trace data.
-- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.1.1` (bumped 2026-09-04, Unreleased), `samber/do v2.1.0`, `go-error-family v0.10.0`.
+- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.1.3` (2026-09-16; contract assertions unchanged), `samber/do v2.1.0`, `go-error-family v0.10.1`.
 
 ## Health Module — Code Organization
 
@@ -155,7 +155,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `doc.go`   | Package doc: quick start, route map, lifecycle ordering (Start → Run; DrainHooks → ShutdownHooks), aliasing guidance, GOEXPERIMENT note.                                                                                                                                                                                                             |
 | `probe.go` | `NewProbe(checks, opts...)` — injector-free go-health probe from a `map[string]CheckFunc`; concurrent per-check batches (`wg.Go`), per-check panic isolation (`errorfamily.Infrastructure` `health.check_panicked`), SDK options pass through (`WithCriticalServices`, `WithTimeout`, …).                                                            |
-| `mount.go` | `New(probe, opts...)` + `Mounted.RegisterRoutes(mux)` + `Mount(mux, ...)` sugar; `Mounted` lifecycle: `Start(ctx)` (initial sync batch + refresh + pusher), `Drain()` (probe → 503), `Shutdown(ctx)` (idempotent, re-Start legal), `Ready()`, `Probe()`, `Dashboard()`; options `WithDashboard(opts...)` (opt-in), `WithProbeRoutes(health.Routes)`. |
+| `mount.go` | `New(probe, opts...)` + `Mounted.RegisterRoutes(mux)` + `Mount(mux, ...)` sugar; `Mounted` lifecycle: `Start(ctx)` (initial sync batch + refresh + pusher), `Drain()` (probe MarkShuttingDown: readiness → 503, refresh loop KEEPS RUNNING so the cache stays fresh), `Shutdown(ctx)` (idempotent, re-Start legal; explicitly stops the refresh loop via probe.Shutdown), `Ready()`, `Probe()`, `Dashboard()`; options `WithDashboard(opts...)` (opt-in), `WithProbeRoutes(health.Routes)`. |
 | `example/` | Demo service: critical + flapping non-critical check, dashboard w/ trend + metrics, full appkit wiring; verified live E2E (lockstep drain 503s). Consumes PUBLISHED core (no replace directives). |
 
 - NO core dependency (mount works on any `*http.ServeMux`); the appkit composition is config-level (`DrainHooks`/`ShutdownHooks`/`ReadyCheck`).
@@ -163,7 +163,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - Dashboard is opt-in (`WithDashboard`); it then registers the probe endpoints from ITS route config (WithBasePath applies uniformly) and serves `/health` — consumers must set `RegisterHealth: &false` (mux panics on the duplicate otherwise).
 - Without dashboard: probe routes only (`/healthz`, `/readyz`, `/startupz`), coexists with appkit's default health endpoints.
 - `Mounted.Drain` in `DrainHooks` = go-health readiness 503 for the WHOLE drain window, in lockstep with appkit's own ready probe (the reason core gained `DrainHooks`).
-- Dependencies: `go-health v0.1.3`, `go-health-dashboard v0.7.0` (v0.8.1 available — operator-trust release), `go-error-family v0.10.0`.
+- Dependencies: `go-health v0.1.3`, `go-health-dashboard v0.8.1` (2026-09-16 bump: operator-trust release — truth strip, WCAG AA, nonce bootstrap), `go-error-family v0.10.1`.
 
 ## otel Module — Code Organization
 
@@ -198,14 +198,14 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | ---------------------------------------- | ------- | ---------------------------------------------------- |
 | `github.com/larsartmann/httputil`        | v1.1.1  | Middleware, health endpoints, Middleware type        |
 | `github.com/charmbracelet/log`           | v1.0.0  | Pretty slog handler (Logger implements slog.Handler) |
-| `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification, HTTPStatus, LogError           |
+| `github.com/larsartmann/go-error-family` | v0.10.1 | Error classification, HTTPStatus, LogError           |
 
 ## Realtime Module Dependencies
 
 | Module                                   | Version | Role                                                   |
 | ---------------------------------------- | ------- | ------------------------------------------------------ |
 | `github.com/larsartmann/go-sse`          | v0.6.0  | SSE transport: Stream, Broadcaster, EventStore, Replay |
-| `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification (shared with core)                |
+| `github.com/larsartmann/go-error-family` | v0.10.1 | Error classification (shared with core)                |
 | `github.com/larsartmann/go-branded-id`   | v0.5.1  | Phantom-typed EventID (transitive via go-sse)          |
 
 ## Flightrecorder Module Dependencies
@@ -240,7 +240,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | `github.com/larsartmann/go-cqrs-lite/projection/v4`     | v4.3.0  | Projection type and `NewProjection`                                                      |
 | `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.9.0  | SQLite checkpoint store + schema                                                         |
 | `github.com/larsartmann/go-flightrecorder`              | v0.2.0  | Flight recorder (projectionhost v4.4.0 unified on it; shared with appkit/flightrecorder) |
-| `github.com/larsartmann/go-error-family`                | v0.10.0 | Error classification (shared with core)                                                  |
+| `github.com/larsartmann/go-error-family`                | v0.10.1 | Error classification (shared with core)                                                  |
 
 All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09-16 against the local checkout).
 
@@ -263,7 +263,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 | `errorpages.go`   | `Config`, `Mount`, `Wrap`, `Handler`, `Write` bridging templ-components/errorpage to go-error-family classification + Accept negotiation. |
 | `example/main.go` | Demo service with pretty 404s and a classified error route.                                                                               |
 
-- Depends on `templ-components/errorpage v1.17.0`, `go-error-family v0.10.0`, `go-appkit v0.4.0` (example only; replace `../` for local dev).
+- Depends on `templ-components/errorpage v1.17.0`, `go-error-family v0.10.1`, `go-appkit v0.4.0` (example only; replace `../` for local dev).
 - Family → status identical to `appkit.HTTPStatus` (Rejection 400, Conflict 409, Transient 503, Corruption 500, Infrastructure 503).
 - `Wrap` mirrors net/http's `cleanPath` to preserve the mux's path-cleaning redirects (doubled slashes, dot segments); only the canonical request that follows gets the pretty 404.
 - Render failures fall back to a plain-text response with the correct status (inherited from errorpage's buffer-before-write rendering).

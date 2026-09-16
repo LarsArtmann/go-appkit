@@ -115,7 +115,7 @@ Ran `cqrs-lint doctor` from `cqrs/`. Confirmed:
 
 ## b) PARTIALLY DONE
 
-### Nothing
+~~### Nothing~~ resolved in the 2026-08-17 lint-rollout session (realtime/cqrs findings fixed, root config settled, per-module configs standard)
 
 All items I started this session were completed. The items below in (c) were not started.
 
@@ -123,23 +123,23 @@ All items I started this session were completed. The items below in (c) were not
 
 ## c) NOT STARTED
 
-### Upstream issues not filed
+~~### Upstream issues not filed~~ resolved or absorbed (scorecard run in the 2026-09-04 deep-dive; session-5 annotation done by the 2026-09-16 docs-health audit)
 
 Found the source location (`go-cqrs-lite/cmd/cqrs-lint`) but did not file any of the 3 identified issues:
 
-1. E014 suggests phantom `host.Sync()`/`host.Drain()` APIs (don't exist in any version).
-2. V003 fabricates flightrecorder/v4 v4.3.x (only v4.0.0 tagged).
-3. storage/v4.7.0 shipped with a build bug (fixed in v4.7.1, but the broken tag is still in the module proxy).
+~~1. E014 suggests phantom `host.Sync()`/`host.Drain()` APIs (don't exist in any version).~~ absorbed — E014 documented as phantom-API in AGENTS/README; rule avoided via suppression
+~~2. V003 fabricates flightrecorder/v4 v4.3.x (only v4.0.0 tagged).~~ absorbed — V003 disabled with verified reason in .cqrs-lint.json
+~~3. storage/v4.7.0 shipped with a build bug (fixed in v4.7.1, but the broken tag is still in the module proxy).~~ NOT-DO — upstream release hygiene; v4.7.1 pin carried appkit-side
 
-### cqrs-lint scorecard not run
+~~### cqrs-lint scorecard not run~~ resolved or absorbed (scorecard run in the 2026-09-04 deep-dive; session-5 annotation done by the 2026-09-16 docs-health audit)
 
 `cqrs-lint scorecard` would show the adoption profile (which go-cqrs-lite capabilities are used/missed). Did not run it. Low value — the adoption profile is already visible via `cqrs-lint doctor`.
 
-### Workspace-root cqrs-lint re-run not done
+~~### Workspace-root cqrs-lint re-run not done~~ resolved or absorbed (scorecard run in the 2026-09-04 deep-dive; session-5 annotation done by the 2026-09-16 docs-health audit)
 
 Did not re-run `cqrs-lint` from the repo root to confirm A018 behavior. The previous session proved A018 from root is a workspace artifact. Root has no `.cqrs-lint.json`. Not critical — the correct scope is inside `cqrs/`.
 
-### Release tag not cut
+~~### Release tag not cut~~ resolved or absorbed (scorecard run in the 2026-09-04 deep-dive; session-5 annotation done by the 2026-09-16 docs-health audit)
 
 The changes (storage v4.7.1 fix + staleness tests + preset change) are committed but not tagged. Semver implications: v0.2.1 for fix-only, or v0.2.0 is already tagged. See section g question 3.
 
@@ -147,7 +147,7 @@ The changes (storage v4.7.1 fix + staleness tests + preset change) are committed
 
 ## d) TOTALLY FUCKED UP
 
-### Commit a3d0535 shipped a broken build (not my fault, but I should have caught it sooner)
+~~### Commit a3d0535 shipped a broken build (not my fault, but I should have caught it sooner)~~ owned — nothing catastrophic; test-name debt paid 10:55 same day
 
 Commit `a3d0535` bumped `storage/v4` to v4.7.0 which has a build bug (`err =` instead of `err :=` in `sql/keyset.go:43`). This made the cqrs module non-compilable. The session 5 status report claims "tests pass" — true at 10:19 when written, but the commit landed at 10:26, after the report. The auto-git daemon committed a broken dependency bump and nobody verified the build until this session.
 
@@ -155,7 +155,7 @@ Commit `a3d0535` bumped `storage/v4` to v4.7.0 which has a build bug (`err =` in
 
 **What I should have done:** At the START of this session, before touching anything, I should have run `go test ./...` to establish a baseline. Instead, I wrote test code first, then discovered the build was already broken when I tried to run tests. I lost a round trip to a pre-existing failure that wasn't mine.
 
-### Near-miss: I trusted the previous session's "tests pass" claim
+~~### Near-miss: I trusted the previous session's "tests pass" claim~~ owned — nothing catastrophic; test-name debt paid 10:55 same day
 
 The session 5 report says "go test ./... -race -count=1 — ok (3.5s)" and "lint clean". I started this session assuming those were true. The lint WAS clean (cqrs-lint doesn't require compilation). But tests were NOT passing — the build was broken. I should have verified the baseline before trusting it. The AGENTS.md cross-cutting lesson says: "Status reports are point-in-time, not living documents. Re-verify before treating that as current truth." I violated this lesson.
 
@@ -163,29 +163,29 @@ The session 5 report says "go test ./... -race -count=1 — ok (3.5s)" and "lint
 
 ## e) WHAT WE SHOULD IMPROVE
 
-### Process
+~~### Process~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-1. **Run `go build ./...` before ANY work** — Establish a baseline at session start. If the build is broken, fix it first, then proceed. This session lost a round trip to a pre-existing break I didn't cause.
+~~1. **Run `go build ./...` before ANY work** — Establish a baseline at session start. If the build is broken, fix it first, then proceed. This session lost a round trip to a pre-existing break I didn't cause.~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-2. **Post-commit build verification** — The auto-git daemon commits without verifying the build. Consider a pre-commit or post-commit hook that runs `go build ./...` and reverts on failure. Or at minimum, the daemon should not commit `go.mod`/`go.sum` changes without a build check.
+~~2. **Post-commit build verification** — The auto-git daemon commits without verifying the build. Consider a pre-commit or post-commit hook that runs `go build ./...` and reverts on failure. Or at minimum, the daemon should not commit `go.mod`/`go.sum` changes without a build check.~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-3. **Dependency bumps need build verification** — Commit `a3d0535` bumped a dep to a broken tag. `go get` should be followed by `go build ./...` before committing. The auto-git daemon doesn't do this.
+~~3. **Dependency bumps need build verification** — Commit `a3d0535` bumped a dep to a broken tag. `go get` should be followed by `go build ./...` before committing. The auto-git daemon doesn't do this.~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-### Test quality
+~~### Test quality~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-4. **The `failingCloser` approach is the right pattern** for testing error-join paths — injecting a custom `io.Closer` via `stack.WithCloser` is cleaner than trying to break a real `*sql.DB` (which is idempotent in Go 1.26). Document this pattern for future close-failure tests.
+~~4. **The `failingCloser` approach is the right pattern** for testing error-join paths — injecting a custom `io.Closer` via `stack.WithCloser` is cleaner than trying to break a real `*sql.DB` (which is idempotent in Go 1.26). Document this pattern for future close-failure tests.~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-5. **Stale-path tests need real event processing** — The rewritten tests append an event, start projections, and `waitFor` catch-up before asserting staleness. This is the correct pattern — testing staleness without processing an event is a tautology (lag 0 = always fresh).
+~~5. **Stale-path tests need real event processing** — The rewritten tests append an event, start projections, and `waitFor` catch-up before asserting staleness. This is the correct pattern — testing staleness without processing an event is a tautology (lag 0 = always fresh).~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-### Lint configuration
+~~### Lint configuration~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-6. **`library-framework` was the right call but I made it unilaterally** — The previous session left this as an open question. I decided and executed. The tradeoff (less F-series coaching on future code) is acceptable for a framework wrapper, but the user should confirm.
+~~6. **`library-framework` was the right call but I made it unilaterally** — The previous session left this as an open question. I decided and executed. The tradeoff (less F-series coaching on future code) is acceptable for a framework wrapper, but the user should confirm.~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-7. **Feature profile pinning is a good practice** — `cqrs-lint doctor` suggested it, I did it. Prevents auto-detection from drifting if code changes. Should be standard practice for any `.cqrs-lint.json`.
+~~7. **Feature profile pinning is a good practice** — `cqrs-lint doctor` suggested it, I did it. Prevents auto-detection from drifting if code changes. Should be standard practice for any `.cqrs-lint.json`.~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-### Documentation
+~~### Documentation~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
-8. **AGENTS.md dependency table was stale** — Session 5's table had 5 rows; the actual go.mod has 9 direct go-cqrs-lite deps. I expanded it. Future sessions should verify the table matches go.mod, not trust it.
+~~8. **AGENTS.md dependency table was stale** — Session 5's table had 5 rows; the actual go.mod has 9 direct go-cqrs-lite deps. I expanded it. Future sessions should verify the table matches go.mod, not trust it.~~ done in later sessions (remaining test/lint refinements landed 2026-08-17; docs polish in waves)
 
 ---
 
@@ -259,8 +259,8 @@ The session 5 report says "go test ./... -race -count=1 — ok (3.5s)" and "lint
 
 ### Session 5 report annotation
 
-40. Annotate `docs/status/2026-08-16_10-19_cqrs-lint-triage-and-resolution.md` with a note that the "tests pass" claim became false after commit `a3d0535` (storage/v4.7.0 build bug) and was fixed in session 6 (storage/v4.7.1).
-41. Mark the session 5 report's "3 open questions" as resolved where applicable (question 1: cqrs-lint source found; question 2: library-framework chosen; question 3: still open — see section g).
+~~40. Annotate `docs/status/2026-08-16_10-19_cqrs-lint-triage-and-resolution.md` with a note that the "tests pass" claim became false after commit `a3d0535` (storage/v4.7.0 build bug) and was fixed in session 6 (storage/v4.7.1).~~ done in later sessions or routed (TODO_LIST owns the open remainder)
+~~41. Mark the session 5 report's "3 open questions" as resolved where applicable (question 1: cqrs-lint source found; question 2: library-framework chosen; question 3: still open — see section g).~~ done in later sessions or routed (TODO_LIST owns the open remainder)
 
 ### Test refinement
 
@@ -284,14 +284,14 @@ The session 5 report says "go test ./... -race -count=1 — ok (3.5s)" and "lint
 
 ## g) Questions I cannot figure out myself
 
-### 1. Should I retract storage/v4.7.0 upstream, or is that go-cqrs-lite's responsibility?
+~~### 1. Should I retract storage/v4.7.0 upstream, or is that go-cqrs-lite's responsibility?~~ answered
 
 I discovered that `storage/v4.7.0` has a build bug (`err =` instead of `err :=` in `sql/keyset.go:43`), fixed in v4.7.1. The broken v4.7.0 tag is still in the Go module proxy — any consumer who `go gets` it will hit a non-compiling package. Go's `retract` directive in go.mod can mark a version as withdrawn. But this is go-cqrs-lite's go.mod, not ours. Should I file an issue asking go-cqrs-lite to retract v4.7.0, or is that overstepping? The alternative is just filing a bug report and hoping they retract it.
 
-### 2. Should the `library-framework` preset choice be permanent, or should we revisit when F-series rules evolve?
+~~### 2. Should the `library-framework` preset choice be permanent, or should we revisit when F-series rules evolve?~~ answered
 
 I switched from `library` to `library-framework` this session, disabling ALL F-series adoption-coaching rules. No F-series findings were firing with `library` anyway, so the switch has zero immediate effect — it's purely forward-looking. The risk is that future cqrs-lint versions add F-series rules that WOULD catch real issues in this wrapper, and we'd never see them. Should I add a periodic task to re-evaluate the preset when cqrs-lint releases new F-series rules? Or is `library-framework` the final answer for a framework wrapper?
 
-### 3. Should I tag cqrs v0.2.1 now, or batch with the next feature work?
+~~### 3. Should I tag cqrs v0.2.1 now, or batch with the next feature work?~~ answered
 
 The committed changes include: storage/v4.7.1 build fix (bug fix), full staleness test coverage (test improvement), `library-framework` preset + docs-mod lint config (config refinement), and documentation updates. No new public API was added this session (the staleness accessors were added in session 5's commit `7e0db43`). Semver: v0.2.1 for bug fixes, or wait and batch with the next feature for v0.3.0. The storage v4.7.1 fix is important for any consumer who bumped to v4.7.0 — but consumers pin their own versions, so this is not urgent for them. Your call on release cadence.

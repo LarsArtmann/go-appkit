@@ -27,81 +27,81 @@ Scope: this session only — finishing the lint rollout (cqrs, realtime, root, d
 
 ## b) PARTIALLY DONE
 
-- **Root config decisions (was g)3):** I decided autonomously (user said "get the whole list done") to keep depguard and extend the allowlist rather than drop it. This is a reasonable call but was formally a user-gated question; it is now implemented and reversible.
-- **errorpages / docs-mod / flightrecorder / flightrecorderhealth configs:** were done 2026-08-16; only re-verified this session (0 issues each).
+~~- **Root config decisions (was g)3):** I decided autonomously (user said "get the whole list done") to keep depguard and extend the allowlist rather than drop it. This is a reasonable call but was formally a user-gated question; it is now implemented and reversible.~~ ratified — depguard kept + extended; per-module configs are the standard
+~~- **errorpages / docs-mod / flightrecorder / flightrecorderhealth configs:** were done 2026-08-16; only re-verified this session (0 issues each).~~ ratified — depguard kept + extended; per-module configs are the standard
 
 ## c) NOT STARTED (blocked or out of scope this session)
 
-- Pushing the 5 tags + post-push proxy/pkg.go.dev verification — **user gate (g)2)**, untouched.
-- /mnt/buildcache repair or permanent env repoint — **user decision (g)1)**, untouched; all commands still need overrides.
+~~- Pushing the 5 tags + post-push proxy/pkg.go.dev verification — **user gate (g)2)**, untouched.~~ resolved — push 2026-08-30; buildcache superseded by later tooling
+~~- /mnt/buildcache repair or permanent env repoint — **user decision (g)1)**, untouched; all commands still need overrides.~~ resolved — push 2026-08-30; buildcache superseded by later tooling
 
 ## d) TOTALLY FUCKED UP
 
-- **Multiedit-before-view failures (2×):** I attempted `multiedit` on cqrs/eventservice.go and realtime/handler.go without reading the file first in this session; both were correctly rejected by the tool. Wasted round trips, no damage.
-- **Blind perl substitution on service_test.go created `:=` redeclaration** (`err := svc.Close()` where `err` already existed) — caught immediately by `go vet`, fixed to `err =`. Lesson (again): sed/perl on code without reading the exact context is gambling.
-- **nolint-comment length whack-a-mole:** several nolint comments exceeded the golines 120-col budget and had to be shortened iteratively (3 extra lint round trips), plus one nolint placed where the linter didn't fire (nolintlint "unused directive") and had to be removed. The session summary from 2026-08-16 already warned exactly this ("keep nolint comments short") — I repeated the mistake anyway.
-- **Miscounted root wrapcheck nolint target:** first tried attaching the nolint to `example/main.go`'s `return svc.Run(...)` via perl with a broken regex (syntax error), then re-did it with edit. Sloppy.
+~~- **Multiedit-before-view failures (2×):** I attempted `multiedit` on cqrs/eventservice.go and realtime/handler.go without reading the file first in this session; both were correctly rejected by the tool. Wasted round trips, no damage.~~ owned; lessons recorded (view-before-edit, nolint discipline, blank-assignment rule)
+~~- **Blind perl substitution on service_test.go created `:=` redeclaration** (`err := svc.Close()` where `err` already existed) — caught immediately by `go vet`, fixed to `err =`. Lesson (again): sed/perl on code without reading the exact context is gambling.~~ owned; lessons recorded (view-before-edit, nolint discipline, blank-assignment rule)
+~~- **nolint-comment length whack-a-mole:** several nolint comments exceeded the golines 120-col budget and had to be shortened iteratively (3 extra lint round trips), plus one nolint placed where the linter didn't fire (nolintlint "unused directive") and had to be removed. The session summary from 2026-08-16 already warned exactly this ("keep nolint comments short") — I repeated the mistake anyway.~~ owned; lessons recorded (view-before-edit, nolint discipline, blank-assignment rule)
+~~- **Miscounted root wrapcheck nolint target:** first tried attaching the nolint to `example/main.go`'s `return svc.Run(...)` via perl with a broken regex (syntax error), then re-did it with edit. Sloppy.~~ owned; lessons recorded (view-before-edit, nolint discipline, blank-assignment rule)
 
 ## e) WHAT WE SHOULD IMPROVE
 
-1. **Never run perl/sed multi-line code edits without viewing the exact lines first.** This session had 3 separate failures of this class. The edit tool + view is slower but never wrong.
-2. **Nolint discipline:** draft nolint comments ≤ 60 chars from the start; check whether the linter actually fires at that line before adding the directive.
-3. **Go 1.26 blank-assignment rule:** `_ = multiValueCall()` is now a compile error repo-wide (and ecosystem-wide). Watch for this in every dependency bump / new code; it also means older tutorials' idiom is broken.
-4. **Golines vs nolint interplay:** files with line-attached nolint directives must never be auto-formatted (known trap, re-confirmed).
-5. **Root config `go:` field and depguard allowlist drift:** the root `.golangci.yml` had drifted (1.26.4, missing family deps). Add "diff root config vs newest satellite config" to the release checklist.
-6. **Auto-commit daemon did NOT pick up this session's work yet** (24 modified files still uncommitted at report time). Either it's slow or its trigger missed; do not assume clean-tree commits happened.
+~~1. **Never run perl/sed multi-line code edits without viewing the exact lines first.** This session had 3 separate failures of this class. The edit tool + view is slower but never wrong.~~ absorbed (edit-tool discipline, nolint SOP, config-drift checks)
+~~2. **Nolint discipline:** draft nolint comments ≤ 60 chars from the start; check whether the linter actually fires at that line before adding the directive.~~ absorbed (edit-tool discipline, nolint SOP, config-drift checks)
+~~3. **Go 1.26 blank-assignment rule:** `_ = multiValueCall()` is now a compile error repo-wide (and ecosystem-wide). Watch for this in every dependency bump / new code; it also means older tutorials' idiom is broken.~~ absorbed (edit-tool discipline, nolint SOP, config-drift checks)
+~~4. **Golines vs nolint interplay:** files with line-attached nolint directives must never be auto-formatted (known trap, re-confirmed).~~ absorbed (edit-tool discipline, nolint SOP, config-drift checks)
+~~5. **Root config `go:` field and depguard allowlist drift:** the root `.golangci.yml` had drifted (1.26.4, missing family deps). Add "diff root config vs newest satellite config" to the release checklist.~~ absorbed (edit-tool discipline, nolint SOP, config-drift checks)
+~~6. **Auto-commit daemon did NOT pick up this session's work yet** (24 modified files still uncommitted at report time). Either it's slow or its trigger missed; do not assume clean-tree commits happened.~~ absorbed (edit-tool discipline, nolint SOP, config-drift checks)
 
 ## f) NEXT — up to 50 things
 
 **User-gated (nothing for me to do until answered):**
 
-1. Push master + 5 tags (core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0, flightrecorderhealth v0.1.0).
-2. Fresh-consumer /tmp proxy smoke test per pushed module.
-3. Verify pkg.go.dev renders each new version.
-4. Decide /mnt/buildcache: repair vs permanent `GOCACHE`/`GOMODCACHE`/`GOLANGCI_LINT_CACHE` repoint (add to shell profile / flake if permanent).
-5. Ratify or revert my depguard-keep-and-extend decision on root.
+~~1. Push master + 5 tags (core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0, flightrecorderhealth v0.1.0).~~ done — push 2026-08-30
+~~2. Fresh-consumer /tmp proxy smoke test per pushed module.~~ done — proxy smoke 2026-09-04
+~~3. Verify pkg.go.dev renders each new version.~~ done — pkg.go.dev checked 2026-09-04 (license gap found + fixed mechanically)
+~~4. Decide /mnt/buildcache: repair vs permanent `GOCACHE`/`GOMODCACHE`/`GOLANGCI_LINT_CACHE` repoint (add to shell profile / flake if permanent).~~ NOT-DO — buildcache superseded
+~~5. Ratify or revert my depguard-keep-and-extend decision on root.~~ ratified 2026-08-17
 
 **Quality follow-through:**
-6. Run `golangci-lint run --fix`-style fmt pass carefully (or `gofmt -s`) on files WITHOUT nolint directives only.
-7. Add a CI job (or BuildFlow step) that lints every module from its own dir so 0-issues is enforced, not aspirational.
-8. Add a config-drift check: root vs satellite `.golangci.yml` enable-list diff.
-9. Consider sharing a `.golangci.base.yml` + per-module includes if golangci-lint v2 supports it — 7 near-identical configs is duplication.
-10. cqrs: the `//nolint:wrapcheck // delegation` ×5 on eventservice.go could alternatively become one wrapcheck ignore-sig entry in config — decide which is cleaner.
-11. realtime: `safeFilter`'s named-return nolint could be removed by restructuring to `(bool)` + explicit assignment — minor.
-12. Consider `errcheck`-style audit that no new nolint masks a real bug: review every nolint added this session as a batch (there are ~20).
-13. Root: `example/main.go` now wraps NewService error — mirror the same pattern in README quick start if it shows raw returns.
-14. Re-run the full battery hermetically (`GOWORK=off`) — this session's final sweep ran with workspace on.
-15. Run `go mod tidy && git diff --exit-code go.mod go.sum` per module to confirm no accidental dep drift.
-16. Update `docs/status/2026-08-16_18-57_*.md` with a pointer to this report (cross-link the lint-rollout completion).
-17. Add "lint standard" section to each satellite README's contributing notes (one line: run golangci-lint from module dir).
+~~6. Run `golangci-lint run --fix`-style fmt pass carefully (or `gofmt -s`) on files WITHOUT nolint directives only.~~ NOT-DO — formatting handled by BuildFlow
+~~7. Add a CI job (or BuildFlow step) that lints every module from its own dir so 0-issues is enforced, not aspirational.~~ done at 9b163ce (CI lint/test matrix)
+~~8. Add a config-drift check: root vs satellite `.golangci.yml` enable-list diff.~~ NOT-DO — config-drift check stays manual
+~~9. Consider sharing a `.golangci.base.yml` + per-module includes if golangci-lint v2 supports it — 7 near-identical configs is duplication.~~ NOT-DO — 7 configs accepted as duplication cost
+~~10. cqrs: the `//nolint:wrapcheck // delegation` ×5 on eventservice.go could alternatively become one wrapcheck ignore-sig entry in config — decide which is cleaner.~~ NOT-DO — nolints kept
+~~11. realtime: `safeFilter`'s named-return nolint could be removed by restructuring to `(bool)` + explicit assignment — minor.~~ NOT-DO — minor
+~~12. Consider `errcheck`-style audit that no new nolint masks a real bug: review every nolint added this session as a batch (there are ~20).~~ NOT-DO — batch nolint audit skipped
+~~13. Root: `example/main.go` now wraps NewService error — mirror the same pattern in README quick start if it shows raw returns.~~ done — README wraps errors
+~~14. Re-run the full battery hermetically (`GOWORK=off`) — this session's final sweep ran with workspace on.~~ NOT-DO — hermetic runs documented instead
+~~15. Run `go mod tidy && git diff --exit-code go.mod go.sum` per module to confirm no accidental dep drift.~~ done — dep drift verified in waves
+~~16. Update `docs/status/2026-08-16_18-57_*.md` with a pointer to this report (cross-link the lint-rollout completion).~~ done — cross-linked
+~~17. Add "lint standard" section to each satellite README's contributing notes (one line: run golangci-lint from module dir).~~ NOT-DO — lint standard lives in AGENTS
 
 **Carried P1/P2/P3 from TODO_LIST (still open):**
-18. Logging posture decision (per-request INFO cost, ~2.8x bench delta) + benchstat.
-19. realtime SSE-flush E2E test through the default middleware stack.
-20. README: document GOEXPERIMENT=jsonv2 for building from source.
-21. FEATURES.md "Consumers" section (cqrs-htmx setup adoption).
-22. Fix `docs/planning/design-decisions.md:118` lychee 404 + MD013 long lines.
-23. Document `DrainDelay: 0` test-ergonomics pattern in AGENTS.md.
-24. Mechanical API-break check at tag time (goapidiff / go doc snapshot).
-25. Go 1.26.6 bump when nixpkgs carries it (GO-2026-6090, GO-2026-5972).
-26. BuildFlow dprint `--allow-no-files` fix for CHANGELOG-only commits.
-27. go-structure-linter root-package acceptance config.
-28. Define v1.0.0 exit criteria for core.
-29. Commit this session's 24 modified files (or let the daemon do it — verify it does).
-30. After push: update TODO_LIST release-state line to "pushed" and drop the user-gate markers.
+~~18. Logging posture decision (per-request INFO cost, ~2.8x bench delta) + benchstat.~~ tracked in TODO_LIST P2 (logging posture)
+~~19. realtime SSE-flush E2E test through the default middleware stack.~~ done — integration module SSE flush test
+~~20. README: document GOEXPERIMENT=jsonv2 for building from source.~~ done — README jsonv2 note
+~~21. FEATURES.md "Consumers" section (cqrs-htmx setup adoption).~~ done — FEATURES Consumers section
+~~22. Fix `docs/planning/design-decisions.md:118` lychee 404 + MD013 long lines.~~ done — 404 inlined 2026-09-04
+~~23. Document `DrainDelay: 0` test-ergonomics pattern in AGENTS.md.~~ NOT-DO — superseded by NoDrainDelay (v0.4.0)
+~~24. Mechanical API-break check at tag time (goapidiff / go doc snapshot).~~ done — go-doc snapshot in Release Ritual
+~~25. Go 1.26.6 bump when nixpkgs carries it (GO-2026-6090, GO-2026-5972).~~ done — toolchain at 1.26.7 (nixpkgs gate tracked TODO_LIST P2)
+~~26. BuildFlow dprint `--allow-no-files` fix for CHANGELOG-only commits.~~ tracked in TODO_LIST P3 (dprint)
+~~27. go-structure-linter root-package acceptance config.~~ done — CLI-flag excludes (2026-09-04)
+~~28. Define v1.0.0 exit criteria for core.~~ done — core-v1-exit-criteria.md draft
+~~29. Commit this session's 24 modified files (or let the daemon do it — verify it does).~~ done — daemon committed
+~~30. After push: update TODO_LIST release-state line to "pushed" and drop the user-gate markers.~~ done — release state updated
 
 **Smaller polish noticed this session:**
-31. cqrs/eventservice.go godoc: the E014 directive sits mid-paragraph; consider a `<!-- -->`-style separation if any doc tool complains later.
-32. realtime: `forwardLive` is a good extraction candidate for a doc-comment example (`//nolint` count in handler.go is now 5).
-33. health_test.go line 90 got golines-wrapped; run `golangci-lint fmt` on files without nolint only, to normalize.
-34. Root `.golangci.yml` still lists `build-tags` GOEXPERIMENT entries — verify they match all 6 modules' requirements after the 1.26.5 bump (config verify passed, but semantic match unchecked).
-35. Add a table-driven lint-findings regression guard: `golangci-lint run ./... | wc -l` asserted to 0 in BuildFlow.
+~~31. cqrs/eventservice.go godoc: the E014 directive sits mid-paragraph; consider a `<!-- -->`-style separation if any doc tool complains later.~~ resolved
+~~32. realtime: `forwardLive` is a good extraction candidate for a doc-comment example (`//nolint` count in handler.go is now 5).~~ resolved
+~~33. health_test.go line 90 got golines-wrapped; run `golangci-lint fmt` on files without nolint only, to normalize.~~ resolved
+~~34. Root `.golangci.yml` still lists `build-tags` GOEXPERIMENT entries — verify they match all 6 modules' requirements after the 1.26.5 bump (config verify passed, but semantic match unchecked).~~ resolved
+~~35. Add a table-driven lint-findings regression guard: `golangci-lint run ./... | wc -l` asserted to 0 in BuildFlow.~~ resolved
 
 ## g) QUESTIONS (cannot figure out myself)
 
-1. **Push gate:** May I push master + the 5 tags now (`git push origin master && git push origin v0.3.0 cqrs/v0.3.0 realtime/v0.1.0 flightrecorder/v0.1.0 flightrecorderhealth/v0.1.0`)? Everything local is verified; proxy/pkg.go.dev checks follow after.
-2. **Buildcache:** /mnt/buildcache (sda1, 99% full, I/O errors) — repair it, or should I permanently repoint `GOCACHE`/`GOLANGCI_LINT_CACHE` into `$HOME/.cache` (e.g. via your shell profile) so overrides stop being mandatory?
-3. **Root depguard:** I kept depguard and extended its allowlist with the family deps + the module's self-import instead of dropping it (user question g)3 from yesterday). Ratify that, or do you prefer depguard removed from the root config entirely and reliance on per-module configs alone?
+~~1. **Push gate:** May I push master + the 5 tags now (`git push origin master && git push origin v0.3.0 cqrs/v0.3.0 realtime/v0.1.0 flightrecorder/v0.1.0 flightrecorderhealth/v0.1.0`)? Everything local is verified; proxy/pkg.go.dev checks follow after.~~ Answered: push 2026-08-30 + waves
+~~2. **Buildcache:** /mnt/buildcache (sda1, 99% full, I/O errors) — repair it, or should I permanently repoint `GOCACHE`/`GOLANGCI_LINT_CACHE` into `$HOME/.cache` (e.g. via your shell profile) so overrides stop being mandatory?~~ Answered: buildcache superseded
+~~3. **Root depguard:** I kept depguard and extended its allowlist with the family deps + the module's self-import instead of dropping it (user question g)3 from yesterday). Ratify that, or do you prefer depguard removed from the root config entirely and reliance on per-module configs alone?~~ Answered: depguard kept + extended
 
 ## Environment notes
 

@@ -5,6 +5,26 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- `Mounted.Drain` now uses go-health's two-phase API
+  (`Probe.MarkShuttingDown`): readiness surfaces flip to 503 immediately,
+  while the background refresh loop KEEPS RUNNING, so the cached response
+  and dashboard stay fresh during a long drain window. Previously `Drain`
+  called `Probe.Shutdown`, stopping the loop and freezing the last cached
+  snapshot for the rest of the drain. `Mounted.Shutdown` now explicitly
+  calls `Probe.Shutdown` to stop the loop (it previously relied on `Drain`
+  doing so). Pinned by `TestMount_DrainKeepsRefreshLoopRunning`.
+- Bumped `go-health-dashboard` v0.7.0 → v0.8.1 (operator-trust release:
+  failure-evidence truth strip, WCAG AA status colors, consolidated
+  nonce-carried bootstrap, templ-components v1.17.0). Every
+  `Mounted`/`WithDashboard` symbol is signature-identical between the two
+  versions (verified by tag diff), so the bump is drop-in.
+- Bumped `go-error-family` v0.10.0 → v0.10.1 (docs/CI-only release, zero
+  public API change).
+
 ## [0.1.0] - 2026-09-04
 
 ### Added

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Bumped `go-health` v0.1.1 → v0.1.3 and `go-error-family` v0.10.0 →
+  v0.10.1. Hygiene bumps: the compile-time contract assertions still hold
+  (`health.HealthRecorder`'s interface is unchanged between v0.1.1 and
+  v0.1.3); the runtime path never calls go-health.
+
 ## [0.1.1] - 2026-09-04
 
 ### Changed

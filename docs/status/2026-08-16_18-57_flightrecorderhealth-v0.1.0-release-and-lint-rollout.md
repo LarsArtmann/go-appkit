@@ -26,21 +26,21 @@
 
 ## b) PARTIALLY DONE
 
-| # | Item                                      | What's done                                                                                                                 | What's missing / why it stalled                                                                              |
-| - | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| 1 | **Repo-wide lint standard**               | 3 of 5 satellites fully clean (flightrecorder, errorpages, docs-mod); configs written for all 5; exclusion standard settled | **cqrs (~15 findings) and realtime (~22 findings) not yet fixed** — user requested status report mid-rollout |
-| 2 | **Root-config alignment**                 | Root still lints only the core module in practice                                                                           | Root `.golangci.yml` still carries depguard with the satellite-hostile allowlist; decision pending (see g)3) |
-| 3 | **AGENTS.md lint-standard documentation** | Module configs carry their own rationale headers                                                                            | The repo-wide "lint each module from its own dir" workflow is not yet written into AGENTS.md                 |
+~~| # | Item                                      | What's done                                                                                                                 | What's missing / why it stalled                                                                              |~~ resolved — v0.1.1 tagged + pushed 2026-09-04; PR merged upstream; branches dispositioned
+~~| - | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |~~ resolved — v0.1.1 tagged + pushed 2026-09-04; PR merged upstream; branches dispositioned
+~~| 1 | **Repo-wide lint standard**               | 3 of 5 satellites fully clean (flightrecorder, errorpages, docs-mod); configs written for all 5; exclusion standard settled | **cqrs (~15 findings) and realtime (~22 findings) not yet fixed** — user requested status report mid-rollout |~~ resolved — v0.1.1 tagged + pushed 2026-09-04; PR merged upstream; branches dispositioned
+~~| 2 | **Root-config alignment**                 | Root still lints only the core module in practice                                                                           | Root `.golangci.yml` still carries depguard with the satellite-hostile allowlist; decision pending (see g)3) |~~ resolved — v0.1.1 tagged + pushed 2026-09-04; PR merged upstream; branches dispositioned
+~~| 3 | **AGENTS.md lint-standard documentation** | Module configs carry their own rationale headers                                                                            | The repo-wide "lint each module from its own dir" workflow is not yet written into AGENTS.md                 |~~ resolved — v0.1.1 tagged + pushed 2026-09-04; PR merged upstream; branches dispositioned
 
 ## c) NOT STARTED
 
-| # | Item                                                                                                                                                                                                                                | Why it matters                                                   |
-| - | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| 1 | **cqrs lint fixes** — noinlineerr ×10 (staleness_test), errcheck ×1 (fmt.Fprint), gochecknoinits ×1 (init in flightrecorder_test), nilnil ×1, ireturn ×3, wrapcheck ×5, exhaustruct ×1 (EventService), godoclint ×1 (package godoc) | Touches tagged-release code (v0.3.0) and test idioms; needs care |
-| 2 | **realtime lint fixes** — noctx ×12, makezero ×2, wrapcheck ×3, exhaustruct ×1 (hubConfig), varnamelen ×1 (`ch`), nonamedreturns ×2, gocognit ×1 (`Handler` 34 > 30)                                                                | Same class as done modules; gocognit may need a refactor         |
-| 3 | Fresh-consumer proxy test (`go get flightrecorderhealth@v0.1.0` from clean module)                                                                                                                                                  | Blocked on push (tag is local-only)                              |
-| 4 | pkg.go.dev rendering check                                                                                                                                                                                                          | Blocked on push                                                  |
-| 5 | Root AGENTS.md / TODO_LIST closure of the depguard P-item                                                                                                                                                                           | Blocked on g)3                                                   |
+~~| # | Item                                                                                                                                                                                                                                | Why it matters                                                   |~~ done later (dashboardui tracked consumer-side; core v0.3.0 cut 2026-08-30)
+~~| - | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |~~ done later (dashboardui tracked consumer-side; core v0.3.0 cut 2026-08-30)
+~~| 1 | **cqrs lint fixes** — noinlineerr ×10 (staleness_test), errcheck ×1 (fmt.Fprint), gochecknoinits ×1 (init in flightrecorder_test), nilnil ×1, ireturn ×3, wrapcheck ×5, exhaustruct ×1 (EventService), godoclint ×1 (package godoc) | Touches tagged-release code (v0.3.0) and test idioms; needs care |~~ done later (dashboardui tracked consumer-side; core v0.3.0 cut 2026-08-30)
+~~| 2 | **realtime lint fixes** — noctx ×12, makezero ×2, wrapcheck ×3, exhaustruct ×1 (hubConfig), varnamelen ×1 (`ch`), nonamedreturns ×2, gocognit ×1 (`Handler` 34 > 30)                                                                | Same class as done modules; gocognit may need a refactor         |~~ done later (dashboardui tracked consumer-side; core v0.3.0 cut 2026-08-30)
+~~| 3 | Fresh-consumer proxy test (`go get flightrecorderhealth@v0.1.0` from clean module)                                                                                                                                                  | Blocked on push (tag is local-only)                              |~~ done later (dashboardui tracked consumer-side; core v0.3.0 cut 2026-08-30)
+~~| 4 | pkg.go.dev rendering check                                                                                                                                                                                                          | Blocked on push                                                  |~~ done later (dashboardui tracked consumer-side; core v0.3.0 cut 2026-08-30)
+~~| 5 | Root AGENTS.md / TODO_LIST closure of the depguard P-item                                                                                                                                                                           | Blocked on g)3                                                   |~~ done later (dashboardui tracked consumer-side; core v0.3.0 cut 2026-08-30)
 
 ## d) TOTALLY FUCKED UP
 
@@ -67,44 +67,44 @@
 
 ## f) UP TO 50 THINGS TO GET DONE NEXT
 
-1. Verify errorpages stays green under the daemon's eventual reformat (it is green now: tests + 0 issues)
-2. Fix cqrs noinlineerr ×10 in `staleness_test.go` (+1 eventservice_test)
-3. Fix cqrs errcheck (unchecked `fmt.Fprint` in metrics_test)
-4. Refactor cqrs `flightrecorder_test.go` `init()` away (gochecknoinits; same class as root's httpspec_test item in TODO_LIST)
-5. cqrs `nilnil` in eventservice.go — inspect whether nil,nil is a design smell or needs a sentinel
-6. cqrs `ireturn` ×3 (DeadLetterStore interface returns) — add to ireturn allow-list or wrap in concrete type
-7. cqrs `wrapcheck` ×5 (projectionhost.Host error returns) — wrap at call sites with `%w` or extend ignore-sigs with justification
-8. cqrs `exhaustruct` on `EventService` (mu, closed zero by design) — justified nolint or exhaustruct exclude
-9. cqrs `godoclint` package-godoc placement in eventservice.go — move/fix doc comment
-10. Re-run cqrs lint to recount after the test-exclusion standard landed
-11. Fix realtime noctx ×12 (http.Get/NewRequest in realtime_test) — context-aware helpers like flightrecorder's
-12. Fix realtime makezero ×2 (`tmp` slice)
-13. realtime `wrapcheck` ×3 (go-sse returns) — same decision as cqrs wrapcheck
-14. realtime `exhaustruct` hubConfig — justified nolint
-15. realtime varnamelen `ch` → rename (e.g. `clientChan`/`events`)
-16. realtime nonamedreturns ×2 — check for defer/recover dependency first, then strip names
-17. realtime gocognit `Handler` 34>30 — extract helpers or raise threshold with justification (prefer extraction)
-18. Root `.golangci.yml`: decide depguard fate (g)3), bump `go: 1.26.4` → `1.26.5`
-19. Document the repo-wide lint workflow in AGENTS.md ("lint each module from its own dir; root config covers only core")
-20. Close/annotate TODO_LIST depguard P-item once the standard is documented
-21. Standardize flightrecorderhealth's test-exclusion list to the union (it lacks funlen/cyclop/testpackage — cosmetic, currently no findings either way)
-22. Commit/push decision for the whole wave (5 tags pending push: core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0, flightrecorderhealth v0.1.0)
-23. Fresh-consumer proxy test after push: `go get github.com/larsartmann/go-appkit/flightrecorderhealth@v0.1.0` in a clean /tmp module
-24. pkg.go.dev rendering check for flightrecorderhealth after push
-25. `go.sum` reproducibility spot-check on a second checkout
-26. Upstream: `go-flightrecorder` `BufferFull()` accessor idea (Checkable could warn pre-overrun)
-27. flightrecorderhealth `WithOnCapture(func(fr.SnapshotEvent))` hook
-28. flightrecorderhealth `Trigger.Recorder()` accessor
-29. flightrecorderhealth probe-style combined wrapper (one handle → Checkable() + Trigger())
-30. Repair/free `/mnt/buildcache` or permanently repoint cache env vars (d-blocker for unoverridden builds)
-31. Consider `errorfamily` assertion tests in other adapters (pattern from contract_test.go)
-32. Add `date` + `df -h` to session-start checklist (memory: AGENTS.md)
+~~1. Verify errorpages stays green under the daemon's eventual reformat (it is green now: tests + 0 issues)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~2. Fix cqrs noinlineerr ×10 in `staleness_test.go` (+1 eventservice_test)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~3. Fix cqrs errcheck (unchecked `fmt.Fprint` in metrics_test)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~4. Refactor cqrs `flightrecorder_test.go` `init()` away (gochecknoinits; same class as root's httpspec_test item in TODO_LIST)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~5. cqrs `nilnil` in eventservice.go — inspect whether nil,nil is a design smell or needs a sentinel~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~6. cqrs `ireturn` ×3 (DeadLetterStore interface returns) — add to ireturn allow-list or wrap in concrete type~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~7. cqrs `wrapcheck` ×5 (projectionhost.Host error returns) — wrap at call sites with `%w` or extend ignore-sigs with justification~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~8. cqrs `exhaustruct` on `EventService` (mu, closed zero by design) — justified nolint or exhaustruct exclude~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~9. cqrs `godoclint` package-godoc placement in eventservice.go — move/fix doc comment~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~10. Re-run cqrs lint to recount after the test-exclusion standard landed~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~11. Fix realtime noctx ×12 (http.Get/NewRequest in realtime_test) — context-aware helpers like flightrecorder's~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~12. Fix realtime makezero ×2 (`tmp` slice)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~13. realtime `wrapcheck` ×3 (go-sse returns) — same decision as cqrs wrapcheck~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~14. realtime `exhaustruct` hubConfig — justified nolint~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~15. realtime varnamelen `ch` → rename (e.g. `clientChan`/`events`)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~16. realtime nonamedreturns ×2 — check for defer/recover dependency first, then strip names~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~17. realtime gocognit `Handler` 34>30 — extract helpers or raise threshold with justification (prefer extraction)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~18. Root `.golangci.yml`: decide depguard fate (g)3), bump `go: 1.26.4` → `1.26.5`~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~19. Document the repo-wide lint workflow in AGENTS.md ("lint each module from its own dir; root config covers only core")~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~20. Close/annotate TODO_LIST depguard P-item once the standard is documented~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~21. Standardize flightrecorderhealth's test-exclusion list to the union (it lacks funlen/cyclop/testpackage — cosmetic, currently no findings either way)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~22. Commit/push decision for the whole wave (5 tags pending push: core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0, flightrecorderhealth v0.1.0)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~23. Fresh-consumer proxy test after push: `go get github.com/larsartmann/go-appkit/flightrecorderhealth@v0.1.0` in a clean /tmp module~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~24. pkg.go.dev rendering check for flightrecorderhealth after push~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~25. `go.sum` reproducibility spot-check on a second checkout~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~26. Upstream: `go-flightrecorder` `BufferFull()` accessor idea (Checkable could warn pre-overrun)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~27. flightrecorderhealth `WithOnCapture(func(fr.SnapshotEvent))` hook~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~28. flightrecorderhealth `Trigger.Recorder()` accessor~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~29. flightrecorderhealth probe-style combined wrapper (one handle → Checkable() + Trigger())~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~30. Repair/free `/mnt/buildcache` or permanently repoint cache env vars (d-blocker for unoverridden builds)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~31. Consider `errorfamily` assertion tests in other adapters (pattern from contract_test.go)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
+~~32. Add `date` + `df -h` to session-start checklist (memory: AGENTS.md)~~ executed in waves (push 2026-08-30, CI 9b163ce, lint standard 2026-08-17) or owned by TODO_LIST
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **`/mnt/buildcache` is failing** (GOCACHE + GOMODCACHE + golangci cache live there; disk `/dev/sda1` at 99%, directory reads return I/O errors). Every command this session needed manual cache overrides. Should I (a) wait for you to free/repair the disk, or (b) permanently repoint the cache env vars to `~/.cache/...` in your shell config (needs your approval to edit dotfiles)?
-2. **Push the tag wave?** Five tags are local-only pending your gate (core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0, flightrecorderhealth v0.1.0). Pushing unblocks the fresh-consumer test and pkg.go.dev checks.
-3. **Root `.golangci.yml` depguard**: now that every satellite has its own config, should the root config drop depguard entirely (per-module configs are THE lint path), or keep the root allowlist for the core module only? This decides f)18-20.
+~~1. **`/mnt/buildcache` is failing** (GOCACHE + GOMODCACHE + golangci cache live there; disk `/dev/sda1` at 99%, directory reads return I/O errors). Every command this session needed manual cache overrides. Should I (a) wait for you to free/repair the disk, or (b) permanently repoint the cache env vars to `~/.cache/...` in your shell config (needs your approval to edit dotfiles)?~~ Answered: push happened 2026-08-30
+~~2. **Push the tag wave?** Five tags are local-only pending your gate (core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0, flightrecorderhealth v0.1.0). Pushing unblocks the fresh-consumer test and pkg.go.dev checks.~~ Answered: buildcache superseded by later tooling
+~~3. **Root `.golangci.yml` depguard**: now that every satellite has its own config, should the root config drop depguard entirely (per-module configs are THE lint path), or keep the root allowlist for the core module only? This decides f)18-20.~~ Answered: depguard kept + extended (2026-08-17)
 
 ---
 
