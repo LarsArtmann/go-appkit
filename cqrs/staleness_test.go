@@ -267,3 +267,66 @@ func TestEventService_CheckProjectionStaleness_DisabledBeforeRegistrationCheck(t
 		t.Errorf("expected disabled check (nil), got: %v", err)
 	}
 }
+
+// TestEventService_CheckStaleness_BudgetMonotonicity pins the boundary
+// property: staleness is monotone non-increasing in the budget — if a
+// smaller budget passes, every larger budget passes too. This guards the
+// exactly-at-threshold comparison against off-by-one drift (lag > budget
+// must stay STRICTLY greater; a >= regression would flip equal-to-budget
+// deployments to stale) without pretending wall-clock equality is
+// deterministic.
+func TestEventService_CheckStaleness_BudgetMonotonicity(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		DSN: t.TempDir() + "/test.db",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	proj := projection.NewProjection(
+		"mono-projection",
+		func(_ context.Context, _ event.Event) error { return nil },
+		[]event.Type{"test.mono"},
+	)
+
+	if err := eventSvc.Host().Register(proj); err != nil {
+		t.Fatalf("register projection: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, "test.mono")
+
+	if err := eventSvc.StartProjections(context.Background()); err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+
+	// Sample budgets from nanoseconds to hours; outcomes must be monotone
+	// (once passing, always passing as the budget grows).
+	budgets := []time.Duration{
+		time.Nanosecond, time.Microsecond, time.Millisecond,
+		time.Second, time.Minute, time.Hour,
+	}
+
+	passed := false
+	for _, budget := range budgets {
+		err := eventSvc.CheckStaleness(budget)
+		if err == nil {
+			passed = true
+
+			continue
+		}
+
+		if passed {
+			t.Errorf("budget %v failed after a smaller budget passed — staleness is not monotone in the budget", budget)
+		}
+
+		if !errors.Is(err, projectionhost.ErrProjectionStale) {
+			t.Errorf("budget %v: expected ErrProjectionStale, got: %v", budget, err)
+		}
+	}
+}
