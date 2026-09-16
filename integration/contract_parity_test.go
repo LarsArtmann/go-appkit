@@ -180,8 +180,7 @@ func TestErrorpagesUnclassifiedThroughLiveService(t *testing.T) {
 		t.Fatalf("request: %v", err)
 	}
 
-	defer func() { _, _ = io.Copy(io.Discard, resp.Body) }()
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck // read-side drain: the status is already captured above
 
 	if resp.StatusCode != http.StatusInternalServerError {
 		t.Errorf("recovered panic through Wrap: status = %d, want 500", resp.StatusCode)
