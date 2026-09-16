@@ -78,3 +78,8 @@ appkit never grows application-shaped code.
 - Multi-recorder coordination ADR: one `fr.Recorder` serving the HTTP
   middleware + projection host + health triggers in one process (the READMEs
   claim it works; an ADR should own the contract).
+- cqrs ops/recipes backlog ported from the 2026-09-04 deep-dive brainstorm:
+  CBOR→JSON transcode helper decision for SSE raw-payload consumers; one
+  shared `fr.Recorder` demo across HTTP middleware + projections; DLQ admin
+  and dead-letter-age alerting recipes; SnapshotStore/ReadModels accessor
+  examples (Bundle-reachable, undocumented).

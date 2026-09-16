@@ -46,25 +46,25 @@ Verified: race-clean tests in all 3 touched modules, 0 golangci-lint issues in a
 | #  | Item                                        | State                                                                                                                | What's missing                                                                                                                                              |
 | -- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | b1 | Dashboard-under-appkit-default-stack story  | Endpoints verified server-side; SSE connected once via urllib                                                        | Browser-side SDK execution under appkit's `SecurityHeaders` CSP **unverified** (see §d-1); SSE longevity under default `WriteTimeout` unverified (see §d-2) |
-| ~~ | b2                                          | flightrecorderhealth release prep                                                                                    | CHANGELOG [Unreleased] written, tests/lint green, contract asserted against v0.1.1                                                                          |
-| ~~ | b3                                          | health module release prep                                                                                           | Module complete, example replace noted, TODO_LIST item written                                                                                              |
+| ~~b2~~                                          | ~~flightrecorderhealth release prep~~ done — shipped as flightrecorderhealth/v0.1.1 (2026-09-04, pushed) | ~~CHANGELOG [Unreleased] written, tests/lint green, contract asserted against v0.1.1~~ |
+| ~~b3~~                                          | ~~health module release prep~~ done — shipped as health/v0.1.0 (2026-09-04, pushed) | ~~Module complete, example replace noted, TODO_LIST item written~~ |
 | b4 | Integration story with flightrecorderhealth | README section documents the injector-path requirement (WithHealthRecorder is a no-op for NewWithHealthCheck probes) | No cross-module integration test proving Trigger + injector-probe + this module's Mount together                                                            |
 | b5 | Self-review skill output                    | Full brutal review folded into this report (§d, §e) per user's explicit Markdown/format instruction                  | Skill's default HTML report at `docs/reviews/` not produced (user format won)                                                                               |
-| ~~ | b6                                          | Docs-health wiring                                                                                                   | This report + TODO_LIST item                                                                                                                                |
+| ~~b6~~                                          | ~~Docs-health wiring~~ done — this report + TODO_LIST (routed 2026-09-16) | ~~This report + TODO_LIST item~~ |
 
 ## c) NOT STARTED
 
 | #  | Item                                                                                                                                                                             |
 | -- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| c1 | CSP integration helper (nonce-aware wiring: `WithNonceExtractor` + `RecommendedCSP` + httputil nonce middleware) — decision pending (§g-1)                                       |
-| c2 | Benchmarks for `NewProbe` batch overhead (N=1/5/20 checks; house has e.g. flightrecorderhealth's 4.7µs/batch)                                                                    |
-| c3 | Fuzz targets (mount options, panicking checks) — go-health itself has fuzz targets; this module none                                                                             |
-| c4 | Runnable godoc examples (`example_test.go` with verified output) — house pattern in flightrecorderhealth, missing here                                                           |
-| c5 | Compile-time contract assertions (`contract_test.go`): e.g. `var _ dashboard.Prober = (*health.Probe)(nil)` — the exact split-brain guard this repo praises elsewhere (see §e-3) |
-| c6 | aggregate multi-probe example (`aggregate.New` + dashboard through `Mounted`)                                                                                                    |
-| c7 | OTel bridge: `WithEvaluationHook` → appkit/otel metrics (documented as YAGNI-for-now)                                                                                            |
-| c8 | External consumer adoption (cqrs-htmx `setup` is the candidate; blocked on push)                                                                                                 |
-| c9 | govulncheck/gosec gates on the new module (repo has no flake/CI; BuildFlow covers lint+format only)                                                                              |
+| ~~c1~~ | ~~CSP integration helper (nonce-aware wiring: `WithNonceExtractor` + `RecommendedCSP` + httputil nonce middleware) — decision pending (§g-1)~~ done — owned by TODO_LIST P2 (dashboard CSP + SSE longevity item, routed 2026-09-16) |
+| ~~c2~~ | ~~Benchmarks for `NewProbe` batch overhead (N=1/5/20 checks; house has e.g. flightrecorderhealth's 4.7µs/batch)~~ done — routed to TODO_LIST P3 health-module quality parity |
+| ~~c3~~ | ~~Fuzz targets (mount options, panicking checks) — go-health itself has fuzz targets; this module none~~ done — routed to TODO_LIST P3 health-module quality parity |
+| ~~c4~~ | ~~Runnable godoc examples (`example_test.go` with verified output) — house pattern in flightrecorderhealth, missing here~~ done — routed to TODO_LIST P3 health-module quality parity |
+| ~~c5~~ | ~~Compile-time contract assertions (`contract_test.go`): e.g. `var _ dashboard.Prober = (*health.Probe)(nil)` — the exact split-brain guard this repo praises elsewhere (see §e-3)~~ done — routed to TODO_LIST P3 health-module quality parity |
+| ~~c6~~ | ~~aggregate multi-probe example (`aggregate.New` + dashboard through `Mounted`)~~ done — routed to TODO_LIST P3 health-module quality parity |
+| ~~c7~~ | ~~OTel bridge: `WithEvaluationHook` → appkit/otel metrics (documented as YAGNI-for-now)~~ **Won't implement — YAGNI-for-now by design (the report itself deferred it) — revisit when a consumer asks.** |
+| ~~c8~~ | ~~External consumer adoption (cqrs-htmx `setup` is the candidate; blocked on push)~~ done — owned by FEATURES.md Consumers (cqrs-htmx fold-in pending on their side) |
+| ~~c9~~ | ~~govulncheck/gosec gates on the new module (repo has no flake/CI; BuildFlow covers lint+format only)~~ done — routed to TODO_LIST P3 health-module quality parity (govulncheck run) |
 
 ## d) TOTALLY FUCKED UP (honest)
 

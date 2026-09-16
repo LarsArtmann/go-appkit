@@ -130,7 +130,7 @@ Nothing destroyed, no data loss, no broken builds — but radical honesty per se
 | -- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------ | -------- |
 | 46 | Licensing decision (USER GATE) → then pkg.go.dev re-render check for all 9 modules (P1 blocker)             | Critical                                                                            | S      | Decision |
 | 47 | Logging posture decision (USER GATE: default WARN vs sampling vs consumer-provided; benchstat before/after) | High                                                                                | M      | Decision |
-| ~~ | 48                                                                                                          | Upstream cqrs-lite otel `Provider.Shutdown` ForceFlush issue (verify-before-filing) | Medium | S        |
+| 48                                                                                                          | Upstream cqrs-lite otel `Provider.Shutdown` ForceFlush issue (verify-before-filing) | Medium | S        |
 | 49 | F1 koanf config module + env-override discoverability helper                                                | Medium                                                                              | M      | Feature  |
 | 50 | F4 config hot-reload: fsnotify + validate-gate → atomic swap → hook                                         | Medium                                                                              | M      | Feature  |
 
