@@ -24,8 +24,6 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 ## Release State
 
-> Release-state ownership (2026-09-16): THIS section is the single owner of release facts; TODO_LIST header and status reports reference it, never duplicate it.
-
 - Every module tag is ON ORIGIN through **cqrs v0.5.0** (2026-09-07, system-based engine): core v0.4.0, cqrs v0.5.0, realtime v0.1.0, otel v0.1.1 (2026-09-16 pattern fix), health v0.1.0, flightrecorder v0.1.0, flightrecorderhealth v0.1.1, errorpages v0.1.0, docs v0.2.0 (ghost — see module list; un-ghost fix in flight). Wave history and per-version deltas live in the module CHANGELOGs; the pending-work queue lives in TODO_LIST.
 - **pkg.go.dev:** all submodule pages 404'd and core rendered `License: UNKNOWN` with godoc hidden (pkg.go.dev does not index modules without a module-root LICENSE; an unclassifiable proprietary LICENSE hides core godoc). LICENSE files landed in every module root 2026-09-04 and ship in the wave-2+ tags. **License DECIDED 2026-09-16: stays proprietary/unlicensed** (Lars's ruling; no MIT swap) — godoc stays hidden by choice, permanently; do not re-open or re-ask. Remaining: only the pkg.go.dev re-crawl/render check (pages exist, 404s gone).
 - **Tag hygiene:** no module requires an UNRELEASED sibling (errorpages → core is a published-tag require), so every tag is independently consumer-valid. NEVER tag a module whose go.mod carries a filesystem `replace` — working-tree replaces used for cross-repo debugging (e.g. the otel → local httputil replace used while developing the pattern-propagation fix) must be removed before tagging.
