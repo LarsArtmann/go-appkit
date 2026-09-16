@@ -10,6 +10,7 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/projection/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
 	errorfamily "github.com/larsartmann/go-error-family"
+	"github.com/larsartmann/go-error-family/errorfamilytest"
 )
 
 func TestEventService_CheckStaleness_FreshWithoutProcessedEvents(t *testing.T) {
@@ -133,18 +134,9 @@ func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 		t.Errorf("expected errors.Is(err, ErrProjectionStale), got: %v", err)
 	}
 
-	familyErr, ok := errors.AsType[*errorfamily.Error](err)
-	if !ok {
-		t.Fatalf("expected *errorfamily.Error, got %T", err)
-	}
-
-	if familyErr.Family() != errorfamily.Transient {
-		t.Errorf("expected family %q, got %q", errorfamily.Transient, familyErr.Family())
-	}
-
-	if got := errorfamily.HTTPStatus(err); got != 503 {
-		t.Errorf("expected HTTP status 503 for Transient, got %d", got)
-	}
+	errorfamilytest.AssertFamily(t, err, errorfamily.Transient)
+	errorfamilytest.AssertRetryable(t, err, true)
+	errorfamilytest.AssertHTTPStatus(t, err, 503)
 }
 
 func TestEventService_CheckProjectionStaleness_FreshProjectionWithinBudget(t *testing.T) {
@@ -226,18 +218,9 @@ func TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient(t *tes
 		t.Errorf("expected errors.Is(err, ErrProjectionStale), got: %v", err)
 	}
 
-	familyErr, ok := errors.AsType[*errorfamily.Error](err)
-	if !ok {
-		t.Fatalf("expected *errorfamily.Error, got %T", err)
-	}
-
-	if familyErr.Family() != errorfamily.Transient {
-		t.Errorf("expected family %q, got %q", errorfamily.Transient, familyErr.Family())
-	}
-
-	if got := errorfamily.HTTPStatus(err); got != 503 {
-		t.Errorf("expected HTTP status 503 for Transient, got %d", got)
-	}
+	errorfamilytest.AssertFamily(t, err, errorfamily.Transient)
+	errorfamilytest.AssertRetryable(t, err, true)
+	errorfamilytest.AssertHTTPStatus(t, err, 503)
 }
 
 func TestEventService_CheckProjectionStaleness_UnknownProjectionRejected(t *testing.T) {
@@ -259,22 +242,10 @@ func TestEventService_CheckProjectionStaleness_UnknownProjectionRejected(t *test
 
 	if !errors.Is(err, projectionhost.ErrProjectionStale) {
 		// Unknown-name rejection, not staleness — assert family and code.
-		familyErr, ok := errors.AsType[*errorfamily.Error](err)
-		if !ok {
-			t.Fatalf("expected *errorfamily.Error, got %T", err)
-		}
-
-		if familyErr.Family() != errorfamily.Rejection {
-			t.Errorf("expected family %q, got %q", errorfamily.Rejection, familyErr.Family())
-		}
-
-		if familyErr.Code() != "projectionhost.unknown_projection" {
-			t.Errorf("expected code projectionhost.unknown_projection, got %q", familyErr.Code())
-		}
-
-		if got := errorfamily.HTTPStatus(err); got != 400 {
-			t.Errorf("expected HTTP status 400 for Rejection, got %d", got)
-		}
+		errorfamilytest.AssertFamily(t, err, errorfamily.Rejection)
+		errorfamilytest.AssertCode(t, err, "projectionhost.unknown_projection")
+		errorfamilytest.AssertRetryable(t, err, false)
+		errorfamilytest.AssertHTTPStatus(t, err, 400)
 	}
 }
 

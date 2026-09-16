@@ -10,6 +10,9 @@ import (
 	"testing"
 	"time"
 
+	errorfamily "github.com/larsartmann/go-error-family"
+	"github.com/larsartmann/go-error-family/errorfamilytest"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -266,4 +269,28 @@ func TestSetup_ShutdownJoinsExporterErrors(t *testing.T) {
 	if !errors.Is(err, errExporterShutdown) {
 		t.Errorf("shutdown error = %v, want the exporter failure wrapped", err)
 	}
+
+	errorfamilytest.AssertFamily(t, err, errorfamily.Infrastructure)
+	errorfamilytest.AssertCode(t, err, "otel.shutdown_incomplete")
+	errorfamilytest.AssertHTTPStatus(t, err, 503)
+}
+
+// TestSentinelsClassified pins the classification contract of the three
+// setup/shutdown sentinels: all environmental failures carry the
+// Infrastructure family (HTTP 503, non-retryable-from-client), so consumer
+// error routing never sees an unclassified error from this module.
+func TestSentinelsClassified(t *testing.T) {
+	t.Parallel()
+
+	errorfamilytest.AssertFamily(t, errShutdown, errorfamily.Infrastructure)
+	errorfamilytest.AssertCode(t, errShutdown, "otel.shutdown_incomplete")
+	errorfamilytest.AssertHTTPStatus(t, errShutdown, 503)
+
+	errorfamilytest.AssertFamily(t, errBuildRes, errorfamily.Infrastructure)
+	errorfamilytest.AssertCode(t, errBuildRes, "otel.resource_build_failed")
+	errorfamilytest.AssertHTTPStatus(t, errBuildRes, 503)
+
+	errorfamilytest.AssertFamily(t, errStdoutSetup, errorfamily.Infrastructure)
+	errorfamilytest.AssertCode(t, errStdoutSetup, "otel.stdout_exporter_failed")
+	errorfamilytest.AssertHTTPStatus(t, errStdoutSetup, 503)
 }
