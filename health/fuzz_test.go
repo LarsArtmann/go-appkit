@@ -6,16 +6,23 @@ import (
 	"testing"
 
 	"github.com/larsartmann/go-appkit/health"
+	gohealth "github.com/larsartmann/go-health"
 )
+
+// checkFailed reports whether a check result carries a failure message
+// (Check.Error is the failure text; empty means the check passed).
+func checkFailed(check gohealth.Check) bool {
+	return check.Error != ""
+}
 
 // FuzzNewProbe_PanicIsolation pins the panic-isolation contract: a check
 // that panics with ANY value fails as THAT CHECK's error; the batch still
 // completes and healthy checks report nil. The fuzzer hunts for a panic
 // value that escapes isolation (which would poison the whole batch).
 func FuzzNewProbe_PanicIsolation(f *testing.F) {
-	f.Add("string panic")
-	f.Add(42)
-	f.Add(nil) //nolint:nilnil // a nil panic() value is exactly the edge case
+	f.Add(int64(0))
+	f.Add(int64(1))
+	f.Add(int64(2))
 
 	f.Fuzz(func(t *testing.T, seed int64) {
 		panickingName := "panicking"
@@ -36,15 +43,22 @@ func FuzzNewProbe_PanicIsolation(f *testing.F) {
 
 		probe := health.NewProbe(checks)
 
-		results := probe.Check(context.Background()) //nolint:contextcheck // probe owns its batch context
+		// Evaluate runs the batch synchronously and returns the full
+		// snapshot; the panic-isolation contract lives in the check wrapper.
+		resp := probe.Evaluate(context.Background())
 
-		healthyErr, healthyOK := results["healthy"]
-		if !healthyOK || healthyErr != nil {
-			t.Errorf("healthy check must still pass: results=%v", results)
+		if resp.Status == "" {
+			t.Fatal("empty response status after batch")
 		}
 
-		if err, ok := results[panickingName]; !ok || err == nil {
-			t.Errorf("panicking check must fail with an error, got ok=%v err=%v", ok, err)
+		healthy, healthyOK := resp.Checks["healthy"]
+		if !healthyOK || checkFailed(healthy) {
+			t.Errorf("healthy check must still pass: results=%v", resp.Checks)
+		}
+
+		panicked, panickingOK := resp.Checks[panickingName]
+		if !panickingOK || !checkFailed(panicked) {
+			t.Errorf("panicking check must fail with an error, got ok=%v check=%+v", panickingOK, panicked)
 		}
 	})
 }

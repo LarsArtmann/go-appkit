@@ -7,7 +7,7 @@ import (
 
 	"github.com/larsartmann/go-appkit/health"
 	gohealth "github.com/larsartmann/go-health"
-	"github.com/larsartmann/go-health-dashboard"
+	dashboard "github.com/larsartmann/go-health-dashboard"
 )
 
 // gohealthRoutes builds the custom probe-route set (go-health's Routes type

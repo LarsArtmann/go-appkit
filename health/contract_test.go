@@ -2,7 +2,7 @@ package health_test
 
 import (
 	gohealth "github.com/larsartmann/go-health"
-	"github.com/larsartmann/go-health-dashboard"
+	dashboard "github.com/larsartmann/go-health-dashboard"
 )
 
 // Compile-time contract assertion: the dashboard reads the probe through the
