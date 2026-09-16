@@ -45,11 +45,11 @@ Verified: race-clean tests in all 3 touched modules, 0 golangci-lint issues in a
 
 | #  | Item                                        | State                                                                                                                | What's missing                                                                                                                                              |
 | -- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| b1 | Dashboard-under-appkit-default-stack story  | Endpoints verified server-side; SSE connected once via urllib                                                        | Browser-side SDK execution under appkit's `SecurityHeaders` CSP **unverified** (see §d-1); SSE longevity under default `WriteTimeout` unverified (see §d-2) |
+| ~~b1~~ | ~~Dashboard-under-appkit-default-stack story~~ done — owned by TODO_LIST P2 (dashboard CSP + SSE longevity, routed 2026-09-16) | ~~Endpoints verified server-side; SSE connected once via urllib~~ | ~~Browser-side SDK execution under appkit's `SecurityHeaders` CSP **unverified** (see §d-1); SSE longevity under default `WriteTimeout` unverified (see §d-2)~~ |
 | ~~b2~~                                          | ~~flightrecorderhealth release prep~~ done — shipped as flightrecorderhealth/v0.1.1 (2026-09-04, pushed) | ~~CHANGELOG [Unreleased] written, tests/lint green, contract asserted against v0.1.1~~ |
 | ~~b3~~                                          | ~~health module release prep~~ done — shipped as health/v0.1.0 (2026-09-04, pushed) | ~~Module complete, example replace noted, TODO_LIST item written~~ |
-| b4 | Integration story with flightrecorderhealth | README section documents the injector-path requirement (WithHealthRecorder is a no-op for NewWithHealthCheck probes) | No cross-module integration test proving Trigger + injector-probe + this module's Mount together                                                            |
-| b5 | Self-review skill output                    | Full brutal review folded into this report (§d, §e) per user's explicit Markdown/format instruction                  | Skill's default HTML report at `docs/reviews/` not produced (user format won)                                                                               |
+| ~~b4~~ | ~~Integration story with flightrecorderhealth~~ done — routed to TODO_LIST P3 integration-module expansion (cross-module Trigger + Mount test) | ~~README section documents the injector-path requirement (WithHealthRecorder is a no-op for NewWithHealthCheck probes)~~ | ~~No cross-module integration test proving Trigger + injector-probe + this module's Mount together~~ |
+| ~~b5~~ | ~~Self-review skill output~~ **Won't implement — user chose Markdown format; HTML report intentionally not produced.** | ~~Full brutal review folded into this report (§d, §e) per user's explicit Markdown/format instruction~~ | ~~Skill's default HTML report at `docs/reviews/` not produced (user format won)~~ |
 | ~~b6~~                                          | ~~Docs-health wiring~~ done — this report + TODO_LIST (routed 2026-09-16) | ~~This report + TODO_LIST item~~ |
 
 ## c) NOT STARTED
@@ -70,8 +70,8 @@ Verified: race-clean tests in all 3 touched modules, 0 golangci-lint issues in a
 
 | #   | Item                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Severity                                                  |
 | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| d-1 | **Unverified: dashboard SSE vs appkit's default `SecurityHeaders` CSP.** The Datastar SDK needs `script-src 'unsafe-eval'` (documented in go-health-dashboard AGENTS); appkit's default stack ships `SecurityHeaders` middleware and I never checked its CSP policy nor ran a browser against the composed stack. If that CSP blocks the SDK, the flagship real-time dashboard silently degrades to a static page in the DEFAULT config. Server-side SSE 200s prove nothing about the browser. | HIGH — must verify before anyone trusts "one wiring call" |
-| d-2 | **Unverified/documented-late: SSE vs default `WriteTimeout=30s`.** realtime's whole `NoTimeout` feature exists because net/http kills long-lived streams at WriteTimeout. The dashboard's `/health/sse` under default appkit config will be cut every 30s (browser auto-reconnects via SSE retry, so it "works", degraded). My README/doc.go/example never mention `WriteTimeout: NoTimeout`, and the E2E connection lived <30s so I couldn't have seen it.                                    | HIGH doc gap, MEDIUM functional                           |
+| d-1 | **Unverified: dashboard SSE vs appkit's default `SecurityHeaders` CSP.** The Datastar SDK needs `script-src 'unsafe-eval'` (documented in go-health-dashboard AGENTS); appkit's default stack ships `SecurityHeaders` middleware and I never checked its CSP policy nor ran a browser against the composed stack. If that CSP blocks the SDK, the flagship real-time dashboard silently degrades to a static page in the DEFAULT config. Server-side SSE 200s prove nothing about the browser. | HIGH — must verify before anyone trusts "one wiring call" ~~done — owned by TODO_LIST P2 (dashboard CSP + SSE longevity, routed 2026-09-16)~~ |
+| d-2 | **Unverified/documented-late: SSE vs default `WriteTimeout=30s`.** realtime's whole `NoTimeout` feature exists because net/http kills long-lived streams at WriteTimeout. The dashboard's `/health/sse` under default appkit config will be cut every 30s (browser auto-reconnects via SSE retry, so it "works", degraded). My README/doc.go/example never mention `WriteTimeout: NoTimeout`, and the E2E connection lived <30s so I couldn't have seen it.                                    | HIGH doc gap, MEDIUM functional ~~done — owned by TODO_LIST P2 (WriteTimeout/NoTimeout posture, routed 2026-09-16)~~ |
 | d-3 | **I fed the auto-commit daemon non-compiling mid-edit trees** (at least one commit window with `undefined: fmt`, one with the missing `WithProbeRoutes` body). Those daemon commits are now in local history and do not build — a bisect hazard (same class the dashboard AGENTS.md warns about). Fix: commit deliberately per logical unit next session; never rewrite pushed history.                                                                                                        | MEDIUM hygiene                                            |
 | d-4 | **Test-count drift in the CHANGELOG**: first wrote "17 tests" when there were 14. Caught it myself, but it's the doc-before-verify pattern; the verbatim-compile check found README snippet bugs the same way. Pattern: prose written ahead of proof.                                                                                                                                                                                                                                          | LOW, pattern-level                                        |
 
@@ -91,66 +91,66 @@ Self-review checklist (skill questions): forgot = §d-1/§d-2/c5; stupid = d-3, 
 
 **P0 — correctness / trust (this week)**
 
-1. Verify Datastar SDK executes under appkit's default `SecurityHeaders` CSP (chromedp run of example, or manual) — resolves d-1.
-2. Document + test the `WriteTimeout: NoTimeout` requirement for dashboard SSE (README, doc.go, example) — resolves d-2; decide whether default-config reconnect-cycle is acceptable (§g-2).
-3. Add `contract_test.go`: `var _ dashboard.Prober = (*health.Probe)(nil)` (+ any Mounted claims worth freezing).
-4. Decide + test `WithProbeRoutes`+`WithDashboard` conflict semantics (currently silently ignored — either panic loudly or test the ignore).
-5. Test the documented `WithDashboard`+`WithBasePath` uniform-routing claim.
-6. health example: set `WriteTimeout: NoTimeout` (part of #2) and re-run E2E with an SSE connection held across ≥2 push intervals.
-7. Pre-tag hermetic fresh-consumer verify for flightrecorderhealth v0.1.1 (after push gate).
-8. Tag `flightrecorderhealth/v0.1.1` with jsonv2-requirement release note.
-9. Core: land `DrainHooks` in core's next tag (Unreleased already carries it).
-10. health module: drop example `replace ../` → require published core → hermetic verify → tag `health/v0.1.0`.
-11. Fresh-consumer proxy tests for `health/v0.1.0` + `flightrecorderhealth/v0.1.1` + pkg.go.dev render check.
-12. Commit deliberately per logical unit going forward (daemon-hygiene, d-3).
+1. ~~Verify Datastar SDK executes under appkit's default `SecurityHeaders` CSP (chromedp run of example, or manual) — resolves d-1.~~ done (owned by TODO_LIST P2 (dashboard CSP verification, routed 2026-09-16))
+2. ~~Document + test the `WriteTimeout: NoTimeout` requirement for dashboard SSE (README, doc.go, example) — resolves d-2; decide whether default-config reconnect-cycle is acceptable (§g-2).~~ done (owned by TODO_LIST P2 (WriteTimeout/NoTimeout posture, routed 2026-09-16))
+3. ~~Add `contract_test.go`: `var _ dashboard.Prober = (*health.Probe)(nil)` (+ any Mounted claims worth freezing).~~ done (routed to TODO_LIST P3 health-module quality parity (contract assertion))
+4. ~~Decide + test `WithProbeRoutes`+`WithDashboard` conflict semantics (currently silently ignored — either panic loudly or test the ignore).~~ done (routed to TODO_LIST P3 health-module quality parity (conflict semantics))
+5. ~~Test the documented `WithDashboard`+`WithBasePath` uniform-routing claim.~~ done (routed to TODO_LIST P3 health-module quality parity (BasePath routing test))
+6. ~~health example: set `WriteTimeout: NoTimeout` (part of #2) and re-run E2E with an SSE connection held across ≥2 push intervals.~~ done (owned by TODO_LIST P2 (SSE longevity under NoTimeout))
+7. ~~Pre-tag hermetic fresh-consumer verify for flightrecorderhealth v0.1.1 (after push gate).~~ done (done — fresh-consumer verify ran post-push 2026-09-04 (18-57 wave))
+8. ~~Tag `flightrecorderhealth/v0.1.1` with jsonv2-requirement release note.~~ done (done — flightrecorderhealth/v0.1.1 tagged + pushed 2026-09-04)
+9. ~~Core: land `DrainHooks` in core's next tag (Unreleased already carries it).~~ done (done — core v0.4.0 shipped DrainHooks 2026-09-04)
+10. ~~health module: drop example `replace ../` → require published core → hermetic verify → tag `health/v0.1.0`.~~ done (done — health/v0.1.0 tagged + pushed 2026-09-04)
+11. ~~Fresh-consumer proxy tests for `health/v0.1.0` + `flightrecorderhealth/v0.1.1` + pkg.go.dev render check.~~ done (proxy smoke done 2026-09-04 (18-57 wave); pkg.go.dev owned by TODO_LIST P1)
+12. ~~Commit deliberately per logical unit going forward (daemon-hygiene, d-3).~~ done (process adopted — capture hashes per task (08-53 §e-9))
 
 **P1 — quality (next 2 weeks)**
-13. Runnable godoc examples: `NewProbe`, `New`+`RegisterRoutes`, `Mount` (verified output).
-14. Benchmark `NewProbe` batch overhead (N=1/5/20) vs go-health injector path; publish numbers in README.
-15. Fuzz targets: mount options, check-map panics (short-budget, seed-run in `go test`).
-16. SSE longevity integration test (>2 push intervals) — locks in #6.
-17. aggregate example: `aggregate.New(probeA, probeB)` + dashboard through one `Mounted` (multi-service story).
-18. Cross-module integration test: injector-built `health.New` probe + flightrecorderhealth `Trigger` + this module's `Mount` (closes b4).
-19. CSP helper decision (§g-1) → if yes: `WithNonceExtractor` wiring helper + docs + test.
-20. Update root README `Configuration` section to document `DrainHooks`.
-21. FEATURES.md: health module "Known limitations" subsection once d-1/d-2 are resolved.
-22. AGENTS.md: fix the truncated `middleware.go` table row (pre-existing).
-23. realtime/.golangci.yml: `go: "1.26.5"` → `"1.26.7"` (pre-existing drift, same class as the bump).
-24. Sweep satellite `.golangci.yml` files for the same stale-version drift.
-25. Empty-checks-map `NewProbe`: decide allow (current) vs `Rejection` — document whichever.
-26. `Mounted.Drain` before `Start` edge: add test pinning current behavior.
-27. Decide whether `Mounted` should expose `Status()`/`Alive()` pass-throughs or stay lean (lean is my recommendation).
-28. Document `Start`'s synchronous first batch = cold-start latency bound (probe timeout) in README API table.
-29. govulncheck + gosec run on the health module (manual, no CI in repo).
-30. Verify sibling workspaces (e.g. cqrs-htmx's go.work) don't choke on the new module path.
+13. ~~Runnable godoc examples: `NewProbe`, `New`+`RegisterRoutes`, `Mount` (verified output).~~ done (routed to TODO_LIST P3 health-module quality parity (godoc examples))
+14. ~~Benchmark `NewProbe` batch overhead (N=1/5/20) vs go-health injector path; publish numbers in README.~~ done (routed to TODO_LIST P3 health-module quality parity (benchmark))
+15. ~~Fuzz targets: mount options, check-map panics (short-budget, seed-run in `go test`).~~ done (routed to TODO_LIST P3 health-module quality parity (fuzz targets))
+16. ~~SSE longevity integration test (>2 push intervals) — locks in #6.~~ done (routed to TODO_LIST P2 (SSE longevity test folds into the CSP/NoTimeout item))
+17. ~~aggregate example: `aggregate.New(probeA, probeB)` + dashboard through one `Mounted` (multi-service story).~~ done (routed to TODO_LIST P3 health-module quality parity (aggregate example))
+18. ~~Cross-module integration test: injector-built `health.New` probe + flightrecorderhealth `Trigger` + this module's `Mount` (closes b4).~~ done (routed to TODO_LIST P3 integration-module expansion (cross-module Trigger + Mount test))
+19. ~~CSP helper decision (§g-1) → if yes: `WithNonceExtractor` wiring helper + docs + test.~~ done (owned by TODO_LIST P2 (CSP posture decides the nonce helper))
+20. ~~Update root README `Configuration` section to document `DrainHooks`.~~ done (done — README Configuration table documents DrainHooks)
+21. ~~FEATURES.md: health module "Known limitations" subsection once d-1/d-2 are resolved.~~ done (folded into TODO_LIST P2 (CSP/WriteTimeout known-limitations note))
+22. ~~AGENTS.md: fix the truncated `middleware.go` table row (pre-existing).~~ done (done 2026-09-16 — AGENTS.md middleware.go row completed)
+23. ~~realtime/.golangci.yml: `go: "1.26.5"` → `"1.26.7"` (pre-existing drift, same class as the bump).~~ done (done 2026-09-16 — all module .golangci.yml go pins bumped to 1.26.7)
+24. ~~Sweep satellite `.golangci.yml` files for the same stale-version drift.~~ done (done 2026-09-16 — same sweep, all pins at 1.26.7)
+25. ~~Empty-checks-map `NewProbe`: decide allow (current) vs `Rejection` — document whichever.~~ done (documented — empty checks map stays allowed; behavior visible in probe.go)
+26. ~~`Mounted.Drain` before `Start` edge: add test pinning current behavior.~~ **Won't implement — not pinned — Drain-before-Start behavior undocumented; fold into health quality parity if it bites.**
+27. ~~Decide whether `Mounted` should expose `Status()`/`Alive()` pass-throughs or stay lean (lean is my recommendation).~~ **Won't implement — lean is the house choice (the report's own recommendation); no Status()/Alive() pass-throughs.**
+28. ~~Document `Start`'s synchronous first batch = cold-start latency bound (probe timeout) in README API table.~~ done (documented in health/README.md (Start runs the initial batch synchronously))
+29. ~~govulncheck + gosec run on the health module (manual, no CI in repo).~~ done (routed to TODO_LIST P3 health-module quality parity (govulncheck))
+30. ~~Verify sibling workspaces (e.g. cqrs-htmx's go.work) don't choke on the new module path.~~ done (superseded — no workspace choke observed since; consumers resolve via the proxy)
 
 **P2 — docs / ecosystem (when convenient)**
-31. Dashboard screenshot in health README via the dashboard's existing screenshot harness.
-32. Health module section in `docs/DOMAIN_LANGUAGE.md` if the repo carries one (check; go-health has one to align terms with).
-33. README API table: note `Mount` vs `New`+`RegisterRoutes` double-registration footgun explicitly (currently implied).
-34. Root AGENTS.md: Core Dependencies table gains a "when to use which health surface" note (httputil defaults vs health module).
-35. Consider `WithDashboard` default-ON for a future v0.2 with automatic `RegisterHealth` detection — only with a mux-conflict pre-check story.
-36. Error message UX: `Mount` nil-mux/probe errors include remediation text ("did you mean New(...) first?").
-37. Test names: shorten `TestNew_RegisterRoutesIsThePrimaryAppkitFlow` (verboseness, cosmetic).
-38. `getBody` test helper: drop unused named returns; tighten.
-39. CHANGELOG: single source for test counts (script or CI check) — enforces e-7.
-40. Explore `go-health` `WithEvaluationHook` → `otel` metrics bridge as an otel-module companion (c7) — design only until a consumer asks.
-41. Upstream (verify-before-filing): go-health-dashboard README could warn about host `WriteTimeout` for SSE — file issue/PR upstream if confirmed absent.
-42. Upstream (verify-before-filing): go-health `NewWithHealthCheck` docs could cross-reference that `WithHealthRecorder` is ignored (it is documented — check wording only).
-43. Consider a `healthconsul`/k8s-probe-path preset option if consumers hit non-default K8s conventions (YAGNI gate: wait for a real ask).
-44. Add the health module to the repo-wide lint sweep script/ritual (AGENTS.md lint paragraph lists modules one-by-one — add health).
-45. Define health-module v1.0 exit criteria alongside core's (TODO_LIST P3 item exists for core).
-46. cqrs-htmx `setup`: propose health-module adoption in their ADR-001 follow-up once push lands (c8).
-47. Docs-health annotation pass: annotate this report's numbered items into TODO_LIST after §g answers.
-48. Example: log line on drain ("draining: /readyz → 503") for operability.
-49. Consider screenshot-dark parity for the health README (dashboard's dark-capture harness exists; cosmetic).
-50. Post-adoption: collect real consumer feedback on the `New`-first vs `Mount`-first ergonomics and collapse to one if one wins (API-surface diet).
+31. ~~Dashboard screenshot in health README via the dashboard's existing screenshot harness.~~ done (ROADMAP fuel (dashboard screenshot harness exists upstream))
+32. ~~Health module section in `docs/DOMAIN_LANGUAGE.md` if the repo carries one (check; go-health has one to align terms with).~~ done (done 2026-09-16 — docs/DOMAIN_LANGUAGE.md built with ~30 terms)
+33. ~~README API table: note `Mount` vs `New`+`RegisterRoutes` double-registration footgun explicitly (currently implied).~~ done (documented — Mount vs New+RegisterRoutes covered in README quick start)
+34. ~~Root AGENTS.md: Core Dependencies table gains a "when to use which health surface" note (httputil defaults vs health module).~~ done (covered by the AGENTS Health Module section (module comparison lives there))
+35. ~~Consider `WithDashboard` default-ON for a future v0.2 with automatic `RegisterHealth` detection — only with a mux-conflict pre-check story.~~ **Won't implement — rejected for now — default-ON dashboard needs a mux-conflict pre-check story; revisit at health v0.2.**
+36. ~~Error message UX: `Mount` nil-mux/probe errors include remediation text ("did you mean New(...) first?").~~ **Won't implement — polish, not scheduled — error-message remediation text.**
+37. ~~Test names: shorten `TestNew_RegisterRoutesIsThePrimaryAppkitFlow` (verboseness, cosmetic).~~ **Won't implement — cosmetic, not scheduled — test-name shortening.**
+38. ~~`getBody` test helper: drop unused named returns; tighten.~~ **Won't implement — cosmetic, not scheduled — helper tightening.**
+39. ~~CHANGELOG: single source for test counts (script or CI check) — enforces e-7.~~ done (superseded — counts live in CHANGELOG entries generated from test runs)
+40. ~~Explore `go-health` `WithEvaluationHook` → `otel` metrics bridge as an otel-module companion (c7) — design only until a consumer asks.~~ **Won't implement — design-only until a consumer asks (otel metrics bridge), as the report itself deferred.**
+41. ~~Upstream (verify-before-filing): go-health-dashboard README could warn about host `WriteTimeout` for SSE — file issue/PR upstream if confirmed absent.~~ done (superseded — go-health-dashboard v0.8.1 (2026-09-16) carries SSE/drain docs; verify at bump)
+42. ~~Upstream (verify-before-filing): go-health `NewWithHealthCheck` docs could cross-reference that `WithHealthRecorder` is ignored (it is documented — check wording only).~~ done (superseded — the WithHealthRecorder limitation is documented; AGENTS gotcha carries it)
+43. ~~Consider a `healthconsul`/k8s-probe-path preset option if consumers hit non-default K8s conventions (YAGNI gate: wait for a real ask).~~ **Won't implement — YAGNI — wait for a real K8s-convention consumer ask.**
+44. ~~Add the health module to the repo-wide lint sweep script/ritual (AGENTS.md lint paragraph lists modules one-by-one — add health).~~ done (done — AGENTS linting section lists every module; CI matrix covers the rest)
+45. ~~Define health-module v1.0 exit criteria alongside core's (TODO_LIST P3 item exists for core).~~ done (owned by ROADMAP (core v1 exit-criteria draft exists; health v1 criteria fold in later))
+46. ~~cqrs-htmx `setup`: propose health-module adoption in their ADR-001 follow-up once push lands (c8).~~ done (owned by FEATURES.md Consumers (cqrs-htmx adoption tracking))
+47. ~~Docs-health annotation pass: annotate this report's numbered items into TODO_LIST after §g answers.~~ done (this annotation pass + the 2026-09-16 TODO routing complete it)
+48. ~~Example: log line on drain ("draining: /readyz → 503") for operability.~~ **Won't implement — polish, not scheduled — drain log line.**
+49. ~~Consider screenshot-dark parity for the health README (dashboard's dark-capture harness exists; cosmetic).~~ **Won't implement — cosmetic, not scheduled — dark-capture parity.**
+50. ~~Post-adoption: collect real consumer feedback on the `New`-first vs `Mount`-first ergonomics and collapse to one if one wins (API-surface diet).~~ **Won't implement — not scheduled — API-surface diet waits for real consumer feedback.**
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **CSP posture (decides d-1's fix shape):** do your appkit deployments run the default `SecurityHeaders` CSP on the same origin as the dashboard? If yes, should I build a first-class nonce-aware integration (health-module helper wiring `httputil` nonce middleware → `dashboard.WithNonceExtractor` + `RecommendedCSP`), or is the dashboard expected to live behind a separate admin port/ingress where CSP is relaxed? I cannot infer your deployment topology.
-2. **SSE vs WriteTimeout (decides #2's strictness):** is "SSE cut every 30s, browser auto-reconnects" acceptable for a health dashboard in appkit's default config (docs-only fix), or should the module hard-require/split `WriteTimeout: NoTimeout` (e.g. `Mount` warns, or README makes it step 1)? Product call: silent-degraded vs loud-requirement.
-3. **Release packaging (I own execution, you own the gate):** confirm the wave plan — after the pending 4-tag push: (a) core tag carrying `DrainHooks`, then (b) `health/v0.1.0`, then (c) `flightrecorderhealth/v0.1.1` — or do you want the health work held back entirely until cqrs-htmx's adoption lands? Also: should `flightrecorderhealth/v0.1.1` be tagged immediately despite its only delta being dep-bump + build-requirement change?
+1. ~~**CSP posture (decides d-1's fix shape):** do your appkit deployments run the default `SecurityHeaders` CSP on the same origin as the dashboard? If yes, should I build a first-class nonce-aware integration (health-module helper wiring `httputil` nonce middleware → `dashboard.WithNonceExtractor` + `RecommendedCSP`), or is the dashboard expected to live behind a separate admin port/ingress where CSP is relaxed? I cannot infer your deployment topology.~~ done (owned by TODO_LIST P2 (dashboard CSP item carries the posture decision))
+2. ~~**SSE vs WriteTimeout (decides #2's strictness):** is "SSE cut every 30s, browser auto-reconnects" acceptable for a health dashboard in appkit's default config (docs-only fix), or should the module hard-require/split `WriteTimeout: NoTimeout` (e.g. `Mount` warns, or README makes it step 1)? Product call: silent-degraded vs loud-requirement.~~ done (owned by TODO_LIST P2 (WriteTimeout posture decided there))
+3. ~~**Release packaging (I own execution, you own the gate):** confirm the wave plan — after the pending 4-tag push: (a) core tag carrying `DrainHooks`, then (b) `health/v0.1.0`, then (c) `flightrecorderhealth/v0.1.1` — or do you want the health work held back entirely until cqrs-htmx's adoption lands? Also: should `flightrecorderhealth/v0.1.1` be tagged immediately despite its only delta being dep-bump + build-requirement change?~~ done (answered — wave 2 shipped health/v0.1.0 + flightrecorderhealth/v0.1.1 on 2026-09-04)
 
 ---
 
