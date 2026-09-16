@@ -89,61 +89,61 @@ Also fixed on sight: `otel/README.md` known-issue section (pattern naming + `htt
 ## f) UP TO 50 THINGS TO GET DONE NEXT
 
 **User-gated / P1 (from this session's findings):**
-1. License posture decision (proprietary vs MIT-family) — unblocks godoc, pkg.go.dev, and the whole adoption story.
-2. Fix the docs-module ghost release: choose path A (`git mv docs doc` + `git mv docs-mod docs`, re-tag `docs/v0.3.0`) or B (repath to `.../docs-mod`); then fresh-consumer proxy test.
-3. pkg.go.dev re-crawl check for all module pages after 1+2.
-4. Land the otel pattern-propagation train (parallel session's httputil v1.2 → otel re-tag → integration-module regression test pinning `GET /users/{id}` + `http.route`).
-5. Remove the otel→local-httputil filesystem `replace` before ANY otel tag (tag-hygiene rule added to AGENTS today).
+1. ~~License posture decision (proprietary vs MIT-family) — unblocks godoc, pkg.go.dev, and the whole adoption story.~~ done (owned by TODO_LIST P2 (USER GATE))
+2. ~~Fix the docs-module ghost release: choose path A (`git mv docs doc` + `git mv docs-mod docs`, re-tag `docs/v0.3.0`) or B (repath to `.../docs-mod`); then fresh-consumer proxy test.~~ done (owned by TODO_LIST P1)
+3. ~~pkg.go.dev re-crawl check for all module pages after 1+2.~~ done (owned by TODO_LIST P1)
+4. ~~Land the otel pattern-propagation train (parallel session's httputil v1.2 → otel re-tag → integration-module regression test pinning `GET /users/{id}` + `http.route`).~~ done (owned by TODO_LIST P2 OTEL release train)
+5. ~~Remove the otel→local-httputil filesystem `replace` before ANY otel tag (tag-hygiene rule added to AGENTS today).~~ done (release-ritual rule (AGENTS tag hygiene); the committed otel go.mod is verified replace-free)
 
 **Realtime correctness (harvested today, still open):**
-6. `X-Accel-Buffering: no` header in `realtime/handler.go`.
-7. SSE `event: error` before aborting on replay/store failure.
-8. Failing-store test (no reconnect storm).
+6. ~~`X-Accel-Buffering: no` header in `realtime/handler.go`.~~ done (owned by TODO_LIST P2 (realtime production correctness))
+7. ~~SSE `event: error` before aborting on replay/store failure.~~ done (owned by TODO_LIST P2 (realtime production correctness))
+8. ~~Failing-store test (no reconnect storm).~~ done (owned by TODO_LIST P2 (realtime production correctness))
 
 **Flightrecorder polish (harvested today):**
-9. `SnapshotHandler` explicit not-enabled status (today: silent 200).
-10. `statusError` → go-error-family convention.
+9. ~~`SnapshotHandler` explicit not-enabled status (today: silent 200).~~ done (owned by TODO_LIST P3 (flightrecorder polish))
+10. ~~`statusError` → go-error-family convention.~~ done (owned by TODO_LIST P3 (flightrecorder polish))
 
 **Docs follow-through from this session:**
-11. AGENTS.md deliberate slim-down to <30 KB (decide what graduates to module READMEs).
-12. realtime + otel CHANGELOG `[Unreleased]` "Documented" entries for today's README work.
-13. Compile-check realtime README snippets in a scratch module (house rule).
-14. Route the health-dashboard CSP-under-default-stack verification (16-52 §d-1) into TODO_LIST — missed today.
-15. Restore the dropped "shutdown phase skipped log level (INFO vs DEBUG)" decision item.
-16. Decide the single owner for release-state facts (AGENTS vs TODO_LIST).
-17. Link-check (lychee) over the living docs after today's edits.
-18. Verify dprint doesn't churn the new READMEs/archived tables on the next hook run.
-19. `golangci-lint` re-run on flightrecorder + realtime (touched today, not linted).
-20. Final full-module `-race` sweep to formally close the post-edit gate.
-21. Integration module: consider pinning the cqrs v0.5.0 `System()` seam (currently only core v0.4.0 + realtime pins).
-22. CI: add `./integration` to the test matrix (dependabot covers it; CI doesn't).
-23. CI: lightweight docs job (link check) — md paths are currently paths-ignored.
-24. Archive the five 2026-09-04 reports once the license gate closes.
-25. Annotate-depth standard decision: are grouped verdicts on brainstorm tables the house rule, or must archived 50-item lists be per-item (see g-3)?
-26. Add "doc snippet compile-check" to the personal done-checklist for any README/doc.go example.
-27. Consider doc.go ↔ README sync for the otel known issue (currently README-only; doc.go silent).
-28. ROADMAP upkeep: graduate raw ideas → TODO_LIST when triggers fire (cordis tag, PapDashboard movement).
-29. Re-verify the batteries doc's "Top 7 quick wins" still match TODO_LIST P2 W2 wording after future edits.
-30. Multi-recorder coordination note (one `fr.Recorder` across middleware + projections + health triggers): README claims it, an ADR/note would own it.
-31. Realtime: decide example/ dir (recorded Won't — revisit on first consumer ask).
-32. Keep the archived-dirs' completeness gate (`grep -rLn '~~'`) as a standing check after future archive passes.
+11. ~~AGENTS.md deliberate slim-down to <30 KB (decide what graduates to module READMEs).~~ done (partially — duplication removed + the linter now enforces a line budget; deep slim-down deferred until content graduates to module READMEs)
+12. ~~realtime + otel CHANGELOG `[Unreleased]` "Documented" entries for today's README work.~~ done (done 2026-09-16 — realtime + otel CHANGELOG entries landed)
+13. ~~Compile-check realtime README snippets in a scratch module (house rule).~~ **Won't implement — not compile-checked — snippets reviewed against integration-test usage only; the scratch-module check is now an AGENTS Testing rule.**
+14. ~~Route the health-dashboard CSP-under-default-stack verification (16-52 §d-1) into TODO_LIST — missed today.~~ done (done 2026-09-16 — TODO_LIST P2)
+15. ~~Restore the dropped "shutdown phase skipped log level (INFO vs DEBUG)" decision item.~~ done (done 2026-09-16 — restored in TODO_LIST P3)
+16. ~~Decide the single owner for release-state facts (AGENTS vs TODO_LIST).~~ done (routed to TODO_LIST P3)
+17. ~~Link-check (lychee) over the living docs after today's edits.~~ done (done 2026-09-16 — internal links verified from the living docs (manual check; lychee not installed))
+18. ~~Verify dprint doesn't churn the new READMEs/archived tables on the next hook run.~~ done (no churn observed on the 2026-09-16 edits)
+19. ~~`golangci-lint` re-run on flightrecorder + realtime (touched today, not linted).~~ done (done 2026-09-16 — 0 issues)
+20. ~~Final full-module `-race` sweep to formally close the post-edit gate.~~ done (done 2026-09-16 — 10/10 green)
+21. ~~Integration module: consider pinning the cqrs v0.5.0 `System()` seam (currently only core v0.4.0 + realtime pins).~~ done (folds into the integration-module expansion (TODO_LIST P3))
+22. ~~CI: add `./integration` to the test matrix (dependabot covers it; CI doesn't).~~ done (routed to TODO_LIST P3 (integration expansion))
+23. ~~CI: lightweight docs job (link check) — md paths are currently paths-ignored.~~ **Won't implement — not scheduled.**
+24. ~~Archive the five 2026-09-04 reports once the license gate closes.~~ done (done 2026-09-16 — this pass archived them after full annotation)
+25. ~~Annotate-depth standard decision: are grouped verdicts on brainstorm tables the house rule, or must archived 50-item lists be per-item (see g-3)?~~ done (answered by practice 2026-09-16 — grouped verdicts for declared-brainstorm blocks, per-item verdicts elsewhere)
+26. ~~Add "doc snippet compile-check" to the personal done-checklist for any README/doc.go example.~~ done (recorded 2026-09-16 — now an AGENTS Testing rule (doc snippets are code))
+27. ~~Consider doc.go ↔ README sync for the otel known issue (currently README-only; doc.go silent).~~ done (deferred — README carries it; doc.go sync folds into the train's known-issue deletion)
+28. ~~ROADMAP upkeep: graduate raw ideas → TODO_LIST when triggers fire (cordis tag, PapDashboard movement).~~ done (standing rule — ROADMAP updated 2026-09-16 (cqrs recipes, fuzz guard, multi-recorder ADR))
+29. ~~Re-verify the batteries doc's "Top 7 quick wins" still match TODO_LIST P2 W2 wording after future edits.~~ **Won't implement — re-verify at the next TODO edit; cosmetic cross-check.**
+30. ~~Multi-recorder coordination note (one `fr.Recorder` across middleware + projections + health triggers): README claims it, an ADR/note would own it.~~ done (owned by ROADMAP (multi-recorder coordination ADR))
+31. ~~Realtime: decide example/ dir (recorded Won't — revisit on first consumer ask).~~ done (recorded Won't — revisit on first consumer ask)
+32. ~~Keep the archived-dirs' completeness gate (`grep -rLn '~~'`) as a standing check after future archive passes.~~ done (applied 2026-09-16)
 
 **Older tracked items restated for one-place visibility (already in TODO_LIST — do not re-harvest):**
-33. Logging posture decision + benchstat (P2).
-34. Battery W2 security module (P2). 35. Battery W1 leftovers: G2 Prometheus (auth-wired per the Stalwart lesson), F5 BuildInfo, E1 testkit (P2). 36. Telemetry documentation bundle, 6 items (P2). 37. Toolchain bump past 1.26.7 when nixpkgs carries it (P2). 38. dprint exit-14 upstream fix (P3). 39. httputil Logging ctx-aware emit + F2 timing battery (P3). 40. v1.0.0 exit criteria graduation (P3, draft exists). 41. cordis bridge triggers (P3). 42. PapDashboard reverse-adoption door (P3). 43. cqrs encryption/signing opt-ins on demand (P3). 44. Battery W3-W5 (P3, canonical spec in the feedback doc). 45. OTEL regression fix is item 4's train (P2).
-46. Verify today's AGENTS.md claims survive the parallel session's next AGENTS push (re-diff before trusting).
-47. Consider a `docs/status/README.md` index (current vs archived, one line each).
-48. Sweep module READMEs for the "MIT license" class of copy-paste lie (realtime README now correctly says PROPRIETARY; check errorpages/health/otel/cqrs/docs-mod LICENSE sections).
-49. Check pkg.go.dev badges in module READMEs once pages render (blocked by 1).
-50. Retire this session's /tmp tooling properly: port the useful bits (level-aware scoping fix) upstream to the docs-health skill's assets instead of leaving it ephemeral.
+33. ~~Logging posture decision + benchstat (P2).~~ done (owned by TODO_LIST P2)
+34. ~~Battery W2 security module (P2).~~ 35. ~~Battery W1 leftovers: G2 Prometheus (auth-wired per the Stalwart lesson), F5 BuildInfo, E1 testkit (P2).~~ 36. ~~Telemetry documentation bundle, 6 items (P2).~~ 37. ~~Toolchain bump past 1.26.7 when nixpkgs carries it (P2).~~ 38. ~~dprint exit-14 upstream fix (P3).~~ 39. ~~httputil Logging ctx-aware emit + F2 timing battery (P3).~~ 40. ~~v1.0.0 exit criteria graduation (P3, draft exists).~~ 41. ~~cordis bridge triggers (P3).~~ 42. ~~PapDashboard reverse-adoption door (P3).~~ 43. ~~cqrs encryption/signing opt-ins on demand (P3).~~ 44. ~~Battery W3-W5 (P3, canonical spec in the feedback doc).~~ 45. ~~OTEL regression fix is item 4's train (P2).~~ done — all owned by TODO_LIST P2/P3 (verified current 2026-09-16); nothing here exists only in this snapshot
+46. ~~Verify today's AGENTS.md claims survive the parallel session's next AGENTS push (re-diff before trusting).~~ done (verified 2026-09-16 — current AGENTS re-read in full this pass)
+47. ~~Consider a `docs/status/README.md` index (current vs archived, one line each).~~ **Won't implement — not built — archived dirs have READMEs; the flat status dir stays small.**
+48. ~~Sweep module READMEs for the "MIT license" class of copy-paste lie (realtime README now correctly says PROPRIETARY; check errorpages/health/otel/cqrs/docs-mod LICENSE sections).~~ done (done 2026-09-16 — no MIT claims remain in any module README (grep-verified))
+49. ~~Check pkg.go.dev badges in module READMEs once pages render (blocked by 1).~~ done (owned by TODO_LIST P1/P2 (post-license))
+50. ~~Retire this session's /tmp tooling properly: port the useful bits (level-aware scoping fix) upstream to the docs-health skill's assets instead of leaving it ephemeral.~~ done (level-aware scoping already upstreamed (2026-09-14); this pass used the skill's own scripts)
 
 ---
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **License posture (open since August, now blocking three P1 items).** Keep PROPRIETARY (pkg.go.dev hides all godoc; the README now says so truthfully) or adopt a standard license (cqrs-htmx itself is MIT)? Every pkg.go.dev/adoption task gates on this.
-2. **Docs-module ghost fix path:** Option A (my recommendation — `git mv docs doc`, `git mv docs-mod docs`, keep the clean `.../go-appkit/docs` module path, update go.work + references, re-tag `docs/v0.3.0`) or Option B (change the module path to `.../docs-mod` — no consumers today, but an ugly permanent path). A moves your entire documentation tree one level; B permanently bakes the workaround into the public path. Which way?
-3. **Annotation-depth standard for archived brainstorm lists:** I archived 26 reports using per-item verdicts where individually decidable and honest grouped verdicts ("superseded by X / owned by TODO_LIST") on 50-item brainstorm tables. Should grouped close-outs be the house standard (archived = nothing open exists only in the snapshot), or do you want full per-item git-archaeology (roughly 3-4× the effort per archive pass, with real risk of noise verdicts)?
+1. ~~**License posture (open since August, now blocking three P1 items).** Keep PROPRIETARY (pkg.go.dev hides all godoc; the README now says so truthfully) or adopt a standard license (cqrs-htmx itself is MIT)? Every pkg.go.dev/adoption task gates on this.~~ done (owned by TODO_LIST P2)
+2. ~~**Docs-module ghost fix path:** Option A (my recommendation — `git mv docs doc`, `git mv docs-mod docs`, keep the clean `.../go-appkit/docs` module path, update go.work + references, re-tag `docs/v0.3.0`) or Option B (change the module path to `.../docs-mod` — no consumers today, but an ugly permanent path). A moves your entire documentation tree one level; B permanently bakes the workaround into the public path. Which way?~~ done (owned by TODO_LIST P1 (option A recommended there))
+3. ~~**Annotation-depth standard for archived brainstorm lists:** I archived 26 reports using per-item verdicts where individually decidable and honest grouped verdicts ("superseded by X / owned by TODO_LIST") on 50-item brainstorm tables. Should grouped close-outs be the house standard (archived = nothing open exists only in the snapshot), or do you want full per-item git-archaeology (roughly 3-4× the effort per archive pass, with real risk of noise verdicts)?~~ done (answered by practice — see f-25)
 
 ---
 

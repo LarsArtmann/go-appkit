@@ -1050,7 +1050,10 @@
             (<code>r = r.WithContext(ctx); next.ServeHTTP(w, r); if r.Pattern != ""</code>).
             ServeMux assigns the pattern to the request pointer IT receives; any middleware
             between otel and the mux that forks again (<code>RequestID</code>,
-            <code>Timeout</code>, Logging's ctx helper — all <code>r.WithContext</code>)
+            <code>Timeout</code>, <!-- CORRECTION 2026-09-16: the original text said "Logging's ctx
+            helper" here; context.go:31 is ClientIPMiddleware — Logging does not fork. The fix
+            sweep (2026-09-16) found FIVE pure-httputil fork sites: RequestID, Timeout,
+            ClientIPMiddleware, Nonce, ServerTimingMiddlewareWhen. --> Logging's ctx helper — all <code>r.WithContext</code>)
             leaves otel's fork with <code>Pattern == ""</code>. otel adjacent to the mux:
             works. Otel outermost with one fork in between: broken. Deterministic in the real
             Service, in a hand-built server, and in the live example — version-independent,
@@ -1061,7 +1064,9 @@
             <strong>Fix</strong>
             In httputil, forking middlewares retain the fork and propagate the pattern up:
             <code>r2 := r.WithContext(ctx); next.ServeHTTP(w, r2); r.Pattern = r2.Pattern</code>
-            (3 sites: requestid.go:82, timeout.go:18, context.go:31). Then pin a
+            (3 sites: requestid.go:82, timeout.go:18, context.go:31<!-- CORRECTION 2026-09-16:
+            five sites, not three — Nonce and ServerTimingMiddlewareWhen also fork; fixed at all
+            five in httputil commit ff44c5f (unreleased, ships with v1.2) -->). Then pin a
             regression test in the integration module asserting span name +
             <code>http.route</code> through the full default stack, and re-tag.
           </div>

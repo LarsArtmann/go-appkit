@@ -891,10 +891,23 @@
           </p>
           <div class="meta">
             <span class="tag amber">Overall adoption: 64/100</span>
-            <span class="tag">9 libraries &middot; 9 modules</span>
+            <span class="tag">9 libraries &middot; 9 modules</span><!-- CORRECTION 2026-09-16: 9 released + integration = ten modules -->
             <span class="tag teal">0 anti-patterns</span>
           </div>
         </header>
+
+        <!-- RESOLUTION UPDATE 2026-09-16 (docs-health ANNOTATE, same-day pass):
+             Fixed after publication: go-health-dashboard v0.7.0 -> v0.8.1 (drop-in proven);
+             go-error-family v0.10.0 -> v0.10.1 (6 consumers); flightrecorderhealth's
+             go-health pin v0.1.1 -> v0.1.3; the health-module two-phase drain fix (finding
+             on Drain stopping the refresh loop — landed with a regression test). Still open
+             (owned by TODO_LIST): httputil.Server composition spike (P2), WithOnDrop (W5 C1),
+             fr ops preset, dashboard hardening passthrough, go-health payload richness (F5),
+             errorfamilytest adoption, error-classification sweep, go-sse ReplayFiltered ask.
+             Module count correction: the repo is TEN modules (core, cqrs, realtime, otel,
+             flightrecorder, flightrecorderhealth, health, errorpages, docs, integration —
+             integration unreleased). Execution details:
+             docs/status/2026-09-16_08-53_library-utilization-audit-and-fixes.md -->
 
         <!-- Scorecard -->
         <section id="scorecard" class="scorecard">
