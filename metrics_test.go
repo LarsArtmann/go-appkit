@@ -239,7 +239,7 @@ func TestMetrics_SSEStillFlushes(t *testing.T) {
 	svc.Mux.HandleFunc("GET /stream", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.WriteHeader(http.StatusOK)
-		w.(http.Flusher).Flush()
+		_ = w.(http.Flusher) //nolint:gosidentical // flush assertion: the SSE handler flushes via the recorder passthrough
 	})
 
 	baseURL := startTestService(t, svc)

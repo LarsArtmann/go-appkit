@@ -92,6 +92,8 @@ var errInvalidMetricsConfig = errorfamily.NewRejection(
 
 // durationBuckets are the request-duration histogram buckets in seconds
 // (semconv-style 0..10s coverage).
+//
+//nolint:gochecknoglobals // constant bucket set, shared across collectors
 var durationBuckets = []float64{0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10}
 
 // metricsCollector aggregates request metrics and renders Prometheus text.
@@ -115,7 +117,7 @@ type routeSeries struct {
 }
 
 func newMetricsCollector(version string) *metricsCollector {
-	return &metricsCollector{
+	return &metricsCollector{ //nolint:exhaustruct_v5 // mu zero value is ready; inFlight starts at 0
 		byRoute:   make(map[string]*routeSeries),
 		startTime: time.Now(),
 		version:   version,
@@ -133,7 +135,7 @@ func (m *metricsCollector) middleware(next http.Handler) http.Handler {
 		m.mu.Unlock()
 
 		start := time.Now()
-		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK} //nolint:exhaustruct_v5 // wroteHeader starts false
 		next.ServeHTTP(rec, r)
 
 		duration := time.Since(start).Seconds()
@@ -151,7 +153,7 @@ func (m *metricsCollector) middleware(next http.Handler) http.Handler {
 		key := r.Method + "|" + route + "|" + strconv.Itoa(rec.status)
 		series, ok := m.byRoute[key]
 		if !ok {
-			series = &routeSeries{buckets: make([]uint64, len(durationBuckets)+1)}
+			series = &routeSeries{buckets: make([]uint64, len(durationBuckets)+1)} //nolint:exhaustruct_v5 // count/sum zero until incremented
 			m.byRoute[key] = series
 		}
 
@@ -173,6 +175,7 @@ func (m *metricsCollector) middleware(next http.Handler) http.Handler {
 // statusRecorder captures the response status without buffering the body.
 type statusRecorder struct {
 	http.ResponseWriter
+
 	status      int
 	wroteHeader bool
 }
@@ -224,12 +227,15 @@ func (m *metricsCollector) writeInFlight(b *strings.Builder) {
 	fmt.Fprintf(b, "appkit_http_requests_in_flight %d\n", m.inFlight)
 }
 
+// seriesKeyParts is the number of fields in a byRoute key (method|route|status).
+const seriesKeyParts = 3
+
 func (m *metricsCollector) writeHistogram(b *strings.Builder) {
 	b.WriteString("# HELP appkit_http_request_duration_seconds HTTP request duration by route.\n")
 	b.WriteString("# TYPE appkit_http_request_duration_seconds histogram\n")
 
 	for _, key := range m.sortedRoutes() {
-		parts := strings.SplitN(key, "|", 3)
+		parts := strings.SplitN(key, "|", seriesKeyParts)
 		series := m.byRoute[key]
 
 		labels := `method="` + escapeLabelValue(parts[0]) + `",route="` + escapeLabelValue(parts[1]) + `"`
@@ -255,7 +261,7 @@ func (m *metricsCollector) writeResponseTotals(b *strings.Builder) {
 	b.WriteString("# TYPE appkit_http_responses_total counter\n")
 
 	for _, key := range m.sortedRoutes() {
-		parts := strings.SplitN(key, "|", 3)
+		parts := strings.SplitN(key, "|", seriesKeyParts)
 
 		fmt.Fprintf(b, "appkit_http_responses_total{method=%q,route=%q,status=%q} %d\n",
 			escapeLabelValue(parts[0]), escapeLabelValue(parts[1]), parts[2], m.byRoute[key].count)

@@ -23,6 +23,21 @@ import (
 	"github.com/larsartmann/go-appkit"
 )
 
+const (
+	// startTimeout bounds how long Serve waits for the listener to come up.
+	startTimeout = 5 * time.Second
+
+	// stopTimeout bounds the graceful shutdown in cleanup.
+	stopTimeout = 5 * time.Second
+
+	// goroutineTolerance is the allowed overshoot above baseline after
+	// shutdown (runtime internals jitter by a couple).
+	goroutineTolerance = 5
+
+	// leakPollInterval is the goroutine-count re-check cadence.
+	leakPollInterval = 10 * time.Millisecond
+)
+
 // TestServer is a running service under test.
 type TestServer struct {
 	service *appkit.Service
@@ -38,64 +53,64 @@ type TestServer struct {
 // Serve starts svc and registers teardown with t.Cleanup: a graceful
 // shutdown, then a goroutine-baseline assertion (tolerance 5) so a leaked
 // goroutine fails the test instead of flaking the suite.
-func Serve(t testing.TB, svc *appkit.Service) *TestServer {
-	t.Helper()
+func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
+	tb.Helper()
 
 	baseline := runtime.NumGoroutine()
 
 	errCh, err := svc.Start()
 	if err != nil {
-		t.Fatalf("testkit.Serve: start: %v", err)
+		tb.Fatalf("testkit.Serve: start: %v", err)
 	}
 
 	deadline := time.Now().Add(5 * time.Second)
 	for !svc.Running() {
 		if time.Now().After(deadline) {
-			t.Fatal("testkit.Serve: service did not start within 5s")
+			tb.Fatal("testkit.Serve: service did not start within 5s")
 		}
 
 		time.Sleep(time.Millisecond)
 	}
 
-	ts := &TestServer{
+	server := &TestServer{
 		service:           svc,
 		FullChainURL:      "http://" + svc.Addr().String(),
 		goroutineBaseline: baseline,
 	}
 
-	t.Cleanup(func() {
+	tb.Cleanup(func() {
 		ctx, cancel := contextWithTimeout(5 * time.Second)
 		defer cancel()
 
 		if err := svc.Shutdown(ctx); err != nil {
-			t.Errorf("testkit.Serve: shutdown: %v", err)
+			tb.Errorf("testkit.Serve: shutdown: %v", err)
 		}
 
 		select {
 		case err := <-errCh:
 			if err != nil {
-				t.Errorf("testkit.Serve: server error: %v", err)
+				tb.Errorf("testkit.Serve: server error: %v", err)
 			}
 		case <-time.After(2 * time.Second):
-			t.Error("testkit.Serve: server did not stop after shutdown")
+			tb.Error("testkit.Serve: server did not stop after shutdown")
 		}
 
 		// Goroutine-baseline assert: a leaked goroutine (an evict loop, a
 		// stuck SSE subscriber) fails THIS test instead of flaking the next.
 		deadline := time.Now().Add(2 * time.Second)
-		for runtime.NumGoroutine() > ts.goroutineBaseline+5 {
+		for runtime.NumGoroutine() > server.goroutineBaseline+goroutineTolerance {
 			if time.Now().After(deadline) {
-				t.Errorf("testkit.Serve: goroutine leak: %d goroutines after shutdown, baseline %d",
-					runtime.NumGoroutine(), ts.goroutineBaseline)
+				tb.Errorf("testkit.Serve: goroutine leak: %d goroutines after shutdown, baseline %d",
+					runtime.NumGoroutine(), server.goroutineBaseline)
 
 				break
 			}
 
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(leakPollInterval)
 		}
 	})
 
-	return ts
+	return server
 }
 
 // Mux exposes the service's mux for registration AFTER Serve (routes must

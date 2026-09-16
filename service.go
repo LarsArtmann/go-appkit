@@ -73,7 +73,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 		mux.Handle("GET "+cfg.Metrics.Path, metricsAuth(cfg.Metrics, collector.handler()))
 	}
 
-	if cfg.Version != "" && (cfg.RegisterHealth == nil || *cfg.RegisterHealth) {
+	if cfg.Version != "" {
 		mux.HandleFunc("GET /version", versionHandler(cfg.Version))
 	}
 
