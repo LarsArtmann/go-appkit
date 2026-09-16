@@ -11,8 +11,8 @@
 //
 // Create a recorder, start it, and wire the middleware into your service:
 //
-//	rec, err := flightrecorder.New(
-//	    flightrecorder.WithSnapshotFile("/tmp/trace.out"),
+//	rec, err := fr.New(
+//	    fr.WithFile("/tmp/trace.out"),
 //	)
 //	if err != nil { /* handle */ }
 //
@@ -53,12 +53,11 @@
 //
 // # Relation to go-appkit/cqrs's projection flight recorder
 //
-// The cqrs module wires a DIFFERENT recorder type for projection-worker
-// failures: [github.com/larsartmann/go-cqrs-lite/flightrecorder/v4] behind
-// cqrs.EventConfig.FlightRecorder. Both wrap the same runtime/trace
-// mechanism, so only ONE can be active per process. Choose the layer you
-// care most about (HTTP requests here, projection workers there) — running
-// both simultaneously fails the second Start with ErrAlreadyEnabled.
+// Since cqrs v0.4.0, EventConfig.FlightRecorder takes
+// [github.com/larsartmann/go-flightrecorder.Recorder] — the SAME type this
+// module's middleware takes. Start ONE recorder at startup and hand it to
+// both layers (Go allows only a single active recorder per process); each
+// layer captures with its own trigger.
 //
 // # Import aliasing
 //

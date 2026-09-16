@@ -51,11 +51,28 @@ shutdown. Run the example: `go run ./example`.
 
 | Signal    | Instrument                                           | Notes                                                   |
 | --------- | ---------------------------------------------------- | ------------------------------------------------------- |
-| Traces    | one SERVER span per request                          | named after the ServeMux pattern (`GET /users/{id}`)    |
+| Traces    | one SERVER span per request                          | named after the ServeMux pattern (`GET /users/{id}`) — see the known issue below |
 | Traces    | W3C `traceparent`/`baggage` in and out               | continues caller traces; feeds downstream calls         |
 | Metrics   | `http.server.request.duration` (+ size, active)      | method/route/status attributes; route-based, no blowups |
 | Logs      | `trace_id` + `span_id` on records logged with ctx    | `TraceHandler` decorates any `slog.Handler`             |
 | Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks` | flush after drain — spans cover the final requests      |
+
+## Known issue (verified 2026-09-15): pattern naming and `http.route` are lost through `OuterMiddlewares`
+
+`otelhttp` names the span and attributes metrics from `r.Pattern`, which
+`net/http.ServeMux` sets on ITS fork of the request. When this middleware is
+wired via appkit's `OuterMiddlewares`, every middleware between it and the mux
+(`RequestID`, `Timeout`, the logging context helper) re-forks the request with
+`r.WithContext` — ServeMux's pattern assignment lands on the deepest fork, and
+otel never sees it. Live effect: spans flush named `GET` (bare method, no
+route) and metrics carry no `http.route` attribute. Version-independent; the
+unit tests pass because they wrap the mux directly.
+
+Workaround until the httputil fix ships: place the otel middleware adjacent to
+the mux (e.g. via `ExtraMiddlewares`) — the span then covers less of the stack,
+so this trades span coverage for correct names. Full bisection:
+`docs/status/2026-09-15_19-48_otel-telemetry-status.html`; fix tracked in the
+repo `TODO_LIST.md` (P2, OTEL regression).
 
 ## Options that matter
 
@@ -96,8 +113,9 @@ README's observability section.
 
 - **Opt-in and no-op without Setup**: unconfigured, `Middleware` propagates
   nothing and records nothing — near-zero overhead.
-- **Cardinality safety**: metrics attribute on the matched route pattern
-  (`/users/{id}`), never the raw path.
+- **Route-attributed metrics**: metrics attribute on the matched route pattern
+  (`/users/{id}`), never the raw path — adjacent-to-mux wiring only; through
+  `OuterMiddlewares` the route attribute is currently lost (known issue above).
 - **SSE-safe**: with `WriteTimeout: appkit.NoTimeout`, the request span ends
   when the stream ends — no artificial cutoff.
 - **Panic-correct**: a recovered 500 marks the span status error; the outer
