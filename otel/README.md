@@ -59,6 +59,14 @@ shutdown. Run the example: `go run ./example`.
 
 ## Known issue (verified 2026-09-15): pattern naming and `http.route` are lost through `OuterMiddlewares`
 
+> **Status 2026-09-16:** the root cause is FIXED in httputil master (all
+> request-forking middlewares now propagate the matched pattern back up;
+> regression-pinned by `TestPatternPropagation*`). Verified end-to-end through
+> a real appkit `Service` with `OuterMiddlewares`: span `GET /users/{id}` and
+> `http.route /users/{id}` restored. This note applies to PUBLISHED modules
+> only — it goes away with the release train (httputil patch → go-appkit
+> re-tag).
+
 `otelhttp` names the span and attributes metrics from `r.Pattern`, which
 `net/http.ServeMux` sets on ITS fork of the request. When this middleware is
 wired via appkit's `OuterMiddlewares`, every middleware between it and the mux
@@ -68,9 +76,9 @@ otel never sees it. Live effect: spans flush named `GET` (bare method, no
 route) and metrics carry no `http.route` attribute. Version-independent; the
 unit tests pass because they wrap the mux directly.
 
-Workaround until the httputil fix ships: place the otel middleware adjacent to
-the mux (e.g. via `ExtraMiddlewares`) — the span then covers less of the stack,
-so this trades span coverage for correct names. Full bisection:
+Workaround until the fix reaches a published tag: place the otel middleware
+adjacent to the mux (e.g. via `ExtraMiddlewares`) — the span then covers less
+of the stack, so this trades span coverage for correct names. Full bisection:
 `docs/status/2026-09-15_19-48_otel-telemetry-status.html`; fix tracked in the
 repo `TODO_LIST.md` (P2, OTEL regression).
 
@@ -114,8 +122,8 @@ README's observability section.
 - **Opt-in and no-op without Setup**: unconfigured, `Middleware` propagates
   nothing and records nothing — near-zero overhead.
 - **Route-attributed metrics**: metrics attribute on the matched route pattern
-  (`/users/{id}`), never the raw path — adjacent-to-mux wiring only; through
-  `OuterMiddlewares` the route attribute is currently lost (known issue above).
+  (`/users/{id}`), never the raw path — adjacent-to-mux wiring only until the
+  pattern-propagation fix ships in a tag (known issue above).
 - **SSE-safe**: with `WriteTimeout: appkit.NoTimeout`, the request span ends
   when the stream ends — no artificial cutoff.
 - **Panic-correct**: a recovered 500 marks the span status error; the outer
@@ -129,15 +137,17 @@ one does not need `GOEXPERIMENT=jsonv2`.
 ## Performance
 
 `BenchmarkMiddleware_*` (see `benchmark_test.go`; go 1.26.7, linux/amd64,
-median of 3x1s runs; `httptest` round-trip against `w.WriteHeader(200)`):
+mean of 10 runs, 2026-09-16; `httptest` round-trip against
+`w.WriteHeader(200)`; run-to-run drift on this box is ±25%, see the
+2026-09-15 re-run in `TODO_LIST.md`):
 
 | Variant                 | ns/op  | B/op   | allocs/op |
 | ----------------------- | ------ | ------ | --------- |
-| NoOp (no providers)     | 21,200 | 7,913  | 90        |
-| Traced (spans)          | 26,400 | 11,033 | 90        |
-| Traced + metered (full) | 27,400 | 11,042 | 90        |
+| NoOp (no providers)     | 20,000 | 7,918  | 90        |
+| Traced (spans)          | 21,800 | 11,051 | 90        |
+| Traced + metered (full) | 23,300 | 11,055 | 90        |
 
-Full instrumentation costs ~~6us/req (~~+29%) and ~3.1KB over the no-op path,
+Full instrumentation costs ~3.3us/req (~+17%) and ~3.1KB over the no-op path,
 with zero additional allocations; export I/O is excluded by design (batching
 processor, no exporter wired). The no-op baseline is the cost of the
 middleware existing in the chain with the module imported but no providers —
