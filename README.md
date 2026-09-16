@@ -63,7 +63,7 @@ Each module is independently versioned and usable on its own:
 | Module                                        | Import path                                             | What it adds                                                                                          |
 | --------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | [core](README.md) (this module)               | `github.com/larsartmann/go-appkit`                      | Service lifecycle, middleware, health, logging                                                        |
-| [cqrs](cqrs/README.md)                        | `github.com/larsartmann/go-appkit/cqrs`                 | Event store + projections over go-cqrs-lite v4 (SQLite) — DLQ, metrics                                |
+| [cqrs](cqrs/README.md)                        | `github.com/larsartmann/go-appkit/cqrs`                 | CQRS/event-sourcing over go-cqrs-lite's `system` engine — event store, projections, DLQ, command/query facade, metrics |
 | [docs](docs-mod/)                             | `github.com/larsartmann/go-appkit/docs`                 | Auto-generated OpenAPI/AsyncAPI/D2 docs from Go types                                                 |
 | [errorpages](errorpages/README.md)            | `github.com/larsartmann/go-appkit/errorpages`           | Pretty classified error pages (HTML) and contracts (JSON)                                             |
 | [realtime](realtime/)                         | `github.com/larsartmann/go-appkit/realtime`             | SSE hub + handler: broadcast, replay, heartbeat, Last-Event-ID resume                                 |
@@ -98,9 +98,12 @@ All config is via `ServiceConfig`. Zero-value fields get production defaults:
 | `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                                                             |
 | `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                                              |
 | `ShutdownTimeout`  | `time.Duration`         | `15s`     | Max time to wait for shutdown                                                  |
-| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown                               |
+| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown; `NoDrainDelay` sentinel skips it |
 | `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack                                           |
 | `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack                                         |
+| `OuterMiddlewares` | `[]httputil.Middleware` | `nil`     | Wrap the entire chain (default stack included), outermost — where tracing sits |
+| `DrainHooks`       | `[]func(ctx) error`     | `nil`     | Run once at drain start, while traffic is still served (errors joined)         |
+| `ShutdownHooks`    | `[]func(ctx) error`     | `nil`     | Run once after connections are released (e.g. telemetry flush; errors joined)  |
 | `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                 |
 | `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`) |
 
@@ -231,4 +234,7 @@ go build ./...
 
 ## License
 
-MIT
+PROPRIETARY. All rights reserved — see [LICENSE](LICENSE) (licensing
+inquiries: `git@lars.software`). Note: because the license text is not a
+classifiable open-source license, pkg.go.dev hides godoc for this module; the
+code and this README are the documentation of record.

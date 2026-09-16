@@ -31,12 +31,15 @@ aspirations.
 
 | Feature                              | Status           | Evidence                 |
 | ------------------------------------ | ---------------- | ------------------------ |
-| `EventService` over go-cqrs-lite v4  | FULLY_FUNCTIONAL | `eventservice.go`        |
+| `EventService` over go-cqrs-lite `system` engine (v0.5.0) | FULLY_FUNCTIONAL | `eventservice.go`        |
+| Command/query facade (`RegisterDecider`/`RegisterCommand`/`RegisterQuery`, `Dispatch`, `DispatchQueryChecked`) | FULLY_FUNCTIONAL | `commands.go`, `commands_test.go` |
+| Operator config (`DSN`/`Driver`/`Pragmas`, `ConfigPath` YAML+env, `Deployment`) | FULLY_FUNCTIONAL | `eventservice.go`, `example_test.go` |
+| In-flight command drain on `Shutdown` | FULLY_FUNCTIONAL | `eventservice_test.go`   |
 | `EventConfig.Logger` worker logging  | FULLY_FUNCTIONAL | `logger_test.go`         |
 | DLQ (SQLite) + replay/purge          | FULLY_FUNCTIONAL | `dlq_test.go`            |
-| `EventConfig.FlightRecorder`         | FULLY_FUNCTIONAL | `flightrecorder_test.go` |
+| `EventConfig.FlightRecorder` (shared `*fr.Recorder`) | FULLY_FUNCTIONAL | `flightrecorder_test.go` |
 | `EventConfig.Metrics` recorder hook  | FULLY_FUNCTIONAL | `metrics_test.go`        |
-| Projection readiness + lag accessors | FULLY_FUNCTIONAL | `readiness_test.go`      |
+| Projection readiness + lag accessors (`ReadyCheck` reports NOT-ready before `StartProjections`) | FULLY_FUNCTIONAL | `readiness_test.go`      |
 | Read-your-writes staleness guards    | FULLY_FUNCTIONAL | `staleness_test.go`      |
 | OTel projection metrics adapter      | FULLY_FUNCTIONAL | `otelmetrics.go`         |
 
@@ -46,6 +49,12 @@ aspirations.
 | ------------------------------------- | ---------------- | ------------------------- |
 | Catalog builder (OpenAPI/AsyncAPI/D2) | FULLY_FUNCTIONAL | `docs.go`, `docs_test.go` |
 | `RegisterDocs` docserver mounting     | FULLY_FUNCTIONAL | `docs.go:34`              |
+
+Release gap: the source builds and tests green, but the published `docs/v0.2.0`
+tag is UNFETCHABLE from the module proxy — the module path says `.../docs`
+while the directory is `docs-mod/`, so the proxy finds no `docs/go.mod`. The
+published module is a ghost until the directory/module-path mismatch is fixed
+and re-tagged (TODO_LIST P1).
 
 ## errorpages (`github.com/larsartmann/go-appkit/errorpages`)
 
@@ -115,12 +124,12 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | -------------------------------------------------------- | ---------------- | ------------------------------------- |
 | Provider setup (`Setup`, options incl. `WithSampler`)    | FULLY_FUNCTIONAL | `setup.go`, `setup_test.go`           |
 | Flush-safe shutdown (ForceFlush before Shutdown)         | FULLY_FUNCTIONAL | `setup.go:135`, `setup_test.go`       |
-| otelhttp middleware bridge (pattern-named server spans)  | FULLY_FUNCTIONAL | `middleware.go`, `middleware_test.go` |
+| otelhttp middleware bridge (server spans)                | PARTIALLY_FUNCTIONAL | `middleware.go`, `middleware_test.go`; pattern-named spans + `http.route` metrics are LOST through `OuterMiddlewares` (verified 2026-09-15, see otel README known issue) |
 | W3C trace-context + baggage propagation                  | FULLY_FUNCTIONAL | `attributes.go`, `middleware_test.go` |
 | Health-endpoint tracing/metrics filter (unconditional)   | FULLY_FUNCTIONAL | `middleware.go:170`                   |
 | Public-endpoint mode (remote parents → links)            | FULLY_FUNCTIONAL | `middleware_test.go`                  |
 | Custom path/predicate filters                            | FULLY_FUNCTIONAL | `middleware_test.go`                  |
-| Route-attributed, cardinality-safe HTTP metrics          | FULLY_FUNCTIONAL | `metrics_test.go`                     |
+| Route-attributed, cardinality-safe HTTP metrics          | PARTIALLY_FUNCTIONAL | `metrics_test.go`; route attribute only survives adjacent-to-mux wiring (known issue above) |
 | Semconv histogram views (`http.server.request.duration`) | FULLY_FUNCTIONAL | `views.go`, `metrics_test.go`         |
 | Trace-correlated logging (`TraceHandler`, ID helpers)    | FULLY_FUNCTIONAL | `logging.go`, `logging_test.go`       |
 | Strictly opt-in no-op mode (no provider → pass-through)  | FULLY_FUNCTIONAL | `middleware_test.go`                  |
@@ -146,7 +155,10 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
 - Their fold-in (flipping `RunHandler` internals to appkit) is unblocked and
   pending on the cqrs-htmx side (`docs/planning/2026-08-30_appkit-foldin-revalidation.md`).
 
-All five released modules verified as fresh proxy consumers on 2026-09-04
-(blank-import smoke modules in clean dirs, `go build` green):
-core v0.3.0, cqrs v0.3.0, realtime v0.1.0, flightrecorder v0.1.0,
-flightrecorderhealth v0.1.0.
+All released modules verified as fresh proxy consumers (blank-import smoke
+modules in clean dirs, `go build` green): the 2026-09-04 waves covered core
+cqrs v0.3.0/v0.4.0, realtime v0.1.0, flightrecorder v0.1.0,
+flightrecorderhealth v0.1.0/v0.1.1, otel v0.1.0, health v0.1.0; cqrs v0.5.0
+(the system engine) followed on 2026-09-07. Known gap: the `docs` module's
+published `docs/v0.2.0` tag is UNFETCHABLE from the proxy (module path vs
+directory mismatch — see the docs section above; TODO_LIST P1).
