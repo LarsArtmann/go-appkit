@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/otel
 go 1.26.7
 
 require (
-	github.com/larsartmann/httputil v1.1.1
+	github.com/larsartmann/httputil v1.2.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.71.0
 	go.opentelemetry.io/otel v1.46.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.46.0
@@ -47,5 +47,3 @@ require (
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 )
-
-replace github.com/larsartmann/httputil => /home/lars/projects/httputil
