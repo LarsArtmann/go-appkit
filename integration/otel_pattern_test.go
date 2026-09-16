@@ -64,8 +64,9 @@ func TestSpanNameAndRouteThroughAppkitOuterMiddlewares(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		if err := svc.Shutdown(ctx); err != nil {
-			t.Errorf("shutdown: %v", err)
+		shutdownErr := svc.Shutdown(ctx)
+		if shutdownErr != nil {
+			t.Errorf("shutdown: %v", shutdownErr)
 		}
 		select {
 		case err := <-errCh:
@@ -86,7 +87,12 @@ func TestSpanNameAndRouteThroughAppkitOuterMiddlewares(t *testing.T) {
 		time.Sleep(time.Millisecond)
 	}
 
-	resp, err := http.Get("http://" + svc.Addr().String() + "/users/42")
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet,
+		"http://"+svc.Addr().String()+"/users/42", nil)
+	if err != nil {
+		t.Fatalf("request: %v", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("request: %v", err)
 	}
@@ -111,10 +117,25 @@ func TestSpanNameAndRouteThroughAppkitOuterMiddlewares(t *testing.T) {
 		t.Errorf("span name = %q, want %q (pattern lost through OuterMiddlewares)", spanName, "GET /users/{id}")
 	}
 
+	routeAttr := httpRouteAttributeValue(t, mr)
+	t.Logf("http.route attribute: %q", routeAttr)
+	if routeAttr != "/users/{id}" {
+		t.Errorf("http.route = %q, want %q (route attribute lost through OuterMiddlewares)", routeAttr, "/users/{id}")
+	}
+}
+
+// httpRouteAttributeValue collects the manual reader once and returns the
+// http.route attribute observed on the http.server.request.duration
+// histogram (empty string when absent).
+func httpRouteAttributeValue(t *testing.T, mr *sdkmetric.ManualReader) string {
+	t.Helper()
+
 	var rm metricdata.ResourceMetrics
-	if err := mr.Collect(context.Background(), &rm); err != nil {
+	err := mr.Collect(context.Background(), &rm)
+	if err != nil {
 		t.Fatalf("collect: %v", err)
 	}
+
 	routeAttr := ""
 	for _, sm := range rm.ScopeMetrics {
 		for _, m := range sm.Metrics {
@@ -132,8 +153,6 @@ func TestSpanNameAndRouteThroughAppkitOuterMiddlewares(t *testing.T) {
 			}
 		}
 	}
-	t.Logf("http.route attribute: %q", routeAttr)
-	if routeAttr != "/users/{id}" {
-		t.Errorf("http.route = %q, want %q (route attribute lost through OuterMiddlewares)", routeAttr, "/users/{id}")
-	}
+
+	return routeAttr
 }
