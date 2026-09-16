@@ -106,6 +106,33 @@ All config is via `ServiceConfig`. Zero-value fields get production defaults:
 | `ShutdownHooks`    | `[]func(ctx) error`     | `nil`     | Run once after connections are released (e.g. telemetry flush; errors joined)      |
 | `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                     |
 | `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`)     |
+| `Metrics`          | `*MetricsConfig`        | `nil`     | Opt-in Prometheus surface: `GET /metrics` text exposition + request histogram, response totals, in-flight and build-info gauges (see below) |
+| `Version`          | `string`                | `""`      | Build version: serves `GET /version` (JSON) and labels the `appkit_build_info` metric |
+
+### Metrics (opt-in Prometheus surface)
+
+Set `cfg.Metrics = &appkit.MetricsConfig{...}` to expose `GET /metrics` in
+pure Prometheus text format with ZERO dependencies (no prometheus client,
+no otel). Metric names are a stable contract:
+
+```
+appkit_http_request_duration_seconds  histogram {method, route, status}
+appkit_http_responses_total           counter   {method, route, status}
+appkit_http_requests_in_flight        gauge
+appkit_build_info                     gauge=1   {version}
+```
+
+Route labels carry the ServeMux pattern (`GET /users/{id}`), never raw
+paths — cardinality stays bounded; unmatched paths collapse to
+`unmatched`. Authentication is mandatory by default: set
+`BasicAuthUser`/`BasicAuthPass`, or `AllowUnauthenticated: true`
+explicitly (proxy-fronted or loopback-only deployments) — an unauthenticated
+config is rejected at construction.
+
+The OTEL `_ratio` exporter trap: OTEL's Prometheus exporter appends `_ratio`
+to unit-1 metrics — names from the otel module's exporter do NOT match this
+surface's names, and vice versa. Diff metric names when migrating between
+the two.
 
 ### Log volume
 

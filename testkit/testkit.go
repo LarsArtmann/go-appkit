@@ -63,7 +63,7 @@ func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
 		tb.Fatalf("testkit.Serve: start: %v", err)
 	}
 
-	deadline := time.Now().Add(5 * time.Second)
+	deadline := time.Now().Add(startTimeout)
 	for !svc.Running() {
 		if time.Now().After(deadline) {
 			tb.Fatal("testkit.Serve: service did not start within 5s")
@@ -79,7 +79,7 @@ func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
 	}
 
 	tb.Cleanup(func() {
-		ctx, cancel := contextWithTimeout(5 * time.Second)
+		ctx, cancel := contextWithTimeout(stopTimeout)
 		defer cancel()
 
 		if err := svc.Shutdown(ctx); err != nil {

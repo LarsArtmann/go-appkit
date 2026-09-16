@@ -11,6 +11,23 @@ import (
 	"github.com/larsartmann/go-appkit"
 )
 
+// getURL issues a ctx-aware GET (noctx-compliant helper).
+func getURL(t *testing.T, url string) *http.Response {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, nil)
+	if err != nil {
+		t.Fatalf("build GET %s: %v", url, err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("GET %s: %v", url, err)
+	}
+
+	return resp
+}
+
 func newMetricsService(t *testing.T, mutate func(*appkit.ServiceConfig)) *appkit.Service {
 	t.Helper()
 
@@ -121,10 +138,7 @@ func TestMetrics_BasicAuthEnforced(t *testing.T) {
 
 	baseURL := startTestService(t, svc)
 
-	resp, err := http.Get(baseURL + "/metrics")
-	if err != nil {
-		t.Fatalf("GET /metrics: %v", err)
-	}
+	resp := getURL(t, baseURL+"/metrics")
 
 	defer resp.Body.Close()
 
@@ -171,10 +185,7 @@ func TestMetrics_ExpositionContract(t *testing.T) {
 
 	baseURL := startTestService(t, svc)
 
-	resp, err := http.Get(baseURL + "/users/42")
-	if err != nil {
-		t.Fatalf("request: %v", err)
-	}
+	resp := getURL(t, baseURL+"/users/42")
 
 	defer resp.Body.Close()
 
@@ -217,10 +228,7 @@ func TestMetrics_UnmatchedPathBounded(t *testing.T) {
 	svc := newMetricsService(t, nil)
 	baseURL := startTestService(t, svc)
 
-	resp, err := http.Get(baseURL + "/no/such/path")
-	if err != nil {
-		t.Fatalf("request: %v", err)
-	}
+	resp := getURL(t, baseURL+"/no/such/path")
 
 	defer resp.Body.Close()
 
@@ -239,15 +247,15 @@ func TestMetrics_SSEStillFlushes(t *testing.T) {
 	svc.Mux.HandleFunc("GET /stream", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.WriteHeader(http.StatusOK)
-		_ = w.(http.Flusher) //nolint:gosidentical // flush assertion: the SSE handler flushes via the recorder passthrough
+
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
 	})
 
 	baseURL := startTestService(t, svc)
 
-	resp, err := http.Get(baseURL + "/stream")
-	if err != nil {
-		t.Fatalf("request: %v", err)
-	}
+	resp := getURL(t, baseURL+"/stream")
 
 	defer resp.Body.Close()
 
@@ -269,10 +277,7 @@ func TestMetrics_VersionEndpoint(t *testing.T) {
 
 	baseURL := startTestService(t, svc)
 
-	resp, err := http.Get(baseURL + "/version")
-	if err != nil {
-		t.Fatalf("GET /version: %v", err)
-	}
+	resp := getURL(t, baseURL+"/version")
 
 	defer resp.Body.Close()
 

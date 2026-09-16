@@ -62,6 +62,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 	}
 
 	var collector *metricsCollector
+
 	if cfg.Metrics != nil {
 		cfg.Metrics.applyMetricsDefaults()
 
@@ -84,6 +85,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 		// while still counting requests that the default middlewares admit.
 		mws = append(mws, collector.middleware)
 	}
+
 	wrapped := httputil.Chain(mux, mws...)
 
 	svc.server = &http.Server{ //nolint:exhaustruct_v5 // unset fields (TLS, HTTP2, ConnState...) are deliberate zero values; lifecycle is appkit's

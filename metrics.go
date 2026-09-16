@@ -135,7 +135,10 @@ func (m *metricsCollector) middleware(next http.Handler) http.Handler {
 		m.mu.Unlock()
 
 		start := time.Now()
-		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK} //nolint:exhaustruct_v5 // wroteHeader starts false
+		rec := &statusRecorder{
+			ResponseWriter: w,
+			status:         http.StatusOK,
+		} //nolint:exhaustruct_v5 // wroteHeader starts false
 		next.ServeHTTP(rec, r)
 
 		duration := time.Since(start).Seconds()
@@ -151,9 +154,12 @@ func (m *metricsCollector) middleware(next http.Handler) http.Handler {
 		m.inFlight--
 
 		key := r.Method + "|" + route + "|" + strconv.Itoa(rec.status)
+
 		series, ok := m.byRoute[key]
 		if !ok {
-			series = &routeSeries{buckets: make([]uint64, len(durationBuckets)+1)} //nolint:exhaustruct_v5 // count/sum zero until incremented
+			series = &routeSeries{
+				buckets: make([]uint64, len(durationBuckets)+1),
+			} //nolint:exhaustruct_v5 // count/sum zero until incremented
 			m.byRoute[key] = series
 		}
 
@@ -241,10 +247,9 @@ func (m *metricsCollector) writeHistogram(b *strings.Builder) {
 		labels := `method="` + escapeLabelValue(parts[0]) + `",route="` + escapeLabelValue(parts[1]) + `"`
 		statusLabel := `,status="` + parts[2] + `"`
 
-		cumulative := uint64(0)
+		var cumulative uint64
 		for i, bound := range durationBuckets {
 			cumulative = series.buckets[i]
-
 			fmt.Fprintf(b, "appkit_http_request_duration_seconds_bucket{%s%s,le=\"%s\"} %d\n",
 				labels, statusLabel, formatBound(bound), cumulative)
 		}

@@ -4,6 +4,23 @@
 
 ### Added
 
+- Opt-in Prometheus metrics surface (`ServiceConfig.Metrics`): a
+  dependency-free text exposition at `GET /metrics` (default) with the
+  stable-contract metric names `appkit_http_request_duration_seconds`
+  (histogram by method/route/status), `appkit_http_responses_total`,
+  `appkit_http_requests_in_flight`, and `appkit_build_info` (version label).
+  Route labels use the ServeMux pattern (cardinality-bounded; unmatched
+  paths collapse to `unmatched`), and Basic Auth is mandatory by default —
+  an unauthenticated configuration is a construction Rejection unless
+  `AllowUnauthenticated` is set explicitly. See README "Metrics" for the
+  OTEL `_ratio` exporter trap.
+- `ServiceConfig.Version` + `GET /version` (JSON): the F5 build-info
+  battery. Also labels `appkit_build_info`.
+- `testkit` sub-package (`github.com/larsartmann/go-appkit/testkit`):
+  `testkit.Serve(t, svc)` starts the REAL service (full middleware chain —
+  the raw-mux `httptest.NewServer(svc.Mux)` trap is encoded as API) and
+  registers teardown with a goroutine-baseline leak assert.
+
 - Shutdown phase logging: every phase of `Service.Shutdown` emits one INFO
   line ("shutdown phase complete" carrying the phase name and its duration) —
   `ready_flip`, `drain_hooks`, `drain_wait` (or a `shutdown phase skipped`
