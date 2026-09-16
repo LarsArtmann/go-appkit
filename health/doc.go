@@ -91,6 +91,17 @@
 // GOEXPERIMENT=jsonv2 is required (go-health serializes responses with
 // encoding/json/v2 and the dashboard depends on go-sse).
 //
+// # Serving notes (verified live 2026-09-16)
+//
+// The dashboard's live view rides GET /health/sse; appkit's default 30s
+// WriteTimeout cuts that stream every 30s (browsers reconnect, so it
+// degrades but works). For a stable stream, set WriteTimeout to
+// appkit.NoTimeout. The default appkit stack emits no
+// Content-Security-Policy, so the dashboard's CDN scripts and inline
+// bootstrap run unblocked; a strict CSP blocks them and renders the
+// dashboard static unless the scripts are self-hosted and the bootstrap
+// carries a nonce.
+//
 // [go-health]: https://github.com/larsartmann/go-health
 // [go-health-dashboard]: https://github.com/larsartmann/go-health-dashboard
 package health

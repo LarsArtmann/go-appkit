@@ -66,6 +66,10 @@ func main() {
 
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = "localhost:" + port
+	// The dashboard's live view rides /health/sse; the default 30s
+	// WriteTimeout would cut the stream every 30s (browser auto-reconnects —
+	// degraded, not broken). NoTimeout keeps the stream stable for the demo.
+	cfg.WriteTimeout = appkit.NoTimeout
 	cfg.RegisterHealth = &healthDisabled
 	cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
 		mounted.Drain()

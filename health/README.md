@@ -118,6 +118,22 @@ SIGTERM ─▶ readyProbe=false ─▶ DrainHooks ─▶ DrainDelay ─▶ conne
 - **Import aliasing** — this package and the SDK are both named `health`.
   Alias this module (`appkithealth "github.com/larsartmann/go-appkit/health"`)
   when you also import `github.com/larsartmann/go-health`.
+- **The dashboard SSE stream wants `WriteTimeout: appkit.NoTimeout`** — the
+  dashboard's live view rides `GET /health/sse`, and the appkit default
+  `WriteTimeout` (30s) cuts the stream every 30s. The browser reconnects
+  automatically, so the default is degraded-but-working; for a stable live
+  view, set `WriteTimeout: appkit.NoTimeout` (keep `ReadHeaderTimeout` and
+  `IdleTimeout` on — appkit's defaults already do). Verified live
+  2026-09-16: the example holds the stream across multiple push intervals.
+- **The default appkit stack sets NO Content-Security-Policy**, so the
+  dashboard's scripts (Datastar bundle + Tailwind via CDN, plus inline
+  bootstrap) execute unblocked — verified 2026-09-16 (response carries
+  `X-Frame-Options`/`nosniff` only). The inverse is the real risk: if you
+  adopt a strict CSP (e.g. httputil's `RecommendedCSP`, `script-src 'self'`),
+  the CDN scripts and inline bootstrap are BLOCKED and the dashboard renders
+  as a static page. For hardened deployments, pair a nonce-carrying CSP with
+  the dashboard's nonce bootstrap (go-health-dashboard v0.8.1+) and
+  self-host/vendor the two CDN scripts.
 
 ## Integration with flightrecorderhealth
 
