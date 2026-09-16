@@ -48,17 +48,20 @@ func NonceFromContext(ctx context.Context) string {
 // AddNonceToScriptSrc parses a CSP header string and adds 'nonce-{nonce}'
 // to the script-src directive's source list. If script-src is not present,
 // the CSP is returned unchanged; an already-present identical nonce is not
-// duplicated.
+// duplicated. The result is normalized to the "; " (semicolon + space)
+// directive separator [BuildCSP] emits.
 func AddNonceToScriptSrc(csp, nonce string) string {
-	directives := strings.Split(csp, ";")
+	raw := strings.Split(csp, ";")
+
+	directives := make([]string, 0, len(raw))
+	for _, directive := range raw {
+		if trimmed := strings.TrimSpace(directive); trimmed != "" {
+			directives = append(directives, trimmed)
+		}
+	}
 
 	for i, directive := range directives {
-		trimmed := strings.TrimSpace(directive)
-		if trimmed == "" {
-			continue
-		}
-
-		parts := strings.Fields(trimmed)
+		parts := strings.Fields(directive)
 		if len(parts) == 0 || parts[0] != scriptSrcDirective {
 			continue
 		}
@@ -66,14 +69,14 @@ func AddNonceToScriptSrc(csp, nonce string) string {
 		nonceToken := fmt.Sprintf("'nonce-%s'", nonce)
 
 		if slices.Contains(parts, nonceToken) {
-			return csp
+			return strings.Join(directives, "; ")
 		}
 
 		parts = append(parts, nonceToken)
 		directives[i] = strings.Join(parts, " ")
 
-		return strings.Join(directives, ";")
+		break
 	}
 
-	return csp
+	return strings.Join(directives, "; ")
 }

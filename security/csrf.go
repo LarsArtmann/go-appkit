@@ -2,6 +2,7 @@ package security
 
 import (
 	"log/slog"
+	"net/http"
 	"slices"
 
 	"github.com/larsartmann/httputil"
