@@ -2,15 +2,24 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-16
+
+### Fixed
+
+- **Un-ghosted the published module.** The `docs/v0.2.0` tag was UNFETCHABLE
+  from the module proxy: the module path declared `.../go-appkit/docs` while
+  the directory was `docs-mod/`, so the proxy found no `docs/go.mod` at the
+  tag and every consumer `go get` failed. Fixed by repathing the directory to
+  `docs/` (project documentation moved to `doc/`) so the module path and
+  directory agree; `docs/v0.3.0` is the first fetchable docs release. No API
+  changes — identical module path and source, only the in-repo directory
+  moved.
+
 ### Added
 
 - `.cqrs-lint.json` module preset (`library`; disables A018/A009 as
   docs-by-design false positives — the module uses catalog/v4 for doc
   generation, not event stores). Tooling config only, no API change.
-
-### Fixed
-
-- Nothing yet.
 
 ## [0.2.0] - 2026-08-15
 
