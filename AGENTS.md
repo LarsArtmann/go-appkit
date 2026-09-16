@@ -106,7 +106,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | `handler.go` | `Handler` (canonical SSE endpoint: CORS→subscribe→replay-with-dedup→heartbeat→forward) + `Mount` convenience for stdlib mux. Functional options for heartbeat, CORS, filtering. |
 
 - **SSE only.** No WebSocket support, provided, or planned.
-- Depends on `go-sse v0.5.0` only (no core, no go-datastar, no go-cqrs-lite dependency).
+- Depends on `go-sse v0.6.0` only (no core, no go-datastar, no go-cqrs-lite dependency).
 - `BroadcastPatch` uses duck-typed `PatchLike interface { Event() sse.Event }` — works with go-datastar patches without importing go-datastar.
 - Handler flushes headers immediately after `NewStream` so clients receive 200 OK without waiting for first event.
 
@@ -164,7 +164,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - Dashboard is opt-in (`WithDashboard`); it then registers the probe endpoints from ITS route config (WithBasePath applies uniformly) and serves `/health` — consumers must set `RegisterHealth: &false` (mux panics on the duplicate otherwise).
 - Without dashboard: probe routes only (`/healthz`, `/readyz`, `/startupz`), coexists with appkit's default health endpoints.
 - `Mounted.Drain` in `DrainHooks` = go-health readiness 503 for the WHOLE drain window, in lockstep with appkit's own ready probe (the reason core gained `DrainHooks`).
-- Dependencies: `go-health v0.1.1`, `go-health-dashboard v0.5.0`, `go-error-family v0.10.0`.
+- Dependencies: `go-health v0.1.3`, `go-health-dashboard v0.7.0` (v0.8.1 available — operator-trust release), `go-error-family v0.10.0`.
 
 ## otel Module — Code Organization
 
@@ -172,7 +172,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `doc.go`          | Package doc: wiring recipe, emitted signals, shutdown ordering, log correlation, one-Setup-per-process rule.                                                                                                                                                                                                                                       |
 | `setup.go`        | `Setup(opts...)` + `Provider` (`AsTracerProvider`/`AsMeterProvider`/`Shutdown`). Options: `WithService`, `WithSpanExporter`, `WithSampler`, `WithMetricReader`, `WithPropagator`, `WithStdoutExporter`, `WithoutGlobalRegistration`. Registers globals + W3C propagator; Shutdown ForceFlushes BOTH providers first.                               |
-| `middleware.go`   | `Middleware(opts...)` bridging otelhttp v0.71. Span named by matched ServeMux pattern (`r.Pattern`, e.g. `GET /users/{id}`) falling back to method — works only when the middleware is ADJACENT to the mux; through `OuterMiddlewares` the pattern is lost (see otel Gotchas). Options: `WithTracerProvider`, `WithMeterProvider`, `WithServerName`, `WithPublicEndpoint` (remote parents → links), `WithFilter`, `WithFilteredPaths`. Health paths unconditionally filtered. |
+| `middleware.go`   | `Middleware(opts...)` bridging otelhttp v0.71. Span named by matched ServeMux pattern (`r.Pattern`, e.g. `GET /users/{id}`) falling back to method — on PUBLISHED httputil this works only adjacent to the mux; fixed upstream in httputil master (pattern propagation, 2026-09-16, ships with v1.2 — see otel Gotchas). Options: `WithTracerProvider`, `WithMeterProvider`, `WithServerName`, `WithPublicEndpoint` (remote parents → links), `WithFilter`, `WithFilteredPaths`. Health paths unconditionally filtered. |
 | `logging.go`      | `TraceHandler` slog decorator stamping `trace_id`/`span_id` when ctx carries a span; `TraceIDFromContext`/`SpanIDFromContext`/`ContextLogger` (return `"none"` without a span).                                                                                                                                                                    |
 | `views.go`        | `NewHTTPViews()` pinning `http.server.request.duration` to `HTTPDurationBoundaries` (semconv 0..10s, 15 values); exact-name match only.                                                                                                                                                                                                            |
 | `attributes.go`   | `ServiceResourceAttributes` (semconv v1.26.0), `NewTextMapPropagator` (TraceContext+Baggage).                                                                                                                                                                                                                                                      |
@@ -186,7 +186,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 - `Service` owns the mux (`svc.Mux`), logger (`svc.Logger`), and HTTP server.
 - Consumer registers routes on `svc.Mux`, then calls `svc.Run(ctx)` which blocks.
-- appkit does NOT delegate to `httputil.Server` (it uses `ListenAndServe()` internally, no listener access). appkit owns `http.Server` + `net.Listener` directly for `Addr() net.Addr`.
+- appkit does NOT delegate to `httputil.Server`, but the original justification ("no listener access") is STALE since httputil v1.1.x: `Server` now exposes `ListenerAddr() (net.Addr, bool)`, `Start`/`StartTLS` (TLS support appkit lacks!), a double-start guard, and graceful shutdown. Composing `httputil.Server` into `Service` is the recommended refactor (2026-09-16 deep-dive audit; unlocks the deferred Core TLS option).
 - httputil is used for: middleware (`Chain`, `Recovery`, `Logging`, etc.), health (`RegisterHealth`), and types (`Middleware`).
 - `ServiceConfig.RegisterHealth` is `*bool`: nil or `&true` = register health, `&false` = opt out.
 - Graceful drain: `Shutdown()` flips `readyProbe` to false → runs `DrainHooks` (external readiness signals flip in lockstep; errors joined, classified Infrastructure) → waits `DrainDelay` → `server.Shutdown(ctx)` → runs `ShutdownHooks` (once, in order; failures don't stop the rest; errors joined + classified Infrastructure).
@@ -197,7 +197,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 | Module                                   | Version | Role                                                 |
 | ---------------------------------------- | ------- | ---------------------------------------------------- |
-| `github.com/larsartmann/httputil`        | v0.12.0 | Middleware, health endpoints, Middleware type        |
+| `github.com/larsartmann/httputil`        | v1.1.1  | Middleware, health endpoints, Middleware type        |
 | `github.com/charmbracelet/log`           | v1.0.0  | Pretty slog handler (Logger implements slog.Handler) |
 | `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification, HTTPStatus, LogError           |
 
@@ -205,7 +205,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 | Module                                   | Version | Role                                                   |
 | ---------------------------------------- | ------- | ------------------------------------------------------ |
-| `github.com/larsartmann/go-sse`          | v0.5.0  | SSE transport: Stream, Broadcaster, EventStore, Replay |
+| `github.com/larsartmann/go-sse`          | v0.6.0  | SSE transport: Stream, Broadcaster, EventStore, Replay |
 | `github.com/larsartmann/go-error-family` | v0.10.0 | Error classification (shared with core)                |
 | `github.com/larsartmann/go-branded-id`   | v0.5.1  | Phantom-typed EventID (transitive via go-sse)          |
 
@@ -213,8 +213,8 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 | Module                                     | Version | Role                                                   |
 | ------------------------------------------ | ------- | ------------------------------------------------------ |
-| `github.com/larsartmann/go-flightrecorder` | v0.1.1  | Flight recorder core: Recorder, triggers, typed errors |
-| `github.com/larsartmann/httputil`          | v0.12.0 | Middleware type, ResponseRecorder for status capture   |
+| `github.com/larsartmann/go-flightrecorder` | v0.2.0  | Flight recorder core: Recorder, triggers, typed errors |
+| `github.com/larsartmann/httputil`          | v1.1.1  | Middleware type, ResponseRecorder for status capture   |
 
 ## otel Module Dependencies
 
@@ -228,15 +228,22 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 
 | Module                                                  | Version | Role                                                                                     |
 | ------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| `github.com/larsartmann/go-cqrs-lite/stack/v4`          | v4.3.0  | Bundle (events, commands, queries, snapshots, checkpoints)                               |
-| `github.com/larsartmann/go-cqrs-lite/stack/sqlite/v4`   | v4.3.0  | SQLite preset (WAL, `SetMaxOpenConns(1)` via `ConfigureSQLitePool`)                      |
+| `github.com/larsartmann/go-cqrs-lite/system/v4`         | v4.7.0  | System builder (domain config, decider/command/query registration, host)                 |
+| `github.com/larsartmann/go-cqrs-lite/command/v4`        | v4.10.0 | Command types, dispatcher                                                                |
+| `github.com/larsartmann/go-cqrs-lite/query/v4`          | v4.8.0  | Query types, dispatcher                                                                  |
+| `github.com/larsartmann/go-cqrs-lite/decider/v4`        | v4.6.0  | Decider type                                                                             |
+| `github.com/larsartmann/go-cqrs-lite/middleware/v4`     | v4.6.0  | Command middleware (Recovery/Tracing/Logging)                                            |
+| `github.com/larsartmann/go-cqrs-lite/otel/v4`           | v4.4.0  | `cqrsotel.Tracer` for command tracing middleware                                         |
+| `github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4` | v4.3.0 | SQLite meta engine (blank import for driver registration)                     |
 | `github.com/larsartmann/go-cqrs-lite/projectionhost/v4` | v4.4.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                               |
-| `github.com/larsartmann/go-cqrs-lite/event/v4`          | v4.9.0  | Event types, stream refs, event construction                                             |
-| `github.com/larsartmann/go-cqrs-lite/id/v4`             | v4.5.0  | Branded IDs (stream, event)                                                              |
+| `github.com/larsartmann/go-cqrs-lite/event/v4`          | v4.11.0 | Event types, stream refs, event construction                                             |
+| `github.com/larsartmann/go-cqrs-lite/id/v4`             | v4.6.0  | Branded IDs (stream, event)                                                              |
 | `github.com/larsartmann/go-cqrs-lite/projection/v4`     | v4.3.0  | Projection type and `NewProjection`                                                      |
+| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.9.0  | SQLite checkpoint store + schema                                                         |
 | `github.com/larsartmann/go-flightrecorder`              | v0.2.0  | Flight recorder (projectionhost v4.4.0 unified on it; shared with appkit/flightrecorder) |
-| `github.com/larsartmann/go-cqrs-lite/storage/v4`        | v4.8.1  | indirect                                                                                 |
 | `github.com/larsartmann/go-error-family`                | v0.10.0 | Error classification (shared with core)                                                  |
+
+All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09-16 against the local checkout).
 
 - Migrated to v4 on 2026-08-15 (was v3.7.x). Migration guide: go-cqrs-lite `docs/migration/MIGRATION-GUIDE.md`.
 - **GOEXPERIMENT=jsonv2 required** (codec/v4 → encoding/json/jsontext).
@@ -256,7 +263,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | `errorpages.go`   | `Config`, `Mount`, `Wrap`, `Handler`, `Write` bridging templ-components/errorpage to go-error-family classification + Accept negotiation. |
 | `example/main.go` | Demo service with pretty 404s and a classified error route.                                                                               |
 
-- Depends on `templ-components/errorpage v1.8.2`, `go-error-family v0.10.0`, `go-appkit v0.2.0` (example only; replace `../` for local dev).
+- Depends on `templ-components/errorpage v1.17.0`, `go-error-family v0.10.0`, `go-appkit v0.4.0` (example only; replace `../` for local dev).
 - Family → status identical to `appkit.HTTPStatus` (Rejection 400, Conflict 409, Transient 503, Corruption 500, Infrastructure 503).
 - `Wrap` mirrors net/http's `cleanPath` to preserve the mux's path-cleaning redirects (doubled slashes, dot segments); only the canonical request that follows gets the pretty 404.
 - Render failures fall back to a plain-text response with the correct status (inherited from errorpage's buffer-before-write rendering).
@@ -321,8 +328,8 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 ## otel Module Gotchas
 
 - **One `Setup` per process** across go-appkit/otel AND go-cqrs-lite's otel module — both register globals; pick one owner for the tracer/meter providers.
-- **Span names + `http.route` metrics are LOST through `OuterMiddlewares` (verified 2026-09-15).** otelhttp reads `r.Pattern` on its own request fork after the handler; any middleware between otel and the mux that re-forks the request (`RequestID`, `Timeout`, Logging's ctx helper — all `r.WithContext`) means ServeMux's `r.Pattern = ...` lands on a fork otel never sees → live spans flush as bare `GET` and metrics carry no `http.route`. Version-independent (not the v0.68→v0.71 bump). The 23 tests pass because they wrap the mux directly. Fix lives in httputil (forking middlewares propagate `r.Pattern` back up); tracked TODO_LIST P2 with the full bisection.
-- **Benchmark drift (2026-09-15):** same-box re-run measured no-op ~26.4µs / traced ~29.8µs vs the README-recorded 21.2/26.4/27.4µs — re-baseline with benchstat before trusting the README table; don't chase phantom regressions.
+- **Span names + `http.route` metrics are LOST through `OuterMiddlewares` (verified 2026-09-15).** otelhttp reads `r.Pattern` on its own request fork after the handler; any middleware between otel and the mux that re-forks the request (`RequestID`, `Timeout`, Logging's ctx helper — all `r.WithContext`) means ServeMux's `r.Pattern = ...` lands on a fork otel never sees → live spans flush as bare `GET` and metrics carry no `http.route`. Version-independent (not the v0.68→v0.71 bump). The 23 tests pass because they wrap the mux directly. **UPSTREAM FIX EXISTS BUT IS UNRELEASED (2026-09-16):** httputil master commit `ff44c5f` propagates `r.Pattern` back up in context.go/requestid.go/timeout.go/nonce.go — contained in NO tag yet (lands in v1.2). When httputil v1.2 tags: bump, re-verify span names through OuterMiddlewares, close TODO_LIST P2. Note v1.2 also changes Compression's default for requests without `Accept-Encoding` (appkit's default stack doesn't enable Compression, so no appkit impact). Fix verification (2026-09-16): covers all FIVE pure-httputil fork sites (`ServerTimingMiddlewareWhen` too), regression-pinned by `TestPatternPropagation*` (each case fails on its fork site pre-fix), zero added allocations, and E2E-verified through a real appkit `Service` with `OuterMiddlewares` (published httputil v1.1.1: span `"GET"` + no route attr; fixed: `"GET /users/{id}"` + `http.route /users/{id}`). Contract going forward: any httputil middleware that forks with `r.WithContext` must propagate `r2.Pattern` back. Known uncovered: CSRF (forks behind justinas/nosurf, which forks internally) — not in the default stack. The release train also adds the integration-module pin test (needs published tags first).
+- **Benchmark drift (2026-09-15/16):** the otel README table now carries the 2026-09-16 n=10 re-baseline (no-op 20.0µs ± 0.4 / traced 21.8µs ± 0.9 / traced+metered 23.3µs ± 2.0). The 2026-09-15 "~25% higher" readings were machine load — the same box measured ~25% LOWER one day later; run-to-run drift here is ±25%, so treat single-run deltas under that as noise and don't chase phantom regressions.
 - **go-cqrs-lite's otel `Provider.Shutdown` ForceFlush bug is FIXED upstream** (verified 2026-09-15: their setup.go flushes tracer AND meter before Shutdown, pinned by `TestProvider_Shutdown_FlushesBeforeShutdown`) — older session notes calling it "latent upstream" are obsolete.
 
 ## Health Module Gotchas
