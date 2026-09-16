@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-16
+
 ### Changed
 
 - Bumped `go-health` v0.1.1 → v0.1.3 and `go-error-family` v0.10.0 →
