@@ -1,5 +1,11 @@
 # OTEL Pattern-Propagation Pin Test — land with the release train
 
+**LANDED 2026-09-16** — the train ran (httputil v1.2.0 → otel v0.1.1) and the
+test now lives at `integration/otel_pattern_test.go`, green against the
+published tags (`TestSpanNameAndRouteThroughAppkitOuterMiddlewares`: span
+`"GET /users/{id}"` + `http.route /users/{id}`). This document is the
+provenance/recipe record.
+
 **Created:** 2026-09-16 · **Type:** release-train artifact (recoverable recipe +
 verbatim test). **Owner:** TODO_LIST P2 "OTEL REGRESSION" release train.
 
