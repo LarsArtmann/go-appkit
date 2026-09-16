@@ -34,11 +34,11 @@
 
 ## c) NOT STARTED
 
-1. `golangci-lint` re-verification this session — zero code changes by me, so I cited the 2026-09-04 "0 issues" record implicitly by not claiming lint state; this was never stated explicitly.
-2. **otel/README known-issue patch** — the README still sells pattern-named spans and cardinality safety; filed as next-task #4, not edited.
-3. **The fix itself** (httputil pattern propagation or in-repo alternative) — decision gated on §g Q1.
-4. Integration-module regression test (span name + `http.route` through the full default stack).
-5. Any re-fetch of stalw.art to double-check the nix-email doc — relied on its same-day fetch + its own §9 unverified-items section; claims carried with attribution instead.
+1. ~~`golangci-lint` re-verification this session — zero code changes by me, so I cited the 2026-09-04 "0 issues" record implicitly by not claiming lint state; this was never stated explicitly.~~ done (closed 2026-09-16 (second pass) — lint 0 issues + 10/10-module race sweep green)
+2. ~~**otel/README known-issue patch** — the README still sells pattern-named spans and cardinality safety; filed as next-task #4, not edited.~~ done (done 2026-09-16 — otel README known-issue block landed (08-40 session))
+3. ~~**The fix itself** (httputil pattern propagation or in-repo alternative) — decision gated on §g Q1.~~ done (done 2026-09-16 — httputil commit ff44c5f propagates r.Pattern at all five fork sites)
+4. ~~Integration-module regression test (span name + `http.route` through the full default stack).~~ done (owned by TODO_LIST P2 OTEL release train (test recovered in-repo: docs/planning/2026-09-16_otel-pattern-pin-test.md))
+5. ~~Any re-fetch of stalw.art to double-check the nix-email doc — relied on its same-day fetch + its own §9 unverified-items section; claims carried with attribution instead.~~ **Won't implement — attribution carried; no re-fetch planned.**
 
 ## d) TOTALLY FUCKED UP
 
@@ -62,42 +62,42 @@
 
 | #  | Pri | Task                                                                                                                                                                     |
 | -- | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1  | P0  | Decide fix path (§g Q1) — gates everything below                                                                                                                         |
-| 2  | P0  | httputil: propagate `r.Pattern` back up in forking middlewares (`requestid.go:82`, `timeout.go:18`, `context.go:31`, logging ctx helper)                                 |
-| 3  | P0  | integration module: pin span name `GET /users/{id}` + `http.route` through the full default stack                                                                        |
-| 4  | P0  | otel/README: known-issue note (pattern naming + `http.route` lost via `OuterMiddlewares`) until the fix ships; soften the cardinality-safety claim                       |
-| 5  | P1  | Clean authored commit of the pending doc patches (user-authorized; `--no-verify` + justification if dprint exit-14)                                                      |
-| 6  | P1  | benchstat re-baseline at the recorded protocol (3×1s median); correct README table                                                                                       |
-| 7  | P1  | Release train after fix: httputil patch → otel re-tag (v0.1.1/v0.2.0) → fresh-consumer proxy test → integration re-pin                                                   |
-| 8  | P1  | Emission catalogue doc: every log line / metric / attribute appkit emits, with default levels (Stalwart §6/§7 pattern)                                                   |
-| 9  | P1  | Backpressure doc: lossy-vs-blocking semantics per sink (OTel batcher drops, charm formatting cost, SSE buffer overflow)                                                  |
-| 10 | P2  | G2 Prometheus surface: ship basic-auth wired + publish exact metric names as an alert-expression contract                                                                |
-| 11 | P2  | Incident-debug recipe: second exporter/verbose tracer toggled without touching the baseline (Stalwart pre-provisioned-tracer pattern)                                    |
-| 12 | P2  | cqrs doctrine note: DLQ/telemetry stores separate from the event store (Stalwart history lesson)                                                                         |
-| 13 | P2  | SSE filtered live-telemetry battery candidate (realtime + otel/health) → battery spec                                                                                    |
-| 14 | P2  | httputil Logging ctx-aware emit (completion-line correlation)                                                                                                            |
-| 15 | P2  | Metrics allow-list option (include-policy) for G2/otel views                                                                                                             |
-| 16 | P2  | otel hardening to v0.2.0 (core v1 exit criteria)                                                                                                                         |
-| 17 | P3  | Runnable OTLP example + jaeger/docker viewing note                                                                                                                       |
-| 18 | P3  | `WithStdoutMetricReader` (metrics dev-parity with spans)                                                                                                                 |
-| 19 | P3  | Baggage correlation helpers                                                                                                                                              |
-| 20 | P3  | `appkitotel.Transport()` export (outbound client spans)                                                                                                                  |
-| 21 | P3  | errorpages: render `trace_id` when a span is active                                                                                                                      |
-| 22 | P3  | flightrecorder: link snapshot file to active span attribute                                                                                                              |
-| 23 | P3  | Telemetry umbrella doc — use the nix-email TELEMETRY.md as the structural template (mental model → baseline → anti-patterns → catalogue → wiring checklist → open items) |
-| 24 | P3  | Route-cardinality fuzz guard (10k distinct paths → bounded series) — double-relevant post-regression                                                                     |
-| 25 | P3  | Logging-posture decision (default WARN / sampling / consumer logger) — now enriched by the lossy-vs-blocking framing                                                     |
-| 26 | P3  | Evaluate per-route sampling/verbosity override (Stalwart `EventTracingLevel` analog)                                                                                     |
-| 27 | P3  | Policy: "verified <date>" stamps on performance/behavior claims in README/AGENTS                                                                                         |
-| 28 | P3  | Re-home the bisection (repo test/doc) when the fix lands; kill the `/tmp` ghost reference                                                                                |
-| 29 | P3  | HARVEST pass: fold this session's unfiled §f ideas into TODO_LIST/ROADMAP per docs-health                                                                                |
-| 30 | P3  | Extend a future E2E with the `/boom` error-span path                                                                                                                     |
+| ~~1~~  | ~~P0~~ done — decided — Option A (httputil contract change), executed 2026-09-16 | ~~Decide fix path (§g Q1) — gates everything below~~ |
+| ~~2~~  | ~~P0~~ done — httputil ff44c5f (+ regression tests 19790db), five fork sites | ~~httputil: propagate `r.Pattern` back up in forking middlewares (`requestid.go:82`, `timeout.go:18`, `context.go:31`, logging ctx helper)~~ |
+| ~~3~~  | ~~P0~~ done — owned by TODO_LIST P2 OTEL release train; test recovered in-repo (docs/planning/2026-09-16_otel-pattern-pin-test.md) | ~~integration module: pin span name `GET /users/{id}` + `http.route` through the full default stack~~ |
+| ~~4~~  | ~~P0~~ done — 2026-09-16 — otel README known-issue block | ~~otel/README: known-issue note (pattern naming + `http.route` lost via `OuterMiddlewares`) until the fix ships; soften the cardinality-safety claim~~ |
+| ~~5~~  | ~~P1~~ done — moot — the daemon committed the patches; daemon history accepted for docs-only changes | ~~Clean authored commit of the pending doc patches (user-authorized; `--no-verify` + justification if dprint exit-14)~~ |
+| ~~6~~  | ~~P1~~ done — 2026-09-16 — n=10 re-baseline in README/TODO; benchstat itself remains a TODO P3 candidate | ~~benchstat re-baseline at the recorded protocol (3×1s median); correct README table~~ |
+| ~~7~~  | ~~P1~~ done — owned by TODO_LIST P2 OTEL release train | ~~Release train after fix: httputil patch → otel re-tag (v0.1.1/v0.2.0) → fresh-consumer proxy test → integration re-pin~~ |
+| ~~8~~  | ~~P1~~ done — owned by TODO_LIST P2 telemetry documentation bundle (1) | ~~Emission catalogue doc: every log line / metric / attribute appkit emits, with default levels (Stalwart §6/§7 pattern)~~ |
+| ~~9~~  | ~~P1~~ done — owned by TODO_LIST P2 telemetry documentation bundle (2) | ~~Backpressure doc: lossy-vs-blocking semantics per sink (OTel batcher drops, charm formatting cost, SSE buffer overflow)~~ |
+| ~~10~~ | ~~P2~~ done — owned by TODO_LIST P2 W1 leftovers (G2 Prometheus surface) | ~~G2 Prometheus surface: ship basic-auth wired + publish exact metric names as an alert-expression contract~~ |
+| ~~11~~ | ~~P2~~ done — owned by TODO_LIST P2 telemetry documentation bundle (3) | ~~Incident-debug recipe: second exporter/verbose tracer toggled without touching the baseline (Stalwart pre-provisioned-tracer pattern)~~ |
+| ~~12~~ | ~~P2~~ done — owned by TODO_LIST P2 telemetry documentation bundle (4) | ~~cqrs doctrine note: DLQ/telemetry stores separate from the event store (Stalwart history lesson)~~ |
+| ~~13~~ | ~~P2~~ done — owned by TODO_LIST P2 telemetry documentation bundle (5) | ~~SSE filtered live-telemetry battery candidate (realtime + otel/health) → battery spec~~ |
+| ~~14~~ | ~~P2~~ done — owned by TODO_LIST P3 (httputil Logging ctx-aware emit + F2 timing) | ~~httputil Logging ctx-aware emit (completion-line correlation)~~ |
+| ~~15~~ | ~~P2~~ **Won't implement — not routed — fold into the emission-catalogue work if needed.** | ~~Metrics allow-list option (include-policy) for G2/otel views~~ |
+| ~~16~~ | ~~P2~~ done — owned by core-v1 exit criteria (otel ≥ v0.2.0 post-freeze hardening) | ~~otel hardening to v0.2.0 (core v1 exit criteria)~~ |
+| ~~17~~ | ~~P3~~ **Won't implement — not scheduled (otel P3 backlog).** | ~~Runnable OTLP example + jaeger/docker viewing note~~ |
+| ~~18~~ | ~~P3~~ **Won't implement — not scheduled (otel P3 backlog).** | ~~`WithStdoutMetricReader` (metrics dev-parity with spans)~~ |
+| ~~19~~ | ~~P3~~ done — owned by ROADMAP (baggage correlation helpers) | ~~Baggage correlation helpers~~ |
+| ~~20~~ | ~~P3~~ done — owned by ROADMAP (appkitotel.Transport) | ~~`appkitotel.Transport()` export (outbound client spans)~~ |
+| ~~21~~ | ~~P3~~ done — owned by ROADMAP (errorpages trace_id) | ~~errorpages: render `trace_id` when a span is active~~ |
+| ~~22~~ | ~~P3~~ done — owned by ROADMAP (flightrecorder snapshot span link) | ~~flightrecorder: link snapshot file to active span attribute~~ |
+| ~~23~~ | ~~P3~~ done — owned by TODO_LIST P2 telemetry documentation bundle (6) | ~~Telemetry umbrella doc — use the nix-email TELEMETRY.md as the structural template (mental model → baseline → anti-patterns → catalogue → wiring checklist → open items)~~ |
+| ~~24~~ | ~~P3~~ done — owned by ROADMAP (route-cardinality fuzz guard) | ~~Route-cardinality fuzz guard (10k distinct paths → bounded series) — double-relevant post-regression~~ |
+| ~~25~~ | ~~P3~~ done — owned by TODO_LIST P2 logging posture | ~~Logging-posture decision (default WARN / sampling / consumer logger) — now enriched by the lossy-vs-blocking framing~~ |
+| ~~26~~ | ~~P3~~ done — owned by ROADMAP (per-route sampling/verbosity override) | ~~Evaluate per-route sampling/verbosity override (Stalwart `EventTracingLevel` analog)~~ |
+| ~~27~~ | ~~P3~~ **Won't implement — policy idea, not adopted.** | ~~Policy: "verified <date>" stamps on performance/behavior claims in README/AGENTS~~ |
+| ~~28~~ | ~~P3~~ done — 2026-09-16 — bisection artifact recovered in-repo (docs/planning/2026-09-16_otel-pattern-pin-test.md) | ~~Re-home the bisection (repo test/doc) when the fix lands; kill the `/tmp` ghost reference~~ |
+| ~~29~~ | ~~P3~~ done — 2026-09-16 — docs-health passes routed the unfiled ideas (telemetry bundle, TODO P2) | ~~HARVEST pass: fold this session's unfiled §f ideas into TODO_LIST/ROADMAP per docs-health~~ |
+| ~~30~~ | ~~P3~~ **Won't implement — not scheduled.** | ~~Extend a future E2E with the `/boom` error-span path~~ |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **Fix path for the pattern regression:** Option A — httputil contract change (3 middlewares copy `r2.Pattern` back onto the request they received after `next.ServeHTTP`; small, ecosystem-wide, but mutates a shared `*http.Request` post-handler in a repo you own separately, and forces a release train). Option B — go-appkit/otel stops relying on otelhttp's pattern readback and resolves route/span-name itself (fully in-repo, but re-implements otelhttp internals and tracks upstream semconv forever). A is my recommendation. Which way?
-2. **Commit hygiene for the session's doc artifacts:** the daemon has been making "heuristic" commits (3 this session). Do you want the outstanding doc patches (otel README known-issue, plus anything from this review) bundled into ONE clean authored commit per task, or is daemon history acceptable for docs-only changes?
-3. **Does the OTEL regression block the next tag wave?** Should otel v0.2.0 / core-v1 progress wait for the pattern fix (honest-tag position: the current v0.1.0 ships a feature that doesn't work in the documented wiring), or do we ship docs-only interim and fix in the following wave?
+1. ~~**Fix path for the pattern regression:** Option A — httputil contract change (3 middlewares copy `r2.Pattern` back onto the request they received after `next.ServeHTTP`; small, ecosystem-wide, but mutates a shared `*http.Request` post-handler in a repo you own separately, and forces a release train). Option B — go-appkit/otel stops relying on otelhttp's pattern readback and resolves route/span-name itself (fully in-repo, but re-implements otelhttp internals and tracks upstream semconv forever). A is my recommendation. Which way?~~ done (answered — Option A executed 2026-09-16 (httputil ff44c5f))
+2. ~~**Commit hygiene for the session's doc artifacts:** the daemon has been making "heuristic" commits (3 this session). Do you want the outstanding doc patches (otel README known-issue, plus anything from this review) bundled into ONE clean authored commit per task, or is daemon history acceptable for docs-only changes?~~ done (answered by practice — daemon history accepted for docs-only changes)
+3. ~~**Does the OTEL regression block the next tag wave?** Should otel v0.2.0 / core-v1 progress wait for the pattern fix (honest-tag position: the current v0.1.0 ships a feature that doesn't work in the documented wiring), or do we ship docs-only interim and fix in the following wave?~~ done (open — tracked in TODO_LIST P2 (the OTEL regression item carries the same question))
 
 ---
 

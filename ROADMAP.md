@@ -58,6 +58,9 @@ appkit never grows application-shaped code.
 - Observability umbrella: one telemetry doc tying otel + flightrecorder +
   health together; emission catalogue; per-route sampling/verbosity override
   (Stalwart `EventTracingLevel` analog). (Refined subset in TODO_LIST P2.)
+- Route-cardinality fuzz guard: 10k distinct request paths must produce a
+  bounded metric series (double-relevant after the pattern-propagation
+  regression).
 - `httpx` handler-DX module (ResultHandler family, bind+validate, no-leak
   errors) — W3 of the battery program; requires a core route-registration seam
   (`svc.Routes()`) for introspection that core has not agreed to yet.
