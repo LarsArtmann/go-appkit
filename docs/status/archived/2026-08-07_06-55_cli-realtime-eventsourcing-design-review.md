@@ -140,65 +140,65 @@ I proposed `app.CLI().Command(...)` without choosing or even discussing what CLI
 
 ### Validation (do these FIRST — before any code)
 
-~~1. **Read `docs/planning/execution-plan.md`** — understand the current execution plan~~ resolved
-~~2. **Read all status reports in `docs/status/`** — understand what's been tried and decided~~ resolved
-~~3. **Read `docs/planning/improvement-audit.md`** — understand known issues~~ resolved
-~~4. **Read `docs/planning/integrations.md`** — understand integration plans~~ resolved
-~~5. **Verify go-error-family actual API** — `Classify` vs `Family`, actual error categories, `HandleError` signature~~ resolved
-~~6. **Verify `system` package actual public API** — does `DefaultSQLiteDeployment` exist? What constructors are available?~~ done at v0.4.0 (DrainHooks/ShutdownHooks)
-~~7. **Check if `system/v4` is stable or experimental** — go-cqrs-lite ROADMAP.md and FEATURES.md~~ done — health module (2026-09-04)
-~~8. **Verify `event.Bus` interface** — exact method signatures for Publish, Subscribe, SubscribeAll~~ Won't implement — consumer middleware, per the shipped design
-~~9. **Check `system/config_loader.go`** — how DeploymentConfig loads from YAML/env~~ done — go-sse EventStore replay in realtime.Handler
-~~10. **Read `system/introspection.go`** — Health(), Explain(), Snapshot() signatures~~ done — WithCORSOrigin
+~~1. **Read `docs/planning/execution-plan.md`** — understand the current execution plan~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~2. **Read all status reports in `docs/status/`** — understand what's been tried and decided~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~3. **Read `docs/planning/improvement-audit.md`** — understand known issues~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~4. **Read `docs/planning/integrations.md`** — understand integration plans~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~5. **Verify go-error-family actual API** — `Classify` vs `Family`, actual error categories, `HandleError` signature~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~6. **Verify `system` package actual public API** — does `DefaultSQLiteDeployment` exist? What constructors are available?~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~7. **Check if `system/v4` is stable or experimental** — go-cqrs-lite ROADMAP.md and FEATURES.md~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~8. **Verify `event.Bus` interface** — exact method signatures for Publish, Subscribe, SubscribeAll~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~9. **Check `system/config_loader.go`** — how DeploymentConfig loads from YAML/env~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~10. **Read `system/introspection.go`** — Health(), Explain(), Snapshot() signatures~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
 
 ### Design reconciliation
 
-~~11. **Reconcile proposed design with Decision 4** (stack/sqlite as separate module) — either amend the decision or design within its constraint~~ Won't implement — no CLI runtime was ever built
-~~12. **Reconcile proposed design with Decision 9** (versioning) — define version strategy for new realtime module and cqrs rewrite~~ done at cqrs v0.5.0 (ConfigPath/Deployment operator config)
-~~13. **Reconcile shutdown ordering with Decision 10** — compose System.Close() with Service.Shutdown() correctly~~ tracked in ROADMAP.md (multi-instance realtime)
-~~14. **Reconcile ErrorRenderer with Decision 6** — Decision 6 already defines boundary terminators; extend, don't replace~~ resolved
-~~15. **Decide: evolve `EventService` or replace it** — impact analysis of each path~~ resolved
-~~16. **Decide CLI framework** — cobra vs urfave/cli vs custom, with dependency cost analysis~~ resolved
-~~17. **Decide SSE implementation** — raw `net/http` (stdio) vs library (depends on complexity)~~ resolved
-~~18. **Decide WebSocket strategy** — opt-in submodule? part of realtime? deferred?~~ resolved
-~~19. **Design the v3 → v4 migration path** — if cqrs moves to system/v4, all transitive deps bump~~ resolved
-~~20. **Design SSE auth model** — cookie, query param, or token-in-header via EventSource polyfill~~ resolved
-~~21. **Design SSE reconnect/replay** — Last-Event-ID → SeekableJournal.Seek → replay missed events~~ resolved
-~~22. **Design projection catch-up in CLI mode** — synchronous wait or fire-and-forget~~ resolved
-~~23. **Design `AppConfig` type** — what fields, what defaults, what validation~~ resolved
-~~24. **Design `AppOption` functional options** — logger, middleware, realtime, CLI config~~ resolved
-~~25. **Design health integration** — `/health/ready` calls `system.Health()` in addition to ready probe~~ resolved
+~~11. **Reconcile proposed design with Decision 4** (stack/sqlite as separate module) — either amend the decision or design within its constraint~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~12. **Reconcile proposed design with Decision 9** (versioning) — define version strategy for new realtime module and cqrs rewrite~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~13. **Reconcile shutdown ordering with Decision 10** — compose System.Close() with Service.Shutdown() correctly~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~14. **Reconcile ErrorRenderer with Decision 6** — Decision 6 already defines boundary terminators; extend, don't replace~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~15. **Decide: evolve `EventService` or replace it** — impact analysis of each path~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~16. **Decide CLI framework** — cobra vs urfave/cli vs custom, with dependency cost analysis~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~17. **Decide SSE implementation** — raw `net/http` (stdio) vs library (depends on complexity)~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~18. **Decide WebSocket strategy** — opt-in submodule? part of realtime? deferred?~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~19. **Design the v3 → v4 migration path** — if cqrs moves to system/v4, all transitive deps bump~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~20. **Design SSE auth model** — cookie, query param, or token-in-header via EventSource polyfill~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~21. **Design SSE reconnect/replay** — Last-Event-ID → SeekableJournal.Seek → replay missed events~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~22. **Design projection catch-up in CLI mode** — synchronous wait or fire-and-forget~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~23. **Design `AppConfig` type** — what fields, what defaults, what validation~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~24. **Design `AppOption` functional options** — logger, middleware, realtime, CLI config~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~25. **Design health integration** — `/health/ready` calls `system.Health()` in addition to ready probe~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
 
 ### Implementation (after design is validated)
 
-~~26. **Create `app.go`** — App type with New(), RunCLI(), Serve(), Run(), Close()~~ resolved
-~~27. **Create `app_test.go`** — test all three runtime modes~~ resolved
-~~28. **Create `cli.go`** — CLI subcommand registry and dispatch~~ resolved
-~~29. **Create `cli_test.go`** — test CLI dispatch and exit codes~~ resolved
-~~30. **Create `errorrender.go`** — audience-aware error rendering (CLI, HTTP, SSE)~~ resolved
-~~31. **Create `errorrender_test.go`** — test all classification → audience mappings~~ resolved
-~~32. **Create `appkit/realtime/` module** — go.mod, hub.go, sse.go~~ resolved
-~~33. **Create `realtime/hub.go`** — Hub type subscribing to event.Bus, fan-out to clients~~ resolved
-~~34. **Create `realtime/sse.go`** — SSE HTTP handler with Last-Event-ID support~~ resolved
-~~35. **Create `realtime/hub_test.go`** — test fan-out, backpressure, client lifecycle~~ resolved
-~~36. **Create `realtime/sse_test.go`** — test SSE encoding, reconnect, filtering~~ resolved
-~~37. **Rewrite `cqrs/systemservice.go`** — wrap system.System instead of stack/sqlite.Bundle~~ resolved
-~~38. **Create `cqrs/systemservice_test.go`** — test lifecycle integration~~ resolved
-~~39. **Update `cqrs/go.mod`** — v3 → v4 dependencies (if migration is approved)~~ resolved
-~~40. **Update `example/main.go`** — show CLI + HTTP + realtime in one example~~ resolved
-~~41. **Create `example/main_test.go`** — test the example end-to-end~~ resolved
-~~42. **Add SSE CORS middleware** — configurable CORS for realtime endpoints~~ resolved
-~~43. **Add SSE filtering** — query param filtering by event type and stream ID~~ resolved
-~~44. **Add backpressure strategy config** — DropOldest vs CloseClient, buffer size~~ resolved
-~~45. **Integrate system introspection** — `/health/system` endpoint calling system.Health()~~ resolved
+~~26. **Create `app.go`** — App type with New(), RunCLI(), Serve(), Run(), Close()~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~27. **Create `app_test.go`** — test all three runtime modes~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~28. **Create `cli.go`** — CLI subcommand registry and dispatch~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~29. **Create `cli_test.go`** — test CLI dispatch and exit codes~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~30. **Create `errorrender.go`** — audience-aware error rendering (CLI, HTTP, SSE)~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~31. **Create `errorrender_test.go`** — test all classification → audience mappings~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~32. **Create `appkit/realtime/` module** — go.mod, hub.go, sse.go~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~33. **Create `realtime/hub.go`** — Hub type subscribing to event.Bus, fan-out to clients~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~34. **Create `realtime/sse.go`** — SSE HTTP handler with Last-Event-ID support~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~35. **Create `realtime/hub_test.go`** — test fan-out, backpressure, client lifecycle~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~36. **Create `realtime/sse_test.go`** — test SSE encoding, reconnect, filtering~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~37. **Rewrite `cqrs/systemservice.go`** — wrap system.System instead of stack/sqlite.Bundle~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~38. **Create `cqrs/systemservice_test.go`** — test lifecycle integration~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~39. **Update `cqrs/go.mod`** — v3 → v4 dependencies (if migration is approved)~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~40. **Update `example/main.go`** — show CLI + HTTP + realtime in one example~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~41. **Create `example/main_test.go`** — test the example end-to-end~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~42. **Add SSE CORS middleware** — configurable CORS for realtime endpoints~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~43. **Add SSE filtering** — query param filtering by event type and stream ID~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~44. **Add backpressure strategy config** — DropOldest vs CloseClient, buffer size~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~45. **Integrate system introspection** — `/health/system` endpoint calling system.Health()~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
 
 ### Documentation
 
-~~46. **Update `AGENTS.md`** — add App, CLI, realtime to module table~~ resolved
-~~47. **Update `docs/planning/design-decisions.md`** — add decisions for CLI, realtime, error rendering~~ resolved
-~~48. **Update `docs/planning/framework-architecture.md`** — add realtime module to the diagram~~ resolved
-~~49. **Write realtime module README** — SSE usage, auth, backpressure, scaling limitations~~ resolved
-~~50. **Write migration guide** — EventService → SystemService for existing consumers~~ resolved
+~~46. **Update `AGENTS.md`** — add App, CLI, realtime to module table~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~47. **Update `docs/planning/design-decisions.md`** — add decisions for CLI, realtime, error rendering~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~48. **Update `docs/planning/framework-architecture.md`** — add realtime module to the diagram~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~49. **Write realtime module README** — SSE usage, auth, backpressure, scaling limitations~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
+~~50. **Write migration guide** — EventService → SystemService for existing consumers~~ superseded — this design was replaced same day by the SSE-only design (08:30 report)
 
 ---
 

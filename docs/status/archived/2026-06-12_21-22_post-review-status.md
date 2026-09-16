@@ -160,9 +160,9 @@ Sorted by impact × effort (highest first):
 
 ~~The codebase is a small utility library (5 concerns, ~500 LOC of source code). Some next steps depend entirely on the answer:~~ Answered: public framework, shipped on 0.x waves; v1.0.0 exit criteria drafted 2026-09-04 (docs/planning/core-v1-exit-criteria.md)
 
-~~- **If targeting internal use only (Lars' projects):** We can skip CI, fuzzing, benchmarks, and focus on keeping it lean. The current state is excellent for this.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
-~~- **If targeting open-source / public use:** We need README updates urgently, CI pipeline, godoc-quality package docs, semantic versioning, and probably a v1.0.0 stability promise.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
-~~- **If targeting a larger feature set (middleware, metrics, tracing):** We should decide the scope now before the API surface grows. Adding middleware, metrics, or tracing fundamentally changes what this library IS.~~ done at v0.2.0 rewrite (DOMAIN_LANGUAGE.md filled 2026-09-16)
+~~- **If targeting internal use only (Lars' projects):** We can skip CI, fuzzing, benchmarks, and focus on keeping it lean. The current state is excellent for this.~~ Answered: public framework, shipped on 0.x waves; v1.0.0 exit criteria drafted 2026-09-04
+~~- **If targeting open-source / public use:** We need README updates urgently, CI pipeline, godoc-quality package docs, semantic versioning, and probably a v1.0.0 stability promise.~~ Answered: public framework, shipped on 0.x waves; v1.0.0 exit criteria drafted 2026-09-04
+~~- **If targeting a larger feature set (middleware, metrics, tracing):** We should decide the scope now before the API surface grows. Adding middleware, metrics, or tracing fundamentally changes what this library IS.~~ Answered: public framework, shipped on 0.x waves; v1.0.0 exit criteria drafted 2026-09-04
 
 This decision shapes whether items #1-25 are "nice to have" or "critical before next release."
 
