@@ -1,14 +1,24 @@
 package health_test
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/larsartmann/go-appkit/health"
+	gohealth "github.com/larsartmann/go-health"
 	"github.com/larsartmann/go-health-dashboard"
 )
+
+// gohealthRoutes builds the custom probe-route set (go-health's Routes type
+// aliased locally to avoid the package-name collision in this file).
+func gohealthRoutes() gohealth.Routes {
+	return gohealth.Routes{
+		Liveness:  "/custom/live",
+		Readiness: "/custom/ready",
+		Startup:   "/custom/start",
+	}
+}
 
 // TestWithDashboard_ReplacesProbeRoutes pins the documented conflict
 // semantics: with the dashboard on, `WithProbeRoutes` is IGNORED (the
@@ -21,11 +31,7 @@ func TestWithDashboard_ReplacesProbeRoutes(t *testing.T) {
 	mounted, err := health.New(
 		health.NewProbe(nil),
 		health.WithDashboard(),
-		health.WithProbeRoutes(health.Routes{ //nolint:exhaustruct_v5 // partial: field names below
-			Liveness: "/custom/live",
-			Readiness: "/custom/ready",
-			Startup:  "/custom/start",
-		}),
+		health.WithProbeRoutes(gohealthRoutes()),
 	)
 	if err != nil {
 		t.Fatalf("New: %v", err)
