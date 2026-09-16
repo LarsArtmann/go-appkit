@@ -283,14 +283,15 @@ func eventsAfter(
 // Retry hint. Best-effort: a client that already disconnected gets no error
 // event, and the write failure is only logged.
 func sendStreamError(ctx context.Context, stream *sse.Stream, msg string) {
-	errEvt := sse.Event{
+	errEvt := sse.Event{ //nolint:exhaustruct_v5 // ID deliberately empty: the error event is not replayable
 		Event: "error",
 		Data:  msg,
 		Retry: streamErrorRetryMillis,
 	}
 
-	if err := stream.Send(errEvt); err != nil {
-		slog.WarnContext(ctx, "realtime: error event send failed", "err", err)
+	sendErr := stream.Send(errEvt)
+	if sendErr != nil {
+		slog.WarnContext(ctx, "realtime: error event send failed", "err", sendErr)
 	}
 }
 
