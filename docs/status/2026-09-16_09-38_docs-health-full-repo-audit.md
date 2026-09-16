@@ -9,14 +9,14 @@
 
 ## Signals
 
-| Signals | Count |
-| --- | --- |
-| a) Fully done | 9 |
-| b) Partially done | 5 |
-| c) Not started | 8 |
-| d) Totally fucked up | 9 |
-| f) Next tasks listed | 50 |
-| g) Questions asked | 3 |
+| Signals              | Count |
+| -------------------- | ----- |
+| a) Fully done        | 9     |
+| b) Partially done    | 5     |
+| c) Not started       | 8     |
+| d) Totally fucked up | 9     |
+| f) Next tasks listed | 50    |
+| g) Questions asked   | 3     |
 
 ---
 
@@ -69,7 +69,7 @@ Also fixed on sight: `otel/README.md` known-issue section (pattern naming + `htt
 6. **Hand-rolled the annotation tooling** despite the skill explicitly saying "do not hand-roll" and shipping `annotate-rows.py`/`annotate-prose.py`. The hand-rolled script caused d-1/d-3/d-4. The skill's section-scoping (upstreamed 2026-09-14) would have prevented all three.
 7. ~~**Dropped items during the TODO_LIST rebuild:** the "decide `shutdown phase skipped` log level (INFO vs DEBUG)" item (18-57 §f-5) was consciously noted and then silently dropped in the rewrite; the CSP verification (c-7) was missed entirely. A rebuild needs a diff-of-items check ("every old open item is either present, done-in-CHANGELOG, or explicitly rejected").~~ done (restored 2026-09-16 — both dropped items routed (log-level decision in P3; CSP verification in P2))
 8. **Truncated reads (b-1)** mean the phrase "View ALL files" was only true after targeted re-reads, not on first contact.
-9. **Restored a file via `git show HEAD:`** — not on the banned list (`git checkout`/`git restore`), and it discarded only my own uncommitted mistake, but it is the same *class* of operation the safety rules want surfaced. Surfacing it here.
+9. **Restored a file via `git show HEAD:`** — not on the banned list (`git checkout`/`git restore`), and it discarded only my own uncommitted mistake, but it is the same _class_ of operation the safety rules want surfaced. Surfacing it here.
 
 ---
 
@@ -89,6 +89,7 @@ Also fixed on sight: `otel/README.md` known-issue section (pattern naming + `htt
 ## f) UP TO 50 THINGS TO GET DONE NEXT
 
 **User-gated / P1 (from this session's findings):**
+
 1. ~~License posture decision (proprietary vs MIT-family) — unblocks godoc, pkg.go.dev, and the whole adoption story.~~ done (owned by TODO_LIST P2 (USER GATE))
 2. ~~Fix the docs-module ghost release: choose path A (`git mv docs doc` + `git mv docs-mod docs`, re-tag `docs/v0.3.0`) or B (repath to `.../docs-mod`); then fresh-consumer proxy test.~~ done (owned by TODO_LIST P1)
 3. ~~pkg.go.dev re-crawl check for all module pages after 1+2.~~ done (owned by TODO_LIST P1)
@@ -147,4 +148,4 @@ Also fixed on sight: `otel/README.md` known-issue section (pattern naming + `htt
 
 ---
 
-*Everything behavioral above was executed and verified inside this session (test suites, proxy fetch, git tag/remote audit, archive completeness gate). The annotation-script defects are owned in d-1..d-4 with the repairs noted; the post-edit lint/full-sweep gate is the one verification debt (b-5, c-8).*
+_Everything behavioral above was executed and verified inside this session (test suites, proxy fetch, git tag/remote audit, archive completeness gate). The annotation-script defects are owned in d-1..d-4 with the repairs noted; the post-edit lint/full-sweep gate is the one verification debt (b-5, c-8)._

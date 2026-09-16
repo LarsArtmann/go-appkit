@@ -5,7 +5,7 @@ go 1.26.7
 require (
 	github.com/larsartmann/go-appkit v0.4.0
 	github.com/larsartmann/go-error-family v0.10.1
-	github.com/larsartmann/go-health v0.1.3
+	github.com/larsartmann/go-health v0.2.0
 	github.com/larsartmann/go-health-dashboard v0.8.1
 )
 

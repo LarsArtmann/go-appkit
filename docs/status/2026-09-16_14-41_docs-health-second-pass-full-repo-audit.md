@@ -9,14 +9,14 @@
 
 ## Signals
 
-| Signals | Count |
-| --- | --- |
-| a) Fully done | 10 |
-| b) Partially done | 6 |
-| c) Not started | 6 |
-| d) Totally fucked up | 6 |
-| f) Next tasks listed | 50 |
-| g) Questions asked | 3 |
+| Signals              | Count |
+| -------------------- | ----- |
+| a) Fully done        | 10    |
+| b) Partially done    | 6     |
+| c) Not started       | 6     |
+| d) Totally fucked up | 6     |
+| f) Next tasks listed | 50    |
+| g) Questions asked   | 3     |
 
 ---
 
@@ -53,11 +53,11 @@
 
 ## d) TOTALLY FUCKED UP
 
-1. **An annotate-tool call returned "4 written" for 5 specs and I moved on without root-causing it.** The 17-17 §b batch (specs 1,2,3,3.1,4) reported `[1,2,3,4]`. I verified the final state was correct (item 3 carries the right verdict; "3.1" was a malformed spec on my part — the prose tool takes integers), but "outcome correct, cause unexplained" is exactly the instrument-discipline failure the 09-15 session owned. It cost nothing because the tool is atomic and shape-checking; the *process* was still guess-then-check.
+1. **An annotate-tool call returned "4 written" for 5 specs and I moved on without root-causing it.** The 17-17 §b batch (specs 1,2,3,3.1,4) reported `[1,2,3,4]`. I verified the final state was correct (item 3 carries the right verdict; "3.1" was a malformed spec on my part — the prose tool takes integers), but "outcome correct, cause unexplained" is exactly the instrument-discipline failure the 09-15 session owned. It cost nothing because the tool is atomic and shape-checking; the _process_ was still guess-then-check.
 2. **I fed the tools file shapes they can't parse — twice — and fell back to hand edits.** Multi-item lines (09-38 §f items 34–45 share one line) and a code-span `~~` literal (item 32) broke the annotator; the 21-03 35-spec batch broke once on my own shell quoting (`eval` mangling `"## f)"`). All failures were atomic (zero partial writes) and the three manual fallbacks were single-line, prefix-asserted edits — but they are precisely the hand-rolling the skill bans, and a dry-run per file shape would have caught all three before the first real run.
-3. **A stale-read guard bounce cost a round trip on 17-17 §c** because I read the file via `sed` in bash, edited via the tool, and the guard tracks view-tool reads. Mechanical, but it happened *after* the session had already demonstrated (stale injected AGENTS) that reads must go through the tracking tool.
+3. **A stale-read guard bounce cost a round trip on 17-17 §c** because I read the file via `sed` in bash, edited via the tool, and the guard tracks view-tool reads. Mechanical, but it happened _after_ the session had already demonstrated (stale injected AGENTS) that reads must go through the tracking tool.
 4. **I overrode a prior session's flagged concern with a judgment call.** 08-53 called the health `mount_test.go:379` `time.Sleep(5ms)` a probable rule violation; I annotated it as the house `waitForRunning` pattern (deadline + poll + lint 0 issues — which it is). The evidence is solid, but silently overruling another session's HIGH-flagged concern in an annotation, rather than noting the disagreement explicitly in the verdict text, hides a legitimate editorial disagreement from the next reader.
-5. **The completeness gate is weaker than it looks and I report it as stronger.** `grep -rLn '~~' archived/` passes trivially because the README convention docs themselves contain literal `~~`; it would still pass if a future archived file's only tilde-bearing content was inside inline code spans. The gate proves *presence of tildes*, not *presence of verdicts*. I stated it as "0 files" (true) without stating its blindness.
+5. **The completeness gate is weaker than it looks and I report it as stronger.** `grep -rLn '~~' archived/` passes trivially because the README convention docs themselves contain literal `~~`; it would still pass if a future archived file's only tilde-bearing content was inside inline code spans. The gate proves _presence of tildes_, not _presence of verdicts_. I stated it as "0 files" (true) without stating its blindness.
 6. **Claimed-then-made-true ordering on ROADMAP.** I wrote annotation verdicts pointing at ROADMAP ownership (fuzz guard, recipes) before adding the corresponding ROADMAP lines — the window was under a minute and the end state is consistent, but for one tool cycle the docs claimed ownership that didn't exist. Same class as "don't publish numbers you haven't produced."
 
 **Did I lie?** No. Two statements were thinner than their presentation: the archive-gate blindness (d-5) and the infertypeargs "already explicit" claim resting on 3 personally-verified of 7 sites (b-2). Both are corrected here.
@@ -69,7 +69,7 @@
 3. **Fix-on-sight sweep as session step zero.** The truncated AGENTS row and the `go: 1.26.5` pins sat through at least four sessions that each read the relevant docs. A standing 60-second sweep (grep the known rot signatures) catches them on contact.
 4. **/tmp artifacts are recovered the moment they prove valuable, not at the next audit.** The pin test survived because I happened to run the recovery the same day it was flagged urgent. "Ephemeral" and "load-bearing" must never coexist for a tool cycle.
 5. **When overriding a prior session's verdict, say so in the verdict.** d-4's annotation should have read "corrected: this is the house pattern (deadline-bounded poll), contrary to 08-53's flag" — disagreements belong in the record.
-6. **Explain tool anomalies before proceeding** (d-1): atomic tools make guess-then-check *safe*, not *correct*. One diagnostic round trip on the 5→4 mystery would have bought a root cause.
+6. **Explain tool anomalies before proceeding** (d-1): atomic tools make guess-then-check _safe_, not _correct_. One diagnostic round trip on the 5→4 mystery would have bought a root cause.
 7. **State the limits of gates.** The archive-completeness gate (d-5) is a tilde-presence check. A stricter gate: grep for `done at\|done —\|Won't implement` per archived file, excluding READMEs.
 8. **Lint-matrix claims need the full matrix.** "Modules sit at 0 issues" is only true as of the last session that ran all ten; this session refreshed four. Either run all ten or scope the claim by date.
 
@@ -124,7 +124,7 @@
 
 **Roadmap-grade (owned by ROADMAP; listed so nothing lives only in snapshots):**
 
-39. cordis bridge triggers (P3). 40. PapDashboard reverse-adoption door (P3). 41. cqrs encryption/signing opt-ins on demand (P3). 42. W3–W5 battery waves per the canonical spec (P3). 43. Multi-recorder coordination ADR (added to ROADMAP today). 44. cqrs ops/recipes backlog (added today). 45. Route-cardinality fuzz guard (added today). 46. Core v1.0.0 exit-criteria graduation (fold in the documented-wiring-test lesson). 47. httputil `Logging` ctx-aware emit + F2 timing battery (P3). 48. BuildFlow dprint exit-14 upstream fix (P3/Deferred Register). 49. `docs/status/README.md` index (declined this pass; revisit if the flat dir grows). 50. The two-voice AGENTS bullet pattern: adopt a rule that verification sentences *replace* enumerations instead of appending to them (this pass harmonized one; the rule prevents the next).
+39. cordis bridge triggers (P3). 40. PapDashboard reverse-adoption door (P3). 41. cqrs encryption/signing opt-ins on demand (P3). 42. W3–W5 battery waves per the canonical spec (P3). 43. Multi-recorder coordination ADR (added to ROADMAP today). 44. cqrs ops/recipes backlog (added today). 45. Route-cardinality fuzz guard (added today). 46. Core v1.0.0 exit-criteria graduation (fold in the documented-wiring-test lesson). 47. httputil `Logging` ctx-aware emit + F2 timing battery (P3). 48. BuildFlow dprint exit-14 upstream fix (P3/Deferred Register). 49. `docs/status/README.md` index (declined this pass; revisit if the flat dir grows). 50. The two-voice AGENTS bullet pattern: adopt a rule that verification sentences _replace_ enumerations instead of appending to them (this pass harmonized one; the rule prevents the next).
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
@@ -134,4 +134,4 @@
 
 ---
 
-*Everything behavioral above was executed and verified inside this session (sweeps, lints, greps, gate runs, tag/CI reads). The verification debts I am consciously carrying forward: b-1 (3 HTMLs unopened), b-2 (4 unverified infertypeargs sites), b-3 (6 modules unlinted), b-6 (dprint unverified), and the gate-blindness caveat in d-5.*
+_Everything behavioral above was executed and verified inside this session (sweeps, lints, greps, gate runs, tag/CI reads). The verification debts I am consciously carrying forward: b-1 (3 HTMLs unopened), b-2 (4 unverified infertypeargs sites), b-3 (6 modules unlinted), b-6 (dprint unverified), and the gate-blindness caveat in d-5._
