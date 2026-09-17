@@ -26,6 +26,12 @@ aspirations.
 | charmbracelet/logging (`InitLogger`)       | FULLY_FUNCTIONAL | `logger.go`                                      |
 | error-family re-exports (`HTTPStatus`…)    | FULLY_FUNCTIONAL | `errors.go`                                      |
 | SSE-safe `WriteTimeout` configuration      | FULLY_FUNCTIONAL | `config.go` (`NoTimeout`), `notimeout_test.go`   |
+| Opt-in Prometheus surface (`Metrics`, `/metrics`) | FULLY_FUNCTIONAL | `metrics.go`, `metrics_test.go`          |
+| `Version` + `GET /version` build info       | FULLY_FUNCTIONAL | `version.go`, `metrics_test.go`                  |
+| `testkit.Serve` full-chain test harness     | FULLY_FUNCTIONAL | `testkit/testkit.go`, `testkit/testkit_test.go`  |
+
+Shipped in core **v0.5.0** (2026-09-17; additions-only API diff vs v0.4.0,
+proxy-tested).
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 

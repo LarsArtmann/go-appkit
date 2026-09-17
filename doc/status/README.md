@@ -15,8 +15,13 @@ line per report; verdicts marked DONE are annotated inline in each file.
 | `2026-09-16_09-38_docs-health-full-repo-audit.md` | Full-repo docs-health audit (annotated) |
 | `2026-09-16_14-41_docs-health-second-pass-full-repo-audit.md` | Second-pass audit + health report (annotated) |
 
-Entries are one line each; fully-resolved reports move to `archived/` with
-their verdicts annotated inline (git mv, citations updated).
+Entries are one line each; fully-resolved reports move to `archived/` (28
+as of 2026-09-17) with their verdicts annotated inline (git mv, citations
+updated). Archive gate — no unresolved items may survive the move:
+
+```bash
+grep -n "~~.*~~" doc/status/archived/*.md   # every hit must carry a verdict
+```
 
 ## Annotation standard
 
