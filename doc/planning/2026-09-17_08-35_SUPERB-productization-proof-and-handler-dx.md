@@ -1,6 +1,6 @@
 # SUPERB Plan v3 — Productization, Proof & the Handler-DX Wave
 
-**Created:** 2026-09-17 08:35 CEST · **Predecessor:** `2026-09-16_15-01_SUPERB-visibility-correctness-and-batteries-plan.md` (EXECUTED, verdict banner inline) + the 2026-09-17 05-52 and 08-08 session reports.
+**Created:** 2026-09-17 08:35 CEST · **Predecessor:** `doc/planning/archived/2026-09-16_15-01_SUPERB-visibility-correctness-and-batteries-plan.md` (EXECUTED, verdict banner inline) + the 2026-09-17 05-52 and 08-08 session reports.
 **Scope:** ALL open go-appkit work — the 38 TODO_LIST items, both 2026-09-17 status reports' §f backlogs merged and de-duplicated, standing rituals, and the demand-gated battery waves. Nothing open is excluded; gated items are IN the plan with their gates named.
 
 **State this plan starts from (all verified this morning):** 11 modules, every suite `-race` green, 0 golangci issues everywhere, structure linter 0, core tagged **v0.5.0** (proxy-proven), integration re-pinned, F104 + composition contracts + fr MetricsHook + health examples all landed. The three 2026-09-16 defect classes (ghost docs tag, span-naming regression, realtime buffering) are FIXED AND SHIPPED.

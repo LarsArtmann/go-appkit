@@ -32,7 +32,7 @@ posture). v1-shaped additions already shipped: `OuterMiddlewares`,
 the metrics/version/testkit surface (v0.5.0).
 
 Open questions on the way there (deliberate USER GATES, not tasks — full
-context: TODO_LIST footer and `doc/status/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §g):
+context: TODO_LIST footer and `doc/status/archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §g):
 
 - The httputil listener-injection API (`NewServerListener`) go/no-go — the
   single unlock for BOTH the composition refactor and the Core TLS option.

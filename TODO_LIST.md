@@ -3,7 +3,7 @@
 > Short-term, actionable, bounded work. Open items only.
 > Completed work lives in [CHANGELOG.md](CHANGELOG.md) and each module's CHANGELOG. Long-term vision lives in [ROADMAP.md](ROADMAP.md).
 
-**Updated:** 2026-09-17 (docs-health pass: pkg.go.dev VERIFIED — every module page renders; TODO_LIST rebuilt to open-items-only per its own legend; latest session evidence: `doc/status/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md`) | **Modules:** 11 (core, cqrs, realtime, otel, flightrecorder, flightrecorderhealth, health, errorpages, docs, security, integration — integration is the unreleased E2E test module) | **Release state:** every module tag is ON ORIGIN through **core v0.5.1** (2026-09-17, doc-only); prior waves: v0.5.0 + security v0.1.0 / realtime v0.1.1 / health v0.1.1 / frh v0.1.2 / docs v0.3.0 / otel v0.1.1 + httputil v1.2.0 (2026-09-16), cqrs v0.5.0 (2026-09-07); **`encoding/json/v2` is default-on in Go 1.26.7 — GOEXPERIMENT prefixes are only needed on older 1.26.x toolchains**
+**Updated:** 2026-09-17 (docs-health pass: pkg.go.dev VERIFIED — every module page renders; TODO_LIST rebuilt to open-items-only per its own legend; latest session evidence: `doc/status/archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md`) | **Modules:** 11 (core, cqrs, realtime, otel, flightrecorder, flightrecorderhealth, health, errorpages, docs, security, integration — integration is the unreleased E2E test module) | **Release state:** every module tag is ON ORIGIN through **core v0.5.1** (2026-09-17, doc-only); prior waves: v0.5.0 + security v0.1.0 / realtime v0.1.1 / health v0.1.1 / frh v0.1.2 / docs v0.3.0 / otel v0.1.1 + httputil v1.2.0 (2026-09-16), cqrs v0.5.0 (2026-09-07); **`encoding/json/v2` is default-on in Go 1.26.7 — GOEXPERIMENT prefixes are only needed on older 1.26.x toolchains**
 
 > **Release-state ownership (decided 2026-09-16):** `AGENTS.md` → *Release State* is the SINGLE OWNER of release facts. This header links history only; status reports are point-in-time snapshots with as-of dates and never get updated afterward. Index: `doc/status/README.md`.
 
@@ -22,7 +22,7 @@ _No open items. Release state is green: every module tag on origin, fresh-consum
 
 ## P2 — Medium impact (quality & docs)
 
-- [ ] **Pin-drift guard:** a test or CI step asserting the `integration/go.mod` pins — and the AGENTS Release State "ON ORIGIN through" version against `git tag -l` — match the documented pins. The v0.5.0-vs-v0.5.1 AGENTS divergence (`doc/status/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §d-1) was findable by one grep and nothing ran it. USER GATE first: pin philosophy (§g-1 — LATEST-only vs mirroring setup's resolution).
+- [ ] **Pin-drift guard:** a test or CI step asserting the `integration/go.mod` pins — and the AGENTS Release State "ON ORIGIN through" version against `git tag -l` — match the documented pins. The v0.5.0-vs-v0.5.1 AGENTS divergence (`doc/status/archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §d-1) was findable by one grep and nothing ran it. USER GATE first: pin philosophy (§g-1 — LATEST-only vs mirroring setup's resolution).
 - [ ] **Release Ritual additions:** (1) an explicit "update AGENTS.md release-state + module lines" step — v0.5.1 shipped while AGENTS still said v0.5.0 (14-22 §e-2); (2) codify the `docs:` tag-message convention for doc-only releases (v0.5.1 did this well).
 - [ ] **Move the integration pin table out of AGENTS.md into `integration/doc.go`** (or the module README) — single source of truth next to go.mod; relieves the AGENTS 376/377 line cap (14-22 §f-6/§e-3).
 - [ ] **Depguard deny rule in the root `.golangci.yml`:** forbid `cqrs-htmx/setup` imports repo-wide — the "setup is NEVER a dependency of appkit" invariant is currently enforced only by prose (14-22 §f-7/§e-5).
@@ -53,6 +53,6 @@ _No open items. Release state is green: every module tag on origin, fresh-consum
 
 ---
 
-**Open questions awaiting USER decisions** (they gate P2 items above): (1) pin philosophy for `integration/` — LATEST-only vs also mirroring setup's resolution; (2) cross-repo tracking — actively nudge cqrs-htmx items or stay report-only; (3) AGENTS as release-state source (with the CI guard from the pin-drift item) vs moving pins into code-adjacent files entirely. Full context: `doc/status/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §g.
+**Open questions awaiting USER decisions** (they gate P2 items above): (1) pin philosophy for `integration/` — LATEST-only vs also mirroring setup's resolution; (2) cross-repo tracking — actively nudge cqrs-htmx items or stay report-only; (3) AGENTS as release-state source (with the CI guard from the pin-drift item) vs moving pins into code-adjacent files entirely. Full context: `doc/status/archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §g.
 
 _For completed work, see each module's `CHANGELOG.md` and `git log`._
