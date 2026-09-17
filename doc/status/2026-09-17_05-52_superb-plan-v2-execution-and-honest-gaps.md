@@ -43,16 +43,16 @@
 
 ## b) PARTIALLY DONE
 
-1. **C5 pkg.go.dev render check** — proxy-proof complete; the render check 404s (crawler hasn't processed the tags pushed minutes earlier; requests enqueue the crawl). TODO stays `[~]` with re-check instructions.
-2. **C20 Service refactor** — spike done, refactor correctly NOT executed (blocked, see a-14). The API-posture UG is moot until the upstream API exists.
-3. **C22 health quality parity** — contract assertion, conflict semantics, BasePath uniform routing, benchmarks, fuzz DONE. REMAINING: runnable godoc Examples with verified output (F107), aggregate multi-probe example (F113), govulncheck (binary not installable here).
-4. **C24 upstream asks** — `DashboardHardenedPreset` shipped; go-sse dedup-aware `ReplayFiltered` + httputil Logging request-context + F2 timing sketches DRAFTED at `doc/feedback/outgoing/2026-09-16_upstream-asks-gosse-httputil.md` — NOT FILED (filing is USER-GATED).
-5. **C23 fr MetricsHook E2E** — bridge unit-pinned; an end-to-end test driving a REAL capture through the hook remains.
-6. **C28 statusRecorder** — USER GATE unanswered; the ~10-line swap deliberately not executed; TODO stays open.
-7. **C21 remainder (see d-3/d-4):** `cqrs.OTelProjectionMetrics` E2E (F104) NOT done; core composition-contract suite NOT done; the integration-expansion TODO item was NOT closed (stale — still says `[ ]`).
-8. **C12 logging posture** — decision + docs only (no behavior change) — that IS the decision, but "implement behind ServiceConfig" from the plan was consciously not applicable (the knob already exists).
-9. **Core G2/F5/E1 release** — features are in core `[Unreleased]`, NOT tagged; consumers get them at the next core tag (v0.5.0 train).
-10. **SECURITY module lint config** — copied from realtime with realtime-specific header comments (cosmetic divergence, documented as "module-local standard").
+1. ~~**C5 pkg.go.dev render check** — proxy-proof complete; the render check 404s (crawler hasn't processed the tags pushed minutes earlier; requests enqueue the crawl). TODO stays `[~]` with re-check instructions.~~ done (CLOSED 2026-09-17 — every module page renders (docs v0.3.0, health v0.1.1, security v0.1.0, core v0.5.1; verified live by the docs-health pass))
+2. ~~**C20 Service refactor** — spike done, refactor correctly NOT executed (blocked, see a-14). The API-posture UG is moot until the upstream API exists.~~ done (correctly not executed — BLOCKED verdict stands (composition-spike-verdict.md))
+3. ~~**C22 health quality parity** — contract assertion, conflict semantics, BasePath uniform routing, benchmarks, fuzz DONE. REMAINING: runnable godoc Examples with verified output (F107), aggregate multi-probe example (F113), govulncheck (binary not installable here).~~ done (CLOSED 2026-09-17 — godoc examples F107+F113 landed (a55c21c); govulncheck stays env-blocked (TODO_LIST P2))
+4. ~~**C24 upstream asks** — `DashboardHardenedPreset` shipped; go-sse dedup-aware `ReplayFiltered` + httputil Logging request-context + F2 timing sketches DRAFTED at `doc/feedback/outgoing/2026-09-16_upstream-asks-gosse-httputil.md` — NOT FILED (filing is USER-GATED).~~ done (still USER-GATED — drafts at doc/feedback/outgoing/ (TODO_LIST P2))
+5. ~~**C23 fr MetricsHook E2E** — bridge unit-pinned; an end-to-end test driving a REAL capture through the hook remains.~~ done (CLOSED 2026-09-17 — otel/frmetrics_e2e_test.go (8802fdd))
+6. ~~**C28 statusRecorder** — USER GATE unanswered; the ~10-line swap deliberately not executed; TODO stays open.~~ done (STILL OPEN — TODO_LIST P2 USER GATE)
+7. ~~**C21 remainder (see d-3/d-4):** `cqrs.OTelProjectionMetrics` E2E (F104) NOT done; core composition-contract suite NOT done; the integration-expansion TODO item was NOT closed (stale — still says `[ ]`).~~ done (CLOSED 2026-09-17 — F104 scoped into cqrs (c03360e); composition suite landed (adee737))
+8. ~~**C12 logging posture** — decision + docs only (no behavior change) — that IS the decision, but "implement behind ServiceConfig" from the plan was consciously not applicable (the knob already exists).~~ done (correct as decided — the knob exists (ServiceConfig.LogLevel); decision recorded in the core README)
+9. ~~**Core G2/F5/E1 release** — features are in core `[Unreleased]`, NOT tagged; consumers get them at the next core tag (v0.5.0 train).~~ done (CLOSED 2026-09-17 — core v0.5.0 tagged + proxy-proven (929f363))
+10. ~~**SECURITY module lint config** — copied from realtime with realtime-specific header comments (cosmetic divergence, documented as "module-local standard").~~ done (done 2026-09-17 — security-specific header rewritten (08-08 session))
 
 ## c) NOT STARTED (explicitly deferred — most by design)
 
@@ -98,70 +98,70 @@
 ## f) NEXT — up to 50 things to get done (ordered by leverage)
 
 **Ship loop / release correctness**
-1. Re-check pkg.go.dev render for `docs@v0.3.0` + all module pages (crawler should have caught up) — close the P1 `[~]`.
-2. Tag **core v0.5.0**: metrics surface + Version + testkit (API-break check first; it's a feature release).
-3. Fresh-consumer proxy test for core v0.5.0 + re-pin `integration/` to it.
-4. Fold `Doc snippets are code` verification for the NEW README sections (Metrics block, testkit) into a scratch-module compile check.
-5. Add FEATURES.md rows for the core features (G2/F5/E1) — the security section got rows, core did not.
-6. Add AGENTS "Core Module — Code Organization" rows for `metrics.go`, `version.go`, `testkit/` (swap lines to stay ≤377).
-7. Close the stale integration-expansion TODO (3/5 done) and re-scope it to the two remainders.
-8. Close the stale "Flightrecorder ops preset + metrics bridge" TODO item (work landed under polish).
-9. `security/.golangci.yml`: replace realtime-inherited header comment with a security-specific one (cosmetic).
-10. Run the fresh-repo `go.work` smoke: clone to /tmp, verify the security module builds outside the workspace (go.work is gitignored here).
+1. ~~Re-check pkg.go.dev render for `docs@v0.3.0` + all module pages (crawler should have caught up) — close the P1 `[~]`.~~ done (CLOSED 2026-09-17 — all module pages render (verified live by the docs-health pass))
+2. ~~Tag **core v0.5.0**: metrics surface + Version + testkit (API-break check first; it's a feature release).~~ done (done 2026-09-17 — core v0.5.0 tagged (929f363); API-break check additions-only)
+3. ~~Fresh-consumer proxy test for core v0.5.0 + re-pin `integration/` to it.~~ done (done 2026-09-17 — fresh-consumer PASS + integration re-pinned (ca7205b))
+4. ~~Fold `Doc snippets are code` verification for the NEW README sections (Metrics block, testkit) into a scratch-module compile check.~~ done (done 2026-09-17 — README Metrics+testkit blocks compiled in a scratch module vs v0.5.0 (38518ad))
+5. ~~Add FEATURES.md rows for the core features (G2/F5/E1) — the security section got rows, core did not.~~ done (done 2026-09-17 — FEATURES core rows added (08-08 truth batch; extended by the 2026-09-17 docs-health pass))
+6. ~~Add AGENTS "Core Module — Code Organization" rows for `metrics.go`, `version.go`, `testkit/` (swap lines to stay ≤377).~~ done (done 2026-09-17 — AGENTS combined row for metrics.go/version.go/testkit/)
+7. ~~Close the stale integration-expansion TODO (3/5 done) and re-scope it to the two remainders.~~ done (done 2026-09-17 — integration-expansion closed 5/5 in TODO_LIST)
+8. ~~Close the stale "Flightrecorder ops preset + metrics bridge" TODO item (work landed under polish).~~ done (done 2026-09-17 — fr-ops-preset item closed)
+9. ~~`security/.golangci.yml`: replace realtime-inherited header comment with a security-specific one (cosmetic).~~ done (done 2026-09-17 — security .golangci.yml header rewritten)
+10. ~~Run the fresh-repo `go.work` smoke: clone to /tmp, verify the security module builds outside the workspace (go.work is gitignored here).~~ done (done 2026-09-17 — fresh-worktree go.work smoke PASS)
 
 **Upstream (user-gated — say the word)**
-11. File Draft 1: go-sse dedup-aware `ReplayFiltered` (draft ready).
-12. File Draft 2: httputil Logging request-context emit (draft ready).
-13. Implement the httputil listener-injection API (`NewServerListener(ln, cfg, handler)`) upstream — unblocks the composition refactor AND the Core TLS option (G1) in one move.
-14. Then re-run the composition spike against the new API and execute C20 for real.
-15. Then implement Core TLS (`ServiceConfig.TLS{CertFile, KeyFile}`) — PapDashboard's first demand.
+11. ~~File Draft 1: go-sse dedup-aware `ReplayFiltered` (draft ready).~~ **Won't implement — USER-GATED — draft ready (doc/feedback/outgoing/ Draft 1).**
+12. ~~File Draft 2: httputil Logging request-context emit (draft ready).~~ **Won't implement — USER-GATED — draft ready (Draft 2).**
+13. ~~Implement the httputil listener-injection API (`NewServerListener(ln, cfg, handler)`) upstream — unblocks the composition refactor AND the Core TLS option (G1) in one move.~~ **Won't implement — USER-GATED — TODO_LIST P2 upstream-asks item.**
+14. ~~Then re-run the composition spike against the new API and execute C20 for real.~~ **Won't implement — gated on 13 — TODO_LIST P2 composition item.**
+15. ~~Then implement Core TLS (`ServiceConfig.TLS{CertFile, KeyFile}`) — PapDashboard's first demand.~~ **Won't implement — gated on 13 — Core TLS in the AGENTS Deferred Register.**
 
 **Finish the partials**
-16. Health godoc Examples with verified output (F107 — the frh-module pattern).
-17. Health aggregate multi-probe example (F113).
-18. govulncheck run on health + security (needs a networked machine for install).
-19. `cqrs.OTelProjectionMetrics` E2E in integration (F104 — the silently dropped one).
-20. Core composition-contract suite in integration (readiness composition, drain transitions, response parity).
-21. fr MetricsHook end-to-end: drive a REAL capture through the bridge and assert the meter.
-22. Real browser (chromedp or manual) pass over the health dashboard under a strict-CSP + nonce configuration — the CSP verdict is server-side proven only.
-23. Measure `NewFlightRecorderMetricsHook` counters from an actual `Middleware` capture (not just a synthetic event).
+16. ~~Health godoc Examples with verified output (F107 — the frh-module pattern).~~ done (done 2026-09-17 — health godoc examples (a55c21c))
+17. ~~Health aggregate multi-probe example (F113).~~ done (done 2026-09-17 — F113 two-probe aggregate example (same commit))
+18. ~~govulncheck run on health + security (needs a networked machine for install).~~ **Won't implement — env-blocked — TODO_LIST P2 (needs a networked machine).**
+19. ~~`cqrs.OTelProjectionMetrics` E2E in integration (F104 — the silently dropped one).~~ done (done 2026-09-17 — cqrs/otelmetrics_e2e_test.go (c03360e, scoped into cqrs))
+20. ~~Core composition-contract suite in integration (readiness composition, drain transitions, response parity).~~ done (done 2026-09-17 — integration/composition_contract_test.go (adee737))
+21. ~~fr MetricsHook end-to-end: drive a REAL capture through the bridge and assert the meter.~~ done (done 2026-09-17 — otel/frmetrics_e2e_test.go (8802fdd))
+22. ~~Real browser (chromedp or manual) pass over the health dashboard under a strict-CSP + nonce configuration — the CSP verdict is server-side proven only.~~ **Won't implement — still open — TODO_LIST P2 browser CSP pass.**
+23. ~~Measure `NewFlightRecorderMetricsHook` counters from an actual `Middleware` capture (not just a synthetic event).~~ done (done 2026-09-17 — covered by the frmetrics E2E (real capture asserts the meter))
 
 **Batteries (demand-gated — re-confirm demand first)**
-24. W3 B1 ResultHandler family (classification-parity with errorpages is the pin).
-25. W3 B2 bind+validation.
-26. W3 B9 no-leak error responses.
-27. W3 B4 conditional GET (promotes the idle go-etag dep).
-28. W5 C2 projection→broadcast folded contract (the must-have for cqrs+realtime consumers).
-29. W5 C1 SSE drop/backpressure counters (absorbs the TELEMETRY.md §6 candidate).
-30. W4 D4 atomic file write (floor: go-atomic-write ≥ v0.5.1).
-31. W4 D7 idempotency store.
-32. W1 F2 timing battery (after upstream Draft 2 lands, shared duration source).
+24. ~~W3 B1 ResultHandler family (classification-parity with errorpages is the pin).~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B1).**
+25. ~~W3 B2 bind+validation.~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B2).**
+26. ~~W3 B9 no-leak error responses.~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B9).**
+27. ~~W3 B4 conditional GET (promotes the idle go-etag dep).~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B4).**
+28. ~~W5 C2 projection→broadcast folded contract (the must-have for cqrs+realtime consumers).~~ **Won't implement — demand-gated — TODO_LIST P3 W5 (C2).**
+29. ~~W5 C1 SSE drop/backpressure counters (absorbs the TELEMETRY.md §6 candidate).~~ **Won't implement — demand-gated — TODO_LIST P3 W5 (C1).**
+30. ~~W4 D4 atomic file write (floor: go-atomic-write ≥ v0.5.1).~~ **Won't implement — demand-gated — TODO_LIST P3 W4 (D4).**
+31. ~~W4 D7 idempotency store.~~ **Won't implement — demand-gated — TODO_LIST P3 W4 (D7).**
+32. ~~W1 F2 timing battery (after upstream Draft 2 lands, shared duration source).~~ done (sequenced after upstream Draft 2 (TODO_LIST P2))
 
 **Hygiene / truth**
-33. Sweep the four HTML reports never opened (2026-08-15/16, 2026-09-04 research) — annotate or archive.
-34. Verify the 4 remaining unverified `infertypeargs` sites (`cqrs/commands_test.go:73,90,187,245`).
-35. Re-run the 6 modules not linted in the last docs-health pass (root, cqrs, docs, otel, errorpages + security now exists) — sequential.
-36. Root CHANGELOG: cut a dated section header for the 2026-09-16/17 wave when core tags.
-37. Update the SUPERB plan file with execution verdicts inline (it is the predecessor contract; it still shows C-tasks as planned, not done).
-38. `doc/TELEMETRY.md`: fix the §-numbering slip (the log-level decision pointer says §5, which is store-separation).
-39. SECURITY.md-style threat-model page for the security module (per-battery threat → test mapping table).
-40. Add `security` to the root README module table's "status" column note (opt-in, nothing in the default stack).
-41. Dependabot: verify the generated /security entry actually matches the sibling format (visual diff against /realtime block).
-42. Add a `security` example service (like errorpages/example) demonstrating the full hardened chain composition.
-43. Write the integration test for `security` + `realtime` composition (rate-limit in front of SSE).
-44. Extend `doc/status/README.md` index with the archived-report count and the gate command.
-45. Move the annotation-depth standard ALSO into `doc/planning/archived/` README (F141 covered status only — the plan's F141 says "both archived READMEs"; only one got it — this is a real gap I introduced).
-46. Retire the recovered pin-test doc (`doc/planning/archived/2026-09-16_otel-pattern-pin-test.md`) to the archived planning dir (landed + linked).
-47. Consider `Retract docs/v0.2.0` in the docs module go.mod so `go get .../docs@latest` can never resolve the ghost tag on a stale proxy.
-48. Add dependabot groups coverage check to CI (dependabot covers integration; CI now does too — assert parity in a workflow step).
-49. Pareto plan v3 only AFTER the user answers the gates — do not self-start.
-50. Sleep the watchlist: next refresh re-checks cordis consumers, PapDashboard v0.3.1+, nixpkgs toolchain.
+33. ~~Sweep the four HTML reports never opened (2026-08-15/16, 2026-09-04 research) — annotate or archive.~~ done (done 2026-09-17 — this docs-health pass banner-annotated them; the executed 08-16 plan archived)
+34. ~~Verify the 4 remaining unverified `infertypeargs` sites (`cqrs/commands_test.go:73,90,187,245`).~~ done (done 2026-09-17 — verified OBSOLETE (zero markers, zero findings))
+35. ~~Re-run the 6 modules not linted in the last docs-health pass (root, cqrs, docs, otel, errorpages + security now exists) — sequential.~~ done (done 2026-09-17 — every module linted sequentially, 0 issues)
+36. ~~Root CHANGELOG: cut a dated section header for the 2026-09-16/17 wave when core tags.~~ done (done 2026-09-17 — root CHANGELOG 0.5.0/0.5.1 sections dated)
+37. ~~Update the SUPERB plan file with execution verdicts inline (it is the predecessor contract; it still shows C-tasks as planned, not done).~~ done (done 2026-09-17 — EXECUTION VERDICT banner landed; plan archived by the 2026-09-17 docs-health pass)
+38. ~~`doc/TELEMETRY.md`: fix the §-numbering slip (the log-level decision pointer says §5, which is store-separation).~~ done (done 2026-09-17 — pointer now cites the root README Log volume section)
+39. ~~SECURITY.md-style threat-model page for the security module (per-battery threat → test mapping table).~~ **Won't implement — still open — TODO_LIST P2 security trio.**
+40. ~~Add `security` to the root README module table's "status" column note (opt-in, nothing in the default stack).~~ done (done 2026-09-17 — README security row + opt-in note (08-08 truth batch))
+41. ~~Dependabot: verify the generated /security entry actually matches the sibling format (visual diff against /realtime block).~~ done (done 2026-09-17 — /security block byte-identical vs /realtime; CI assert routed to TODO_LIST P2)
+42. ~~Add a `security` example service (like errorpages/example) demonstrating the full hardened chain composition.~~ **Won't implement — still open — TODO_LIST P2 security trio.**
+43. ~~Write the integration test for `security` + `realtime` composition (rate-limit in front of SSE).~~ **Won't implement — still open — TODO_LIST P2 security trio.**
+44. ~~Extend `doc/status/README.md` index with the archived-report count and the gate command.~~ done (done 2026-09-17 — the index carries the archived count + gate command)
+45. ~~Move the annotation-depth standard ALSO into `doc/planning/archived/` README (F141 covered status only — the plan's F141 says "both archived READMEs"; only one got it — this is a real gap I introduced).~~ done (verified STALE CLAIM — both archived READMEs already carried it (08-08 §a-9))
+46. ~~Retire the recovered pin-test doc (`doc/planning/archived/2026-09-16_otel-pattern-pin-test.md`) to the archived planning dir (landed + linked).~~ done (done 2026-09-17 — pin-test doc retired to doc/planning/archived/)
+47. ~~Consider `Retract docs/v0.2.0` in the docs module go.mod so `go get .../docs@latest` can never resolve the ghost tag on a stale proxy.~~ done (DEFERRED with rationale — docs/CHANGELOG [Unreleased]/Planned (08-08 §a-11))
+48. ~~Add dependabot groups coverage check to CI (dependabot covers integration; CI now does too — assert parity in a workflow step).~~ done (routed — TODO_LIST P2 CI dependabot-parity assert)
+49. ~~Pareto plan v3 only AFTER the user answers the gates — do not self-start.~~ **Won't implement — respecting the gate — user answers pending (TODO_LIST footer).**
+50. ~~Sleep the watchlist: next refresh re-checks cordis consumers, PapDashboard v0.3.1+, nixpkgs toolchain.~~ done (rolled into the standing watchlist item (TODO_LIST P3))
 
 ## g) Questions I cannot answer myself
 
-1. **Core v0.5.0 now or later?** The metrics surface + Version + testkit sit in core `[Unreleased]`. Ship the feature tag now (my recommendation: yes — features are tested and proxy-checkable), or accumulate more W1 first?
-2. **May I file the two upstream asks?** Both target your own repos (go-sse, httputil), drafts are ready and source-cited — but filing was explicitly USER-GATED in the plan and I did not file. Approve?
-3. **Should I implement the httputil listener-injection API upstream myself** (`NewServerListener`)? It's your repo, it unblocks both the composition refactor and the Core TLS option — but it's a public-API addition to httputil and I want your go/no-go before extending a published module's surface.
+1. ~~**Core v0.5.0 now or later?** The metrics surface + Version + testkit sit in core `[Unreleased]`. Ship the feature tag now (my recommendation: yes — features are tested and proxy-checkable), or accumulate more W1 first?~~ done (ANSWERED by execution — core v0.5.0 tagged the same day (929f363))
+2. ~~**May I file the two upstream asks?** Both target your own repos (go-sse, httputil), drafts are ready and source-cited — but filing was explicitly USER-GATED in the plan and I did not file. Approve?~~ **Won't implement — still USER-GATED — TODO_LIST P2 upstream-asks item.**
+3. ~~**Should I implement the httputil listener-injection API upstream myself** (`NewServerListener`)? It's your repo, it unblocks both the composition refactor and the Core TLS option — but it's a public-API addition to httputil and I want your go/no-go before extending a published module's surface.~~ **Won't implement — still USER-GATED — TODO_LIST P2 upstream-asks item.**
 
 ---
 

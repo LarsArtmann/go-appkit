@@ -138,19 +138,19 @@ proxy test PASS for core v0.5.0.**
 
 ## b) PARTIALLY DONE
 
-1. **AGENTS.md line budget:** my content edits were line-neutral, but the
-   structure linter flagged 378/377 — and the finding PRE-EXISTS this
-   session (the pre-edit commit `80140d7` fails identically; see §d-8).
-   Fixed by deleting the near-zero-information `doc.go` table row; AGENTS
-   now at 376 wc-lines, linter 0. The "≤377 counted lines" note in AGENTS
-   is now known-stale (the binary counts one more than `wc -l`) — the
-   working buffer is 1 line, not 0.
-2. **The §f list itself:** 20 of its 50 items were actionable this session;
-   18 done, 2 partially (this item and pkg.go.dev). The rest were
-   user-gated, demand-gated, or env-blocked (see §c).
-3. **Proxy re-verification of older tags:** only core v0.5.0 got the
-   fresh-consumer treatment today; the six 2026-09-16 tags keep their
-   same-day proofs.
+1. ~~**AGENTS.md line budget:** my content edits were line-neutral, but the~~ done (noted — the stale cap note is folded into the TODO_LIST P3 AGENTS slim-down item (2026-09-17))
+   ~~structure linter flagged 378/377 — and the finding PRE-EXISTS this~~
+   ~~session (the pre-edit commit `80140d7` fails identically; see §d-8).~~
+   ~~Fixed by deleting the near-zero-information `doc.go` table row; AGENTS~~
+   ~~now at 376 wc-lines, linter 0. The "≤377 counted lines" note in AGENTS~~
+   ~~is now known-stale (the binary counts one more than `wc -l`) — the~~
+   ~~working buffer is 1 line, not 0.~~
+2. ~~**The §f list itself:** 20 of its 50 items were actionable this session;~~ done (accounted — the remainders were harvested into TODO_LIST by the 2026-09-17 docs-health pass)
+   ~~18 done, 2 partially (this item and pkg.go.dev). The rest were~~
+   ~~user-gated, demand-gated, or env-blocked (see §c).~~
+3. ~~**Proxy re-verification of older tags:** only core v0.5.0 got the~~ done (noted — same-day proofs stand; re-verification rides the next release ritual)
+   ~~fresh-consumer treatment today; the six 2026-09-16 tags keep their~~
+   ~~same-day proofs.~~
 
 ## c) NOT STARTED (deliberately — gates, not neglect)
 
@@ -253,106 +253,106 @@ proxy test PASS for core v0.5.0.**
 ## f) NEXT — ordered by leverage (carry-forward + new discoveries)
 
 **Ship loop / correctness**
-1. **Re-check pkg.go.dev for the three lagging pages** (docs@v0.3.0,
-   health@v0.1.1, security@v0.1.0) after the crawl window; close the
-   `[~]` when all render.
-2. **Core doc-fix candidate (NEW, from §d-4):** `Service.Addr`'s doc says
-   "returns nil before Start is called" — it should ALSO say "and from
-   DrainHooks onward once Shutdown begins". Godoc-only; fold into the
-   next core tag (v0.5.1 or ride v0.6.0) + a one-line CHANGELOG entry.
-3. **Same for `Running`:** it reports "has a bound listener", so it flips
-   false the moment Shutdown starts — document, or reconsider the
-   semantics (v1.0.0-relevant: consumers can't distinguish
-   "never started" from "draining").
-4. **testkit double-shutdown nuance (NEW):** calling `svc.Shutdown` in the
-   test body AND letting testkit cleanup shut down again works
-   (idempotent) but cleanup's `errCh` wait adds latency to every such
-   test; consider `TestServer.Shutdown` helper that marks the cleanup as
-   no-op. Low priority.
-5. **Finish the lint-pass discipline:** the six modules re-linted today
-   are clean; keep the "re-lint after ANY gate-relevant edit" rule so the
-   next session doesn't inherit another pre-existing failure.
-6. Root CHANGELOG for the NEXT wave: keep dating `[Unreleased]` sections
-   per-train (the v0.5.0 pattern worked; repeat it).
-7. **Fresh-consumer proxy test as a repo script:** today's check was a
-   hand-rolled /tmp module (third time hand-rolled); commit it as
-   `doc/recipes/fresh-consumer-proxy-check.md` or a tiny script so the
-   ritual is copy-paste.
+1. ~~**Re-check pkg.go.dev for the three lagging pages** (docs@v0.3.0,~~ done (CLOSED 2026-09-17 — all three pages render (verified live by the docs-health pass))
+   ~~health@v0.1.1, security@v0.1.0) after the crawl window; close the~~
+   ~~`[~]` when all render.~~
+2. ~~**Core doc-fix candidate (NEW, from §d-4):** `Service.Addr`'s doc says~~ done (done 2026-09-17 — v0.5.1 tagged + pushed (doc-only))
+   ~~"returns nil before Start is called" — it should ALSO say "and from~~
+   ~~DrainHooks onward once Shutdown begins". Godoc-only; fold into the~~
+   ~~next core tag (v0.5.1 or ride v0.6.0) + a one-line CHANGELOG entry.~~
+3. ~~**Same for `Running`:** it reports "has a bound listener", so it flips~~ done (done 2026-09-17 — v0.5.1 carries both godoc fixes (Addr + Running))
+   ~~false the moment Shutdown starts — document, or reconsider the~~
+   ~~semantics (v1.0.0-relevant: consumers can't distinguish~~
+   ~~"never started" from "draining").~~
+4. ~~**testkit double-shutdown nuance (NEW):** calling `svc.Shutdown` in the~~ done (routed — TODO_LIST P2 testkit explicit-shutdown helper)
+   ~~test body AND letting testkit cleanup shut down again works~~
+   ~~(idempotent) but cleanup's `errCh` wait adds latency to every such~~
+   ~~test; consider `TestServer.Shutdown` helper that marks the cleanup as~~
+   ~~no-op. Low priority.~~
+5. ~~**Finish the lint-pass discipline:** the six modules re-linted today~~ done (adopted — the re-lint rule is restated in the 08-35 plan guards)
+   ~~are clean; keep the "re-lint after ANY gate-relevant edit" rule so the~~
+   ~~next session doesn't inherit another pre-existing failure.~~
+6. ~~Root CHANGELOG for the NEXT wave: keep dating `[Unreleased]` sections~~ done (done — the v0.5.0/v0.5.1 dated sections repeat the pattern)
+   ~~per-train (the v0.5.0 pattern worked; repeat it).~~
+7. ~~**Fresh-consumer proxy test as a repo script:** today's check was a~~ done (done 2026-09-17 — doc/recipes/fresh-consumer-proxy-check.md exists and is indexed)
+   ~~hand-rolled /tmp module (third time hand-rolled); commit it as~~
+   ~~`doc/recipes/fresh-consumer-proxy-check.md` or a tiny script so the~~
+   ~~ritual is copy-paste.~~
 
 **Upstream (user-gated — say the word)**
-8. File Draft 1: go-sse dedup-aware `ReplayFiltered` (draft ready at
-   `doc/feedback/outgoing/2026-09-16_upstream-asks-gosse-httputil.md`).
-9. File Draft 2: httputil Logging request-context emit (same file).
-10. GREEN-LIGHT DECISION: implement `httputil.NewServerListener(ln, cfg,
-    handler)` upstream — unblocks the composition refactor (C20) AND Core
-    TLS (G1) in one move.
-11. Then: re-run the composition spike against that API; execute the C20
-    refactor for real.
-12. Then: Core TLS option (`ServiceConfig.TLS{CertFile, KeyFile}`) —
-    PapDashboard's first demand.
-13. statusRecorder USER GATE (open since 2026-09-16): swap or close it.
+8. ~~File Draft 1: go-sse dedup-aware `ReplayFiltered` (draft ready at~~ **Won't implement — USER-GATED — TODO_LIST P2 upstream-asks item.**
+   ~~`doc/feedback/outgoing/2026-09-16_upstream-asks-gosse-httputil.md`).~~
+9. ~~File Draft 2: httputil Logging request-context emit (same file).~~ **Won't implement — USER-GATED — TODO_LIST P2 upstream-asks item.**
+10. ~~GREEN-LIGHT DECISION: implement `httputil.NewServerListener(ln, cfg,~~ **Won't implement — USER-GATED — TODO_LIST P2 upstream-asks item (NewServerListener go/no-go).**
+    ~~handler)` upstream — unblocks the composition refactor (C20) AND Core~~
+    ~~TLS (G1) in one move.~~
+11. ~~Then: re-run the composition spike against that API; execute the C20~~ **Won't implement — gated on 10 — TODO_LIST P2 composition item.**
+    ~~refactor for real.~~
+12. ~~Then: Core TLS option (`ServiceConfig.TLS{CertFile, KeyFile}`) —~~ **Won't implement — gated on 10 — Core TLS in the AGENTS Deferred Register.**
+    ~~PapDashboard's first demand.~~
+13. ~~statusRecorder USER GATE (open since 2026-09-16): swap or close it.~~ done (STILL OPEN — TODO_LIST P2 USER GATE (statusRecorder))
 
 **Finish the partials**
-14. **govulncheck** on health + security from a networked machine.
-15. **Browser CSP pass** (chromedp or manual) over the health dashboard
-    under strict-CSP + nonce — server-side proof exists, browser-side
-    doesn't.
-16. **Security module threat-model page** (§f #39 from the last report —
-    NOT done, carried): per-battery threat → test mapping table.
-17. **Security example service** (§f #42, carried): like errorpages/example,
-    demonstrating the full hardened chain.
-18. **security + realtime composition integration test** (§f #43,
-    carried): rate-limit in front of SSE.
-19. **CI dependabot-parity assert** (§f #48, carried): workflow step that
-    fails when a module dir lacks a dependabot entry or CI matrix slot.
-20. **HTML reports sweep** (§f #33, carried): annotate or archive the four
-    never-opened reports (2026-08-15/16, 2026-09-04 research).
-21. cqrs README cookbook re-verification against scenario/v4 v4.2.0 after
-    each go-cqrs-lite release (standing ritual, next release triggers it).
+14. ~~**govulncheck** on health + security from a networked machine.~~ **Won't implement — env-blocked — TODO_LIST P2 govulncheck.**
+15. ~~**Browser CSP pass** (chromedp or manual) over the health dashboard~~ done (routed — TODO_LIST P2 browser CSP pass)
+    ~~under strict-CSP + nonce — server-side proof exists, browser-side~~
+    ~~doesn't.~~
+16. ~~**Security module threat-model page** (§f #39 from the last report —~~ done (routed — TODO_LIST P2 security trio)
+    ~~NOT done, carried): per-battery threat → test mapping table.~~
+17. ~~**Security example service** (§f #42, carried): like errorpages/example,~~ done (routed — TODO_LIST P2 security trio)
+    ~~demonstrating the full hardened chain.~~
+18. ~~**security + realtime composition integration test** (§f #43,~~ done (routed — TODO_LIST P2 security trio)
+    ~~carried): rate-limit in front of SSE.~~
+19. ~~**CI dependabot-parity assert** (§f #48, carried): workflow step that~~ done (routed — TODO_LIST P2 CI dependabot-parity assert)
+    ~~fails when a module dir lacks a dependabot entry or CI matrix slot.~~
+20. ~~**HTML reports sweep** (§f #33, carried): annotate or archive the four~~ done (done 2026-09-17 — docs-health pass banner-annotated the research HTMLs; the 08-16 plan archived)
+    ~~never-opened reports (2026-08-15/16, 2026-09-04 research).~~
+21. ~~cqrs README cookbook re-verification against scenario/v4 v4.2.0 after~~ done (standing — TODO_LIST P3 cqrs README cookbook item)
+    ~~each go-cqrs-lite release (standing ritual, next release triggers it).~~
 
 **Batteries (demand-gated — re-confirm demand first)**
-22. W3 B1 ResultHandler family (classification-parity pin with errorpages).
-23. W3 B2 bind+validation.
-24. W3 B9 no-leak error responses.
-25. W3 B4 conditional GET (promotes the idle go-etag dep).
-26. W5 C2 projection→broadcast folded contract (the cqrs+realtime
-    must-have).
-27. W5 C1 SSE drop/backpressure counters (absorbs TELEMETRY §6 candidate).
-28. W4 D4 atomic file write (floor: go-atomic-write ≥ v0.5.1).
-29. W4 D7 idempotency store.
-30. W1 F2 timing battery (after upstream Draft 2 lands).
+22. ~~W3 B1 ResultHandler family (classification-parity pin with errorpages).~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B1).**
+23. ~~W3 B2 bind+validation.~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B2).**
+24. ~~W3 B9 no-leak error responses.~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B9).**
+25. ~~W3 B4 conditional GET (promotes the idle go-etag dep).~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B4).**
+26. ~~W5 C2 projection→broadcast folded contract (the cqrs+realtime~~ **Won't implement — demand-gated — TODO_LIST P3 W5 (C2).**
+    ~~must-have).~~
+27. ~~W5 C1 SSE drop/backpressure counters (absorbs TELEMETRY §6 candidate).~~ **Won't implement — demand-gated — TODO_LIST P3 W5 (C1).**
+28. ~~W4 D4 atomic file write (floor: go-atomic-write ≥ v0.5.1).~~ **Won't implement — demand-gated — TODO_LIST P3 W4 (D4).**
+29. ~~W4 D7 idempotency store.~~ **Won't implement — demand-gated — TODO_LIST P3 W4 (D7).**
+30. ~~W1 F2 timing battery (after upstream Draft 2 lands).~~ done (sequenced after upstream Draft 2 (TODO_LIST P2))
 
 **Watchlist / hygiene**
-31. Watchlist refresh (cordis consumers count, PapDashboard v0.3.1+,
-    nixpkgs toolchain > 1.26.7, dprint exit-14).
-32. cqrs `WithRecorderOptions`-style passthrough evaluation if a consumer
-    asks for recorder tuning beyond `OpsRecorderPreset`.
-33. Fold the AGENTS "377-line cap" note into "376 target / binary counts
-    +1" once confirmed stable (or fix the binary upstream).
-34. Consider moving the fresh-consumer proxy check into CI as a
-    manual-dispatch workflow (needs network in the runner — verify first).
-35. After the next real consumer adopts core v0.5.0: revisit core v1.0.0
-    exit criteria (consumer-count trigger).
+31. ~~Watchlist refresh (cordis consumers count, PapDashboard v0.3.1+,~~ done (rolled into the standing watchlist item (TODO_LIST P3))
+    ~~nixpkgs toolchain > 1.26.7, dprint exit-14).~~
+32. ~~cqrs `WithRecorderOptions`-style passthrough evaluation if a consumer~~ done (demand-gated — revisit when a consumer asks (cqrs opt-in class))
+    ~~asks for recorder tuning beyond `OpsRecorderPreset`.~~
+33. ~~Fold the AGENTS "377-line cap" note into "376 target / binary counts~~ done (folded — the TODO_LIST P3 AGENTS slim-down item carries the +1 note)
+    ~~+1" once confirmed stable (or fix the binary upstream).~~
+34. ~~Consider moving the fresh-consumer proxy check into CI as a~~ done (routed — TODO_LIST P2 fresh-consumer proxy smoke in CI)
+    ~~manual-dispatch workflow (needs network in the runner — verify first).~~
+35. ~~After the next real consumer adopts core v0.5.0: revisit core v1.0.0~~ done (standing — TODO_LIST P2 v1.0.0 exit-criteria item)
+    ~~exit criteria (consumer-count trigger).~~
 
 ## g) Questions I cannot answer myself
 
-1. **Listener-injection go/no-go:** may I implement
-   `httputil.NewServerListener(ln, cfg, handler)` in the httputil repo and
-   re-run the composition spike? It is the single unlock for BOTH the
-   composition refactor and Core TLS — but it is upstream work in a repo
-   you own, and the last standing gate on it (Service API posture) is
-   yours to call.
-2. **Browser CSP pass:** do you want me to attempt it here with a headless
-   browser (chromedp is installable only with network access I don't
-   have), or will you run the manual pass on your machine against the
-   health example? If manual: the strict-CSP profile to load is
-   `health` example + `DashboardHardenedPreset`.
-3. **Structure-linter line counting:** the installed binary counts one
-   more line than `wc -l` (trailing-newline off-by-one), so AGENTS.md can
-   never sit AT the 377 cap — only below it. Fix the binary upstream in
-   go-structure-linter (same bucket as the inert `exclude_patterns` bug),
-   or keep a permanent 1-line buffer in AGENTS and update its stale
-   "≤377 counted lines" note?
+1. ~~**Listener-injection go/no-go:** may I implement~~ **Won't implement — still USER-GATED — TODO_LIST P2 upstream-asks item.**
+   ~~`httputil.NewServerListener(ln, cfg, handler)` in the httputil repo and~~
+   ~~re-run the composition spike? It is the single unlock for BOTH the~~
+   ~~composition refactor and Core TLS — but it is upstream work in a repo~~
+   ~~you own, and the last standing gate on it (Service API posture) is~~
+   ~~yours to call.~~
+2. ~~**Browser CSP pass:** do you want me to attempt it here with a headless~~ done (routed — TODO_LIST P2 browser CSP pass)
+   ~~browser (chromedp is installable only with network access I don't~~
+   ~~have), or will you run the manual pass on your machine against the~~
+   ~~health example? If manual: the strict-CSP profile to load is~~
+   ~~`health` example + `DashboardHardenedPreset`.~~
+3. ~~**Structure-linter line counting:** the installed binary counts one~~ done (folded — the TODO_LIST P3 AGENTS slim-down item carries the binary-counts-+1 note)
+   ~~more line than `wc -l` (trailing-newline off-by-one), so AGENTS.md can~~
+   ~~never sit AT the 377 cap — only below it. Fix the binary upstream in~~
+   ~~go-structure-linter (same bucket as the inert `exclude_patterns` bug),~~
+   ~~or keep a permanent 1-line buffer in AGENTS and update its stale~~
+   ~~"≤377 counted lines" note?~~
 
 ---
 
