@@ -122,6 +122,35 @@ appkit_http_requests_in_flight        gauge
 appkit_build_info                     gauge=1   {version}
 ```
 
+Enable it (with `Version` stamping `/version` and the build-info label):
+
+```go
+svc, err := appkit.NewService(appkit.ServiceConfig{
+    Addr:    ":8080",
+    Version: "1.2.3", // inject from your build (e.g. GoReleaser ldflags)
+    Metrics: &appkit.MetricsConfig{
+        Path:          "/metrics",
+        BasicAuthUser: "metrics",
+        BasicAuthPass: os.Getenv("METRICS_PASS"),
+    },
+})
+```
+
+For tests, the `testkit` sub-package boots the REAL service — full
+middleware chain, framework routes and all — and tears it down with a
+goroutine-leak assert. Never `httptest.NewServer(svc.Mux)`: a raw-mux
+server bypasses the entire chain (three production bugs in the reference
+consumer were only visible through the full chain):
+
+```go
+func TestReady(t *testing.T) {
+    testkit.Serve(t, svc) // starts svc, registers leak-checked teardown
+
+    resp, err := http.Get("http://" + svc.Addr().String() + "/health/ready")
+    // ...
+}
+```
+
 Route labels carry the ServeMux pattern (`GET /users/{id}`), never raw
 paths — cardinality stays bounded; unmatched paths collapse to
 `unmatched`. Authentication is mandatory by default: set
