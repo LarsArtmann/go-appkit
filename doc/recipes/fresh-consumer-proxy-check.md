@@ -47,8 +47,12 @@ blank-imports it, and runs `go build` with `GOWORK=off`.
    package main
 
    import (
+       "context"
        "log"
        "net/http"
+       "os/signal"
+       "syscall"
+       "time"
 
        "github.com/larsartmann/go-appkit"
    )
@@ -68,8 +72,25 @@ blank-imports it, and runs `go build` with `GOWORK=off`.
            log.Fatal(err)
        }
        log.Printf("listening on %s", svc.Addr())
-       if serveErr := <-errCh; serveErr != nil {
-           log.Fatal(serveErr)
+
+       // Start does NOT install signal handling — that is Run's job. A
+       // probe binary therefore handles SIGTERM itself to exercise the
+       // graceful path (without this, SIGTERM hard-kills: no drain, no
+       // shutdown phase logs, errCh never delivers).
+       ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+       defer stop()
+
+       select {
+       case <-ctx.Done():
+           shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+           defer cancel()
+           if err := svc.Shutdown(shutdownCtx); err != nil {
+               log.Fatal(err)
+           }
+       case serveErr := <-errCh:
+           if serveErr != nil {
+               log.Fatal(serveErr)
+           }
        }
    }
    ```

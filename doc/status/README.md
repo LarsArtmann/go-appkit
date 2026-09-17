@@ -39,3 +39,9 @@ grep -n "~~.*~~" doc/status/archived/*.md   # every hit must carry a verdict
 exist, what shipped). TODO_LIST's header links here-and-there for history
 only; status reports record point-in-time claims with their as-of date and
 never update them afterward.
+
+## Rituals
+
+Release and verification rituals live in `../recipes/` — start at
+`../recipes/fresh-consumer-proxy-check.md` (the post-push step of every
+release ritual).
