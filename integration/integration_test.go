@@ -23,9 +23,9 @@ import (
 // newSSEService starts an appkit.Service with the default middleware stack and
 // the SSE-safe composition the reference consumer (cqrs-htmx setup) uses:
 // NoTimeout on read/write so the server never caps stream lifetime. The
-// integration module pins PUBLISHED tags (what consumers resolve), so the
-// post-v0.3.0 NoDrainDelay sentinel is not available here — a 1ms explicit
-// drain keeps the suite fast without the 5s default.
+// integration module pins PUBLISHED tags (what consumers resolve); since the
+// core v0.5.0 pin the NoDrainDelay sentinel IS available here, but the 1ms
+// explicit drain keeps the two SSE tests exercising the real drain wait.
 // The hub is mounted at /sse via realtime.Mount. Shutdown is wired via
 // t.Cleanup.
 func newSSEService(t *testing.T, hub *realtime.Hub) *appkit.Service {

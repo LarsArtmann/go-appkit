@@ -18,18 +18,20 @@ import (
 	"github.com/larsartmann/go-appkit/testkit"
 )
 
-// getWithAuth performs a GET against the service, optionally with Basic
+// getWithAuth performs a GET against a base URL, optionally with Basic
 // Auth credentials, and returns the status, content type, and body.
+// Callers capture the base URL BEFORE shutting down: Service.Shutdown nils
+// the listener reference first, so svc.Addr() is already nil inside
+// DrainHooks — a contract this suite pins intentionally.
 func getWithAuth(
 	t *testing.T,
-	svc *appkit.Service,
-	path string,
+	base, path string,
 	user, pass string,
 ) (int, string, string) {
 	t.Helper()
 
 	req, err := http.NewRequestWithContext(
-		context.Background(), http.MethodGet, "http://"+svc.Addr().String()+path, nil)
+		context.Background(), http.MethodGet, base+path, nil)
 	if err != nil {
 		t.Fatalf("build request: %v", err)
 	}
@@ -82,17 +84,19 @@ func TestVersionAndMetricsComposeWithDefaultHealth(t *testing.T) {
 
 	testkit.Serve(t, svc)
 
-	status, contentType, body := getWithAuth(t, svc, "/health/live", "", "")
+	base := "http://" + svc.Addr().String()
+
+	status, contentType, body := getWithAuth(t, base, "/health/live", "", "")
 	if status != http.StatusOK {
 		t.Errorf("/health/live status = %d, want 200", status)
 	}
 
-	status, _, _ = getWithAuth(t, svc, "/health/ready", "", "")
+	status, _, _ = getWithAuth(t, base, "/health/ready", "", "")
 	if status != http.StatusOK {
 		t.Errorf("/health/ready status = %d, want 200 while running", status)
 	}
 
-	status, contentType, body = getWithAuth(t, svc, "/version", "", "")
+	status, contentType, body = getWithAuth(t, base, "/version", "", "")
 	if status != http.StatusOK {
 		t.Errorf("/version status = %d, want 200", status)
 	}
@@ -105,12 +109,12 @@ func TestVersionAndMetricsComposeWithDefaultHealth(t *testing.T) {
 		t.Errorf("/version body = %q, want %q", body, want)
 	}
 
-	status, _, _ = getWithAuth(t, svc, "/metrics", "", "")
+	status, _, _ = getWithAuth(t, base, "/metrics", "", "")
 	if status != http.StatusUnauthorized {
 		t.Errorf("/metrics without credentials status = %d, want 401", status)
 	}
 
-	status, contentType, body = getWithAuth(t, svc, "/metrics", metricsUser, metricsPass)
+	status, contentType, body = getWithAuth(t, base, "/metrics", metricsUser, metricsPass)
 	if status != http.StatusOK {
 		t.Errorf("/metrics status = %d, want 200", status)
 	}
@@ -134,12 +138,12 @@ func TestVersionAndMetricsComposeWithDefaultHealth(t *testing.T) {
 	}
 
 	// A served request must land in the response counter with its status.
-	status, _, _ = getWithAuth(t, svc, "/version", "", "")
+	status, _, _ = getWithAuth(t, base, "/version", "", "")
 	if status != http.StatusOK {
 		t.Fatalf("/version re-request status = %d, want 200", status)
 	}
 
-	_, _, body = getWithAuth(t, svc, "/metrics", metricsUser, metricsPass)
+	_, _, body = getWithAuth(t, base, "/metrics", metricsUser, metricsPass)
 	if !strings.Contains(body, `status="200"`) {
 		t.Errorf("/metrics responses_total missing a status=\"200\" series:\n%s", body)
 	}
@@ -163,6 +167,8 @@ func TestDrainWindowContract(t *testing.T) {
 
 	var svc *appkit.Service
 
+	var baseURL string
+
 	var err error
 
 	svc, err = appkit.NewService(appkit.ServiceConfig{
@@ -170,8 +176,8 @@ func TestDrainWindowContract(t *testing.T) {
 		DrainDelay: 250 * time.Millisecond,
 		DrainHooks: []func(context.Context) error{
 			func(_ context.Context) error {
-				readyStatus, _, _ := getWithAuth(t, svc, "/health/ready", "", "")
-				pingStatus, _, _ := getWithAuth(t, svc, "/ping", "", "")
+				readyStatus, _, _ := getWithAuth(t, baseURL, "/health/ready", "", "")
+				pingStatus, _, _ := getWithAuth(t, baseURL, "/ping", "", "")
 				hookRan <- hookObservation{readyStatus: readyStatus, pingStatus: pingStatus}
 
 				return nil
@@ -195,7 +201,9 @@ func TestDrainWindowContract(t *testing.T) {
 
 	testkit.Serve(t, svc)
 
-	if status, _, _ := getWithAuth(t, svc, "/ping", "", ""); status != http.StatusOK {
+	baseURL = "http://" + svc.Addr().String()
+
+	if status, _, _ := getWithAuth(t, baseURL, "/ping", "", ""); status != http.StatusOK {
 		t.Fatalf("/ping before shutdown status = %d, want 200", status)
 	}
 
@@ -228,7 +236,7 @@ func TestDrainWindowContract(t *testing.T) {
 	}
 
 	pingReq, pingErr := http.NewRequestWithContext(
-		context.Background(), http.MethodGet, "http://"+svc.Addr().String()+"/ping", nil)
+		context.Background(), http.MethodGet, baseURL+"/ping", nil)
 	if pingErr != nil {
 		t.Fatalf("rebuild ping request: %v", pingErr)
 	}
