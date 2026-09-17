@@ -138,7 +138,8 @@ func (m *metricsCollector) middleware(next http.Handler) http.Handler {
 		rec := &statusRecorder{
 			ResponseWriter: w,
 			status:         http.StatusOK,
-		} //nolint:exhaustruct_v5 // wroteHeader starts false
+			wroteHeader:    false,
+		}
 		next.ServeHTTP(rec, r)
 
 		duration := time.Since(start).Seconds()
@@ -159,7 +160,9 @@ func (m *metricsCollector) middleware(next http.Handler) http.Handler {
 		if !ok {
 			series = &routeSeries{
 				buckets: make([]uint64, len(durationBuckets)+1),
-			} //nolint:exhaustruct_v5 // count/sum zero until incremented
+				count:   0,
+				sum:     0,
+			}
 			m.byRoute[key] = series
 		}
 

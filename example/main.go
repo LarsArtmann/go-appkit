@@ -20,10 +20,14 @@ import (
 	errorfamily "github.com/larsartmann/go-error-family"
 )
 
+// demoDrainDelay shortens the default 5s drain so Ctrl+C demos finish
+// faster while still showing the drain window.
+const demoDrainDelay = 3 * time.Second
+
 func main() {
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = ":8080"
-	cfg.DrainDelay = 3 * time.Second // shorten the default 5s drain for the demo
+	cfg.DrainDelay = demoDrainDelay
 	cfg = withLifecycle(cfg)
 
 	err := run(cfg)
@@ -46,7 +50,9 @@ func withLifecycle(cfg appkit.ServiceConfig) appkit.ServiceConfig {
 
 			next.ServeHTTP(w, r)
 
-			fmt.Printf("[outer] %s %s took %s\n", r.Method, r.URL.Path, time.Since(start).Round(time.Microsecond))
+			took := time.Since(start).Round(time.Microsecond)
+
+			fmt.Fprintf(os.Stdout, "[outer] %s %s took %s\n", r.Method, r.URL.Path, took)
 		})
 	})
 
@@ -54,7 +60,7 @@ func withLifecycle(cfg appkit.ServiceConfig) appkit.ServiceConfig {
 	// server still serves, so external readiness signals (health probes, LB
 	// marks) flip in lockstep for the whole drain window.
 	cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
-		fmt.Println("[drain] telling the load balancer to stop routing")
+		fmt.Fprintln(os.Stdout, "[drain] telling the load balancer to stop routing")
 
 		return nil
 	})
@@ -62,7 +68,7 @@ func withLifecycle(cfg appkit.ServiceConfig) appkit.ServiceConfig {
 	// ShutdownHooks run AFTER the server released its connections — the right
 	// moment to flush telemetry covering the final in-flight requests.
 	cfg.ShutdownHooks = append(cfg.ShutdownHooks, func(context.Context) error {
-		fmt.Println("[shutdown] flushing telemetry provider")
+		fmt.Fprintln(os.Stdout, "[shutdown] flushing telemetry provider")
 
 		return nil
 	})
