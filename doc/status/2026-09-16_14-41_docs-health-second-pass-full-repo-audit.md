@@ -77,50 +77,50 @@
 
 **This session's direct follow-ups:**
 
-1. Decide the annotation-depth house standard (grouped verdicts for declared-brainstorm blocks vs strict per-item) — g-1 below; applied by practice this pass, needs blessing.
-2. Confirm the HTML classification (leave-alone for the two 2026-08 research/planning HTMLs) or commission resolution banners for them — g-3 below.
-3. Decide the single owner for release-state facts (AGENTS Release State vs TODO_LIST header) — TODO_LIST P3, asked since three sessions.
-4. AGENTS slim-down decision: what graduates to module READMEs (Release Ritual? per-module Gotchas?) to get under the ~30 KB the morning pass flagged.
-5. Run the full 10-module lint sweep so the "0 issues across the board" claim carries a fresh date (6 modules not linted this session).
-6. Verify the 4 remaining infertypeargs sites (`cqrs/commands_test.go:73,90,187,245`) via gopls; restart the LSP to clear the stale `testhelpers_test.go` diagnostic.
-7. Verify dprint didn't reflow the ~50 edited table rows on the next commit hook run (daemon-trusted until then).
-8. Delete `/tmp/appkit-otel-verify` once its recovery commit is confirmed pushed (the durable copy is in-repo).
-9. Root CHANGELOG: confirm no entry is owed for the test-helper deletion (test-only, core behavior untouched — believed correct, worth one glance at the next train).
-10. When the docs-ghost fix lands: update the three archived files that narrate it (07-07 §d, FEATURES docs section is living — only the archived narration stays as-is).
+1. ~~Decide the annotation-depth house standard (grouped verdicts for declared-brainstorm blocks vs strict per-item) — g-1 below; applied by practice this pass, needs blessing.~~ done (answered by practice — the annotation standard is recorded in the archived READMEs (2026-09-16/17))
+2. ~~Confirm the HTML classification (leave-alone for the two 2026-08 research/planning HTMLs) or commission resolution banners for them — g-3 below.~~ done (resolved 2026-09-17 — docs-health pass banner-annotated the research HTMLs and archived the 08-16 plan HTML)
+3. ~~Decide the single owner for release-state facts (AGENTS Release State vs TODO_LIST header) — TODO_LIST P3, asked since three sessions.~~ done (DECIDED 2026-09-16 — AGENTS Release State is the single owner; rule text in doc/status/README.md)
+4. ~~AGENTS slim-down decision: what graduates to module READMEs (Release Ritual? per-module Gotchas?) to get under the ~30 KB the morning pass flagged.~~ done (still open — routed to TODO_LIST P3 (AGENTS deep slim-down decision), 2026-09-17)
+5. ~~Run the full 10-module lint sweep so the "0 issues across the board" claim carries a fresh date (6 modules not linted this session).~~ done (done 2026-09-17 — the 08-08 session linted every module sequentially, all 0 issues)
+6. ~~Verify the 4 remaining infertypeargs sites (`cqrs/commands_test.go:73,90,187,245`) via gopls; restart the LSP to clear the stale `testhelpers_test.go` diagnostic.~~ done (done 2026-09-17 — verified OBSOLETE (zero markers in the file, zero linter findings))
+7. ~~Verify dprint didn't reflow the ~50 edited table rows on the next commit hook run (daemon-trusted until then).~~ **Won't implement — unverifiable in this env (no dprint dry-run) — tracked via the dprint exit-14 TODO item.**
+8. ~~Delete `/tmp/appkit-otel-verify` once its recovery commit is confirmed pushed (the durable copy is in-repo).~~ done (moot — /tmp is ephemeral; the durable in-repo copy was retired to doc/planning/archived/ (08-08))
+9. ~~Root CHANGELOG: confirm no entry is owed for the test-helper deletion (test-only, core behavior untouched — believed correct, worth one glance at the next train).~~ done (confirmed correct — test-only deletion, core behavior untouched)
+10. ~~When the docs-ghost fix lands: update the three archived files that narrate it (07-07 §d, FEATURES docs section is living — only the archived narration stays as-is).~~ done (correct as-is — archived narration stays historical per the annotation standard)
 
 **Standing user-gated (repeated for one-place visibility; already in TODO_LIST — do not re-harvest):**
 
-11. License posture decision (P2 USER GATE; blocks pkg.go.dev godoc for every module; cqrs-htmx is MIT).
-12. Docs-ghost fix path A vs B, then re-tag `docs/v0.3.0` + fresh-consumer proxy test (P1).
-13. OTEL release train authorization: tag httputil → bump core+otel → re-tag otel → land the recovered pin test in `integration/` → delete the README known-issue block (P2).
-14. Logging posture: default WARN vs sampling vs consumer logger (+benchstat) (P2).
-15. pkg.go.dev re-crawl verification after 11–13 (P1).
+11. ~~License posture decision (P2 USER GATE; blocks pkg.go.dev godoc for every module; cqrs-htmx is MIT).~~ done (DECIDED 2026-09-16 — stays proprietary, permanent)
+12. ~~Docs-ghost fix path A vs B, then re-tag `docs/v0.3.0` + fresh-consumer proxy test (P1).~~ done (done 2026-09-16 — path A executed; docs/v0.3.0 proxy-proven)
+13. ~~OTEL release train authorization: tag httputil → bump core+otel → re-tag otel → land the recovered pin test in `integration/` → delete the README known-issue block (P2).~~ done (SHIPPED 2026-09-16 — full train: httputil v1.2.0, otel v0.1.1, integration pin test landed)
+14. ~~Logging posture: default WARN vs sampling vs consumer logger (+benchstat) (P2).~~ done (DECIDED 2026-09-16 — status quo INFO + tuning docs (core README Log volume))
+15. ~~pkg.go.dev re-crawl verification after 11–13 (P1).~~ done (VERIFIED 2026-09-17 — every module page renders)
 
 **Standing feature/correctness backlog (owned, one-place visibility):**
 
-16. Realtime: `X-Accel-Buffering: no` + SSE `event: error` before abort + failure-path test (P2).
-17. Dashboard CSP + SSE longevity verification (chromedp or manual browser run) + `WriteTimeout: NoTimeout` posture (P2, restored today).
-18. `httputil.Server` composition spike → Service refactor → Core TLS unlock (P2, USER GATE on API posture).
-19. W2 security module (A2/A3/A4/A8/A6 quick wins first; MaxKeys cap is a HARD requirement) (P2).
-20. W1 leftovers: G2 Prometheus (auth-wired, stable metric names), F5 BuildInfo, E1 testkit seed (P2).
-21. Telemetry documentation bundle, 6 items (P2).
-22. Integration-module expansion: 3 seam tests + composition-contract suite + add `./integration` to the CI matrix (P3).
-23. Health-module quality parity: godoc examples, benchmark, fuzz, contract assertion, aggregate example, govulncheck, conflict-semantics + BasePath tests (P3).
-24. Error-classification sweep: otel setup sentinels + cqrs drain; `errorfamilytest` adoption (P3).
-25. Flightrecorder polish: explicit not-enabled status, `statusError` → error-family, `WithRecorderOptions` preset, MetricsHook → otel meter (P3).
-26. Dashboard hardening passthrough (`WithShutdownDrain`, `WithNonce`+`RecommendedCSP`, `WithRateLimit`) (P3).
-27. Upstream go-sse ask: dedup-aware `ReplayFiltered` (P3, verify-before-filing).
-28. errorpages `statusRecorder` → `httputil.ResponseRecorder` (P3 USER GATE).
-29. Dependency-currency proof: `git ls-remote --tags` across the family vs pins (P3).
-30. Health example live E2E re-run post-two-phase-drain (P3).
-31. `shutdown phase skipped` log-level decision (P3, restored today).
-32. golines LSP-vs-CLI root cause (P3).
-33. nosurf "forks internally" verification + httputil-side CSRF known-limitation note (P3).
-34. Version cuts for pending behavior changes (health drain fix, frh bumps, missing error-family CHANGELOG lines) (P3).
-35. cqrs/root doc-test polish: `Status()`-as-slice README line, staleness boundary property test, root example predates v0.4.0 hooks (P3).
-36. Toolchain bump past 1.26.7 when nixpkgs carries it (P2).
-37. Benchstat install attempt (`nix run nixpkgs#benchstat`) — never actually probed (P3 candidate).
-38. Cut health/frh versions per the Release Ritual when the train runs (rides 13).
+16. ~~Realtime: `X-Accel-Buffering: no` + SSE `event: error` before abort + failure-path test (P2).~~ done (SHIPPED 2026-09-16 — realtime v0.1.1 (X-Accel-Buffering + error event, wire-pinned))
+17. ~~Dashboard CSP + SSE longevity verification (chromedp or manual browser run) + `WriteTimeout: NoTimeout` posture (P2, restored today).~~ done (VERIFIED 2026-09-16 — both fears resolved with evidence; strict-CSP browser pass routed to TODO_LIST P2)
+18. ~~`httputil.Server` composition spike → Service refactor → Core TLS unlock (P2, USER GATE on API posture).~~ done (done 2026-09-16 — spike verdict: BLOCKED on upstream API (composition-spike-verdict.md))
+19. ~~W2 security module (A2/A3/A4/A8/A6 quick wins first; MaxKeys cap is a HARD requirement) (P2).~~ done (SHIPPED 2026-09-16 — security/v0.1.0, all 8 batteries)
+20. ~~W1 leftovers: G2 Prometheus (auth-wired, stable metric names), F5 BuildInfo, E1 testkit seed (P2).~~ done (SHIPPED 2026-09-17 — core v0.5.0 (G2/F5/E1))
+21. ~~Telemetry documentation bundle, 6 items (P2).~~ done (SHIPPED 2026-09-16 — doc/TELEMETRY.md, all 6 items)
+22. ~~Integration-module expansion: 3 seam tests + composition-contract suite + add `./integration` to the CI matrix (P3).~~ done (DONE 2026-09-16/17 — 5/5 sub-items (F104 scoped into the cqrs module))
+23. ~~Health-module quality parity: godoc examples, benchmark, fuzz, contract assertion, aggregate example, govulncheck, conflict-semantics + BasePath tests (P3).~~ done (done 2026-09-16/17 — all landed except govulncheck (env-blocked; TODO_LIST P2))
+24. ~~Error-classification sweep: otel setup sentinels + cqrs drain; `errorfamilytest` adoption (P3).~~ done (DONE 2026-09-16 — otel sentinels + cqrs drain classified; errorfamilytest adopted)
+25. ~~Flightrecorder polish: explicit not-enabled status, `statusError` → error-family, `WithRecorderOptions` preset, MetricsHook → otel meter (P3).~~ done (DONE 2026-09-16/17 — polish + OpsRecorderPreset + MetricsHook + real-capture E2E)
+26. ~~Dashboard hardening passthrough (`WithShutdownDrain`, `WithNonce`+`RecommendedCSP`, `WithRateLimit`) (P3).~~ done (SHIPPED 2026-09-16 — DashboardHardenedPreset (rate limiting deliberately out))
+27. ~~Upstream go-sse ask: dedup-aware `ReplayFiltered` (P3, verify-before-filing).~~ done (DRAFTED 2026-09-16 — filing USER-GATED (doc/feedback/outgoing/))
+28. ~~errorpages `statusRecorder` → `httputil.ResponseRecorder` (P3 USER GATE).~~ done (STILL OPEN — TODO_LIST P2 USER GATE (open since 2026-09-16))
+29. ~~Dependency-currency proof: `git ls-remote --tags` across the family vs pins (P3).~~ done (PROVEN 2026-09-16 — zero drift across 14 family repos vs pins)
+30. ~~Health example live E2E re-run post-two-phase-drain (P3).~~ done (PASS 2026-09-16 — lockstep 503s observed live)
+31. ~~`shutdown phase skipped` log-level decision (P3, restored today).~~ done (DECIDED 2026-09-16 — stays INFO (rationale indexed in doc/TELEMETRY.md))
+32. ~~golines LSP-vs-CLI root cause (P3).~~ done (ROOT-CAUSED 2026-09-16 — stale LSP buffer; the CLI was clean)
+33. ~~nosurf "forks internally" verification + httputil-side CSRF known-limitation note (P3).~~ done (VERIFIED TRUE 2026-09-16 — nosurf v1.2.0 source; httputil note pushed (a03db5c))
+34. ~~Version cuts for pending behavior changes (health drain fix, frh bumps, missing error-family CHANGELOG lines) (P3).~~ done (DONE — health v0.1.1 + frh v0.1.2 tagged; v0.10.1 lines verified in all CHANGELOGs (2026-09-17))
+35. ~~cqrs/root doc-test polish: `Status()`-as-slice README line, staleness boundary property test, root example predates v0.4.0 hooks (P3).~~ done (DONE 2026-09-16 — cqrs README slice + monotonicity test + root example hooks demo)
+36. ~~Toolchain bump past 1.26.7 when nixpkgs carries it (P2).~~ done (CHECKED 2026-09-16 — nixpkgs still 1.26.7; carried by the TODO_LIST P3 watchlist)
+37. ~~Benchstat install attempt (`nix run nixpkgs#benchstat`) — never actually probed (P3 candidate).~~ done (still a candidate — nix run never probed (TODO_LIST P2 benchstat item))
+38. ~~Cut health/frh versions per the Release Ritual when the train runs (rides 13).~~ done (DONE — health v0.1.1 + frh v0.1.2 tagged 2026-09-16)
 
 **Roadmap-grade (owned by ROADMAP; listed so nothing lives only in snapshots):**
 
