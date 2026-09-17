@@ -98,6 +98,7 @@
 ## f) NEXT — up to 50 things to get done (ordered by leverage)
 
 **Ship loop / release correctness**
+
 1. ~~Re-check pkg.go.dev render for `docs@v0.3.0` + all module pages (crawler should have caught up) — close the P1 `[~]`.~~ done (CLOSED 2026-09-17 — all module pages render (verified live by the docs-health pass))
 2. ~~Tag **core v0.5.0**: metrics surface + Version + testkit (API-break check first; it's a feature release).~~ done (done 2026-09-17 — core v0.5.0 tagged (929f363); API-break check additions-only)
 3. ~~Fresh-consumer proxy test for core v0.5.0 + re-pin `integration/` to it.~~ done (done 2026-09-17 — fresh-consumer PASS + integration re-pinned (ca7205b))

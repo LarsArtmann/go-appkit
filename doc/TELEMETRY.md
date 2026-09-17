@@ -8,18 +8,18 @@ index, not a plan.
 
 ## 1. Log-line catalogue
 
-| Line / message                        | Level | Source                          | Fields                                                             | Notes |
-| ------------------------------------- | ----- | ------------------------------- | ------------------------------------------------------------------ | ----- |
-| `shutdown phase complete`             | INFO  | core `Service.Shutdown`         | `phase`, `duration`                                                | Grep-able contract, pinned by `shutdownlog_test.go`. Phases: `ready_flip`, `drain_hooks`, `drain_wait`, `listener_close`, `shutdown_hooks` |
-| `shutdown phase skipped`              | INFO  | core, with `NoDrainDelay`       | `phase=drain_wait`                                                 | Level decision 2026-09-16: stays INFO (rationale in root README "Log volume") |
-| `graceful shutdown complete`          | INFO  | core, end of shutdown           | `total`, `result` (`ok`/`error`)                                   | The deploy-diagnosis line |
-| `draining traffic`                    | INFO  | core, before the drain wait     | `delay`                                                            | |
-| `request method=… duration=…`         | INFO  | httputil `Logging`              | `method`, `path`, `status`, `duration`, `client_ip`, `request_id`  | The only per-request line. NOT context-correlated upstream (see §4 recipe); suppressed for free at `LogLevel: Warn` |
-| `context cancelled, shutting down`    | INFO  | core `Service.Run`              | —                                                                  | |
-| `realtime: replay store read failed…` | ERROR | realtime                        | `last_event_id`, `err`                                             | Followed by the SSE `event: error` (see §3) |
-| `security.OriginCheck: origin rejected` | WARN | security module                | `origin`, `path`                                                   | |
-| `httputil: CSRF validation failed`    | WARN  | httputil (via security module)  | `method`, `path`, `reason`                                         | |
-| `security.CSRF: "*" in TrustedOrigins…` | WARN | security module, construction  | —                                                                  | Misconfiguration warning, fires once |
+| Line / message                          | Level | Source                         | Fields                                                            | Notes                                                                                                                                      |
+| --------------------------------------- | ----- | ------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `shutdown phase complete`               | INFO  | core `Service.Shutdown`        | `phase`, `duration`                                               | Grep-able contract, pinned by `shutdownlog_test.go`. Phases: `ready_flip`, `drain_hooks`, `drain_wait`, `listener_close`, `shutdown_hooks` |
+| `shutdown phase skipped`                | INFO  | core, with `NoDrainDelay`      | `phase=drain_wait`                                                | Level decision 2026-09-16: stays INFO (rationale in root README "Log volume")                                                              |
+| `graceful shutdown complete`            | INFO  | core, end of shutdown          | `total`, `result` (`ok`/`error`)                                  | The deploy-diagnosis line                                                                                                                  |
+| `draining traffic`                      | INFO  | core, before the drain wait    | `delay`                                                           |                                                                                                                                            |
+| `request method=… duration=…`           | INFO  | httputil `Logging`             | `method`, `path`, `status`, `duration`, `client_ip`, `request_id` | The only per-request line. NOT context-correlated upstream (see §4 recipe); suppressed for free at `LogLevel: Warn`                        |
+| `context cancelled, shutting down`      | INFO  | core `Service.Run`             | —                                                                 |                                                                                                                                            |
+| `realtime: replay store read failed…`   | ERROR | realtime                       | `last_event_id`, `err`                                            | Followed by the SSE `event: error` (see §3)                                                                                                |
+| `security.OriginCheck: origin rejected` | WARN  | security module                | `origin`, `path`                                                  |                                                                                                                                            |
+| `httputil: CSRF validation failed`      | WARN  | httputil (via security module) | `method`, `path`, `reason`                                        |                                                                                                                                            |
+| `security.CSRF: "*" in TrustedOrigins…` | WARN  | security module, construction  | —                                                                 | Misconfiguration warning, fires once                                                                                                       |
 
 Default level is INFO (decided 2026-09-16, README "Log volume": emitting
 costs ~+30µs/req, suppression at WARN ~+0.8µs — flip `LogLevel` for
@@ -29,12 +29,12 @@ high-throughput services).
 
 Core `ServiceConfig.Metrics` surface (dependency-free Prometheus text):
 
-| Metric                                    | Type      | Labels                |
-| ----------------------------------------- | --------- | --------------------- |
-| `appkit_http_request_duration_seconds`    | histogram | `method`, `route`, `status` |
-| `appkit_http_responses_total`             | counter   | `method`, `route`, `status` |
-| `appkit_http_requests_in_flight`          | gauge     | —                     |
-| `appkit_build_info`                       | gauge=1   | `version`             |
+| Metric                                 | Type      | Labels                      |
+| -------------------------------------- | --------- | --------------------------- |
+| `appkit_http_request_duration_seconds` | histogram | `method`, `route`, `status` |
+| `appkit_http_responses_total`          | counter   | `method`, `route`, `status` |
+| `appkit_http_requests_in_flight`       | gauge     | —                           |
+| `appkit_build_info`                    | gauge=1   | `version`                   |
 
 Route labels are ServeMux patterns (`GET /users/{id}`), never raw paths;
 unmatched requests collapse to `route="unmatched"`.
@@ -58,14 +58,14 @@ Diff on migration; never assume 1:1.
 
 ## 3. Backpressure semantics (lossy vs blocking, per sink)
 
-| Sink                          | Behavior under pressure                                                                 |
-| ----------------------------- | --------------------------------------------------------------------------------------- |
-| OTel batch processor          | LOSSY: queue-full spans/metrics are dropped silently; `Provider.Shutdown` ForceFlushes first, so only the mid-flight window is exposed |
-| charmbracelet log formatting  | BLOCKING per line (~+30µs): a slow stdout slows the request goroutine — the real reason to raise `LogLevel` |
-| SSE subscriber buffer (64)    | LOSSY: bursts above the buffer drop live events; clients heal via Last-Event-ID replay (exactly-once, dedup-pinned) |
-| SSE store-failure             | ABORT with signal: named `event: error` + `retry: 30000` before the drop (no reconnect storm) |
-| Health probe cache            | LATEST-WINS: the dashboard reads `CachedResponse` per push tick — a failed batch surfaces, history compresses |
-| Rate limiter                  | REJECT: 429 + `Retry-After`, chain aborts (never overwritten — regression-pinned)        |
+| Sink                         | Behavior under pressure                                                                                                                |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| OTel batch processor         | LOSSY: queue-full spans/metrics are dropped silently; `Provider.Shutdown` ForceFlushes first, so only the mid-flight window is exposed |
+| charmbracelet log formatting | BLOCKING per line (~+30µs): a slow stdout slows the request goroutine — the real reason to raise `LogLevel`                            |
+| SSE subscriber buffer (64)   | LOSSY: bursts above the buffer drop live events; clients heal via Last-Event-ID replay (exactly-once, dedup-pinned)                    |
+| SSE store-failure            | ABORT with signal: named `event: error` + `retry: 30000` before the drop (no reconnect storm)                                          |
+| Health probe cache           | LATEST-WINS: the dashboard reads `CachedResponse` per push tick — a failed batch surfaces, history compresses                          |
+| Rate limiter                 | REJECT: 429 + `Retry-After`, chain aborts (never overwritten — regression-pinned)                                                      |
 
 ## 4. Incident-debug recipe
 

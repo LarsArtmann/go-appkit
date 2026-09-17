@@ -12,15 +12,15 @@ unanswered).
 
 ## 1. Field-by-field coverage table (ServerConfig vs ServiceConfig)
 
-| appkit `ServiceConfig`                  | httputil `ServerConfig` | Mapping                                              |
-| --------------------------------------- | ----------------------- | ---------------------------------------------------- |
-| `Addr`                                  | `Addr`                  | identity                                             |
-| `ReadTimeout` (+`NoTimeout` sentinel)   | `ReadTimeout`           | appkit's `serverTimeout()` maps -1 → 0 before handoff |
-| `ReadHeaderTimeout`                     | `ReadHeaderTimeout`     | identity                                             |
-| `WriteTimeout` (+`NoTimeout`)           | `WriteTimeout`          | same sentinel mapping                                |
-| `IdleTimeout`                           | `IdleTimeout`           | identity                                             |
-| `ShutdownTimeout`                       | `ShutdownTimeout`       | identity                                             |
-| — (no TLS config; G1 deferred)          | `TLSConfig` + `StartTLS(cert, key)` | the actual prize: the future Core TLS option |
+| appkit `ServiceConfig`                | httputil `ServerConfig`             | Mapping                                               |
+| ------------------------------------- | ----------------------------------- | ----------------------------------------------------- |
+| `Addr`                                | `Addr`                              | identity                                              |
+| `ReadTimeout` (+`NoTimeout` sentinel) | `ReadTimeout`                       | appkit's `serverTimeout()` maps -1 → 0 before handoff |
+| `ReadHeaderTimeout`                   | `ReadHeaderTimeout`                 | identity                                              |
+| `WriteTimeout` (+`NoTimeout`)         | `WriteTimeout`                      | same sentinel mapping                                 |
+| `IdleTimeout`                         | `IdleTimeout`                       | identity                                              |
+| `ShutdownTimeout`                     | `ShutdownTimeout`                   | identity                                              |
+| — (no TLS config; G1 deferred)        | `TLSConfig` + `StartTLS(cert, key)` | the actual prize: the future Core TLS option          |
 
 Score: 6/7 identity + the TLS seam appkit lacks. On paper, clean.
 

@@ -11,31 +11,31 @@ split brain this session removed). Convention wins; flagged here so it can be ov
 
 **Headline:** pkg.go.dev P1 **CLOSED with live evidence** (all four lagging pages render);
 TODO_LIST rebuilt from 38 mixed items to **21 open-only**; **12 files archived** with
-~200 inline verdicts; `doc/status/` now holds *only* the index + `archived/` — zero stale
+~200 inline verdicts; `doc/status/` now holds _only_ the index + `archived/` — zero stale
 reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, their M3 landed).
 
 ---
 
 ## a) FULLY DONE (each verified in-session, not cited)
 
-| # | What | Evidence |
-|---|------|----------|
-| A1 | Inventoried all 52 `**/2026-0*` files; full-content reads on the 16 active files, gate-checks on the 30+ already-archived | find + view log this session |
-| A2 | **pkg.go.dev re-crawl check executed LIVE** — docs@v0.3.0, health@v0.1.1, security@v0.1.0, core v0.5.1 all RENDER ("Published Sep 16/17", 404s gone) | fetch of the four pages, 2026-09-17 ~18:20 |
-| A3 | **P1 closed**: TODO_LIST P1 now states release-green; AGENTS *Release State* carries the VERIFIED line | TODO_LIST.md, AGENTS.md:27 |
-| A4 | **TODO_LIST rebuilt to open-only** (its own legend): 38 mixed → 21 open/partial; 17 `[x]` items deleted after verifying each has a CHANGELOG/AGENTS/FEATURES home | TODO_LIST.md (58 lines) |
-| A5 | **HARVEST of three 09-17 reports**: 12 new bounded items routed into TODO_LIST P2/P3 (pin-drift guard, Release-Ritual additions, depguard deny, security trio, testkit helper, browser CSP, CI parity asserts, setup-suite run…) | TODO_LIST.md |
-| A6 | **~200 inline verdicts** via the skill's scripts (dry-run first): 14-41 §f 50 + §b/c/g; 05-52 §b/f/g (63); 08-08 §b/f/g (41); 09-38 §b/c (8); 08-40 §f rows 14–17 (4); 14-22 §f 30 + §b B1–B4 + §c 5 bullets + §g; pin-test doc (5); 15-01 C1–C30 (30) | `~~` grep counts per file |
-| A7 | **12 files archived** with `git mv`: all 9 pending status reports incl. 15-19-48 HTML, the 15-01 plan, the executed 08-16 wave-plan HTML, and the misplaced 14-22 report (moved out of the docs Go module; `docs/status/` dir removed) | `ls doc/status/` = index + archived/ only |
-| A8 | **HTML banners**: 08-15 research (superseded by 09-16), 09-04 research (as-of + ritual pointer), 08-16 plan (EXECUTION VERDICT); 09-16 research already had its banner | file heads |
-| A9 | **`doc/` vs `docs/` path drift killed**: 12 citation fixes across AGENTS/TODO_LIST/ROADMAP/FEATURES + archived-README conventions; remaining `docs/` mentions verified legitimate (module path, sibling repo, go-cqrs-lite/httputil paths) | grep audit |
-| A10 | **FEATURES truthed**: +11 rows (fr 503/preset, health preset/contract/fuzz/godoc-examples, otel MetricsHook + real-capture E2E, new `integration` section), consumer pin corrected to **v0.5.0**, stale ghost-gap paragraph replaced with verified-fixed state | FEATURES.md; evidence files opened |
-| A11 | **ROADMAP truthed**: both resolved open questions removed (OTEL regression, logging posture), 3 live USER gates added, cordis trigger 1/3, TELEMETRY umbrella marked shipped, 4 path fixes | ROADMAP.md |
-| A12 | **AGENTS net-zero edits at cap**: 7 in-place fixes; still 376 wc-lines; structure linter **0 findings** re-run after edits | go-structure-linter output |
-| A13 | **Index rewritten** (`doc/status/README.md`): none-current state, 36-archive count, gate command, grouped-verdict standard, ownership rule | doc/status/README.md |
-| A14 | **Gates green**: core `-race` 6.0s ok · integration `-race` 2.0s ok · **11/11 modules build** · archive grep gate prints nothing · all internal markdown links resolve · tables well-formed | session logs |
-| A15 | **Cross-repo drift caught and corrected**: cqrs-htmx setup pins **v0.5.0** (`setup/go.mod:95`, re-read myself) — the 14:22 report's v0.4.0 was already stale; AGENTS/FEATURES/TODO updated; their M4 threading confirmed still open (0 hits in run_appkit.go/config.go) | their checkout, master |
-| A16 | 14-22 report fully dispositioned and archived; its §g questions routed to the TODO_LIST footer | archived/2026-09-17_14-22… |
+| #   | What                                                                                                                                                                                                                                                                    | Evidence                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| A1  | Inventoried all 52 `**/2026-0*` files; full-content reads on the 16 active files, gate-checks on the 30+ already-archived                                                                                                                                               | find + view log this session               |
+| A2  | **pkg.go.dev re-crawl check executed LIVE** — docs@v0.3.0, health@v0.1.1, security@v0.1.0, core v0.5.1 all RENDER ("Published Sep 16/17", 404s gone)                                                                                                                    | fetch of the four pages, 2026-09-17 ~18:20 |
+| A3  | **P1 closed**: TODO_LIST P1 now states release-green; AGENTS _Release State_ carries the VERIFIED line                                                                                                                                                                  | TODO_LIST.md, AGENTS.md:27                 |
+| A4  | **TODO_LIST rebuilt to open-only** (its own legend): 38 mixed → 21 open/partial; 17 `[x]` items deleted after verifying each has a CHANGELOG/AGENTS/FEATURES home                                                                                                       | TODO_LIST.md (58 lines)                    |
+| A5  | **HARVEST of three 09-17 reports**: 12 new bounded items routed into TODO_LIST P2/P3 (pin-drift guard, Release-Ritual additions, depguard deny, security trio, testkit helper, browser CSP, CI parity asserts, setup-suite run…)                                        | TODO_LIST.md                               |
+| A6  | **~200 inline verdicts** via the skill's scripts (dry-run first): 14-41 §f 50 + §b/c/g; 05-52 §b/f/g (63); 08-08 §b/f/g (41); 09-38 §b/c (8); 08-40 §f rows 14–17 (4); 14-22 §f 30 + §b B1–B4 + §c 5 bullets + §g; pin-test doc (5); 15-01 C1–C30 (30)                  | `~~` grep counts per file                  |
+| A7  | **12 files archived** with `git mv`: all 9 pending status reports incl. 15-19-48 HTML, the 15-01 plan, the executed 08-16 wave-plan HTML, and the misplaced 14-22 report (moved out of the docs Go module; `docs/status/` dir removed)                                  | `ls doc/status/` = index + archived/ only  |
+| A8  | **HTML banners**: 08-15 research (superseded by 09-16), 09-04 research (as-of + ritual pointer), 08-16 plan (EXECUTION VERDICT); 09-16 research already had its banner                                                                                                  | file heads                                 |
+| A9  | **`doc/` vs `docs/` path drift killed**: 12 citation fixes across AGENTS/TODO_LIST/ROADMAP/FEATURES + archived-README conventions; remaining `docs/` mentions verified legitimate (module path, sibling repo, go-cqrs-lite/httputil paths)                              | grep audit                                 |
+| A10 | **FEATURES truthed**: +11 rows (fr 503/preset, health preset/contract/fuzz/godoc-examples, otel MetricsHook + real-capture E2E, new `integration` section), consumer pin corrected to **v0.5.0**, stale ghost-gap paragraph replaced with verified-fixed state          | FEATURES.md; evidence files opened         |
+| A11 | **ROADMAP truthed**: both resolved open questions removed (OTEL regression, logging posture), 3 live USER gates added, cordis trigger 1/3, TELEMETRY umbrella marked shipped, 4 path fixes                                                                              | ROADMAP.md                                 |
+| A12 | **AGENTS net-zero edits at cap**: 7 in-place fixes; still 376 wc-lines; structure linter **0 findings** re-run after edits                                                                                                                                              | go-structure-linter output                 |
+| A13 | **Index rewritten** (`doc/status/README.md`): none-current state, 36-archive count, gate command, grouped-verdict standard, ownership rule                                                                                                                              | doc/status/README.md                       |
+| A14 | **Gates green**: core `-race` 6.0s ok · integration `-race` 2.0s ok · **11/11 modules build** · archive grep gate prints nothing · all internal markdown links resolve · tables well-formed                                                                             | session logs                               |
+| A15 | **Cross-repo drift caught and corrected**: cqrs-htmx setup pins **v0.5.0** (`setup/go.mod:95`, re-read myself) — the 14:22 report's v0.4.0 was already stale; AGENTS/FEATURES/TODO updated; their M4 threading confirmed still open (0 hits in run_appkit.go/config.go) | their checkout, master                     |
+| A16 | 14-22 report fully dispositioned and archived; its §g questions routed to the TODO_LIST footer                                                                                                                                                                          | archived/2026-09-17_14-22…                 |
 
 ## b) PARTIALLY DONE
 
@@ -77,6 +77,7 @@ reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, t
 ## f) Up to 50 things to get done next (ordered by leverage; gated items keep their gates)
 
 **Ship loop / correctness**
+
 1. Pin-drift guard: test or CI step asserting `integration/go.mod` pins + AGENTS "ON ORIGIN through" vs `git tag -l` (USER GATE: pin philosophy — g-1).
 2. Release Ritual: add the explicit "update AGENTS release-state + module lines" step (v0.5.1 shipped while AGENTS said v0.5.0).
 3. Release Ritual: codify the `docs:` tag-message convention for doc-only releases.
@@ -146,4 +147,4 @@ reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, t
 
 ---
 
-*Point-in-time snapshot as of 2026-09-17 19:13 CEST. Release-state truth: AGENTS.md → Release State; open work: TODO_LIST.md (21 items). Annotate, never rewrite.*
+_Point-in-time snapshot as of 2026-09-17 19:13 CEST. Release-state truth: AGENTS.md → Release State; open work: TODO_LIST.md (21 items). Annotate, never rewrite._

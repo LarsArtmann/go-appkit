@@ -8,7 +8,6 @@ verdicts — scan for `~~` to see why each item closed. Never delete these;
 they are the archaeology layer. New reports land in `docs/status/` and
 migrate here only after a docs-health pass resolves their items.
 
-
 ## Annotation standard (recorded 2026-09-16)
 
 Verdicts are recorded INLINE at the item they resolve: `~~strikethrough~~`

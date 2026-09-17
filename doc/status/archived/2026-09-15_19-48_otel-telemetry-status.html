@@ -855,13 +855,16 @@
             <div class="square"></div>
             <div class="tri"></div>
           </div>
-          <div class="hero-badge">Scoped Status &middot; OTEL &amp; Telemetry</div>
+          <div class="hero-badge">
+            Scoped Status &middot; OTEL &amp; Telemetry
+          </div>
           <h1>How are we doing on OTEL &amp; Telemetry?</h1>
           <p class="hero-subtitle">
             Point-in-time audit of go-appkit's telemetry story — otel module,
-            cqrs projection metrics, core telemetry seams. Every claim re-verified
-            today: tests re-run, example served live, benchmarks re-measured,
-            upstream fix confirmed. One serious silent regression found and root-caused.
+            cqrs projection metrics, core telemetry seams. Every claim
+            re-verified today: tests re-run, example served live, benchmarks
+            re-measured, upstream fix confirmed. One serious silent regression
+            found and root-caused.
           </p>
         </div>
 
@@ -883,34 +886,45 @@
         <div class="stat-grid">
           <div class="stat-card stat-good">
             <div class="stat-value">3/3</div>
-            <div class="stat-label">Signals shipped (traces, metrics, logs)</div>
+            <div class="stat-label">
+              Signals shipped (traces, metrics, logs)
+            </div>
           </div>
           <div class="stat-card stat-good">
             <div class="stat-value">GREEN</div>
-            <div class="stat-label">otel +race suite, vet, build, live E2E (today)</div>
+            <div class="stat-label">
+              otel +race suite, vet, build, live E2E (today)
+            </div>
           </div>
           <div class="stat-card stat-bad">
             <div class="stat-value">1</div>
-            <div class="stat-label">Critical regression found &amp; root-caused today</div>
+            <div class="stat-label">
+              Critical regression found &amp; root-caused today
+            </div>
           </div>
           <div class="stat-card stat-warn">
             <div class="stat-value">3</div>
-            <div class="stat-label">Stale docs corrected today (AGENTS, TODO_LIST)</div>
+            <div class="stat-label">
+              Stale docs corrected today (AGENTS, TODO_LIST)
+            </div>
           </div>
         </div>
         <div class="card card-warning">
           <h4>Verdict</h4>
           <p>
-            The telemetry <strong>foundation is genuinely good</strong>: released and
-            proxy-verified otel module, one-call Setup with correct flush-on-shutdown,
-            CQRS projection metrics, trace-correlated logging, honest no-op overhead
-            benchmark. But today's verification found that the flagship span-naming and
-            route-metrics features are <strong>silently dead in the documented appkit wiring</strong>
-            (<code>OuterMiddlewares</code>) — every span flushes as bare <code>GET</code> and
-            <code>http.route</code> metrics vanish. Tests pass only because they bypass the
-            appkit stack. Root cause is pinned to request re-forking in httputil middlewares;
-            fix is small but lives in a sibling repo. Also closed today: the upstream
-            go-cqrs-lite flush bug is <strong>fixed upstream</strong> — a P2 item retired.
+            The telemetry <strong>foundation is genuinely good</strong>:
+            released and proxy-verified otel module, one-call Setup with correct
+            flush-on-shutdown, CQRS projection metrics, trace-correlated
+            logging, honest no-op overhead benchmark. But today's verification
+            found that the flagship span-naming and route-metrics features are
+            <strong>silently dead in the documented appkit wiring</strong>
+            (<code>OuterMiddlewares</code>) — every span flushes as bare
+            <code>GET</code> and <code>http.route</code> metrics vanish. Tests
+            pass only because they bypass the appkit stack. Root cause is pinned
+            to request re-forking in httputil middlewares; fix is small but
+            lives in a sibling repo. Also closed today: the upstream
+            go-cqrs-lite flush bug is <strong>fixed upstream</strong> — a P2
+            item retired.
           </p>
         </div>
 
@@ -919,56 +933,62 @@
         <div class="card card-solution">
           <h4>otel module v0.1.0 — released, pushed, consumer-verified</h4>
           <p>
-            <code>Setup</code> + <code>Provider</code> (one-call tracer/meter providers,
-            W3C propagator, resource attrs, histogram views, ForceFlush-before-Shutdown),
-            otelhttp middleware bridge (spans, semconv metrics, filters,
-            public-endpoint links), <code>TraceHandler</code> log correlation,
-            <code>newHTTPViews</code> semconv boundaries. Fresh-consumer proxy test PASS
-            (2026-09-04). No core dependency in library code.
+            <code>Setup</code> + <code>Provider</code> (one-call tracer/meter
+            providers, W3C propagator, resource attrs, histogram views,
+            ForceFlush-before-Shutdown), otelhttp middleware bridge (spans,
+            semconv metrics, filters, public-endpoint links),
+            <code>TraceHandler</code> log correlation,
+            <code>newHTTPViews</code> semconv boundaries. Fresh-consumer proxy
+            test PASS (2026-09-04). No core dependency in library code.
           </p>
         </div>
 
         <div class="card card-solution">
           <h4>Verified live, today (not from docs)</h4>
           <p>
-            <code>go test -race -count=1</code>: ok in 1.0s &middot; <code>go vet</code> +
-            <code>go build</code> clean including example &middot; example served on :18099
-            and exercised: handler log carried <code>trace_id</code>+<code>span_id</code>,
-            a full semconv SERVER span flushed exactly once via the ShutdownHooks
-            ForceFlush after drain, <code>/health</code> correctly produced no span,
-            resource attributes (<code>service.name/version/instance.id</code>) correct.
+            <code>go test -race -count=1</code>: ok in 1.0s &middot;
+            <code>go vet</code> + <code>go build</code> clean including example
+            &middot; example served on :18099 and exercised: handler log carried
+            <code>trace_id</code>+<code>span_id</code>, a full semconv SERVER
+            span flushed exactly once via the ShutdownHooks ForceFlush after
+            drain, <code>/health</code> correctly produced no span, resource
+            attributes (<code>service.name/version/instance.id</code>) correct.
           </p>
         </div>
 
         <div class="card card-solution">
           <h4>CQRS projection metrics</h4>
           <p>
-            <code>cqrs/otelmetrics.go</code>: <code>OTelProjectionMetrics</code> implements
+            <code>cqrs/otelmetrics.go</code>:
+            <code>OTelProjectionMetrics</code> implements
             <code>projectionhost.MetricsRecorder</code> on four OTel instruments
             (event count/duration, worker count, checkpoint lag) with
-            <code>cqrs.*</code> semantic attributes. Targeted tests +race green today.
-            Interface-only OTel API dependency — no exporter forced on consumers.
+            <code>cqrs.*</code> semantic attributes. Targeted tests +race green
+            today. Interface-only OTel API dependency — no exporter forced on
+            consumers.
           </p>
         </div>
 
         <div class="card card-solution">
           <h4>Upstream flush bug: FIXED (P2 item retired today)</h4>
           <p>
-            go-cqrs-lite's otel <code>Provider.Shutdown</code> now ForceFlushes BOTH
-            providers before Shutdown — same shape as go-appkit/otel — pinned by their
-            <code>TestProvider_Shutdown_FlushesBeforeShutdown</code>. Verified in their
-            source today. Old notes calling it "latent upstream, fix pending" are now
-            marked obsolete in AGENTS.md.
+            go-cqrs-lite's otel <code>Provider.Shutdown</code> now ForceFlushes
+            BOTH providers before Shutdown — same shape as go-appkit/otel —
+            pinned by their
+            <code>TestProvider_Shutdown_FlushesBeforeShutdown</code>. Verified
+            in their source today. Old notes calling it "latent upstream, fix
+            pending" are now marked obsolete in AGENTS.md.
           </p>
         </div>
 
         <div class="card card-solution">
           <h4>Dependencies current &middot; performance honesty</h4>
           <p>
-            otel SDK v1.46.0 + otelhttp v0.71.0 (the "evaluate v1.46+" backlog item is
-            effectively done; AGENTS.md rows were stale — corrected today).
-            The strictly-opt-in guarantee is measured, not claimed:
-            <code>benchmark_test.go</code> pins no-op vs traced vs traced+metered.
+            otel SDK v1.46.0 + otelhttp v0.71.0 (the "evaluate v1.46+" backlog
+            item is effectively done; AGENTS.md rows were stale — corrected
+            today). The strictly-opt-in guarantee is measured, not claimed:
+            <code>benchmark_test.go</code> pins no-op vs traced vs
+            traced+metered.
           </p>
         </div>
 
@@ -977,10 +997,13 @@
         <div class="card card-warning">
           <h4>Metrics story: OTel path only — no pure-Prometheus surface</h4>
           <p>
-            Battery G2 (TODO_LIST P2): consumers who just want <code>/metrics</code>
-            (Gatus, scrape-based stacks) must pull the whole OTel module. Spec exists:
-            <code>ServiceConfig.Metrics{Path}</code>, route-pattern histogram, in-flight
-            gauge, build info — plus the unit-1 <code>_ratio</code> exporter trap to document.
+            Battery G2 (TODO_LIST P2): consumers who just want
+            <code>/metrics</code>
+            (Gatus, scrape-based stacks) must pull the whole OTel module. Spec
+            exists:
+            <code>ServiceConfig.Metrics{Path}</code>, route-pattern histogram,
+            in-flight gauge, build info — plus the unit-1
+            <code>_ratio</code> exporter trap to document.
           </p>
         </div>
 
@@ -988,169 +1011,368 @@
           <h4>Trace-log correlation: handler-level only</h4>
           <p>
             <code>TraceHandler</code> works (proven live today), but httputil's
-            <code>Logging</code> completion line logs without request context and stays
-            uncorrelated. Known limitation; P3 item proposes a ctx-aware emit upstream.
+            <code>Logging</code> completion line logs without request context
+            and stays uncorrelated. Known limitation; P3 item proposes a
+            ctx-aware emit upstream.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>Core v1 exit criteria: telemetry seam not yet met</h4>
           <p>
-            Criterion #6 declares the telemetry seam v1-shaped, and the criteria want
-            otel &ge; v0.2.0 — but with today's regression the seam's span-name promise
-            fails in the documented wiring. The criteria are draft; this finding must be
-            folded in before the freeze.
+            Criterion #6 declares the telemetry seam v1-shaped, and the criteria
+            want otel &ge; v0.2.0 — but with today's regression the seam's
+            span-name promise fails in the documented wiring. The criteria are
+            draft; this finding must be folded in before the freeze.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>Benchmark baseline: drifting</h4>
           <p>
-            README records no-op 21.2&micro;s / traced 26.4 / metered 27.4 (2026-09-04).
-            Same-box re-run today: 26.4 / 29.8 / 29.8&micro;s — ~25% above. Machine load or
-            the v0.68&rarr;v0.71 bump; benchstat re-baseline pending before the README
-            table can be trusted again.
+            README records no-op 21.2&micro;s / traced 26.4 / metered 27.4
+            (2026-09-04). Same-box re-run today: 26.4 / 29.8 / 29.8&micro;s —
+            ~25% above. Machine load or the v0.68&rarr;v0.71 bump; benchstat
+            re-baseline pending before the README table can be trusted again.
           </p>
         </div>
 
         <h2 id="notstarted"><span class="num">03</span>c) NOT STARTED</h2>
         <table>
-          <thead><tr><th>Item</th><th>Where</th><th>Note</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Where</th>
+              <th>Note</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Battery G2: Prometheus surface in core</td><td>TODO P2</td><td>spec ready in battery doc &sect;G2</td></tr>
-            <tr><td>OTLP worked example + local jaeger note</td><td>otel backlog #18</td><td>README has a snippet only, no runnable OTLP demo</td></tr>
-            <tr><td>Baggage correlation helpers</td><td>otel backlog #31</td><td>cqrs-parity WithCorrelationID</td></tr>
-            <tr><td>Outbound <code>appkitotel.Transport()</code> export</td><td>otel backlog #32</td><td>client-side spans</td></tr>
-            <tr><td><code>WithStdoutMetricReader</code> dev parity</td><td>otel backlog #19</td><td>spans have stdout, metrics don't</td></tr>
-            <tr><td>errorpages render trace_id; flightrecorder span link</td><td>otel backlog #34/#35</td><td>cross-module support handoff</td></tr>
-            <tr><td>Telemetry umbrella doc (otel + flightrecorder + health)</td><td>otel backlog #37</td><td>one story, three modules</td></tr>
-            <tr><td>Route-cardinality fuzz guard (10k paths)</td><td>otel backlog #39</td><td>double-relevant after today's finding</td></tr>
+            <tr>
+              <td>Battery G2: Prometheus surface in core</td>
+              <td>TODO P2</td>
+              <td>spec ready in battery doc &sect;G2</td>
+            </tr>
+            <tr>
+              <td>OTLP worked example + local jaeger note</td>
+              <td>otel backlog #18</td>
+              <td>README has a snippet only, no runnable OTLP demo</td>
+            </tr>
+            <tr>
+              <td>Baggage correlation helpers</td>
+              <td>otel backlog #31</td>
+              <td>cqrs-parity WithCorrelationID</td>
+            </tr>
+            <tr>
+              <td>Outbound <code>appkitotel.Transport()</code> export</td>
+              <td>otel backlog #32</td>
+              <td>client-side spans</td>
+            </tr>
+            <tr>
+              <td><code>WithStdoutMetricReader</code> dev parity</td>
+              <td>otel backlog #19</td>
+              <td>spans have stdout, metrics don't</td>
+            </tr>
+            <tr>
+              <td>errorpages render trace_id; flightrecorder span link</td>
+              <td>otel backlog #34/#35</td>
+              <td>cross-module support handoff</td>
+            </tr>
+            <tr>
+              <td>Telemetry umbrella doc (otel + flightrecorder + health)</td>
+              <td>otel backlog #37</td>
+              <td>one story, three modules</td>
+            </tr>
+            <tr>
+              <td>Route-cardinality fuzz guard (10k paths)</td>
+              <td>otel backlog #39</td>
+              <td>double-relevant after today's finding</td>
+            </tr>
           </tbody>
         </table>
 
-        <h2 id="fucked"><span class="num">04</span>d) TOTALLY FUCKED UP — found today</h2>
+        <h2 id="fucked">
+          <span class="num">04</span>d) TOTALLY FUCKED UP — found today
+        </h2>
 
         <div class="issue issue-critical">
-          <span class="severity severity-critical">Silent production regression</span>
-          <h3>Span names collapse to the bare method; http.route metrics are lost through the documented wiring</h3>
-          <div class="where">otel/middleware.go (bridge) &middot; httputil RequestID/Timeout/Logging (forks) &middot; otelhttp v0.71 handler.go:187</div>
+          <span class="severity severity-critical"
+            >Silent production regression</span
+          >
+          <h3>
+            Span names collapse to the bare method; http.route metrics are lost
+            through the documented wiring
+          </h3>
+          <div class="where">
+            otel/middleware.go (bridge) &middot; httputil
+            RequestID/Timeout/Logging (forks) &middot; otelhttp v0.71
+            handler.go:187
+          </div>
           <p>
-            Through <code>OuterMiddlewares</code> — the exact wiring the README and package
-            doc prescribe — every SERVER span flushes as <code>GET</code>/<code>POST</code>
-            instead of <code>GET /users/{id}</code>, and the <code>http.route</code> metric
-            attribute disappears entirely. Live-verified today: the example service flushed
-            <code>Name: "GET"</code>. Consequences: per-route latency dashboards and span-name
-            aggregation are impossible; the module's two headline claims (pattern-named spans,
-            cardinality safety) are dead in production wiring — silently, with all 23 tests
-            green, because the tests wrap the mux directly and skip the appkit stack.
+            Through <code>OuterMiddlewares</code> — the exact wiring the README
+            and package doc prescribe — every SERVER span flushes as
+            <code>GET</code>/<code>POST</code> instead of
+            <code>GET /users/{id}</code>, and the <code>http.route</code> metric
+            attribute disappears entirely. Live-verified today: the example
+            service flushed <code>Name: "GET"</code>. Consequences: per-route
+            latency dashboards and span-name aggregation are impossible; the
+            module's two headline claims (pattern-named spans, cardinality
+            safety) are dead in production wiring — silently, with all 23 tests
+            green, because the tests wrap the mux directly and skip the appkit
+            stack.
           </p>
           <p>
-            <strong>Root cause (pinned by A/B bisection):</strong> otelhttp names/attributes
-            from <code>r.Pattern</code> read back on its OWN request fork
-            (<code>r = r.WithContext(ctx); next.ServeHTTP(w, r); if r.Pattern != ""</code>).
-            ServeMux assigns the pattern to the request pointer IT receives; any middleware
-            between otel and the mux that forks again (<code>RequestID</code>,
-            <code>Timeout</code>, <!-- CORRECTION 2026-09-16: the original text said "Logging's ctx
+            <strong>Root cause (pinned by A/B bisection):</strong> otelhttp
+            names/attributes from <code>r.Pattern</code> read back on its OWN
+            request fork (<code
+              >r = r.WithContext(ctx); next.ServeHTTP(w, r); if r.Pattern !=
+              ""</code
+            >). ServeMux assigns the pattern to the request pointer IT receives;
+            any middleware between otel and the mux that forks again
+            (<code>RequestID</code>, <code>Timeout</code>,
+            <!-- CORRECTION 2026-09-16: the original text said "Logging's ctx
             helper" here; context.go:31 is ClientIPMiddleware — Logging does not fork. The fix
             sweep (2026-09-16) found FIVE pure-httputil fork sites: RequestID, Timeout,
-            ClientIPMiddleware, Nonce, ServerTimingMiddlewareWhen. --> Logging's ctx helper — all <code>r.WithContext</code>)
-            leaves otel's fork with <code>Pattern == ""</code>. otel adjacent to the mux:
-            works. Otel outermost with one fork in between: broken. Deterministic in the real
-            Service, in a hand-built server, and in the live example — version-independent,
-            so NOT caused by the v0.68&rarr;v0.71 bump. It has been broken since the feature
-            shipped.
+            ClientIPMiddleware, Nonce, ServerTimingMiddlewareWhen. -->
+            Logging's ctx helper — all <code>r.WithContext</code>) leaves otel's
+            fork with <code>Pattern == ""</code>. otel adjacent to the mux:
+            works. Otel outermost with one fork in between: broken.
+            Deterministic in the real Service, in a hand-built server, and in
+            the live example — version-independent, so NOT caused by the
+            v0.68&rarr;v0.71 bump. It has been broken since the feature shipped.
           </p>
           <div class="callout callout-solution">
             <strong>Fix</strong>
-            In httputil, forking middlewares retain the fork and propagate the pattern up:
-            <code>r2 := r.WithContext(ctx); next.ServeHTTP(w, r2); r.Pattern = r2.Pattern</code>
+            In httputil, forking middlewares retain the fork and propagate the
+            pattern up:
+            <code
+              >r2 := r.WithContext(ctx); next.ServeHTTP(w, r2); r.Pattern =
+              r2.Pattern</code
+            >
             (3 sites: requestid.go:82, timeout.go:18, context.go:31<!-- CORRECTION 2026-09-16:
             five sites, not three — Nonce and ServerTimingMiddlewareWhen also fork; fixed at all
-            five in httputil commit ff44c5f (unreleased, ships with v1.2) -->). Then pin a
-            regression test in the integration module asserting span name +
-            <code>http.route</code> through the full default stack, and re-tag.
+            five in httputil commit ff44c5f (unreleased, ships with v1.2) -->).
+            Then pin a regression test in the integration module asserting span
+            name + <code>http.route</code> through the full default stack, and
+            re-tag.
           </div>
           <div class="callout callout-amber">
             <strong>Until then</strong>
-            Document the limitation in the otel README (known-issues note) — do not let the
-            cardinality-safety claim sell a dead feature. Full bisection recorded in
-            TODO_LIST P2 (2026-09-15 entry).
+            Document the limitation in the otel README (known-issues note) — do
+            not let the cardinality-safety claim sell a dead feature. Full
+            bisection recorded in TODO_LIST P2 (2026-09-15 entry).
           </div>
         </div>
 
-        <h2 id="improve"><span class="num">05</span>e) WHAT WE SHOULD IMPROVE</h2>
+        <h2 id="improve">
+          <span class="num">05</span>e) WHAT WE SHOULD IMPROVE
+        </h2>
 
         <div class="issue issue-important">
-          <span class="severity severity-important">Docs must match measured reality</span>
-          <h3>README/AGENTS claims drifted from code — two ways (corrected 2026-09-16)</h3>
-          <div class="where">otel/README.md &middot; AGENTS.md otel sections</div>
+          <span class="severity severity-important"
+            >Docs must match measured reality</span
+          >
+          <h3>
+            README/AGENTS claims drifted from code — two ways (corrected
+            2026-09-16)
+          </h3>
+          <div class="where">
+            otel/README.md &middot; AGENTS.md otel sections
+          </div>
           <p>
-            AGENTS pinned otelhttp v0.68 / otel v1.45 / httputil v0.12 (real: v0.71 /
-            v1.46 / v1.1.1 — fixed today); benchmark table vs today's re-run; README
-            "SSE-safe / panic-correct / cardinality-safe" design notes sold the broken
-            pattern feature without a known-issues caveat. CORRECTION (2026-09-16): an
-            earlier version of this card also claimed a "23 tests vs 27 listed entries"
-            doc drift — that was WRONG. The 27 entries are 23 tests + 3 benchmarks +
-            1 example (verified via <code>go test -list</code> breakdown); the AGENTS
-            count was accurate. Lesson: docs that state performance or behavior need a
-            re-verify date attached — and that includes claims I make about doc drift.
+            AGENTS pinned otelhttp v0.68 / otel v1.45 / httputil v0.12 (real:
+            v0.71 / v1.46 / v1.1.1 — fixed today); benchmark table vs today's
+            re-run; README "SSE-safe / panic-correct / cardinality-safe" design
+            notes sold the broken pattern feature without a known-issues caveat.
+            CORRECTION (2026-09-16): an earlier version of this card also
+            claimed a "23 tests vs 27 listed entries" doc drift — that was
+            WRONG. The 27 entries are 23 tests + 3 benchmarks + 1 example
+            (verified via <code>go test -list</code> breakdown); the AGENTS
+            count was accurate. Lesson: docs that state performance or behavior
+            need a re-verify date attached — and that includes claims I make
+            about doc drift.
           </p>
         </div>
 
         <div class="issue issue-nice">
           <span class="severity severity-nice">Hygiene</span>
           <h3>Retired upstream items must be marked, not just known</h3>
-          <div class="where">TODO_LIST P2 &middot; AGENTS.md Health/otel gotchas</div>
+          <div class="where">
+            TODO_LIST P2 &middot; AGENTS.md Health/otel gotchas
+          </div>
           <p>
-            The go-cqrs-lite ForceFlush item sat in TODO P2 as "check upstream, then file"
-            while the fix had already landed upstream. Both files now say FIXED (verified
-            2026-09-15) so no future session re-files it. Same pattern risk exists for the
-            "one Setup per process" note once cqrs-lite's module matures.
+            The go-cqrs-lite ForceFlush item sat in TODO P2 as "check upstream,
+            then file" while the fix had already landed upstream. Both files now
+            say FIXED (verified 2026-09-15) so no future session re-files it.
+            Same pattern risk exists for the "one Setup per process" note once
+            cqrs-lite's module matures.
           </p>
         </div>
 
-        <h2 id="next"><span class="num">06</span>f) TOP NEXT TASKS (by impact)</h2>
+        <h2 id="next">
+          <span class="num">06</span>f) TOP NEXT TASKS (by impact)
+        </h2>
         <table>
-          <thead><tr><th>#</th><th>Severity</th><th>Task</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Severity</th>
+              <th>Task</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>1</td><td><span class="badge badge-critical">Critical</span></td><td>httputil: propagate <code>r.Pattern</code> back up in forking middlewares (requestid, timeout, logging-ctx)</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>2</td><td><span class="badge badge-critical">Critical</span></td><td>integration module: pin span name + http.route through the full default stack</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>3</td><td><span class="badge badge-high">High</span></td><td>otel README known-issues note: pattern naming + http.route lost via OuterMiddlewares until fix ships</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>4</td><td><span class="badge badge-high">High</span></td><td>Release train after fix: httputil patch &rarr; otel module re-tag &rarr; fresh-consumer proxy test</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>5</td><td><span class="badge badge-high">High</span></td><td>Benchstat re-baseline of middleware overhead; correct README table (26.4/29.8/29.8&micro;s today)</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>6</td><td><span class="badge badge-medium">Medium</span></td><td>Battery G2: <code>ServiceConfig.Metrics{Path}</code> pure-Prometheus surface in core</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>7</td><td><span class="badge badge-medium">Medium</span></td><td>httputil Logging: ctx-aware emit so completion lines carry trace_id (pairs with #1's train)</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>8</td><td><span class="badge badge-medium">Medium</span></td><td>otel hardening to v0.2.0 (core v1 exit criteria want &ge; v0.2.0)</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>9</td><td><span class="badge badge-medium">Medium</span></td><td>Runnable OTLP example + jaeger/docker viewing note</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>10</td><td><span class="badge badge-low">Low</span></td><td><code>WithStdoutMetricReader</code> (metrics dev-parity with spans)</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>11</td><td><span class="badge badge-low">Low</span></td><td>Baggage correlation helpers + <code>appkitotel.Transport()</code> export</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>12</td><td><span class="badge badge-low">Low</span></td><td>errorpages trace_id rendering; flightrecorder snapshot span link</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>13</td><td><span class="badge badge-low">Low</span></td><td>Telemetry umbrella doc tying otel + flightrecorder + health</td><td><span class="badge badge-low">Open</span></td></tr>
-            <tr><td>14</td><td><span class="badge badge-low">Low</span></td><td>Route-cardinality fuzz guard (10k paths &rarr; bounded series)</td><td><span class="badge badge-low">Open</span></td></tr>
+            <tr>
+              <td>1</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td>
+                httputil: propagate <code>r.Pattern</code> back up in forking
+                middlewares (requestid, timeout, logging-ctx)
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td>
+                integration module: pin span name + http.route through the full
+                default stack
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td>
+                otel README known-issues note: pattern naming + http.route lost
+                via OuterMiddlewares until fix ships
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td>
+                Release train after fix: httputil patch &rarr; otel module
+                re-tag &rarr; fresh-consumer proxy test
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td>
+                Benchstat re-baseline of middleware overhead; correct README
+                table (26.4/29.8/29.8&micro;s today)
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>
+                Battery G2:
+                <code>ServiceConfig.Metrics{Path}</code> pure-Prometheus surface
+                in core
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>
+                httputil Logging: ctx-aware emit so completion lines carry
+                trace_id (pairs with #1's train)
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>
+                otel hardening to v0.2.0 (core v1 exit criteria want &ge;
+                v0.2.0)
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>Runnable OTLP example + jaeger/docker viewing note</td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td>
+                <code>WithStdoutMetricReader</code> (metrics dev-parity with
+                spans)
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td>
+                Baggage correlation helpers +
+                <code>appkitotel.Transport()</code> export
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td>
+                errorpages trace_id rendering; flightrecorder snapshot span link
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td>
+                Telemetry umbrella doc tying otel + flightrecorder + health
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td>
+                Route-cardinality fuzz guard (10k paths &rarr; bounded series)
+              </td>
+              <td><span class="badge badge-low">Open</span></td>
+            </tr>
           </tbody>
         </table>
 
         <h2 id="question"><span class="num">07</span>g) TOP #1 QUESTION</h2>
         <div class="card card-problem">
-          <h4>Which fix path for the pattern loss — httputil contract change, or in-repo reimplementation?</h4>
+          <h4>
+            Which fix path for the pattern loss — httputil contract change, or
+            in-repo reimplementation?
+          </h4>
           <p>
-            Option A (recommended, small): patch httputil's three forking middlewares to copy
+            Option A (recommended, small): patch httputil's three forking
+            middlewares to copy
             <code>r2.Pattern</code> back onto the request they received after
-            <code>next.ServeHTTP</code> returns. Three one-liners, ecosystem-wide benefit —
-            but it mutates a shared <code>*http.Request</code> post-handler, which is a public
-            contract decision in a repo you own separately, and it triggers a release train
-            (httputil patch &rarr; otel re-tag &rarr; integration test).
-            Option B (in-repo only): go-appkit/otel stops relying on otelhttp's pattern
-            readback and resolves route + span name itself — no cross-repo dependency, but it
-            re-implements otelhttp internals and must track upstream semconv changes forever.
-            A decides the next session's shape: which way?
+            <code>next.ServeHTTP</code> returns. Three one-liners,
+            ecosystem-wide benefit — but it mutates a shared
+            <code>*http.Request</code> post-handler, which is a public contract
+            decision in a repo you own separately, and it triggers a release
+            train (httputil patch &rarr; otel re-tag &rarr; integration test).
+            Option B (in-repo only): go-appkit/otel stops relying on otelhttp's
+            pattern readback and resolves route + span name itself — no
+            cross-repo dependency, but it re-implements otelhttp internals and
+            must track upstream semconv changes forever. A decides the next
+            session's shape: which way?
           </p>
         </div>
 
         <footer class="footer">
-          Generated 2026-09-15 &middot; Every behavioral claim above re-verified today: race
-          suite, vet/build, live E2E on :18099, benchmark re-run, upstream source inspected;
-          bisection details in TODO_LIST P2 (2026-09-15 entry)
+          Generated 2026-09-15 &middot; Every behavioral claim above re-verified
+          today: race suite, vet/build, live E2E on :18099, benchmark re-run,
+          upstream source inspected; bisection details in TODO_LIST P2
+          (2026-09-15 entry)
         </footer>
       </main>
     </div>

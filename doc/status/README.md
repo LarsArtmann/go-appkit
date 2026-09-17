@@ -6,8 +6,8 @@ line per report; verdicts are annotated inline in each file.
 
 ## Current (unarchived)
 
-| Report | One-line summary |
-| ------ | ---------------- |
+| Report                                                                             | One-line summary                                                                                                                                     |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `2026-09-17_19-13_docs-health-full-sweep-annotate-archive-and-living-doc-truth.md` | Docs-health full sweep: pkg.go.dev P1 closed, TODO_LIST rebuilt open-only, 12 files archived, ~200 inline verdicts, doc/-vs-docs split brain removed |
 
 Everything else is resolved and lives in `archived/` (36 files). New reports
@@ -18,17 +18,17 @@ items.
 
 Recent additions (verdicts inline; the full list lives in `archived/`):
 
-| Report | One-line summary |
-| ------ | ---------------- |
-| `archived/2026-09-15_19-48_otel-telemetry-status.html` | OTEL pattern-regression bisection (fix shipped in otel v0.1.1 / httputil v1.2.0; inline CORRECTIONs 2026-09-16) |
-| `archived/2026-09-16_07-03_otel-session-self-review.md` | OTEL session self-review (fully annotated) |
-| `archived/2026-09-16_08-40_otel-pattern-propagation-fix-and-self-review.md` | Pattern-fix session report (train shipped same day) |
-| `archived/2026-09-16_08-53_library-utilization-audit-and-fixes.md` | Library utilization audit — all findings routed/closed |
-| `archived/2026-09-16_09-38_docs-health-full-repo-audit.md` | Full-repo docs-health audit #1 |
-| `archived/2026-09-16_14-41_docs-health-second-pass-full-repo-audit.md` | Second-pass audit + health report |
-| `archived/2026-09-17_05-52_superb-plan-v2-execution-and-honest-gaps.md` | SUPERB plan v2 execution — all 30 C-tasks, 7 tags |
-| `archived/2026-09-17_08-08_core-v050-train-e2e-closure-and-honest-gaps.md` | Core v0.5.0 train + F104/composition/MetricsHook E2Es + health examples |
-| `archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` | setup-usage verification (direction: setup → core) + AGENTS drift fix |
+| Report                                                                         | One-line summary                                                                                                |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `archived/2026-09-15_19-48_otel-telemetry-status.html`                         | OTEL pattern-regression bisection (fix shipped in otel v0.1.1 / httputil v1.2.0; inline CORRECTIONs 2026-09-16) |
+| `archived/2026-09-16_07-03_otel-session-self-review.md`                        | OTEL session self-review (fully annotated)                                                                      |
+| `archived/2026-09-16_08-40_otel-pattern-propagation-fix-and-self-review.md`    | Pattern-fix session report (train shipped same day)                                                             |
+| `archived/2026-09-16_08-53_library-utilization-audit-and-fixes.md`             | Library utilization audit — all findings routed/closed                                                          |
+| `archived/2026-09-16_09-38_docs-health-full-repo-audit.md`                     | Full-repo docs-health audit #1                                                                                  |
+| `archived/2026-09-16_14-41_docs-health-second-pass-full-repo-audit.md`         | Second-pass audit + health report                                                                               |
+| `archived/2026-09-17_05-52_superb-plan-v2-execution-and-honest-gaps.md`        | SUPERB plan v2 execution — all 30 C-tasks, 7 tags                                                               |
+| `archived/2026-09-17_08-08_core-v050-train-e2e-closure-and-honest-gaps.md`     | Core v0.5.0 train + F104/composition/MetricsHook E2Es + health examples                                         |
+| `archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` | setup-usage verification (direction: setup → core) + AGENTS drift fix                                           |
 
 The companion plan `2026-09-16_15-01_SUPERB-visibility-correctness...` and
 the executed wave plan `2026-08-16_12-04-SUPERB-release-wave-and-harvest.html`

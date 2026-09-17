@@ -5,7 +5,6 @@ markers record each task's outcome (commit, tag, or the decision that
 superseded it). Active plans live in `docs/planning/`; long-term direction
 lives in `ROADMAP.md`.
 
-
 ## Annotation standard (recorded 2026-09-17)
 
 Verdicts are recorded INLINE at the item they resolve: `~~strikethrough~~`

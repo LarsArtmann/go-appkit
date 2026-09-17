@@ -5,7 +5,7 @@
 
 **Updated:** 2026-09-17 (docs-health pass: pkg.go.dev VERIFIED — every module page renders; TODO_LIST rebuilt to open-items-only per its own legend; latest session evidence: `doc/status/archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md`) | **Modules:** 11 (core, cqrs, realtime, otel, flightrecorder, flightrecorderhealth, health, errorpages, docs, security, integration — integration is the unreleased E2E test module) | **Release state:** every module tag is ON ORIGIN through **core v0.5.1** (2026-09-17, doc-only); prior waves: v0.5.0 + security v0.1.0 / realtime v0.1.1 / health v0.1.1 / frh v0.1.2 / docs v0.3.0 / otel v0.1.1 + httputil v1.2.0 (2026-09-16), cqrs v0.5.0 (2026-09-07); **`encoding/json/v2` is default-on in Go 1.26.7 — GOEXPERIMENT prefixes are only needed on older 1.26.x toolchains**
 
-> **Release-state ownership (decided 2026-09-16):** `AGENTS.md` → *Release State* is the SINGLE OWNER of release facts. This header links history only; status reports are point-in-time snapshots with as-of dates and never get updated afterward. Index: `doc/status/README.md`.
+> **Release-state ownership (decided 2026-09-16):** `AGENTS.md` → _Release State_ is the SINGLE OWNER of release facts. This header links history only; status reports are point-in-time snapshots with as-of dates and never get updated afterward. Index: `doc/status/README.md`.
 
 ## Status Legend
 

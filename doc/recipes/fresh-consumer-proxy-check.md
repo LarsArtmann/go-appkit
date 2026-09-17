@@ -111,13 +111,13 @@ blank-imports it, and runs `go build` with `GOWORK=off`.
 
 ## Failure modes this ritual has actually hit
 
-| Symptom | Cause | Fix |
-| ------- | ----- | --- |
-| `missing <module>/go.mod at revision <tag>` | ghost tag: module path ≠ tagged directory (docs v0.2.0) | fix the layout, re-tag with a NEW version — never re-push a tag |
-| fetches sibling workspace code / checksum surprises | `go.work` interference | always `GOWORK=off` for every go command in the scratch module |
-| `panic: service did not start` during the behavioral probe | fixed port already owned (8080 = SigNoz here) | `Addr: "127.0.0.1:0"` in the consumer, read the returned addr — this has bitten THREE sessions |
-| `go get` works but the website 404s | pkg.go.dev crawler lag | not a failure; re-check the render later (TODO_LIST owns the render item) |
-| `cannot find module ...@latest`-style confusion | used `@latest` instead of the explicit tag | pin the exact `module@version` under test |
+| Symptom                                                    | Cause                                                   | Fix                                                                                            |
+| ---------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `missing <module>/go.mod at revision <tag>`                | ghost tag: module path ≠ tagged directory (docs v0.2.0) | fix the layout, re-tag with a NEW version — never re-push a tag                                |
+| fetches sibling workspace code / checksum surprises        | `go.work` interference                                  | always `GOWORK=off` for every go command in the scratch module                                 |
+| `panic: service did not start` during the behavioral probe | fixed port already owned (8080 = SigNoz here)           | `Addr: "127.0.0.1:0"` in the consumer, read the returned addr — this has bitten THREE sessions |
+| `go get` works but the website 404s                        | pkg.go.dev crawler lag                                  | not a failure; re-check the render later (TODO_LIST owns the render item)                      |
+| `cannot find module ...@latest`-style confusion            | used `@latest` instead of the explicit tag              | pin the exact `module@version` under test                                                      |
 
 ## History
 

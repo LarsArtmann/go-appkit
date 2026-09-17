@@ -253,6 +253,7 @@ proxy test PASS for core v0.5.0.**
 ## f) NEXT — ordered by leverage (carry-forward + new discoveries)
 
 **Ship loop / correctness**
+
 1. ~~**Re-check pkg.go.dev for the three lagging pages** (docs@v0.3.0,~~ done (CLOSED 2026-09-17 — all three pages render (verified live by the docs-health pass))
    ~~health@v0.1.1, security@v0.1.0) after the crawl window; close the~~
    ~~`[~]` when all render.~~
@@ -281,34 +282,34 @@ proxy test PASS for core v0.5.0.**
 
 **Upstream (user-gated — say the word)**
 8. ~~File Draft 1: go-sse dedup-aware `ReplayFiltered` (draft ready at~~ **Won't implement — USER-GATED — TODO_LIST P2 upstream-asks item.**
-   ~~`doc/feedback/outgoing/2026-09-16_upstream-asks-gosse-httputil.md`).~~
+~~`doc/feedback/outgoing/2026-09-16_upstream-asks-gosse-httputil.md`).~~
 9. ~~File Draft 2: httputil Logging request-context emit (same file).~~ **Won't implement — USER-GATED — TODO_LIST P2 upstream-asks item.**
 10. ~~GREEN-LIGHT DECISION: implement `httputil.NewServerListener(ln, cfg,~~ **Won't implement — USER-GATED — TODO_LIST P2 upstream-asks item (NewServerListener go/no-go).**
     ~~handler)` upstream — unblocks the composition refactor (C20) AND Core~~
-    ~~TLS (G1) in one move.~~
+~~TLS (G1) in one move.~~
 11. ~~Then: re-run the composition spike against that API; execute the C20~~ **Won't implement — gated on 10 — TODO_LIST P2 composition item.**
-    ~~refactor for real.~~
+~~refactor for real.~~
 12. ~~Then: Core TLS option (`ServiceConfig.TLS{CertFile, KeyFile}`) —~~ **Won't implement — gated on 10 — Core TLS in the AGENTS Deferred Register.**
-    ~~PapDashboard's first demand.~~
+~~PapDashboard's first demand.~~
 13. ~~statusRecorder USER GATE (open since 2026-09-16): swap or close it.~~ done (STILL OPEN — TODO_LIST P2 USER GATE (statusRecorder))
 
 **Finish the partials**
 14. ~~**govulncheck** on health + security from a networked machine.~~ **Won't implement — env-blocked — TODO_LIST P2 govulncheck.**
 15. ~~**Browser CSP pass** (chromedp or manual) over the health dashboard~~ done (routed — TODO_LIST P2 browser CSP pass)
-    ~~under strict-CSP + nonce — server-side proof exists, browser-side~~
-    ~~doesn't.~~
+~~under strict-CSP + nonce — server-side proof exists, browser-side~~
+~~doesn't.~~
 16. ~~**Security module threat-model page** (§f #39 from the last report —~~ done (routed — TODO_LIST P2 security trio)
-    ~~NOT done, carried): per-battery threat → test mapping table.~~
+~~NOT done, carried): per-battery threat → test mapping table.~~
 17. ~~**Security example service** (§f #42, carried): like errorpages/example,~~ done (routed — TODO_LIST P2 security trio)
-    ~~demonstrating the full hardened chain.~~
+~~demonstrating the full hardened chain.~~
 18. ~~**security + realtime composition integration test** (§f #43,~~ done (routed — TODO_LIST P2 security trio)
-    ~~carried): rate-limit in front of SSE.~~
+~~carried): rate-limit in front of SSE.~~
 19. ~~**CI dependabot-parity assert** (§f #48, carried): workflow step that~~ done (routed — TODO_LIST P2 CI dependabot-parity assert)
-    ~~fails when a module dir lacks a dependabot entry or CI matrix slot.~~
+~~fails when a module dir lacks a dependabot entry or CI matrix slot.~~
 20. ~~**HTML reports sweep** (§f #33, carried): annotate or archive the four~~ done (done 2026-09-17 — docs-health pass banner-annotated the research HTMLs; the 08-16 plan archived)
-    ~~never-opened reports (2026-08-15/16, 2026-09-04 research).~~
+~~never-opened reports (2026-08-15/16, 2026-09-04 research).~~
 21. ~~cqrs README cookbook re-verification against scenario/v4 v4.2.0 after~~ done (standing — TODO_LIST P3 cqrs README cookbook item)
-    ~~each go-cqrs-lite release (standing ritual, next release triggers it).~~
+~~each go-cqrs-lite release (standing ritual, next release triggers it).~~
 
 **Batteries (demand-gated — re-confirm demand first)**
 22. ~~W3 B1 ResultHandler family (classification-parity pin with errorpages).~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B1).**
@@ -316,7 +317,7 @@ proxy test PASS for core v0.5.0.**
 24. ~~W3 B9 no-leak error responses.~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B9).**
 25. ~~W3 B4 conditional GET (promotes the idle go-etag dep).~~ **Won't implement — demand-gated — TODO_LIST P3 W3 (B4).**
 26. ~~W5 C2 projection→broadcast folded contract (the cqrs+realtime~~ **Won't implement — demand-gated — TODO_LIST P3 W5 (C2).**
-    ~~must-have).~~
+~~must-have).~~
 27. ~~W5 C1 SSE drop/backpressure counters (absorbs TELEMETRY §6 candidate).~~ **Won't implement — demand-gated — TODO_LIST P3 W5 (C1).**
 28. ~~W4 D4 atomic file write (floor: go-atomic-write ≥ v0.5.1).~~ **Won't implement — demand-gated — TODO_LIST P3 W4 (D4).**
 29. ~~W4 D7 idempotency store.~~ **Won't implement — demand-gated — TODO_LIST P3 W4 (D7).**
@@ -324,15 +325,15 @@ proxy test PASS for core v0.5.0.**
 
 **Watchlist / hygiene**
 31. ~~Watchlist refresh (cordis consumers count, PapDashboard v0.3.1+,~~ done (rolled into the standing watchlist item (TODO_LIST P3))
-    ~~nixpkgs toolchain > 1.26.7, dprint exit-14).~~
+~~nixpkgs toolchain > 1.26.7, dprint exit-14).~~
 32. ~~cqrs `WithRecorderOptions`-style passthrough evaluation if a consumer~~ done (demand-gated — revisit when a consumer asks (cqrs opt-in class))
-    ~~asks for recorder tuning beyond `OpsRecorderPreset`.~~
+~~asks for recorder tuning beyond `OpsRecorderPreset`.~~
 33. ~~Fold the AGENTS "377-line cap" note into "376 target / binary counts~~ done (folded — the TODO_LIST P3 AGENTS slim-down item carries the +1 note)
-    ~~+1" once confirmed stable (or fix the binary upstream).~~
+~~+1" once confirmed stable (or fix the binary upstream).~~
 34. ~~Consider moving the fresh-consumer proxy check into CI as a~~ done (routed — TODO_LIST P2 fresh-consumer proxy smoke in CI)
-    ~~manual-dispatch workflow (needs network in the runner — verify first).~~
+~~manual-dispatch workflow (needs network in the runner — verify first).~~
 35. ~~After the next real consumer adopts core v0.5.0: revisit core v1.0.0~~ done (standing — TODO_LIST P2 v1.0.0 exit-criteria item)
-    ~~exit criteria (consumer-count trigger).~~
+~~exit criteria (consumer-count trigger).~~
 
 ## g) Questions I cannot answer myself
 
@@ -356,5 +357,5 @@ proxy test PASS for core v0.5.0.**
 
 ---
 
-*Point-in-time snapshot as of 2026-09-17 08:08 CEST. Release-state truth
-lives in AGENTS.md → Release State; open work in TODO_LIST.md (38 items).*
+_Point-in-time snapshot as of 2026-09-17 08:08 CEST. Release-state truth
+lives in AGENTS.md → Release State; open work in TODO_LIST.md (38 items)._
