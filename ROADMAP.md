@@ -2,9 +2,9 @@
 
 > Long-term direction and raw ideas not yet refined into actionable tasks.
 > Bounded, short-to-mid-term work lives in [TODO_LIST.md](TODO_LIST.md).
-> Point-in-time plans and research live in `docs/planning/`.
+> Point-in-time plans and research live in `doc/planning/`.
 
-**Updated:** 2026-09-16
+**Updated:** 2026-09-17
 
 ## North star
 
@@ -16,27 +16,30 @@ stays a thin, stable HTTP service lifecycle; capability arrives as opt-in,
 independently versioned satellite modules.
 
 The module bay is built (cqrs, realtime, otel, health, flightrecorder,
-flightrecorderhealth, errorpages, docs). Filling it is consumer-demand-driven —
-the canonical demand analysis and per-battery specs live in
-`docs/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
-(waves W1–W5 are routed into TODO_LIST; this file holds the direction, not the
-tasks).
+flightrecorderhealth, errorpages, docs, security). Filling it is
+demand-driven — the canonical demand analysis and per-battery specs live in
+`doc/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
+(waves W1–W2 shipped; W3–W5 are routed into TODO_LIST; this file holds the
+direction, not the tasks).
 
 ## v1.0.0 (core)
 
 Core's stability contract. The working exit-criteria draft lives at
-`docs/planning/core-v1-exit-criteria.md` (hard criteria: mechanical API-break
+`doc/planning/core-v1-exit-criteria.md` (hard criteria: mechanical API-break
 check wired into the release ritual, consumer count, docs and telemetry
 posture). v1-shaped additions already shipped: `OuterMiddlewares`,
-`ShutdownHooks`, `DrainHooks`, the sentinel registry (`NoTimeout`, `NoDrainDelay`).
+`ShutdownHooks`, `DrainHooks`, the sentinel registry (`NoTimeout`, `NoDrainDelay`),
+the metrics/version/testkit surface (v0.5.0).
 
-Open questions on the way there (deliberate user gates, not tasks):
+Open questions on the way there (deliberate USER GATES, not tasks — full
+context: TODO_LIST footer and `doc/status/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §g):
 
-- Logging posture: per-request INFO cost (~30µs/line formatted) vs default-WARN
-  vs sampling vs consumer-provided logger.
-- Whether the OpenTelemetry pattern-propagation regression (TODO_LIST P2)
-  blocks the v1 push: an honest v1 should not ship a documented wiring that
-  loses span names.
+- The httputil listener-injection API (`NewServerListener`) go/no-go — the
+  single unlock for BOTH the composition refactor and the Core TLS option.
+- Whether to file the two ready upstream asks (go-sse `ReplayFiltered`,
+  httputil Logging request-context).
+- Pin philosophy for `integration/` (LATEST-only vs mirroring setup),
+  cross-repo tracking posture, and where release-state pins live long-term.
 
 ## Ecosystem adoption (reverse direction)
 
@@ -50,14 +53,15 @@ appkit never grows application-shaped code.
   request if they keep app-level TLS.
 - **go-plugin-mvp (Kernovia)** — same pattern recommended; pre-1.0, gated on
   their license/rename decisions (`docs/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md`).
-- **cordis bridge module** — trigger-gated NOT NOW (cordis untagged, zero
-  consumer demand, core v1 criteria pending).
+- **cordis bridge module** — trigger-gated NOT NOW (`go/v0.1.0` tagged
+  2026-09-16 = trigger 1 of 3 met; zero consumer demand, core v1 criteria
+  pending).
 
 ## Raw ideas (unrefined, no commitment)
 
-- Observability umbrella: one telemetry doc tying otel + flightrecorder +
-  health together; emission catalogue; per-route sampling/verbosity override
-  (Stalwart `EventTracingLevel` analog). (Refined subset in TODO_LIST P2.)
+- Per-route sampling/verbosity override for logs+traces (Stalwart
+  `EventTracingLevel` analog). (The observability umbrella itself SHIPPED
+  2026-09-16 as `doc/TELEMETRY.md`.)
 - Route-cardinality fuzz guard: 10k distinct request paths must produce a
   bounded metric series (double-relevant after the pattern-propagation
   regression).

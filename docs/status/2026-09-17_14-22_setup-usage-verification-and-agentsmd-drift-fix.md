@@ -1,0 +1,112 @@
+# Status Report — setup-usage verification & AGENTS.md drift fix
+
+**Timestamp:** 2026-09-17 14:22 CEST
+**Repo:** `/home/lars/projects/go-appkit` (master, clean at session start)
+**Session scope:** Answer "Are we using `/home/lars/projects/cqrs-htmx/setup` — if not, why not?" — first from docs, then (after challenge) verified end-to-end with executed commands. Cross-repo facts read from `/home/lars/projects/cqrs-htmx` (their checkout, master). No other research performed, per instruction.
+
+**Format note:** `status-report` skill mandates HTML; the user explicitly requested `.md` — user instruction wins (one-off override, not propagated into the skill).
+
+**Verdict of the session's core question:** go-appkit does **not** use cqrs-htmx `setup` — it never can, because the dependency direction is `setup → go-appkit`. `setup` is go-appkit's reference *consumer* (`setup/go.mod:95` requires `go-appkit v0.4.0`). The only cqrs-htmx code go-appkit touches is the lean `transport` sub-package, in the unreleased `integration` test module, pinned to published v4.9.0.
+
+---
+
+## a) FULLY DONE
+
+Each item executed and verified this session (no code changes — all verification + one doc fix):
+
+| # | What | Evidence |
+|---|------|----------|
+| A1 | Full cqrs-htmx reference sweep across all 11 go-appkit modules (`*.go`, `go.mod`, `go.sum`) | Only `integration/go.mod:6` + `integration/integration_test.go:12` (`transport` import); root mention is a comment (`logging_bench_test.go:16`); zero `setup` imports anywhere |
+| A2 | Circular-dependency proof | `setup/go.mod:95` requires `go-appkit v0.4.0`; appkit → setup would be a module cycle — direction is one-way |
+| A3 | setup server-path audit | Default `Run`/`RunHandler` → `httputil.NewServer` (`setup/run.go:67`); `RunWithAppkit` is opt-in (`setup/run_appkit.go:37`) with **zero callers** outside its own file + test |
+| A4 | setup hermetic verify vs published appkit v0.4.0 | `GOWORK=off go build` + `go vet` clean; **3/3 tests PASS** (`TestRunWithAppkit_SSEHeaderFlushThroughFullStack`, `_ReadinessAndCleanShutdown`, `_ResponseParity`, 0.83s total) |
+| A5 | go-appkit integration module suite | `GOWORK=off go test ./... -race -count=1` → **ok, 1.981s** |
+| A6 | v0.5.1 mystery resolved | Tag `v0.5.1` = doc-only (Addr()/Running() drain-window godoc fix; `go doc -all` delta = two comment blocks; signed tag); on `origin/master`; resolves from proxy (`go list -m github.com/larsartmann/go-appkit@v0.5.1` from /tmp) |
+| A7 | AGENTS.md drift fix (5 edits, net-zero lines) | Lines 9, 19, 20, 26, 321 corrected (see D1); file still 376/377 counted lines; `go-structure-linter` re-run → **0 findings** |
+| A8 | Stale-pin audit of other modules | `otel/go.mod:44` and `errorpages/go.mod:6` really do pin core v0.4.0 — AGENTS.md claims there are accurate, left untouched; errorpages' appkit import confirmed example-only (`errorpages/example/main.go:20`) |
+| A9 | Their-side roadmap state captured | cqrs-htmx TODO_LIST P3: `RunWithAppkit` stable since 2026-09-07, default-flip (b)–(f) open, gated on DataStar ADR-first sequencing; their 2026-09-17 Pareto plan (M3/M4) plans the setup bump to appkit v0.5.x + `Config.Metrics`/`Config.Version` threading; their same-day deep-dive lists the appkit parity path as a strength |
+
+## b) PARTIALLY DONE
+
+| # | What | Works now | Remaining open | Blocker / effort |
+|---|------|-----------|----------------|------------------|
+| B1 | setup verification coverage | The 3 appkit-composition tests pass | Full setup suite **not** run (only `-run Appkit`); suite may need containers | No hard blocker; M — bounded hermetic run attempt |
+| B2 | Session's AGENTS.md fix + this report | Edits applied, lint-clean, in working tree | **Not explicitly committed** (Crush rule: no commit unless user says) | Auto-commit daemon will pick them up; S to commit explicitly if requested |
+| B3 | go.work consistency | AGENTS.md claims `./integration` is in go.work | Never verified this session | None known; S |
+| B4 | Original question quality | Final answer is fully verified | The FIRST answer (before the challenge) was doc-derived, unverified | Process fix, see (e) |
+
+## c) NOT STARTED
+
+Deliberately not done this session (out of scope or awaiting decision):
+
+- **pkg.go.dev re-crawl/render check** — the one standing release-state remainder (pages exist; verify 404s gone + v0.5.1 godoc renders). Untouched.
+- **HARVEST of section (f)** below into `TODO_LIST.md` / `ROADMAP.md` — this report is the input, harvest not yet run.
+- **Pin-drift guard** (test/script asserting integration go.mod pins == documented pins) — surfaced by D1, not built.
+- **Their-side work** — setup bump M3/M4, default-flip (b)–(f): owned by the cqrs-htmx repo; appkit-side action is none until they move (or Q2 below is answered).
+- **Full setup-suite hermetic run** (see B1) — not attempted to keep the session scoped.
+
+## d) TOTALLY FUCKED UP
+
+Radical honesty — nothing here blocks users; all three are quality failures by me:
+
+1. **The first answer was unverified, and it was wrong in one load-bearing detail.** I answered "is that all" from the AGENTS.md snapshot + two greps. The doc said core = v0.5.0; reality had moved to v0.5.1 (tagged + pushed after AGENTS.md was written). The user had to demand verification ("Is that all?!! Did you verify?"). Severity: high for trust, zero for runtime. Root cause: I treated AGENTS.md as ground truth instead of as a claim to check. This is precisely the `verify-external-claims` failure mode, applied to my own repo's docs. Workaround now in place: everything re-verified; AGENTS.md corrected.
+2. **`rg -rn "ADR-001"` — flag misuse silently mangled evidence.** `-r` in ripgrep is `--replace`; my output showed "n uplift" instead of "ADR-001 uplift" and I initially reported the mangled text as file content. Caught on the next read, corrected, no lasting damage — but I quoted tool-mangled output as fact once. Severity: medium (near-miss misquote). Root cause: flag typed without checking semantics.
+3. **`rg --include="*.go"`** — grep syntax fed to ripgrep; errored, burned a round trip before falling back to `--glob`. Severity: low (wasted call).
+
+## e) WHAT WE SHOULD IMPROVE
+
+1. **Verify-then-assert, always.** Run the proof commands *before* the first answer, not after a challenge. Impact: each skipped verification risks shipping a lie with confidence (D1 proved the docs lie within hours of being written). Fix: make `git tag -l` + `go list -m mod@latest` + a go.mod read the mandatory pre-flight for any "are we using X" answer.
+2. **AGENTS.md is drift-prone at release time.** v0.5.1 shipped with AGENTS.md still saying v0.5.0 — the release ritual updates CHANGELOG + tags but not AGENTS.md. Impact: every future session starts from stale pins (this session spent ~10 minutes discovering a one-version drift). Fix: add "update AGENTS.md release-state line" to the Release Ritual, or (better) stop duplicating pins in AGENTS.md and point at `integration/go.mod` as the single source.
+3. **Line-cap pressure creates lies by omission.** At 376/377 lines, updates get compressed into dense lines that rot (see the old line 321: "Post-v0.4.0 APIs are intentionally unavailable" was true at v0.4.0 and false at v0.5.1). Fix: extract per-pin detail into `integration/doc.go` or README where there is no cap.
+4. **No mechanical pin-drift guard.** The v0.4.0-vs-v0.5.1 divergence between AGENTS.md and `integration/go.mod` was findable by one grep diff; nothing runs it. Fix: small CI/test step asserting the documented pins match the go.mod (task F2).
+5. **"setup is NEVER a dependency" is enforced only by prose.** A one-line depguard deny in the root `.golangci.yml` would make the invariant mechanical (task F8).
+6. **Flag discipline.** Two rg misuses in one session. Fix: prefer `glob`/`grep` tools or double-check flags before quoting output as evidence (also a memory-file candidate: "rg `-r` replaces output text — never quote `-r` output as file content").
+
+## f) Top 30 next tasks (brainstorm — feeds docs-health HARVEST)
+
+All items traceable to this session's observations. Impact / Effort (S <30min, M 30min–2h, L >2h) / Category.
+
+| # | Task | Impact | Effort | Category |
+|---|------|--------|--------|----------|
+| 1 | Commit the AGENTS.md drift fix explicitly with a descriptive message (or confirm the daemon did) | High | S | Cleanup |
+| 2 | Add a pin-drift guard: test or CI step asserting `integration/go.mod` pins match the AGENTS.md integration section | High | S | Quality |
+| 3 | Add "update AGENTS.md release-state + module-list lines" to the Release Ritual in AGENTS.md | High | S | Documentation |
+| 4 | Verify `./integration` is actually in `go.work` (AGENTS.md claims it) | Medium | S | Cleanup |
+| 5 | pkg.go.dev re-crawl/render check: confirm 404s gone and v0.5.1 godoc fix renders | Medium | S | Quality |
+| 6 | Move the integration pin table out of AGENTS.md into `integration/doc.go` (single source of truth; relieves the 376/377 line cap) | Medium | M | Documentation |
+| 7 | Depguard deny rule in root `.golangci.yml`: forbid `cqrs-htmx/setup` imports repo-wide (makes the direction invariant mechanical) | Medium | S | Quality |
+| 8 | Sweep the rest of AGENTS.md release-state dates/versions against `git tag -l` + module CHANGELOGs (same drift class as D1) | High | M | Documentation |
+| 9 | Re-check the otel module's "consume PUBLISHED core (v0.4.0)" note for staleness when otel next tags (its go.mod still pins v0.4.0) | Low | S | Documentation |
+| 10 | Run the full setup suite hermetically once (bounded, container-aware) to extend today's 3-test green to suite-green | Medium | M | Quality |
+| 11 | Check the CI fresh-consumer proxy smoke covers v0.5.1 (not pinned to an older tag); the "durable recipe" commit `9826041` documents the pattern | Medium | S | Quality |
+| 12 | Cross-reference the composition-contract suite's drain-window comment to core v0.5.1's godoc fix (one comment line) | Low | S | Documentation |
+| 13 | When cqrs-htmx lands their M3 (appkit v0.5.x bump): re-verify integration's "deliberately NOT setup's pin" note and refresh AGENTS.md reference-consumer line | Medium | S | Documentation |
+| 14 | Answer Q3 below (pin source-of-truth decision) before building F2/F6 — they depend on it | High | — | Decision |
+| 15 | Consider a `docs:` tag-message convention for doc-only releases (v0.5.1 did this well; codify in Release Ritual) | Low | S | Documentation |
+| 16 | Add the rg `-r` hazard + "verify before quoting tool output" to global memory lessons | Low | S | Documentation |
+| 17 | Quick staleness pass on health module's "unreleased" claims (DashboardHardenedPreset noted unreleased since 2026-09-16 — still true?) | Medium | S | Documentation |
+| 18 | Same staleness pass for security/realtime module bullets in AGENTS.md | Medium | S | Documentation |
+| 19 | HARVEST this file's (f) section into TODO_LIST/ROADMAP per docs-health | High | S | Documentation |
+| 20 | Optional: a "consumer direction" contract test in integration asserting appkit itself never imports setup (belt-and-suspenders to F7) | Low | S | Quality |
+| 21 | Watch their repo for the default-flip (b)–(f) landing; when it does, update the reference-consumer line here | Low | S | Documentation |
+| 22 | Re-run structure linter after any future AGENTS.md edit (cap is 376/377 — one line of headroom) | Medium | S | Process |
+| 23 | Extract the Cross-repo context bullet's long absolute paths into a docs pointer file (line-cap relief, same class as F6) | Low | S | Documentation |
+| 24 | Verify the integration README/doc.go states the LATEST-pin philosophy in code (survives AGENTS.md rotation; pairs with F6) | Low | S | Documentation |
+| 25 | Confirm `go list -m go-appkit@v0.5.1` in the CI proxy smoke (not just locally from cache) | Low | S | Quality |
+| 26 | When their setup lands `Config.Metrics`/`Config.Version` (their M4): smoke-test the appkit metrics surface end-to-end through setup once | Medium | M | Quality |
+| 27 | Consider tagging a core v0.5.2 only if doc drift is found again — otherwise no release needed (no action until trigger) | Low | — | Decision |
+| 28 | Housekeeping: the auto-daemon's "heuristic" commits blur which session changed AGENTS.md — if explicit commits are wanted, say so and they'll be per-task | Low | S | Process |
+| 29 | Add one line to the integration section noting setup pins v0.4.0 until their M3 lands (prevents the next session re-deriving it) — already partially done in line 20; keep in sync | Low | S | Documentation |
+| 30 | If F2 is built, extend it to check the Release State line's "ON ORIGIN through" version against `git tag -l` | Medium | S | Quality |
+
+**HARVEST note:** items 1–8 and 14–19 are TODO_LIST material; the rest are ROADMAP/process fuel. If the session continues without TODO_LIST updated, run docs-health HARVEST now.
+
+## g) Three questions I cannot figure out myself
+
+1. **Pin philosophy (blocks F2, F6, F14):** Should `integration` keep tracking LATEST published only, or should there also be a periodic consumer-pin run at `setup`'s resolution (currently v0.4.0) since setup is the canonical reference consumer? *Tried:* read integration doc.go, AGENTS.md philosophy ("always tests exactly what a fresh consumer resolves"), and their deep-dive — none states whether mirroring the reference consumer's pin is wanted. This decides the invariant we enforce.
+2. **Cross-repo ownership (blocks F13, F21, F26):** Should go-appkit sessions actively track/nudge cqrs-htmx-side items (their M3/M4 appkit bump, default-flip (b)–(f)), or stay strictly report-only and let their repo drive? *Tried:* their TODO_LIST has sequencing and gates but nothing marks whether the appkit side is expected to act.
+3. **Doc-drift process (blocks F3, F8, F17, F18):** Do you want AGENTS.md to remain the human-maintained source of truth for release state (with a CI guard to catch divergence), or should version/pin facts move out of AGENTS.md entirely into code-adjacent files (`integration/go.mod`, module doc.go, CHANGELOGs) so there is nothing to drift? *Tried:* both states already diverged once today; the line cap (376/377) makes "just keep it updated" fragile, but removing facts from AGENTS.md trades session-start convenience for single-sourcing — your call.
+
+---
+
+*Point-in-time snapshot — goes stale. Annotate, never rewrite (docs-health ANNOTATE mode). Waiting for instructions.*
