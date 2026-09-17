@@ -60,15 +60,17 @@ blank-imports it, and runs `go build` with `GOWORK=off`.
        if err != nil {
            log.Fatal(err)
        }
-       mux := svc.Mux
-       mux.HandleFunc("/ping", func(w http.ResponseWriter, _ *http.Request) {
+       svc.Mux.HandleFunc("/ping", func(w http.ResponseWriter, _ *http.Request) {
            w.WriteHeader(http.StatusOK)
        })
-       addr, err := svc.Start()
+       errCh, err := svc.Start()
        if err != nil {
            log.Fatal(err)
        }
-       log.Printf("listening on %s", addr)
+       log.Printf("listening on %s", svc.Addr())
+       if serveErr := <-errCh; serveErr != nil {
+           log.Fatal(serveErr)
+       }
    }
    ```
 
@@ -78,10 +80,13 @@ blank-imports it, and runs `go build` with `GOWORK=off`.
 
 4. **Behavioral probe (Go, never curl):** run the binary above in the
    background, then from a second scratch file (or `go run`) issue
-   `http.Get("http://" + addr + "/healthz")` and one authenticated
-   `/metrics` request; expect 200s and the `appkit_build_info` metric
-   line. Send SIGTERM to the process and confirm the shutdown phase log
-   lines end with `result=ok`.
+   `http.Get("http://" + addr + "/health/ready")` (core registers
+   `/health`, `/health/live`, `/health/ready` by default) and one
+   authenticated `/metrics` request when the tag carries Metrics config;
+   expect 200s and the `appkit_build_info` metric line. Send SIGTERM to
+   the process and confirm the shutdown phase log lines end with
+   `result=ok` (the default DrainDelay adds a 5 s wait — fine in a
+   consumer check; pass `DrainDelay: appkit.NoDrainDelay` to skip it).
 
 ## Failure modes this ritual has actually hit
 
