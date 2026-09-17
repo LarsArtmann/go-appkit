@@ -1,5 +1,14 @@
 # SUPERB Plan v3 — Productization, Proof & the Handler-DX Wave
 
+> **SUPERSEDED 2026-09-17 19:20 (UNEXECUTED):** superseded by
+> `2026-09-17_19-20_SUPERB-v4-drift-guards-security-adoption-and-gated-unlocks.md`
+> before execution began — the 2026-09-17 docs-health pass rebuilt TODO_LIST
+> (38 mixed → 21 open-only) and harvested the 05-52/08-08/14-22 §f backlogs,
+> so v3's item base is stale. All still-open v3 work (gates included) is
+> carried into v4 exactly once; nothing was dropped. Kept in place as the
+> v3-era scope record; will migrate to `archived/` with the next docs-health
+> archive pass.
+
 **Created:** 2026-09-17 08:35 CEST · **Predecessor:** `doc/planning/archived/2026-09-16_15-01_SUPERB-visibility-correctness-and-batteries-plan.md` (EXECUTED, verdict banner inline) + the 2026-09-17 05-52 and 08-08 session reports.
 **Scope:** ALL open go-appkit work — the 38 TODO_LIST items, both 2026-09-17 status reports' §f backlogs merged and de-duplicated, standing rituals, and the demand-gated battery waves. Nothing open is excluded; gated items are IN the plan with their gates named.
 
