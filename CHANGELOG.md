@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-17
+
 ### Added
 
 - Opt-in Prometheus metrics surface (`ServiceConfig.Metrics`): a
