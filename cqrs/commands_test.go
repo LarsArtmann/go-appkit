@@ -58,7 +58,15 @@ func newFacadeCommand(t *testing.T, streamID id.StreamID) *command.BasicCommand 
 func newFacadeService(t *testing.T) *EventService {
 	t.Helper()
 
-	eventSvc, err := NewEventService(EventConfig{Driver: memoryDriver})
+	return newFacadeServiceCfg(t, EventConfig{Driver: memoryDriver})
+}
+
+// newFacadeServiceCfg is newFacadeService with a caller-supplied base
+// config (Driver and Metrics are the interesting overrides).
+func newFacadeServiceCfg(t *testing.T, cfg EventConfig) *EventService {
+	t.Helper()
+
+	eventSvc, err := NewEventService(cfg)
 	if err != nil {
 		t.Fatalf("NewEventService: %v", err)
 	}

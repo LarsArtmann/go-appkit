@@ -293,13 +293,15 @@ func TestEventService_CheckStaleness_BudgetMonotonicity(t *testing.T) {
 		[]event.Type{"test.mono"},
 	)
 
-	if err := eventSvc.Host().Register(proj); err != nil {
+	err = eventSvc.Host().Register(proj)
+	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
 
 	appendTestEvent(t, eventSvc, "test.mono")
 
-	if err := eventSvc.StartProjections(context.Background()); err != nil {
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
 
