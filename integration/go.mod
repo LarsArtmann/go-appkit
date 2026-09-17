@@ -4,10 +4,10 @@ go 1.26.7
 
 require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.9.0
-	github.com/larsartmann/go-appkit v0.4.0
+	github.com/larsartmann/go-appkit v0.5.0
 	github.com/larsartmann/go-appkit/errorpages v0.1.0
 	github.com/larsartmann/go-appkit/otel v0.1.1
-	github.com/larsartmann/go-appkit/realtime v0.1.0
+	github.com/larsartmann/go-appkit/realtime v0.1.1
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.9.0
 	github.com/larsartmann/go-cqrs-lite/id/v4 v4.5.0
 	github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.4.0
