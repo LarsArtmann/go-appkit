@@ -20,7 +20,9 @@ target stays honest.
    unchanged (explicit sentinel, never a default).
 3. **Lifecycle guarantees documented and tested:** `NewService` registers
    health endpoints unless opted out; `Start` is idempotent-safe (second
-   call rejected); `Shutdown` idempotent; `Addr()` nil before `Start`.
+   call rejected); `Shutdown` idempotent; `Addr()` nil before `Start` and
+   from the moment `Shutdown` begins (drain-window contract, documented
+   2026-09-17).
    Each guarantee has a named test.
 4. **Error contract stable.** Every error leaving the framework is
    classified by go-error-family; HTTP status mapping covered by

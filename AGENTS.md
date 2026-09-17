@@ -277,7 +277,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 ## Gotchas
 
 - `NewService` registers `/health`, `/health/live`, `/health/ready` by default.
-- `Service.Addr()` returns `nil` before `Start()` is called.
+- `Service.Addr()` returns `nil` before `Start()` AND from the moment `Shutdown` begins (listener reaped before DrainHooks run — capture the base URL before shutdown; pinned by the composition-contract suite + drainhooks_test).
 - `RegisterHealth` is `*bool` — use `&false` to opt out, not `false`.
 - `InitLogger` returns errors (not panics) for invalid config.
 - charmbracelet/log `Logger` directly implements `slog.Handler` — no adapter needed.

@@ -280,7 +280,10 @@ func (s *Service) Close() error {
 	return s.Shutdown(context.Background())
 }
 
-// Addr returns the bound listener address. Returns nil before Start is called.
+// Addr returns the bound listener address. Returns nil before Start is
+// called AND from the moment Shutdown begins: Shutdown reaps the listener
+// before running the drain hooks, so drain hooks (and everything after
+// them) observe nil — capture the address before calling Shutdown.
 func (s *Service) Addr() net.Addr {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -292,7 +295,9 @@ func (s *Service) Addr() net.Addr {
 	return s.ln.Addr()
 }
 
-// Running reports whether the service has a bound listener.
+// Running reports whether the service has a bound listener. It flips to
+// false the moment Shutdown begins — before the drain hooks run — not
+// when the last in-flight request finishes.
 func (s *Service) Running() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

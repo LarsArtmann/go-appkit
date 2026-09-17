@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-09-17
+
+### Fixed
+
+- `Service.Addr` and `Service.Running` godoc now state the full lifecycle
+  contract: the listener is reaped at the START of `Shutdown` (before the
+  drain hooks run), so both accessors flip to nil/false for the whole
+  drain window — capture the base URL before calling `Shutdown`. The
+  behavior itself is unchanged (it was always this; the composition-
+  contract suite pins it) — only the documentation lied. Doc-only
+  release: `go doc -all` diff vs v0.5.0 is the two comment blocks, zero
+  API delta.
+
 ## [0.5.0] - 2026-09-17
 
 ### Added
