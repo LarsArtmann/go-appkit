@@ -1,5 +1,15 @@
 # SUPERB Plan v2 — Visibility, Correctness & Batteries
 
+> **EXECUTION VERDICT (2026-09-17):** all 30 C-tasks executed and verified
+> (the session ran past several gates the plan left open: license decided
+> proprietary, docs-ghost path A executed); the C21 remainder (F104
+> cqrs-metrics E2E) landed 2026-09-17 and core tagged **v0.5.0** the same
+> day, closing the "core features UNRELEASED" gap. Full per-task evidence:
+> `doc/status/2026-09-17_05-52_superb-plan-v2-execution-and-honest-gaps.md`.
+> Fine-task remainders (godoc examples, integration composition suite,
+> lint sweep) closed 2026-09-17. This plan is historical — new work starts
+> from TODO_LIST, not from here.
+
 **Created:** 2026-09-16 15:01 CEST · **Scope:** ALL 38 open go-appkit TODOs (TODO_LIST.md P1/P2/P3 as of 2026-09-16 15:01, post docs-health second pass) sorted by the Pareto principle.
 
 **Method:** 1% → 51% of the result, then 4% → 64%, then 20% → 80%, then the rest to 100%. Two granularities: comprehensive (30–100 min tasks, C1–C30) and fine (≤12 min micro-tasks, F1–F145). Every open TODO is included exactly once — the coverage map at the bottom proves it.

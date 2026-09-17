@@ -11,7 +11,7 @@ index, not a plan.
 | Line / message                        | Level | Source                          | Fields                                                             | Notes |
 | ------------------------------------- | ----- | ------------------------------- | ------------------------------------------------------------------ | ----- |
 | `shutdown phase complete`             | INFO  | core `Service.Shutdown`         | `phase`, `duration`                                                | Grep-able contract, pinned by `shutdownlog_test.go`. Phases: `ready_flip`, `drain_hooks`, `drain_wait`, `listener_close`, `shutdown_hooks` |
-| `shutdown phase skipped`              | INFO  | core, with `NoDrainDelay`       | `phase=drain_wait`                                                 | Level decision 2026-09-16: stays INFO (see §5) |
+| `shutdown phase skipped`              | INFO  | core, with `NoDrainDelay`       | `phase=drain_wait`                                                 | Level decision 2026-09-16: stays INFO (rationale in root README "Log volume") |
 | `graceful shutdown complete`          | INFO  | core, end of shutdown           | `total`, `result` (`ok`/`error`)                                   | The deploy-diagnosis line |
 | `draining traffic`                    | INFO  | core, before the drain wait     | `delay`                                                            | |
 | `request method=… duration=…`         | INFO  | httputil `Logging`              | `method`, `path`, `status`, `duration`, `client_ip`, `request_id`  | The only per-request line. NOT context-correlated upstream (see §4 recipe); suppressed for free at `LogLevel: Warn` |

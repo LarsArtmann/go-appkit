@@ -151,7 +151,7 @@
 43. Write the integration test for `security` + `realtime` composition (rate-limit in front of SSE).
 44. Extend `doc/status/README.md` index with the archived-report count and the gate command.
 45. Move the annotation-depth standard ALSO into `doc/planning/archived/` README (F141 covered status only — the plan's F141 says "both archived READMEs"; only one got it — this is a real gap I introduced).
-46. Retire the recovered pin-test doc (`doc/planning/2026-09-16_otel-pattern-pin-test.md`) to the archived planning dir (landed + linked).
+46. Retire the recovered pin-test doc (`doc/planning/archived/2026-09-16_otel-pattern-pin-test.md`) to the archived planning dir (landed + linked).
 47. Consider `Retract docs/v0.2.0` in the docs module go.mod so `go get .../docs@latest` can never resolve the ghost tag on a stale proxy.
 48. Add dependabot groups coverage check to CI (dependabot covers integration; CI now does too — assert parity in a workflow step).
 49. Pareto plan v3 only AFTER the user answers the gates — do not self-start.
