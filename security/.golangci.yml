@@ -1,10 +1,10 @@
 version: "2"
-# Module-local lint config — the repo-wide standard for satellite modules
-# (reference implementation: flightrecorderhealth/.golangci.yml).
+# Module-local lint config for the security module (repo-wide satellite
+# standard; reference implementation: flightrecorderhealth/.golangci.yml).
 #
 # Why module-local: the ROOT config's depguard allowlist is structurally
-# wrong for non-root modules (family deps like go-flightrecorder, go-sse,
-# templ-components, go-cqrs-lite are not in its allow list). Each module
+# wrong for non-root modules (this module only needs go-error-family and
+# the stdlib, but the root list governs core, not satellites). Each module
 # lints itself with `cd <module> && golangci-lint run ./...`.
 #
 # Deliberate divergences from the root config:
