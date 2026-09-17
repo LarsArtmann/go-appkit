@@ -31,7 +31,7 @@ aspirations.
 | `testkit.Serve` full-chain test harness     | FULLY_FUNCTIONAL | `testkit/testkit.go`, `testkit/testkit_test.go`  |
 
 Shipped in core **v0.5.0** (2026-09-17; additions-only API diff vs v0.4.0,
-proxy-tested).
+proxy-tested; v0.5.1 the same day is doc-only — zero API delta).
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
@@ -46,8 +46,8 @@ proxy-tested).
 | `EventConfig.FlightRecorder` (shared `*fr.Recorder`)                                                           | FULLY_FUNCTIONAL | `flightrecorder_test.go`             |
 | `EventConfig.Metrics` recorder hook                                                                            | FULLY_FUNCTIONAL | `metrics_test.go`                    |
 | Projection readiness + lag accessors (`ReadyCheck` reports NOT-ready before `StartProjections`)                | FULLY_FUNCTIONAL | `readiness_test.go`                  |
-| Read-your-writes staleness guards                                                                              | FULLY_FUNCTIONAL | `staleness_test.go`                  |
-| OTel projection metrics adapter                                                                                | FULLY_FUNCTIONAL | `otelmetrics.go`                     |
+| Read-your-writes staleness guards                                                                              | FULLY_FUNCTIONAL | `staleness_test.go` (incl. `TestEventService_CheckStaleness_BudgetMonotonicity`) |
+| OTel projection metrics adapter                                                                                | FULLY_FUNCTIONAL | `otelmetrics.go`, real-cycle E2E `otelmetrics_e2e_test.go` |
 
 ## docs (`github.com/larsartmann/go-appkit/docs`)
 
@@ -105,8 +105,10 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | Feature                                | Status           | Evidence               |
 | -------------------------------------- | ---------------- | ---------------------- |
 | Trigger-based trace capture middleware | FULLY_FUNCTIONAL | `middleware.go`, tests |
-| Snapshot endpoint (`SnapshotHandler`)  | FULLY_FUNCTIONAL | `handler.go`, tests    |
+| Snapshot endpoint (`SnapshotHandler`)  | FULLY_FUNCTIONAL | `handler.go`, tests |
 | Auto-reset for repeated captures       | FULLY_FUNCTIONAL | `middleware.go`        |
+| `SnapshotHandler` 503 on disabled recorder (no silent 200) | FULLY_FUNCTIONAL | `handler.go` (pinned; UNRELEASED at v0.1.0) |
+| `OpsRecorderPreset` production options | FULLY_FUNCTIONAL | `middleware.go` (UNRELEASED at v0.1.0) |
 
 ## flightrecorderhealth (`github.com/larsartmann/go-appkit/flightrecorderhealth`)
 
@@ -139,6 +141,11 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | Lifecycle guards (double-Start rejection, idempotent Shutdown)     | FULLY_FUNCTIONAL | `TestMount_LifecycleGuardsAndIdempotence`          |
 | SDK validation errors surface via `Start` (errors.Is preserved)    | FULLY_FUNCTIONAL | `TestMount_StartPropagatesProbeValidationErrors`   |
 | Runnable example (verified live: dashboard, probes, drain 503s)    | FULLY_FUNCTIONAL | `example/main.go`                                  |
+| Compile-time contract assertion (`dashboard.Prober`)               | FULLY_FUNCTIONAL | `contract_test.go` (UNRELEASED at v0.1.1)          |
+| `WithProbeRoutes`+`WithDashboard` conflict semantics tested-as-documented | FULLY_FUNCTIONAL | `mount_test.go` (UNRELEASED at v0.1.1)      |
+| `DashboardHardenedPreset` (BasePath + nonce extractor bundled)     | FULLY_FUNCTIONAL | `mount.go`, `TestDashboardHardenedPreset_*` (UNRELEASED at v0.1.1) |
+| `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz       | FULLY_FUNCTIONAL | `probe_benchmark_test.go`, `FuzzNewProbe_*` (UNRELEASED at v0.1.1) |
+| Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (UNRELEASED at v0.1.1)   |
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
 
@@ -154,12 +161,25 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | Route-attributed, cardinality-safe HTTP metrics          | FULLY_FUNCTIONAL     | `metrics_test.go`; `http.route` survives the documented `OuterMiddlewares` wiring since httputil v1.2.0 (integration-module pin test)                                    |
 | Semconv histogram views (`http.server.request.duration`) | FULLY_FUNCTIONAL     | `views.go`, `metrics_test.go`                                                                                                                                            |
 | Trace-correlated logging (`TraceHandler`, ID helpers)    | FULLY_FUNCTIONAL     | `logging.go`, `logging_test.go`                                                                                                                                          |
+| `NewFlightRecorderMetricsHook` (fr capture events → OTel meter) | FULLY_FUNCTIONAL | `frmetrics.go`, real-capture E2E `frmetrics_e2e_test.go` (UNRELEASED at v0.1.1)                                                                                  |
 | Strictly opt-in no-op mode (no provider → pass-through)  | FULLY_FUNCTIONAL     | `middleware_test.go`                                                                                                                                                     |
 | Runnable example (PORT-aware, E2E-verified)              | FULLY_FUNCTIONAL     | `example/main.go`                                                                                                                                                        |
 
 Known limitation: httputil's `Logging` middleware emits the request-completion
 line without request context, so only handler-level logs correlate with spans
 (documented in `doc.go`).
+
+## integration (`github.com/larsartmann/go-appkit/integration` — never released)
+
+Cross-module + cross-repo E2E contracts against PUBLISHED tags only:
+
+| Contract                                                       | Status           | Evidence                                    |
+| -------------------------------------------------------------- | ---------------- | ------------------------------------------- |
+| SSE header flush through the appkit default stack              | FULLY_FUNCTIONAL | `integration_test.go`                       |
+| Journal replay via cqrs-htmx `transport.JournalSSEStore`       | FULLY_FUNCTIONAL | `integration_test.go`                       |
+| Span name + `http.route` through `OuterMiddlewares` (pins the 2026-09-16 fix) | FULLY_FUNCTIONAL | `otel_pattern_test.go`                |
+| Metrics/version/testkit compose + drain-window ordering (`Addr()` nil inside DrainHooks) | FULLY_FUNCTIONAL | `composition_contract_test.go` |
+| One-`Setup`-per-process + errorpages family→status parity      | FULLY_FUNCTIONAL | `contract_parity_test.go`                   |
 
 ## Consumers
 
@@ -172,15 +192,20 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
   bundle's domain chain. Verified equivalences live in their
   `setup/run_appkit_test.go` (SSE header flush through the full stack, drain
   readiness transitions, response parity, hardened adoption benchmark).
-- Consumed version: `go-appkit v0.3.0` from the module proxy (their dev
-  `replace` stripped at their v4.9.0 train; re-verified 2026-09-04).
+- Consumed version: `go-appkit v0.5.0` from the module proxy
+  (`setup/go.mod:95`; their M3 bump landed 2026-09-17, after this repo's
+  14:22 audit recorded v0.4.0). Their `Config.Metrics`/`Config.Version`
+  threading (M4) is still open on their side; so is the default-flip (b)-(f).
 - Their fold-in (flipping `RunHandler` internals to appkit) is unblocked and
-  pending on the cqrs-htmx side (`docs/planning/2026-08-30_appkit-foldin-revalidation.md`).
+  pending on the cqrs-htmx side (their
+  `docs/planning/archived/2026-08-30_appkit-foldin-revalidation.md`).
 
 All released modules verified as fresh proxy consumers (blank-import smoke
-modules in clean dirs, `go build` green): the 2026-09-04 waves covered core
-cqrs v0.3.0/v0.4.0, realtime v0.1.0, flightrecorder v0.1.0,
-flightrecorderhealth v0.1.0/v0.1.1, otel v0.1.0, health v0.1.0; cqrs v0.5.0
-(the system engine) followed on 2026-09-07. Known gap: the `docs` module's
-published `docs/v0.2.0` tag is UNFETCHABLE from the proxy (module path vs
-directory mismatch — see the docs section above; TODO_LIST P1).
+modules in clean dirs, `go build` green): the 2026-09-04 waves, cqrs v0.5.0
+(2026-09-07), the 2026-09-16 train (core v0.4.0, realtime v0.1.1, security
+v0.1.0, health v0.1.1, frh v0.1.2, docs v0.3.0, otel v0.1.1), and core
+v0.5.0 (2026-09-17, full behavior check: `/version`, `/metrics` auth 401/200,
+shutdown phase logs). The historical docs-ghost (`docs/v0.2.0` unfetchable)
+was FIXED 2026-09-16 by the path-A repath — `docs/v0.3.0` is the first
+fetchable docs release and its pkg.go.dev page RENDERS (verified 2026-09-17,
+all module pages render; godoc hidden by the proprietary-license choice).
