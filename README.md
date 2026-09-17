@@ -94,25 +94,25 @@ Each module is independently versioned and usable on its own:
 
 All config is via `ServiceConfig`. Zero-value fields get production defaults:
 
-| Field              | Type                    | Default   | Description                                                                        |
-| ------------------ | ----------------------- | --------- | ---------------------------------------------------------------------------------- |
-| `Addr`             | `string`                | `":8080"` | Listen address                                                                     |
-| `LogLevel`         | `LogLevel`              | `"info"`  | Log level: debug, info, warn, error                                                |
-| `LogFormat`        | `LogFormat`             | `"auto"`  | Log format: text, json, auto                                                       |
-| `ReadTimeout`      | `time.Duration`         | `10s`     | HTTP read timeout                                                                  |
-| `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                                                                 |
-| `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                                                  |
-| `ShutdownTimeout`  | `time.Duration`         | `15s`     | Max time to wait for shutdown                                                      |
-| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown; `NoDrainDelay` sentinel skips it |
-| `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack                                               |
-| `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack                                             |
-| `OuterMiddlewares` | `[]httputil.Middleware` | `nil`     | Wrap the entire chain (default stack included), outermost — where tracing sits     |
-| `DrainHooks`       | `[]func(ctx) error`     | `nil`     | Run once at drain start, while traffic is still served (errors joined)             |
-| `ShutdownHooks`    | `[]func(ctx) error`     | `nil`     | Run once after connections are released (e.g. telemetry flush; errors joined)      |
-| `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                     |
-| `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`)     |
+| Field              | Type                    | Default   | Description                                                                                                                                 |
+| ------------------ | ----------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Addr`             | `string`                | `":8080"` | Listen address                                                                                                                              |
+| `LogLevel`         | `LogLevel`              | `"info"`  | Log level: debug, info, warn, error                                                                                                         |
+| `LogFormat`        | `LogFormat`             | `"auto"`  | Log format: text, json, auto                                                                                                                |
+| `ReadTimeout`      | `time.Duration`         | `10s`     | HTTP read timeout                                                                                                                           |
+| `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                                                                                                                          |
+| `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                                                                                                           |
+| `ShutdownTimeout`  | `time.Duration`         | `15s`     | Max time to wait for shutdown                                                                                                               |
+| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown; `NoDrainDelay` sentinel skips it                                                          |
+| `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack                                                                                                        |
+| `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack                                                                                                      |
+| `OuterMiddlewares` | `[]httputil.Middleware` | `nil`     | Wrap the entire chain (default stack included), outermost — where tracing sits                                                              |
+| `DrainHooks`       | `[]func(ctx) error`     | `nil`     | Run once at drain start, while traffic is still served (errors joined)                                                                      |
+| `ShutdownHooks`    | `[]func(ctx) error`     | `nil`     | Run once after connections are released (e.g. telemetry flush; errors joined)                                                               |
+| `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                                                                              |
+| `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`)                                                              |
 | `Metrics`          | `*MetricsConfig`        | `nil`     | Opt-in Prometheus surface: `GET /metrics` text exposition + request histogram, response totals, in-flight and build-info gauges (see below) |
-| `Version`          | `string`                | `""`      | Build version: serves `GET /version` (JSON) and labels the `appkit_build_info` metric |
+| `Version`          | `string`                | `""`      | Build version: serves `GET /version` (JSON) and labels the `appkit_build_info` metric                                                       |
 
 ### Metrics (opt-in Prometheus surface)
 
