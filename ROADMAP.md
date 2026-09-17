@@ -52,7 +52,7 @@ appkit never grows application-shaped code.
   2026-09-04, door held open in TODO_LIST P3. First concrete core-TLS feature
   request if they keep app-level TLS.
 - **go-plugin-mvp (Kernovia)** — same pattern recommended; pre-1.0, gated on
-  their license/rename decisions (`docs/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md`).
+  their license/rename decisions (`doc/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md`).
 - **cordis bridge module** — trigger-gated NOT NOW (`go/v0.1.0` tagged
   2026-09-16 = trigger 1 of 3 met; zero consumer demand, core v1 criteria
   pending).

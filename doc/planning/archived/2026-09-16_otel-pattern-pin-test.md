@@ -19,19 +19,19 @@ in `/tmp/appkit-otel-verify/` (ephemeral) — this document is its durable home.
 Executing the TODO_LIST P2 release train (tag httputil → bump core + otel →
 re-tag otel):
 
-1. Copy `TestSpanNameAndRouteThroughAppkitOuterMiddlewares` from this document
-   into `integration/integration_test.go` (package `integration`).
-2. `integration/go.mod` gains: `go.opentelemetry.io/otel/sdk`,
-   `go.opentelemetry.io/otel/sdk/metric`, `go.opentelemetry.io/otel/sdk/trace`,
-   and (transitively) the otel module requirement at the new tag.
-   The otel SDK deps make the module heavier — acceptable: the charter pins
-   what consumers resolve, and the test pins the documented composition.
-3. Bump the pins (core, otel, httputil via core) to the train tags, then
-   `go test -race -count=1 ./...` inside `integration/`.
-4. Expected FAILURES before the train, PASS after: this is the regression pin
-   that closes the blind spot which let the bug ship (all 23 otel-module tests
-   wrap the mux directly; none tested the documented `OuterMiddlewares` wiring).
-5. Delete the otel README known-issue block in the same change.
+1. ~~Copy `TestSpanNameAndRouteThroughAppkitOuterMiddlewares` from this document~~ done (executed 2026-09-16 — the test lives at integration/otel_pattern_test.go)
+   ~~into `integration/integration_test.go` (package `integration`).~~
+2. ~~`integration/go.mod` gains: `go.opentelemetry.io/otel/sdk`,~~ done (executed 2026-09-16 — the integration deps landed at the train tags)
+   ~~`go.opentelemetry.io/otel/sdk/metric`, `go.opentelemetry.io/otel/sdk/trace`,~~
+   ~~and (transitively) the otel module requirement at the new tag.~~
+   ~~The otel SDK deps make the module heavier — acceptable: the charter pins~~
+   ~~what consumers resolve, and the test pins the documented composition.~~
+3. ~~Bump the pins (core, otel, httputil via core) to the train tags, then~~ done (executed 2026-09-16 — pins: core v0.5.1, otel v0.1.1, httputil v1.2.0)
+   ~~`go test -race -count=1 ./...` inside `integration/`.~~
+4. ~~Expected FAILURES before the train, PASS after: this is the regression pin~~ done (proven — FAIL pre-train / PASS post-train (run against published pins; fails on older pins by design))
+   ~~that closes the blind spot which let the bug ship (all 23 otel-module tests~~
+   ~~wrap the mux directly; none tested the documented `OuterMiddlewares` wiring).~~
+5. ~~Delete the otel README known-issue block in the same change.~~ done (executed 2026-09-16 — the otel README known-issue block is deleted)
 
 ## Provenance
 
