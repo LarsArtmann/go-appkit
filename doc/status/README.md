@@ -6,9 +6,13 @@ line per report; verdicts are annotated inline in each file.
 
 ## Current (unarchived)
 
-_None — the 2026-09-17 docs-health pass dispositioned and archived every
-report. New reports land here and migrate to `archived/` after a docs-health
-pass resolves their items._
+| Report | One-line summary |
+| ------ | ---------------- |
+| `2026-09-17_19-13_docs-health-full-sweep-annotate-archive-and-living-doc-truth.md` | Docs-health full sweep: pkg.go.dev P1 closed, TODO_LIST rebuilt open-only, 12 files archived, ~200 inline verdicts, doc/-vs-docs split brain removed |
+
+Everything else is resolved and lives in `archived/` (36 files). New reports
+land here and migrate to `archived/` after a docs-health pass resolves their
+items.
 
 ## Archived (36 files as of 2026-09-17)
 
