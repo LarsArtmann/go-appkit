@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Planned
+
+- Consider `retract v0.2.0` so a stale proxy can never resolve the ghost
+  tag; the directive only takes effect once CONSUMERS fetch a version
+  carrying it, so it rides the NEXT docs tag. Deferred 2026-09-17: `@latest`
+  already resolves v0.3.0 (highest semver) and an explicit `@v0.2.0` fetch
+  fails loudly at the proxy — a release train just for the directive is not
+  worth it today.
+
 ## [0.3.0] - 2026-09-16
 
 ### Fixed
