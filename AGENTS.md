@@ -92,7 +92,6 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 | `errors.go`       | Re-exports `HTTPStatus()` and `LogError()` from go-error-family.                                                                                                                                                                                                   |
 | `shutdown.go`     | `WaitForSignal()` for SIGINT/SIGTERM. Preserved for backward compat.                                                                                                                                                                                               |
 | `metrics.go` / `version.go` / `testkit/` | Opt-in Prometheus surface (`MetricsConfig`, `appkit_*` stable names, Basic Auth mandatory), `Version` + `GET /version`, `testkit.Serve(tb, svc)` full-chain harness with goroutine-leak teardown. v0.5.0. |
-| `doc.go`          | Package doc statement.                                                                                                                                                                                                                                             |
 | `example/main.go` | 12-line demo service.                                                                                                                                                                                                                                              |
 
 ## Realtime Module — Code Organization
