@@ -130,6 +130,12 @@ linters:
   settings:
     cyclop:
       max-complexity: 12
+    depguard:
+      rules:
+        no-cqrs-htmx-setup:
+          deny:
+            - pkg: github\.com/larsartmann/cqrs-htmx/v4/setup(/.*)?
+              desc: setup is NEVER a dependency of appkit — the direction is setup → appkit (SUPERB v4 C3)
     errcheck:
       exclude-functions:
         - (*os.File).Close

@@ -8,7 +8,8 @@ version: "2"
 # lints itself with `cd <module> && golangci-lint run ./...`.
 #
 # Deliberate divergences from the root config:
-#   - no depguard: imports are governed by go.mod + review, not an allowlist
+#   - depguard (deny-only): cqrs-htmx/v4/setup must never be imported —
+#     setup consumes appkit, never the reverse (SUPERB v4 C3)
 #   - no arangolint / clickhouselint: no database driver code in this module
 #   - goexperiment.* build-tags match this module's build requirements
 run:
@@ -38,6 +39,7 @@ linters:
     - copyloopvar
     - cyclop
     - decorder
+    - depguard
     - dogsled
     - dupl
     - dupword
@@ -135,6 +137,12 @@ linters:
     - wsl_v5
     - zerologlint
   settings:
+    depguard:
+      rules:
+        no-cqrs-htmx-setup:
+          deny:
+            - pkg: github\.com/larsartmann/cqrs-htmx/v4/setup(/.*)?
+              desc: setup is NEVER a dependency of appkit — the direction is setup → appkit (SUPERB v4 C3)
     cyclop:
       max-complexity: 12
     exhaustruct_v5:
