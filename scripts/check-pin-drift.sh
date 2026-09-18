@@ -60,10 +60,13 @@ while read -r mod want; do
 	latest="$(git tag -l -- "$pattern" | sort -V | tail -n1)"
 	if [[ -z "$latest" ]]; then
 		fail "$mod: no tags matching $pattern"
-	elif [[ "$want" == "$latest" ]]; then
-		ok "$mod pinned at latest published tag $want"
 	else
-		fail "$mod pinned at $want but latest published tag is $latest (release train shipped without the integration pin bump?)"
+		latest_version="${latest#"$sub/"}"
+		if [[ "$want" == "$latest_version" ]]; then
+			ok "$mod pinned at latest published tag $latest"
+		else
+			fail "$mod pinned at $want but latest published tag is $latest (release train shipped without the integration pin bump?)"
+		fi
 	fi
 done <<< "$pins"
 

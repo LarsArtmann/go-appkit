@@ -50,12 +50,15 @@ func TestGoModPinsMatchDocumentedPins(t *testing.T) {
 
 	for mod, want := range documentedPins {
 		got, ok := direct[mod]
+
 		if !ok {
 			t.Errorf("go.mod no longer requires %s directly — update documentedPins", mod)
+
 			continue
 		}
 		if got != want {
-			t.Errorf("pin drift: %s resolved to %s, documented pin is %s (release train without the pin/doc bump?)", mod, got, want)
+			t.Errorf("pin drift: %s resolved to %s, documented pin is %s (release train without the pin/doc bump?)",
+				mod, got, want)
 		}
 	}
 
@@ -73,8 +76,10 @@ func TestGoModHasNoFilesystemReplaceDirectives(t *testing.T) {
 	t.Parallel()
 
 	_, _, hasReplace := parseGoMod(t)
+
 	if hasReplace {
-		t.Error("go.mod carries a replace directive — NEVER tag a module whose go.mod has one (working-tree replaces are for cross-repo debugging only and must be removed before tagging)")
+		t.Error("go.mod carries a replace directive — NEVER tag a module whose go.mod has one " +
+			"(working-tree replaces are for cross-repo debugging only and must be removed before tagging)")
 	}
 }
 
@@ -82,6 +87,7 @@ func TestGoModGoDirectiveMatchesDocumentedToolchain(t *testing.T) {
 	t.Parallel()
 
 	_, goDirective, _ := parseGoMod(t)
+
 	if goDirective != documentedGoDirective {
 		t.Errorf("go directive is %s, documented toolchain is %s — a toolchain bump must update integration/go.mod, go.work, root go.mod, and AGENTS.md together", goDirective, documentedGoDirective)
 	}
@@ -91,7 +97,7 @@ func TestGoModGoDirectiveMatchesDocumentedToolchain(t *testing.T) {
 // published tags and must not grow a golang.org/x/mod dependency just to read
 // its own manifest) and returns its direct requires, go directive, and whether
 // any replace directive exists.
-func parseGoMod(t *testing.T) (direct map[string]string, goDirective string, hasReplace bool) {
+func parseGoMod(t *testing.T) (map[string]string, string, bool) {
 	t.Helper()
 
 	data, err := os.ReadFile("go.mod")
@@ -99,10 +105,14 @@ func parseGoMod(t *testing.T) (direct map[string]string, goDirective string, has
 		t.Fatalf("read go.mod: %v", err)
 	}
 
-	direct = make(map[string]string)
+	direct := make(map[string]string)
+	goDirective := ""
+	hasReplace := false
 	inRequireBlock := false
-	for _, line := range strings.Split(string(data), "\n") {
+
+	for line := range strings.SplitSeq(string(data), "\n") {
 		l := strings.TrimSpace(line)
+
 		switch {
 		case strings.HasPrefix(l, "require ("):
 			inRequireBlock = true
@@ -114,10 +124,12 @@ func parseGoMod(t *testing.T) (direct map[string]string, goDirective string, has
 			goDirective = strings.TrimSpace(strings.TrimPrefix(l, "go "))
 		case inRequireBlock, strings.HasPrefix(l, "require "):
 			fields := strings.Fields(l)
+
 			if len(fields) >= 2 && !strings.Contains(l, "// indirect") {
 				direct[fields[0]] = fields[1]
 			}
 		}
 	}
+
 	return direct, goDirective, hasReplace
 }
