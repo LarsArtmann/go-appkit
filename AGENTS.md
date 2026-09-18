@@ -302,8 +302,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 - **`GOWORK=off` recommended** if a parent `go.work` includes sibling projects with stale checksums.
 - Handler flushes headers immediately after `NewStream` — this is critical for Go HTTP clients and reverse proxies.
 - Hub's `BroadcastPatch` accepts any type with `Event() sse.Event` — no go-datastar import needed.
-- Default heartbeat is 15s; pass `WithHeartbeat(0)` to disable.
-- Default CORS is `*`; tighten via `WithCORSOrigin` for production.
+- Defaults: heartbeat 15s (`WithHeartbeat(0)` disables), CORS `*` (tighten via `WithCORSOrigin` for production).
 - Shutdown ordering: drain `hub.Shutdown(ctx)` BEFORE `svc.Shutdown(ctx)` so browsers reconnect to another instance.
 - Replay/live boundary: the handler subscribes BEFORE reading the replay store and deduplicates replayed IDs in the live loop — no event can slip between store snapshot and subscription. Bursts larger than the subscriber buffer (default 64) during a slow store read can still drop; clients heal via Last-Event-ID reconnect.
 - Journal-backed replay (CQRS event stores): wire `transport.NewJournalSSEStore(journal, mapper)` from `github.com/larsartmann/cqrs-htmx/v4/transport` (lean 4-dep sub-package) into `realtime.NewHub(realtime.WithStore(store))`. realtime itself stays cqrs-free. **End-to-end verified 2026-09-04** by `integration/integration_test.go` (`TestJournalBackedReplayThroughAppkitService`): cold-start connections get NO history replay (replay is a reconnect mechanism — handler.go returns early on zero Last-Event-ID), a Last-Event-ID reconnect replays exactly the missed journal suffix, live broadcasts interleave; all through an appkit `Service` default stack.
@@ -346,12 +345,13 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 - `TraceHandler` correlates only handler-level logs; httputil's `Logging` middleware emits the request-completion line without request context, so that line stays uncorrelated (known limitation, documented in `doc.go`).
 - Build with `GOWORK=off` when hermetically testing: the workspace otherwise resolves core via the example's `replace ../`.
 
-## Release Ritual (added 2026-09-04)
+## Release Ritual (added 2026-09-04, extended 2026-09-17)
 
 1. **API-break check before every tag:** `git archive <old-tag> | tar -x -C /tmp/old && GOWORK=off GOEXPERIMENT=jsonv2 go doc -all . > /tmp/new.txt` (old from the extracted dir, new from the working tree), then diff — additions only → minor bump; ANY removal or signature change → breaking (0.x: minor bump + migration notes in CHANGELOG). Proven during wave 2 (core v0.3.0 → v0.4.0). `goapidiff`/`apidiff` not installed; `go install @latest` is network-blocked in this environment.
 2. Date the module's CHANGELOG `[Unreleased]` → `[version] - <date>`.
-3. Hermetic verify the module (`GOWORK=off`, jsonv2 only where the toolchain still needs it), fresh-consumer proxy test after push (clean /tmp module → `go get module@tag` → blank import → build).
-4. Annotated tags only, message states the semantic delta.
+3. Hermetic verify the module (`GOWORK=off`, jsonv2 only where the toolchain still needs it); fresh-consumer proxy test after push per `doc/recipes/fresh-consumer-proxy-check.md`.
+4. Annotated tags only, message states the semantic delta; doc-only releases prefix the tag message with `docs:` (v0.5.1 convention).
+5. **Same-train release-state updates:** update AGENTS `_Release State_` + the module's bullet + the TODO_LIST header in the same train as the CHANGELOG dating, then run `./scripts/check-pin-drift.sh` — it must be green before push (v0.5.1 shipped while AGENTS still said v0.5.0; this step makes that class impossible to repeat silently).
 
 ## Adoption & Drift Rituals (added 2026-09-04)
 

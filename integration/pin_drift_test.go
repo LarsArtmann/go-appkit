@@ -89,7 +89,8 @@ func TestGoModGoDirectiveMatchesDocumentedToolchain(t *testing.T) {
 	_, goDirective, _ := parseGoMod(t)
 
 	if goDirective != documentedGoDirective {
-		t.Errorf("go directive is %s, documented toolchain is %s — a toolchain bump must update integration/go.mod, go.work, root go.mod, and AGENTS.md together", goDirective, documentedGoDirective)
+		t.Errorf("go directive is %s, documented toolchain is %s — a toolchain bump must update "+
+			"integration/go.mod, go.work, root go.mod, and AGENTS.md together", goDirective, documentedGoDirective)
 	}
 }
 

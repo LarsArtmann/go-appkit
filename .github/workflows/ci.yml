@@ -128,3 +128,17 @@ jobs:
       - name: Lint cqrs module
         working-directory: cqrs
         run: GOWORK=off cqrs-lint .
+
+  # Pin-drift guard (SUPERB plan v4 C1): the AGENTS.md release line must name
+  # a real tag, integration/go.mod must pin the LATEST published tag of every
+  # family module it requires, and go.mod/go.work must agree on the go
+  # directive. Needs full tag history — fetch-depth: 0. The go.mod-side half
+  # of the guard runs as integration/pin_drift_test.go in the test matrix.
+  pin-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Check release-state pin drift
+        run: ./scripts/check-pin-drift.sh

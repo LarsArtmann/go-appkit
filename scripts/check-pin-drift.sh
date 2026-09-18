@@ -71,8 +71,8 @@ while read -r mod want; do
 done <<< "$pins"
 
 # 3) root go.mod vs go.work go directive.
-gomod_go="$(awk '$1 == "go" { print $2; exit }' go.mod)"
-gowork_go="$(awk '$1 == "go" { print $2; exit }' go.work)"
+gomod_go="$(awk '$1 == "go" { print $2; exit }' go.mod 2>/dev/null || true)"
+gowork_go="$(awk '$1 == "go" { print $2; exit }' go.work 2>/dev/null || true)"
 if [[ -z "$gomod_go" || -z "$gowork_go" ]]; then
 	fail "could not read the go directive from go.mod/go.work"
 elif [[ "$gomod_go" == "$gowork_go" ]]; then
