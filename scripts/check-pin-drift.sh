@@ -25,7 +25,10 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 
 status=0
-fail() { echo "FAIL: $*"; status=1; }
+fail() {
+	echo "FAIL: $*"
+	status=1
+}
 ok() { echo "OK:   $*"; }
 
 # 1) AGENTS release line vs git tags.
@@ -68,7 +71,7 @@ while read -r mod want; do
 			fail "$mod pinned at $want but latest published tag is $latest (release train shipped without the integration pin bump?)"
 		fi
 	fi
-done <<< "$pins"
+done <<<"$pins"
 
 # 3) root go.mod vs go.work go directive.
 gomod_go="$(awk '$1 == "go" { print $2; exit }' go.mod 2>/dev/null || true)"
