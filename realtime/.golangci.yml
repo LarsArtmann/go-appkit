@@ -8,7 +8,7 @@ version: "2"
 # lints itself with `cd <module> && golangci-lint run ./...`.
 #
 # Deliberate divergences from the root config:
-#   - depguard (deny-only): cqrs-htmx/v4/setup must never be imported —
+#   - depguard (deny-only): cqrs-htmx/setup/v4 must never be imported —
 #     setup consumes appkit, never the reverse (SUPERB v4 C3)
 #   - no arangolint / clickhouselint: no database driver code in this module
 #   - goexperiment.* build-tags match this module's build requirements
@@ -141,7 +141,7 @@ linters:
       rules:
         no-cqrs-htmx-setup:
           deny:
-            - pkg: github\.com/larsartmann/cqrs-htmx/v4/setup(/.*)?
+            - pkg: github\.com/larsartmann/cqrs-htmx/setup/v4(/.*)?
               desc: setup is NEVER a dependency of appkit — the direction is setup → appkit (SUPERB v4 C3)
     cyclop:
       max-complexity: 12

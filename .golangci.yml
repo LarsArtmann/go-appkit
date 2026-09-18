@@ -28,6 +28,7 @@ linters:
     - copyloopvar
     - cyclop
     - decorder
+    - depguard
     - dogsled
     - dupl
     - dupword
@@ -125,7 +126,6 @@ linters:
     - wsl_v5
     - zerologlint
   disable:
-    - depguard
     - noinlineerr
   settings:
     cyclop:
@@ -134,7 +134,7 @@ linters:
       rules:
         no-cqrs-htmx-setup:
           deny:
-            - pkg: github\.com/larsartmann/cqrs-htmx/v4/setup(/.*)?
+            - pkg: github\.com/larsartmann/cqrs-htmx/setup/v4(/.*)?
               desc: setup is NEVER a dependency of appkit — the direction is setup → appkit (SUPERB v4 C3)
     errcheck:
       exclude-functions:
