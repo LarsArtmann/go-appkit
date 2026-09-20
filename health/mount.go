@@ -174,6 +174,18 @@ func (m *Mounted) Start(ctx context.Context) error {
 	if m.dashboard != nil {
 		err = m.dashboard.Start(ctx)
 		if err != nil {
+			// Roll the started flag back for symmetry with the probe path:
+			// a failed Start must leave the surface restartable, not wedged
+			// on health.already_started. The running probe refresh loop is
+			// deliberately left up — the SDK's Start is re-entry safe (it
+			// no-ops when the loop is already armed), so a retry heals the
+			// dashboard without leaking a second loop. Defensive today: the
+			// pinned dashboard's Start never returns an error, but the
+			// contract must not depend on that.
+			m.mu.Lock()
+			m.started = false
+			m.mu.Unlock()
+
 			return errorfamily.WrapInfrastructuref(err, "health.dashboard_start_failed", "start dashboard pusher")
 		}
 	}
