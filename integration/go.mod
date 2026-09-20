@@ -41,7 +41,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
-	github.com/larsartmann/go-branded-id v0.5.1 // indirect
+	github.com/larsartmann/go-branded-id v0.6.0 // indirect
 	github.com/larsartmann/go-codec v0.2.0 // indirect
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.8.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/dispatcher/v4 v4.3.1 // indirect
@@ -50,9 +50,9 @@ require (
 	github.com/larsartmann/go-cqrs-lite/record/v4 v4.4.0 // indirect
 	github.com/larsartmann/go-cqrs-lite/snapshot/v4 v4.4.0 // indirect
 	github.com/larsartmann/go-etag v0.3.1 // indirect
-	github.com/larsartmann/templ-components/errorpage v1.8.2 // indirect
-	github.com/larsartmann/templ-components/icons v1.8.2 // indirect
-	github.com/larsartmann/templ-components/utils v1.8.2 // indirect
+	github.com/larsartmann/templ-components/errorpage v1.18.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.18.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.18.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.30 // indirect
