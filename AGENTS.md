@@ -162,7 +162,7 @@ BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 - Dashboard is opt-in (`WithDashboard`); it then registers the probe endpoints from ITS route config (WithBasePath applies uniformly) and serves `/health` — consumers must set `RegisterHealth: &false` (mux panics on the duplicate otherwise).
 - Without dashboard: probe routes only (`/healthz`, `/readyz`, `/startupz`), coexists with appkit's default health endpoints.
 - `Mounted.Drain` in `DrainHooks` = go-health readiness 503 for the WHOLE drain window, in lockstep with appkit's own ready probe (the reason core gained `DrainHooks`).
-- Dependencies: `go-health v0.1.3`, `go-health-dashboard v0.8.1` (2026-09-16 bump: operator-trust release — truth strip, WCAG AA, nonce bootstrap), `go-error-family v0.10.1`.
+- Dependencies: `go-health v0.2.0`, `go-health-dashboard v0.9.0` (working-tree bumps 2026-09-20, UNRELEASED — published health v0.1.1 still resolves v0.1.3 + dashboard v0.8.1; go-health v0.3.0 exists upstream), `go-error-family v0.10.1`.
 
 ## otel Module — Code Organization
 
