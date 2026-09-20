@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.3] - 2026-09-20
 
 ### Changed
 
@@ -9,6 +9,8 @@
   (`health.HealthRecorder`'s interface is unchanged between v0.1.3 and
   v0.2.0); the runtime path never calls go-health, and v0.2.0 renames
   nothing the adapter touches.
+- Chore: `.golangci.yml` gains a depguard rule denying `cqrs-htmx/setup`
+  imports (dependency-direction guard; lint config only, no code change).
 
 ## [0.1.2] - 2026-09-16
 
