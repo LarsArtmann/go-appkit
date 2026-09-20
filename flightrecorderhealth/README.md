@@ -142,6 +142,28 @@ See the package doc's "Unbuilt lazy services report healthy" section.
 | `WithTriggerLogger` | nil            | slog logger for capture events.                                              |
 | `WithServiceName`   | ""             | Identifier logged with each capture (multi-trigger setups).                  |
 
+## Chaining recorders (audit log + trigger)
+
+`health.WithHealthRecorder` takes ONE recorder. To combine trace capture
+(`NewTrigger`) with audit logging (`github.com/larsartmann/samber-do-auditlog`'s
+Plugin — a `health.HealthRecorder` out of the box), fan out through a
+two-line multi-recorder:
+
+```go
+type fanout struct{ a, b health.HealthRecorder }
+
+func (f fanout) RecordHealthCheckWithContext(ctx context.Context, inj do.Injector) map[string]error {
+	// audit first (cheap, local), then the trigger (may capture a trace)
+	_, _ = f.a.RecordHealthCheckWithContext(ctx, inj), f.b.RecordHealthCheckWithContext(ctx, inj)
+	return inj.HealthCheckWithContext(ctx)
+}
+```
+
+DEMAND-GATED (plan T26, 2026-09-20): wiring auditlog into this module's
+tests/examples was evaluated and consciously skipped — it would add a
+test-only family dependency to the freshly released module for zero
+consumer demand. Revisit when a consumer actually chains the two.
+
 ## API surface
 
 | Symbol                                              | Purpose                                                          |
