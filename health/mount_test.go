@@ -384,3 +384,45 @@ func TestMount_DrainKeepsRefreshLoopRunning(t *testing.T) {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
+
+// A failed Start must leave the surface restartable. The reachable failure
+// is an invalid probe configuration (rejection from the SDK's Validate);
+// the dashboard-failure branch in Start cannot fire with the pinned
+// dashboard release (its Start never errors), so the started-flag rollback
+// is pinned through the error IDENTITY of a retry: the second Start must
+// fail with the same probe_start_failed rejection, not with a wedged
+// health.already_started.
+func TestMount_FailedStartStaysRestartable(t *testing.T) {
+	t.Parallel()
+
+	probe := NewProbe(nil, health.WithRefreshInterval(-time.Second))
+	mounted, err := New(probe, WithDashboard())
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	ctx := context.Background()
+	err = mounted.Start(ctx)
+	if err == nil {
+		t.Fatal("expected Start to reject an invalid probe configuration")
+	}
+	if !strings.Contains(err.Error(), "probe_start_failed") {
+		t.Fatalf("first Start error = %v, want probe_start_failed", err)
+	}
+
+	err = mounted.Start(ctx)
+	if err == nil {
+		t.Fatal("expected the retry to fail on the still-invalid probe")
+	}
+	if strings.Contains(err.Error(), "already started") {
+		t.Fatalf("retry error = %v, want probe_start_failed (started flag not rolled back)", err)
+	}
+	if !strings.Contains(err.Error(), "probe_start_failed") {
+		t.Fatalf("retry error = %v, want probe_start_failed", err)
+	}
+
+	shutdownErr := mounted.Shutdown(ctx)
+	if shutdownErr != nil {
+		t.Fatalf("Shutdown after failed Start: %v", shutdownErr)
+	}
+}
