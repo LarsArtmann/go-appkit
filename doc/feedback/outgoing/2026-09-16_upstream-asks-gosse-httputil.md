@@ -68,3 +68,19 @@ func Timing(logger *slog.Logger) func(http.Handler) http.Handler
 
 **Sequencing:** lands with (or after) Draft 2 — the completion line and the
 header should carry the SAME duration source, or dashboards will disagree.
+
+---
+
+## Cross-references (2026-09-20 health-stack train)
+
+- Draft 2 (Logging completion-line correlation) re-confirmed during the
+  health-stack composition work: the integration E2E
+  (`integration/health_stack_test.go`) asserts readiness surfaces but cannot
+  assert trace-correlated completion lines for the same reason documented in
+  `otel/doc.go` — the limitation is stable, not transient.
+- New sibling drafts from the same session:
+  `2026-09-20_upstream-ask-gohealth-recorder-sentinel.md` (recorder sentinel
+  on the function-path constructors, includes a secondary `Probe.Evaluate`
+  cache-publication godoc ask) and
+  `2026-09-20_upstream-ask-samberdo-lazy-healthcheck-docs.md` (unbuilt lazy
+  services report healthy). Filing remains USER-gated (Gate Q3).
