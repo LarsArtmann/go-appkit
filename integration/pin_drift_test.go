@@ -21,7 +21,7 @@ import (
 // PIN PHILOSOPHY (USER GATE §g-1, decided 2026-09-17 by execution order:
 // LATEST-published-only retained). This is the flip point if the philosophy
 // ever changes: to ALSO mirror cqrs-htmx setup's older resolution, change the
-// four go-appkit entries to setup's versions and re-point
+// seven go-appkit entries to setup's versions and re-point
 // scripts/check-pin-drift.sh check 2 at setup/go.mod instead of the newest
 // family tag. Nothing else in this file or the script needs to change.
 var documentedPins = map[string]string{
