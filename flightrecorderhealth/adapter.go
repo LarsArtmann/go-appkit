@@ -3,6 +3,7 @@ package flightrecorderhealth
 import (
 	"context"
 	"log/slog"
+	"sort"
 	"sync"
 	"time"
 
@@ -234,7 +235,10 @@ func (t *Trigger) RecordHealthCheckWithContext(
 	return results
 }
 
-// failingServiceNames returns the names of all services with non-nil errors.
+// failingServiceNames returns the names of all services with non-nil errors,
+// SORTED alphabetically: map iteration order is randomized, and these names
+// land in trigger log lines — sorted output keeps logs diff-able and test
+// assertions deterministic.
 func failingServiceNames(results map[string]error) []string {
 	names := make([]string, 0, len(results))
 
@@ -244,13 +248,18 @@ func failingServiceNames(results map[string]error) []string {
 		}
 	}
 
+	sort.Strings(names)
+
 	return names
 }
 
-// firstError returns the first non-nil error from the results map, or nil if
-// all services passed. This populates [fr.TriggerContext].Err so that
-// [fr.OnError] and [fr.OnErrorOrLatency] triggers fire on health-check
-// failures.
+// firstError returns a non-nil error from the results map, or nil if all
+// services passed. WHICH error is returned is unspecified — map iteration is
+// randomized, so with multiple failing services any one of them may be
+// "first"; treat the value as "a representative failure" and rely on
+// [failingServiceNames] (sorted) for deterministic diagnostics. This
+// populates [fr.TriggerContext].Err so that [fr.OnError] and
+// [fr.OnErrorOrLatency] triggers fire on health-check failures.
 func firstError(results map[string]error) error {
 	for _, err := range results {
 		if err != nil {
