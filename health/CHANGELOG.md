@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- The `DashboardHardenedPreset` usage example in the godoc passed
+  `security.NonceFromContext` (context-based) directly as the request-based
+  extractor; the signatures do not match. The example now shows the
+  one-line request→context bridge lambda (caught by composing the preset in
+  the integration module's hardened-dashboard test).
+
 ## [0.1.2] - 2026-09-20
 
 ### Added

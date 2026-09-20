@@ -112,11 +112,17 @@ func TestHardenedDashboardBehindCSP(t *testing.T) {
 
 	// The dashboard's registered probe routes still answer behind the
 	// middleware.
-	resp, err := http.Get(base + "/health/readyz")
+	reqCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	req, reqErr := http.NewRequestWithContext(reqCtx, http.MethodGet, base+"/health/readyz", nil)
+	if reqErr != nil {
+		t.Fatalf("request /health/readyz: %v", reqErr)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("GET /health/readyz: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("/health/readyz = %d, want 200", resp.StatusCode)
 	}
@@ -134,6 +140,7 @@ func hardenedCSP(t *testing.T) func(http.Handler) http.Handler {
 			nonce, nonceErr := security.GenerateNonce()
 			if nonceErr != nil {
 				http.Error(w, "nonce generation failed", http.StatusInternalServerError)
+
 				return
 			}
 
@@ -150,11 +157,17 @@ func hardenedCSP(t *testing.T) func(http.Handler) http.Handler {
 func getWithHeaders(t *testing.T, url string) (string, string) {
 	t.Helper()
 
-	resp, err := http.Get(url)
+	reqCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(reqCtx, http.MethodGet, url, nil)
+	if err != nil {
+		t.Fatalf("request %s: %v", url, err)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("GET %s: %v", url, err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	raw, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatalf("read %s: %v", url, err)
@@ -167,14 +180,16 @@ func getWithHeaders(t *testing.T, url string) (string, string) {
 func nonceOf(t *testing.T, csp string) string {
 	t.Helper()
 
-	for _, directive := range strings.Split(csp, ";") {
+	for directive := range strings.SplitSeq(csp, ";") {
 		if !strings.HasPrefix(strings.TrimSpace(directive), "script-src") {
 			continue
 		}
 
-		for _, token := range strings.Fields(directive) {
-			if strings.HasPrefix(token, "'nonce-") {
-				return strings.TrimSuffix(strings.TrimPrefix(token, "'nonce-"), "'")
+		for token := range strings.FieldsSeq(directive) {
+			if nonce, ok := strings.CutPrefix(token, "'nonce-"); ok {
+				nonce = strings.TrimSuffix(nonce, "'")
+
+				return nonce
 			}
 		}
 	}
