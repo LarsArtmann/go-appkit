@@ -42,6 +42,18 @@
 // Go's runtime/trace allows only one active flight recorder per process. Create
 // a single recorder at startup and share it across all integrations.
 //
+// # Unbuilt lazy services report healthy (samber/do semantics)
+//
+// samber/do's injector scans registered services for health-check methods,
+// but a lazy service that has never been invoked reports HEALTHY — do's
+// healthcheck returns nil for an unbuilt service (service_lazy.go:
+// "if !s.built { return nil }"). A dependency that is never resolved before
+// its first health batch would silently pass. Register therefore eagerly
+// invokes the Checkable it registers; that do.InvokeNamed call is
+// load-bearing, not incidental. If you register additional health-checkable
+// services yourself, invoke them eagerly too (or use do's eager service
+// type) so their first health report reflects reality.
+//
 // # Import aliasing
 //
 // This package name is long. Alias it on import for readability:
