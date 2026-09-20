@@ -1,5 +1,24 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- `Register` now registers via `do.ProvideNamedValue` (eager by
+  construction) instead of `do.ProvideNamed` + eager `InvokeNamed` — same
+  observable eager semantics, simpler primitive, and the duplicate-name
+  panic contract is now documented and pinned by
+  `TestRegister_DuplicateNamePanics`.
+- `failingServiceNames` (trigger log field `failed_services`) is now sorted
+  alphabetically — map iteration order was randomized; `firstError`'s
+  godoc states the any-order contract explicitly.
+
+### Documented
+
+- "Unbuilt lazy services report healthy" gotcha (doc.go + README) with the
+  eager-invoke-is-load-bearing rationale; README gains a recorder-chaining
+  pattern (auditlog fanout) with the dependency consciously demand-gated.
+
 ## [0.1.3] - 2026-09-20
 
 ### Changed
