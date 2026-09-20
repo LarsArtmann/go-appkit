@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Bumped `go-health` v0.1.3 → v0.2.0. Hygiene bump aligning the family with
+  the health module: the compile-time contract assertion still holds
+  (`health.HealthRecorder`'s interface is unchanged between v0.1.3 and
+  v0.2.0); the runtime path never calls go-health, and v0.2.0 renames
+  nothing the adapter touches.
+
 ## [0.1.2] - 2026-09-16
 
 ### Changed
