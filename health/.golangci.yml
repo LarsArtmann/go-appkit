@@ -187,6 +187,7 @@ linters:
         - anon
         - stdlib
         - generic
+        - '^github\.com/samber/do/v2\.[A-Z].+$' # do's DI API is interface-based by design (same ruling as otel module's otel allow)
     makezero:
       always: true
     mnd:
