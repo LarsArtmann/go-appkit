@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -521,6 +522,31 @@ func TestRegister_DefaultName(t *testing.T) {
 	if c.Name() != "flight-recorder" {
 		t.Fatalf("expected default name 'flight-recorder', got %q", c.Name())
 	}
+}
+
+// Register documents do's duplicate-name contract: a second registration
+// under the same name panics ("service `%s` has already been declared").
+func TestRegister_DuplicateNamePanics(t *testing.T) {
+	injector := do.New()
+
+	rec, _ := newTestRecorder(t)
+
+	frhealth.Register(injector, rec, "my-recorder")
+
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("expected a panic on duplicate registration, got none")
+		}
+
+		dup, ok := r.(error)
+		if !ok || !strings.Contains(dup.Error(), "already been declared") {
+			t.Fatalf("panic = %v, want an error mentioning 'already been declared'", r)
+		}
+	}()
+
+	rec2, _ := newTestRecorder(t)
+	frhealth.Register(injector, rec2, "my-recorder")
 }
 
 // --- Integration tests ---

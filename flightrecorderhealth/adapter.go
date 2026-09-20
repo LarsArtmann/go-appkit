@@ -265,6 +265,16 @@ func firstError(results map[string]error) error {
 // it in the samber/do injector as a named service. The health Probe will
 // discover it automatically.
 //
+// The service is registered EAGER (do.ProvideNamedValue): the Checkable is
+// fully built from the first health batch on. This matters because samber/do
+// reports UNBUILT lazy services as healthy (service_lazy.go returns nil
+// before the first invoke) — an eager registration closes that silent-pass
+// window.
+//
+// Panics when the name is already registered in the injector (do's provide
+// contract: "service `%s` has already been declared"). Use a distinct name
+// per recorder, or do.Override when replacing in tests is intended.
+//
 //	rec, _ := fr.New(fr.WithSnapshotDir("/var/traces"))
 //	frhealth.Register(injector, rec, "flight-recorder")
 //
@@ -277,12 +287,7 @@ func Register(injector do.Injector, rec *fr.Recorder, name string, opts ...Check
 
 	checkable := NewCheckable(rec, append(opts, WithCheckableName(name))...)
 
-	do.ProvideNamed(injector, name, func(_ do.Injector) (*Checkable, error) {
-		return checkable, nil
-	})
-
-	// Eagerly invoke to instantiate the service in the container.
-	_, _ = do.InvokeNamed[*Checkable](injector, name)
+	do.ProvideNamedValue(injector, name, checkable)
 
 	return checkable
 }
