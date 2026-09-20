@@ -177,3 +177,33 @@ Items 1-6 harvested into `TODO_LIST.md` this pass.
 - `flightrecorderhealth/adapter.go`, `doc.go`, `contract_test.go`, `example_test.go`; `health/probe.go`, `mount.go`, `doc.go`, `example/main.go`; `health.go`, `config.go:108-114`, `service.go:309-316` (this repo)
 - `go-health@v0.1.3/v0.2.0/v0.3.0` module sources; `samber/do/v2@v2.1.0` module sources; `httputil@v1.2.0/health.go`
 - AGENTS.md (Testing, Gotchas, Health/frh sections); TODO_LIST.md (P2/P3 health entries); `.github/workflows/ci.yml:62` (`go-version-file`)
+
+---
+
+## ADDENDUM — Scorecard re-run after the 2026-09-20 execution train (plan T27)
+
+Train shipped: health v0.1.2 + flightrecorderhealth v0.1.3 (F3), F1 cliff
+godoc + output-pinned injector-path example + integration E2E (F1/F2), root
+go.mod revert + CI directive-parity guard (F6), Mounted→do.Shutdowner
+adapter in health/doadapter (F4), lazy-healthy gotcha docs (F5),
+do.ProvideNamedValue Register with panic contract (F7), C1 Mounted.Start
+rollback fix, upstream drafts ready but unfiled (gated), auditlog chaining
+documented but dependency demand-gated (F8).
+
+| Dimension | Was | Now | Delta evidence |
+| --- | --- | --- | --- |
+| Coupling | 5 | 5 | unchanged |
+| Cohesion | 5 | 5 | unchanged |
+| Modularity | 5 | 5 | strengthened: integration now pins + proves the health family (T10/T11) |
+| Composability | 4 | 5 | the F1 cliff is warned + example-pinned + E2E-proven; route-conflict traps documented; per the rubric's own convention (documented limits earn marks) |
+| Scalability | 4 | 4 | unchanged (process-global singletons remain honest documented limits) |
+| Service orientation | 4 | 5 | F4 closed: health/doadapter gives injector-owned shutdown without breaking health's injector-free API |
+| Dependency direction | 5 | 5 | strengthened: new family edge avoided (doadapter as subpackage, not frh→health); directive parity CI-guarded |
+| **Average** | **4.57** | **4.86** | (5+5+5+5+4+5+5)/7 |
+
+**Adoption score: 82 → 93/100.** Remaining deductions, all explicitly gated
+rather than forgotten: upstream go-health behaviors are unfixed (recorder
+sentinel + Evaluate cache publication + restart rearm — drafts in
+`doc/feedback/outgoing/2026-09-20_*`, filing USER-gated), and auditlog
+chaining ships as a documented pattern instead of a wired dependency
+(demand gate).
