@@ -31,6 +31,7 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/health":               "v0.1.2",
 	"github.com/larsartmann/go-appkit/otel":                 "v0.1.1",
 	"github.com/larsartmann/go-appkit/realtime":             "v0.1.1",
+	"github.com/larsartmann/go-appkit/security":             "v0.1.0",
 
 	"github.com/larsartmann/cqrs-htmx/v4":   "v4.9.0",
 	"github.com/larsartmann/go-sse":         "v0.6.0",

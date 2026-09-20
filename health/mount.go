@@ -270,13 +270,16 @@ func (m *Mounted) Dashboard() *dashboard.Dashboard {
 //
 // Usage:
 //
+//	nonceFn := func(r *http.Request) string { return security.NonceFromContext(r.Context()) }
 //	mounted, err := appkithealth.New(probe, appkithealth.WithDashboard(
-//	    appkithealth.DashboardHardenedPreset("/ops", security.NonceFromContext),
+//	    appkithealth.DashboardHardenedPreset("/ops", nonceFn),
 //	)...)
 //
-// The extractor signature matches the security module's [security.
-// NonceFromContext] and the extractor contract go-health-dashboard already
-// takes via WithNonceExtractor.
+// The extractor takes the REQUEST (the dashboard's WithNonceExtractor
+// contract); bridge from the security module's context-based
+// [security.NonceFromContext] with the one-line lambda shown above — the
+// security module stores the nonce in the request context, not on the
+// request itself.
 func DashboardHardenedPreset(basePath string, nonceFn func(*http.Request) string) []dashboard.Option {
 	return []dashboard.Option{
 		dashboard.WithBasePath(basePath),
