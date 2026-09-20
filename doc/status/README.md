@@ -8,7 +8,14 @@ line per report; verdicts are annotated inline in each file.
 
 | Report                                                                             | One-line summary                                                                                                                                     |
 | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `2026-09-20_11-37_samber-do-health-review-session.md`                              | samber/do × health review: DO-1..6 clean, rubric 4.57/5, F1-F8 routed; +2 execution-train addenda (composed-stack proof, benchmark/live E2E re-verification) |
 | `2026-09-17_19-13_docs-health-full-sweep-annotate-archive-and-living-doc-truth.md` | Docs-health full sweep: pkg.go.dev P1 closed, TODO_LIST rebuilt open-only, 12 files archived, ~200 inline verdicts, doc/-vs-docs split brain removed |
+
+Execution plans are indexed beside the reports they execute:
+`doc/planning/2026-09-20_11-47_health-stack-pareto-execution-plan.md`
+(health-stack correctness train — T01-T21 shipped 2026-09-20: health v0.1.2,
+frh v0.1.3, directive-parity CI guard, integration E2Es, Mounted.Start fix;
+T22-T27 same-session remainder).
 
 Everything else is resolved and lives in `archived/` (36 files). New reports
 land here and migrate to `archived/` after a docs-health pass resolves their

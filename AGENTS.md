@@ -320,7 +320,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 - **Pins PUBLISHED tags only** (`go-appkit v0.5.1`, `realtime v0.1.1`, `errorpages v0.1.0`, `cqrs-htmx v4.9.0`, `go-sse v0.6.0` + `go-sse/ssetest`, `go-appkit/otel v0.1.1` → `httputil v1.2.0` + OTel SDK v1.46.0) — it always tests exactly what a fresh consumer resolves from the proxy (LATEST published — deliberately NOT setup's consumer pin, which moved to v0.5.0 on 2026-09-17). Tests use a 1ms explicit `DrainDelay` (or `NoDrainDelay`).
 - `TestSSEHeadersFlushThroughAppkitDefaultStack` ports the cqrs-htmx ADR-001 spike's M18.3 flush test: headers must arrive well before the first event through appkit's full default middleware stack (Recovery → RequestID → Logging → SecurityHeaders).
 - `TestJournalBackedReplayThroughAppkitService` pins the cross-repo contract: no cold-start replay (zero Last-Event-ID), exact missed-suffix replay on reconnect, live broadcast interleave.
-- Does NOT require `GOEXPERIMENT=jsonv2` — `cqrs-htmx/transport` only pulls event/id + go-sse + go-error-family (verified 2026-09-04, plain and jsonv2 runs both green 5×).
+- Runs plain on 1.26.7 (jsonv2 default-on) — but the health pins (go-health v0.2.0 + go-sse via dashboard) mean OLDER gated toolchains need the `GOEXPERIMENT=jsonv2` prefix here too (verified 2026-09-20: plain + `-race` both green on 1.26.7).
 - Added to `go.work`; add `./integration` to any future workspace listings.
 
 ## otel Module Gotchas
