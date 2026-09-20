@@ -170,3 +170,14 @@ What I tried: verified the behavior against v0.1.3/v0.2.0/v0.3.0 sources (all id
 **HARVEST note (skill contract):** section (f) feeds docs-health HARVEST. Core findings (F1-F6) were already harvested into TODO_LIST.md during the session; the remaining ~20 uncaptured items above are brainstorm-grade and should be routed with HARVEST rigor (most belong in ROADMAP or stay report-only), not bulk-copied.
 
 _Report ends. Waiting for instructions._
+
+---
+
+## ADDENDUM — 2026-09-20 (execution-train evidence)
+
+**Composed-stack manual proof (plan T03 / M11-M13)** — `TestComposedHealthStack` in a scratch module, against PUBLISHED tags only (`go-appkit/health v0.1.1`, `go-appkit/flightrecorderhealth v0.1.2`, `go-flightrecorder v0.2.0`, `go-health v0.1.3`, `samber/do v2.1.0`; jsonv2, GOPROXY=off):
+
+- Wiring: `fr.New(WithWriter(&buf), WithMinAge(1ms), WithMaxBytes(1MiB))` → `do.New()` + database service + `frhealth.Register(injector, rec, "flight-recorder")` → `health.New(injector, WithHealthRecorder(frhealth.NewTrigger(rec)), WithCriticalServices("database"), WithRefreshInterval(50ms))` → `appkithealth.New(probe)` → `RegisterRoutes` + `httptest`.
+- Asserted green: `/healthz` 200 + `/readyz` 200 pre-drain; `flight-recorder` row present in the `/readyz` JSON body; failing `database` surfaces as `/readyz` 503 through the refresh loop (trigger fires on that failing batch); after `mounted.Drain()` — and even after healing the dependency — `/readyz` stays 503 while `/healthz` stays 200 (drain lockstep); recorder buffer non-empty (34,534-byte runtime trace captured). Stable at `-count=3`.
+- Gotcha discovered while writing the proof: `Probe.Evaluate` runs a batch but does NOT publish to the background cache — only the refresh loop (`refreshCache`) does; `/readyz` serves the cache. Proof originally failed on exactly this. Worth a godoc line in go-health's `Evaluate` (folded into the T17 upstream draft pack).
+- This proof is the manual run that plan T11 turns into a permanent pinned test (`TestHealthStackThroughAppkitService`) after the release train publishes the new tags.
