@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-20
+
+### Added
+
+- `DashboardHardenedPreset(basePath, nonceFn)` — bundles the
+  hardened-posture dashboard options (everything under basePath, the
+  dashboard's per-request CSP nonce extracted with `nonceFn`). Pair it
+  with a nonce-carrying Content-Security-Policy built by the security
+  module's `BuildCSP`; the CSP middleware lives OUTSIDE this module (rate
+  limiting and security headers belong in the chain in front of the mux —
+  the health module stays core-free by decision).
+- Docs: the `NewProbe` godoc now leads with an explicit warning that
+  `WithHealthRecorder` is silently dropped on the injector-free path
+  (go-health's `NewWithHealthCheck` nils the recorder — the flagship
+  trace-capture wiring vanishes with zero feedback) and points to the
+  working injector path. The runnable
+  `ExampleNewProbe_recorderViaInjector` output-pins the guarantee:
+  through `health.New` over a samber/do injector, the recorder sees every
+  batch. The package doc gains a "Trace capture on health batches"
+  section with the `frhealth.Register` + `NewTrigger` + `health.New`
+  composition (snippet compile-checked in a scratch module against
+  published tags).
+
+### Changed
+
+- Bumped `go-health` v0.1.3 → v0.2.0 (per-check observability metadata
+  the dashboard renders; `HealthRecorder`'s interface is unchanged —
+  verified in both module sources) and `go-health-dashboard` v0.8.1 →
+  v0.9.0 (display-only per-check observability release; JSON and webhook
+  wire contracts untouched). Example dependency `go-appkit` core
+  v0.4.0 → v0.5.1. `samber/do/v2` moves to a direct require —
+  example/test-only import; the module API stays injector-free.
+- API delta vs v0.1.1 is additions-only (one new function, docs, dep
+  bumps; zero removals, zero signature changes — verified by a
+  `go doc -all` diff against the archived tag).
+
 ## [0.1.1] - 2026-09-16
 
 ### Changed
