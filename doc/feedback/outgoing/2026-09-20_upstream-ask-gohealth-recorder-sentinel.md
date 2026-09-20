@@ -82,6 +82,16 @@ seeing the stale pass until the next refresh tick even though `Evaluate`
 observed the failure. Worth a godoc line on `Evaluate` ("does not update
 the cache; use for one-off evaluations"), or a `EvaluateAndCache` variant.
 
+## Tertiary observation (same repo, same evidence pass — restart semantics)
+
+`Probe.Shutdown` latches `shuttingDown=true`; `Probe.Start` never clears it.
+A consumer who stops and re-Starts a probe (documented as legitimate —
+go-appkit's own health doc used to promise it) gets a surface that serves
+routes but reports readiness 503 forever. Verified at runtime 2026-09-20
+(pre-shutdown `/readyz` 200; after `Shutdown` + `Start` + refresh tick:
+`/readyz` 503). Either clear the latch in `Start` (treat Start as re-arm) or
+document the one-way valve on both methods.
+
 ## Self-review (verify-before-filing checklist, 2026-09-20)
 
 - Source read, not guessed: `accessors.go:41/:61` in v0.1.3, v0.2.0, v0.3.0 —

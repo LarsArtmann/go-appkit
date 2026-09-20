@@ -223,7 +223,9 @@ func (m *Mounted) Drain() {
 //	cfg.ShutdownHooks = append(cfg.ShutdownHooks, mounted.Shutdown)
 //
 // Safe to call multiple times. [Mounted.Start] may be called again
-// afterwards.
+// afterwards, but note the drain latch: readiness stays 503 after a
+// restart — go-health latches shutting-down state and Probe.Start never
+// clears it. For a healthy surface again, build a fresh probe and Mounted.
 func (m *Mounted) Shutdown(_ context.Context) error {
 	m.Drain()
 	m.probe.Shutdown()

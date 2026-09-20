@@ -92,8 +92,13 @@
 //  3. mounted.Shutdown(ctx) from a ShutdownHook: stops the pusher, drains
 //     connected SSE clients, and stops the probe's refresh loop.
 //
-// Shutdown is safe to call multiple times; Start again after Shutdown
-// restarts the surface (useful in tests).
+// Shutdown is safe to call multiple times. Restarting after Shutdown is
+// NOT a full restart: go-health latches the probe's shutting-down state
+// (readiness 503) and Probe.Start never clears it, so a restarted surface
+// serves routes but reports 503. To test or redeploy a healthy surface,
+// construct a fresh probe and Mounted. (Verified 2026-09-20; rearm
+// semantics are the subject of the go-health draft in
+// doc/feedback/outgoing/.)
 //
 // # Classification
 //
