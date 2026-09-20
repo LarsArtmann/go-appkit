@@ -65,7 +65,7 @@ flagged again.
 15. **T15 — `health/doadapter`:** Mounted → `do.Shutdowner` bridge; home decision
     deviated from the plan's frh-side guess with written reasoning (subpackage
     avoids a frh→health family edge; parent API stays injector-free); compile-time
-    + injector-shutdown tests; ireturn allow extended per the otel precedent.
+    - injector-shutdown tests; ireturn allow extended per the otel precedent.
 16. **T16 — Parity verified:** CI matrix and dependabot cover health + frh
     (12 ecosystem entries); lint sweeps 0/0.
 17. **T17 — go-health upstream draft:** sentinel-error ask with source evidence
@@ -193,7 +193,7 @@ flagged again.
 6. **Health family trains should batch doc-fixes BEFORE tagging** — v0.1.2
    shipped with a wrong godoc example; the composition test that caught it ran
    an hour later. The Ritual's "compile-check doc snippets" step should include
-   *running* them where possible (the T03-style scratch proof did exactly this
+   _running_ them where possible (the T03-style scratch proof did exactly this
    and caught two real issues).
 7. **AGENTS.md cap management:** the file is at 376/377; every addition now
    requires a removal. A scheduled trim pass (archive stale gotchas to module
@@ -204,6 +204,7 @@ flagged again.
 ## f) NEXT (up to 50, impact-ordered)
 
 **Release & verification closure**
+
 1. Train #2 when you say go: health v0.1.3 (C1 fix, godoc corrections,
    doadapter, README) + frh v0.1.4 (Register, determinism, docs) — deltas are
    already CHANGELOG'd.

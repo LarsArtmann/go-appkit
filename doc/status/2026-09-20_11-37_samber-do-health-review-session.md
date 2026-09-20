@@ -9,6 +9,7 @@
 ## Direct answers first (asked in the prompt)
 
 **What did I forget?**
+
 1. **The session's central subject was never executed end-to-end.** I proved every piece by source (do-v2 fan-out, go-health recorder path, Mounted lifecycle) and by suite, but the combined flow — injector + `Checkable` + `Trigger` + `health.New` + `Mounted` + appkit `Service` — has never RUN anywhere, including by me. A utilization review of a composition should have built the composition.
 2. **Lint was skipped.** I ran both suites with `-race -count=1` but never `golangci-lint run` on `health/` + `flightrecorderhealth/` — the "0 issues" standing claim was not re-verified this session.
 3. **`scripts/check-pin-drift.sh` was never run** after I edited AGENTS.md:165 (a version-bearing line). Low risk (release-state pins untouched), but the ritual exists precisely for this and I didn't close the loop.
@@ -16,11 +17,13 @@
 5. **Two near-wrong findings** caught only because I kept reading source: (a) I first read `Register`'s eager `do.InvokeNamed` as removable sloppiness — do-v2 `service_lazy.go:127-152` proves it is load-bearing (unbuilt lazy services report healthy); (b) I first flagged the example's manual `GET /health/ready` as redundant to `cfg.ReadyCheck` — httputil's GET-qualified patterns + the dashboard's method-agnostic `/health` conflict make it forced. Both would have been plausible, wrong recommendations.
 
 **What could I have done better?**
+
 - **Toolchain sanity first:** the workspace LSP was broken the whole session (root `go.mod` go 1.27.1 vs go.work 1.26.7). I worked around it per-module with `GOWORK=off` instead of escalating in minute one — one `go list ./...` at session start would have surfaced F6 immediately.
 - **Compose, then judge:** writing the composed-stack example during the session would have upgraded F2 from "documented gap" to "fixed gap".
 - **Verify live claims:** the drain-lockstep 503 E2E rests on a prior session's manual verification; re-running `health/example` cost ~2 minutes and I skipped it.
 
 **What could I still improve (process)?**
+
 - Session-start ritual: `go env` + one-module `go list` sanity gate before any analysis.
 - For "are we using X superbly" reviews: run the flagship composition before scoring it.
 - Re-run, don't inherit: benchmarks (frh ~4.7µs) and live E2Es cited from AGENTS should be re-executed when cheap.
@@ -29,42 +32,42 @@
 
 ## a) FULLY DONE (verifiable, committed or green)
 
-| # | Item | Evidence |
-| --- | --- | --- |
-| A1 | Deep-dive report written: 3-layer health architecture map, utilization gap table, DO-1…6 audit, rubric 4.57/5, findings F1–F8, roadmap | `docs/architecture-understanding/2026-09-20_10-58_samber-do-health-architecture.md`, commit `3140190` |
-| A2 | samber/do usage survey: exactly ONE production file in the repo (`flightrecorderhealth/adapter.go`); all call sites enumerated | `rg 'samber/do' --type go` across repo; report §1 |
-| A3 | DO-1…DO-6 compliance: all clean (no `MustInvoke` in runtime paths, no global injector, no `Override`, no loops-Invoke, no cross-service shutdown) | report §3, each rule source-cited |
-| A4 | do-v2 trap source-verified: unbuilt lazy services report HEALTHY (`return nil` when `!built`) → frh's eager invoke is load-bearing | `samber/do/v2@v2.1.0/service_lazy.go:127-152` |
-| A5 | go-health cliff source-verified across ALL published versions (v0.1.3/v0.2.0/v0.3.0): `NewWithHealthCheck` silently nils `WithHealthRecorder` | `accessors.go:61/36/61` resp.; report §1 table |
-| A6 | Version currency via proxy: samber/do v2.1.0 = latest (pinned ✓); go-health latest = v0.3.0 (health pins v0.2.0, frh pins v0.1.3) | `go list -m -versions` from satellite dir |
-| A7 | Both health modules re-verified green: `go test ./... -race -count=1` ok | session run output, frh 2.296s / health 1.045s |
-| A8 | AGENTS.md health-deps line corrected to go.mod truth (v0.2.0 / v0.9.0, marked UNRELEASED); line cap intact at 376/377 | AGENTS.md:165, `wc -l` = 376, commit `3140190` |
-| A9 | Findings F1–F6 harvested into TODO_LIST.md (4 edits: header, 4×P2, 2×P3, open-question #4) | TODO_LIST.md +8/−2 |
-| A10 | Integration gap mechanically proven: `integration/go.mod` has NO health/frh deps (pins core v0.5.1, errorpages, otel, realtime only) | `rg go-appkit integration/go.mod` |
-| A11 | httputil route-pattern verification: default health endpoints are GET-qualified (`GET /health`, `/health/live`, `/health/ready`) — explains the dashboard conflict gotcha precisely | `httputil@v1.2.0/health.go:88-94` |
+| #   | Item                                                                                                                                                                                | Evidence                                                                                              |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| A1  | Deep-dive report written: 3-layer health architecture map, utilization gap table, DO-1…6 audit, rubric 4.57/5, findings F1–F8, roadmap                                              | `docs/architecture-understanding/2026-09-20_10-58_samber-do-health-architecture.md`, commit `3140190` |
+| A2  | samber/do usage survey: exactly ONE production file in the repo (`flightrecorderhealth/adapter.go`); all call sites enumerated                                                      | `rg 'samber/do' --type go` across repo; report §1                                                     |
+| A3  | DO-1…DO-6 compliance: all clean (no `MustInvoke` in runtime paths, no global injector, no `Override`, no loops-Invoke, no cross-service shutdown)                                   | report §3, each rule source-cited                                                                     |
+| A4  | do-v2 trap source-verified: unbuilt lazy services report HEALTHY (`return nil` when `!built`) → frh's eager invoke is load-bearing                                                  | `samber/do/v2@v2.1.0/service_lazy.go:127-152`                                                         |
+| A5  | go-health cliff source-verified across ALL published versions (v0.1.3/v0.2.0/v0.3.0): `NewWithHealthCheck` silently nils `WithHealthRecorder`                                       | `accessors.go:61/36/61` resp.; report §1 table                                                        |
+| A6  | Version currency via proxy: samber/do v2.1.0 = latest (pinned ✓); go-health latest = v0.3.0 (health pins v0.2.0, frh pins v0.1.3)                                                   | `go list -m -versions` from satellite dir                                                             |
+| A7  | Both health modules re-verified green: `go test ./... -race -count=1` ok                                                                                                            | session run output, frh 2.296s / health 1.045s                                                        |
+| A8  | AGENTS.md health-deps line corrected to go.mod truth (v0.2.0 / v0.9.0, marked UNRELEASED); line cap intact at 376/377                                                               | AGENTS.md:165, `wc -l` = 376, commit `3140190`                                                        |
+| A9  | Findings F1–F6 harvested into TODO_LIST.md (4 edits: header, 4×P2, 2×P3, open-question #4)                                                                                          | TODO_LIST.md +8/−2                                                                                    |
+| A10 | Integration gap mechanically proven: `integration/go.mod` has NO health/frh deps (pins core v0.5.1, errorpages, otel, realtime only)                                                | `rg go-appkit integration/go.mod`                                                                     |
+| A11 | httputil route-pattern verification: default health endpoints are GET-qualified (`GET /health`, `/health/live`, `/health/ready`) — explains the dashboard conflict gotcha precisely | `httputil@v1.2.0/health.go:88-94`                                                                     |
 
 ## b) PARTIALLY DONE (works now / what's missing / blocker / effort)
 
-| # | Item | Works | Missing | Blocker | Effort |
-| --- | --- | --- | --- | --- | --- |
-| B1 | F1 silent-recorder cliff | Root-caused to source level; documented in report + TODO_LIST | appkit-side fix (NewProbe godoc warning + injector-path example) NOT coded; upstream sentinel-error ask not drafted | none for appkit side; upstream filing is USER-gated | S/M |
-| B2 | F2 composed-stack proof | Gap identified and justified | integration test not written; combined flow never executed (also see "forgot" #1) | needs health/frh releases first for published-tag pins | L |
-| B3 | F3 version alignment | Drift mapped three ways (frh v0.1.3 / health v0.2.0 / upstream v0.3.0) | no bump executed, no release cut, AGENTS release state untouched | release sequencing is a USER call (Q2) | M |
-| B4 | F6 root go.mod 1.27.1 | Fully diagnosed (auto-commit `d5c6693`, no dep requires it, satellites on 1.26.7, CI `go-version-file` now mixed-toolchain) | NOT fixed — deliberate: reverting a directive I didn't author could fight an intentional floor raise | USER decision (Q1) | S |
-| B5 | F4 lifecycle adapter | Design sketched (Mounted→`do.ShutdownerWithError`, pusher-stop semantics preserved) | not implemented | overlaps W4 "do" battery — ship-slice-or-fold decision | M |
-| B6 | F5 lazy-healthy gotcha doc | Trap verified; doc targets named (frh doc.go, README) | paragraphs not written | none | S |
+| #  | Item                       | Works                                                                                                                       | Missing                                                                                                             | Blocker                                                | Effort |
+| -- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------ |
+| B1 | F1 silent-recorder cliff   | Root-caused to source level; documented in report + TODO_LIST                                                               | appkit-side fix (NewProbe godoc warning + injector-path example) NOT coded; upstream sentinel-error ask not drafted | none for appkit side; upstream filing is USER-gated    | S/M    |
+| B2 | F2 composed-stack proof    | Gap identified and justified                                                                                                | integration test not written; combined flow never executed (also see "forgot" #1)                                   | needs health/frh releases first for published-tag pins | L      |
+| B3 | F3 version alignment       | Drift mapped three ways (frh v0.1.3 / health v0.2.0 / upstream v0.3.0)                                                      | no bump executed, no release cut, AGENTS release state untouched                                                    | release sequencing is a USER call (Q2)                 | M      |
+| B4 | F6 root go.mod 1.27.1      | Fully diagnosed (auto-commit `d5c6693`, no dep requires it, satellites on 1.26.7, CI `go-version-file` now mixed-toolchain) | NOT fixed — deliberate: reverting a directive I didn't author could fight an intentional floor raise                | USER decision (Q1)                                     | S      |
+| B5 | F4 lifecycle adapter       | Design sketched (Mounted→`do.ShutdownerWithError`, pusher-stop semantics preserved)                                         | not implemented                                                                                                     | overlaps W4 "do" battery — ship-slice-or-fold decision | M      |
+| B6 | F5 lazy-healthy gotcha doc | Trap verified; doc targets named (frh doc.go, README)                                                                       | paragraphs not written                                                                                              | none                                                   | S      |
 
 ## c) NOT STARTED (noticed this session, untouched)
 
-| # | Item | Why not started | Priority |
-| --- | --- | --- | --- |
+| #  | Item                                                                                                                                                                                                                      | Why not started                                | Priority              |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | --------------------- |
 | C1 | `Mounted.Start` asymmetric rollback: `dashboard.Start` failure leaves `started=true` (mount.go:174-179) → retry rejected `health.already_started`; probe path DOES reset (mount.go:164-171). Verify with a test, then fix | noticed during report writing, after test runs | High — small real bug |
-| C2 | `failingServiceNames` returns map-iteration order (nondeterministic trigger logs); `firstError` picks an arbitrary failing service's error | cosmetic, needs a decision (sort vs doc) | Low |
-| C3 | go-health v0.3.0 evaluation (new `aggregate/`, `federation/` packages — unexamined) | out of session scope per user instruction | Medium |
-| C4 | `Register` polish: `do.ProvideNamedValue` one-liner + document duplicate-name panic | P3 polish, listed only | Low |
-| C5 | samber-do-auditlog hooks example | demand-gated per repo policy | Low |
-| C6 | golangci-lint on health + frh (see "forgot" #2) | forgotten, not deliberately skipped | Medium |
-| C7 | frh benchmark re-run (~4.7µs claim) and health-example live E2E re-run (see "could've done better") | time-boxed out | Medium |
+| C2 | `failingServiceNames` returns map-iteration order (nondeterministic trigger logs); `firstError` picks an arbitrary failing service's error                                                                                | cosmetic, needs a decision (sort vs doc)       | Low                   |
+| C3 | go-health v0.3.0 evaluation (new `aggregate/`, `federation/` packages — unexamined)                                                                                                                                       | out of session scope per user instruction      | Medium                |
+| C4 | `Register` polish: `do.ProvideNamedValue` one-liner + document duplicate-name panic                                                                                                                                       | P3 polish, listed only                         | Low                   |
+| C5 | samber-do-auditlog hooks example                                                                                                                                                                                          | demand-gated per repo policy                   | Low                   |
+| C6 | golangci-lint on health + frh (see "forgot" #2)                                                                                                                                                                           | forgotten, not deliberately skipped            | Medium                |
+| C7 | frh benchmark re-run (~4.7µs claim) and health-example live E2E re-run (see "could've done better")                                                                                                                       | time-boxed out                                 | Medium                |
 
 ## d) TOTALLY FUCKED UP
 
@@ -87,13 +90,14 @@ Session-caused fucked-up count: **0**. Near-misses (caught pre-publication): 2 �
 ## f) TOP 50 NEXT TASKS (impact-ranked clusters; ☑ = already harvested into TODO_LIST.md this session — the rest are brainstorm fuel for docs-health HARVEST, not auto-commitments)
 
 **Cluster A — F1 silent cliff (P0)**
-| # | Task | Impact | Effort | Category |
-| --- | --- | --- | --- | --- |
-| 1 | ☑ NewProbe godoc: warn `WithHealthRecorder` is silently dropped | High | S | Docs |
-| 2 | ☑ Injector-path Trigger example (health example or godoc example) | High | M | Docs |
-| 3 | ☑ Draft upstream go-health ask: reject the option with sentinel error | High | S | Upstream (USER-gated) |
-| 4 | Defensive `NewProbe` variant erroring on recorder options | Medium | S | Feature |
-| 5 | AGENTS gotcha line: in-place pointer to report §F1 (no new lines — cap) | Low | S | Docs |
+
+| # | Task                                                                    | Impact | Effort | Category              |
+| - | ----------------------------------------------------------------------- | ------ | ------ | --------------------- |
+| 1 | ☑ NewProbe godoc: warn `WithHealthRecorder` is silently dropped         | High   | S      | Docs                  |
+| 2 | ☑ Injector-path Trigger example (health example or godoc example)       | High   | M      | Docs                  |
+| 3 | ☑ Draft upstream go-health ask: reject the option with sentinel error   | High   | S      | Upstream (USER-gated) |
+| 4 | Defensive `NewProbe` variant erroring on recorder options               | Medium | S      | Feature               |
+| 5 | AGENTS gotcha line: in-place pointer to report §F1 (no new lines — cap) | Low    | S      | Docs                  |
 
 **Cluster B — F2 composed proof (P0)**
 | 6 | ☑ Add health+frh published pins to integration/go.mod | High | S | Test |
