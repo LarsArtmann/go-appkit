@@ -142,3 +142,13 @@ jobs:
           fetch-depth: 0
       - name: Check release-state pin drift
         run: ./scripts/check-pin-drift.sh
+
+  # Go-directive parity (plan 2026-09-20 T05): every module's go.mod must
+  # declare the same go directive as go.work. Cheap, history-free guard for
+  # the 2026-09-18 root-directive drift that broke every workspace command.
+  go-directives:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check go.mod directive parity
+        run: ./scripts/check-go-directives.sh
