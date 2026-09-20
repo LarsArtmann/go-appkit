@@ -37,7 +37,7 @@ type CheckFunc func(ctx context.Context) error
 // instead: register the checks in a samber/do injector, build the probe
 // with health.New (that path honors WithHealthRecorder), and pass the same
 // Trigger to the recorder side. See the package doc's quick start and the
-// runnable ExampleNewProbeViaInjector in this package.
+// runnable ExampleNewProbe_recorderViaInjector in this package.
 //
 // Checks are panic-isolated per check: a panicking check fails as that
 // check's error ("check %q panicked") instead of poisoning the batch. Other

@@ -7,6 +7,7 @@ require (
 	github.com/larsartmann/go-error-family v0.10.1
 	github.com/larsartmann/go-health v0.2.0
 	github.com/larsartmann/go-health-dashboard v0.9.0
+	github.com/samber/do/v2 v2.1.0
 )
 
 require (
@@ -39,7 +40,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.30 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/samber/do/v2 v2.1.0 // indirect
 	github.com/samber/go-type-to-string v1.8.0 // indirect
 	github.com/xo/terminfo v1.2.0 // indirect
 	golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba // indirect
