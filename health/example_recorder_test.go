@@ -54,5 +54,6 @@ func (c *countingRecorder) RecordHealthCheckWithContext(
 	injector do.Injector,
 ) map[string]error {
 	c.batches++
+
 	return injector.HealthCheckWithContext(ctx)
 }

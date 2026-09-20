@@ -50,6 +50,24 @@
 //
 //	_ = svc.Run(ctx) // blocks until SIGINT/SIGTERM
 //
+// # Trace capture on health batches (injector path)
+//
+// NewProbe cannot drive trace capture: go-health nils the recorder on the
+// function path, so a WithHealthRecorder option passed to NewProbe is
+// silently ignored (see the NewProbe godoc). To record every health batch —
+// for example through [go-flightrecorderhealth] — build the probe with
+// health.New over a samber/do injector instead and hand the same
+// go-flightrecorder Recorder to both sides:
+//
+//	injector := do.New()
+//	frhealth.Register(injector, recorder, "flight-recorder")
+//	probe := health.New(injector,
+//		health.WithHealthRecorder(frhealth.NewTrigger(recorder)))
+//	mounted, err := appkithealth.New(probe) // mount and wire as usual
+//
+// The runnable ExampleNewProbe_recorderViaInjector in this package proves
+// the recorder sees every batch on this path.
+//
 // # Routes
 //
 // Mount registers the Kubernetes probe endpoints (/healthz, /readyz,
@@ -104,4 +122,5 @@
 //
 // [go-health]: https://github.com/larsartmann/go-health
 // [go-health-dashboard]: https://github.com/larsartmann/go-health-dashboard
+// [go-flightrecorderhealth]: https://github.com/larsartmann/go-flightrecorderhealth
 package health
