@@ -76,6 +76,32 @@ routes are registered and appkit's default endpoints can stay enabled.
 A runnable demo (critical check + flapping non-critical check) lives in
 [`example/`](example/): `GOWORK=off GOEXPERIMENT=jsonv2 go run ./example`.
 
+## Without the dashboard: compose readiness via ReadyCheck
+
+Without `WithDashboard` the probe routes (`/healthz`, `/readyz`, `/startupz`)
+coexist with appkit's default `/health` endpoints — no `RegisterHealth: &false`
+needed. Wire `mounted.Ready` into `ServiceConfig.ReadyCheck` so a failing
+critical check gates appkit's `/health/ready` too, not just the module's own
+`/readyz`:
+
+```go
+cfg := appkit.DefaultServiceConfig() // RegisterHealth stays unset (or &true)
+cfg.ReadyCheck = mounted.Ready
+cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
+	mounted.Drain()
+
+	return nil
+})
+cfg.ShutdownHooks = append(cfg.ShutdownHooks, mounted.Shutdown)
+
+mounted.RegisterRoutes(svc.Mux)
+```
+
+With this wiring a failing critical dependency surfaces as 503 on BOTH
+readiness surfaces (the probe's refresh loop updates `mounted.Ready`'s cache),
+and the drain hook keeps both at 503 for the whole drain window. Pinned end to
+end by `TestHealthStackThroughAppkitService` in the integration module.
+
 ## Drain ordering, in one picture
 
 ```
