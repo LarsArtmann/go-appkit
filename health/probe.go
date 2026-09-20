@@ -21,6 +21,24 @@ type CheckFunc func(ctx context.Context) error
 // named subset), caches the roll-up in the background, and serves the
 // three-probe handlers.
 //
+// # WithHealthRecorder is silently dropped on this path
+//
+// NewProbe forwards opts to go-health's NewWithHealthCheck, which nils the
+// recorder before assembling the probe (go-health accessors.go:
+// "cfg.recorder = nil"; its godoc states WithHealthRecorder "has no effect
+// here"). A [health.WithHealthRecorder] option passed to NewProbe is
+// therefore silently ignored: no HealthRecorder callbacks fire, and a
+// flightrecorderhealth.Trigger wired this way captures zero traces — with no
+// error and no warning. This mirrors the upstream contract ("the explicit
+// function already owns batch execution"), not a defect in NewProbe, but it
+// is a trap.
+//
+// To drive trace capture from health batches, use the injector path
+// instead: register the checks in a samber/do injector, build the probe
+// with health.New (that path honors WithHealthRecorder), and pass the same
+// Trigger to the recorder side. See the package doc's quick start and the
+// runnable ExampleNewProbeViaInjector in this package.
+//
 // Checks are panic-isolated per check: a panicking check fails as that
 // check's error ("check %q panicked") instead of poisoning the batch. Other
 // checks still report, and the classifier grades the failure by criticality
