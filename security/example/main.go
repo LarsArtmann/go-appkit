@@ -17,10 +17,11 @@
 //	-H 'X-Api-Key: demo-key-123' http://localhost:8090/api/data; done # ends 429
 //	curl -i -X POST -H 'X-Api-Key: demo-key-123' -d '{"msg":"hi"}' \
 //	http://localhost:8090/api/echo # 200 — the key skips the CSRF token dance
-//	curl -i -X POST -d '{"msg":"hi"}' http://localhost:8090/api/echo # 400 — CSRF
+//	curl -i -X POST -d '{"msg":"hi"}' http://localhost:8090/api/echo # 403 — CSRF
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -35,6 +36,7 @@ import (
 
 const (
 	defaultAddr = ":8090"
+	demoOrigin  = "http://localhost:8090"
 
 	// demoLimit/burst keep the curl demo short: six quick requests trip it.
 	demoLimit   uint = 5
@@ -48,7 +50,7 @@ func main() {
 
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = addrFromEnv()
-	cfg.OuterMiddlewares = []appkit.Middleware{
+	cfg.OuterMiddlewares = []httputil.Middleware{
 		security.SecurityHeaders(security.HeadersConfig{
 			Environment:           security.Production,
 			HSTS:                  "",
@@ -69,9 +71,11 @@ func main() {
 
 	apiChain := hardenedChain(apiKey, logger)
 	svc.Mux.Handle("GET /api/data", apiChain(http.HandlerFunc(dataHandler)))
-	svc.Mux.Handle("POST /api/echo", apiChain(security.BodyLimit(demoBodyMax)(http.HandlerFunc(echoHandler))))
 
-	if err := svc.Run(cfg.Context()); err != nil { //nolint:contextcheck // demo blocks on the service lifecycle
+	echoChain := hardenedChain(apiKey, logger)
+	svc.Mux.Handle("POST /api/echo", echoChain(security.BodyLimit(demoBodyMax)(http.HandlerFunc(echoHandler))))
+
+	if err := svc.Run(context.Background()); err != nil {
 		logger.Error("service stopped", "error", err)
 	}
 }
