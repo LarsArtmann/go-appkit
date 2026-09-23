@@ -4,6 +4,24 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `example/` demo service: the full hardened chain (RateLimit →
+  OriginCheck → APIKeyCSRFBypass(CSRF) → APIKeyAuth, per-route limiter
+  instances, per-request CSP nonces, typed body limit, environment-tuned
+  headers) on a real appkit service, with a curl walkthrough in the
+  command doc comment — every documented status code verified live
+  against the running demo.
+- `THREAT_MODEL.md`: the per-battery threat → design → regression-test
+  mapping, the chain-order rationale, composition proofs, and the known
+  limits (shared-key auth is a gate, not an identity system).
+
+### Changed
+
+- The module go.mod now requires `github.com/larsartmann/go-appkit`
+  v0.5.1 — EXAMPLE-ONLY (the security package itself keeps zero appkit
+  dependencies), mirroring the errorpages module's example pattern.
+
 ## [0.1.0] - 2026-09-16
 
 ### Added

@@ -32,12 +32,12 @@ func newRateLimitedSSEService(t *testing.T) (*testkit.TestServer, *realtime.Hub)
 
 	hub := realtime.NewHub()
 
-	svc, err := appkit.ServiceConfig{
+	svc, err := appkit.NewService(appkit.ServiceConfig{
 		Addr:         freeAddr(t),
 		ReadTimeout:  appkit.NoTimeout,
 		WriteTimeout: appkit.NoTimeout,
 		DrainDelay:   time.Millisecond,
-	}.New()
+	})
 	if err != nil {
 		t.Fatalf("new service: %v", err)
 	}
@@ -60,10 +60,9 @@ func newRateLimitedSSEService(t *testing.T) (*testkit.TestServer, *realtime.Hub)
 		if err := hub.Shutdown(ctx); err != nil {
 			t.Errorf("hub shutdown: %v", err)
 		}
-
-		if err := ts.Shutdown(ctx); err != nil {
-			t.Errorf("service shutdown: %v", err)
-		}
+		// Service shutdown is testkit.Serve's own cleanup: cleanups run
+		// LIFO, so the hub above drains while the listener is still up —
+		// the ordering the realtime module documents.
 	})
 
 	return ts, hub

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- `testkit.TestServer.Shutdown`: stop the harness service at call time —
+  the stop sequence (server-error drain + goroutine-baseline assertion)
+  runs once through a `sync.Once` shared with the `t.Cleanup`, so tests
+  that assert post-shutdown behavior no longer pay a second shutdown wait
+  in cleanup. Idempotent; later calls return nil.
+
 ## [0.5.1] - 2026-09-17
 
 ### Fixed
