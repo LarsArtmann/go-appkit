@@ -97,7 +97,11 @@ func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
 		ctx, cancel := contextWithTimeout(stopTimeout)
 		defer cancel()
 
-		if err := server.stop(ctx); err != nil {
+		var err error
+		server.stopOnce.Do(func() {
+			err = server.stop(ctx)
+		})
+		if err != nil {
 			tb.Errorf("testkit.Serve: %v", err)
 		}
 	})
@@ -125,7 +129,8 @@ func (ts *TestServer) Shutdown(ctx context.Context) error {
 // service starts).
 func (ts *TestServer) Mux() *http.ServeMux { return ts.service.Mux }
 
-// stop runs the full stop sequence: graceful shutdown, server-error drain,
+// stop runs the full stop sequence exactly once (both Shutdown and the
+// cleanup enter through stopOnce): graceful shutdown, server-error drain,
 // goroutine-baseline assertion. Errors are joined.
 func (ts *TestServer) stop(ctx context.Context) error {
 	var errs []error
