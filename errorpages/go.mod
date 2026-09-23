@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/errorpages
 
-go 1.26.7
+go 1.27.1
 
 require (
 	github.com/larsartmann/go-appkit v0.5.1
@@ -22,7 +22,9 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
-	github.com/larsartmann/go-etag v0.3.1 // indirect
+	github.com/larsartmann/go-etag v0.6.0 // indirect
+	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
+	github.com/larsartmann/go-etag/server v0.6.0 // indirect
 	github.com/larsartmann/httputil v1.2.0 // indirect
 	github.com/larsartmann/templ-components/icons v1.17.0 // indirect
 	github.com/larsartmann/templ-components/utils v1.17.0 // indirect

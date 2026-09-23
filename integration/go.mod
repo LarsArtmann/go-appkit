@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/integration
 
-go 1.26.7
+go 1.27.1
 
 require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.9.0
@@ -59,7 +59,9 @@ require (
 	github.com/larsartmann/go-cqrs-lite/snapshot/v4 v4.4.0 // indirect
 	github.com/larsartmann/go-datastar v0.5.0 // indirect
 	github.com/larsartmann/go-datastar/static v0.5.0 // indirect
-	github.com/larsartmann/go-etag v0.3.1 // indirect
+	github.com/larsartmann/go-etag v0.6.0 // indirect
+	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
+	github.com/larsartmann/go-etag/server v0.6.0 // indirect
 	github.com/larsartmann/go-health-dashboard v0.9.0 // indirect
 	github.com/larsartmann/templ-components v1.18.0 // indirect
 	github.com/larsartmann/templ-components/datastar v1.18.0 // indirect

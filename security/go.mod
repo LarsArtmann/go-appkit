@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/security
 
-go 1.26.7
+go 1.27.1
 
 require (
 	github.com/larsartmann/go-appkit v0.5.1
@@ -23,7 +23,9 @@ require (
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/larsartmann/go-error-family v0.10.1 // indirect
-	github.com/larsartmann/go-etag v0.3.1 // indirect
+	github.com/larsartmann/go-etag v0.6.0 // indirect
+	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
+	github.com/larsartmann/go-etag/server v0.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.30 // indirect
