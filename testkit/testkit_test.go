@@ -92,6 +92,7 @@ func TestServe_ShutdownIsClean(t *testing.T) {
 		t.Errorf("explicit shutdown: %v", err)
 	}
 }
+
 // TestServe_ExplicitShutdownIsIdempotentAndUnreachable pins the
 // TestServer.Shutdown contract: after the explicit stop the endpoint is
 // unreachable, a second Shutdown is a nil no-op, and cleanup's repeated

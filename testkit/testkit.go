@@ -149,7 +149,8 @@ func (ts *TestServer) stop(ctx context.Context) error {
 			errs = append(errs, errorfamily.WrapInfrastructuref(err, "testkit.server_error", "server error"))
 		}
 	case <-time.After(errDrainTimeout):
-		errs = append(errs, errorfamily.NewInfrastructure("testkit.server_did_not_stop", "server did not stop after shutdown"))
+		errs = append(errs, errorfamily.NewInfrastructure(
+			"testkit.server_did_not_stop", "server did not stop after shutdown"))
 	}
 
 	// Goroutine-baseline assert: a leaked goroutine (an evict loop, a

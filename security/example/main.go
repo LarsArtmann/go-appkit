@@ -75,7 +75,8 @@ func main() {
 	echoChain := hardenedChain(apiKey, logger)
 	svc.Mux.Handle("POST /api/echo", echoChain(security.BodyLimit(demoBodyMax)(http.HandlerFunc(echoHandler))))
 
-	if err := svc.Run(context.Background()); err != nil {
+	err = svc.Run(context.Background())
+	if err != nil {
 		logger.Error("service stopped", "error", err)
 	}
 }
@@ -91,7 +92,8 @@ func hardenedChain(apiKey string, logger *slog.Logger) func(http.Handler) http.H
 		KeyExtractor: nil,
 	})
 	origin := security.OriginCheck([]string{demoOrigin}, logger)
-	csrf := security.CSRF(httputil.CSRFConfig{TrustedOrigins: []string{demoOrigin}}, logger)
+	csrfCfg := httputil.CSRFConfig{TrustedOrigins: []string{demoOrigin}} //nolint:exhaustruct_v5 // documented defaults
+	csrf := security.CSRF(csrfCfg, logger)
 	auth := security.APIKeyAuth(apiKey)
 
 	return func(h http.Handler) http.Handler {
@@ -135,8 +137,7 @@ func dataHandler(w http.ResponseWriter, _ *http.Request) {
 func echoHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		var maxErr *http.MaxBytesError
-		if errors.As(err, &maxErr) {
+		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
 			http.Error(w, "body too large", http.StatusRequestEntityTooLarge)
 
 			return
@@ -150,9 +151,13 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]string{"echoed": string(body)})
 }
 
-func writeJSON(w http.ResponseWriter, body any) {
+func writeJSON(w http.ResponseWriter, body map[string]string) {
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(body)
+
+	encodeErr := json.NewEncoder(w).Encode(body)
+	if encodeErr != nil {
+		http.Error(w, "encoding failed", http.StatusInternalServerError)
+	}
 }
 
 func addrFromEnv() string {

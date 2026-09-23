@@ -57,7 +57,8 @@ func newRateLimitedSSEService(t *testing.T) (*testkit.TestServer, *realtime.Hub)
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		if err := hub.Shutdown(ctx); err != nil {
+		err := hub.Shutdown(ctx)
+		if err != nil {
 			t.Errorf("hub shutdown: %v", err)
 		}
 		// Service shutdown is testkit.Serve's own cleanup: cleanups run
@@ -84,7 +85,7 @@ func TestRateLimitInFrontOfSSE(t *testing.T) {
 	if err != nil {
 		t.Fatalf("subscribe: %v", err)
 	}
-	defer subResp.Body.Close()
+	defer func() { _ = subResp.Body.Close() }()
 
 	if subResp.StatusCode != http.StatusOK {
 		t.Fatalf("first connect = %d, want 200 streaming", subResp.StatusCode)
@@ -114,7 +115,7 @@ func TestRateLimitInFrontOfSSE(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reconnect: %v", err)
 	}
-	defer retryResp.Body.Close()
+	defer func() { _ = retryResp.Body.Close() }()
 
 	if retryResp.StatusCode != http.StatusTooManyRequests {
 		t.Errorf("reconnect = %d, want 429", retryResp.StatusCode)
