@@ -72,7 +72,8 @@ jobs:
 
   # Fresh-consumer proxy smoke: a clean module resolves each RELEASED module
   # from the module proxy, imports it, and builds. Catches proxy-unresolvable
-  # tags and missing-dep packaging before consumers do.
+  # tags and missing-dep packaging before consumers do. The matrix covers all
+  # ten released modules (integration is never released and stays out).
   proxy-smoke:
     runs-on: ubuntu-latest
     needs: test
@@ -83,6 +84,13 @@ jobs:
           github.com/larsartmann/go-appkit,
           github.com/larsartmann/go-appkit/cqrs,
           github.com/larsartmann/go-appkit/realtime,
+          github.com/larsartmann/go-appkit/security,
+          github.com/larsartmann/go-appkit/otel,
+          github.com/larsartmann/go-appkit/health,
+          github.com/larsartmann/go-appkit/flightrecorder,
+          github.com/larsartmann/go-appkit/flightrecorderhealth,
+          github.com/larsartmann/go-appkit/errorpages,
+          github.com/larsartmann/go-appkit/docs,
         ]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -152,3 +160,14 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Check go.mod directive parity
         run: ./scripts/check-go-directives.sh
+
+  # Config parity: every Go module directory must have a dependabot gomod
+  # entry AND a CI test-matrix slot, and no dependabot entry may name a
+  # directory without a go.mod. Makes the hand-verified 2026-09-17 /security
+  # byte-identical check permanent.
+  config-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check dependabot + CI matrix parity
+        run: ./scripts/check-dependabot-parity.sh
