@@ -311,14 +311,14 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 
 ## Integration Module — Code Organization
 
-| File                                              | Concern                                                                                                       |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `doc.go`                                          | Package doc + the PIN CONTRACT charter (LATEST-published pins; values checked in `pin_drift_test.go`).         |
-| `integration_test.go`                             | SSE header flush through the appkit default stack; journal replay via cqrs-htmx `transport.JournalSSEStore`.   |
-| `composition_contract_test.go`                    | v0.5.0 surfaces compose: metrics/version/testkit + drain-window ordering (`svc.Addr()` nil inside DrainHooks).  |
-| `otel_pattern_test.go` / `contract_parity_test.go` | Span names + `http.route` through `OuterMiddlewares`; exactly one otel `Setup` per process.                    |
-| `health_stack_test.go` / `hardened_dashboard_test.go` | Full health-stack E2E (drain lockstep, trigger capture) + strict-CSP hardened dashboard (pinned 2026-09-20). |
-| `pin_drift_test.go`                               | go.mod pins == the `documentedPins` fixture; no filesystem `replace` directives.                               |
+| File                                                  | Concern                                                                                                        |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `doc.go`                                              | Package doc + the PIN CONTRACT charter (LATEST-published pins; values checked in `pin_drift_test.go`).         |
+| `integration_test.go`                                 | SSE header flush through the appkit default stack; journal replay via cqrs-htmx `transport.JournalSSEStore`.   |
+| `composition_contract_test.go`                        | v0.5.0 surfaces compose: metrics/version/testkit + drain-window ordering (`svc.Addr()` nil inside DrainHooks). |
+| `otel_pattern_test.go` / `contract_parity_test.go`    | Span names + `http.route` through `OuterMiddlewares`; exactly one otel `Setup` per process.                    |
+| `health_stack_test.go` / `hardened_dashboard_test.go` | Full health-stack E2E (drain lockstep, trigger capture) + strict-CSP hardened dashboard (pinned 2026-09-20).   |
+| `pin_drift_test.go`                                   | go.mod pins == the `documentedPins` fixture; no filesystem `replace` directives.                               |
 
 - Pins PUBLISHED tags only (LATEST published — deliberately NOT setup's consumer pin; charter in `integration/doc.go`, values in the `documentedPins` fixture + `scripts/check-pin-drift.sh`). Tests use a 1ms explicit `DrainDelay` (or `NoDrainDelay`); runs plain on 1.26.7 (jsonv2 default-on — OLDER gated toolchains need the `GOEXPERIMENT=jsonv2` prefix); added to `go.work`.
 
