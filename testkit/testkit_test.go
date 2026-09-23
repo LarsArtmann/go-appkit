@@ -33,9 +33,9 @@ func TestServe_FullChainServesDefaultStack(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	ts := testkit.Serve(t, svc)
+	server := testkit.Serve(t, svc)
 
-	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts.FullChainURL+"/hello", nil)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.FullChainURL+"/hello", nil)
 	if err != nil {
 		t.Fatalf("build GET: %v", err)
 	}
@@ -70,9 +70,9 @@ func TestServe_ShutdownIsClean(t *testing.T) {
 		t.Fatalf("NewService: %v", err)
 	}
 
-	ts := testkit.Serve(t, svc)
+	server := testkit.Serve(t, svc)
 
-	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts.FullChainURL+"/health", nil)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.FullChainURL+"/health", nil)
 	if err != nil {
 		t.Fatalf("build GET: %v", err)
 	}
@@ -88,11 +88,10 @@ func TestServe_ShutdownIsClean(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := ts.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(ctx); err != nil {
 		t.Errorf("explicit shutdown: %v", err)
 	}
 }
-
 // TestServe_ExplicitShutdownIsIdempotentAndUnreachable pins the
 // TestServer.Shutdown contract: after the explicit stop the endpoint is
 // unreachable, a second Shutdown is a nil no-op, and cleanup's repeated
@@ -115,25 +114,28 @@ func TestServe_ExplicitShutdownIsIdempotentAndUnreachable(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	ts := testkit.Serve(t, svc)
+	server := testkit.Serve(t, svc)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := ts.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(ctx); err != nil {
 		t.Fatalf("explicit shutdown: %v", err)
 	}
 
-	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts.FullChainURL+"/hello", nil)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.FullChainURL+"/hello", nil)
 	if err != nil {
 		t.Fatalf("build GET: %v", err)
 	}
 
-	if _, err := http.DefaultClient.Do(req); err == nil {
+	doResp, doErr := http.DefaultClient.Do(req)
+	if doErr == nil {
+		_ = doResp.Body.Close()
+
 		t.Error("request after Shutdown succeeded — server still reachable")
 	}
 
-	if err := ts.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(ctx); err != nil {
 		t.Errorf("second Shutdown = %v, want nil (idempotent)", err)
 	}
 }

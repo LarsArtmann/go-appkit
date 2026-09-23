@@ -91,6 +91,7 @@ func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
 		FullChainURL:      "http://" + svc.Addr().String(),
 		goroutineBaseline: baseline,
 		errCh:             errCh,
+		stopOnce:          sync.Once{},
 	}
 
 	tb.Cleanup(func() {
@@ -98,9 +99,11 @@ func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
 		defer cancel()
 
 		var err error
+
 		server.stopOnce.Do(func() {
 			err = server.stop(ctx)
 		})
+
 		if err != nil {
 			tb.Errorf("testkit.Serve: %v", err)
 		}
@@ -117,6 +120,7 @@ func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
 // call stops; later calls return nil.
 func (ts *TestServer) Shutdown(ctx context.Context) error {
 	var err error
+
 	ts.stopOnce.Do(func() {
 		err = ts.stop(ctx)
 	})
@@ -153,11 +157,9 @@ func (ts *TestServer) stop(ctx context.Context) error {
 	deadline := time.Now().Add(errDrainTimeout)
 	for runtime.NumGoroutine() > ts.goroutineBaseline+goroutineTolerance {
 		if time.Now().After(deadline) {
-			errs = append(errs, errorfamily.NewInfrastructure("testkit.goroutine_leak", fmt.Sprintf(
-				"goroutine leak: %d goroutines after shutdown, baseline %d",
-				runtime.NumGoroutine(),
-				ts.goroutineBaseline,
-			)))
+			leakMsg := fmt.Sprintf("goroutine leak: %d goroutines after shutdown, baseline %d",
+				runtime.NumGoroutine(), ts.goroutineBaseline)
+			errs = append(errs, errorfamily.NewInfrastructure("testkit.goroutine_leak", leakMsg))
 
 			break
 		}
