@@ -136,6 +136,14 @@ type Mounted struct {
 	started bool
 }
 
+// setStarted stores the Mounted lifecycle flag under the mutex.
+func (m *Mounted) setStarted(started bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.started = started
+}
+
 // Start begins the probe's background evaluation — an initial synchronous
 // batch runs first, so handlers and the dashboard see fresh data
 // immediately — and, when mounted with [WithDashboard], the SSE pusher
@@ -162,9 +170,7 @@ func (m *Mounted) Start(ctx context.Context) error {
 
 	err := m.probe.Start(ctx)
 	if err != nil {
-		m.mu.Lock()
-		m.started = false
-		m.mu.Unlock()
+		m.setStarted(false)
 
 		// Config-validation errors from the SDK stay matchable via
 		// errors.Is (e.g. health.ErrInvalidTimeout) through the wrap.
@@ -182,9 +188,7 @@ func (m *Mounted) Start(ctx context.Context) error {
 			// dashboard without leaking a second loop. Defensive today: the
 			// pinned dashboard's Start never returns an error, but the
 			// contract must not depend on that.
-			m.mu.Lock()
-			m.started = false
-			m.mu.Unlock()
+			m.setStarted(false)
 
 			return errorfamily.WrapInfrastructuref(err, "health.dashboard_start_failed", "start dashboard pusher")
 		}
@@ -230,9 +234,7 @@ func (m *Mounted) Shutdown(_ context.Context) error {
 	m.Drain()
 	m.probe.Shutdown()
 
-	m.mu.Lock()
-	m.started = false
-	m.mu.Unlock()
+	m.setStarted(false)
 
 	if m.dashboard != nil {
 		m.dashboard.Shutdown()

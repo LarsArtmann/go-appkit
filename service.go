@@ -243,32 +243,26 @@ func (s *Service) logPhase(phase string, start time.Time) {
 // context and joins the errors. Hooks run at most once per service: Shutdown
 // is a no-op after the first call.
 func (s *Service) runDrainHooks(ctx context.Context) error {
-	var errs []error
-
-	for _, hook := range s.cfg.DrainHooks {
-		err := hook(ctx)
-		if err != nil {
-			errs = append(errs, errorfamily.WrapInfrastructuref(
-				err, "server.drain_hook_failed", "drain hook failed",
-			))
-		}
-	}
-
-	return errors.Join(errs...)
+	return s.runHooks(s.cfg.DrainHooks, "server.drain_hook_failed", "drain hook failed")
 }
 
 // runShutdownHooks invokes each configured ShutdownHook in order with the
 // shutdown context and joins the errors. Hooks run at most once per service:
 // Shutdown is a no-op after the first call.
 func (s *Service) runShutdownHooks(ctx context.Context) error {
+	return s.runHooks(s.cfg.ShutdownHooks, "server.shutdown_hook_failed", "shutdown hook failed")
+}
+
+// runHooks invokes each hook in order, letting every hook run even when an
+// earlier one fails, and joins each failure as an Infrastructure error under
+// the phase-specific code consumers match on.
+func (s *Service) runHooks(hooks []func(context.Context) error, code, message string) error {
 	var errs []error
 
-	for _, hook := range s.cfg.ShutdownHooks {
+	for _, hook := range hooks {
 		err := hook(ctx)
 		if err != nil {
-			errs = append(errs, errorfamily.WrapInfrastructuref(
-				err, "server.shutdown_hook_failed", "shutdown hook failed",
-			))
+			errs = append(errs, errorfamily.WrapInfrastructuref(err, code, message))
 		}
 	}
 
