@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/health
 
-go 1.27
+go 1.27.1
 
 require (
 	github.com/larsartmann/go-appkit v0.5.1
@@ -27,7 +27,6 @@ require (
 	github.com/larsartmann/go-branded-id v0.6.0 // indirect
 	github.com/larsartmann/go-datastar v0.5.0 // indirect
 	github.com/larsartmann/go-datastar/static v0.5.0 // indirect
-	github.com/larsartmann/go-etag v0.6.0 // indirect
 	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
 	github.com/larsartmann/go-etag/server v0.6.0 // indirect
 	github.com/larsartmann/go-sse v0.6.0 // indirect
