@@ -858,12 +858,13 @@
           <div class="hero-badge">Integration Status</div>
           <h1>How good are we on integrations?</h1>
           <p class="hero-subtitle">
-            The integration surface was audited by execution, not by reading old reports: the
-            E2E suite was run, every pin was checked against published tags, all pinned module
-            suites were re-run, and CI history was pulled. Verdict: the composition tests are
-            excellent and green &mdash; but the CI signal that is supposed to prove that every
-            day has been dead for 6+ days, and the go-directive drift that broke it re-drifted
-            this morning.
+            The integration surface was audited by execution, not by reading old
+            reports: the E2E suite was run, every pin was checked against
+            published tags, all pinned module suites were re-run, and CI history
+            was pulled. Verdict: the composition tests are excellent and green
+            &mdash; but the CI signal that is supposed to prove that every day
+            has been dead for 6+ days, and the go-directive drift that broke it
+            re-drifted this morning.
           </p>
         </div>
 
@@ -885,7 +886,9 @@
         <div class="stat-grid">
           <div class="stat-card stat-good">
             <div class="stat-value">14/14</div>
-            <div class="stat-label">E2E integration tests PASS (&#8209;race, 2.14s, hermetic)</div>
+            <div class="stat-label">
+              E2E integration tests PASS (&#8209;race, 2.14s, hermetic)
+            </div>
           </div>
           <div class="stat-card stat-good">
             <div class="stat-value">8/8</div>
@@ -893,78 +896,111 @@
           </div>
           <div class="stat-card stat-good">
             <div class="stat-value">7/7</div>
-            <div class="stat-label">Pinned module suites green (incl. core)</div>
+            <div class="stat-label">
+              Pinned module suites green (incl. core)
+            </div>
           </div>
           <div class="stat-card stat-bad">
             <div class="stat-value">0/100</div>
-            <div class="stat-label">Green CI runs on master (secret missing, 6+ days)</div>
+            <div class="stat-label">
+              Green CI runs on master (secret missing, 6+ days)
+            </div>
           </div>
         </div>
         <p>
-          <strong>Verdict:</strong> the integration <em>content</em> is in the best shape it has
-          ever been &mdash; 14 E2E tests across 8 files pin cross-module and cross-repo contracts
-          (health stack, hardened dashboard CSP, drain-window, SSE flush, journal replay, otel
-          span/route, rate-limit-before-SSE, errorpages parity) against exactly what a fresh
-          consumer resolves from the proxy. The integration <em>process</em> is broken: master CI
-          has not had a single green run in its last 100 attempts because the
-          <code>SSH_PRIVATE_KEY</code> Actions secret is empty, so the whole test matrix dies at
-          the ssh-agent step &mdash; and the pin-drift/go-directive guards that DO run are failing
-          on the re-drifted root <code>go.mod</code> (<code>go 1.27</code> vs go.work 1.26, second
-          occurrence, auto-commit daemon, 2026&#8209;09&#8209;23). Local verification (this report)
-          is fully green: suite, pins, vet, lint, and all seven pinned module suites.
+          <strong>Verdict:</strong> the integration <em>content</em> is in the
+          best shape it has ever been &mdash; 14 E2E tests across 8 files pin
+          cross-module and cross-repo contracts (health stack, hardened
+          dashboard CSP, drain-window, SSE flush, journal replay, otel
+          span/route, rate-limit-before-SSE, errorpages parity) against exactly
+          what a fresh consumer resolves from the proxy. The integration
+          <em>process</em> is broken: master CI has not had a single green run
+          in its last 100 attempts because the
+          <code>SSH_PRIVATE_KEY</code> Actions secret is empty, so the whole
+          test matrix dies at the ssh-agent step &mdash; and the
+          pin-drift/go-directive guards that DO run are failing on the
+          re-drifted root <code>go.mod</code> (<code>go 1.27</code> vs go.work
+          1.26, second occurrence, auto-commit daemon, 2026&#8209;09&#8209;23).
+          Local verification (this report) is fully green: suite, pins, vet,
+          lint, and all seven pinned module suites.
         </p>
 
-        <h2 id="done"><span class="num">01</span>Fully Done (verified by execution)</h2>
+        <h2 id="done">
+          <span class="num">01</span>Fully Done (verified by execution)
+        </h2>
 
         <div class="grid-2">
           <div class="card card-solution">
             <h4>Integration E2E suite green</h4>
-            <p>14 tests / 8 files, <code>-race -count=1</code>, 2.14s, hermetic
-            (<code>GOWORK=off</code>) against PUBLISHED tags. Run 2026&#8209;09&#8209;23 on
-            go1.26.7. Health stack, hardened dashboard, composition contracts, SSE, replay,
-            otel, security, errorpages, pin meta-tests &mdash; all PASS.</p>
+            <p>
+              14 tests / 8 files, <code>-race -count=1</code>, 2.14s, hermetic
+              (<code>GOWORK=off</code>) against PUBLISHED tags. Run
+              2026&#8209;09&#8209;23 on go1.26.7. Health stack, hardened
+              dashboard, composition contracts, SSE, replay, otel, security,
+              errorpages, pin meta-tests &mdash; all PASS.
+            </p>
           </div>
           <div class="card card-solution">
             <h4>Pin contract double-guarded</h4>
-            <p><code>documentedPins</code> fixture test green AND
-            <code>scripts/check-pin-drift.sh</code> green: all 8 family pins equal the newest
-            published tag (core v0.5.1, realtime v0.1.1, errorpages v0.1.0, otel v0.1.1,
-            health v0.1.2, frh v0.1.3, security v0.1.0, cqrs&#8209;htmx v4.9.0).</p>
+            <p>
+              <code>documentedPins</code> fixture test green AND
+              <code>scripts/check-pin-drift.sh</code> green: all 8 family pins
+              equal the newest published tag (core v0.5.1, realtime v0.1.1,
+              errorpages v0.1.0, otel v0.1.1, health v0.1.2, frh v0.1.3,
+              security v0.1.0, cqrs&#8209;htmx v4.9.0).
+            </p>
           </div>
           <div class="card card-solution">
             <h4>No filesystem replaces in pins</h4>
-            <p><code>TestGoModHasNoFilesystemReplaceDirectives</code> green &mdash; every
-            integration pin is independently consumer-valid; nothing tests working-tree code by
-            accident.</p>
+            <p>
+              <code>TestGoModHasNoFilesystemReplaceDirectives</code> green
+              &mdash; every integration pin is independently consumer-valid;
+              nothing tests working-tree code by accident.
+            </p>
           </div>
           <div class="card card-solution">
             <h4>Cross-repo contract pinned</h4>
-            <p>cqrs&#8209;htmx <code>transport.JournalSSEStore</code> &rarr; realtime replay
-            through a full appkit <code>Service</code>: no cold-start replay, exact
-            missed-suffix replay on reconnect, live interleave.</p>
+            <p>
+              cqrs&#8209;htmx <code>transport.JournalSSEStore</code> &rarr;
+              realtime replay through a full appkit <code>Service</code>: no
+              cold-start replay, exact missed-suffix replay on reconnect, live
+              interleave.
+            </p>
           </div>
           <div class="card card-solution">
             <h4>Lifecycle composition contracts</h4>
-            <p>Metrics + version + default health compose (401 without Basic Auth, 200 with);
-            drain-window ordering pinned: <code>svc.Addr()</code> is nil inside DrainHooks,
-            readiness 503 for the whole window, lockstep with the health module.</p>
+            <p>
+              Metrics + version + default health compose (401 without Basic
+              Auth, 200 with); drain-window ordering pinned:
+              <code>svc.Addr()</code> is nil inside DrainHooks, readiness 503
+              for the whole window, lockstep with the health module.
+            </p>
           </div>
           <div class="card card-solution">
             <h4>Security &times; realtime E2E (T21)</h4>
-            <p>Keyed rate limit aborts in front of the SSE endpoint through the default stack;
-            hardened dashboard serves under CSP nonce profile server-side. New in the
-            2026&#8209;09&#8209;23 security trio train.</p>
+            <p>
+              Keyed rate limit aborts in front of the SSE endpoint through the
+              default stack; hardened dashboard serves under CSP nonce profile
+              server-side. New in the 2026&#8209;09&#8209;23 security trio
+              train.
+            </p>
           </div>
           <div class="card card-solution">
             <h4>All pinned module suites green</h4>
-            <p>2026&#8209;09&#8209;23, <code>-race</code>: realtime, otel, health, errorpages,
-            security, flightrecorderhealth PASS plain; core PASS via
-            <code>GOTOOLCHAIN=auto</code> (only because of the 1.27 drift, see &sect; Fucked).</p>
+            <p>
+              2026&#8209;09&#8209;23, <code>-race</code>: realtime, otel,
+              health, errorpages, security, flightrecorderhealth PASS plain;
+              core PASS via <code>GOTOOLCHAIN=auto</code> (only because of the
+              1.27 drift, see &sect; Fucked).
+            </p>
           </div>
           <div class="card card-solution">
             <h4>Integration module vet + lint clean</h4>
-            <p><code>go vet</code> + <code>golangci-lint run ./...</code> from the module dir:
-            0 issues. cqrs-lint and config-parity CI jobs also green.</p>
+            <p>
+              <code>go vet</code> + <code>golangci-lint run ./...</code> from
+              the module dir: 0 issues. cqrs-lint and config-parity CI jobs also
+              green.
+            </p>
           </div>
         </div>
 
@@ -972,35 +1008,49 @@
 
         <div class="issue issue-critical">
           <span class="severity severity-critical">Blocking</span>
-          <h3>Master CI is a dead signal &mdash; 0 green runs in the last 100</h3>
-          <div class="where">.github/workflows/ci.yml &middot; every <code>test (.)</code> matrix job</div>
+          <h3>
+            Master CI is a dead signal &mdash; 0 green runs in the last 100
+          </h3>
+          <div class="where">
+            .github/workflows/ci.yml &middot; every <code>test (.)</code> matrix
+            job
+          </div>
           <p>
-            Every test-matrix job (core, integration, and all satellites) dies at the
+            Every test-matrix job (core, integration, and all satellites) dies
+            at the
             <code>webfactory/ssh-agent</code> step with
             <em>"The ssh-private-key argument is empty"</em> &mdash; the
-            <code>SSH_PRIVATE_KEY</code> secret is missing or empty in repo settings. Continuous
-            since at least 2026&#8209;09&#8209;17 (all 12+ runs inspected, and 100 runs contain
-            zero successes). Consequence: the E2E integration suite has NOT been proven in CI for
-            6+ days, and the guards that still execute (pin-drift, go-directives) are ignored
-            because everything is red anyway &mdash; red is the new green, so drift ships
-            unnoticed. Mitigation: hermetic local runs (this report). Only the repo owner can fix
-            the secret; Dependabot PRs will additionally always lack secrets (fork rules) and need
-            a workflow condition.
+            <code>SSH_PRIVATE_KEY</code> secret is missing or empty in repo
+            settings. Continuous since at least 2026&#8209;09&#8209;17 (all 12+
+            runs inspected, and 100 runs contain zero successes). Consequence:
+            the E2E integration suite has NOT been proven in CI for 6+ days, and
+            the guards that still execute (pin-drift, go-directives) are ignored
+            because everything is red anyway &mdash; red is the new green, so
+            drift ships unnoticed. Mitigation: hermetic local runs (this
+            report). Only the repo owner can fix the secret; Dependabot PRs will
+            additionally always lack secrets (fork rules) and need a workflow
+            condition.
           </p>
         </div>
 
         <div class="issue issue-critical">
           <span class="severity severity-critical">Blocking</span>
-          <h3>Root go.mod re-drifted to <code>go 1.27</code> (second occurrence)</h3>
-          <div class="where">go.mod:3 &middot; commit d1b6a63 &middot; go.work still at go 1.26</div>
+          <h3>
+            Root go.mod re-drifted to <code>go 1.27</code> (second occurrence)
+          </h3>
+          <div class="where">
+            go.mod:3 &middot; commit d1b6a63 &middot; go.work still at go 1.26
+          </div>
           <p>
-            Same class as d5c6693 (2026&#8209;09&#8209;18), re-drifted by the auto-commit daemon
-            on 2026&#8209;09&#8209;23. Effects verified today: every workspace command fails, 12
-            LSP diagnostic errors, the pin-drift CI job fails on "could not read the go
-            directive", <code>check-pin-drift.sh</code> exits FAIL, and the core module is
-            locally untestable without <code>GOTOOLCHAIN=auto</code>. The go-directives guard
-            catches it on push &mdash; but see above: CI is red anyway, so nobody reads it.
-            USER decision pending: revert to 1.26.7 or commit the floor bump as a full train.
+            Same class as d5c6693 (2026&#8209;09&#8209;18), re-drifted by the
+            auto-commit daemon on 2026&#8209;09&#8209;23. Effects verified
+            today: every workspace command fails, 12 LSP diagnostic errors, the
+            pin-drift CI job fails on "could not read the go directive",
+            <code>check-pin-drift.sh</code> exits FAIL, and the core module is
+            locally untestable without <code>GOTOOLCHAIN=auto</code>. The
+            go-directives guard catches it on push &mdash; but see above: CI is
+            red anyway, so nobody reads it. USER decision pending: revert to
+            1.26.7 or commit the floor bump as a full train.
           </p>
         </div>
 
@@ -1008,122 +1058,320 @@
 
         <div class="card card-warning">
           <h4>E2E coverage: 7 of 10 released modules</h4>
-          <p>Covered: core+testkit, realtime, otel, health, security, errorpages,
-          flightrecorderhealth. NOT integration-covered: <strong>cqrs</strong> wrapper (dispatch
-          lifecycle inside a live Service), <strong>docs</strong> (catalog feed over a running
-          svc), <strong>flightrecorder</strong> middleware (trace capture on error threshold).
-          All three have module-local suites; none has an appkit-composition E2E.</p>
+          <p>
+            Covered: core+testkit, realtime, otel, health, security, errorpages,
+            flightrecorderhealth. NOT integration-covered:
+            <strong>cqrs</strong> wrapper (dispatch lifecycle inside a live
+            Service), <strong>docs</strong> (catalog feed over a running svc),
+            <strong>flightrecorder</strong> middleware (trace capture on error
+            threshold). All three have module-local suites; none has an
+            appkit-composition E2E.
+          </p>
         </div>
         <div class="card card-warning">
           <h4>Hardened dashboard CSP: server-side proof only</h4>
-          <p><code>TestHardenedDashboardBehindCSP</code> proves the server emits the strict-CSP +
-          nonce profile; no browser-side (chromedp) execution proof yet. TODO_LIST P2; the new
-          security THREAT_MODEL.md Composition-proofs section wants to link the browser evidence.</p>
+          <p>
+            <code>TestHardenedDashboardBehindCSP</code> proves the server emits
+            the strict-CSP + nonce profile; no browser-side (chromedp) execution
+            proof yet. TODO_LIST P2; the new security THREAT_MODEL.md
+            Composition-proofs section wants to link the browser evidence.
+          </p>
         </div>
         <div class="card card-warning">
           <h4>cqrs-htmx setup composition: 3/3 verified, suite-green open</h4>
-          <p>The reference consumer's appkit-composition tests pass; the full setup suite has
-          never run hermetic end-to-end (TODO_LIST P3, bounded/container-aware run needed).</p>
+          <p>
+            The reference consumer's appkit-composition tests pass; the full
+            setup suite has never run hermetic end-to-end (TODO_LIST P3,
+            bounded/container-aware run needed).
+          </p>
         </div>
         <div class="card card-warning">
           <h4>Pin philosophy formally undecided</h4>
-          <p>LATEST-published-only is the working default (decided by execution order
-          2026&#8209;09&#8209;17, pinned in <code>pin_drift_test.go</code>), but the USER gate
-          between LATEST-only vs mirroring setup's resolution is still open in TODO_LIST.</p>
+          <p>
+            LATEST-published-only is the working default (decided by execution
+            order 2026&#8209;09&#8209;17, pinned in
+            <code>pin_drift_test.go</code>), but the USER gate between
+            LATEST-only vs mirroring setup's resolution is still open in
+            TODO_LIST.
+          </p>
         </div>
 
-        <h2 id="notstarted"><span class="num">04</span>Not Started (gap candidates)</h2>
+        <h2 id="notstarted">
+          <span class="num">04</span>Not Started (gap candidates)
+        </h2>
         <div class="issue">
           <span class="severity">Candidate</span>
           <h3>Untested compositions within covered modules</h3>
-          <p>otel&times;realtime (SSE endpoint spans/metrics through OuterMiddlewares);
-          otel&times;health-dashboard (are dashboard routes traced or filtered?);
-          security&times;errorpages (pretty 404/500 behind the security stack). Each is a
-          plausible consumer wiring that nothing pins today.</p>
+          <p>
+            otel&times;realtime (SSE endpoint spans/metrics through
+            OuterMiddlewares); otel&times;health-dashboard (are dashboard routes
+            traced or filtered?); security&times;errorpages (pretty 404/500
+            behind the security stack). Each is a plausible consumer wiring that
+            nothing pins today.
+          </p>
         </div>
         <div class="issue">
           <span class="severity">Candidate</span>
           <h3>cqrs wrapper lifecycle E2E</h3>
-          <p>Register/Dispatch/DispatchQuery + in-flight command drain through
-          <code>svc.Run/Shutdown</code> with a live Service &mdash; the biggest uncovered module
-          by consumer value.</p>
+          <p>
+            Register/Dispatch/DispatchQuery + in-flight command drain through
+            <code>svc.Run/Shutdown</code> with a live Service &mdash; the
+            biggest uncovered module by consumer value.
+          </p>
         </div>
         <div class="issue">
           <span class="severity">Candidate</span>
           <h3>AGENTS integration section is stale</h3>
-          <p>The AGENTS code-organization table still describes the integration module as "2 E2E
-          tests" (integration_test.go only). Reality: 14 tests across 8 files. The pin table
-          already moved to <code>integration/doc.go</code> (2026&#8209;09&#8209;23); the test
-          inventory in AGENTS never followed.</p>
+          <p>
+            The AGENTS code-organization table still describes the integration
+            module as "2 E2E tests" (integration_test.go only). Reality: 14
+            tests across 8 files. The pin table already moved to
+            <code>integration/doc.go</code> (2026&#8209;09&#8209;23); the test
+            inventory in AGENTS never followed.
+          </p>
         </div>
 
         <h2 id="improve"><span class="num">05</span>What We Should Improve</h2>
         <div class="card">
           <h4>Guards must be visible under a red CI</h4>
-          <p>The go-directives drift guard exists and works &mdash; it failed today's run, and
-          the drift shipped anyway because every run is red. A red baseline destroys every
-          signal. Fix the secret first; then consider making guard jobs required checks so a
-          red master is always an event.</p>
+          <p>
+            The go-directives drift guard exists and works &mdash; it failed
+            today's run, and the drift shipped anyway because every run is red.
+            A red baseline destroys every signal. Fix the secret first; then
+            consider making guard jobs required checks so a red master is always
+            an event.
+          </p>
         </div>
         <div class="card">
           <h4>Auto-commit daemon vs go directives (structural)</h4>
-          <p>Twice in six days the daemon raised the root go directive. The daemon is not
-          CI-aware. A pre-commit/post-commit hook that rejects go-directive bumps outside an
-          explicit train would kill this class at the source instead of detecting it after push.</p>
+          <p>
+            Twice in six days the daemon raised the root go directive. The
+            daemon is not CI-aware. A pre-commit/post-commit hook that rejects
+            go-directive bumps outside an explicit train would kill this class
+            at the source instead of detecting it after push.
+          </p>
         </div>
         <div class="card">
           <h4>Dependabot PRs will always be red on ssh-agent</h4>
-          <p>Dependabot PR runs cannot read Actions secrets (fork rules), so every dependency PR
-          shows a failure that is not a regression. Gate the ssh-agent step on
-          <code>github.event_name == 'push'</code> (or reuse cache for PRs) so PR signal means
-          something.</p>
+          <p>
+            Dependabot PR runs cannot read Actions secrets (fork rules), so
+            every dependency PR shows a failure that is not a regression. Gate
+            the ssh-agent step on <code>github.event_name == 'push'</code> (or
+            reuse cache for PRs) so PR signal means something.
+          </p>
         </div>
 
         <h2 id="next"><span class="num">06</span>Top Next Tasks</h2>
         <table class="issue-table">
           <thead>
-            <tr><th>#</th><th>Task</th><th>Impact</th><th>Effort</th><th>Category</th></tr>
+            <tr>
+              <th>#</th>
+              <th>Task</th>
+              <th>Impact</th>
+              <th>Effort</th>
+              <th>Category</th>
+            </tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>Restore/verify the <code>SSH_PRIVATE_KEY</code> Actions secret (deploy key for private larsartmann deps) &mdash; unblocks the entire CI matrix</td><td><span class="badge badge-critical">Critical</span></td><td>S</td><td>Bug</td></tr>
-            <tr><td>2</td><td>Decide F6: revert root go.mod to 1.26.7 or commit the 1.27 floor bump as a full train (go.work + all go.mods + AGENTS + CI)</td><td><span class="badge badge-critical">Critical</span></td><td>S</td><td>Decision</td></tr>
-            <tr><td>3</td><td>After 1+2: one green CI run on master, all matrix jobs, and re-confirm integration suite in CI</td><td><span class="badge badge-high">High</span></td><td>S</td><td>Quality</td></tr>
-            <tr><td>4</td><td>Add a local (pre-commit/daemon-hook) guard against go-directive bumps outside explicit trains &mdash; fix the class, not the instance</td><td><span class="badge badge-high">High</span></td><td>M</td><td>Quality</td></tr>
-            <tr><td>5</td><td>Refresh AGENTS integration section: 14 tests / 8 files inventory (or delete the table and point at integration/doc.go)</td><td><span class="badge badge-high">High</span></td><td>S</td><td>Docs</td></tr>
-            <tr><td>6</td><td>E2E gap: cqrs wrapper lifecycle through a live Service (dispatch, query, in-flight drain on Shutdown)</td><td><span class="badge badge-high">High</span></td><td>M</td><td>Feature</td></tr>
-            <tr><td>7</td><td>Browser CSP pass (chromedp) over the hardened dashboard under strict-CSP + nonce; link evidence from security THREAT_MODEL.md</td><td><span class="badge badge-high">High</span></td><td>M</td><td>Quality</td></tr>
-            <tr><td>8</td><td>E2E gap: flightrecorder middleware through an appkit Service (error-threshold capture + auto-reset over the real stack)</td><td><span class="badge badge-medium">Medium</span></td><td>M</td><td>Feature</td></tr>
-            <tr><td>9</td><td>E2E gap: docs module composition (catalog feed served by a running svc)</td><td><span class="badge badge-medium">Medium</span></td><td>M</td><td>Feature</td></tr>
-            <tr><td>10</td><td>otel&times;realtime E2E: SSE endpoint span names + <code>http.route</code>/metrics through OuterMiddlewares (NoTimeout path)</td><td><span class="badge badge-medium">Medium</span></td><td>M</td><td>Feature</td></tr>
-            <tr><td>11</td><td>otel&times;health-dashboard assertions: which dashboard routes are traced vs filtered</td><td><span class="badge badge-medium">Medium</span></td><td>M</td><td>Feature</td></tr>
-            <tr><td>12</td><td>security&times;errorpages E2E: pretty classified 404/500 behind the security stack</td><td><span class="badge badge-medium">Medium</span></td><td>S</td><td>Feature</td></tr>
-            <tr><td>13</td><td>CI: skip ssh-agent step on pull_request events so Dependabot PR signal is meaningful</td><td><span class="badge badge-medium">Medium</span></td><td>S</td><td>Quality</td></tr>
-            <tr><td>14</td><td>Full cqrs-htmx setup suite hermetic run (bounded, container-aware) to extend 3/3 to suite-green</td><td><span class="badge badge-medium">Medium</span></td><td>L</td><td>Quality</td></tr>
-            <tr><td>15</td><td>Periodic fresh-consumer proxy smoke over the integration pin set (recipe exists; schedule it)</td><td><span class="badge badge-low">Low</span></td><td>S</td><td>Quality</td></tr>
-            <tr><td>16</td><td>Settle the pin-philosophy USER gate: LATEST-only (current default) vs mirroring setup's resolution; record in pin_drift_test.go</td><td><span class="badge badge-low">Low</span></td><td>S</td><td>Decision</td></tr>
+            <tr>
+              <td>1</td>
+              <td>
+                Restore/verify the <code>SSH_PRIVATE_KEY</code> Actions secret
+                (deploy key for private larsartmann deps) &mdash; unblocks the
+                entire CI matrix
+              </td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td>S</td>
+              <td>Bug</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>
+                Decide F6: revert root go.mod to 1.26.7 or commit the 1.27 floor
+                bump as a full train (go.work + all go.mods + AGENTS + CI)
+              </td>
+              <td><span class="badge badge-critical">Critical</span></td>
+              <td>S</td>
+              <td>Decision</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>
+                After 1+2: one green CI run on master, all matrix jobs, and
+                re-confirm integration suite in CI
+              </td>
+              <td><span class="badge badge-high">High</span></td>
+              <td>S</td>
+              <td>Quality</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>
+                Add a local (pre-commit/daemon-hook) guard against go-directive
+                bumps outside explicit trains &mdash; fix the class, not the
+                instance
+              </td>
+              <td><span class="badge badge-high">High</span></td>
+              <td>M</td>
+              <td>Quality</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>
+                Refresh AGENTS integration section: 14 tests / 8 files inventory
+                (or delete the table and point at integration/doc.go)
+              </td>
+              <td><span class="badge badge-high">High</span></td>
+              <td>S</td>
+              <td>Docs</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>
+                E2E gap: cqrs wrapper lifecycle through a live Service
+                (dispatch, query, in-flight drain on Shutdown)
+              </td>
+              <td><span class="badge badge-high">High</span></td>
+              <td>M</td>
+              <td>Feature</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>
+                Browser CSP pass (chromedp) over the hardened dashboard under
+                strict-CSP + nonce; link evidence from security THREAT_MODEL.md
+              </td>
+              <td><span class="badge badge-high">High</span></td>
+              <td>M</td>
+              <td>Quality</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>
+                E2E gap: flightrecorder middleware through an appkit Service
+                (error-threshold capture + auto-reset over the real stack)
+              </td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>M</td>
+              <td>Feature</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>
+                E2E gap: docs module composition (catalog feed served by a
+                running svc)
+              </td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>M</td>
+              <td>Feature</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td>
+                otel&times;realtime E2E: SSE endpoint span names +
+                <code>http.route</code>/metrics through OuterMiddlewares
+                (NoTimeout path)
+              </td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>M</td>
+              <td>Feature</td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td>
+                otel&times;health-dashboard assertions: which dashboard routes
+                are traced vs filtered
+              </td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>M</td>
+              <td>Feature</td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td>
+                security&times;errorpages E2E: pretty classified 404/500 behind
+                the security stack
+              </td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>S</td>
+              <td>Feature</td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td>
+                CI: skip ssh-agent step on pull_request events so Dependabot PR
+                signal is meaningful
+              </td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>S</td>
+              <td>Quality</td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td>
+                Full cqrs-htmx setup suite hermetic run (bounded,
+                container-aware) to extend 3/3 to suite-green
+              </td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td>L</td>
+              <td>Quality</td>
+            </tr>
+            <tr>
+              <td>15</td>
+              <td>
+                Periodic fresh-consumer proxy smoke over the integration pin set
+                (recipe exists; schedule it)
+              </td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td>S</td>
+              <td>Quality</td>
+            </tr>
+            <tr>
+              <td>16</td>
+              <td>
+                Settle the pin-philosophy USER gate: LATEST-only (current
+                default) vs mirroring setup's resolution; record in
+                pin_drift_test.go
+              </td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td>S</td>
+              <td>Decision</td>
+            </tr>
           </tbody>
         </table>
-        <p><em>Feeds docs-health HARVEST:</em> items 1&ndash;5 and 13 are TODO_LIST-grade (P1/P2);
-        6, 8&ndash;12 are integration-roadmap material; 14&ndash;16 already exist in TODO_LIST and
-        only gained evidence today. HARVEST should route accordingly after review.</p>
+        <p>
+          <em>Feeds docs-health HARVEST:</em> items 1&ndash;5 and 13 are
+          TODO_LIST-grade (P1/P2); 6, 8&ndash;12 are integration-roadmap
+          material; 14&ndash;16 already exist in TODO_LIST and only gained
+          evidence today. HARVEST should route accordingly after review.
+        </p>
 
-        <h2 id="question"><span class="num">07</span>Top Question (cannot answer myself)</h2>
+        <h2 id="question">
+          <span class="num">07</span>Top Question (cannot answer myself)
+        </h2>
         <div class="card card-problem">
           <h4>What happened to the <code>SSH_PRIVATE_KEY</code> secret?</h4>
-          <p>I verified: every test-matrix job of every master push since at least
-          2026&#8209;09&#8209;17 fails at <code>webfactory/ssh-agent</code> with "The
-          ssh-private-key argument is empty" &mdash; the secret named in
-          <code>ci.yml</code> resolves to nothing in repo settings, and there are zero green CI
-          runs in the last 100. Repo secrets are invisible to me. Was it rotated/renamed on
-          purpose (then ci.yml is stale), deleted (then restore it: Settings &rarr; Secrets and
-          variables &rarr; Actions), or never added after a workflow edit? Your answer decides
-          whether the fix is a one-minute secret restore or a workflow rename &mdash; and until
-          it is fixed, nothing on master is CI-verified, including every integration test.</p>
+          <p>
+            I verified: every test-matrix job of every master push since at
+            least 2026&#8209;09&#8209;17 fails at
+            <code>webfactory/ssh-agent</code> with "The ssh-private-key argument
+            is empty" &mdash; the secret named in <code>ci.yml</code> resolves
+            to nothing in repo settings, and there are zero green CI runs in the
+            last 100. Repo secrets are invisible to me. Was it rotated/renamed
+            on purpose (then ci.yml is stale), deleted (then restore it:
+            Settings &rarr; Secrets and variables &rarr; Actions), or never
+            added after a workflow edit? Your answer decides whether the fix is
+            a one-minute secret restore or a workflow rename &mdash; and until
+            it is fixed, nothing on master is CI-verified, including every
+            integration test.
+          </p>
         </div>
 
         <footer class="footer">
-          Generated 2026-09-23 16:20 CEST &middot; every claim above was verified by execution this session:<br>
-          integration suite + 7 module suites (-race), check-pin-drift.sh, vet+lint, gh run logs, go.mod/go.work inspection
+          Generated 2026-09-23 16:20 CEST &middot; every claim above was
+          verified by execution this session:<br />
+          integration suite + 7 module suites (-race), check-pin-drift.sh,
+          vet+lint, gh run logs, go.mod/go.work inspection
         </footer>
       </main>
     </div>
