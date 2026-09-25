@@ -1,8 +1,8 @@
 module github.com/larsartmann/go-appkit/docs
 
-go 1.26.7
+go 1.27.1
 
-require github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.3.0
+require github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.5.0
 
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
