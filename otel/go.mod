@@ -1,12 +1,12 @@
 module github.com/larsartmann/go-appkit/otel
 
-go 1.27
+go 1.27.1
 
 require (
 	github.com/larsartmann/go-appkit v0.5.1
-	github.com/larsartmann/go-error-family v0.10.1
+	github.com/larsartmann/go-error-family v0.10.2
 	github.com/larsartmann/go-flightrecorder v0.2.0
-	github.com/larsartmann/httputil v1.2.0
+	github.com/larsartmann/httputil v1.3.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.71.0
 	go.opentelemetry.io/otel v1.46.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.46.0
@@ -33,7 +33,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
-	github.com/larsartmann/go-etag v0.6.0 // indirect
 	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
 	github.com/larsartmann/go-etag/server v0.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
