@@ -138,22 +138,22 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 
 ## health (`github.com/larsartmann/go-appkit/health`)
 
-| Feature                                                                                  | Status           | Evidence                                                           |
-| ---------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------ |
-| `NewProbe` injector-free probe (concurrent, panic-isolated checks)                       | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go`                                        |
-| Critical/non-critical readiness classification                                           | FULLY_FUNCTIONAL | `TestNewProbe_ClassificationFollowsCriticality`                    |
-| `New` + `RegisterRoutes` / `Mount` mux wiring                                            | FULLY_FUNCTIONAL | `mount.go`, `mount_test.go`                                        |
-| Kubelet probe routes (custom paths opt-in)                                               | FULLY_FUNCTIONAL | `TestMount_ProbeOnlyRegistersKubeletRoutes`                        |
-| Real-time dashboard (HTML/JSON/SSE/metrics/trend) opt-in                                 | FULLY_FUNCTIONAL | `TestMount_WithDashboardServesHTMLJSONAndProbes`                   |
-| Drain lockstep (`Drain` → readiness 503 for the drain window)                            | FULLY_FUNCTIONAL | `TestMount_DrainFlipsDashboardReadiness`, live E2E                 |
-| Lifecycle guards (double-Start rejection, idempotent Shutdown)                           | FULLY_FUNCTIONAL | `TestMount_LifecycleGuardsAndIdempotence`                          |
-| SDK validation errors surface via `Start` (errors.Is preserved)                          | FULLY_FUNCTIONAL | `TestMount_StartPropagatesProbeValidationErrors`                   |
-| Runnable example (verified live: dashboard, probes, drain 503s)                          | FULLY_FUNCTIONAL | `example/main.go`                                                  |
-| Compile-time contract assertion (`dashboard.Prober`)                                     | FULLY_FUNCTIONAL | `contract_test.go` (shipped in v0.1.2)                             |
-| `WithProbeRoutes`+`WithDashboard` conflict semantics tested-as-documented                | FULLY_FUNCTIONAL | `mount_test.go` (shipped in v0.1.2)                                |
-| `DashboardHardenedPreset` (BasePath + nonce extractor bundled)                           | FULLY_FUNCTIONAL | `mount.go`, `TestDashboardHardenedPreset_*` (shipped in v0.1.2)    |
-| `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz                             | FULLY_FUNCTIONAL | `probe_benchmark_test.go`, `FuzzNewProbe_*` (shipped in v0.1.2)    |
-| Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (shipped in v0.1.2)                              |
+| Feature                                                                                  | Status           | Evidence                                                        |
+| ---------------------------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------- |
+| `NewProbe` injector-free probe (concurrent, panic-isolated checks)                       | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go`                                     |
+| Critical/non-critical readiness classification                                           | FULLY_FUNCTIONAL | `TestNewProbe_ClassificationFollowsCriticality`                 |
+| `New` + `RegisterRoutes` / `Mount` mux wiring                                            | FULLY_FUNCTIONAL | `mount.go`, `mount_test.go`                                     |
+| Kubelet probe routes (custom paths opt-in)                                               | FULLY_FUNCTIONAL | `TestMount_ProbeOnlyRegistersKubeletRoutes`                     |
+| Real-time dashboard (HTML/JSON/SSE/metrics/trend) opt-in                                 | FULLY_FUNCTIONAL | `TestMount_WithDashboardServesHTMLJSONAndProbes`                |
+| Drain lockstep (`Drain` → readiness 503 for the drain window)                            | FULLY_FUNCTIONAL | `TestMount_DrainFlipsDashboardReadiness`, live E2E              |
+| Lifecycle guards (double-Start rejection, idempotent Shutdown)                           | FULLY_FUNCTIONAL | `TestMount_LifecycleGuardsAndIdempotence`                       |
+| SDK validation errors surface via `Start` (errors.Is preserved)                          | FULLY_FUNCTIONAL | `TestMount_StartPropagatesProbeValidationErrors`                |
+| Runnable example (verified live: dashboard, probes, drain 503s)                          | FULLY_FUNCTIONAL | `example/main.go`                                               |
+| Compile-time contract assertion (`dashboard.Prober`)                                     | FULLY_FUNCTIONAL | `contract_test.go` (shipped in v0.1.2)                          |
+| `WithProbeRoutes`+`WithDashboard` conflict semantics tested-as-documented                | FULLY_FUNCTIONAL | `mount_test.go` (shipped in v0.1.2)                             |
+| `DashboardHardenedPreset` (BasePath + nonce extractor bundled)                           | FULLY_FUNCTIONAL | `mount.go`, `TestDashboardHardenedPreset_*` (shipped in v0.1.2) |
+| `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz                             | FULLY_FUNCTIONAL | `probe_benchmark_test.go`, `FuzzNewProbe_*` (shipped in v0.1.2) |
+| Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (shipped in v0.1.2)                           |
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
 

@@ -85,7 +85,10 @@ for mod in github.com/larsartmann/cqrs-htmx/v4 github.com/larsartmann/go-sse git
 		fail "$go_mod has no direct require for $mod"
 		continue
 	fi
-	latest="$(GOWORK=off go list -m -versions "$mod" 2>/dev/null | tr ' ' '\n' | grep -E '^v[0-9]+\.[0-9]+' | sort -V | tail -n1 || true)"
+	# Self-pin the toolchain: this tree's go.mods declare go 1.27.1, so an
+	# ambient GOTOOLCHAIN=local on the 1.26.7 machine default kills every
+	# `go list` here with "requires go >= 1.27.1" (swallowed by 2>/dev/null).
+	latest="$(GOWORK=off GOTOOLCHAIN=go1.27.1 go list -m -versions "$mod" 2>/dev/null | tr ' ' '\n' | grep -E '^v[0-9]+\.[0-9]+' | sort -V | tail -n1 || true)"
 	if [[ -z "$latest" ]]; then
 		fail "$mod: could not query the module proxy for published versions"
 	elif [[ "$want" == "$latest" ]]; then
