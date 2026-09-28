@@ -3,7 +3,7 @@ package flightrecorderhealth
 import (
 	"context"
 	"log/slog"
-	"sort"
+	"slices"
 	"sync"
 	"time"
 
@@ -248,7 +248,7 @@ func failingServiceNames(results map[string]error) []string {
 		}
 	}
 
-	sort.Strings(names)
+	slices.Sort(names)
 
 	return names
 }
