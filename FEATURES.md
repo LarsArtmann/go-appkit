@@ -32,6 +32,10 @@ aspirations.
 
 Shipped in core **v0.5.0** (2026-09-17; additions-only API diff vs v0.4.0,
 proxy-tested; v0.5.1 the same day is doc-only — zero API delta).
+Unreleased deltas (CHANGELOG `[Unreleased]`, ride the next train):
+`testkit.TestServer.Shutdown`, hook error-code contract tests
+(`server.drain_hook_failed` / `server.shutdown_hook_failed`), the
+behavior-neutral `runHooks` extraction.
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
@@ -77,6 +81,10 @@ re-tagged as `docs/v0.3.0`, which is the first fetchable docs release.
 
 ALL opt-in — nothing joins the default stack (anti-recommendation held).
 Ported from the CV production stack per the canonical battery spec (W2).
+Unreleased deltas (CHANGELOG `[Unreleased]`): `example/` hardened-chain
+demo service (live-verified status walkthrough) + `THREAT_MODEL.md`
+(per-battery threat → design pin → regression-test mapping) + an
+example-only core dependency (v0.5.1; the package itself stays appkit-free).
 
 ## errorpages (`github.com/larsartmann/go-appkit/errorpages`)
 
@@ -141,11 +149,11 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | Lifecycle guards (double-Start rejection, idempotent Shutdown)                           | FULLY_FUNCTIONAL | `TestMount_LifecycleGuardsAndIdempotence`                          |
 | SDK validation errors surface via `Start` (errors.Is preserved)                          | FULLY_FUNCTIONAL | `TestMount_StartPropagatesProbeValidationErrors`                   |
 | Runnable example (verified live: dashboard, probes, drain 503s)                          | FULLY_FUNCTIONAL | `example/main.go`                                                  |
-| Compile-time contract assertion (`dashboard.Prober`)                                     | FULLY_FUNCTIONAL | `contract_test.go` (UNRELEASED at v0.1.1)                          |
-| `WithProbeRoutes`+`WithDashboard` conflict semantics tested-as-documented                | FULLY_FUNCTIONAL | `mount_test.go` (UNRELEASED at v0.1.1)                             |
-| `DashboardHardenedPreset` (BasePath + nonce extractor bundled)                           | FULLY_FUNCTIONAL | `mount.go`, `TestDashboardHardenedPreset_*` (UNRELEASED at v0.1.1) |
-| `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz                             | FULLY_FUNCTIONAL | `probe_benchmark_test.go`, `FuzzNewProbe_*` (UNRELEASED at v0.1.1) |
-| Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (UNRELEASED at v0.1.1)                           |
+| Compile-time contract assertion (`dashboard.Prober`)                                     | FULLY_FUNCTIONAL | `contract_test.go` (shipped in v0.1.2)                             |
+| `WithProbeRoutes`+`WithDashboard` conflict semantics tested-as-documented                | FULLY_FUNCTIONAL | `mount_test.go` (shipped in v0.1.2)                                |
+| `DashboardHardenedPreset` (BasePath + nonce extractor bundled)                           | FULLY_FUNCTIONAL | `mount.go`, `TestDashboardHardenedPreset_*` (shipped in v0.1.2)    |
+| `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz                             | FULLY_FUNCTIONAL | `probe_benchmark_test.go`, `FuzzNewProbe_*` (shipped in v0.1.2)    |
+| Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (shipped in v0.1.2)                              |
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
 
@@ -179,6 +187,7 @@ Cross-module + cross-repo E2E contracts against PUBLISHED tags only:
 | Journal replay via cqrs-htmx `transport.JournalSSEStore`                                 | FULLY_FUNCTIONAL | `integration_test.go`          |
 | Span name + `http.route` through `OuterMiddlewares` (pins the 2026-09-16 fix)            | FULLY_FUNCTIONAL | `otel_pattern_test.go`         |
 | Metrics/version/testkit compose + drain-window ordering (`Addr()` nil inside DrainHooks) | FULLY_FUNCTIONAL | `composition_contract_test.go` |
+| Rate-limit in front of SSE (429 + Retry-After aborts the chain)                          | FULLY_FUNCTIONAL | `security_realtime_test.go`    |
 | One-`Setup`-per-process + errorpages family→status parity                                | FULLY_FUNCTIONAL | `contract_parity_test.go`      |
 
 ## Consumers
@@ -192,13 +201,15 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
   bundle's domain chain. Verified equivalences live in their
   `setup/run_appkit_test.go` (SSE header flush through the full stack, drain
   readiness transitions, response parity, hardened adoption benchmark).
-- Consumed version: `go-appkit v0.5.0` from the module proxy
-  (`setup/go.mod:95`; their M3 bump landed 2026-09-17, after this repo's
-  14:22 audit recorded v0.4.0). Their `Config.Metrics`/`Config.Version`
-  threading (M4) is still open on their side; so is the default-flip (b)-(f).
-- Their fold-in (flipping `RunHandler` internals to appkit) is unblocked and
-  pending on the cqrs-htmx side (their
-  `docs/planning/archived/2026-08-30_appkit-foldin-revalidation.md`).
+- Consumed version: **`go-appkit v0.5.1`** — verified in the PUBLISHED
+  `setup/v4.12.0` tag (2026-09-22; `setup/go.mod:15`, re-verified 2026-09-28)
+  and in their working tree. **M4 is SHIPPED in that tag**:
+  `Config.Metrics`/`Config.Version` thread into `appkit.ServiceConfig` on the
+  `RunWithAppkit` path (`run_appkit.go:78-79`). Still theirs: the
+  `Bundle.Run`/`Bundle.RunHandler` internals still serve via httputil
+  (Metrics/Version are RunWithAppkit-only there), and the v5-window revisit
+  (ADR-0052) — plus they await core > v0.5.1 to drop their `go.work` go-etag
+  stub-replace (a concrete consumer-pull signal for the next core release).
 
 All released modules verified as fresh proxy consumers (blank-import smoke
 modules in clean dirs, `go build` green): the 2026-09-04 waves, cqrs v0.5.0

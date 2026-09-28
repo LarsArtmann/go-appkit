@@ -4,7 +4,7 @@
 > Bounded, short-to-mid-term work lives in [TODO_LIST.md](TODO_LIST.md).
 > Point-in-time plans and research live in `doc/planning/`.
 
-**Updated:** 2026-09-17
+**Updated:** 2026-09-28
 
 ## North star
 
@@ -46,8 +46,10 @@ context: TODO_LIST footer and `doc/status/archived/2026-09-17_14-22_setup-usage-
 The growth pattern that works: OTHER repos adopt appkit as their host layer —
 appkit never grows application-shaped code.
 
-- **cqrs-htmx `setup`** — reference consumer; ADR-001 decided, spike-validated,
-  `RunWithAppkit` fold-in pending on their side.
+- **cqrs-htmx `setup`** — reference consumer; ADR-001 decided, `RunWithAppkit`
+  SHIPPED (drives an appkit Service; the Metrics/Version threading shipped in
+  setup/v4.12.0, 2026-09-22); the `Bundle.Run`/`RunHandler` internals flip and
+  the v5-window revisit remain on their side.
 - **PapDashboard** — recommended reverse adoption (their repo); researched
   2026-09-04, door held open in TODO_LIST P3. First concrete core-TLS feature
   request if they keep app-level TLS.
@@ -84,7 +86,9 @@ appkit never grows application-shaped code.
   Hub, if a consumer actually scales out.
 - Multi-recorder coordination ADR: one `fr.Recorder` serving the HTTP
   middleware + projection host + health triggers in one process (the READMEs
-  claim it works; an ADR should own the contract).
+  claim it works; an ADR should own the contract; pairs with the
+  go-health aggregate trigger below — both gate on the same multi-surface
+  demand signal).
 - cqrs ops/recipes backlog ported from the 2026-09-04 deep-dive brainstorm:
   CBOR→JSON transcode helper decision for SSE raw-payload consumers; one
   shared `fr.Recorder` demo across HTTP middleware + projections; DLQ admin
@@ -102,4 +106,5 @@ appkit never grows application-shaped code.
   Trigger: a real consumer needs single-endpoint multi-surface readiness →
   wrap aggregate in a Mounted-compatible handle (health module stays
   injector-free; go.mod floor would move to go-health v0.3.0, which
-  REQUIRES go >= 1.27.1 — gate on the toolchain floor decision too).
+  REQUIRES go >= 1.27.1 — the unification train now in flight resolves
+  that gate once it lands).
