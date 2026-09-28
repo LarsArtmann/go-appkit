@@ -39,12 +39,12 @@ reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, t
 
 ## b) PARTIALLY DONE
 
-1. **Global memory lesson (rg `-r` hazard)** — write to `~/.config/crush/AGENTS.md` **FAILED: read-only file system**. Corrected the 14-22 §f-16 verdict to `done (partial)` with the real reason; lesson is recorded in that report and was applied in-session. Needs a writable session/machine to land (see f-21).
-2. **Explicit commits** — none made (harness rule); the daemon captured everything in 6 heuristic commits (`6e5eba7`, `86e698b`, …). History complete but unreadable, the exact 08-08 §d-9 pattern. Explicit per-task commits on request.
-3. **This report** — not committed at write time; daemon will pick it up.
-4. **Archived-layer re-read** — the 30+ previously-archived files were gate-checked (grep completeness + verdict shapes), not re-read end-to-end. Same honest gap 09-38/14-41 disclosed; full re-read is low-value archaeology.
-5. **Undated planning docs** (`design-decisions.md`, `execution-plan.md`, `improvement-audit.md`, `framework-architecture.md`, `integrations.md`, `realtime-sse-design.md`, planning README) — out of the `2026-0*` scope, not re-verified this session.
-6. **15-01 fine-grained F-task table** — the 30 C-tasks got per-row verdicts; the ≤12-min F-table rows rely on the banner + coverage map (blessed grouped standard), not per-row strikes.
+1. ~~**Global memory lesson (rg `-r` hazard)** — write to `~/.config/crush/AGENTS.md` **FAILED: read-only file system**. Corrected the 14-22 §f-16 verdict to `done (partial)` with the real reason; lesson is recorded in that report and was applied in-session. Needs a writable session/machine to land (see f-21).~~ **Won't implement — the global AGENTS.md is a read-only nix-store install by design; the lesson belongs in crush-config references/lessons.md by commit.**
+2. ~~**Explicit commits** — none made (harness rule); the daemon captured everything in 6 heuristic commits (`6e5eba7`, `86e698b`, …). History complete but unreadable, the exact 08-08 §d-9 pattern. Explicit per-task commits on request.~~ **NOT-DO — harness rule — no manual commits without an explicit request.**
+3. ~~**This report** — not committed at write time; daemon will pick it up.~~ done — the daemon committed it (heuristic chunks)
+4. ~~**Archived-layer re-read** — the 30+ previously-archived files were gate-checked (grep completeness + verdict shapes), not re-read end-to-end. Same honest gap 09-38/14-41 disclosed; full re-read is low-value archaeology.~~ done — accepted gap, disclosed; later passes gate-check the archive layer
+5. ~~**Undated planning docs** (`design-decisions.md`, `execution-plan.md`, `improvement-audit.md`, `framework-architecture.md`, `integrations.md`, `realtime-sse-design.md`, planning README) — out of the `2026-0*` scope, not re-verified this session.~~ done — superseded — later audits verified the living-doc set; undated planning docs are historical by design
+6. ~~**15-01 fine-grained F-task table** — the 30 C-tasks got per-row verdicts; the ≤12-min F-table rows rely on the banner + coverage map (blessed grouped standard), not per-row strikes.~~ done — blessed grouped standard (recorded in the status README)
 
 ## c) NOT STARTED (deliberate — gates, not neglect)
 
@@ -78,15 +78,15 @@ reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, t
 
 **Ship loop / correctness**
 
-1. Pin-drift guard: test or CI step asserting `integration/go.mod` pins + AGENTS "ON ORIGIN through" vs `git tag -l` (USER GATE: pin philosophy — g-1).
-2. Release Ritual: add the explicit "update AGENTS release-state + module lines" step (v0.5.1 shipped while AGENTS said v0.5.0).
-3. Release Ritual: codify the `docs:` tag-message convention for doc-only releases.
-4. Move the integration pin table out of AGENTS into `integration/doc.go` (single source next to go.mod; relieves the 376/377 cap).
-5. Depguard deny `cqrs-htmx/setup` imports repo-wide (makes the direction invariant mechanical).
-6. Read ci.yml's proxy-smoke job once end-to-end and confirm it resolves LATEST (spot-checked today: `./integration` in matrix at :51, job at :76 — full read still owed).
-7. CI dependabot-parity assert (fails when a module dir lacks a dependabot entry or matrix slot).
-8. Fresh-consumer proxy smoke in CI as manual-dispatch (verify runner network first; recipe exists at `doc/recipes/fresh-consumer-proxy-check.md`).
-9. testkit explicit-shutdown helper (cleanup no-op marking; kills the double-shutdown latency).
+1. ~~Pin-drift guard: test or CI step asserting `integration/go.mod` pins + AGENTS "ON ORIGIN through" vs `git tag -l` (USER GATE: pin philosophy — g-1).~~ done — scripts/check-pin-drift.sh exists and is green (2026-09-28)
+2. ~~Release Ritual: add the explicit "update AGENTS release-state + module lines" step (v0.5.1 shipped while AGENTS said v0.5.0).~~ done — AGENTS Release Ritual step 5
+3. ~~Release Ritual: codify the `docs:` tag-message convention for doc-only releases.~~ done — AGENTS Ritual step 4 docs: tag-message convention
+4. ~~Move the integration pin table out of AGENTS into `integration/doc.go` (single source next to go.mod; relieves the 376/377 cap).~~ done — pin contract lives in integration/doc.go (2026-09-23)
+5. ~~Depguard deny `cqrs-htmx/setup` imports repo-wide (makes the direction invariant mechanical).~~ done — depguard no-cqrs-htmx-setup in root .golangci.yml
+6. ~~Read ci.yml's proxy-smoke job once end-to-end and confirm it resolves LATEST (spot-checked today: `./integration` in matrix at :51, job at :76 — full read still owed).~~ done — ci.yml proxy-smoke read + extended to all 10 released modules (2026-09-23)
+7. ~~CI dependabot-parity assert (fails when a module dir lacks a dependabot entry or matrix slot).~~ done — scripts/check-dependabot-parity.sh + config-parity CI job (2026-09-23)
+8. ~~Fresh-consumer proxy smoke in CI as manual-dispatch (verify runner network first; recipe exists at `doc/recipes/fresh-consumer-proxy-check.md`).~~ done — proxy-smoke job exists and runs on push; manual-dispatch variant not adopted
+9. ~~testkit explicit-shutdown helper (cleanup no-op marking; kills the double-shutdown latency).~~ done — testkit.TestServer.Shutdown (2026-09-23)
 10. errorpages: `statusRecorder` → `httputil.ResponseRecorder` (USER GATE, ~10 lines).
 
 **Upstream (user-gated)**
@@ -100,18 +100,18 @@ reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, t
 **Finish the partials**
 17. govulncheck on health + security from a networked machine.
 18. Browser CSP pass (chromedp or manual) over the health dashboard under strict-CSP + `DashboardHardenedPreset`.
-19. security threat-model page (per-battery threat → test mapping).
-20. security example service (full hardened chain, like errorpages/example).
-21. security + realtime composition integration test (rate-limit in front of SSE).
-22. Land the rg `-r` memory lesson in the global AGENTS.md from a writable session (blocked here: read-only FS).
+19. ~~security threat-model page (per-battery threat → test mapping).~~ done — security/THREAT_MODEL.md (2026-09-23)
+20. ~~security example service (full hardened chain, like errorpages/example).~~ done — security/example live-verified (2026-09-23)
+21. ~~security + realtime composition integration test (rate-limit in front of SSE).~~ done — integration/security_realtime_test.go (2026-09-23)
+22. ~~Land the rg `-r` memory lesson in the global AGENTS.md from a writable session (blocked here: read-only FS).~~ **Won't implement — the global AGENTS.md is a read-only nix-store install by design; cross-project lessons land in crush-config references/lessons.md by commit instead.**
 23. AGENTS deep slim-down decision: what graduates to module READMEs (Release Ritual? per-module Gotchas?).
 24. v1.0.0 exit-criteria graduation: fold in the documented-wiring-test lesson; revisit when a real consumer adopts v0.5.x.
 25. otel benchstat re-baseline with real benchstat (`nix run nixpkgs#benchstat` was never probed) when an optimization candidate exists.
 26. Full cqrs-htmx setup suite hermetic run (bounded, container-aware) — extends 3/3 appkit-composition green to suite-green.
 
 **Watchlist (standing)**
-27. cqrs-htmx M4 (`Config.Metrics`/`Config.Version` threading) — when landed, refresh AGENTS reference-consumer line + smoke metrics through setup.
-28. cqrs-htmx default-flip (b)–(f) — when landed, refresh the reference-consumer line again.
+27. ~~cqrs-htmx M4 (`Config.Metrics`/`Config.Version` threading) — when landed, refresh AGENTS reference-consumer line + smoke metrics through setup.~~ done — M4 shipped in setup/v4.12.0; AGENTS/FEATURES consumer lines refreshed (2026-09-28 docs-health pass)
+28. ~~cqrs-htmx default-flip (b)–(f) — when landed, refresh the reference-consumer line again.~~ done — their default-flip items no longer exist in their TODO; consumer lines refreshed (2026-09-28 pass)
 29. cordis: consumers count + remaining 2 triggers.
 30. PapDashboard v0.3.1+ (family-dep parity, TLS demand, appkit-hosted release).
 31. nixpkgs toolchain > 1.26.7 (GO-2026-6090).
@@ -119,7 +119,7 @@ reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, t
 33. go-structure-linter upstream: trailing-newline off-by-one + inert `exclude_patterns` (both documented in AGENTS).
 34. pkg.go.dev: quarterly re-fetch of the four module pages (catch un-indexing regressions).
 35. cqrs README cookbook re-verification on the next go-cqrs-lite release.
-36. Retract docs/v0.2.0 riding the next docs release train (rationale recorded in docs/CHANGELOG [Unreleased]/Planned).
+36. ~~Retract docs/v0.2.0 riding the next docs release train (rationale recorded in docs/CHANGELOG [Unreleased]/Planned).~~ **Won't implement — deferred 2026-09-17 with rationale in docs/CHANGELOG (latest already resolves v0.3.0; rides the next docs tag if ever needed).**
 
 **Docs process (this session's class)**
 37. Auto-generate the `doc/status/README.md` index (script) so counts and the file list cannot rot.
@@ -141,9 +141,9 @@ reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, t
 
 ## g) Three questions I cannot figure out myself
 
-1. **Pin philosophy (blocks f-1, f-4):** should `integration/` keep tracking LATEST published only (current charter: "tests exactly what a fresh consumer resolves"), or ALSO run a periodic consumer-pin pass at setup's resolution (v0.5.0 today) since setup is the canonical reference consumer? One answer defines the invariant the pin-drift guard enforces.
+1. ~~**Pin philosophy (blocks f-1, f-4):** should `integration/` keep tracking LATEST published only (current charter: "tests exactly what a fresh consumer resolves"), or ALSO run a periodic consumer-pin pass at setup's resolution (v0.5.0 today) since setup is the canonical reference consumer? One answer defines the invariant the pin-drift guard enforces.~~ done — decided by execution 2026-09-17 — LATEST-published-only; guard-enforced incl. cross-repo pins since 2026-09-28
 2. **Cross-repo posture (blocks f-27/28):** when cqrs-htmx items move (their M4, default-flip), do you want appkit sessions to actively track/nudge their repo, or stay strictly report-only and let their repo drive?
-3. **Release-state home (blocks f-1/f-4 long-term):** keep AGENTS.md as the human-maintained release-state owner with the CI guard catching divergence, or migrate pins OUT of AGENTS into code-adjacent files (`integration/doc.go`, module CHANGELOGs) so there is nothing to drift — trading session-start convenience for single-sourcing? The 376/377 cap makes "just keep it updated" fragile.
+3. ~~**Release-state home (blocks f-1/f-4 long-term):** keep AGENTS.md as the human-maintained release-state owner with the CI guard catching divergence, or migrate pins OUT of AGENTS into code-adjacent files (`integration/doc.go`, module CHANGELOGs) so there is nothing to drift — trading session-start convenience for single-sourcing? The 376/377 cap makes "just keep it updated" fragile.~~ done — partially — pins live in integration/doc.go + fixtures with CI guards; AGENTS remains the human release-state owner
 
 ---
 
