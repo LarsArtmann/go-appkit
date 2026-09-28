@@ -270,9 +270,8 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 
 ## Testing
 
-- Standard `testing` package, no external frameworks; tests run with `t.Parallel()`.
+- Standard `testing` package, no external frameworks; `t.Parallel()` throughout; everything green under `-race -count=1`.
 - Server tests use `freePort()` and `waitForRunning()` helpers (no `time.Sleep`).
-- All tests pass with `-race` flag and `-count=1`.
 - Default `DrainDelay` (5s) makes tests slow; use `DrainDelay: NoDrainDelay` in non-drain tests — `DrainDelay: 0` applies the 5s default (zero-value production safety), it does NOT disable the wait. Converting the suite dropped wall time ~30s → ~6s.
 
 ## Gotchas

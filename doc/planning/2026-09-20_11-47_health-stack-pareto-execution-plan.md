@@ -1,5 +1,14 @@
 # Execution Plan — Health-Stack Correctness Train (Pareto)
 
+> **EXECUTED 2026-09-20 — ALL 27 TASKS (T01–T27), grouped verdict per the
+> status-index standard:** every task's evidence lives in
+> `docs/status/archived/2026-09-20_14-05_health-stack-execution-train-status.md`
+> §a (two releases shipped: health v0.1.2 + frh v0.1.3; directive-parity CI
+> guard; `TestHealthStackThroughAppkitService`; `Mounted.Start` rollback fix;
+> hardened-dashboard composition test that caught the NonceFromContext godoc
+> bug; adoption scorecard 82 → 93/100). Residual open items route through
+> TODO_LIST (single source). Archived by the 2026-09-28 docs-health pass.
+
 **Created:** 2026-09-20 11:47 CEST
 **Scope:** all 50 tasks from `doc/status/2026-09-20_11-37_samber-do-health-review-session.md` §f (findings F1–F8 + session-noticed items) — nothing else; pre-existing `TODO_LIST.md` items stay tracked there.
 **Method:** pareto-planning — 1% → 51%, 4% → 64%, 20% → 80%, remaining 80% of tasks → final 20%.

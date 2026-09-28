@@ -32,11 +32,11 @@
 
 ## b) PARTIALLY DONE
 
-1. **Toolchain drift remediation** — root + health normalized; the other **9 modules untouched** (directives still span 1.26.5 / 1.26.7 / 1.27), `go.work` still stale at 1.26, `check-go-directives.sh` still FAIL on all 11.
-2. **Deduplication** — 2 of 3 actionable groups extracted; the accepted group remains visible by design; the **82 auto-suppressed groups were never inspected**.
-3. **Session verification** — 2 of 11 modules proven green. The other 9 (incl. `integration`, which pins published tags) are untested under go1.27.1.
-4. **AGENTS.md** — gotcha note added, but the per-module build-command blocks were NOT rewritten (copy-pasting them still fails until the directive unification lands). File is now at its 377-line cap with zero headroom.
-5. **Module CHANGELOGs** — no `[Unreleased]` entries were added for the two refactors (keep-a-changelog scaffolds exist in core and health).
+1. ~~**Toolchain drift remediation** — root + health normalized; the other **9 modules untouched** (directives still span 1.26.5 / 1.26.7 / 1.27), `go.work` still stale at 1.26, `check-go-directives.sh` still FAIL on all 11.~~ done — advanced — integration + security joined 1.27.1 on 09-28; 7 satellites still lag (TODO P2 unification train)
+2. ~~**Deduplication** — 2 of 3 actionable groups extracted; the accepted group remains visible by design; the **82 auto-suppressed groups were never inspected**.~~ done — 2 of 3 extracted; group-2 acceptance rationale now Decision 13 in doc/planning/design-decisions.md
+3. ~~**Session verification** — 2 of 11 modules proven green. The other 9 (incl. `integration`, which pins published tags) are untested under go1.27.1.~~ done — later trains proved more; root + health + frh + integration + security all green 2026-09-28
+4. ~~**AGENTS.md** — gotcha note added, but the per-module build-command blocks were NOT rewritten (copy-pasting them still fails until the directive unification lands). File is now at its 377-line cap with zero headroom.~~ done — AGENTS toolchain note rewritten 2026-09-28 (GOTOOLCHAIN=go1.27.1 GOWORK=off guidance)
+5. ~~**Module CHANGELOGs** — no `[Unreleased]` entries were added for the two refactors (keep-a-changelog scaffolds exist in core and health).~~ done — CHANGELOG [Unreleased] entries added 2026-09-28 (core runHooks + hook-code tests, health setStarted, frh slices.Sort)
 
 ## c) NOT STARTED
 
@@ -68,7 +68,7 @@
 
 **P0 — unblock the repo**
 
-1. Decide the go-directive floor policy (Question 1 below).
+1. ~~Decide the go-directive floor policy (Question 1 below).~~ done — direction set by execution (partial unification); completing the train is the TODO P2 item
 2. Unify all 11 go.mods to the chosen floor; regenerate `go work use`.
 3. Make `check-go-directives.sh` green locally.
 4. Re-run the full per-module matrix (build/vet/test -race) on all 11 modules.
@@ -76,36 +76,36 @@
 6. Verify gopls/LSP diagnostics recover after the go.work fix (restart LSP).
 7. Commit or CI-generate `go.work` (decide tracked status; CI job reads it).
 8. Verify the CI `go-directives` job's actual remote state (suspected red).
-9. Run `./scripts/check-pin-drift.sh` (release-ritual step 5; cheap).
-10. Run the `integration` module suite (pins published tags) under the unified state.
-11. Update AGENTS.md build-command blocks to match the post-unification reality (drop GOTOOLCHAIN prefix and/or stale GOEXPERIMENT notes).
-12. Trim AGENTS.md back under the cap with headroom (extract the toolchain note detail if needed).
-13. Add the hook-error-code pinning test (`server.drain_hook_failed` / `server.shutdown_hook_failed`).
-14. Add `[Unreleased]` CHANGELOG entries for the `setStarted` and `runHooks` refactors (core + health).
+9. ~~Run `./scripts/check-pin-drift.sh` (release-ritual step 5; cheap).~~ done — ran green 2026-09-28
+10. ~~Run the `integration` module suite (pins published tags) under the unified state.~~ done — integration suite green on the 1.27.1 workspace state (2026-09-28)
+11. ~~Update AGENTS.md build-command blocks to match the post-unification reality (drop GOTOOLCHAIN prefix and/or stale GOEXPERIMENT notes).~~ done — AGENTS toolchain note rewritten 2026-09-28
+12. ~~Trim AGENTS.md back under the cap with headroom (extract the toolchain note detail if needed).~~ done — 376→377 with the integration/doadapter rows added; standing pressure lives in the TODO P3 slim-down item
+13. ~~Add the hook-error-code pinning test (`server.drain_hook_failed` / `server.shutdown_hook_failed`).~~ done — hookcodes_test.go pins both codes + every-hook-runs (2026-09-28)
+14. ~~Add `[Unreleased]` CHANGELOG entries for the `setStarted` and `runHooks` refactors (core + health).~~ done — core + health (+ frh) [Unreleased] CHANGELOG entries added 2026-09-28
 15. Audit auto-commit `ea17377` (9 files) — what drifted the module directives in the first place.
 
 **P1 — close this session's gaps**
 16. Inspect the 82 suppressed art-dupl groups; confirm suppression is sound.
-17. Re-run art-dupl at `-t 5` and `-t 10` for a comparison baseline.
-18. Decide standing policy for the accepted sorted-keys clone (exclude config vs keep visible).
+17. ~~Re-run art-dupl at `-t 5` and `-t 10` for a comparison baseline.~~ done — superseded by the 2026-09-28 -t 1 sweep; standards recorded in AGENTS Clone posture
+18. ~~Decide standing policy for the accepted sorted-keys clone (exclude config vs keep visible).~~ done — Decision 13 in doc/planning/design-decisions.md owns the accepted-clone rationale
 19. Fresh-consumer proxy smoke for core (go.mod/go.sum changed; next tag ships them) per `doc/recipes/fresh-consumer-proxy-check.md`.
 20. Audit auto-commits `928633f` / `a1aea5b` (this session's daemon commits) for sane messages/content.
-21. Run `check-dependabot-parity.sh` locally once (cheap guard verification).
+21. ~~Run `check-dependabot-parity.sh` locally once (cheap guard verification).~~ done — ran green 2026-09-28
 22. Check whether dependabot's grouped gomod updates are what bumps go directives; add ignore/allow rules if so.
 23. Verify go-etag v0.6.0 is actually required transitively by which modules (the "unimported" in its commit message is misleading — `entitytag`/`server` are live in the graph).
 24. Wire `check-go-directives.sh` into BuildFlow pre-commit so parity breaks before push, not in CI.
 25. Record the cross-project lesson ("check GOTOOLCHAIN/go.work parity before trusting AGENTS build commands") in crush-config `references/lessons.md`.
 
 **P2 — quality / hygiene**
-26. HARVEST this report into TODO_LIST.md (P0 items as actionable tasks, the rest as roadmap fuel).
-27. `sort.Strings` → `slices.Sort` modernization sweep (Go 1.21+ idiom; noticed at all three accepted sites).
+26. ~~HARVEST this report into TODO_LIST.md (P0 items as actionable tasks, the rest as roadmap fuel).~~ done — 2026-09-28 docs-health harvest routed the actionable items into TODO_LIST
+27. ~~`sort.Strings` → `slices.Sort` modernization sweep (Go 1.21+ idiom; noticed at all three accepted sites).~~ done — frh sort.Strings → slices.Sort (2026-09-28); the other two sites already use slices.Sorted
 28. Consider a named `type Hook func(context.Context) error` to shorten the `runHooks` signature (config.go already declares the raw func type twice).
 29. Live E2E of `example/` and `health/example` after the refactors (tests cover compile paths; demos cover the wired path).
-30. Design-decision entry for "accepted duplication" in `doc/planning/design-decisions.md` (one paragraph, so the accept survives personnel changes).
+30. ~~Design-decision entry for "accepted duplication" in `doc/planning/design-decisions.md` (one paragraph, so the accept survives personnel changes).~~ done — Decision 13 added to doc/planning/design-decisions.md (2026-09-28)
 31. Decide whether art-dupl becomes a recurring BuildFlow/ritual step or stays ad-hoc.
-32. Dry-run the `go work use` fix in a scratch work file before touching the real one.
+32. ~~Dry-run the `go work use` fix in a scratch work file before touching the real one.~~ **NOT-DO — moot — go.work was already regenerated at 1.27.1.**
 33. Decide machine-level `GOTOOLCHAIN` policy (Question 2) — upgrade default toolchain to go1.27.1 or keep the pin.
-34. Confirm health module's `go-health v0.3.0` evaluation note in AGENTS is still accurate post-drift (untouched this session, listed for the next docs pass).
+34. ~~Confirm health module's `go-health v0.3.0` evaluation note in AGENTS is still accurate post-drift (untouched this session, listed for the next docs pass).~~ done — ROADMAP entry verified accurate incl. the 1.27.1 floor gate (2026-09-28)
 
 **P3 — roadmap fuel (from this session only)**
 35. Testkit (`testkit.Serve`) could grow a drain-window assertion helper — the drain contract tests hand-roll it today.
@@ -114,22 +114,22 @@
 38. Consider vendoring-toolchain pinning (`go.mod` `toolchain` directive) so the floor survives `GOTOOLCHAIN=local` machines.
 39. `metrics.go` sortedRoutes: keys embed `|` separators with `SplitN` — a small typed seriesKey would kill the stringly-typed join/split pair (data-model polish noticed in passing).
 40. Add CI job ordering: directives-guard first so red parity fails fast before the expensive matrix.
-41. AGENTS.md Release Ritual: add "run check-go-directives.sh" next to check-pin-drift (step 5 extension).
+41. ~~AGENTS.md Release Ritual: add "run check-go-directives.sh" next to check-pin-drift (step 5 extension).~~ done — Release Ritual step 5 now names check-go-directives.sh alongside check-pin-drift.sh
 42. Consider `errors.Join` output formatting test (multi-hook failure message shape is unobserved).
 43. Document the `/mnt/buildcache` toolchain cache trick in the recipes dir (session-specific discovery, generalizes).
 44. Add a session-startup doctor step: `go env GOTOOLCHAIN` + `check-go-directives.sh` before trusting any build command.
-45. Write the `server.*_hook_failed` codes into `doc/DOMAIN_LANGUAGE.md` if it exists — they are consumer-matchable contracts.
-46. Evaluate whether `runHooks`'s "let every hook run" semantics deserve an explicit test (failure in hook 1 doesn't stop hook 2).
-47. Add the accepted-duplication rationale as a one-line `// intentional:` marker decision — pending policy from item 18.
-48. Sweep for other `var errs []error` + `errors.Join` patterns that could reuse the new `runHooks` shape (none found this session; confirm).
+45. ~~Write the `server.*_hook_failed` codes into `doc/DOMAIN_LANGUAGE.md` if it exists — they are consumer-matchable contracts.~~ done — error codes recorded in doc/DOMAIN_LANGUAGE.md Events table (2026-09-28)
+46. ~~Evaluate whether `runHooks`'s "let every hook run" semantics deserve an explicit test (failure in hook 1 doesn't stop hook 2).~~ done — TestHooks_EveryHookRunsWhenAnEarlierOneFails (2026-09-28)
+47. ~~Add the accepted-duplication rationale as a one-line `// intentional:` marker decision — pending policy from item 18.~~ done — Decision 13 records the no-exclude-config suppression policy
+48. ~~Sweep for other `var errs []error` + `errors.Join` patterns that could reuse the new `runHooks` shape (none found this session; confirm).~~ done — swept 2026-09-24 (none found); re-confirmed no new sites 2026-09-28
 49. Go error-family: consider asking upstream for doc clarification on `WrapInfrastructuref` printf semantics (vet interaction surprised us).
 50. Post-unification: re-run the otel benchmark baseline once (module untouched, but toolchain jump 1.26.7 → 1.27.1 invalidates the 2026-09-16 numbers on principle).
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **Go-directive floor policy:** unify all 11 modules + `go.work` at **go 1.27.1** (accept what go-etag v0.6.0 forces, and expect dependabot to keep pushing), or downgrade/pin go-etag to keep a 1.26.7 floor? This decides items 1–5 and whether today's tidy direction was correct.
+1. ~~**Go-directive floor policy:** unify all 11 modules + `go.work` at **go 1.27.1** (accept what go-etag v0.6.0 forces, and expect dependabot to keep pushing), or downgrade/pin go-etag to keep a 1.26.7 floor? This decides items 1–5 and whether today's tidy direction was correct.~~ done — superseded — the bump side won (partial unification); completing the train is the TODO P2 item
 2. **`GOTOOLCHAIN=local`:** is the machine pin deliberate (reproducibility) — in which case repo commands should carry explicit overrides — or may it flip to `auto` so go.mod-driven toolchain selection just works? It changes what item 11 and 33 should look like.
-3. **`doc/` vs `docs/`:** repo history keeps status/planning/feedback under `doc/` (singular; `docs/` is the catalog Go module), while you and the status-report skill both say `docs/status/`. Which path is canonical going forward? (I followed your explicit instruction this time — this file lives in `docs/status/` — but the split is now real.)
+3. ~~**`doc/` vs `docs/`:** repo history keeps status/planning/feedback under `doc/` (singular; `docs/` is the catalog Go module), while you and the status-report skill both say `docs/status/`. Which path is canonical going forward? (I followed your explicit instruction this time — this file lives in `docs/status/` — but the split is now real.)~~ done — RESOLVED 2026-09-28 — docs/status is canonical; the doc/status tree (reports + archive + index) migrated there
 
 ---
 

@@ -1,5 +1,16 @@
 # SUPERB Plan v4 — Drift Guards, Security Adoption & the Gated Unlocks
 
+> **EXECUTED IN TRAINS 2026-09-20/23 — grouped verdict per the status-index
+> standard:** drift guards SHIPPED (`check-pin-drift.sh` + `check-go-directives.sh`
+> + `check-dependabot-parity.sh` + CI jobs, 09-17/20/23); security trio SHIPPED
+> (THREAT_MODEL.md + example + `integration/security_realtime_test.go`, 09-23,
+> live-verified); testkit.TestServer.Shutdown SHIPPED (09-23); pin contract moved
+> to `integration/doc.go` (09-23); health-stack train SHIPPED (09-20, see the
+> 11-47 plan banner). The gated unlocks (upstream filings, `NewServerListener`,
+> composition refactor, Core TLS) were NEVER self-authorized — they live, with
+> their gates, in TODO_LIST (the single source). Archived by the 2026-09-28
+> docs-health pass; TODO_LIST supersedes this plan as the live backlog.
+
 **Created:** 2026-09-17 19:20 CEST · **Predecessor:** `doc/planning/archived/2026-09-17_08-35_SUPERB-productization-proof-and-handler-dx.md` (v3 — superseded UNEXECUTED; its gates carry forward) ← `doc/planning/archived/2026-09-16_15-01_SUPERB-visibility-correctness-and-batteries-plan.md` (EXECUTED) · **Inputs:** TODO_LIST.md (21 open items, post docs-health rebuild 2026-09-17), the 19-13 status report §f (50 items, harvested), AGENTS Deferred Register.
 
 **Scope:** ALL open go-appkit work — every TODO_LIST item, every harvested §f item, every standing ritual and watchlist entry appears EXACTLY ONCE below (Coverage Map at the bottom proves it). Gated items are IN the plan with their gates named; this plan does not self-authorize gates.
