@@ -74,7 +74,7 @@ cd integration && GOWORK=off go test ./... -race -count=1
 cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
 ```
 
-**Toolchain drift (2026-09-24):** `GOTOOLCHAIN=local` (go1.26.7) + module go.mods at mixed 1.26.5–1.27.1 (go-etag v0.6.0 forced root+health to `go 1.27.1` via `go mod tidy`; they no longer build on anything older) + untracked go.work still at `go 1.26` = every workspace command and the LSP fail, and `scripts/check-go-directives.sh` FAILs on all 11 modules. Until directives are unified (likely all at 1.27.1 + `go work use`), prefix every module command with `GOTOOLCHAIN=go1.27.1 GOWORK=off` — both 1.27.x toolchains are already cached in /mnt/buildcache.
+**Toolchain drift (2026-09-24, partial unification 2026-09-28):** go.work, root, health, and integration go.mods are at `go 1.27.1` (integration joined via `go mod tidy`; its `documentedGoDirective` fixture pins 1.27.1); flightrecorder (1.27), flightrecorderhealth (1.26.5), otel (1.27), realtime (1.26.7), and security (1.27) still lag, so `scripts/check-go-directives.sh` FAILs on those 5. Prefix every module command with `GOTOOLCHAIN=go1.27.1 GOWORK=off` until the stragglers unify — both 1.27.x toolchains are cached in /mnt/buildcache.
 
 BuildFlow runs as pre-commit hook (auto-fixes formatting/lint on commit).
 

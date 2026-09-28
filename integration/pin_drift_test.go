@@ -44,7 +44,9 @@ var documentedPins = map[string]string{
 // accidental go 1.27.1 directive bump on 2026-09-17 broke every local
 // workspace command; a deliberate toolchain bump must land here, in
 // integration/go.mod, in go.work, and in AGENTS.md in the same change.
-const documentedGoDirective = "1.26.7"
+// 2026-09-28: integration joined the root/go.work/health 1.27.1 side of the
+// unification (go mod tidy); five satellite modules still lag.
+const documentedGoDirective = "1.27.1"
 
 func TestGoModPinsMatchDocumentedPins(t *testing.T) {
 	t.Parallel()
