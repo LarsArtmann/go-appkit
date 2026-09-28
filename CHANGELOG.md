@@ -22,6 +22,10 @@
 - Internal refactor: the drain-hook and shutdown-hook runners (identical
   except hooks slice + error code) share one `runHooks` helper; error
   codes pass through byte-identical. Behavior-neutral.
+- Internal refactor: `sortedRoutes` collects sorted map keys via
+  `slices.Sorted(maps.Keys(...))` instead of a hand-rolled collect + sort;
+  returns nil (not an empty non-nil slice) for empty maps — safe for all
+  callers (range-only). Behavior-neutral otherwise.
 
 ## [0.5.1] - 2026-09-17
 

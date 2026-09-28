@@ -4,6 +4,10 @@
 
 ### Changed
 
+- Internal refactor: `sortedEngineNames` collects sorted map keys via
+  `slices.Sorted(maps.Keys(...))` instead of a hand-rolled collect + sort;
+  returns nil (not an empty non-nil slice) for empty maps — safe for all
+  callers (range-only). Behavior-neutral otherwise.
 - Bumped `go-error-family` v0.10.0 → v0.10.1 (docs/CI-only release
   upstream: zero code changes; readme/licensing/CI work). Hygiene pin — no
   consumer-visible behavior change.
