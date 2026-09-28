@@ -70,6 +70,10 @@ Things that happen in the domain.
 | Shutdown phase complete | The grep-able per-phase log line contract (`ready_flip`, …)             | Core shutdown logging         |
 | WorkerFailed            | Terminal projection-worker failure; the DLQ/flight-recorder hook point  | cqrs / projectionhost         |
 | Health-check batch      | One round of all probe checks; the flightrecorderhealth intercept point | health / flightrecorderhealth |
+| `server.drain_hook_failed`   | Error code on a failing `DrainHooks` error (via `errorfamily.Code`) — consumer-matchable contract | Core drain |
+| `server.shutdown_hook_failed` | Error code on a failing `ShutdownHooks` error (via `errorfamily.Code`) — consumer-matchable contract | Core shutdown |
+| `server.shutdown_failed`      | Error code when the listener/server close itself fails | Core shutdown |
+| `server.listen_failed`        | Synchronous classified error from `Start` when the port cannot bind | Core startup |
 
 ## Commands
 

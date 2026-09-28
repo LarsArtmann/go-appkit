@@ -73,6 +73,28 @@ while read -r mod want; do
 	fi
 done <<<"$pins"
 
+# 2b) Cross-repo contract pins (cqrs-htmx, go-sse, ssetest, httputil) ==
+#     newest PUBLISHED version. The 2026-09-28 audit found cqrs-htmx pinned
+#     at v4.9.0 while v4.12.0 was latest — nothing guarded cross-repo pins,
+#     so integration was NOT testing what a fresh consumer resolves. These
+#     live in other repos, so the newest version comes from the module proxy
+#     (needs network; CI and dev machines have it).
+for mod in github.com/larsartmann/cqrs-htmx/v4 github.com/larsartmann/go-sse github.com/larsartmann/go-sse/ssetest github.com/larsartmann/httputil; do
+	want="$(awk '/^require \(/,/^\)/' "$go_mod" | awk -v m="$mod" '$1 == m && $0 !~ /\/\/ indirect/ {print $2}')"
+	if [[ -z "$want" ]]; then
+		fail "$go_mod has no direct require for $mod"
+		continue
+	fi
+	latest="$(GOWORK=off go list -m -versions "$mod" 2>/dev/null | tr ' ' '\n' | grep -E '^v[0-9]+\.[0-9]+' | sort -V | tail -n1 || true)"
+	if [[ -z "$latest" ]]; then
+		fail "$mod: could not query the module proxy for published versions"
+	elif [[ "$want" == "$latest" ]]; then
+		ok "$mod pinned at latest published version $latest"
+	else
+		fail "$mod pinned at $want but latest published version is $latest (bump integration/go.mod + the documentedPins fixture together)"
+	fi
+done
+
 # 3) root go.mod vs go.work go directive.
 gomod_go="$(awk '$1 == "go" { print $2; exit }' go.mod 2>/dev/null || true)"
 gowork_go="$(awk '$1 == "go" { print $2; exit }' go.work 2>/dev/null || true)"

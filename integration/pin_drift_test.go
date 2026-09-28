@@ -36,7 +36,7 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/cqrs-htmx/v4":   "v4.12.0",
 	"github.com/larsartmann/go-sse":         "v0.6.1",
 	"github.com/larsartmann/go-sse/ssetest": "v0.3.0",
-	"github.com/larsartmann/httputil":       "v1.2.0",
+	"github.com/larsartmann/httputil":       "v1.4.0",
 }
 
 // documentedGoDirective pins the language version this module (and the rest of
