@@ -262,3 +262,15 @@ huma.Get(api, "/users/{id}", typedHandler)
 - appkit/cqrs keeps direct `stack/sqlite` + `projectionhost/v4` pins (v4.3.0 line, storage v4.6.0 skew documented in AGENTS.md).
 - Watch `system/v4` releases quarterly; re-verify triggers at each cqrs minor release.
 - cqrs-htmx remains free to adopt `system` independently — nothing in this decision constrains it.
+
+## Decision 13: accepted duplication — idiomatic patterns stay per-module
+
+> **Status:** Decided 2026-09-28 (art-dupl sweeps `-t 3` and `-t 1`). **Context:** clone detection keeps reporting the same cross-module shapes: functional-options `Option func(*xConfig)` types + `for _, opt := range opts` loops in every module, `cfg := appkit.DefaultServiceConfig()` bootstrap blocks in example mains, and sorted-map-keys collects in independent modules.
+
+**Decision:** these are ACCEPTED duplication, by category:
+
+- **Functional-options plumbing** — extraction would couple independently versioned modules through a shared options library for an idiom every Go reader knows. Each module's `xConfig` is private and evolves on its own release cadence.
+- **Example-main config bootstrap** — the examples are self-contained teaching artifacts; sharing a bootstrap helper would make each demo unreadable without the helper.
+- **Idiomatic micro-patterns** (e.g. collecting sorted map keys) — the standard is `slices.Sorted(maps.Keys(...))` (never a hand-rolled collect+sort loop), and identical idioms in two modules are similarity, not duplication.
+
+Suppression policy: the accepted shapes stay VISIBLE in art-dupl output (no exclude-config), so a future real clone inside the same family still stands out. Any NEW accepted clone gets its rationale recorded here, one paragraph, so the accept survives personnel changes.

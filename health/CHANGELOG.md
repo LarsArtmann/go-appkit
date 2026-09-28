@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   one-line request→context bridge lambda (caught by composing the preset in
   the integration module's hardened-dashboard test).
 
+### Changed
+
+- Internal refactor: the three identical mutex-guarded `started = false`
+  flips (failed probe Start / failed dashboard Start / Shutdown) share one
+  `setStarted` helper; the "started is only mutated under the mutex"
+  invariant now lives in exactly one place. Behavior-neutral.
+
 ## [0.1.2] - 2026-09-20
 
 ### Added

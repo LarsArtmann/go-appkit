@@ -12,6 +12,8 @@
 - `failingServiceNames` (trigger log field `failed_services`) is now sorted
   alphabetically — map iteration order was randomized; `firstError`'s
   godoc states the any-order contract explicitly.
+- `sort.Strings` → `slices.Sort` in `failingServiceNames` (Go 1.21+ idiom;
+  behavior-neutral).
 
 ### Documented
 

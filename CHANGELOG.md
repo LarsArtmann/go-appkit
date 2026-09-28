@@ -9,6 +9,19 @@
   runs once through a `sync.Once` shared with the `t.Cleanup`, so tests
   that assert post-shutdown behavior no longer pay a second shutdown wait
   in cleanup. Idempotent; later calls return nil.
+- Tests pinning the hook error-code contract:
+  `server.drain_hook_failed` / `server.shutdown_hook_failed` are now
+  asserted via `errorfamily.Code` (renaming either is a breaking change,
+  and a test now says so), plus a test pinning that a failing hook never
+  stops the remaining hooks (all run, errors joined). The codes were
+  previously documented but untested — a refactor could have renamed them
+  silently.
+
+### Changed
+
+- Internal refactor: the drain-hook and shutdown-hook runners (identical
+  except hooks slice + error code) share one `runHooks` helper; error
+  codes pass through byte-identical. Behavior-neutral.
 
 ## [0.5.1] - 2026-09-17
 
