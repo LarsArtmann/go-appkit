@@ -12,6 +12,7 @@
 //
 // PORT overrides the listen port (default 8090); the demo origin follows
 // PORT so the origin check keeps passing on a non-default port.
+//
 //	curl -i http://localhost:8090/ # public page, per-request nonce'd CSP
 //	curl -i http://localhost:8090/api/data # 401 — no key
 //	curl -i -H 'X-Api-Key: demo-key-123' http://localhost:8090/api/data # 200

@@ -96,6 +96,14 @@ Wire `hub.Shutdown` into `ServiceConfig.DrainHooks` or call it ahead of
   stream (fixed 2026-09-16); other proxies may need their own
   buffering-off configuration.
 
+## Composing with the security module
+
+A rate limiter in front of the SSE handler works as expected: the first
+subscriber streams normally, and a client over the limit is rejected with
+`429` + `Retry-After` before the stream opens (the chain aborts, the SSE
+handler never runs). This composition is pinned end-to-end by
+`integration/security_realtime_test.go`.
+
 ## License
 
 PROPRIETARY — see [LICENSE](LICENSE).
