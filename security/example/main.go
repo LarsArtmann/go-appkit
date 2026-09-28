@@ -10,6 +10,8 @@
 //
 //	API_KEY=demo-key-123 go run ./example
 //
+// PORT overrides the listen port (default 8090); the demo origin follows
+// PORT so the origin check keeps passing on a non-default port.
 //	curl -i http://localhost:8090/ # public page, per-request nonce'd CSP
 //	curl -i http://localhost:8090/api/data # 401 — no key
 //	curl -i -H 'X-Api-Key: demo-key-123' http://localhost:8090/api/data # 200
@@ -66,13 +68,14 @@ func main() {
 	}
 
 	apiKey := os.Getenv("API_KEY")
+	origin := originFromEnv()
 
 	svc.Mux.HandleFunc("GET /{$}", pageHandler)
 
-	apiChain := hardenedChain(apiKey, logger)
+	apiChain := hardenedChain(apiKey, origin, logger)
 	svc.Mux.Handle("GET /api/data", apiChain(http.HandlerFunc(dataHandler)))
 
-	echoChain := hardenedChain(apiKey, logger)
+	echoChain := hardenedChain(apiKey, origin, logger)
 	svc.Mux.Handle("POST /api/echo", echoChain(security.BodyLimit(demoBodyMax)(http.HandlerFunc(echoHandler))))
 
 	err = svc.Run(context.Background())
@@ -83,7 +86,7 @@ func main() {
 
 // hardenedChain wires the batteries in the README's canonical order. Each
 // route group builds its own chain so limiters never share bucket sets.
-func hardenedChain(apiKey string, logger *slog.Logger) func(http.Handler) http.Handler {
+func hardenedChain(apiKey, origin string, logger *slog.Logger) func(http.Handler) http.Handler {
 	rateLimit := security.RateLimit(security.RateLimitConfig{
 		Limit:        demoLimit,
 		Burst:        demoBurst,
@@ -91,13 +94,13 @@ func hardenedChain(apiKey string, logger *slog.Logger) func(http.Handler) http.H
 		MaxKeys:      demoMaxKeys,
 		KeyExtractor: nil,
 	})
-	origin := security.OriginCheck([]string{demoOrigin}, logger)
-	csrfCfg := httputil.CSRFConfig{TrustedOrigins: []string{demoOrigin}} //nolint:exhaustruct_v5 // documented defaults
+	originCheck := security.OriginCheck([]string{origin}, logger)
+	csrfCfg := httputil.CSRFConfig{TrustedOrigins: []string{origin}} //nolint:exhaustruct_v5 // documented defaults
 	csrf := security.CSRF(csrfCfg, logger)
 	auth := security.APIKeyAuth(apiKey)
 
 	return func(h http.Handler) http.Handler {
-		return rateLimit(origin(security.APIKeyCSRFBypass(csrf)(auth(h))))
+		return rateLimit(originCheck(security.APIKeyCSRFBypass(csrf)(auth(h))))
 	}
 }
 
@@ -166,4 +169,15 @@ func addrFromEnv() string {
 	}
 
 	return defaultAddr
+}
+
+// originFromEnv mirrors addrFromEnv: the allowed origin must match the
+// address the service actually serves on, or the origin check rejects the
+// demo's own browser traffic.
+func originFromEnv() string {
+	if port := os.Getenv("PORT"); port != "" {
+		return "http://localhost:" + port
+	}
+
+	return demoOrigin
 }
