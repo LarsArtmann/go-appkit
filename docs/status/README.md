@@ -17,10 +17,12 @@ research, and library analysis. New reports land HERE.
 | `2026-09-28_23-03_dedup-sweep-t1-and-unification-continuation.md`         | Dedup episode 2 (`-t 1`): 7 accepted clone groups with rationale, sorted-keys stdlib swaps, testkit.Serve adoption in integration; its go-appkit items executed by the 09-28/29 passes |
 | `2026-09-29_00-05_whouses-member-key-via-fix-status.md`                   | pdg session: severed go.work member-key traversal fixed in who-uses; crm consumer path revealed; cross-repo follow-ups routed                                                          |
 
-Execution plans are indexed beside the reports they execute — the active
-verdict docs in `doc/planning/` (composition-spike, cordis, papdashboard);
-executed/superseded plans live in `doc/planning/archived/` with verdict
-banners (the health-stack plan and SUPERB v3/v4 joined them on 2026-09-28).
+Execution plans are indexed beside the reports they execute — the ACTIVE
+plan is `docs/planning/2026-09-29_00-45_SUPERB-v5-unification-trains-and-gated-unlocks.md`
+(location per explicit instruction 2026-09-29); the standing verdict docs in
+`doc/planning/` (composition-spike, cordis, papdashboard); executed/superseded
+plans live in `doc/planning/archived/` with verdict banners (the health-stack
+plan and SUPERB v3/v4 joined them on 2026-09-28).
 
 Everything else is resolved and lives in `archived/` (42 files as of
 2026-09-28). New reports land here and migrate to `archived/` after a
