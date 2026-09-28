@@ -4,8 +4,9 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"fmt"
+	"maps"
 	"net/http"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -278,14 +279,7 @@ func (m *metricsCollector) writeResponseTotals(b *strings.Builder) {
 
 // sortedRoutes fixes the exposition order so scrapes are diffable.
 func (m *metricsCollector) sortedRoutes() []string {
-	keys := make([]string, 0, len(m.byRoute))
-	for key := range m.byRoute {
-		keys = append(keys, key)
-	}
-
-	sort.Strings(keys)
-
-	return keys
+	return slices.Sorted(maps.Keys(m.byRoute))
 }
 
 func formatBound(b float64) string {

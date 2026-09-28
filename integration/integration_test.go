@@ -12,6 +12,7 @@ import (
 	transport "github.com/larsartmann/cqrs-htmx/v4/transport"
 	appkit "github.com/larsartmann/go-appkit"
 	"github.com/larsartmann/go-appkit/realtime"
+	"github.com/larsartmann/go-appkit/testkit"
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
 	"github.com/larsartmann/go-cqrs-lite/storage/memory/v4"
@@ -26,8 +27,10 @@ import (
 // integration module pins PUBLISHED tags (what consumers resolve); since the
 // core v0.5.0 pin the NoDrainDelay sentinel IS available here, but the 1ms
 // explicit drain keeps the two SSE tests exercising the real drain wait.
-// The hub is mounted at /sse via realtime.Mount. Shutdown is wired via
-// t.Cleanup.
+// The hub is mounted at /sse via realtime.Mount. Start-wait and teardown
+// (graceful shutdown, server-error drain, goroutine-baseline leak assert)
+// go through testkit.Serve's own cleanup — the same harness the other
+// integration tests use.
 func newSSEService(t *testing.T, hub *realtime.Hub) *appkit.Service {
 	t.Helper()
 
@@ -43,38 +46,7 @@ func newSSEService(t *testing.T, hub *realtime.Hub) *appkit.Service {
 
 	realtime.Mount(svc.Mux, "/sse", hub)
 
-	errCh, err := svc.Start()
-	if err != nil {
-		t.Fatalf("start service: %v", err)
-	}
-
-	deadline := time.Now().Add(2 * time.Second)
-	for !svc.Running() {
-		if time.Now().After(deadline) {
-			t.Fatal("service did not start within timeout")
-		}
-
-		time.Sleep(time.Millisecond)
-	}
-
-	t.Cleanup(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		err := svc.Shutdown(ctx)
-		if err != nil {
-			t.Errorf("shutdown: %v", err)
-		}
-
-		select {
-		case err := <-errCh:
-			if err != nil {
-				t.Errorf("server returned error: %v", err)
-			}
-		case <-time.After(2 * time.Second):
-			t.Error("server did not stop after shutdown")
-		}
-	})
+	testkit.Serve(t, svc)
 
 	return svc
 }

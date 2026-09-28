@@ -18,7 +18,8 @@ import (
 	"errors"
 	"io"
 	"log/slog"
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -403,14 +404,7 @@ func auxDSN(cfg EventConfig, deployment system.DeploymentConfig) string {
 // sortedEngineNames returns the deployment's engine names in deterministic
 // order.
 func sortedEngineNames(deployment system.DeploymentConfig) []string {
-	names := make([]string, 0, len(deployment.Engines))
-	for name := range deployment.Engines {
-		names = append(names, name)
-	}
-
-	sort.Strings(names)
-
-	return names
+	return slices.Sorted(maps.Keys(deployment.Engines))
 }
 
 // buildAuxStores creates the default DLQ and checkpoint stores on the aux
