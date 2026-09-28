@@ -9,16 +9,16 @@
 
 ## Stat Cards
 
-| Metric | Value |
-| --- | --- |
-| Actionable clone groups shown | 9 → **7** (both eliminated groups: real fixes; all 7 remaining: accepted-by-design) |
-| Detected clone groups | 440 → 438 |
-| Code removed by dedup | **−52 lines / +12** across 3 files (`d1dd7ea`) |
-| Modules verified green (vet + test -race + lint 0) | **3** (core, cqrs, integration) |
-| Toolchain unification | 3 of 11 go.mods at 1.27.1 (root, health, **integration NEW**) + go.work |
-| Pre-existing red test fixed | 1 (`TestGoModGoDirectiveMatchesDocumentedToolchain`, red since the 1.27 bump) |
-| AGENTS.md length | 376/377 cap (1 line headroom — still effectively full) |
-| Suppressed groups ever inspected (both episodes) | **0 of ~431** |
+| Metric                                             | Value                                                                               |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Actionable clone groups shown                      | 9 → **7** (both eliminated groups: real fixes; all 7 remaining: accepted-by-design) |
+| Detected clone groups                              | 440 → 438                                                                           |
+| Code removed by dedup                              | **−52 lines / +12** across 3 files (`d1dd7ea`)                                      |
+| Modules verified green (vet + test -race + lint 0) | **3** (core, cqrs, integration)                                                     |
+| Toolchain unification                              | 3 of 11 go.mods at 1.27.1 (root, health, **integration NEW**) + go.work             |
+| Pre-existing red test fixed                        | 1 (`TestGoModGoDirectiveMatchesDocumentedToolchain`, red since the 1.27 bump)       |
+| AGENTS.md length                                   | 376/377 cap (1 line headroom — still effectively full)                              |
+| Suppressed groups ever inspected (both episodes)   | **0 of ~431**                                                                       |
 
 ---
 
@@ -57,7 +57,7 @@
 
 Nothing new this session is truly fucked. The honest list, in order of embarrassment:
 
-1. **Two written-down improvement items from episode 1 were REPEATED, not avoided.** Episode 1's e-list said: (a) "Changelog-with-refactor — internal refactors on released modules get an `[Unreleased]` CHANGELOG line in the same train"; (b) "Baseline-first discipline." This session did neither up front: no CHANGELOG entries for the core (`metrics.go`) and cqrs (`eventservice.go`) refactors on released modules (v0.5.1 / v0.5.0), and no pre-edit integration baseline — so when the drift guard failed, "pre-existing red" had to be *reasoned out* instead of *known*. The root cause is structural: **I didn't read the prior episode's findings section before starting.** Both episodes are the same series; the e-list is a checklist that was ignored.
+1. **Two written-down improvement items from episode 1 were REPEATED, not avoided.** Episode 1's e-list said: (a) "Changelog-with-refactor — internal refactors on released modules get an `[Unreleased]` CHANGELOG line in the same train"; (b) "Baseline-first discipline." This session did neither up front: no CHANGELOG entries for the core (`metrics.go`) and cqrs (`eventservice.go`) refactors on released modules (v0.5.1 / v0.5.0), and no pre-edit integration baseline — so when the drift guard failed, "pre-existing red" had to be _reasoned out_ instead of _known_. The root cause is structural: **I didn't read the prior episode's findings section before starting.** Both episodes are the same series; the e-list is a checklist that was ignored.
 2. **"Zero harmful duplication" claims still rest on an unaudited suppression heap.** 9 shown / 431 suppressed at -t 1; episode 1 had 3 shown / 82 suppressed. Neither episode looked inside. The claim "every remaining clone is accepted" is only proven for the shown set.
 3. **AGENTS.md remains structurally full** (376/377). Every future note costs a trade. The cap exists and keeps biting; the file needs a section extracted to module READMEs, not line-golf.
 4. **Minor: wasted cycle on golangci-lint** without the `GOTOOLCHAIN=go1.27.1` prefix — the exact gotcha already documented in AGENTS and already used for `go test` minutes earlier. Sloppy consistency.
