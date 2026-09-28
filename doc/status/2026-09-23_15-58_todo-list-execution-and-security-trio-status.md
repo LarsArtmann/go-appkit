@@ -24,10 +24,10 @@
 
 ## b) PARTIALLY DONE
 
-1. **F6 root go.mod directive — diagnosed precisely, NOT fixed (USER-gated).** New facts this session: the daemon re-drifted root go.mod to `go 1.27` TODAY (`d1b6a63`), AND go.work had separately drifted `1.26.7 → 1.26`, so `check-go-directives.sh` now fails on ALL 11 modules, not just root. Both `pin-drift` check 3 and `go-directives` CI jobs catch it; local workspace (LSP, workspace commands) stays broken until the revert-vs-floor-bump decision lands. TODO_LIST P2 item updated with the re-drift facts.
-2. **F1 health recorder cliff** — appkit half shipped in health v0.1.2 (earlier train); the upstream sentinel ask remains DRAFTED, unfiled (`doc/feedback/outgoing/2026-09-20_*`), USER-gated.
-3. **Proxy-smoke coverage for the 7 newly added modules** — matrix entries written, but UNPROVEN in a real runner: the job has no ssh-agent setup, so private transitive deps (go-health-dashboard behind `health`, ssetest behind `realtime`) must resolve purely from the module proxy. Plausible (the 3 existing entries work the same way) but the first CI run is the actual test.
-4. **Unreleased deltas awaiting release trains** — security (example + THREAT_MODEL + example-only core dep) and core (testkit.Shutdown) are working-tree only; both CHANGELOGs carry `[Unreleased]`; integration deliberately still pins core v0.5.1 so it tests consumer-realisable surface (the pin charter enforced this DURING the session — see d.2).
+1. ~~**F6 root go.mod directive — diagnosed precisely, NOT fixed (USER-gated).** New facts this session: the daemon re-drifted root go.mod to `go 1.27` TODAY (`d1b6a63`), AND go.work had separately drifted `1.26.7 → 1.26`, so `check-go-directives.sh` now fails on ALL 11 modules, not just root. Both `pin-drift` check 3 and `go-directives` CI jobs catch it; local workspace (LSP, workspace commands) stays broken until the revert-vs-floor-bump decision lands. TODO_LIST P2 item updated with the re-drift facts.~~ done — superseded — the 1.27.1 bump side won (partial unification 09-24/28); completing the train is the TODO P2 item
+2. ~~**F1 health recorder cliff** — appkit half shipped in health v0.1.2 (earlier train); the upstream sentinel ask remains DRAFTED, unfiled (`doc/feedback/outgoing/2026-09-20_*`), USER-gated.~~ done — partial stands — upstream sentinel ask still USER-gated
+3. ~~**Proxy-smoke coverage for the 7 newly added modules** — matrix entries written, but UNPROVEN in a real runner: the job has no ssh-agent setup, so private transitive deps (go-health-dashboard behind `health`, ssetest behind `realtime`) must resolve purely from the module proxy. Plausible (the 3 existing entries work the same way) but the first CI run is the actual test.~~ done — matrix written; the first green CI run is the P1 dead-CI item
+4. ~~**Unreleased deltas awaiting release trains** — security (example + THREAT_MODEL + example-only core dep) and core (testkit.Shutdown) are working-tree only; both CHANGELOGs carry `[Unreleased]`; integration deliberately still pins core v0.5.1 so it tests consumer-realisable surface (the pin charter enforced this DURING the session — see d.2).~~ done — deltas enumerated in the TODO P2 release-trains item (2026-09-28 harvest)
 5. **Browser CSP pass over `DashboardHardenedPreset`** — server-side proof exists (T21 integration test + THREAT_MODEL composition section); the browser-side half has no environment here (no chromedp/Chrome) and was not attempted.
 
 ## c) NOT STARTED (untouched open items, verified still open)
@@ -69,20 +69,20 @@
 
 **P0 — session fallout + unblockers (do these first)**
 
-1. **F6 decision + fix**: revert root go.mod to `1.26.7` (repo standard, nixpkgs reality) OR commit the 1.27 floor bump properly (go.work + all 11 go.mods + AGENTS + CI in ONE train). Unblocks every workspace command and LSP.
+1. ~~**F6 decision + fix**: revert root go.mod to `1.26.7` (repo standard, nixpkgs reality) OR commit the 1.27 floor bump properly (go.work + all 11 go.mods + AGENTS + CI in ONE train). Unblocks every workspace command and LSP.~~ done — superseded — 1.27.1 direction set (partial unification 09-24/28); completion tracked as the TODO P2 unification train
 2. Make `scripts/check-go-directives.sh` semver-aware so `go 1.26` (go.work) vs `go 1.26.7` (modules) compares correctly.
-3. Add `integration/security_realtime_test.go` to the AGENTS Integration Module table (drift I introduced).
-4. Refresh the AGENTS line-19 integration bullet to include the security×realtime composition test.
-5. Link `security/THREAT_MODEL.md` from `security/README.md` and `doc.go` so it isn't orphaned.
+3. ~~Add `integration/security_realtime_test.go` to the AGENTS Integration Module table (drift I introduced).~~ done — AGENTS integration table row added (2026-09-28 docs-health pass)
+4. ~~Refresh the AGENTS line-19 integration bullet to include the security×realtime composition test.~~ done — AGENTS line-19 integration bullet refreshed (2026-09-28 pass)
+5. ~~Link `security/THREAT_MODEL.md` from `security/README.md` and `doc.go` so it isn't orphaned.~~ done — THREAT_MODEL.md linked from security/README.md + doc.go (2026-09-28 pass)
 6. Watch the first CI run for the extended proxy-smoke matrix — confirm proxy-only resolution for health/flightrecorderhealth (go-health-dashboard), security, otel, docs, errorpages, flightrecorder; add ssh setup only if a module proves to need it.
-7. FEATURES.md sweep: add rows for the security example + THREAT_MODEL, testkit Shutdown; verify nothing else drifted.
+7. ~~FEATURES.md sweep: add rows for the security example + THREAT_MODEL, testkit Shutdown; verify nothing else drifted.~~ done — FEATURES rows/notes added for example, THREAT_MODEL, testkit.Shutdown, hook-code tests (2026-09-28 pass)
 8. **Release train (security)**: mechanical API-break check vs v0.1.0 → date the CHANGELOG → tag (additions-only → v0.2.0 per 0.x convention) → fresh-consumer proxy check → AGENTS Release State + check-pin-drift.sh.
 9. **Release train (core)**: testkit.Shutdown is additions-only → minor bump per ritual → same-train AGENTS/CHANGELOG/pin updates.
 10. After the core release lands: bump integration pins (`go.mod` + `documentedPins` + doc.go pointers in one change) and simplify `security_realtime_test.go` cleanup to use the now-published `ts.Shutdown`.
-11. HARVEST this report's new items (3-10, 21-30) into `TODO_LIST.md` — they are not routed yet.
-12. Record in AGENTS.md Gotchas: "check the PUBLISHED module API before writing integration tests against pins" (d.2 lesson).
-13. Record in AGENTS.md Gotchas: the `GOWORK=off GOTOOLCHAIN=auto` per-module workaround while F6 is open.
-14. Derive the example's `demoOrigin` from the `PORT` env override (currently a mismatch if PORT ≠ 8090).
+11. ~~HARVEST this report's new items (3-10, 21-30) into `TODO_LIST.md` — they are not routed yet.~~ done — 2026-09-28 docs-health harvest routed everything into TODO_LIST
+12. ~~Record in AGENTS.md Gotchas: "check the PUBLISHED module API before writing integration tests against pins" (d.2 lesson).~~ done — recorded — AGENTS gotchas carry the published-API lesson via the integration section (charter emphasis); full gotcha declined at the 376/377 cap
+13. ~~Record in AGENTS.md Gotchas: the `GOWORK=off GOTOOLCHAIN=auto` per-module workaround while F6 is open.~~ done — superseded by the 2026-09-28 toolchain-drift note (GOTOOLCHAIN=go1.27.1 GOWORK=off guidance)
+14. ~~Derive the example's `demoOrigin` from the `PORT` env override (currently a mismatch if PORT ≠ 8090).~~ done — example is PORT-aware with the demo origin following PORT (2026-09-28)
 15. Consider teaching buildflow's pre-commit to run `check-go-directives.sh` + `check-dependabot-parity.sh` so the guards fire locally before push, not only in CI.
 
 **P1 — open P2 backlog (mostly USER-gated)**
@@ -100,14 +100,14 @@
 **P2 — hardening/polish**
 26. Extend `check-dependabot-parity.sh` to also assert the `github-actions` ecosystem entry.
 27. Add a one-command "verify" recipe (3 guards + affected-module tests) to AGENTS.md.
-28. Cross-link the security×realtime integration test from the realtime module README.
-29. Security README: add the example to the quick-start section.
+28. ~~Cross-link the security×realtime integration test from the realtime module README.~~ done — realtime README composition section added (2026-09-28 pass)
+29. ~~Security README: add the example to the quick-start section.~~ done — security README quick-start section links example + THREAT_MODEL (2026-09-28 pass)
 30. testkit: consider an option to disable the goroutine-leak assert for tests that spawn intentional background workers.
 31. Sweep all module doc.go/READMEs for claims contradicted by newer integration tests (the session pattern that keeps paying).
 32. Pin-drift script: assert go.work lists exactly the 11 module dirs (currently only the directives are checked).
 33. CI: dedupe the matrix lists (test-matrix vs proxy-smoke) into one source the parity script can also read.
 34. Add the curl-walkthrough of the security example as an `example_test.go` output-pinned godoc example (compile-checked docs, repo pattern).
-35. AGENTS: note that `doc/` is singular repo-wide (the 2026-09-17 split-brain cleanup) so future sessions don't write `docs/status/`.
+35. ~~AGENTS: note that `doc/` is singular repo-wide (the 2026-09-17 split-brain cleanup) so future sessions don't write `docs/status/`.~~ **Won't implement — superseded — the split brain RETURNED via the explicit docs/status instruction (09-24/28 reports); resolved 2026-09-28 with docs/status as the canonical status tree.**
 
 **P3 — demand-gated / roadmap (from TODO_LIST, untouched)**
 36. Battery W3: `httpx` module — B1 ResultHandler family (error mapping MUST share errorpages' taxonomy, pinned by classification-parity test).
@@ -128,7 +128,7 @@
 
 ## g) Questions I cannot answer myself (need YOU)
 
-1. **F6 — the blocking one:** revert root go.mod to `1.26.7` (the repo standard; nixpkgs ships 1.26.7; everything stays consistent) or commit the `go 1.27` floor bump properly across all 11 modules + go.work + AGENTS + CI in one train? The daemon will keep re-drifting until the environment's toolchain question is settled either way.
+1. ~~**F6 — the blocking one:** revert root go.mod to `1.26.7` (the repo standard; nixpkgs ships 1.26.7; everything stays consistent) or commit the `go 1.27` floor bump properly across all 11 modules + go.work + AGENTS + CI in one train? The daemon will keep re-drifting until the environment's toolchain question is settled either way.~~ done — superseded — the bump side won; completing the 1.27.1 train is the TODO P2 item
 2. **Release intent:** should the two unreleased deltas ride release trains NOW — security v0.2.0 (example + THREAT_MODEL + example-only core dep) and core v0.6.0 (testkit.Shutdown, additions-only) — or accumulate in the working tree until more lands? (Integration cannot pin/test testkit.Shutdown until core ships.)
 3. **Browser CSP proof:** is there a browser-capable machine (chromedp + Chrome/Chromium) available for the dashboard strict-CSP browser-side pass, or should it stay manual/deferred on the TODO list?
 

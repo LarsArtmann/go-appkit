@@ -31,6 +31,17 @@ RateLimit → OriginCheck → APIKeyCSRFBypass(CSRF(...)) → APIKeyAuth(key) �
 The bypass OUTSIDE the CSRF middleware; the guard INSIDE it — a
 header-bearing request skips the token dance but never the authentication.
 
+## Threat model & example
+
+[THREAT_MODEL.md](THREAT_MODEL.md) maps every battery to the threat it
+counters, the design pin that enforces it, and the regression test that
+locks it — plus the chain-order rationale, composition proofs, and known
+limits (shared-key auth is a gate, not an identity system).
+[`example/`](example/) runs the full hardened chain on a real appkit
+service with a curl walkthrough; the security×realtime composition
+(rate limiting in front of SSE) is pinned end-to-end by
+`integration/security_realtime_test.go`.
+
 ## Provenance
 
 Ports of the CV family stack's production middleware

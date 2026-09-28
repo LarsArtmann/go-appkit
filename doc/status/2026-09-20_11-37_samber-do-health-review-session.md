@@ -93,68 +93,68 @@ Session-caused fucked-up count: **0**. Near-misses (caught pre-publication): 2 �
 
 | # | Task                                                                    | Impact | Effort | Category              |
 | - | ----------------------------------------------------------------------- | ------ | ------ | --------------------- |
-| 1 | ☑ NewProbe godoc: warn `WithHealthRecorder` is silently dropped         | High   | S      | Docs                  |
-| 2 | ☑ Injector-path Trigger example (health example or godoc example)       | High   | M      | Docs                  |
-| 3 | ☑ Draft upstream go-health ask: reject the option with sentinel error   | High   | S      | Upstream (USER-gated) |
-| 4 | Defensive `NewProbe` variant erroring on recorder options               | Medium | S      | Feature               |
-| 5 | AGENTS gotcha line: in-place pointer to report §F1 (no new lines — cap) | Low    | S      | Docs                  |
+| ~~1~~ | ~~☑ NewProbe godoc: warn `WithHealthRecorder` is silently dropped~~ done — executed in the 2026-09-20 health-stack train (T01) | ~~High~~ | ~~S~~ | ~~Docs~~ |
+| ~~2~~ | ~~☑ Injector-path Trigger example (health example or godoc example)~~ done — executed (T01/T02) | ~~High~~ | ~~M~~ | ~~Docs~~ |
+| ~~3~~ | ~~☑ Draft upstream go-health ask: reject the option with sentinel error~~ done — draft pack complete (T17); filing USER-gated | ~~High~~ | ~~S~~ | ~~Upstream (USER-gated)~~ |
+| ~~4~~ | ~~Defensive `NewProbe` variant erroring on recorder options~~ **Won't implement — parked decision 2026-09-20 — consciously rejected; godoc warning + injector-path example chosen instead.** | ~~Medium~~ | ~~S~~ | ~~Feature~~ |
+| ~~5~~ | ~~AGENTS gotcha line: in-place pointer to report §F1 (no new lines — cap)~~ done — AGENTS health gotcha carries the F1 warning (T22) | ~~Low~~ | ~~S~~ | ~~Docs~~ |
 
 **Cluster B — F2 composed proof (P0)**
-| 6 | ☑ Add health+frh published pins to integration/go.mod | High | S | Test |
-| 7 | ☑ `TestHealthStackThroughAppkitService`: drain-lockstep 503 assertions | High | L | Test |
-| 8 | ☑ Trigger-capture assertion in the same test | High | M | Test |
-| 9 | ☑ Recorder-row visibility via dashboard cached response | Medium | M | Test |
-| 10 | Run the combined stack manually once (pre-CI proof) | High | S | Quality |
-| 11 | Composed quick-start in health README/doc.go | Medium | M | Docs |
+| ~~6~~ | ~~☑ Add health+frh published pins to integration/go.mod~~ done — executed (T10) | ~~High~~ | ~~S~~ | ~~Test~~ |
+| ~~7~~ | ~~☑ `TestHealthStackThroughAppkitService`: drain-lockstep 503 assertions~~ done — TestHealthStackThroughAppkitService (T11) | ~~High~~ | ~~L~~ | ~~Test~~ |
+| ~~8~~ | ~~☑ Trigger-capture assertion in the same test~~ done — trigger-capture assertion in the same test (T11) | ~~High~~ | ~~M~~ | ~~Test~~ |
+| ~~9~~ | ~~☑ Recorder-row visibility via dashboard cached response~~ done — recorder row via cached response (T11) | ~~Medium~~ | ~~M~~ | ~~Test~~ |
+| ~~10~~ | ~~Run the combined stack manually once (pre-CI proof)~~ done — ADDENDUM — scratch-module composed-stack proof, stable -count=3 (T03) | ~~High~~ | ~~S~~ | ~~Quality~~ |
+| ~~11~~ | ~~Composed quick-start in health README/doc.go~~ done — doc.go quick-start added (T02) | ~~Medium~~ | ~~M~~ | ~~Docs~~ |
 
 **Cluster C — F3 releases (P1)**
-| 12 | ☑ frh: bump go-health v0.1.3 → v0.2.0 | High | S | Release |
-| 13 | Re-run frh suite + contract pins post-bump | High | S | Quality |
-| 14 | ☑ Release health module (dep bumps) per Release Ritual | High | M | Release |
-| 15 | ☑ Release frh after bump | Medium | M | Release |
-| 16 | Fresh-consumer proxy checks for both tags | High | S | Release |
-| 17 | Evaluate go-health v0.3.0 (aggregate/federation) | Medium | M | Quality |
-| 18 | ☑ AGENTS Release State update in the same train (Ritual step 5) | High | S | Docs |
-| 19 | Run `scripts/check-pin-drift.sh` in the same train (and once now) | Medium | S | Quality |
+| ~~12~~ | ~~☑ frh: bump go-health v0.1.3 → v0.2.0~~ done — executed (T06) | ~~High~~ | ~~S~~ | ~~Release~~ |
+| ~~13~~ | ~~Re-run frh suite + contract pins post-bump~~ done — suite + contract pins re-verified post-bump (T06) | ~~High~~ | ~~S~~ | ~~Quality~~ |
+| ~~14~~ | ~~☑ Release health module (dep bumps) per Release Ritual~~ done — health v0.1.2 released (T07) | ~~High~~ | ~~M~~ | ~~Release~~ |
+| ~~15~~ | ~~☑ Release frh after bump~~ done — frh v0.1.3 released (T08) | ~~Medium~~ | ~~M~~ | ~~Release~~ |
+| ~~16~~ | ~~Fresh-consumer proxy checks for both tags~~ done — both tags passed the fresh-consumer proxy check (T09) | ~~High~~ | ~~S~~ | ~~Release~~ |
+| ~~17~~ | ~~Evaluate go-health v0.3.0 (aggregate/federation)~~ done — evaluated (T25); memo in ROADMAP with demand + toolchain gates | ~~Medium~~ | ~~M~~ | ~~Quality~~ |
+| ~~18~~ | ~~☑ AGENTS Release State update in the same train (Ritual step 5)~~ done — AGENTS Release State updated in the train (T08/T22) | ~~High~~ | ~~S~~ | ~~Docs~~ |
+| ~~19~~ | ~~Run `scripts/check-pin-drift.sh` in the same train (and once now)~~ done — ran in the train (T22) and again 2026-09-28 green | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
 
 **Cluster D — F6 toolchain (P0, USER-gated)**
-| 20 | ☑ USER decision: revert vs deliberate floor bump | Critical | S | Decision |
-| 21 | If revert: `go mod edit -go=1.26.7` + tidy + root build green | Critical | S | Bug |
-| 22 | If bump: propagate go.work/AGENTS/CI + nixpkgs reality check | High | M | Bug |
-| 23 | Verify LSP/gopls diagnostics green post-fix | Medium | S | Quality |
-| 24 | CI assert: identical go-directive across all 11 go.mod files | High | S | Quality |
+| ~~20~~ | ~~☑ USER decision: revert vs deliberate floor bump~~ done — USER decision taken by evidence — root reverted (T04) | ~~Critical~~ | ~~S~~ | ~~Decision~~ |
+| ~~21~~ | ~~If revert: `go mod edit -go=1.26.7` + tidy + root build green~~ done — revert executed 2026-09-20 (T04/d5c6693) | ~~Critical~~ | ~~S~~ | ~~Bug~~ |
+| ~~22~~ | ~~If bump: propagate go.work/AGENTS/CI + nixpkgs reality check~~ **NOT-DO — bump branch not taken then; it became the 09-24/28 partial unification — TODO P2.** | ~~High~~ | ~~M~~ | ~~Bug~~ |
+| ~~23~~ | ~~Verify LSP/gopls diagnostics green post-fix~~ done — workspace + LSP restored after the revert (T04) | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
+| ~~24~~ | ~~CI assert: identical go-directive across all 11 go.mod files~~ done — check-go-directives.sh + CI go-directives job (T05) | ~~High~~ | ~~S~~ | ~~Quality~~ |
 
 **Cluster E — F4/F5/F7/F8 (P2/P3)**
-| 25 | ☑ frh doc.go + README: lazy-healthy gotcha | Medium | S | Docs |
-| 26 | Compile-check edited README snippets in scratch module (ritual) | Medium | S | Docs |
-| 27 | ☑ Design Mounted shutdown adapter (keep health injector-free) | Medium | S | Design |
-| 28 | ☑ Implement + test the adapter | Medium | M | Feature |
-| 29 | ☑ `Register`: `do.ProvideNamedValue` refactor | Low | S | Cleanup |
-| 30 | ☑ Document `Register` duplicate-name panic | Low | S | Docs |
+| ~~25~~ | ~~☑ frh doc.go + README: lazy-healthy gotcha~~ done — executed (T13) | ~~Medium~~ | ~~S~~ | ~~Docs~~ |
+| ~~26~~ | ~~Compile-check edited README snippets in scratch module (ritual)~~ done — README snippets compile-checked in the train (T13/T20) | ~~Medium~~ | ~~S~~ | ~~Docs~~ |
+| ~~27~~ | ~~☑ Design Mounted shutdown adapter (keep health injector-free)~~ done — doadapter designed (T15) | ~~Medium~~ | ~~S~~ | ~~Design~~ |
+| ~~28~~ | ~~☑ Implement + test the adapter~~ done — doadapter implemented + tested (T15) | ~~Medium~~ | ~~M~~ | ~~Feature~~ |
+| ~~29~~ | ~~☑ `Register`: `do.ProvideNamedValue` refactor~~ done — executed (T14) | ~~Low~~ | ~~S~~ | ~~Cleanup~~ |
+| ~~30~~ | ~~☑ Document `Register` duplicate-name panic~~ done — panic contract documented + pinned (T14) | ~~Low~~ | ~~S~~ | ~~Docs~~ |
 | 31 | samber-do-auditlog wiring example | Low | M | Feature |
 
 **Cluster F — session-noticed, unfixed**
-| 32 | `Mounted.Start`: reset `started` when `dashboard.Start` fails (C1) — test first | High | S/M | Bug |
-| 33 | Sort `failingServiceNames` for deterministic logs | Low | S | Quality |
-| 34 | Document `firstError` nondeterminism contract | Low | S | Docs |
-| 35 | golangci-lint on health + frh (session gap) | Medium | S | Quality |
-| 36 | Re-run frh benchmark (~4.7µs baseline) | Low | S | Quality |
-| 37 | Re-run health example live E2E (drain-lockstep 503) | Medium | M | Quality |
-| 38 | No-dashboard example path teaching `cfg.ReadyCheck = mounted.Ready` | Medium | S | Docs |
-| 39 | security+health composed example (`DashboardHardenedPreset` + nonce) | Medium | M | Docs |
-| 40 | Verify `Drain()` on never-started probe is harmless; doc or guard | Low | S | Quality |
-| 41 | Index the new review in `doc/status/README.md`'s world | Low | S | Docs |
+| ~~32~~ | ~~`Mounted.Start`: reset `started` when `dashboard.Start` fails (C1) — test first~~ done — Mounted.Start rollback fix + retry test (T12) | ~~High~~ | ~~S/M~~ | ~~Bug~~ |
+| ~~33~~ | ~~Sort `failingServiceNames` for deterministic logs~~ done — sorted (T23) | ~~Low~~ | ~~S~~ | ~~Quality~~ |
+| ~~34~~ | ~~Document `firstError` nondeterminism contract~~ done — firstError any-order contract documented (T23) | ~~Low~~ | ~~S~~ | ~~Docs~~ |
+| ~~35~~ | ~~golangci-lint on health + frh (session gap)~~ done — train lint sweeps 0/0 | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
+| ~~36~~ | ~~Re-run frh benchmark (~4.7µs baseline)~~ done — ADDENDUM 2 — 2580 ns/op, favorable drift | ~~Low~~ | ~~S~~ | ~~Quality~~ |
+| ~~37~~ | ~~Re-run health example live E2E (drain-lockstep 503)~~ done — ADDENDUM 2 — live drain-lockstep E2E re-run | ~~Medium~~ | ~~M~~ | ~~Quality~~ |
+| ~~38~~ | ~~No-dashboard example path teaching `cfg.ReadyCheck = mounted.Ready`~~ done — README no-dashboard ReadyCheck path (T20) | ~~Medium~~ | ~~S~~ | ~~Docs~~ |
+| ~~39~~ | ~~security+health composed example (`DashboardHardenedPreset` + nonce)~~ done — hardened-dashboard composition test (T21) | ~~Medium~~ | ~~M~~ | ~~Docs~~ |
+| ~~40~~ | ~~Verify `Drain()` on never-started probe is harmless; doc or guard~~ done — drain-before-Start + restart latch runtime-verified (T24) | ~~Low~~ | ~~S~~ | ~~Quality~~ |
+| ~~41~~ | ~~Index the new review in `doc/status/README.md`'s world~~ done — indexed in the status README Current table | ~~Low~~ | ~~S~~ | ~~Docs~~ |
 | 42 | Fold the Logging-uncorrelated-line limitation into the drafted upstream-asks batch | Low | M | Upstream (USER-gated) |
 
 **Cluster G — process/meta**
 | 43 | Add session-start toolchain sanity ritual to AGENTS Gotchas (in-place) | Medium | S | Process |
-| 44 | Run `check-pin-drift.sh` now to validate today's AGENTS edit | Medium | S | Quality |
+| ~~44~~ | ~~Run `check-pin-drift.sh` now to validate today's AGENTS edit~~ done — ran in the train; green again 2026-09-28 | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
 | 45 | Decide indexing convention for architecture-understanding reports | Low | S | Process |
 | 46 | Upstream ask (USER-gated): do-v2 doc note on lazy-healthy semantics | Low | S | Upstream |
-| 47 | AGENTS Integration table: add health/frh rows once pins land (F2) | Medium | S | Docs |
-| 48 | Verify CI matrix + dependabot parity slots for health/frh | Medium | S | Quality |
-| 49 | Reconcile AGENTS "NewProbe bypasses HealthRecorder" wording with report F1 (no split-brain) | Low | S | Docs |
-| 50 | After A-C land: re-run this review's adoption score (82/100) to measure the delta | Medium | S | Process |
+| ~~47~~ | ~~AGENTS Integration table: add health/frh rows once pins land (F2)~~ done — AGENTS integration table carries the health-stack rows | ~~Medium~~ | ~~S~~ | ~~Docs~~ |
+| ~~48~~ | ~~Verify CI matrix + dependabot parity slots for health/frh~~ done — CI matrix + dependabot parity verified (T16) | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
+| ~~49~~ | ~~Reconcile AGENTS "NewProbe bypasses HealthRecorder" wording with report F1 (no split-brain)~~ done — NewProbe gotcha reconciled (T22) | ~~Low~~ | ~~S~~ | ~~Docs~~ |
+| ~~50~~ | ~~After A-C land: re-run this review's adoption score (82/100) to measure the delta~~ done — scorecard re-run 82→93 (T27) | ~~Medium~~ | ~~S~~ | ~~Process~~ |
 
 **HARVEST status:** items 1-3, 6-9, 12, 14-15, 18, 20, 25, 27-28, 29-30 already routed to TODO_LIST.md this session. Items 32 (C1) and 24/44 are the strongest uncaptured candidates if you want a second HARVEST pass.
 

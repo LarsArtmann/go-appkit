@@ -323,6 +323,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 | `pin_drift_test.go`                                                                 | go.mod pins == the `documentedPins` fixture; no filesystem `replace` directives.                                                                                                    |
 
 - Pins PUBLISHED tags only (LATEST published — deliberately NOT mirroring any consumer's older resolution; since setup/v4.12.0 the core pin is ALIGNED with setup anyway; charter in `integration/doc.go`, values in the `documentedPins` fixture; `scripts/check-pin-drift.sh` guards BOTH the family tags AND the cross-repo contract pins — cqrs-htmx v4.12.0, go-sse v0.6.1, ssetest v0.3.0, httputil v1.4.0 — against the module proxy since 2026-09-28). Tests use a 1ms explicit `DrainDelay` (or `NoDrainDelay`); runs plain on 1.26.7+ (jsonv2 default-on — OLDER gated toolchains need the `GOEXPERIMENT=jsonv2` prefix); added to `go.work`.
+- **Read the PINNED module's API (module cache or `git show <tag>:<file>`) before writing integration tests against it** — the working tree may carry unreleased APIs (e.g. `ts.Shutdown`) that the published tag lacks; the pin charter will (correctly) refuse to compile them.
 
 ## otel Module Gotchas
 

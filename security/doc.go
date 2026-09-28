@@ -25,4 +25,10 @@
 // go-appkit's doc/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md
 // (section W2). Each file's doc comment carries the threat model that
 // motivated it.
+//
+// # Threat model and example
+//
+// THREAT_MODEL.md in the module root maps every battery to its threat,
+// design pin, and regression test; example/ runs the full hardened chain
+// on a real appkit service with a curl walkthrough.
 package security

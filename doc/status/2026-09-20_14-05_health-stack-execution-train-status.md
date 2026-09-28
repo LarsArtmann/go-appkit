@@ -107,28 +107,28 @@ flagged again.
 
 ## b) PARTIALLY DONE
 
-1. **pkg.go.dev render check (T09/M38):** 404 crawler-lag at check time; the
-   recipe says that is not a failure, but I never returned to confirm the pages
-   actually render. TODO_LIST owns the render item — still open until someone
-   looks again.
-2. **Benchmark rigor (T19):** one full benchmark run (plus a 1x sanity run).
-   The otel train used a 10× re-baseline for its README table; a single run is
-   weaker evidence, favorable direction notwithstanding.
-3. **Release currency vs master:** health v0.1.2 / frh v0.1.3 are tagged, but
-   master already carries unreleased deltas on both (health: C1 fix, godoc
-   corrections, doadapter, README; frh: Register change, determinism, docs, new
-   `[Unreleased]` CHANGELOG section). Consequence of the plan's ordering, but it
-   means v0.1.3/v0.1.4 train #2 is effectively already pending.
-4. **CI-on-origin unverified:** everything is verified locally, but I never
-   watched the actual GitHub Actions run after pushing (including the new
-   `go-directives` job). Local equivalents are green; the remote run is an
-   assumption.
-5. **AGENTS.md file table for `doadapter/`:** the health module section's
-   dependency line and gotchas were updated, but the file-organization table has
-   no row for the new subpackage (AGENTS sits at the 376/377 line cap — adding a
-   row means cutting a line elsewhere).
-6. **health/example port guidance:** the addendum notes 8080/8081 were occupied
-   and recommends ephemeral-port guidance — the example itself was NOT updated.
+1. ~~**pkg.go.dev render check (T09/M38):** 404 crawler-lag at check time; the~~ done — both pages fetched and RENDER (2026-09-28: health v0.1.2 + frh v0.1.3, Published Sep 20)
+   ~~recipe says that is not a failure, but I never returned to confirm the pages~~
+   ~~actually render. TODO_LIST owns the render item — still open until someone~~
+   ~~looks again.~~
+2. ~~**Benchmark rigor (T19):** one full benchmark run (plus a 1x sanity run).~~ done — accepted single-run; ADDENDUM 2 recorded the favorable 2580 ns/op re-run
+   ~~The otel train used a 10× re-baseline for its README table; a single run is~~
+   ~~weaker evidence, favorable direction notwithstanding.~~
+3. ~~**Release currency vs master:** health v0.1.2 / frh v0.1.3 are tagged, but~~ done — deltas enumerated in the TODO P2 release-trains item (2026-09-28 harvest)
+   ~~master already carries unreleased deltas on both (health: C1 fix, godoc~~
+   ~~corrections, doadapter, README; frh: Register change, determinism, docs, new~~
+   ~~`[Unreleased]` CHANGELOG section). Consequence of the plan's ordering, but it~~
+   ~~means v0.1.3/v0.1.4 train #2 is effectively already pending.~~
+4. ~~**CI-on-origin unverified:** everything is verified locally, but I never~~ done — subsumed by the P1 dead-CI item — remote state known-broken (empty SSH secret)
+   ~~watched the actual GitHub Actions run after pushing (including the new~~
+   ~~`go-directives` job). Local equivalents are green; the remote run is an~~
+   ~~assumption.~~
+5. ~~**AGENTS.md file table for `doadapter/`:** the health module section's~~ done — doadapter row added to the AGENTS health table (2026-09-28 pass)
+   ~~dependency line and gotchas were updated, but the file-organization table has~~
+   ~~no row for the new subpackage (AGENTS sits at the 376/377 line cap — adding a~~
+   ~~row means cutting a line elsewhere).~~
+6. ~~**health/example port guidance:** the addendum notes 8080/8081 were occupied~~ done — PORT override present in health/example (verified 2026-09-28)
+   ~~and recommends ephemeral-port guidance — the example itself was NOT updated.~~
 
 ## c) NOT STARTED
 
@@ -208,15 +208,15 @@ flagged again.
 1. Train #2 when you say go: health v0.1.3 (C1 fix, godoc corrections,
    doadapter, README) + frh v0.1.4 (Register, determinism, docs) — deltas are
    already CHANGELOG'd.
-2. Re-check pkg.go.dev renders for health v0.1.2 + frh v0.1.3 (crawler had time now).
-3. Watch the pushed CI run (incl. the new `go-directives` job) to green.
-4. Re-run `check-pin-drift.sh` + `check-go-directives.sh` after CI to confirm nothing drifted.
+2. ~~Re-check pkg.go.dev renders for health v0.1.2 + frh v0.1.3 (crawler had time now).~~ done — fetched 2026-09-28 — health v0.1.2 and frh v0.1.3 pages render (Published Sep 20)
+3. ~~Watch the pushed CI run (incl. the new `go-directives` job) to green.~~ done — subsumed by the P1 dead-CI item
+4. ~~Re-run `check-pin-drift.sh` + `check-go-directives.sh` after CI to confirm nothing drifted.~~ done — both guards ran green 2026-09-28
 5. Frh benchmark 10× re-baseline; update README number if the 2.6µs holds.
 6. Add `toolchain`-directive coverage to `check-go-directives.sh`.
 7. integration `documentedPins`: consider asserting `go-health`/`do`/`fr` pinned versions too (currently only family modules).
 8. AGENTS.md trim pass to restore line headroom (archive stale gotchas to READMEs).
-9. AGENTS health-module file table: add `doadapter/` row when headroom exists.
-10. health/example: ephemeral-port guidance (PORT default or doc note).
+9. ~~AGENTS health-module file table: add `doadapter/` row when headroom exists.~~ done — doadapter row added (2026-09-28 pass)
+10. ~~health/example: ephemeral-port guidance (PORT default or doc note).~~ done — PORT override present (verified 2026-09-28)
 
 **Upstream (all pre-verified, filing is your call)**
 11. File the go-health sentinel ask (own repo — your decision, pack ready).
@@ -249,24 +249,24 @@ flagged again.
 32. frh README: link the new status addenda (T19 evidence) from the README performance section.
 33. health README: link `doadapter` from the API surface section.
 34. doc.go (health): the "Trace capture" section shows `frhealth.Register(injector, recorder, ...)` with an undeclared `recorder` — add the `fr.New` line for copy-paste completeness.
-35. Status report hygiene: this report + the 11:37 report both live in Current — a docs-health pass should archive the 2026-09-17 report.
-36. TODO_LIST: the review's remaining ~20 uncaptured brainstorm items (§f of the 11:37 report) still need a HARVEST pass with rigor (most belong in ROADMAP or stay report-only).
+35. ~~Status report hygiene: this report + the 11:37 report both live in Current — a docs-health pass should archive the 2026-09-17 report.~~ done — archived by the 2026-09-28 docs-health pass
+36. ~~TODO_LIST: the review's remaining ~20 uncaptured brainstorm items (§f of the 11:37 report) still need a HARVEST pass with rigor (most belong in ROADMAP or stay report-only).~~ done — 2026-09-28 harvest routed the remainder (TODO P3 + ROADMAP)
 
 **Family hygiene**
-37. security module: same `documentedPins` treatment exists only in integration — consider the pin-drift script asserting security's latest tag everywhere it's required (works today; verify after train #2).
+37. ~~security module: same `documentedPins` treatment exists only in integration — consider the pin-drift script asserting security's latest tag everywhere it's required (works today; verify after train #2).~~ done — covered — check-pin-drift.sh check 2 asserts security's pin at its latest tag
 38. errorpages `statusRecorder` → `httputil.ResponseRecorder` (USER-gated item, still open, ~10 lines).
-39. Batch review: 08-53 `WithOnDrop` audit item vs W5 C1 counters — still dedupe-pending.
+39. ~~Batch review: 08-53 `WithOnDrop` audit item vs W5 C1 counters — still dedupe-pending.~~ done — dedupe recorded in the TODO W5 C1 line
 40. core `svc.Routes()` seam decision still blocks B6/B8 battery items (unchanged).
-41. `go.work` check: confirm every module is listed (AGENTS says add `./integration` — verify nothing else rotted).
+41. ~~`go.work` check: confirm every module is listed (AGENTS says add `./integration` — verify nothing else rotted).~~ done — go.work lists all 11 module dirs (verified 2026-09-28)
 42. govulncheck on health + security (needs a networked machine).
 43. Dependabot: after train #2, confirm grouped PRs don't propose downgrades against `documentedPins`.
-44. Consider tagging `health/doadapter` in the next health tag train (subpackage inherits the module version — no action needed, just confirmation).
+44. ~~Consider tagging `health/doadapter` in the next health tag train (subpackage inherits the module version — no action needed, just confirmation).~~ **NOT-DO — subpackage rides the module version by design — nothing to tag separately.**
 45. frh: `WithTriggerFunc` documented trigger functions table — verify OnLatency examples still match v0.2.0 metadata fields.
-46. Roadmap: the multi-recorder ADR item and the aggregate adoption item should cross-reference each other.
+46. ~~Roadmap: the multi-recorder ADR item and the aggregate adoption item should cross-reference each other.~~ done — ROADMAP cross-reference added (2026-09-28 pass)
 47. Example hygiene: health/example still references the flapping cache demo — consider a `-hardened` mode wired like the T21 test.
 48. Draft the samber-do-auditlog issue ONLY if you decide chaining should be first-class upstream (currently none exists).
 49. Review whether `frhealth.Register`'s eager semantics should ALSO be offered as lazy+explicit-invoke for test scopes (do.Override note covers it; API growth only on demand).
-50. Archive this report + annotate the plan file (T01–T27 verdicts inline) at the next docs-health pass.
+50. ~~Archive this report + annotate the plan file (T01–T27 verdicts inline) at the next docs-health pass.~~ done — this report archived + the 11-47 plan bannered and archived by the 2026-09-28 docs-health pass
 
 ## g) QUESTIONS I CANNOT ANSWER MYSELF (3)
 
