@@ -77,24 +77,6 @@ func TestNewEventService_MemoryDriver(t *testing.T) {
 	}
 }
 
-func TestNewEventService_DeprecatedSQLitePathAlias(t *testing.T) {
-	t.Parallel()
-
-	eventSvc, err := NewEventService(EventConfig{
-		SQLitePath: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
-	_, dbErr := eventSvc.DB()
-	if dbErr != nil {
-		t.Errorf("expected aux DB via deprecated SQLitePath alias, got: %v", dbErr)
-	}
-}
-
 func TestNewEventService_DeploymentOverride(t *testing.T) {
 	t.Parallel()
 

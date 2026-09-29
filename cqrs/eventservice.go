@@ -64,15 +64,9 @@ type EventConfig struct {
 	// "journal_mode=WAL"). Ignored by other drivers.
 	Pragmas []string
 
-	// SQLitePath is the deprecated v0.4.0 alias for DSN with the sqlite
-	// driver. It will be removed at v0.6.0.
-	//
-	// Deprecated: use DSN.
-	SQLitePath string
-
 	// ConfigPath loads the DeploymentConfig from a YAML file (system.LoadConfig:
 	// koanf tags + CQRS_ env overrides, e.g. CQRS_ENGINES__PRIMARY__DRIVER).
-	// When set, DSN/Driver/Pragmas/SQLitePath are ignored. Optional.
+	// When set, DSN/Driver/Pragmas are ignored. Optional.
 	ConfigPath string
 
 	// Deployment is a fully pre-loaded operator config. When set it wins over
@@ -241,20 +235,12 @@ func defaultSQLitePragmas() []string {
 	return []string{"journal_mode=WAL", "busy_timeout=5000"}
 }
 
-// resolveStorage resolves the Driver/DSN/Pragmas triple, honoring the
-// deprecated SQLitePath alias. A missing DSN is a Rejection unless the
-// driver is explicitly "memory" (in-process store for tests).
+// resolveStorage resolves the Driver/DSN/Pragmas triple. A missing DSN is a
+// Rejection unless the driver is explicitly "memory" (in-process store for
+// tests).
 func resolveStorage(cfg EventConfig) (string, string, []string, error) {
 	driver := cfg.Driver
 	dsn := cfg.DSN
-
-	if cfg.SQLitePath != "" {
-		dsn = cfg.SQLitePath
-
-		if driver == "" {
-			driver = defaultSQLiteDriver
-		}
-	}
 
 	if driver == "" {
 		driver = defaultSQLiteDriver
@@ -385,11 +371,7 @@ func auxDSN(cfg EventConfig, deployment system.DeploymentConfig) string {
 	}
 
 	if dsn == "" {
-		if cfg.SQLitePath != "" {
-			dsn = cfg.SQLitePath
-		} else {
-			dsn = cfg.DSN
-		}
+		dsn = cfg.DSN
 	}
 
 	const busyParam = "_pragma=busy_timeout(5000)"
