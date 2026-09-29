@@ -61,9 +61,14 @@ func newRateLimitedSSEService(t *testing.T) (*testkit.TestServer, *realtime.Hub)
 		if err != nil {
 			t.Errorf("hub shutdown: %v", err)
 		}
-		// Service shutdown is testkit.Serve's own cleanup: cleanups run
-		// LIFO, so the hub above drains while the listener is still up —
-		// the ordering the realtime module documents.
+
+		// Drain the hub BEFORE the listener closes — the ordering the
+		// realtime module documents. ts.Shutdown runs the full stop
+		// sequence at call time; testkit.Serve's cleanup then skips it.
+		err = ts.Shutdown(ctx)
+		if err != nil {
+			t.Errorf("service shutdown: %v", err)
+		}
 	})
 
 	return ts, hub

@@ -18,7 +18,7 @@ require (
 	github.com/larsartmann/go-flightrecorder v0.2.0
 	github.com/larsartmann/go-health v0.2.0
 	github.com/larsartmann/go-sse v0.6.1
-	github.com/larsartmann/go-sse/ssetest v0.3.0
+	github.com/larsartmann/go-sse/ssetest v0.4.0
 	github.com/larsartmann/httputil v1.4.0
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/samber/do/v2 v2.1.0
@@ -62,6 +62,7 @@ require (
 	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
 	github.com/larsartmann/go-etag/server v0.6.0 // indirect
 	github.com/larsartmann/go-health-dashboard v0.9.0 // indirect
+	github.com/larsartmann/go-sse/sseparse v0.1.0 // indirect
 	github.com/larsartmann/templ-components v1.18.0 // indirect
 	github.com/larsartmann/templ-components/datastar v1.18.0 // indirect
 	github.com/larsartmann/templ-components/errorpage v1.18.0 // indirect

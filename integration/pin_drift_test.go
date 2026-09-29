@@ -25,17 +25,17 @@ import (
 // scripts/check-pin-drift.sh check 2 at setup/go.mod instead of the newest
 // family tag. Nothing else in this file or the script needs to change.
 var documentedPins = map[string]string{
-	"github.com/larsartmann/go-appkit":                      "v0.5.1",
+	"github.com/larsartmann/go-appkit":                      "v0.6.0",
 	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.0",
-	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.3",
-	"github.com/larsartmann/go-appkit/health":               "v0.1.2",
+	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.4",
+	"github.com/larsartmann/go-appkit/health":               "v0.1.3",
 	"github.com/larsartmann/go-appkit/otel":                 "v0.1.1",
 	"github.com/larsartmann/go-appkit/realtime":             "v0.1.1",
-	"github.com/larsartmann/go-appkit/security":             "v0.1.0",
+	"github.com/larsartmann/go-appkit/security":             "v0.2.0",
 
 	"github.com/larsartmann/cqrs-htmx/v4":   "v4.12.0",
 	"github.com/larsartmann/go-sse":         "v0.6.1",
-	"github.com/larsartmann/go-sse/ssetest": "v0.3.0",
+	"github.com/larsartmann/go-sse/ssetest": "v0.4.0",
 	"github.com/larsartmann/httputil":       "v1.4.0",
 }
 
@@ -45,7 +45,7 @@ var documentedPins = map[string]string{
 // workspace command; a deliberate toolchain bump must land here, in
 // integration/go.mod, in go.work, and in AGENTS.md in the same change.
 // 2026-09-28: integration joined the root/go.work/health 1.27.1 side of the
-// unification (go mod tidy); five satellite modules still lag.
+// unification (go mod tidy); 2026-09-29: all 11 modules unified at 1.27.1.
 const documentedGoDirective = "1.27.1"
 
 func TestGoModPinsMatchDocumentedPins(t *testing.T) {
