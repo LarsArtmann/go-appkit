@@ -112,11 +112,7 @@ func envSet(key string) bool {
 func newOTLPSpanExporter(ctx context.Context, cfg *otlpConfig) (sdktrace.SpanExporter, error) {
 	opts := otlpExporterOptions(cfg, func(raw string) otlptracehttp.Option {
 		return otlptracehttp.WithEndpointURL(otlpSignalURL(raw, "/v1/traces"))
-	}, func(h map[string]string) otlptracehttp.Option {
-		return otlptracehttp.WithHeaders(h)
-	}, func(d time.Duration) otlptracehttp.Option {
-		return otlptracehttp.WithTimeout(d)
-	})
+	}, otlptracehttp.WithHeaders, otlptracehttp.WithTimeout)
 
 	exporter, err := otlptracehttp.New(ctx, opts...)
 	if err != nil {
@@ -131,11 +127,7 @@ func newOTLPSpanExporter(ctx context.Context, cfg *otlpConfig) (sdktrace.SpanExp
 func newOTLPMetricReader(ctx context.Context, cfg *otlpConfig) (sdkmetric.Reader, error) {
 	opts := otlpExporterOptions(cfg, func(raw string) otlpmetrichttp.Option {
 		return otlpmetrichttp.WithEndpointURL(otlpSignalURL(raw, "/v1/metrics"))
-	}, func(h map[string]string) otlpmetrichttp.Option {
-		return otlpmetrichttp.WithHeaders(h)
-	}, func(d time.Duration) otlpmetrichttp.Option {
-		return otlpmetrichttp.WithTimeout(d)
-	})
+	}, otlpmetrichttp.WithHeaders, otlpmetrichttp.WithTimeout)
 
 	exporter, err := otlpmetrichttp.New(ctx, opts...)
 	if err != nil {
@@ -163,7 +155,8 @@ func otlpSignalURL(raw, signalPath string) string {
 
 // otlpExporterOptions maps the shared config into either exporter's option
 // type. The generic parameter collapsed three near-identical option lists
-// into one; the mapping functions keep each exporter's typed constructors.
+// into one; the endpoint mapping stays per-exporter because the signal
+// paths differ (traces vs metrics).
 func otlpExporterOptions[O any](
 	cfg *otlpConfig,
 	endpoint func(string) O,

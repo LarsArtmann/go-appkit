@@ -11,9 +11,9 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
 // quietLogger keeps panic-recovery log lines out of test output.
@@ -82,8 +82,8 @@ func TestRecovery_RecordsExceptionEventForErrorPanic(t *testing.T) {
 
 	attrs := attribute.NewSet(event.Attributes...)
 	want := map[string]string{
-		"exception.type":      "*errors.errorString",
-		"exception.message":   "database connection refused",
+		"exception.type":       "*errors.errorString",
+		"exception.message":    "database connection refused",
 		"exception.stacktrace": "",
 	}
 	for key := range want {
@@ -92,7 +92,12 @@ func TestRecovery_RecordsExceptionEventForErrorPanic(t *testing.T) {
 		}
 	}
 
-	if stack, _ := attrs.Value(attribute.Key("exception.stacktrace")); !strings.Contains(stack.AsString(), "goroutine") {
+	if stack, _ := attrs.Value(
+		attribute.Key("exception.stacktrace"),
+	); !strings.Contains(
+		stack.AsString(),
+		"goroutine",
+	) {
 		t.Errorf("exception.stacktrace = %q, want a Go stack trace", stack.AsString())
 	}
 
@@ -145,7 +150,8 @@ func TestRecovery_AbortHandlerRepanics(t *testing.T) {
 	repanicked := func() (repanicked bool) {
 		defer func() {
 			if rec := recover(); rec != nil {
-				repanicked = errors.Is(rec.(error), http.ErrAbortHandler) //nolint:errorlint // test-local sentinel probe
+				sentinel, ok := rec.(error) //nolint:errorlint // test-local sentinel probe
+				repanicked = ok && errors.Is(sentinel, http.ErrAbortHandler)
 			}
 		}()
 

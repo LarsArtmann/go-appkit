@@ -49,6 +49,12 @@ func main() {
 	}
 }
 
+// Demo failures: static sentinels keep the errors classifiable and grep-able.
+var (
+	errPaymentGatewayTimeout = errors.New("payment gateway timed out")
+	errCacheStampede         = errors.New("cache stampede")
+)
+
 func run(cfg appkit.ServiceConfig) error {
 	// Handler-level logs carry trace_id/span_id; create the logger before
 	// the Recovery middleware needs it.
@@ -95,16 +101,15 @@ func run(cfg appkit.ServiceConfig) error {
 	})
 
 	svc.Mux.HandleFunc("GET /boom", func(w http.ResponseWriter, r *http.Request) {
-		err := errors.New("payment gateway timed out")
-		appkitotel.RecordError(r.Context(), err) // SigNoz Exceptions view entry
+		appkitotel.RecordError(r.Context(), errPaymentGatewayTimeout) // SigNoz Exceptions view entry
 
-		logger.ErrorContext(r.Context(), "checkout failed", "error", err.Error())
+		logger.ErrorContext(r.Context(), "checkout failed", "error", errPaymentGatewayTimeout.Error())
 
 		http.Error(w, "checkout failed", http.StatusInternalServerError)
 	})
 
 	svc.Mux.HandleFunc("GET /panic", func(_ http.ResponseWriter, _ *http.Request) {
-		panic(errors.New("cache stampede")) // Recovery records the exception, answers 500
+		panic(errCacheStampede) // Recovery records the exception, answers 500
 	})
 
 	return svc.Run(context.Background()) //nolint:wrapcheck // top-level main returns the error as-is

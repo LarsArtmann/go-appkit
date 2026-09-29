@@ -223,9 +223,7 @@ func Setup(opts ...SetupOption) (*Provider, error) {
 		opt(cfg)
 	}
 
-	ctx := context.Background()
-
-	if err := applyOTLPWiring(ctx, cfg); err != nil {
+	if err := applyOTLPWiring(context.Background(), cfg); err != nil {
 		return nil, err
 	}
 
@@ -234,62 +232,93 @@ func Setup(opts ...SetupOption) (*Provider, error) {
 		return nil, err
 	}
 
-	spanExporter := cfg.spanExporter
-	if spanExporter == nil && cfg.stdoutWriter != nil {
-		spanExporter, err = stdouttrace.New(
-			stdouttrace.WithWriter(cfg.stdoutWriter),
-			stdouttrace.WithPrettyPrint(),
-		)
-		if err != nil {
-			return nil, fmt.Errorf("%w: %w", errStdoutSetup, err)
-		}
+	spanExporter, err := resolveSpanExporter(cfg)
+	if err != nil {
+		return nil, err
 	}
 
-	propagator := cfg.propagator
-	if propagator == nil {
-		propagator = NewTextMapPropagator()
-	}
+	tracerProvider := buildTracerProvider(cfg, res, spanExporter)
+	meterProvider := buildMeterProvider(cfg, res)
 
 	if !cfg.skipGlobalRegistration {
-		otel.SetTextMapPropagator(propagator)
-	}
-
-	sampler := cfg.sampler
-
-	tpOpts := []sdktrace.TracerProviderOption{
-		sdktrace.WithResource(res),
-	}
-
-	// An explicit sampler overrides the env-derived one (the SDK reads
-	// OTEL_TRACES_SAMPLER itself when WithSampler is not passed); with
-	// neither, the SDK default ParentBased(AlwaysSample) applies.
-	if sampler != nil {
-		tpOpts = append(tpOpts, sdktrace.WithSampler(sampler))
-	}
-
-	if spanExporter != nil {
-		tpOpts = append(tpOpts, sdktrace.WithBatcher(spanExporter))
-	}
-
-	tracerProvider := sdktrace.NewTracerProvider(tpOpts...)
-
-	mpOpts := []sdkmetric.Option{
-		sdkmetric.WithResource(res),
-		sdkmetric.WithView(NewHTTPViews()...),
-	}
-
-	if cfg.metricReader != nil {
-		mpOpts = append(mpOpts, sdkmetric.WithReader(cfg.metricReader))
-	}
-
-	meterProvider := sdkmetric.NewMeterProvider(mpOpts...)
-
-	if !cfg.skipGlobalRegistration {
+		otel.SetTextMapPropagator(propagatorOrDefault(cfg.propagator))
 		otel.SetTracerProvider(tracerProvider)
 		otel.SetMeterProvider(meterProvider)
 	}
 
 	return &Provider{tracerProvider: tracerProvider, meterProvider: meterProvider}, nil
+}
+
+// resolveSpanExporter picks the configured span exporter, falling back to
+// the stdout exporter when one was requested. Without either, spans are
+// recorded but not exported.
+func resolveSpanExporter(cfg *setupConfig) (sdktrace.SpanExporter, error) {
+	if cfg.spanExporter != nil {
+		return cfg.spanExporter, nil
+	}
+
+	if cfg.stdoutWriter == nil {
+		return nil, nil
+	}
+
+	exporter, err := stdouttrace.New(
+		stdouttrace.WithWriter(cfg.stdoutWriter),
+		stdouttrace.WithPrettyPrint(),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", errStdoutSetup, err)
+	}
+
+	return exporter, nil
+}
+
+// buildTracerProvider assembles the tracer provider. An explicit sampler
+// overrides the env-derived one (the SDK reads OTEL_TRACES_SAMPLER itself
+// when WithSampler is not passed); with neither, the SDK default
+// ParentBased(AlwaysSample) applies.
+func buildTracerProvider(
+	cfg *setupConfig,
+	res *resource.Resource,
+	exporter sdktrace.SpanExporter,
+) *sdktrace.TracerProvider {
+	opts := []sdktrace.TracerProviderOption{
+		sdktrace.WithResource(res),
+	}
+
+	if cfg.sampler != nil {
+		opts = append(opts, sdktrace.WithSampler(cfg.sampler))
+	}
+
+	if exporter != nil {
+		opts = append(opts, sdktrace.WithBatcher(exporter))
+	}
+
+	return sdktrace.NewTracerProvider(opts...)
+}
+
+// buildMeterProvider assembles the meter provider with the HTTP views; the
+// reader may be nil (instruments become no-ops).
+func buildMeterProvider(cfg *setupConfig, res *resource.Resource) *sdkmetric.MeterProvider {
+	opts := []sdkmetric.Option{
+		sdkmetric.WithResource(res),
+		sdkmetric.WithView(NewHTTPViews()...),
+	}
+
+	if cfg.metricReader != nil {
+		opts = append(opts, sdkmetric.WithReader(cfg.metricReader))
+	}
+
+	return sdkmetric.NewMeterProvider(opts...)
+}
+
+// propagatorOrDefault resolves the propagation set: the configured one when
+// present, else the W3C default.
+func propagatorOrDefault(p propagation.TextMapPropagator) propagation.TextMapPropagator {
+	if p != nil {
+		return p
+	}
+
+	return NewTextMapPropagator()
 }
 
 // applyOTLPWiring fills the unset exporter slots from OTLP: an explicit

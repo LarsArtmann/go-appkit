@@ -251,7 +251,6 @@ func TestWithOTLP_ExportsMetricsToEndpoint(t *testing.T) {
 // but OTEL_EXPORTER_OTLP_ENDPOINT in the environment, and Setup wires both
 // signals itself.
 func TestSetup_EnvEndpointAutoEnablesOTLP(t *testing.T) {
-
 	server, receipts := newOTLPCollector(t)
 	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", server.URL)
 
@@ -281,7 +280,6 @@ func TestSetup_EnvEndpointAutoEnablesOTLP(t *testing.T) {
 // service with its own exporter must not double-export to the environment's
 // collector, so the OTLP path stays off for that signal.
 func TestSetup_ExplicitExporterBeatsEnvEndpoint(t *testing.T) {
-
 	cold, coldReceipts := newOTLPCollector(t)
 	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", cold.URL)
 
@@ -320,7 +318,6 @@ func TestSetup_ExplicitExporterBeatsEnvEndpoint(t *testing.T) {
 // switches off only the trace signal; the metric signal still follows the
 // environment. Signal independence is what makes partial migrations safe.
 func TestSetup_OTLPMetricsShareExplicitSpanExporter(t *testing.T) {
-
 	server, receipts := newOTLPCollector(t)
 	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", server.URL)
 
@@ -413,7 +410,6 @@ func TestSetup_ExplicitMetricReaderBeatsOTLP(t *testing.T) {
 // OTEL_SERVICE_NAME flow into the resource without code, and explicit code
 // configuration still wins on conflict.
 func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
-
 	exporter := &tracetest.InMemoryExporter{}
 	t.Setenv("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment=qa-team,region=eu-1")
 
@@ -440,7 +436,11 @@ func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
 
 	resAttrs := attribute.NewSet(spans[0].Resource.Attributes()...)
 	if got, ok := resAttrs.Value(attribute.Key("deployment.environment")); !ok || got.AsString() != "qa-team" {
-		t.Errorf("deployment.environment = %q (found=%v), want qa-team from OTEL_RESOURCE_ATTRIBUTES", got.AsString(), ok)
+		t.Errorf(
+			"deployment.environment = %q (found=%v), want qa-team from OTEL_RESOURCE_ATTRIBUTES",
+			got.AsString(),
+			ok,
+		)
 	}
 
 	if got, ok := resAttrs.Value(attribute.Key("service.name")); !ok || got.AsString() != "env-resource-svc" {
@@ -456,7 +456,6 @@ func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
 // the service — completes the zero-code story for consumers that discover
 // their identity from the platform.
 func TestSetup_EnvServiceNameWhenNoWithService(t *testing.T) {
-
 	exporter := &tracetest.InMemoryExporter{}
 	t.Setenv("OTEL_SERVICE_NAME", "platform-named")
 
@@ -490,7 +489,6 @@ func TestSetup_EnvServiceNameWhenNoWithService(t *testing.T) {
 // TestSetup_EnvSamplerHonored: OTEL_TRACES_SAMPLER works without a
 // WithSampler option — production can head-sample by deployment env alone.
 func TestSetup_EnvSamplerHonored(t *testing.T) {
-
 	exporter := &tracetest.InMemoryExporter{}
 	t.Setenv("OTEL_TRACES_SAMPLER", "always_off")
 
