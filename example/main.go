@@ -7,6 +7,9 @@
 //	curl localhost:8080/
 //	curl -i localhost:8080/health/ready   # during shutdown: 503 while draining
 //	Ctrl+C                                 # watch the shutdown phase logs
+//
+// PORT overrides the listen port (dev machines often have 8080 occupied —
+// same convention as the otel example).
 package main
 
 import (
@@ -27,6 +30,10 @@ const demoDrainDelay = 3 * time.Second
 func main() {
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = ":8080"
+	if port := os.Getenv("PORT"); port != "" {
+		cfg.Addr = ":" + port
+	}
+
 	cfg.DrainDelay = demoDrainDelay
 	cfg = withLifecycle(cfg)
 
