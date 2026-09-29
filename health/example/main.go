@@ -46,7 +46,8 @@ const (
 )
 
 func main() {
-	hardened := flag.Bool("hardened", false, "serve the dashboard behind DashboardHardenedPreset + a strict BuildCSP middleware")
+	hardened := flag.Bool("hardened", false,
+		"serve the dashboard behind DashboardHardenedPreset + a strict BuildCSP middleware")
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -148,10 +149,13 @@ func hardenedCSP(next http.Handler) http.Handler {
 			return
 		}
 
-		w.Header().Set("Content-Security-Policy", appkitsecurity.BuildCSP(appkitsecurity.CSPConfig{
+		//nolint:exhaustruct_v5 // demo: zero defaults are the strict posture
+		policy := appkitsecurity.BuildCSP(appkitsecurity.CSPConfig{
 			Environment: appkitsecurity.Production,
 			Nonce:       nonce,
-		}))
+		})
+		w.Header().Set("Content-Security-Policy", policy)
+
 		next.ServeHTTP(w, r.WithContext(appkitsecurity.WithNonce(r.Context(), nonce)))
 	})
 }

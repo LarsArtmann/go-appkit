@@ -159,7 +159,11 @@ SIGTERM ─▶ readyProbe=false ─▶ DrainHooks ─▶ DrainDelay ─▶ conne
   the CDN scripts and inline bootstrap are BLOCKED and the dashboard renders
   as a static page. For hardened deployments, pair a nonce-carrying CSP with
   the dashboard's nonce bootstrap (go-health-dashboard v0.8.1+) and
-  self-host/vendor the two CDN scripts.
+  self-host/vendor the two CDN scripts. The runnable composition lives in
+  the example: `go run ./example -hardened` serves the dashboard behind
+  `DashboardHardenedPreset` + a strict `security.BuildCSP` middleware
+  (per-request nonce) — the same composition the integration module's
+  hardened-dashboard test pins.
 
 ## Integration with flightrecorderhealth
 
