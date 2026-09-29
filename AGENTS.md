@@ -276,6 +276,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 
 ## Gotchas
 
+- **BuildFlow vs the patch-pinned go floor (2026-09-29):** `.buildflow.yml` sets `env.GOTOOLCHAIN: go1.27.1` — the machine default is go1.26.7 with GOTOOLCHAIN=local, and without this line BuildFlow's go subprocesses (govulncheck, license-check, golangci-lint's embedded go, tidy) fail with "requires go >= 1.27.1" three different ways. It also skips `go-version-auto-configure`: the fleet major.minor-only policy is noise here, and its normalize sibling DOWNGRADED frh's directive to go 1.27 after the unification train (shipped inside v0.1.4; corrected in v0.1.5). The pre-commit hook carries a project-guards block (directives + dependabot-parity) after the BuildFlow block — re-append it if `buildflow precommit install` regenerates the hook.
 - `NewService` registers `/health`, `/health/live`, `/health/ready` by default.
 - `Service.Addr()` returns `nil` before `Start()` AND from the moment `Shutdown` begins (listener reaped before DrainHooks run — capture the base URL before shutdown; pinned by the composition-contract suite + drainhooks_test).
 - `RegisterHealth` is `*bool` — use `&false` to opt out, not `false`.
