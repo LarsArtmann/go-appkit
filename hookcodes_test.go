@@ -12,6 +12,12 @@ import (
 // The hook error codes are a consumer-matchable contract (grep-able in logs
 // and assertable via errorfamily.Code): consumers key alerting and tests on
 // these exact strings, so renaming one is a breaking change.
+var (
+	errFlushFailed  = errors.New("flush failed")
+	errFirstFailed  = errors.New("first failed")
+	errSecondFailed = errors.New("second failed")
+)
+
 func TestHookErrorCodes_AreAStableContract(t *testing.T) {
 	t.Parallel()
 
@@ -49,7 +55,7 @@ func TestHookErrorCodes_AreAStableContract(t *testing.T) {
 			t.Parallel()
 
 			svc, err := NewService(tt.hooks(func(context.Context) error {
-				return errors.New("flush failed")
+				return errFlushFailed
 			}))
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
@@ -91,12 +97,12 @@ func TestHooks_EveryHookRunsWhenAnEarlierOneFails(t *testing.T) {
 			func(context.Context) error {
 				calls = append(calls, "first")
 
-				return errors.New("first failed")
+				return errFirstFailed
 			},
 			func(context.Context) error {
 				calls = append(calls, "second")
 
-				return errors.New("second failed")
+				return errSecondFailed
 			},
 		},
 	})

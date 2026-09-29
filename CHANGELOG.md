@@ -19,6 +19,11 @@
 
 ### Changed
 
+- Bumped `httputil` v1.2.0 → v1.4.0 (family alignment with the
+  integration module's published pin; also resolves the workspace-mode
+  ambiguous-import between `go-etag` root ≤v0.5.0 — which still shipped
+  the `server` package — and the split `go-etag/server` module that
+  httputil v1.4.0 imports).
 - Go directive 1.26.7 → 1.27.1 (repo-wide toolchain unification;
   language floor only — zero API delta, `go doc -all` diff vs v0.5.1 is
   the testkit addition above and nothing else).
