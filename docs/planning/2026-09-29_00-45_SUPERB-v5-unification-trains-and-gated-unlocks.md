@@ -1,5 +1,18 @@
 # SUPERB Plan v5 — Unification, Release Trains & the Gated Unlocks
 
+> **EXECUTED 2026-09-29 (same-day, in trains):** T01–T09, T12, T14, T17, T18,
+> T24–T26 done; T19 done with a delta (otel ns/op re-baseline deferred under
+> machine load — allocs identical, table annotated); T04 executed as
+> "GOEXPERIMENT notes retired, `GOTOOLCHAIN` prefixes KEPT" (machine default is
+> still go1.26.7 — see the open §g question). Deltas beyond the plan: frh
+> v0.1.4 shipped `go 1.27` (BuildFlow normalize downgrade caught 2h late) —
+> corrected same day as v0.1.5, and the `scripts/pre-tag-checks.sh` gate was
+> built from that post-mortem (now release-ritual step 4); four extra
+> dependency-only satellite trains shipped (realtime v0.1.2, flightrecorder
+> v0.1.1, docs v0.3.1, health v0.1.4) plus core v0.7.0 (`appkit.Hook` alias +
+> `testkit.DrainWindowProbe`). Still open: T10 (owner SSH secret), T13 (G3),
+> T15/T16/T22/T23/T27/T28 (gated), T20/T21/T29–T32 (queue).
+
 **Created:** 2026-09-29 00:45 CEST · **Predecessor:** `doc/planning/archived/2026-09-17_19-20_SUPERB-v4-drift-guards-security-adoption-and-gated-unlocks.md` (EXECUTED IN TRAINS 09-20/23, archived 2026-09-28) ← v3 (superseded UNEXECUTED) ← v2/v1 (archived).
 **Inputs:** `TODO_LIST.md` (post 2026-09-28 docs-health harvest, 64 lines open-only), the three current status reports (`2026-09-24_16-52`, `2026-09-28_23-03`, `2026-09-29_00-05`), and the 2026-09-28/29 docs-health pass report (`docs/status/2026-09-29_00-38_docs-health-full-pass.md`).
 **Location note:** this file lives in `docs/planning/` per EXPLICIT instruction (2026-09-29). The status tree was made canonical under `docs/` on 2026-09-28; if planning consolidates the same way, migrate `doc/planning/` → `docs/planning/` in one `git mv` train and update ~40 references. Until answered, `doc/planning/` keeps the existing verdict docs (composition-spike, cordis, papdashboard, core-v1-exit-criteria, design-decisions, …).
