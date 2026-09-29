@@ -98,6 +98,30 @@ func TestHardenedDashboardBehindCSP(t *testing.T) {
 		t.Fatal("dashboard response carries no Content-Security-Policy header")
 	}
 
+	// Hardened-posture contracts of security.BuildCSP, pinned end-to-end (not
+	// just in the security module's own tests): frame-ancestors 'none' is
+	// ALWAYS present (the builder has no option to weaken it), and the
+	// directives appear in the builder's fixed order so the header is
+	// byte-stable across requests and scrapes.
+	if !strings.Contains(csp, "frame-ancestors 'none'") {
+		t.Fatalf("CSP missing frame-ancestors 'none': %s", csp)
+	}
+
+	directiveOrder := []string{"default-src", "base-uri", "form-action", "frame-ancestors", "object-src", "script-src", "style-src", "connect-src", "img-src"}
+	lastIndex := -1
+	for _, directive := range directiveOrder {
+		index := strings.Index(csp, directive)
+		if index < 0 {
+			t.Fatalf("CSP missing directive %q: %s", directive, csp)
+		}
+
+		if index < lastIndex {
+			t.Fatalf("CSP directives out of the fixed order at %q: %s", directive, csp)
+		}
+
+		lastIndex = index
+	}
+
 	// The header must carry the nonce minted FOR THIS REQUEST: two requests
 	// get two different nonce-… script-src tokens (no mint-once reuse).
 	first := nonceOf(t, csp)

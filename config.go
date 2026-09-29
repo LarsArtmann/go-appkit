@@ -36,6 +36,14 @@ const NoTimeout time.Duration = -1
 // close is skipped.
 const NoDrainDelay time.Duration = -2
 
+// Hook is a lifecycle callback: the element type of DrainHooks and
+// ShutdownHooks. A type ALIAS (not a definition) so existing
+// `[]func(context.Context) error` literals and variables keep compiling
+// unchanged — the name is for readability; a hard definition would break
+// every consumer's slice literal at compile time for zero behavioral gain
+// (revisit at the v1 API review).
+type Hook = func(context.Context) error
+
 // ServiceConfig holds all configuration for a Service.
 // Zero-value fields are replaced with sensible defaults by NewService.
 type ServiceConfig struct {
@@ -74,7 +82,7 @@ type ServiceConfig struct {
 	// hook does not stop the drain or the remaining hooks; errors are joined
 	// with the shutdown result and classified as infrastructure failures. A
 	// service that never started does not run its hooks. Optional.
-	DrainHooks []func(context.Context) error
+	DrainHooks []Hook
 
 	// ShutdownHooks run once, in order, after the server has shut down and
 	// released its connections, each receiving the shutdown context. Use them
@@ -84,7 +92,7 @@ type ServiceConfig struct {
 	// infrastructure failures. A service that never started does not run its
 	// hooks — defer provider.Shutdown yourself on startup-error paths.
 	// Optional.
-	ShutdownHooks []func(context.Context) error
+	ShutdownHooks []Hook
 
 	// RegisterHealth controls whether /health, /health/live, /health/ready are auto-registered.
 	// Uses a pointer so the zero-value (nil) defaults to true. Set to false to opt out.

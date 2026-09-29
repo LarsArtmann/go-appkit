@@ -256,7 +256,7 @@ func (s *Service) runShutdownHooks(ctx context.Context) error {
 // runHooks invokes each hook in order, letting every hook run even when an
 // earlier one fails, and joins each failure as an Infrastructure error under
 // the phase-specific code consumers match on.
-func (s *Service) runHooks(ctx context.Context, hooks []func(context.Context) error, code, message string) error {
+func (s *Service) runHooks(ctx context.Context, hooks []Hook, code, message string) error {
 	var errs []error
 
 	for _, hook := range hooks {
