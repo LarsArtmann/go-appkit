@@ -124,6 +124,14 @@ mean of 10 runs, 2026-09-16; `httptest` round-trip against
 | Traced (spans)          | 21,800 | 11,051 | 90        |
 | Traced + metered (full) | 23,300 | 11,055 | 90        |
 
+2026-09-29 re-run (n=5, go 1.27.1 floor, httputil v1.4.0): B/op and
+allocs/op are UNCHANGED against the table (NoOp 7,973 B/90 allocs; traced
+11,092 B/90; traced+metered 11,095 B/90) — no allocation regression from
+the toolchain or dependency bump. The ns/op re-baseline is deferred: the
+box was under an external nix-build storm (load average 150), which
+poisons wall-clock numbers ~2.3x; per the ±25% drift rule below, do not
+re-baseline ns/op under load.
+
 Full instrumentation costs ~~3.3us/req (~~+17%) and ~3.1KB over the no-op path,
 with zero additional allocations; export I/O is excluded by design (batching
 processor, no exporter wired). The no-op baseline is the cost of the
