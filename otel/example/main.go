@@ -1,22 +1,29 @@
 // Command otel-demo shows the appkit otel module in action: a service with
 // a span on every request, semantic-convention metrics, W3C trace-context
-// propagation, trace-correlated handler logs, and a telemetry flush wired
-// into graceful shutdown.
+// propagation, trace-correlated handler logs, exceptions in both flavors
+// (panics and handled errors), and a telemetry flush wired into graceful
+// shutdown.
 //
 // Run and try:
 //
 //	go run ./example
-//	curl -i http://localhost:8080/users/alice   # span + correlated log on stdout
+//	curl -i http://localhost:8080/users/alice   # span + correlated log
+//	curl -i http://localhost:8080/boom          # handled error -> exception event
+//	curl -i http://localhost:8080/panic         # panic -> exception event + stack trace
 //	curl -i http://localhost:8080/health        # no span — health is filtered
-//	curl -i http://localhost:8080/boom          # span with error status
-//	ctrl-C                                      # graceful drain, then spans flush
+//	ctrl-C                                      # graceful drain, then telemetry flushes
 //
-// Spans are pretty-printed to stdout for the demo; in production, construct
-// an OTLP exporter and pass it via appkitotel.WithSpanExporter.
+// Telemetry follows the environment, zero code: set
+// OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 (a local SigNoz) and the
+// spans and metrics stream straight into SigNoz — traces, metrics, and the
+// exception events behind its Exceptions view. Without the variable, spans
+// pretty-print to stdout for local inspection. Import
+// dashboards/appkit-http-dashboard.json for a ready-made SigNoz dashboard.
 package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -43,18 +50,33 @@ func main() {
 }
 
 func run(cfg appkit.ServiceConfig) error {
-	provider, err := appkitotel.Setup(
+	// Handler-level logs carry trace_id/span_id; create the logger before
+	// the Recovery middleware needs it.
+	logger := slog.New(appkitotel.TraceHandler(slog.NewJSONHandler(os.Stdout, nil)))
+
+	telemetry := []appkitotel.SetupOption{
 		appkitotel.WithService("otel-demo", "1.0.0", "local"),
-		appkitotel.WithStdoutExporter(os.Stdout), // development; OTLP in production
-	)
+		appkitotel.WithEnvironment("development"),
+	}
+
+	// Zero-code OTLP: with OTEL_EXPORTER_OTLP_ENDPOINT set (e.g. a local
+	// SigNoz), Setup builds the OTLP exporters itself. Without it, the demo
+	// falls back to pretty-printing spans on stdout.
+	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") == "" && os.Getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT") == "" {
+		telemetry = append(telemetry, appkitotel.WithStdoutExporter(os.Stdout))
+	}
+
+	provider, err := appkitotel.Setup(telemetry...)
 	if err != nil {
 		return fmt.Errorf("otel setup: %w", err)
 	}
 
 	// Tracing wraps the whole request (including the default middleware
-	// stack); the provider flushes after the server released its
+	// stack); Recovery turns panics into exception events inside those
+	// spans; the provider flushes after the server released its
 	// connections during graceful shutdown.
 	cfg.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
+	cfg.ExtraMiddlewares = []httputil.Middleware{appkitotel.Recovery(logger)}
 	cfg.ShutdownHooks = []func(context.Context) error{provider.Shutdown}
 
 	svc, err := appkit.NewService(cfg)
@@ -63,9 +85,6 @@ func run(cfg appkit.ServiceConfig) error {
 	}
 
 	defer func() { _ = svc.Close() }()
-
-	// Handler-level logs carry trace_id/span_id; pass the request context.
-	logger := slog.New(appkitotel.TraceHandler(slog.NewJSONHandler(os.Stdout, nil)))
 
 	svc.Mux.HandleFunc("GET /users/{id}", func(w http.ResponseWriter, r *http.Request) {
 		logger.InfoContext(r.Context(), "user fetched", "user_id", r.PathValue("id"))
@@ -76,9 +95,16 @@ func run(cfg appkit.ServiceConfig) error {
 	})
 
 	svc.Mux.HandleFunc("GET /boom", func(w http.ResponseWriter, r *http.Request) {
-		logger.WarnContext(r.Context(), "handler failing")
+		err := errors.New("payment gateway timed out")
+		appkitotel.RecordError(r.Context(), err) // SigNoz Exceptions view entry
 
-		w.WriteHeader(http.StatusInternalServerError)
+		logger.ErrorContext(r.Context(), "checkout failed", "error", err.Error())
+
+		http.Error(w, "checkout failed", http.StatusInternalServerError)
+	})
+
+	svc.Mux.HandleFunc("GET /panic", func(_ http.ResponseWriter, _ *http.Request) {
+		panic(errors.New("cache stampede")) // Recovery records the exception, answers 500
 	})
 
 	return svc.Run(context.Background()) //nolint:wrapcheck // top-level main returns the error as-is

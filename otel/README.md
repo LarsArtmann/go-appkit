@@ -2,9 +2,11 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/larsartmann/go-appkit/otel.svg)](https://pkg.go.dev/github.com/larsartmann/go-appkit/otel)
 
-Opt-in OpenTelemetry instrumentation for HTTP services: provider setup, an
-`otelhttp` middleware bridge (spans + semantic-convention metrics + W3C
-propagation), HTTP histogram views, and slog trace correlation.
+Opt-in OpenTelemetry instrumentation for HTTP services: provider setup (with
+env-driven OTLP export), an `otelhttp` middleware bridge (spans +
+semantic-convention metrics + W3C propagation), panic/error exception
+recording for backends like SigNoz, HTTP histogram views, import-ready
+SigNoz dashboards, and slog trace correlation.
 
 ```bash
 go get github.com/larsartmann/go-appkit/otel
@@ -22,17 +24,22 @@ plain `net/http`. The module's `example/` wires it into an appkit service.
 
 ## Quick Start
 
+Zero code, environment-driven — the deployment decides where telemetry goes:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"  # SigNoz OTLP/HTTP
+export OTEL_SERVICE_NAME="myapp"
+```
+
 ```go
-provider, err := appkitotel.Setup(
-    appkitotel.WithService("myapp", "1.0.0", os.Getenv("POD_NAME")),
-    appkitotel.WithStdoutExporter(os.Stdout), // development; OTLP in production
-)
+provider, err := appkitotel.Setup()
 if err != nil {
     return err
 }
 
 cfg := appkit.DefaultServiceConfig()
 cfg.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
+cfg.ExtraMiddlewares = []httputil.Middleware{appkitotel.Recovery(logger)}
 cfg.ShutdownHooks = []func(context.Context) error{provider.Shutdown}
 
 logger := slog.New(appkitotel.TraceHandler(slog.NewJSONHandler(os.Stdout, nil)))
@@ -43,9 +50,68 @@ err = svc.Run(ctx)
 ```
 
 That is the whole wiring: one span per request, semantic-convention metrics,
-W3C propagation in and out, trace IDs on handler logs, and a provider flush
-that runs after the server released its connections during graceful
-shutdown. Run the example: `go run ./example`.
+W3C propagation in and out, trace IDs on handler logs, OTLP export to the
+collector named in the environment, and a provider flush that runs after the
+server released its connections during graceful shutdown. Run the example:
+`go run ./example`.
+
+Explicit code wins per signal when you want it —
+`WithOTLP(WithOTLPEndpoint("http://localhost:4318"))` pins the endpoint,
+`WithStdoutExporter(os.Stdout)` prints spans instead, `WithMetricReader`
+swaps the metric pipeline.
+
+## SigNoz in 3 steps
+
+1. **Run SigNoz** (OTLP on `:4318`, UI on `:3301`):
+
+   ```bash
+   git clone -b main https://github.com/SigNoz/signoz.git && cd signoz/deploy && ./install.sh
+   ```
+
+2. **Point your app at it** — either of:
+
+   ```bash
+   export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"   # zero code
+   ```
+
+   ```go
+   appkitotel.Setup(appkitotel.WithService("myapp", "1.0.0", pod),
+       appkitotel.WithOTLP(appkitotel.WithOTLPEndpoint("http://localhost:4318")))
+   ```
+
+   SigNoz Cloud instead of local: keep the endpoint pattern
+   (`https://ingest.<region>.signoz.cloud:443`) and add
+   `WithOTLPHeaders(map[string]string{"signoz-ingestion-key": key})` — or
+   `OTEL_EXPORTER_OTLP_HEADERS`.
+
+3. **Import the dashboard** — `dashboards/appkit-http-dashboard.json` (UI:
+   Dashboards → New Dashboard → Import JSON). See
+   `dashboards/README.md`.
+
+## Exceptions (SigNoz's Exceptions view)
+
+SigNoz turns `exception` span events into a dedicated exceptions view with
+stack traces and trace links. This module produces them two ways:
+
+- **Panics** — `Recovery(logger)` in `ExtraMiddlewares` records
+  `exception.type` / `exception.message` / `exception.stacktrace` plus error
+  span status, logs the familiar `panic recovered` line, and answers 500. It
+  is a drop-in sibling of httputil's Recovery; nil logger falls back to
+  `slog.Default()`.
+- **Handled errors** — one line in any handler:
+
+  ```go
+  if err != nil {
+      appkitotel.RecordError(r.Context(), err)
+      http.Error(w, "checkout failed", http.StatusInternalServerError)
+      return
+  }
+  ```
+
+Gotcha: when `Recovery` runs inside the span middleware, otelhttp overwrites
+the span status *description* at span end — the exception event (type,
+message, stacktrace) is what survives, and that is exactly what the
+exceptions view indexes.
 
 ## What you get
 
@@ -53,8 +119,10 @@ shutdown. Run the example: `go run ./example`.
 | --------- | ---------------------------------------------------- | ------------------------------------------------------- |
 | Traces    | one SERVER span per request                          | named after the ServeMux pattern (`GET /users/{id}`)    |
 | Traces    | W3C `traceparent`/`baggage` in and out               | continues caller traces; feeds downstream calls         |
+| Traces    | `exception` events (panics + handled errors)         | `Recovery` + `RecordError`; feeds SigNoz's Exceptions view |
 | Metrics   | `http.server.request.duration` (+ size, active)      | method/route/status attributes; route-based, no blowups |
 | Logs      | `trace_id` + `span_id` on records logged with ctx    | `TraceHandler` decorates any `slog.Handler`             |
+| Export    | OTLP/HTTP for traces + metrics, env-driven or in code | `WithOTLP`; `OTEL_EXPORTER_OTLP_*` natively honored    |
 | Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks` | flush after drain — spans cover the final requests      |
 
 ## Options that matter
@@ -64,23 +132,35 @@ shutdown. Run the example: `go run ./example`.
   forge trace continuity or skew sampling).
 - `Middleware(WithFilteredPaths("/metrics", "/static/"))` — health endpoints
   are filtered by default; extend for other chatty paths.
-- `Setup(WithSampler(sdktrace.TraceIDRatioBased(0.1)))` — head sampling for
-  high-volume services (default: parent-based always-sample).
+- `Setup(WithSampler(sdktrace.TraceIDRatioBased(0.1)))` — head sampling in
+  code; without it, `OTEL_TRACES_SAMPLER`/`_ARG` configure sampling from the
+  deployment (default: parent-based always-sample).
+- `Setup(WithEnvironment("production"))` — the `deployment.environment`
+  resource attribute SigNoz filters by; `OTEL_RESOURCE_ATTRIBUTES` works too.
 - `Setup(WithoutGlobalRegistration())` — isolated providers for tests and
   multi-service processes.
 
 ## Production exporters
 
-`Setup` takes any `sdktrace.SpanExporter` / `sdkmetric.Reader`; OTLP is the
-usual choice and stays in your dependency tree, not this module's:
+`WithOTLP` is the built-in production path (OTLP/HTTP, traces via batch
+processor, metrics via a periodic reader honoring
+`OTEL_METRIC_EXPORT_INTERVAL`):
 
 ```go
-exp, _ := otlptracehttp.New(ctx) // go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
 provider, _ := appkitotel.Setup(
     appkitotel.WithService("myapp", version, instance),
-    appkitotel.WithSpanExporter(exp),
+    appkitotel.WithOTLP(
+        appkitotel.WithOTLPEndpoint("http://otel-collector:4318"), // or env
+        appkitotel.WithOTLPHeaders(map[string]string{"signoz-ingestion-key": key}),
+    ),
 )
 ```
+
+Unset options defer to the standard `OTEL_EXPORTER_OTLP_*` environment
+variables, which the exporters honor natively (endpoint, headers, timeout,
+compression, retries). Any custom `sdktrace.SpanExporter` /
+`sdkmetric.Reader` still fits via `WithSpanExporter` / `WithMetricReader` —
+and takes precedence over OTLP for its signal.
 
 ## Relationship to go-cqrs-lite's otel module
 
@@ -103,8 +183,10 @@ README's observability section.
   `TestSpanNameAndRouteThroughAppkitOuterMiddlewares`).
 - **SSE-safe**: with `WriteTimeout: appkit.NoTimeout`, the request span ends
   when the stream ends — no artificial cutoff.
-- **Panic-correct**: a recovered 500 marks the span status error; the outer
-  placement (`OuterMiddlewares`) means Recovery sits inside the span.
+- **Panic-correct**: `Recovery` records the exception event inside the span
+  and answers 500; the outer placement of `Middleware` (`OuterMiddlewares`)
+  means both sit inside the span. The `http.ErrAbortHandler` sentinel
+  re-panics untouched, matching httputil.Recovery.
 
 ## Go build notes
 

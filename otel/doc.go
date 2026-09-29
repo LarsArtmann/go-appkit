@@ -10,7 +10,7 @@
 //
 //	provider, err := appkitotel.Setup(
 //		appkitotel.WithService("myapp", "1.0.0", os.Getenv("POD_NAME")),
-//		appkitotel.WithStdoutExporter(os.Stdout), // development; OTLP in production
+//		appkitotel.WithOTLP(), // production; endpoint from OTEL_EXPORTER_OTLP_ENDPOINT
 //	)
 //	if err != nil {
 //		return err
@@ -18,11 +18,42 @@
 //
 //	cfg := appkit.DefaultServiceConfig()
 //	cfg.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
+//	cfg.ExtraMiddlewares = []httputil.Middleware{appkitotel.Recovery(logger)}
 //	cfg.ShutdownHooks = []func(context.Context) error{provider.Shutdown}
 //
 // All instrumentation is opt-in and no-op until a provider is configured:
 // without [Setup], [Middleware] propagates nothing, records nothing, and
 // adds near-zero overhead — the same posture as go-cqrs-lite's otel module.
+//
+// # SigNoz (and any OTLP backend) with zero code
+//
+// Export stays off until something asks for it — code ([WithOTLP]) or the
+// environment. With the standard variables set, a bare Setup() call is
+// fully configured:
+//
+//	OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+//	OTEL_SERVICE_NAME=orders-api
+//	OTEL_TRACES_SAMPLER=parentbased_traceidratio   # optional
+//	OTEL_TRACES_SAMPLER_ARG=0.1                    # optional
+//	OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production
+//
+// Explicit code options win per signal, so partial migrations are safe.
+// [WithOTLPHeaders] carries SigNoz Cloud's signoz-ingestion-key. A
+// ready-made dashboard lives in dashboards/appkit-http-dashboard.json
+// (Dashboards → Import JSON in the SigNoz UI).
+//
+// # Exceptions
+//
+// Backends like SigNoz read `exception` span events into a dedicated
+// exceptions view. Two call shapes produce them:
+//
+//   - [Recovery]: panic-recovery middleware that records
+//     exception.type/exception.message/exception.stacktrace on the active
+//     span (plus error span status and the usual log line) and answers 500.
+//     Place it in ServiceConfig.ExtraMiddlewares so it sits inside the span
+//     and inside any outer recovery.
+//   - [RecordError]: call from handlers wherever an error is handled
+//     instead of panicking — same event shape, one line.
 //
 // # What the middleware emits
 //
@@ -40,6 +71,9 @@
 //     pattern — cardinality-safe for parametrized routes.
 //   - Health endpoints (/health, /health/live, /health/ready) are filtered
 //     out by default; extend with [WithFilter] or [WithFilteredPaths].
+//   - A panic in a handler does NOT lose the span: otelhttp ends it via
+//     defer — but the exception event and error status only appear when
+//     [Recovery] runs inside it.
 //
 // # Shutdown ordering
 //
