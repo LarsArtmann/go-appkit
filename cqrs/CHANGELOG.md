@@ -1,6 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [0.6.0] - 2026-09-29
+
+### Breaking
+
+- Removed the deprecated `EventConfig.SQLitePath` alias (announced at
+  v0.5.0 for removal at v0.6.0). Migration: rename the field to `DSN` —
+  same value, no other change.
 
 ### Changed
 
@@ -9,7 +15,9 @@
   v4.7.0, middleware v4.6.0 → v4.7.0, otel/v4 v4.4.0 → v4.5.0,
   sqliteengine v4.3.0 → v4.4.0, projectionhost v4.4.0 → v4.5.1, event
   v4.11.0 → v4.12.0, id v4.6.0 → v4.6.1, projection v4.3.0 → v4.4.0,
-  storage v4.9.0 → v4.10.1, go-error-family v0.10.1 → v0.11.0. Behavior
+  storage v4.9.0 → v4.10.1, go-error-family v0.10.0 → v0.11.0 (via the
+  unreleased v0.10.1 hygiene pin — a docs/CI-only upstream release with
+  zero code changes). Behavior
   change absorbed: projectionhost v4.5+ quarantines ONLY
   Rejection/Corruption-family errors to the DLQ (retryable errors restart
   the worker instead) — the DLQ test's poison fixture is now a Rejection
@@ -19,9 +27,6 @@
   `slices.Sorted(maps.Keys(...))` instead of a hand-rolled collect + sort;
   returns nil (not an empty non-nil slice) for empty maps — safe for all
   callers (range-only). Behavior-neutral otherwise.
-- Bumped `go-error-family` v0.10.0 → v0.10.1 (docs/CI-only release
-  upstream: zero code changes; readme/licensing/CI work). Hygiene pin — no
-  consumer-visible behavior change.
 
 ## [0.5.0] - 2026-09-07
 
