@@ -29,9 +29,9 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/cqrs":                 "v0.6.0",
 	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.0",
 	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.5",
-	"github.com/larsartmann/go-appkit/health":               "v0.1.3",
+	"github.com/larsartmann/go-appkit/health":               "v0.1.4",
 	"github.com/larsartmann/go-appkit/otel":                 "v0.1.1",
-	"github.com/larsartmann/go-appkit/realtime":             "v0.1.1",
+	"github.com/larsartmann/go-appkit/realtime":             "v0.1.2",
 	"github.com/larsartmann/go-appkit/security":             "v0.2.0",
 
 	"github.com/larsartmann/cqrs-htmx/v4":   "v4.12.0",
@@ -41,16 +41,17 @@ var documentedPins = map[string]string{
 
 	// Composition-contract legs (T14, 2026-09-29): the third-party surfaces
 	// the composition tests exercise. These are VERSION-LOCKED to the pins
-	// the published family modules carry (go-health v0.2.0 = the health
-	// module's pin; go-flightrecorder v0.2.0 = frh/cqrs/otel's pin;
+	// the published family modules carry (go-health v0.4.1 = the health
+	// module's pin since health v0.1.4's dependency sweep — the earlier
+	// "v0.3.0 evaluation pending" lock is OVERTAKEN, the suite is green on
+	// v0.4.1; go-flightrecorder v0.2.0 = frh/cqrs/otel's pin;
 	// samber/do v2.1.0 = frh's pin) — deliberately NOT asserted against the
-	// proxy LATEST by scripts/check-pin-drift.sh, because go-health v0.3.0
-	// exists upstream and the family's evaluation of it is a tracked backlog
-	// item, not a mechanical bump.
+	// proxy LATEST by scripts/check-pin-drift.sh; re-align by hand when the
+	// owning family module bumps them.
 	"github.com/larsartmann/go-flightrecorder": "v0.2.0",
-	"github.com/larsartmann/go-health":         "v0.2.0",
+	"github.com/larsartmann/go-health":         "v0.4.1",
 	"github.com/samber/do/v2":                  "v2.1.0",
-}
+	}
 
 // documentedGoDirective pins the language version this module (and the rest of
 // the repository, per AGENTS.md and go.work) is documented against. The

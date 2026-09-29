@@ -8,9 +8,9 @@ require (
 	github.com/larsartmann/go-appkit/cqrs v0.6.0
 	github.com/larsartmann/go-appkit/errorpages v0.1.0
 	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.5
-	github.com/larsartmann/go-appkit/health v0.1.3
+	github.com/larsartmann/go-appkit/health v0.1.4
 	github.com/larsartmann/go-appkit/otel v0.1.1
-	github.com/larsartmann/go-appkit/realtime v0.1.1
+	github.com/larsartmann/go-appkit/realtime v0.1.2
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.12.0
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.7.0
@@ -21,7 +21,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/system/v4 v4.10.0
 	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-flightrecorder v0.2.0
-	github.com/larsartmann/go-health v0.2.0
+	github.com/larsartmann/go-health v0.4.1
 	github.com/larsartmann/go-sse v0.6.1
 	github.com/larsartmann/go-sse/ssetest v0.4.0
 	github.com/larsartmann/httputil v1.4.0
@@ -86,20 +86,20 @@ require (
 	github.com/larsartmann/go-cqrs-lite/snapshot/v4 v4.5.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/storage/v4 v4.10.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/watermill/v4 v4.6.2 // indirect
-	github.com/larsartmann/go-datastar v0.5.0 // indirect
-	github.com/larsartmann/go-datastar/static v0.5.0 // indirect
+	github.com/larsartmann/go-datastar v0.6.1 // indirect
+	github.com/larsartmann/go-datastar/static v0.6.1 // indirect
 	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
 	github.com/larsartmann/go-etag/server v0.6.0 // indirect
-	github.com/larsartmann/go-health-dashboard v0.9.0 // indirect
+	github.com/larsartmann/go-health-dashboard v0.10.1 // indirect
 	github.com/larsartmann/go-idempotency v0.3.0 // indirect
 	github.com/larsartmann/go-retry v0.7.1 // indirect
 	github.com/larsartmann/go-sse/sseparse v0.1.0 // indirect
-	github.com/larsartmann/templ-components v1.18.0 // indirect
-	github.com/larsartmann/templ-components/datastar v1.18.0 // indirect
-	github.com/larsartmann/templ-components/errorpage v1.18.0 // indirect
-	github.com/larsartmann/templ-components/htmx v1.18.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.18.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.18.0 // indirect
+	github.com/larsartmann/templ-components v1.19.4 // indirect
+	github.com/larsartmann/templ-components/datastar v1.19.4 // indirect
+	github.com/larsartmann/templ-components/errorpage v1.19.4 // indirect
+	github.com/larsartmann/templ-components/htmx v1.19.4 // indirect
+	github.com/larsartmann/templ-components/icons v1.19.4 // indirect
+	github.com/larsartmann/templ-components/utils v1.19.4 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
