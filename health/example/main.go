@@ -48,6 +48,7 @@ const (
 func main() {
 	hardened := flag.Bool("hardened", false,
 		"serve the dashboard behind DashboardHardenedPreset + a strict BuildCSP middleware")
+	flag.Parse()
 
 	port := os.Getenv("PORT")
 	if port == "" {
