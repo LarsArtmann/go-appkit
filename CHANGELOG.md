@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.6.0] - 2026-09-29
 
 ### Added
 
@@ -19,6 +19,9 @@
 
 ### Changed
 
+- Go directive 1.26.7 → 1.27.1 (repo-wide toolchain unification;
+  language floor only — zero API delta, `go doc -all` diff vs v0.5.1 is
+  the testkit addition above and nothing else).
 - Internal refactor: the drain-hook and shutdown-hook runners (identical
   except hooks slice + error code) share one `runHooks` helper; error
   codes pass through byte-identical. Behavior-neutral.

@@ -87,3 +87,8 @@ require (
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 )
+
+exclude (
+	github.com/larsartmann/go-etag v0.4.0
+	github.com/larsartmann/go-etag v0.5.0
+)
