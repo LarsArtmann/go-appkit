@@ -45,6 +45,16 @@ const (
 	// leakPollInterval is the goroutine-count re-check cadence.
 	leakPollInterval = 10 * time.Millisecond
 
+	// leakSettleTimeout bounds the goroutine-baseline wait INDEPENDENTLY of
+	// errDrainTimeout: a real leak never exits, but goroutines that merely
+	// exit SLOWLY (runtime/trace readers, keepalive conns descheduled when
+	// the whole workspace's test binaries run concurrently) need scheduling
+	// time, not failure. Proven flake class 2026-09-29: testkit passed
+	// standalone and failed twice in `go test ./...` (11 binaries racing,
+	// machine saturated) at the 2s deadline; 5s clears it without weakening
+	// the guarantee — genuine leaks still fail, 3s later.
+	leakSettleTimeout = 5 * time.Second
+
 	// errDrainTimeout bounds the server-error drain and the leak re-check.
 	errDrainTimeout = 2 * time.Second
 )
@@ -185,7 +195,7 @@ func (ts *TestServer) stop(ctx context.Context) error {
 
 	// Goroutine-baseline assert: a leaked goroutine (an evict loop, a
 	// stuck SSE subscriber) fails THIS test instead of flaking the next.
-	deadline := time.Now().Add(errDrainTimeout)
+	deadline := time.Now().Add(leakSettleTimeout)
 	for runtime.NumGoroutine() > ts.goroutineBaseline+goroutineTolerance {
 		if time.Now().After(deadline) {
 			leakMsg := fmt.Sprintf("goroutine leak: %d goroutines after shutdown, baseline %d",
