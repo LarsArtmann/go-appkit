@@ -4,6 +4,17 @@
 
 ### Changed
 
+- Dependency sweep (2026-09-29): go-cqrs-lite system v4.7.0 → v4.10.0,
+  command v4.10.0 → v4.12.0, query v4.8.0 → v4.9.0, decider v4.6.0 →
+  v4.7.0, middleware v4.6.0 → v4.7.0, otel/v4 v4.4.0 → v4.5.0,
+  sqliteengine v4.3.0 → v4.4.0, projectionhost v4.4.0 → v4.5.1, event
+  v4.11.0 → v4.12.0, id v4.6.0 → v4.6.1, projection v4.3.0 → v4.4.0,
+  storage v4.9.0 → v4.10.1, go-error-family v0.10.1 → v0.11.0. Behavior
+  change absorbed: projectionhost v4.5+ quarantines ONLY
+  Rejection/Corruption-family errors to the DLQ (retryable errors restart
+  the worker instead) — the DLQ test's poison fixture is now a Rejection
+  that fails only the poison event (the old fixture relied on a backoff
+  timing window that v4.5 closed). Go directive 1.26.7 → 1.27.1.
 - Internal refactor: `sortedEngineNames` collects sorted map keys via
   `slices.Sorted(maps.Keys(...))` instead of a hand-rolled collect + sort;
   returns nil (not an empty non-nil slice) for empty maps — safe for all

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Go directive 1.26.7 → 1.27.1 (repo-wide toolchain unification).
+  `templ-components` v1.17.0 → v1.19.4 and `go-error-family` v0.10.1 →
+  v0.11.0 (indirect; BuildFlow dependency sweep).
+
 ### Planned
 
 - Consider `retract v0.2.0` so a stale proxy can never resolve the ghost

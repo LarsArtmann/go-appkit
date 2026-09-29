@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Bumped `httputil` v0.11.0 → v1.2.0 (BuildFlow dependency sweep — the
+  module shipped with a pre-1.0 httputil pin; the `Middleware` type and
+  `ResponseRecorder` surface it uses are unchanged). Go directive
+  1.27 → 1.27.1 (repo-wide toolchain unification).
+
 ### Added
 
 - `OpsRecorderPreset(dir, maxSnapshots, maxBytes)`: the documented production

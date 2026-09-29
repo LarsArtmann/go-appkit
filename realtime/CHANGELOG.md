@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Bumped `go-sse` v0.6.0 → v0.6.1 (BuildFlow dependency sweep). Go
+  directive 1.26.7 → 1.27.1 (repo-wide toolchain unification).
+
 ### Added
 
 - README.md: module overview, quick start, options table, shutdown ordering,
