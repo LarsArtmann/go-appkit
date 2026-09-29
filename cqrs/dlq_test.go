@@ -29,15 +29,16 @@ func newDLQService(t *testing.T, threshold int) *EventService {
 	return eventSvc
 }
 
-// flakyProjection fails while broken is true and succeeds afterwards. The
+// poisonProjection fails ONLY the poison event while broken is true and
+// succeeds for everything else, so exactly one entry lands in the DLQ. The
 // failure is a Rejection (non-retryable poison): projectionhost v4.5+
 // quarantines ONLY Rejection/Corruption-family errors to the DLQ — retryable
 // errors restart the worker instead and never land in the store.
-func flakyProjection(broken *atomic.Bool) projection.Projection { //nolint:ireturn // upstream interface
+func poisonProjection(broken *atomic.Bool) projection.Projection { //nolint:ireturn // upstream interface
 	return projection.NewProjection(
 		"dlq-projection",
-		func(_ context.Context, _ event.Event) error {
-			if broken.Load() {
+		func(_ context.Context, evt event.Event) error {
+			if broken.Load() && evt.Type() == "test.poison" {
 				return errPoisonRejection
 			}
 
@@ -55,7 +56,7 @@ func TestEventService_DLQ_PoisonEventQuarantinedAndReplayed(t *testing.T) {
 	broken := &atomic.Bool{}
 	broken.Store(true)
 
-	err := eventSvc.Host().Register(flakyProjection(broken))
+	err := eventSvc.Host().Register(poisonProjection(broken))
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
