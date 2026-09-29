@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.5] - 2026-09-29
+
+### Fixed
+
+- Go directive restored to 1.27.1: the v0.1.4 artifact shipped with
+  `go 1.27` — a formatter normalize (major.minor-only policy) downgraded
+  the directive after the unification train. The repo floor is 1.27.1
+  (go.work + every sibling go.mod; pinned by
+  `scripts/check-go-directives.sh` and integration's
+  `documentedGoDirective` fixture). Zero code delta.
+
 ## [0.1.4] - 2026-09-29
 
 ### Changed
@@ -16,8 +27,9 @@
   behavior-neutral).
 - Bumped `go-error-family` v0.10.1 → v0.11.0 (BuildFlow dependency
   sweep; classification surface used by the adapter is unchanged).
-- Go directive 1.26.5 → 1.27.1 (repo-wide toolchain unification; godoc
-  diff vs v0.1.3 is additions-only).
+- Go directive 1.26.5 → 1.27 (the intended 1.27.1 floor was downgraded by
+  a formatter normalize after tagging; corrected in v0.1.5; godoc diff vs
+  v0.1.3 is additions-only).
 
 ### Documented
 
