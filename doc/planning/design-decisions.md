@@ -274,3 +274,22 @@ huma.Get(api, "/users/{id}", typedHandler)
 - **Idiomatic micro-patterns** (e.g. collecting sorted map keys) — the standard is `slices.Sorted(maps.Keys(...))` (never a hand-rolled collect+sort loop), and identical idioms in two modules are similarity, not duplication.
 
 Suppression policy: the accepted shapes stay VISIBLE in art-dupl output (no exclude-config), so a future real clone inside the same family still stands out. Any NEW accepted clone gets its rationale recorded here, one paragraph, so the accept survives personnel changes.
+
+## Decision 14: external-consumer verification — verify-on-touch, quarterly sweep
+
+> **Status:** Decided 2026-09-29 (T30; surfaced by the 09-28 whoUses decode: the fresh-consumer proxy check covers OUR modules, not external consumers' integrations).
+
+**Decision:** external consumers (rolls-royce-mtuGoHelpCenter-golang, PapDashboard, cqrs-htmx as the sibling with appkit-backed setups) are verified ON TOUCH and on a QUARTERLY sweep — never per-release.
+
+- **Verify-on-touch:** whenever a train (or an incident) changes an API an external consumer is known to pin, check their resolution still builds against the new tag before pushing. This is the per-release moment, scoped to KNOWN affected consumers only.
+- **Quarterly sweep:** once a quarter, re-resolve each tracked external consumer's go.mod against the proxy and record pin drift in the watchlist. Cheap, bounded, catches silent breakage the event-driven path misses.
+- **Never per-release-for-all:** running every external consumer's build on every family tag is unbounded work for near-zero signal — their pins move on their cadence, not ours.
+
+Mechanics: the existing fresh-consumer proxy check (`doc/recipes/fresh-consumer-proxy-check.md`) stays OUR-side only; external-consumer state lives in TODO_LIST's watchlist line (as-of dates), not in CI.
+
+## Decision 13 amendment: lint-config duplication + art-dupl suppression audit policy
+
+> **Status:** Decided 2026-09-29 (T21 standing policy; #37 jscpd noise verdict).
+
+- **Per-module `.golangci.yml` duplication is BY DESIGN and accepted.** Eight modules carry near-identical test-exclusion blocks because each module must lint correctly STANDALONE (hermetic `GOWORK=off` runs, per-module configs are the source of truth; the root config's allowlist covers only core + family deps). A shared generator/template was considered and rejected: coupling lint config to a generator adds a build step to every config change for an 8-way copy that changes ~once a quarter. jscpd/code-quality-scan findings on these files are noise — recorded here so the accept survives personnel changes.
+- **art-dupl suppression audit policy:** the ~431 never-inspected clone groups get ONE audit pass (T21); after it, art-dupl runs are event-driven (new module surface, pre-release audits) rather than scheduled. Corrected invocation going forward: drop `--type-aware` when `--suggest-generics` is set (they conflict; generics mode subsumes the type-aware pass). New accepted clones get a one-paragraph rationale in this decision.
