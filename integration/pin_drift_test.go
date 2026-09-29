@@ -51,7 +51,7 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-flightrecorder": "v0.2.0",
 	"github.com/larsartmann/go-health":         "v0.4.1",
 	"github.com/samber/do/v2":                  "v2.1.0",
-	}
+}
 
 // documentedGoDirective pins the language version this module (and the rest of
 // the repository, per AGENTS.md and go.work) is documented against. The

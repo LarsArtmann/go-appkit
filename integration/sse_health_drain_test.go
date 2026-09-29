@@ -57,7 +57,11 @@ func TestSSEStreamClosesInLockstepWithHealthDrain(t *testing.T) {
 
 				return nil
 			},
-			func(context.Context) error { close(drainHooksRan); return nil },
+			func(context.Context) error {
+				close(drainHooksRan)
+
+				return nil
+			},
 		},
 		ShutdownHooks: []func(context.Context) error{mounted.Shutdown},
 	})
