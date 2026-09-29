@@ -30,6 +30,7 @@ const demoDrainDelay = 3 * time.Second
 func main() {
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = ":8080"
+
 	if port := os.Getenv("PORT"); port != "" {
 		cfg.Addr = ":" + port
 	}

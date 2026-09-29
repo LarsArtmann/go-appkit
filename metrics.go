@@ -1,6 +1,7 @@
 package appkit
 
 import (
+	"cmp"
 	"crypto/sha256"
 	"crypto/subtle"
 	"fmt"
@@ -102,7 +103,7 @@ var durationBuckets = []float64{0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5
 // documented on [MetricsConfig].
 type metricsCollector struct {
 	mu        sync.Mutex
-	byRoute   map[string]*routeSeries // key: method|route|status
+	byRoute   map[seriesKey]*routeSeries
 	inFlight  int64
 	version   string
 	startTime time.Time
@@ -119,7 +120,7 @@ type routeSeries struct {
 
 func newMetricsCollector(version string) *metricsCollector {
 	return &metricsCollector{ //nolint:exhaustruct_v5 // mu zero value is ready; inFlight starts at 0
-		byRoute:   make(map[string]*routeSeries),
+		byRoute:   make(map[seriesKey]*routeSeries),
 		startTime: time.Now(),
 		version:   version,
 	}
@@ -155,7 +156,7 @@ func (m *metricsCollector) middleware(next http.Handler) http.Handler {
 
 		m.inFlight--
 
-		key := r.Method + "|" + route + "|" + strconv.Itoa(rec.status)
+		key := seriesKey{method: r.Method, route: route, status: strconv.Itoa(rec.status)}
 
 		series, ok := m.byRoute[key]
 		if !ok {
@@ -237,19 +238,24 @@ func (m *metricsCollector) writeInFlight(b *strings.Builder) {
 	fmt.Fprintf(b, "appkit_http_requests_in_flight %d\n", m.inFlight)
 }
 
-// seriesKeyParts is the number of fields in a byRoute key (method|route|status).
-const seriesKeyParts = 3
+// seriesKey identifies one per-route series. A struct keeps the three axes
+// first-class instead of a pipe-joined string that every scrape has to
+// SplitN back apart.
+type seriesKey struct {
+	method string
+	route  string
+	status string
+}
 
 func (m *metricsCollector) writeHistogram(b *strings.Builder) {
 	b.WriteString("# HELP appkit_http_request_duration_seconds HTTP request duration by route.\n")
 	b.WriteString("# TYPE appkit_http_request_duration_seconds histogram\n")
 
 	for _, key := range m.sortedRoutes() {
-		parts := strings.SplitN(key, "|", seriesKeyParts)
 		series := m.byRoute[key]
 
-		labels := `method="` + escapeLabelValue(parts[0]) + `",route="` + escapeLabelValue(parts[1]) + `"`
-		statusLabel := `,status="` + parts[2] + `"`
+		labels := `method="` + escapeLabelValue(key.method) + `",route="` + escapeLabelValue(key.route) + `"`
+		statusLabel := `,status="` + key.status + `"`
 
 		var cumulative uint64
 		for i, bound := range durationBuckets {
@@ -270,16 +276,20 @@ func (m *metricsCollector) writeResponseTotals(b *strings.Builder) {
 	b.WriteString("# TYPE appkit_http_responses_total counter\n")
 
 	for _, key := range m.sortedRoutes() {
-		parts := strings.SplitN(key, "|", seriesKeyParts)
-
 		fmt.Fprintf(b, "appkit_http_responses_total{method=%q,route=%q,status=%q} %d\n",
-			escapeLabelValue(parts[0]), escapeLabelValue(parts[1]), parts[2], m.byRoute[key].count)
+			escapeLabelValue(key.method), escapeLabelValue(key.route), key.status, m.byRoute[key].count)
 	}
 }
 
 // sortedRoutes fixes the exposition order so scrapes are diffable.
-func (m *metricsCollector) sortedRoutes() []string {
-	return slices.Sorted(maps.Keys(m.byRoute))
+func (m *metricsCollector) sortedRoutes() []seriesKey {
+	return slices.SortedFunc(maps.Keys(m.byRoute), func(a, b seriesKey) int {
+		return cmp.Or(
+			strings.Compare(a.method, b.method),
+			strings.Compare(a.route, b.route),
+			strings.Compare(a.status, b.status),
+		)
+	})
 }
 
 func formatBound(b float64) string {
