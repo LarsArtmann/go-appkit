@@ -3,7 +3,9 @@ package otel
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -108,8 +110,8 @@ func envSet(key string) bool {
 // newOTLPSpanExporter builds the OTLP/HTTP span exporter from the explicit
 // config; unset fields fall through to the exporters' native env handling.
 func newOTLPSpanExporter(ctx context.Context, cfg *otlpConfig) (sdktrace.SpanExporter, error) {
-	opts := otlpExporterOptions(cfg, func(url string) otlptracehttp.Option {
-		return otlptracehttp.WithEndpointURL(url)
+	opts := otlpExporterOptions(cfg, func(raw string) otlptracehttp.Option {
+		return otlptracehttp.WithEndpointURL(otlpSignalURL(raw, "/v1/traces"))
 	}, func(h map[string]string) otlptracehttp.Option {
 		return otlptracehttp.WithHeaders(h)
 	}, func(d time.Duration) otlptracehttp.Option {
@@ -127,8 +129,8 @@ func newOTLPSpanExporter(ctx context.Context, cfg *otlpConfig) (sdktrace.SpanExp
 // newOTLPMetricReader builds the periodic OTLP/HTTP metric reader; the
 // export interval itself is env-native (OTEL_METRIC_EXPORT_INTERVAL).
 func newOTLPMetricReader(ctx context.Context, cfg *otlpConfig) (sdkmetric.Reader, error) {
-	opts := otlpExporterOptions(cfg, func(url string) otlpmetrichttp.Option {
-		return otlpmetrichttp.WithEndpointURL(url)
+	opts := otlpExporterOptions(cfg, func(raw string) otlpmetrichttp.Option {
+		return otlpmetrichttp.WithEndpointURL(otlpSignalURL(raw, "/v1/metrics"))
 	}, func(h map[string]string) otlpmetrichttp.Option {
 		return otlpmetrichttp.WithHeaders(h)
 	}, func(d time.Duration) otlpmetrichttp.Option {
@@ -143,9 +145,25 @@ func newOTLPMetricReader(ctx context.Context, cfg *otlpConfig) (sdkmetric.Reader
 	return sdkmetric.NewPeriodicReader(exporter), nil
 }
 
+// otlpSignalURL joins the configured base endpoint with the standard signal
+// path ("http://collector:4318" + "/v1/traces"). A path on the endpoint URL
+// becomes a base prefix ("https://gw/corp" + "/v1/traces") — the same
+// base-URL-plus-signal-path convention SigNoz's own docs use. Unparseable
+// URLs pass through unchanged so the exporter surfaces the problem.
+func otlpSignalURL(raw, signalPath string) string {
+	parsed, err := url.Parse(raw)
+	if err != nil || parsed.Host == "" {
+		return raw
+	}
+
+	parsed.Path = strings.TrimSuffix(parsed.Path, "/") + signalPath
+
+	return parsed.String()
+}
+
 // otlpExporterOptions maps the shared config into either exporter's option
-// type. Generics collapsed three near-identical option lists into one;
-// the mapping functions keep each exporter's typed constructors.
+// type. The generic parameter collapsed three near-identical option lists
+// into one; the mapping functions keep each exporter's typed constructors.
 func otlpExporterOptions[O any](
 	cfg *otlpConfig,
 	endpoint func(string) O,

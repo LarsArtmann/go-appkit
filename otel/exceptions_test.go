@@ -134,10 +134,6 @@ func TestRecovery_NonErrorPanicRecordsTypedEvent(t *testing.T) {
 	if got, ok := attrs.Value(attribute.Key("exception.message")); !ok || got.AsString() != "kaboom" {
 		t.Errorf("exception.message = %q (found=%v), want kaboom", got.AsString(), ok)
 	}
-
-	if spans[0].Status.Description != "kaboom" {
-		t.Errorf("span status description = %q, want kaboom", spans[0].Status.Description)
-	}
 }
 
 // TestRecovery_AbortHandlerRepanics: the net/http sentinel keeps its
@@ -153,8 +149,14 @@ func TestRecovery_AbortHandlerRepanics(t *testing.T) {
 			}
 		}()
 
-		handler := Recovery(quietLogger())(http.NotFoundHandler())
-		handler.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/abort", nil))
+		panicHandler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+			panic(http.ErrAbortHandler) //nolint:goerr113 // exactly the sentinel net/http aborts on
+		})
+
+		Recovery(quietLogger())(panicHandler).ServeHTTP(
+			httptest.NewRecorder(),
+			httptest.NewRequest(http.MethodGet, "/abort", nil),
+		)
 
 		return false
 	}()
@@ -236,6 +238,10 @@ func TestRecordError_Helper(t *testing.T) {
 
 	if spans[0].Status.Code != codes.Error {
 		t.Errorf("span status = %v, want Error", spans[0].Status.Code)
+	}
+
+	if spans[0].Status.Description != "checkout declined" {
+		t.Errorf("span status description = %q, want checkout declined", spans[0].Status.Description)
 	}
 }
 

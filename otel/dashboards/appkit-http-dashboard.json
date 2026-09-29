@@ -1,0 +1,723 @@
+{
+  "schemaVersion": "v6",
+  "image": "/assets/Icons/eight-ball",
+  "generateName": true,
+  "tags": [
+    {
+      "key": "tag",
+      "value": "go-appkit"
+    }
+  ],
+  "spec": {
+    "display": {
+      "name": "go-appkit HTTP Service",
+      "description": "HTTP KPIs from appkitotel.Middleware server spans (rate, latency, errors, status codes). Import via Dashboards > New Dashboard > Import JSON."
+    },
+    "variables": [
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "display": {
+            "name": "service.name",
+            "description": ""
+          },
+          "allowAllValue": true,
+          "allowMultiple": true,
+          "customAllValue": "",
+          "capturingRegexp": "",
+          "sort": "none",
+          "plugin": {
+            "kind": "signoz/DynamicVariable",
+            "spec": {
+              "name": "service.name",
+              "signal": "traces"
+            }
+          },
+          "name": "service.name"
+        }
+      }
+    ],
+    "panels": {
+      "39d4f3f3-9dc6-43c5-bbf8-6b7691e4e5b0": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Request Rate",
+            "description": "Spans per second per service from otelhttp server spans"
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "reqps",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "stepInterval": 60,
+                "signal": "traces",
+                "source": "",
+                "aggregations": [
+                  {
+                    "expression": "rate()"
+                  }
+                ],
+                "disabled": false,
+                "filter": {
+                  "expression": "serviceName IN $service.name AND spanKind = 'Server'"
+                },
+                "groupBy": [
+                  {
+                    "name": "serviceName",
+                    "signal": "",
+                    "fieldContext": "",
+                    "fieldDataType": "string"
+                  }
+                ],
+                "order": [],
+                "having": {
+                  "expression": ""
+                },
+                "functions": [],
+                "legend": "{{serviceName}}"
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "a298b336-893b-40cb-9951-7fe9399cee6e": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "5xx Error Rate",
+            "description": "Server spans answering 5xx, per route \u2014 the panic and failure picture"
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "reqps",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "stepInterval": 60,
+                "signal": "traces",
+                "source": "",
+                "aggregations": [
+                  {
+                    "expression": "rate()"
+                  }
+                ],
+                "disabled": false,
+                "filter": {
+                  "expression": "serviceName IN $service.name AND spanKind = 'Server' AND httpRoute EXISTS AND responseStatusCode LIKE '5%'"
+                },
+                "groupBy": [
+                  {
+                    "name": "httpRoute",
+                    "signal": "",
+                    "fieldContext": "",
+                    "fieldDataType": "string"
+                  }
+                ],
+                "order": [],
+                "having": {
+                  "expression": ""
+                },
+                "functions": [],
+                "legend": "{{httpRoute}}"
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "645ff03a-0b6b-47a1-b3bb-82799d6aca7e": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Latency P50",
+            "description": "Median request duration per route"
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "ns",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "stepInterval": 60,
+                "signal": "traces",
+                "source": "",
+                "aggregations": [
+                  {
+                    "expression": "p50(durationNano)"
+                  }
+                ],
+                "disabled": false,
+                "filter": {
+                  "expression": "serviceName IN $service.name AND spanKind = 'Server' AND httpRoute EXISTS"
+                },
+                "groupBy": [
+                  {
+                    "name": "httpRoute",
+                    "signal": "",
+                    "fieldContext": "",
+                    "fieldDataType": "string"
+                  }
+                ],
+                "order": [],
+                "having": {
+                  "expression": ""
+                },
+                "functions": [],
+                "legend": "{{httpRoute}}"
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "d8895274-003e-4b4a-994b-c6cd975c6911": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Latency P90",
+            "description": "P90 request duration per route"
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "ns",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "stepInterval": 60,
+                "signal": "traces",
+                "source": "",
+                "aggregations": [
+                  {
+                    "expression": "p90(durationNano)"
+                  }
+                ],
+                "disabled": false,
+                "filter": {
+                  "expression": "serviceName IN $service.name AND spanKind = 'Server' AND httpRoute EXISTS"
+                },
+                "groupBy": [
+                  {
+                    "name": "httpRoute",
+                    "signal": "",
+                    "fieldContext": "",
+                    "fieldDataType": "string"
+                  }
+                ],
+                "order": [],
+                "having": {
+                  "expression": ""
+                },
+                "functions": [],
+                "legend": "{{httpRoute}}"
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "7ac6b334-b402-4808-883e-f6800e686764": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Latency P99",
+            "description": "P99 request duration per route"
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "ns",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "stepInterval": 60,
+                "signal": "traces",
+                "source": "",
+                "aggregations": [
+                  {
+                    "expression": "p99(durationNano)"
+                  }
+                ],
+                "disabled": false,
+                "filter": {
+                  "expression": "serviceName IN $service.name AND spanKind = 'Server' AND httpRoute EXISTS"
+                },
+                "groupBy": [
+                  {
+                    "name": "httpRoute",
+                    "signal": "",
+                    "fieldContext": "",
+                    "fieldDataType": "string"
+                  }
+                ],
+                "order": [],
+                "having": {
+                  "expression": ""
+                },
+                "functions": [],
+                "legend": "{{httpRoute}}"
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "723f5afe-68c1-4248-b063-c7b2ebc6e8df": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Status Code Distribution",
+            "description": "Spans per second grouped by HTTP response status and route"
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "reqps",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "stepInterval": 60,
+                "signal": "traces",
+                "source": "",
+                "aggregations": [
+                  {
+                    "expression": "rate()"
+                  }
+                ],
+                "disabled": false,
+                "filter": {
+                  "expression": "serviceName IN $service.name AND spanKind = 'Server' AND httpRoute EXISTS"
+                },
+                "groupBy": [
+                  {
+                    "name": "responseStatusCode",
+                    "signal": "",
+                    "fieldContext": "",
+                    "fieldDataType": "string"
+                  },
+                  {
+                    "name": "httpRoute",
+                    "signal": "",
+                    "fieldContext": "",
+                    "fieldDataType": "string"
+                  }
+                ],
+                "order": [],
+                "having": {
+                  "expression": ""
+                },
+                "functions": [],
+                "legend": "{{responseStatusCode}} - {{httpRoute}}"
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "84b97bbe-a206-4762-8bfd-529ac311012f": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Top HTTP Endpoints",
+            "description": "Traffic and average duration per route and method"
+          },
+          "plugin": {
+            "kind": "signoz/TablePanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time"
+              },
+              "formatting": {
+                "columnUnits": {
+                  "Avg Duration": "ns"
+                },
+                "decimalPrecision": "2"
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "scalar",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "builder_query",
+                        "spec": {
+                          "name": "A",
+                          "stepInterval": 60,
+                          "signal": "traces",
+                          "source": "",
+                          "aggregations": [
+                            {
+                              "expression": "count()"
+                            }
+                          ],
+                          "disabled": false,
+                          "filter": {
+                            "expression": "serviceName IN $service.name AND spanKind = 'Server' AND httpRoute EXISTS"
+                          },
+                          "groupBy": [
+                            {
+                              "name": "httpRoute",
+                              "signal": "",
+                              "fieldContext": "",
+                              "fieldDataType": "string"
+                            },
+                            {
+                              "name": "httpMethod",
+                              "signal": "",
+                              "fieldContext": "",
+                              "fieldDataType": "string"
+                            }
+                          ],
+                          "order": [
+                            {
+                              "key": {
+                                "name": "count()",
+                                "signal": "",
+                                "fieldContext": "",
+                                "fieldDataType": ""
+                              },
+                              "direction": "desc"
+                            }
+                          ],
+                          "having": {
+                            "expression": ""
+                          },
+                          "functions": [],
+                          "legend": "Requests"
+                        }
+                      },
+                      {
+                        "type": "builder_query",
+                        "spec": {
+                          "name": "B",
+                          "stepInterval": 60,
+                          "signal": "traces",
+                          "source": "",
+                          "aggregations": [
+                            {
+                              "expression": "avg(durationNano)"
+                            }
+                          ],
+                          "disabled": false,
+                          "filter": {
+                            "expression": "serviceName IN $service.name AND spanKind = 'Server' AND httpRoute EXISTS"
+                          },
+                          "groupBy": [
+                            {
+                              "name": "httpRoute",
+                              "signal": "",
+                              "fieldContext": "",
+                              "fieldDataType": "string"
+                            },
+                            {
+                              "name": "httpMethod",
+                              "signal": "",
+                              "fieldContext": "",
+                              "fieldDataType": "string"
+                            }
+                          ],
+                          "order": [],
+                          "having": {
+                            "expression": ""
+                          },
+                          "functions": [],
+                          "legend": "Avg Duration"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "",
+            "collapse": {
+              "open": false
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/39d4f3f3-9dc6-43c5-bbf8-6b7691e4e5b0"
+              }
+            },
+            {
+              "x": 6,
+              "y": 0,
+              "width": 6,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/a298b336-893b-40cb-9951-7fe9399cee6e"
+              }
+            },
+            {
+              "x": 0,
+              "y": 6,
+              "width": 4,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/645ff03a-0b6b-47a1-b3bb-82799d6aca7e"
+              }
+            },
+            {
+              "x": 4,
+              "y": 6,
+              "width": 4,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/d8895274-003e-4b4a-994b-c6cd975c6911"
+              }
+            },
+            {
+              "x": 8,
+              "y": 6,
+              "width": 4,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/7ac6b334-b402-4808-883e-f6800e686764"
+              }
+            },
+            {
+              "x": 0,
+              "y": 12,
+              "width": 6,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/723f5afe-68c1-4248-b063-c7b2ebc6e8df"
+              }
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "width": 6,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/84b97bbe-a206-4762-8bfd-529ac311012f"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "duration": "",
+    "refreshInterval": "0s",
+    "links": []
+  }
+}
