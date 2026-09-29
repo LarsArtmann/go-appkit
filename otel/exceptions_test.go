@@ -110,7 +110,7 @@ func TestRecovery_NonErrorPanicRecordsTypedEvent(t *testing.T) {
 
 	tp, exporter := newRecordingProvider(t)
 	server := newPanicServer(t, tp, func(_ http.ResponseWriter, _ *http.Request) {
-		panic("kaboom") //nolint:err113 // the point is a non-error panic value
+		panic("kaboom")
 	})
 
 	resp, err := http.Get(server.URL + "/boom") //nolint:noctx // single-shot panic scenario
@@ -157,7 +157,7 @@ func TestRecovery_AbortHandlerRepanics(t *testing.T) {
 		}()
 
 		panicHandler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
-			panic(http.ErrAbortHandler) //nolint:err113 // exactly the sentinel net/http aborts on
+			panic(http.ErrAbortHandler)
 		})
 
 		Recovery(quietLogger())(panicHandler).ServeHTTP(
