@@ -29,15 +29,7 @@ func TestNewEventService_EmptyConfigRejected(t *testing.T) {
 func TestNewEventService_FileBackedSQLite(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	if eventSvc.System() == nil {
 		t.Fatal("expected non-nil System")
 	}
@@ -150,15 +142,7 @@ func TestNewEventService_DLQDefaultRequiresSQLite(t *testing.T) {
 func TestEventService_DB(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	db, err := eventSvc.DB()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

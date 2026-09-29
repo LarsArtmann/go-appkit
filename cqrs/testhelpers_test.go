@@ -1,7 +1,9 @@
 package cqrs
 
 import (
+	"context"
 	"os"
+	"testing"
 
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
 )
@@ -28,4 +30,25 @@ func writeFile(path, content string) error {
 	}
 
 	return nil
+}
+
+// newTestEventService starts an EventService backed by a throwaway SQLite
+// database in a per-test temp dir (unless cfg.DSN is already set) and
+// registers its shutdown as test cleanup, replacing the hand-rolled
+// New/err-check/defer-shutdown preamble that used to open most tests.
+func newTestEventService(t *testing.T, cfg EventConfig) *EventService {
+	t.Helper()
+
+	if cfg.DSN == "" {
+		cfg.DSN = t.TempDir() + "/test.db"
+	}
+
+	svc, err := NewEventService(cfg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	t.Cleanup(func() { _ = svc.Shutdown(context.Background()) })
+
+	return svc
 }

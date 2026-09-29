@@ -133,20 +133,12 @@ func TestEventService_DLQ_PoisonEventQuarantinedAndReplayed(t *testing.T) {
 func TestEventService_DLQ_DisabledByDefault(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	if eventSvc.DeadLetterStore() != nil {
 		t.Error("expected nil DeadLetterStore when DLQ not configured")
 	}
 
-	_, err = eventSvc.ReplayDeadLetters(context.Background(), "")
+	_, err := eventSvc.ReplayDeadLetters(context.Background(), "")
 	if err == nil {
 		t.Error("expected error from ReplayDeadLetters when DLQ disabled")
 	}
@@ -157,16 +149,9 @@ func TestEventService_DLQ_MemoryStorePassthrough(t *testing.T) {
 
 	store := projectionhost.NewMemoryDeadLetterStore()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-		DLQ: &DLQConfig{Threshold: 1, Store: store},
+	eventSvc := newTestEventService(t, EventConfig{
+	DLQ: &DLQConfig{Threshold: 1, Store: store},
 	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
 	if eventSvc.DeadLetterStore() != store {
 		t.Error("expected configured store to be returned verbatim")
 	}

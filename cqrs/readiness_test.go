@@ -12,22 +12,14 @@ import (
 func TestEventService_ReadyCheck_NotStartedNotReady(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	// The service always runs the system auto-projection worker; before
 	// StartProjections the worker is idle and the service is NOT ready.
 	if eventSvc.ReadyCheck() {
 		t.Error("expected not ready before StartProjections")
 	}
 
-	err = eventSvc.StartProjections(context.Background())
+	err := eventSvc.StartProjections(context.Background())
 	if err != nil {
 		t.Fatalf("start projections: %v", err)
 	}
@@ -38,22 +30,14 @@ func TestEventService_ReadyCheck_NotStartedNotReady(t *testing.T) {
 func TestEventService_ReadyCheck_503To200Transition(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	proj := projection.NewProjection(
 		"ready-projection",
 		func(_ context.Context, _ event.Event) error { return nil },
 		[]event.Type{"test.ready"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
@@ -127,15 +111,7 @@ func TestEventService_ReadyCheck_FailedProjectionNotReady(t *testing.T) {
 func TestEventService_LagPerProjection(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	lag := eventSvc.LagPerProjection()
 	if lag == nil {
 		t.Fatal("expected non-nil lag map")

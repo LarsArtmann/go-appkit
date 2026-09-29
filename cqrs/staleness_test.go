@@ -16,17 +16,9 @@ import (
 func TestEventService_CheckStaleness_FreshWithoutProcessedEvents(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	// No event processed yet: lag is 0, so even a nanosecond budget passes.
-	err = eventSvc.CheckStaleness(time.Nanosecond)
+	err := eventSvc.CheckStaleness(time.Nanosecond)
 	if err != nil {
 		t.Errorf("expected fresh (nil) with no processed events, got: %v", err)
 	}
@@ -35,15 +27,7 @@ func TestEventService_CheckStaleness_FreshWithoutProcessedEvents(t *testing.T) {
 func TestEventService_CheckStaleness_DisabledByNonPositiveBudget(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	for _, budget := range []time.Duration{0, -time.Second} {
 		err := eventSvc.CheckStaleness(budget)
 		if err != nil {
@@ -55,22 +39,14 @@ func TestEventService_CheckStaleness_DisabledByNonPositiveBudget(t *testing.T) {
 func TestEventService_CheckStaleness_FreshProjectionWithinBudget(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	proj := projection.NewProjection(
 		"fresh-projection",
 		func(_ context.Context, _ event.Event) error { return nil },
 		[]event.Type{"test.fresh"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
@@ -94,22 +70,14 @@ func TestEventService_CheckStaleness_FreshProjectionWithinBudget(t *testing.T) {
 func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	proj := projection.NewProjection(
 		"stale-projection",
 		func(_ context.Context, _ event.Event) error { return nil },
 		[]event.Type{"test.stale"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
@@ -142,22 +110,14 @@ func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 func TestEventService_CheckProjectionStaleness_FreshProjectionWithinBudget(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	proj := projection.NewProjection(
 		"named-fresh",
 		func(_ context.Context, _ event.Event) error { return nil },
 		[]event.Type{"test.named-fresh"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
@@ -180,22 +140,14 @@ func TestEventService_CheckProjectionStaleness_FreshProjectionWithinBudget(t *te
 func TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	proj := projection.NewProjection(
 		"named-stale",
 		func(_ context.Context, _ event.Event) error { return nil },
 		[]event.Type{"test.named-stale"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
@@ -226,16 +178,8 @@ func TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient(t *tes
 func TestEventService_CheckProjectionStaleness_UnknownProjectionRejected(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
-	err = eventSvc.CheckProjectionStaleness("no-such-projection", time.Hour)
+	eventSvc := newTestEventService(t, EventConfig{})
+	err := eventSvc.CheckProjectionStaleness("no-such-projection", time.Hour)
 	if err == nil {
 		t.Fatal("expected error for unregistered projection name")
 	}
@@ -252,17 +196,9 @@ func TestEventService_CheckProjectionStaleness_UnknownProjectionRejected(t *test
 func TestEventService_CheckProjectionStaleness_DisabledBeforeRegistrationCheck(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	// A non-positive budget returns nil before the name is looked up.
-	err = eventSvc.CheckProjectionStaleness("no-such-projection", 0)
+	err := eventSvc.CheckProjectionStaleness("no-such-projection", 0)
 	if err != nil {
 		t.Errorf("expected disabled check (nil), got: %v", err)
 	}
@@ -278,22 +214,14 @@ func TestEventService_CheckProjectionStaleness_DisabledBeforeRegistrationCheck(t
 func TestEventService_CheckStaleness_BudgetMonotonicity(t *testing.T) {
 	t.Parallel()
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN: t.TempDir() + "/test.db",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
+	eventSvc := newTestEventService(t, EventConfig{})
 	proj := projection.NewProjection(
 		"mono-projection",
 		func(_ context.Context, _ event.Event) error { return nil },
 		[]event.Type{"test.mono"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}

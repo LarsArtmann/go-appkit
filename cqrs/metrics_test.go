@@ -61,23 +61,16 @@ func TestEventConfig_Metrics_RecordsProjectionLifecycle(t *testing.T) {
 
 	rec := &countingRecorder{}
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN:     t.TempDir() + "/test.db",
-		Metrics: rec,
+	eventSvc := newTestEventService(t, EventConfig{
+	Metrics: rec,
 	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
 	proj := projection.NewProjection(
 		"metrics-projection",
 		func(_ context.Context, _ event.Event) error { return nil },
 		[]event.Type{"test.metrics"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
@@ -102,16 +95,9 @@ func TestEventConfig_Metrics_RecordsErrors(t *testing.T) {
 
 	rec := &countingRecorder{}
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN:     t.TempDir() + "/test.db",
-		Metrics: rec,
+	eventSvc := newTestEventService(t, EventConfig{
+	Metrics: rec,
 	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
 	boom := errors.New("handler boom")
 
 	proj := projection.NewProjection(
@@ -120,7 +106,7 @@ func TestEventConfig_Metrics_RecordsErrors(t *testing.T) {
 		[]event.Type{"test.metrics.fail"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
@@ -143,23 +129,16 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 
 	rec := &countingRecorder{}
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN:     t.TempDir() + "/test.db",
-		Metrics: rec,
+	eventSvc := newTestEventService(t, EventConfig{
+	Metrics: rec,
 	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
 	proj := projection.NewProjection(
 		"endpoint-projection",
 		func(_ context.Context, _ event.Event) error { return nil },
 		[]event.Type{"test.endpoint"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}

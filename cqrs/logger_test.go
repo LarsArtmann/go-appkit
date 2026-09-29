@@ -124,16 +124,9 @@ func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 
 	handler := &capturingHandler{}
 
-	eventSvc, err := NewEventService(EventConfig{
-		DSN:    t.TempDir() + "/test.db",
-		Logger: slog.New(handler),
+	eventSvc := newTestEventService(t, EventConfig{
+	Logger: slog.New(handler),
 	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
-
 	boom := errors.New("handler boom")
 
 	proj := projection.NewProjection(
@@ -142,7 +135,7 @@ func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 		[]event.Type{"test.logged"},
 	)
 
-	err = eventSvc.Host().Register(proj)
+	err := eventSvc.Host().Register(proj)
 	if err != nil {
 		t.Fatalf("register projection: %v", err)
 	}
