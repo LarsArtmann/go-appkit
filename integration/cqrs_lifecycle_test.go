@@ -9,14 +9,14 @@ package integration_test
 //	    full-chain test harness (testkit.Serve).
 //
 // Proven here:
-//  1. cqrs.ReadyCheck composes into /health/ready (503 until the projection
-//     worker is live, 200 after StartProjections).
+//  1. cqrs.ReadyCheck composes into /health/ready (200 after StartProjections).
 //  2. A command dispatched over HTTP is visible to a query dispatched over
 //     HTTP (command→store→query roundtrip through the wire).
 //  3. In-flight drain: a command whose handler blocks still completes when
-//     Shutdown starts mid-flight — the drain hook fires while the command is
-//     in flight, the HTTP response still lands 200, and es.Shutdown (a
-//     ShutdownHook) only finishes after the in-flight command's work is done.
+//     Shutdown starts mid-flight — the ONLY thing that unblocks the handler
+//     is the DrainHook (i.e. the drain has begun), the HTTP response still
+//     lands 204, and es.Shutdown (a ShutdownHook) only finishes after the
+//     in-flight command's work is done.
 
 import (
 	"context"
@@ -58,16 +58,98 @@ type lifecycleCountQuery struct{}
 
 func (lifecycleCountQuery) Type() query.Type { return "lifecycle.count" }
 
+// dispatchBump builds the POST endpoint that dispatches one lifecycle.bump
+// command against the shared stream. When slowRequested is non-nil the
+// handler parks until release closes — and release is owned by the drain
+// hook, so a parked command proves Shutdown waited for in-flight work.
+func dispatchBump(
+	es *cqrs.EventService,
+	streamID id.StreamID,
+	slowRequested *atomic.Bool,
+	handlerEntered, release chan struct{},
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if slowRequested != nil {
+			slowRequested.Store(true)
+			close(handlerEntered)
+			<-release
+		}
+
+		cmd, err := command.New("lifecycle.bump", streamID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		dispErr := es.Dispatch(r.Context(), cmd)
+		if dispErr != nil {
+			http.Error(w, dispErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+func countHandler(es *cqrs.EventService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		n, err := cqrs.DispatchQuery[lifecycleCountQuery, int](r.Context(), es, lifecycleCountQuery{})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]int{"count": n})
+	}
+}
+
+// waitReady polls /health/ready until it flips to 200 (projection worker live).
+func waitReady(t *testing.T, baseURL string) {
+	t.Helper()
+
+	deadline := time.Now().Add(2 * time.Second)
+	for {
+		resp, err := http.Get(baseURL + "/health/ready") //nolint:noctx // test boundary
+		if err == nil {
+			_ = resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				return
+			}
+		}
+
+		if time.Now().After(deadline) {
+			t.Fatal("/health/ready never became ready after StartProjections")
+		}
+
+		time.Sleep(20 * time.Millisecond)
+	}
+}
+
+func postStatus(t *testing.T, url string) int {
+	t.Helper()
+
+	resp, err := http.Post(url, "application/json", nil) //nolint:noctx,gosec // test boundary
+	if err != nil {
+		t.Fatalf("POST %s: %v", url, err)
+	}
+
+	defer func() { _ = resp.Body.Close() }()
+
+	return resp.StatusCode
+}
+
 func TestCQRSLifecycleThroughAppkitService(t *testing.T) {
 	t.Parallel()
 
 	var (
-		testStreamID    = id.NewStreamID()
-		slowRequested   atomic.Bool
-		handlerEntered  = make(chan struct{})
-		releaseHandler  = make(chan struct{})
-		drainStarted    = make(chan struct{})
-		handlerFinished = make(chan struct{})
+		testStreamID   = id.NewStreamID()
+		slowRequested  atomic.Bool
+		handlerEntered = make(chan struct{})
+		release        = make(chan struct{})
 	)
 
 	es, err := cqrs.NewEventService(cqrs.EventConfig{Driver: "memory"})
@@ -75,16 +157,15 @@ func TestCQRSLifecycleThroughAppkitService(t *testing.T) {
 		t.Fatalf("NewEventService: %v", err)
 	}
 
-	if err := cqrs.RegisterDecider(es, "Lifecycle", lifecycleDecider); err != nil {
+	err = cqrs.RegisterDecider(es, "Lifecycle", lifecycleDecider)
+	if err != nil {
 		t.Fatalf("RegisterDecider: %v", err)
 	}
 
-	if err := cqrs.RegisterCommand[*command.BasicCommand, lifecycleState](es, "lifecycle.bump",
+	err = cqrs.RegisterCommand[*command.BasicCommand, lifecycleState](es, "lifecycle.bump",
 		func(ctx context.Context, cmd *command.BasicCommand) system.Op[lifecycleState] {
 			if slowRequested.Load() {
-				close(handlerEntered)
-				<-releaseHandler
-				defer close(handlerFinished)
+				<-release
 			}
 
 			return system.Execute(ctx, cmd.StreamID(), "Lifecycle",
@@ -97,11 +178,12 @@ func TestCQRSLifecycleThroughAppkitService(t *testing.T) {
 
 					return []event.Event{evt}, nil
 				})
-		}); err != nil {
+		})
+	if err != nil {
 		t.Fatalf("RegisterCommand: %v", err)
 	}
 
-	if err := cqrs.RegisterQuery[lifecycleCountQuery, int](es, "lifecycle.count",
+	err = cqrs.RegisterQuery[lifecycleCountQuery, int](es, "lifecycle.count",
 		func(ctx context.Context, _ lifecycleCountQuery) (int, error) {
 			events, loadErr := es.System().EventStore().Load(
 				ctx, id.NewStreamRef("Lifecycle", testStreamID))
@@ -117,21 +199,31 @@ func TestCQRSLifecycleThroughAppkitService(t *testing.T) {
 			}
 
 			return n, nil
-		}); err != nil {
+		})
+	if err != nil {
 		t.Fatalf("RegisterQuery: %v", err)
 	}
 
 	startCtx, startCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer startCancel()
-	if err := es.StartProjections(startCtx); err != nil {
+	err = es.StartProjections(startCtx)
+	if err != nil {
 		t.Fatalf("StartProjections: %v", err)
 	}
 
 	cfg := appkit.DefaultServiceConfig()
+	cfg.Addr = freeAddr(t)
 	cfg.DrainDelay = 1 * time.Millisecond
 	cfg.ReadyCheck = es.ReadyCheck
+	// The drain hook is the ONLY releaser of the parked command: once it has
+	// run, the ready probe is down and the drain window is open, so the
+	// command below was provably in flight across the shutdown boundary.
 	cfg.DrainHooks = []func(context.Context) error{
-		func(context.Context) error { close(drainStarted); return nil },
+		func(context.Context) error {
+			close(release)
+
+			return nil
+		},
 	}
 	cfg.ShutdownHooks = []func(context.Context) error{es.Shutdown}
 
@@ -140,99 +232,44 @@ func TestCQRSLifecycleThroughAppkitService(t *testing.T) {
 		t.Fatalf("NewService: %v", err)
 	}
 
-	svc.Mux.HandleFunc("POST /bump", func(w http.ResponseWriter, _ *http.Request) {
-		cmd, cmdErr := command.New("lifecycle.bump", testStreamID)
-		if cmdErr != nil {
-			http.Error(w, cmdErr.Error(), http.StatusInternalServerError)
-			return
-		}
-		if dispErr := es.Dispatch(context.Background(), cmd); dispErr != nil {
-			http.Error(w, dispErr.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusNoContent)
-	})
-
-	svc.Mux.HandleFunc("POST /slowbump", func(w http.ResponseWriter, _ *http.Request) {
-		slowRequested.Store(true)
-		cmd, cmdErr := command.New("lifecycle.bump", testStreamID)
-		if cmdErr != nil {
-			http.Error(w, cmdErr.Error(), http.StatusInternalServerError)
-			return
-		}
-		if dispErr := es.Dispatch(context.Background(), cmd); dispErr != nil {
-			http.Error(w, dispErr.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusNoContent)
-	})
-
-	svc.Mux.HandleFunc("GET /count", func(w http.ResponseWriter, r *http.Request) {
-		n, qErr := cqrs.DispatchQuery[lifecycleCountQuery, int](r.Context(), es, lifecycleCountQuery{})
-		if qErr != nil {
-			http.Error(w, qErr.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]int{"count": n}) //nolint:errchkjson // test boundary
-	})
+	svc.Mux.HandleFunc("POST /bump", dispatchBump(es, testStreamID, nil, nil, nil))
+	svc.Mux.HandleFunc("POST /slowbump", dispatchBump(es, testStreamID, &slowRequested, handlerEntered, release))
+	svc.Mux.HandleFunc("GET /count", countHandler(es))
 
 	ts := testkit.Serve(t, svc)
 	baseURL := ts.FullChainURL
 
 	// 1) ReadyCheck composition: /health/ready flips to 200 once the
 	// projection worker is live.
-	readyDeadline := time.Now().Add(2 * time.Second)
-	for {
-		resp, respErr := http.Get(baseURL + "/health/ready") //nolint:noctx // test boundary
-		if respErr == nil {
-			_ = resp.Body.Close()
-			if resp.StatusCode == http.StatusOK {
-				break
-			}
-		}
-		if time.Now().After(readyDeadline) {
-			t.Fatal("/health/ready never became ready after StartProjections")
-		}
-		time.Sleep(20 * time.Millisecond)
-	}
+	waitReady(t, baseURL)
 
 	// 2) Command over HTTP → query over HTTP.
-	bumpResp, bumpErr := http.Post(baseURL+"/bump", "application/json", nil) //nolint:noctx // test boundary
-	if bumpErr != nil {
-		t.Fatalf("POST /bump: %v", bumpErr)
-	}
-	_ = bumpResp.Body.Close()
-	if bumpResp.StatusCode != http.StatusNoContent {
-		t.Fatalf("POST /bump status = %d, want 204", bumpResp.StatusCode)
+	if status := postStatus(t, baseURL+"/bump"); status != http.StatusNoContent {
+		t.Fatalf("POST /bump status = %d, want 204", status)
 	}
 
-	countResp, countErr := http.Get(baseURL + "/count") //nolint:noctx // test boundary
-	if countErr != nil {
-		t.Fatalf("GET /count: %v", countErr)
-	}
+	countCtx, countCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer countCancel()
+	_, _, countBody := getWithAuth(t, countCtx, baseURL, "/count", "", "")
+
 	var got struct {
 		Count int `json:"count"`
 	}
-	if err := json.NewDecoder(countResp.Body).Decode(&got); err != nil {
-		t.Fatalf("decode count: %v", err)
+
+	err = json.Unmarshal([]byte(countBody), &got)
+	if err != nil {
+		t.Fatalf("decode count %q: %v", countBody, err)
 	}
-	_ = countResp.Body.Close()
+
 	if got.Count != 1 {
 		t.Fatalf("count after one bump = %d, want 1", got.Count)
 	}
 
 	// 3) In-flight drain: shutdown starts while a command is parked in its
 	// handler; the command still completes and the response still lands.
-	slowRespCh := make(chan *http.Response, 1)
+	slowDone := make(chan int, 1)
 	go func() {
-		resp, err := http.Post(baseURL+"/slowbump", "application/json", nil) //nolint:noctx // test boundary
-		if err != nil {
-			t.Errorf("POST /slowbump: %v", err)
-			slowRespCh <- nil
-			return
-		}
-		slowRespCh <- resp
+		slowDone <- postStatus(t, baseURL+"/slowbump")
 	}()
 
 	select {
@@ -249,30 +286,12 @@ func TestCQRSLifecycleThroughAppkitService(t *testing.T) {
 	}()
 
 	select {
-	case <-drainStarted:
-	case <-time.After(5 * time.Second):
-		t.Fatal("drain never started while the command was in flight")
-	}
-
-	close(releaseHandler)
-
-	select {
-	case resp := <-slowRespCh:
-		if resp == nil {
-			t.Fatal("slow command response lost")
-		}
-		_ = resp.Body.Close()
-		if resp.StatusCode != http.StatusNoContent {
-			t.Errorf("POST /slowbump status = %d, want 204 (response must survive the drain)", resp.StatusCode)
+	case status := <-slowDone:
+		if status != http.StatusNoContent {
+			t.Errorf("POST /slowbump status = %d, want 204 (response must survive the drain)", status)
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("slow command never completed")
-	}
-
-	select {
-	case <-handlerFinished:
-	case <-time.After(5 * time.Second):
-		t.Fatal("handler body never finished")
 	}
 
 	select {
