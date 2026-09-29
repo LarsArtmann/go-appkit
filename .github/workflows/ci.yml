@@ -24,7 +24,6 @@ permissions:
   contents: read
 
 env:
-  GOEXPERIMENT: jsonv2
   GOPRIVATE: "github.com/larsartmann/*,github.com/LarsArtmann/*"
 
 jobs:
@@ -78,7 +77,12 @@ jobs:
   # ten released modules (integration is never released and stays out).
   proxy-smoke:
     runs-on: ubuntu-latest
-    needs: test
+    # Deliberately NOT needs:test: this job verifies the module PROXY and
+    # published-tag packaging from a fresh checkout — it has no dependency on
+    # the working tree, so it must stay green (or red on its own merits) even
+    # when the test matrix fails on infrastructure (e.g. the owner-gated SSH
+    # secret). Previously a needs:test edge made it skip 0s whenever the
+    # matrix died at the ssh-agent step, hiding the proxy signal entirely.
     strategy:
       fail-fast: false
       matrix:
