@@ -101,13 +101,16 @@ func TestHardenedDashboardBehindCSP(t *testing.T) {
 	// Hardened-posture contracts of security.BuildCSP, pinned end-to-end (not
 	// just in the security module's own tests): frame-ancestors 'none' is
 	// ALWAYS present (the builder has no option to weaken it), and the
-	// directives appear in the builder's fixed order so the header is
-	// byte-stable across requests and scrapes.
+	// directives ship alphabetically sorted so the header is byte-stable
+	// across requests and scrapes.
 	if !strings.Contains(csp, "frame-ancestors 'none'") {
 		t.Fatalf("CSP missing frame-ancestors 'none': %s", csp)
 	}
 
-	directiveOrder := []string{"default-src", "base-uri", "form-action", "frame-ancestors", "object-src", "script-src", "style-src", "connect-src", "img-src"}
+	directiveOrder := []string{
+		"base-uri", "connect-src", "default-src", "form-action", "frame-ancestors",
+		"img-src", "object-src", "script-src", "style-src",
+	}
 	lastIndex := -1
 	for _, directive := range directiveOrder {
 		index := strings.Index(csp, directive)

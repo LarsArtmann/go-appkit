@@ -67,10 +67,13 @@ type CSPConfig struct {
 // genuinely needs eval, it must be a reviewed, hand-written policy — not a
 // builder flag.
 //
-// Directives are emitted in a fixed, sorted order so the header is
-// byte-identical across requests and parseable by policy tests.
+// Directives are assembled in source order but SHIPPED alphabetically
+// sorted (slices.Sort before the join), so the header is byte-identical
+// across requests and parseable by policy tests — the pinned order is
+// alphabetical by directive name, verified end-to-end by the integration
+// module's hardened-dashboard test.
 func BuildCSP(cfg CSPConfig) string {
-	const directiveCount = 9 // default, base-uri, form-action, frame-ancestors, object-src, script-src, style-src, connect-src, img-src
+	const directiveCount = 9 // default, base-uri, form-action, frame-ancestors, object-src, script-src, style-src, connect-src, img-src (emission order; shipped alphabetically sorted)
 
 	directives := make([]string, 0, directiveCount)
 	directives = append(directives,
