@@ -183,3 +183,20 @@ Errors are constructed via [go-error-family](https://github.com/LarsArtmann/go-e
 | ---------------------------------- | -------------- | -------------------------------------------------- |
 | `flightrecorder.recorder_missing`  | Rejection      | `Checkable.HealthCheck` with nil recorder.         |
 | `flightrecorder.recorder_disabled` | Infrastructure | `Checkable.HealthCheck` when recorder not started. |
+## Build & verify
+
+```bash
+cd flightrecorderhealth
+GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
+golangci-lint run ./...        # from this directory
+```
+
+`GOTOOLCHAIN=go1.27.1` is required for every command below on
+machines whose default toolchain is older (this repo pins
+`go 1.27.1` in every go.mod). `GOWORK=off` makes the run
+hermetic: the module resolves exactly what its own go.mod pins,
+via the module proxy — how consumers resolve it.
+
+Tests serialize on `recorderMu`: Go's `runtime/trace` allows one active
+flight recorder per process.

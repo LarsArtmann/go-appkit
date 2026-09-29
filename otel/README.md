@@ -219,3 +219,21 @@ with zero additional allocations; export I/O is excluded by design (batching
 processor, no exporter wired). The no-op baseline is the cost of the
 middleware existing in the chain with the module imported but no providers —
 the strictly-opt-in guarantee in numbers.
+## Build & verify
+
+```bash
+cd otel
+GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
+GOWORK=off GOTOOLCHAIN=go1.27.1 go test -bench . -benchmem -run '^$' ./...
+golangci-lint run ./...        # from this directory
+```
+
+`GOTOOLCHAIN=go1.27.1` is required for every command below on
+machines whose default toolchain is older (this repo pins
+`go 1.27.1` in every go.mod). `GOWORK=off` makes the run
+hermetic: the module resolves exactly what its own go.mod pins,
+via the module proxy — how consumers resolve it.
+
+Benchmark drift on this suite is ±25% run-to-run (measured 2026-09-15/16
+on identical code): treat single-run deltas under that as noise.

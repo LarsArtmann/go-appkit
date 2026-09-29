@@ -107,3 +107,18 @@ handler never runs). This composition is pinned end-to-end by
 ## License
 
 PROPRIETARY — see [LICENSE](LICENSE).
+## Build & verify
+
+```bash
+cd realtime
+GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
+golangci-lint run ./...        # from this directory
+```
+
+`GOTOOLCHAIN=go1.27.1` is required for every command below on
+machines whose default toolchain is older (this repo pins
+`go 1.27.1` in every go.mod). `GOWORK=off` makes the run
+hermetic: the module resolves exactly what its own go.mod pins,
+via the module proxy — how consumers resolve it.
+

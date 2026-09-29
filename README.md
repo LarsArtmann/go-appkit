@@ -295,13 +295,17 @@ middleware, health, logging, and shutdown wired in one import.
 
 ## Development
 
-Standard Go toolchain:
+Go >= 1.27.1 (every module's go.mod pins `go 1.27.1`; on older default
+toolchains prefix commands with `GOTOOLCHAIN=go1.27.1`):
 
 ```bash
-go test ./...
-go vet ./...
-go build ./...
+go test ./...            # workspace: builds + tests all 11 modules
+GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
 ```
+
+Per-module verify (hermetic, resolves like a consumer via the proxy) and
+per-module lint commands live in each module README under
+**Build & verify**.
 
 ## License
 

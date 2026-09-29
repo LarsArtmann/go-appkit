@@ -317,3 +317,22 @@ Gotchas worth knowing:
   the finding (comma-separate multiple rules); `ignore-start`/`ignore-end`
   for ranges. v4.6.0 flags stale suppressions whose rule no longer fires —
   remove them when told they are safe to drop.
+## Build & verify
+
+```bash
+cd cqrs
+GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
+golangci-lint run ./...        # from this directory; the module .golangci.yml is the source of truth
+```
+
+`GOTOOLCHAIN=go1.27.1` is required for every command below on
+machines whose default toolchain is older (this repo pins
+`go 1.27.1` in every go.mod). `GOWORK=off` makes the run
+hermetic: the module resolves exactly what its own go.mod pins,
+via the module proxy — how consumers resolve it.
+
+`codec/v4` uses `encoding/json/jsontext`, so the toolchain floor is hard.
+`cqrs-lint` runs from inside this directory too (workspace-root runs
+misattribute sub-module imports). After adding a wrapper feature, re-run
+`cqrs-lint scorecard` (build must be green or the scorecard reports 0%).

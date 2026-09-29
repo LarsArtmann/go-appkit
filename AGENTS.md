@@ -30,49 +30,15 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 - **Sibling-project integration research (2026-09-04):** cordis (reactive DI meta-framework, zero-dep, untagged), go-plugin-mvp (Kernovia marketplace, proprietary, pre-1.0), and PapDashboard (event-sourced notification hub, published app `papdashboard` v0.2.0) assessed as potential integrations — verdict: none as a go-appkit dependency; reverse adoption (consumer repo hosts on appkit) recommended for go-plugin-mvp AND PapDashboard (the latter with version-identical family deps; their cqrshtmx root `Chain` stays appkit-free even at cqrs-htmx v4.9.0; surfaced gap: core has no TLS support). Full analyses + re-entry triggers: `doc/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md`, `doc/planning/2026-09-04_papdashboard-integration.md`; tracked in TODO_LIST P3.
 - **Battery program:** `doc/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md` (CV consumer perspective, 40 proposed batteries in 7 clusters) is the CANONICAL spec — waves routed to TODO_LIST P2/P3; anti-recommendations hold: no security in the default stack, no DI/templ/cron/WebSocket/storage-engine in core.
 
-## Sub-module Build Commands
+## Build & Verify
+
+Each module README's **Build & verify** section is the per-module source of truth (commands, lint, module-specific notes). The universal hermetic pattern:
 
 ```bash
-# Core (requires GOTOOLCHAIN=go1.27.1 — httputil/httpspec test dep imports encoding/json/v2)
-GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-GOTOOLCHAIN=go1.27.1 go vet ./... && GOTOOLCHAIN=go1.27.1 go build ./...
-
-# cqrs module (requires GOTOOLCHAIN=go1.27.1 — codec/v4 uses encoding/json/jsontext)
-cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
-
-# docs module (requires GOTOOLCHAIN=go1.27.1 — catalog/v4 uses encoding/json/v2)
-cd docs && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-cd docs && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
-
-# realtime module
-cd realtime && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-cd realtime && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./...
-
-# otel module (no GOEXPERIMENT required — plain encoding/json)
-cd otel && GOWORK=off go test ./... -race -count=1
-cd otel && GOWORK=off go vet ./... && GOWORK=off go build ./...
-
-# errorpages module (requires GOTOOLCHAIN=go1.27.1 — errorpage uses encoding/json/v2)
-cd errorpages && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-cd errorpages && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
-
-# flightrecorder module (requires GOTOOLCHAIN=go1.27.1 — imports encoding/json/v2 directly)
-cd flightrecorder && GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-cd flightrecorder && GOTOOLCHAIN=go1.27.1 go vet ./... && GOTOOLCHAIN=go1.27.1 go build ./...
-
-# flightrecorderhealth module (GOTOOLCHAIN=go1.27.1 required since the go-health v0.1.1 bump, 2026-09-04)
-cd flightrecorderhealth && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-cd flightrecorderhealth && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
-
-# health module (requires GOTOOLCHAIN=go1.27.1 — go-health json/v2 + go-sse)
-cd health && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-cd health && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
-
-# integration module (no GOEXPERIMENT required — cqrs-htmx/transport is lean; pins PUBLISHED tags)
-cd integration && GOWORK=off go test ./... -race -count=1
-cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
+cd <module> && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
 ```
+
+(vet/build with the same prefix; the root module runs from the repo root without `cd`). Lint per module, from its own directory (`golangci-lint run ./...`) — never lint satellites from the workspace root (the root config's depguard allowlist covers only core + family deps) and never concurrently (golangci-lint processes race on the shared /mnt/buildcache and under-report findings; verified 2026-08-18). Integration additionally runs `golangci-lint` via its README block; cqrs also runs `cqrs-lint` from inside `cqrs/`.
 
 **Toolchain: UNIFIED 2026-09-29.** All 11 go.mods + go.work declare `go 1.27.1`; `scripts/check-go-directives.sh` is green 11/11; integration's `documentedGoDirective` fixture pins 1.27.1. The machine default is go1.26.7 with `GOTOOLCHAIN=local` (no auto-switch), so prefix module commands with `GOTOOLCHAIN=go1.27.1` — both 1.27.x toolchains are cached in /mnt/buildcache. Keep `GOWORK=off` for hermetic per-module verify (how consumers resolve via the proxy); plain workspace builds resolve all 11 modules locally.
 

@@ -178,3 +178,20 @@ state as a check. See that module's README for the full wiring.
 [go-appkit]: https://github.com/larsartmann/go-appkit
 [go-health]: https://github.com/larsartmann/go-health
 [go-health-dashboard]: https://github.com/larsartmann/go-health-dashboard
+## Build & verify
+
+```bash
+cd health
+GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
+golangci-lint run ./...        # from this directory
+```
+
+`GOTOOLCHAIN=go1.27.1` is required for every command below on
+machines whose default toolchain is older (this repo pins
+`go 1.27.1` in every go.mod). `GOWORK=off` makes the run
+hermetic: the module resolves exactly what its own go.mod pins,
+via the module proxy — how consumers resolve it.
+
+The `example/` demo runs against PUBLISHED core (no replace directives);
+`PORT` env overrides the port, `-hardened` switches the dashboard preset.
