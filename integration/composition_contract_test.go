@@ -157,13 +157,11 @@ func TestVersionAndMetricsComposeWithDefaultHealth(t *testing.T) {
 func TestDrainWindowContract(t *testing.T) {
 	t.Parallel()
 
-	type hookObservation struct {
-		readyStatus int
-		pingStatus  int
-	}
-
-	hookRan := make(chan hookObservation, 1)
 	shutdownHookRan := false
+
+	var readyDuringDrain int
+
+	pingObserved := make(chan int, 1)
 
 	var svc *appkit.Service
 
@@ -174,16 +172,16 @@ func TestDrainWindowContract(t *testing.T) {
 	svc, err = appkit.NewService(appkit.ServiceConfig{
 		Addr:       freeAddr(t),
 		DrainDelay: 250 * time.Millisecond,
-		DrainHooks: []func(context.Context) error{
+		DrainHooks: []appkit.Hook{
+			testkit.DrainWindowProbe(func() string { return baseURL }, "/health/ready", &readyDuringDrain),
 			func(hookCtx context.Context) error {
-				readyStatus, _, _ := getWithAuth(t, hookCtx, baseURL, "/health/ready", "", "")
 				pingStatus, _, _ := getWithAuth(t, hookCtx, baseURL, "/ping", "", "")
-				hookRan <- hookObservation{readyStatus: readyStatus, pingStatus: pingStatus}
+				pingObserved <- pingStatus
 
 				return nil
 			},
 		},
-		ShutdownHooks: []func(context.Context) error{
+		ShutdownHooks: []appkit.Hook{
 			func(_ context.Context) error {
 				shutdownHookRan = true
 
@@ -216,13 +214,13 @@ func TestDrainWindowContract(t *testing.T) {
 	}
 
 	select {
-	case obs := <-hookRan:
-		if obs.readyStatus != http.StatusServiceUnavailable {
-			t.Errorf("readiness during drain hook = %d, want 503 (flip precedes DrainHooks)", obs.readyStatus)
+	case pingDuringDrain := <-pingObserved:
+		if readyDuringDrain != http.StatusServiceUnavailable {
+			t.Errorf("readiness during drain hook = %d, want 503 (flip precedes DrainHooks)", readyDuringDrain)
 		}
 
-		if obs.pingStatus != http.StatusOK {
-			t.Errorf("/ping during drain hook = %d, want 200 (traffic served during drain window)", obs.pingStatus)
+		if pingDuringDrain != http.StatusOK {
+			t.Errorf("/ping during drain hook = %d, want 200 (traffic served during drain window)", pingDuringDrain)
 		}
 	default:
 		t.Fatal("DrainHook never ran during Shutdown")

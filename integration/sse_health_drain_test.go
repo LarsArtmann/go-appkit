@@ -50,7 +50,7 @@ func TestSSEStreamClosesInLockstepWithHealthDrain(t *testing.T) {
 		WriteTimeout:   appkit.NoTimeout,
 		DrainDelay:     150 * time.Millisecond,
 		RegisterHealth: &healthDisabled,
-		DrainHooks: []func(context.Context) error{
+		DrainHooks: []appkit.Hook{
 			hub.Shutdown,
 			func(context.Context) error {
 				mounted.Drain()
@@ -63,7 +63,7 @@ func TestSSEStreamClosesInLockstepWithHealthDrain(t *testing.T) {
 				return nil
 			},
 		},
-		ShutdownHooks: []func(context.Context) error{mounted.Shutdown},
+		ShutdownHooks: []appkit.Hook{mounted.Shutdown},
 	})
 	if err != nil {
 		t.Fatalf("new service: %v", err)
