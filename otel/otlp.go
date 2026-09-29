@@ -1,0 +1,179 @@
+package otel
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"time"
+
+	errorfamily "github.com/larsartmann/go-error-family"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+)
+
+// Standard OTLP environment variables (OpenTelemetry specification) that
+// gate the env-driven setup path. When OTEL_EXPORTER_OTLP_ENDPOINT (or a
+// signal-specific override) is set, Setup exports via OTLP without any code
+// change — the deployment environment turns telemetry on and off.
+const (
+	envOTLPEndpoint        = "OTEL_EXPORTER_OTLP_ENDPOINT"
+	envOTLPTracesEndpoint  = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+	envOTLPMetricsEndpoint = "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"
+)
+
+// OTLPOption configures the OTLP/HTTP exporters built by [WithOTLP].
+type OTLPOption func(*otlpConfig)
+
+// otlpConfig carries the explicit OTLP wiring. Unset fields defer to the
+// standard OTEL_EXPORTER_OTLP_* environment variables, which the exporters
+// read natively (endpoint, headers, timeout, compression, retry policy).
+type otlpConfig struct {
+	endpoint string
+	headers  map[string]string
+	timeout  time.Duration
+}
+
+// WithOTLPEndpoint sets the collector base URL, including the scheme —
+// "http://localhost:4318" for a local SigNoz, "https://ingest.<region>.signoz.cloud"
+// for SigNoz Cloud. An "http://" scheme sends insecure OTLP/HTTP; "https://"
+// upgrades to TLS. When omitted, the exporters resolve the endpoint from
+// OTEL_EXPORTER_OTLP_ENDPOINT (or the signal-specific variables).
+func WithOTLPEndpoint(url string) OTLPOption {
+	return func(c *otlpConfig) {
+		c.endpoint = url
+	}
+}
+
+// WithOTLPHeaders sets headers sent with every OTLP request — how SigNoz
+// Cloud authenticates ingestion ({"signoz-ingestion-key": "<key>"}).
+// OTEL_EXPORTER_OTLP_HEADERS supplies further headers without code changes.
+func WithOTLPHeaders(headers map[string]string) OTLPOption {
+	return func(c *otlpConfig) {
+		c.headers = headers
+	}
+}
+
+// WithOTLPTimeout bounds each OTLP export request (default: the exporter's
+// own default of 10s; OTEL_EXPORTER_OTLP_TIMEOUT overrides without code).
+func WithOTLPTimeout(d time.Duration) OTLPOption {
+	return func(c *otlpConfig) {
+		c.timeout = d
+	}
+}
+
+// WithOTLP wires OTLP/HTTP export for both signals — the production path to
+// SigNoz (or any OTLP backend) in one option:
+//
+//	provider, err := appkitotel.Setup(
+//	    appkitotel.WithService("orders-api", "1.0.0", pod),
+//	    appkitotel.WithOTLP(), // endpoint from OTEL_EXPORTER_OTLP_ENDPOINT
+//	)
+//
+// Traces export via a batch span processor, metrics via a periodic reader
+// (interval: OTEL_METRIC_EXPORT_INTERVAL, default 60s). Explicit
+// [WithSpanExporter] / [WithMetricReader] options take precedence for their
+// signal, so WithOTLP composes — e.g. OTLP traces alongside a Prometheus
+// metric reader. Without [WithOTLPEndpoint], the standard OTEL_* environment
+// variables configure the exporters natively.
+func WithOTLP(opts ...OTLPOption) SetupOption {
+	return func(c *setupConfig) {
+		cfg := &otlpConfig{} //nolint:exhaustruct_v5 // options applied below
+		for _, opt := range opts {
+			opt(cfg)
+		}
+
+		c.otlp = cfg
+	}
+}
+
+// otlpTracesEnvConfigured reports whether the environment asks for OTLP
+// trace export: the signal shares OTEL_EXPORTER_OTLP_ENDPOINT unless
+// OTEL_EXPORTER_OTLP_TRACES_ENDPOINT overrides it.
+func otlpTracesEnvConfigured() bool {
+	return envSet(envOTLPEndpoint) || envSet(envOTLPTracesEndpoint)
+}
+
+// otlpMetricsEnvConfigured is the metric-signal counterpart of
+// [otlpTracesEnvConfigured].
+func otlpMetricsEnvConfigured() bool {
+	return envSet(envOTLPEndpoint) || envSet(envOTLPMetricsEndpoint)
+}
+
+func envSet(key string) bool {
+	return os.Getenv(key) != ""
+}
+
+// newOTLPSpanExporter builds the OTLP/HTTP span exporter from the explicit
+// config; unset fields fall through to the exporters' native env handling.
+func newOTLPSpanExporter(ctx context.Context, cfg *otlpConfig) (sdktrace.SpanExporter, error) {
+	opts := otlpExporterOptions(cfg, func(url string) otlptracehttp.Option {
+		return otlptracehttp.WithEndpointURL(url)
+	}, func(h map[string]string) otlptracehttp.Option {
+		return otlptracehttp.WithHeaders(h)
+	}, func(d time.Duration) otlptracehttp.Option {
+		return otlptracehttp.WithTimeout(d)
+	})
+
+	exporter, err := otlptracehttp.New(ctx, opts...)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", errOTLPSetup, err)
+	}
+
+	return exporter, nil
+}
+
+// newOTLPMetricReader builds the periodic OTLP/HTTP metric reader; the
+// export interval itself is env-native (OTEL_METRIC_EXPORT_INTERVAL).
+func newOTLPMetricReader(ctx context.Context, cfg *otlpConfig) (sdkmetric.Reader, error) {
+	opts := otlpExporterOptions(cfg, func(url string) otlpmetrichttp.Option {
+		return otlpmetrichttp.WithEndpointURL(url)
+	}, func(h map[string]string) otlpmetrichttp.Option {
+		return otlpmetrichttp.WithHeaders(h)
+	}, func(d time.Duration) otlpmetrichttp.Option {
+		return otlpmetrichttp.WithTimeout(d)
+	})
+
+	exporter, err := otlpmetrichttp.New(ctx, opts...)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", errOTLPSetup, err)
+	}
+
+	return sdkmetric.NewPeriodicReader(exporter), nil
+}
+
+// otlpExporterOptions maps the shared config into either exporter's option
+// type. Generics collapsed three near-identical option lists into one;
+// the mapping functions keep each exporter's typed constructors.
+func otlpExporterOptions[O any](
+	cfg *otlpConfig,
+	endpoint func(string) O,
+	headers func(map[string]string) O,
+	timeout func(time.Duration) O,
+) []O {
+	var opts []O
+
+	if cfg == nil {
+		return nil
+	}
+
+	if cfg.endpoint != "" {
+		opts = append(opts, endpoint(cfg.endpoint))
+	}
+
+	if len(cfg.headers) > 0 {
+		opts = append(opts, headers(cfg.headers))
+	}
+
+	if cfg.timeout > 0 {
+		opts = append(opts, timeout(cfg.timeout))
+	}
+
+	return opts
+}
+
+// errOTLPSetup classifies exporter construction failures: reaching the
+// configured collector is an environmental concern, so consumers get the
+// Infrastructure family (HTTP 503) and standard retry semantics.
+var errOTLPSetup = errorfamily.NewInfrastructure("otel.otlp_exporter_failed", "failed to build OTLP exporter")

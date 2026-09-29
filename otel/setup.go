@@ -22,17 +22,20 @@ type setupConfig struct {
 	serviceName            string
 	serviceVersion         string
 	instanceID             string
+	environment            string
 	spanExporter           sdktrace.SpanExporter
 	sampler                sdktrace.Sampler
 	metricReader           sdkmetric.Reader
 	propagator             propagation.TextMapPropagator
 	stdoutWriter           io.Writer
+	otlp                   *otlpConfig
 	skipGlobalRegistration bool
 }
 
 // WithService identifies the service in telemetry via resource attributes.
 // serviceName is required for meaningful traces; version and instanceID are
-// optional (pass "" to omit).
+// optional (pass "" to omit). When WithService is not used, OTEL_SERVICE_NAME
+// supplies the name without code changes.
 func WithService(name, version, instanceID string) SetupOption {
 	return func(c *setupConfig) {
 		c.serviceName = name
@@ -41,10 +44,19 @@ func WithService(name, version, instanceID string) SetupOption {
 	}
 }
 
+// WithEnvironment records the deployment environment ("production",
+// "staging", ...) as the deployment.environment resource attribute — the
+// dimension SigNoz filters services and exceptions by.
+func WithEnvironment(name string) SetupOption {
+	return func(c *setupConfig) {
+		c.environment = name
+	}
+}
+
 // WithSpanExporter attaches a span exporter (OTLP, stdout, etc.).
-// Without one, spans are recorded but not exported — useful for
-// in-memory testing. See WithStdoutExporter for the common development
-// case.
+// Without one, spans are recorded but not exported — unless the standard
+// OTEL_EXPORTER_OTLP_* environment variables ask for OTLP, in which case
+// Setup builds the OTLP exporters itself (see [WithOTLP]).
 func WithSpanExporter(e sdktrace.SpanExporter) SetupOption {
 	return func(c *setupConfig) {
 		c.spanExporter = e
@@ -54,6 +66,10 @@ func WithSpanExporter(e sdktrace.SpanExporter) SetupOption {
 // WithSampler overrides the default sampler (ParentBased AlwaysSample).
 // Typical production choices: sdktrace.TraceIDRatioBased(0.1) for head
 // sampling, or a tail-based sampler making the decision per-span.
+// When omitted, the sampler itself is env-native: OTEL_TRACES_SAMPLER and
+// OTEL_TRACES_SAMPLER_ARG configure sampling without code changes (e.g.
+// parentbased_traceidratio + 0.1), and invalid values fall back to the
+// default via the OTel global error handler.
 func WithSampler(s sdktrace.Sampler) SetupOption {
 	return func(c *setupConfig) {
 		c.sampler = s
