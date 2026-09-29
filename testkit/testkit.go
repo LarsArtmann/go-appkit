@@ -151,7 +151,7 @@ func DrainWindowProbe(base func() string, readyPath string, readyStatus *int) fu
 
 		resp, err := (&http.Client{Timeout: 2 * time.Second}).Do(req)
 		if err != nil {
-			return nil //nolint:nilerr // observation failure must not fail the drain
+			return nil
 		}
 
 		defer func() { _ = resp.Body.Close() }()

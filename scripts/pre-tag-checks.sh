@@ -49,10 +49,12 @@ if ! git cat-file -e "${tag}^{commit}" 2>/dev/null; then
 fi
 
 case "$tag" in
-	v[0-9]*) module_dir="" ;;
-	*/) fail "tag $tag ends with a slash — malformed module tag"
-		exit 1 ;;
-	*) module_dir="${tag%/v*}" ;;
+v[0-9]*) module_dir="" ;;
+*/)
+	fail "tag $tag ends with a slash — malformed module tag"
+	exit 1
+	;;
+*) module_dir="${tag%/v*}" ;;
 esac
 gomod_path="${module_dir:+$module_dir/}go.mod"
 
