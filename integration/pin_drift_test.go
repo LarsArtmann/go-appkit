@@ -37,6 +37,18 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-sse":         "v0.6.1",
 	"github.com/larsartmann/go-sse/ssetest": "v0.4.0",
 	"github.com/larsartmann/httputil":       "v1.4.0",
+
+	// Composition-contract legs (T14, 2026-09-29): the third-party surfaces
+	// the composition tests exercise. These are VERSION-LOCKED to the pins
+	// the published family modules carry (go-health v0.2.0 = the health
+	// module's pin; go-flightrecorder v0.2.0 = frh/cqrs/otel's pin;
+	// samber/do v2.1.0 = frh's pin) — deliberately NOT asserted against the
+	// proxy LATEST by scripts/check-pin-drift.sh, because go-health v0.3.0
+	// exists upstream and the family's evaluation of it is a tracked backlog
+	// item, not a mechanical bump.
+	"github.com/larsartmann/go-flightrecorder": "v0.2.0",
+	"github.com/larsartmann/go-health":         "v0.2.0",
+	"github.com/samber/do/v2":                  "v2.1.0",
 }
 
 // documentedGoDirective pins the language version this module (and the rest of
