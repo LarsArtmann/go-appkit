@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.3] - 2026-09-29
 
 ### Fixed
 
@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   flips (failed probe Start / failed dashboard Start / Shutdown) share one
   `setStarted` helper; the "started is only mutated under the mutex"
   invariant now lives in exactly one place. Behavior-neutral.
+- Go directive 1.26.7 → 1.27.1 (repo-wide toolchain unification; the
+  `go doc -all` diff vs v0.1.2 is godoc-only).
 
 ## [0.1.2] - 2026-09-20
 

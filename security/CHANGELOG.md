@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [0.2.0] - 2026-09-29
 
 ### Added
 
@@ -21,6 +21,9 @@ All notable changes to this project are documented in this file.
 - The module go.mod now requires `github.com/larsartmann/go-appkit`
   v0.5.1 — EXAMPLE-ONLY (the security package itself keeps zero appkit
   dependencies), mirroring the errorpages module's example pattern.
+- Go directive 1.26.7 → 1.27.1 (repo-wide toolchain unification;
+  `go doc -all` diff vs v0.1.0 is the package-doc paragraph above and
+  nothing else).
 
 ## [0.1.0] - 2026-09-16
 

@@ -15,77 +15,68 @@ import (
 func TestHookErrorCodes_AreAStableContract(t *testing.T) {
 	t.Parallel()
 
-	t.Run("drain hook failure carries server.drain_hook_failed", func(t *testing.T) {
-		t.Parallel()
-
-		svc, err := NewService(ServiceConfig{
-			Addr:       "localhost:0",
-			DrainDelay: NoDrainDelay,
-			DrainHooks: []func(context.Context) error{
-				func(context.Context) error { return errors.New("readiness flush failed") },
+	tests := []struct {
+		name     string
+		hooks    func(func(context.Context) error) ServiceConfig
+		wantCode string
+	}{
+		{
+			name: "drain hook failure carries server.drain_hook_failed",
+			hooks: func(fail func(context.Context) error) ServiceConfig {
+				return ServiceConfig{
+					Addr:       "localhost:0",
+					DrainDelay: NoDrainDelay,
+					DrainHooks: []func(context.Context) error{fail},
+				}
 			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-
-		errCh, err := svc.Start()
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-
-		waitForRunning(t, svc)
-
-		shutdownCtx, cancel := context.WithTimeout(t.Context(), testTimeout)
-		defer cancel()
-
-		err = svc.Shutdown(shutdownCtx)
-		if err == nil {
-			t.Fatal("expected joined drain-hook error, got nil")
-		}
-
-		if code := errorfamily.Code(err); code != "server.drain_hook_failed" {
-			t.Fatalf("expected code server.drain_hook_failed, got %q", code)
-		}
-
-		assertServerStopped(t, errCh)
-	})
-
-	t.Run("shutdown hook failure carries server.shutdown_hook_failed", func(t *testing.T) {
-		t.Parallel()
-
-		svc, err := NewService(ServiceConfig{
-			Addr:       "localhost:0",
-			DrainDelay: NoDrainDelay,
-			ShutdownHooks: []func(context.Context) error{
-				func(context.Context) error { return errors.New("telemetry flush failed") },
+			wantCode: "server.drain_hook_failed",
+		},
+		{
+			name: "shutdown hook failure carries server.shutdown_hook_failed",
+			hooks: func(fail func(context.Context) error) ServiceConfig {
+				return ServiceConfig{
+					Addr:          "localhost:0",
+					DrainDelay:    NoDrainDelay,
+					ShutdownHooks: []func(context.Context) error{fail},
+				}
 			},
+			wantCode: "server.shutdown_hook_failed",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc, err := NewService(tt.hooks(func(context.Context) error {
+				return errors.New("flush failed")
+			}))
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			errCh, err := svc.Start()
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			waitForRunning(t, svc)
+
+			shutdownCtx, cancel := context.WithTimeout(t.Context(), testTimeout)
+			defer cancel()
+
+			err = svc.Shutdown(shutdownCtx)
+			if err == nil {
+				t.Fatalf("expected joined %s error, got nil", tt.wantCode)
+			}
+
+			if code := errorfamily.Code(err); code != tt.wantCode {
+				t.Fatalf("expected code %s, got %q", tt.wantCode, code)
+			}
+
+			assertServerStopped(t, errCh)
 		})
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-
-		errCh, err := svc.Start()
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-
-		waitForRunning(t, svc)
-
-		shutdownCtx, cancel := context.WithTimeout(t.Context(), testTimeout)
-		defer cancel()
-
-		err = svc.Shutdown(shutdownCtx)
-		if err == nil {
-			t.Fatal("expected joined shutdown-hook error, got nil")
-		}
-
-		if code := errorfamily.Code(err); code != "server.shutdown_hook_failed" {
-			t.Fatalf("expected code server.shutdown_hook_failed, got %q", code)
-		}
-
-		assertServerStopped(t, errCh)
-	})
+	}
 }
 
 func TestHooks_EveryHookRunsWhenAnEarlierOneFails(t *testing.T) {

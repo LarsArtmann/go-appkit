@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.4] - 2026-09-29
 
 ### Changed
 
@@ -14,6 +14,10 @@
   godoc states the any-order contract explicitly.
 - `sort.Strings` → `slices.Sort` in `failingServiceNames` (Go 1.21+ idiom;
   behavior-neutral).
+- Bumped `go-error-family` v0.10.1 → v0.11.0 (BuildFlow dependency
+  sweep; classification surface used by the adapter is unchanged).
+- Go directive 1.26.5 → 1.27.1 (repo-wide toolchain unification; godoc
+  diff vs v0.1.3 is additions-only).
 
 ### Documented
 
