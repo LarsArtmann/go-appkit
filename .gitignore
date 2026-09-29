@@ -65,4 +65,6 @@ workflow-audit-log.*
 reports/
 
 ## Go
+go.work
+go.work.sum
 # <<< buildflow-managed (.gitignore) <<<
