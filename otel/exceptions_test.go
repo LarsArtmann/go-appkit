@@ -2,7 +2,6 @@ package otel
 
 import (
 	"errors"
-	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +17,7 @@ import (
 
 // quietLogger keeps panic-recovery log lines out of test output.
 func quietLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
+	return slog.New(slog.DiscardHandler)
 }
 
 // newPanicServer composes the documented wiring: the span middleware
@@ -29,7 +28,7 @@ func newPanicServer(t *testing.T, tp *sdktrace.TracerProvider, handler http.Hand
 	mux := http.NewServeMux()
 	mux.Handle("GET /boom", handler)
 
-	var chain http.Handler = Recovery(quietLogger())(mux)
+	chain := Recovery(quietLogger())(mux)
 	if tp != nil {
 		chain = Middleware(WithTracerProvider(tp))(chain)
 	}
@@ -147,10 +146,12 @@ func TestRecovery_NonErrorPanicRecordsTypedEvent(t *testing.T) {
 func TestRecovery_AbortHandlerRepanics(t *testing.T) {
 	t.Parallel()
 
-	repanicked := func() (repanicked bool) {
+	var repanicked bool
+
+	func() {
 		defer func() {
 			if rec := recover(); rec != nil {
-				sentinel, ok := rec.(error) //nolint:errorlint // test-local sentinel probe
+				sentinel, ok := rec.(error)
 				repanicked = ok && errors.Is(sentinel, http.ErrAbortHandler)
 			}
 		}()
@@ -161,10 +162,8 @@ func TestRecovery_AbortHandlerRepanics(t *testing.T) {
 
 		Recovery(quietLogger())(panicHandler).ServeHTTP(
 			httptest.NewRecorder(),
-			httptest.NewRequest(http.MethodGet, "/abort", nil),
+			httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/abort", nil),
 		)
-
-		return false
 	}()
 
 	if !repanicked {

@@ -80,13 +80,13 @@ func WithOTLPTimeout(d time.Duration) OTLPOption {
 // metric reader. Without [WithOTLPEndpoint], the standard OTEL_* environment
 // variables configure the exporters natively.
 func WithOTLP(opts ...OTLPOption) SetupOption {
-	return func(c *setupConfig) {
+	return func(setup *setupConfig) {
 		cfg := &otlpConfig{} //nolint:exhaustruct_v5 // options applied below
 		for _, opt := range opts {
 			opt(cfg)
 		}
 
-		c.otlp = cfg
+		setup.otlp = cfg
 	}
 }
 

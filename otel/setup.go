@@ -223,7 +223,8 @@ func Setup(opts ...SetupOption) (*Provider, error) {
 		opt(cfg)
 	}
 
-	if err := applyOTLPWiring(context.Background(), cfg); err != nil {
+	err := applyOTLPWiring(context.Background(), cfg)
+	if err != nil {
 		return nil, err
 	}
 
@@ -232,7 +233,7 @@ func Setup(opts ...SetupOption) (*Provider, error) {
 		return nil, err
 	}
 
-	spanExporter, err := resolveSpanExporter(cfg)
+	spanExporter, _, err := resolveSpanExporter(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -250,15 +251,16 @@ func Setup(opts ...SetupOption) (*Provider, error) {
 }
 
 // resolveSpanExporter picks the configured span exporter, falling back to
-// the stdout exporter when one was requested. Without either, spans are
-// recorded but not exported.
-func resolveSpanExporter(cfg *setupConfig) (sdktrace.SpanExporter, error) {
+// the stdout exporter when one was requested. The boolean reports whether
+// an exporter was resolved at all; without one, spans are recorded but not
+// exported.
+func resolveSpanExporter(cfg *setupConfig) (sdktrace.SpanExporter, bool, error) {
 	if cfg.spanExporter != nil {
-		return cfg.spanExporter, nil
+		return cfg.spanExporter, true, nil
 	}
 
 	if cfg.stdoutWriter == nil {
-		return nil, nil
+		return nil, false, nil
 	}
 
 	exporter, err := stdouttrace.New(
@@ -266,10 +268,10 @@ func resolveSpanExporter(cfg *setupConfig) (sdktrace.SpanExporter, error) {
 		stdouttrace.WithPrettyPrint(),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", errStdoutSetup, err)
+		return nil, false, fmt.Errorf("%w: %w", errStdoutSetup, err)
 	}
 
-	return exporter, nil
+	return exporter, true, nil
 }
 
 // buildTracerProvider assembles the tracer provider. An explicit sampler

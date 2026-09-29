@@ -35,9 +35,9 @@ func (r *otlpReceipts) spanCount() int {
 
 	total := 0
 	for _, req := range r.traces {
-		for _, rs := range req.ResourceSpans {
-			for _, ss := range rs.ScopeSpans {
-				total += len(ss.Spans)
+		for _, rs := range req.GetResourceSpans() {
+			for _, ss := range rs.GetScopeSpans() {
+				total += len(ss.GetSpans())
 			}
 		}
 	}
@@ -51,9 +51,9 @@ func (r *otlpReceipts) metricCount() int {
 
 	total := 0
 	for _, req := range r.metrics {
-		for _, rm := range req.ResourceMetrics {
-			for _, sm := range rm.ScopeMetrics {
-				total += len(sm.Metrics)
+		for _, rm := range req.GetResourceMetrics() {
+			for _, sm := range rm.GetScopeMetrics() {
+				total += len(sm.GetMetrics())
 			}
 		}
 	}
@@ -80,7 +80,8 @@ func newOTLPCollector(t *testing.T) (*httptest.Server, *otlpReceipts) {
 		switch r.URL.Path {
 		case "/v1/traces":
 			req := &collectortracepb.ExportTraceServiceRequest{}
-			if err := proto.Unmarshal(body, req); err != nil {
+			err := proto.Unmarshal(body, req)
+			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 
 				return
@@ -93,7 +94,8 @@ func newOTLPCollector(t *testing.T) (*httptest.Server, *otlpReceipts) {
 			writeOTLPResponse(t, w, &collectortracepb.ExportTraceServiceResponse{})
 		case "/v1/metrics":
 			req := &collectormetricpb.ExportMetricsServiceRequest{}
-			if err := proto.Unmarshal(body, req); err != nil {
+			err := proto.Unmarshal(body, req)
+			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 
 				return
@@ -129,22 +131,22 @@ func writeOTLPResponse(t *testing.T, w http.ResponseWriter, msg proto.Message) {
 	_, _ = w.Write(body)
 }
 
-// waitForOTLPReceipts polls until want requests of the given kind arrived,
+// waitForOTLPReceipts polls until at least one export request arrived,
 // because batch/periodic flush timing is asynchronous by design.
-func waitForOTLPReceipts(t *testing.T, count func() int, want int) {
+func waitForOTLPReceipts(t *testing.T, count func() int) {
 	t.Helper()
 
 	const waitStep = 10 * time.Millisecond
 
 	for range 300 {
-		if count() >= want {
+		if count() > 0 {
 			return
 		}
 
 		time.Sleep(waitStep)
 	}
 
-	t.Fatalf("collector received %d requests, want >= %d", count(), want)
+	t.Fatalf("collector received %d requests, want >= 1", count())
 }
 
 // TestWithOTLP_ExportsSpansToEndpoint pins the production path: spans flow
@@ -168,23 +170,23 @@ func TestWithOTLP_ExportsSpansToEndpoint(t *testing.T) {
 	_, span := provider.AsTracerProvider().Tracer("test").Start(t.Context(), "exported")
 	span.End()
 
-	if err := provider.AsTracerProvider().ForceFlush(t.Context()); err != nil {
+	err = provider.AsTracerProvider().ForceFlush(t.Context())
+	if err != nil {
 		t.Fatalf("flush: %v", err)
 	}
 
-	waitForOTLPReceipts(t, receipts.spanCount, 1)
 	waitForOTLPReceipts(t, func() int {
 		receipts.mu.Lock()
 		defer receipts.mu.Unlock()
 
 		return len(receipts.traces)
-	}, 1)
+	})
 
 	receipts.mu.Lock()
 	first := receipts.traces[0]
 	receipts.mu.Unlock()
 
-	resAttrs := protoResourceAttributes(first.ResourceSpans[0].Resource)
+	resAttrs := protoResourceAttributes(first.GetResourceSpans()[0].GetResource())
 	if got, ok := resAttrs.Value(attribute.Key("service.name")); !ok || got.AsString() != "otlp-svc" {
 		t.Errorf("exported service.name = %q (found=%v), want otlp-svc", got.AsString(), ok)
 	}
@@ -193,7 +195,8 @@ func TestWithOTLP_ExportsSpansToEndpoint(t *testing.T) {
 		t.Errorf("exported deployment.environment = %q (found=%v), want staging", got.AsString(), ok)
 	}
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -222,27 +225,28 @@ func TestWithOTLP_ExportsMetricsToEndpoint(t *testing.T) {
 
 	counter.Add(t.Context(), 1)
 
-	if err := provider.AsMeterProvider().ForceFlush(t.Context()); err != nil {
+	err = provider.AsMeterProvider().ForceFlush(t.Context())
+	if err != nil {
 		t.Fatalf("flush: %v", err)
 	}
 
-	waitForOTLPReceipts(t, receipts.metricCount, 1)
+	waitForOTLPReceipts(t, receipts.metricCount)
 
 	receipts.mu.Lock()
 	first := receipts.metrics[0]
 	receipts.mu.Unlock()
 
-	if len(first.ResourceMetrics) == 0 ||
-		len(first.ResourceMetrics[0].ScopeMetrics) == 0 ||
-		len(first.ResourceMetrics[0].ScopeMetrics[0].Metrics) == 0 {
+	scopeMetrics := first.GetResourceMetrics()[0].GetScopeMetrics()
+	if len(scopeMetrics) == 0 || len(scopeMetrics[0].GetMetrics()) == 0 {
 		t.Fatalf("metric export empty: %v", first)
 	}
 
-	if got := first.ResourceMetrics[0].ScopeMetrics[0].Metrics[0].GetName(); got != "otlp_test_requests_total" {
+	if got := scopeMetrics[0].GetMetrics()[0].GetName(); got != "otlp_test_requests_total" {
 		t.Errorf("exported metric = %q, want otlp_test_requests_total", got)
 	}
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -265,13 +269,15 @@ func TestSetup_EnvEndpointAutoEnablesOTLP(t *testing.T) {
 	_, span := provider.AsTracerProvider().Tracer("test").Start(t.Context(), "env-driven")
 	span.End()
 
-	if err := provider.AsTracerProvider().ForceFlush(t.Context()); err != nil {
+	err = provider.AsTracerProvider().ForceFlush(t.Context())
+	if err != nil {
 		t.Fatalf("flush: %v", err)
 	}
 
-	waitForOTLPReceipts(t, receipts.spanCount, 1)
+	waitForOTLPReceipts(t, receipts.spanCount)
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -297,7 +303,8 @@ func TestSetup_ExplicitExporterBeatsEnvEndpoint(t *testing.T) {
 	_, span := provider.AsTracerProvider().Tracer("test").Start(t.Context(), "in-memory")
 	span.End()
 
-	if err := provider.AsTracerProvider().ForceFlush(t.Context()); err != nil {
+	err = provider.AsTracerProvider().ForceFlush(t.Context())
+	if err != nil {
 		t.Fatalf("flush: %v", err)
 	}
 
@@ -309,7 +316,8 @@ func TestSetup_ExplicitExporterBeatsEnvEndpoint(t *testing.T) {
 		t.Errorf("env collector received %d spans, want 0 — explicit exporter must win", got)
 	}
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -342,13 +350,15 @@ func TestSetup_OTLPMetricsShareExplicitSpanExporter(t *testing.T) {
 
 	counter.Add(t.Context(), 1)
 
-	if err := provider.AsMeterProvider().ForceFlush(t.Context()); err != nil {
+	err = provider.AsMeterProvider().ForceFlush(t.Context())
+	if err != nil {
 		t.Fatalf("flush: %v", err)
 	}
 
-	waitForOTLPReceipts(t, receipts.metricCount, 1)
+	waitForOTLPReceipts(t, receipts.metricCount)
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -380,7 +390,8 @@ func TestSetup_ExplicitMetricReaderBeatsOTLP(t *testing.T) {
 	counter.Add(t.Context(), 1)
 
 	var data metricdata.ResourceMetrics
-	if err := reader.Collect(t.Context(), &data); err != nil {
+	err = reader.Collect(t.Context(), &data)
+	if err != nil {
 		t.Fatalf("collect: %v", err)
 	}
 
@@ -401,7 +412,8 @@ func TestSetup_ExplicitMetricReaderBeatsOTLP(t *testing.T) {
 		t.Errorf("collector received %d metric requests, want 0", got)
 	}
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -425,7 +437,8 @@ func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
 	_, span := provider.AsTracerProvider().Tracer("test").Start(t.Context(), "resourced")
 	span.End()
 
-	if err := provider.AsTracerProvider().ForceFlush(t.Context()); err != nil {
+	err = provider.AsTracerProvider().ForceFlush(t.Context())
+	if err != nil {
 		t.Fatalf("flush: %v", err)
 	}
 
@@ -447,7 +460,8 @@ func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
 		t.Errorf("service.name = %q (found=%v), want explicit WithService to beat env", got.AsString(), ok)
 	}
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -467,7 +481,8 @@ func TestSetup_EnvServiceNameWhenNoWithService(t *testing.T) {
 	_, span := provider.AsTracerProvider().Tracer("test").Start(t.Context(), "named-by-env")
 	span.End()
 
-	if err := provider.AsTracerProvider().ForceFlush(t.Context()); err != nil {
+	err = provider.AsTracerProvider().ForceFlush(t.Context())
+	if err != nil {
 		t.Fatalf("flush: %v", err)
 	}
 
@@ -481,7 +496,8 @@ func TestSetup_EnvServiceNameWhenNoWithService(t *testing.T) {
 		t.Errorf("service.name = %q (found=%v), want platform-named from OTEL_SERVICE_NAME", got.AsString(), ok)
 	}
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -500,7 +516,8 @@ func TestSetup_EnvSamplerHonored(t *testing.T) {
 	_, span := provider.AsTracerProvider().Tracer("test").Start(t.Context(), "dropped-by-env")
 	span.End()
 
-	if err := provider.AsTracerProvider().ForceFlush(t.Context()); err != nil {
+	err = provider.AsTracerProvider().ForceFlush(t.Context())
+	if err != nil {
 		t.Fatalf("flush: %v", err)
 	}
 
@@ -508,7 +525,8 @@ func TestSetup_EnvSamplerHonored(t *testing.T) {
 		t.Errorf("OTEL_TRACES_SAMPLER=always_off exported %d spans, want 0", len(spans))
 	}
 
-	if err := provider.Shutdown(t.Context()); err != nil {
+	err = provider.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }
@@ -520,8 +538,8 @@ func protoResourceAttributes(res *resourcepb.Resource) attribute.Set {
 		return attribute.NewSet()
 	}
 
-	attrs := make([]attribute.KeyValue, 0, len(res.Attributes))
-	for _, kv := range res.Attributes {
+	attrs := make([]attribute.KeyValue, 0, len(res.GetAttributes()))
+	for _, kv := range res.GetAttributes() {
 		if value := kv.GetValue(); value != nil {
 			attrs = append(attrs, attribute.String(kv.GetKey(), value.GetStringValue()))
 		}
