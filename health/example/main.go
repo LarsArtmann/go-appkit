@@ -4,17 +4,26 @@
 //
 // Run from the health module directory:
 //
-//	GOWORK=off GOEXPERIMENT=jsonv2 go run ./example
+//	GOWORK=off GOTOOLCHAIN=go1.27.1 go run ./example
 //
 // Then open http://localhost:8081/health (PORT overrides). The "cache"
 // check fails for 3 seconds of every 15, degrading the dashboard to warn
 // without touching readiness — add "cache" to WithCriticalServices to see
 // fail instead. SIGTERM/SIGINT flips /readyz and appkit's /health/ready to
 // 503 in lockstep (drain window), then stops the dashboard pusher.
+//
+// Add -hardened to compose the hardened-posture dashboard instead: the
+// DashboardHardenedPreset (base path + per-request nonce extraction) behind
+// a strict-CSP middleware built with the security module's BuildCSP — the
+// middleware a real operator runs OUTSIDE the health module, in front of
+// the mux. Verify the header with:
+//
+//	curl -si localhost:8081/health | grep -i content-security-policy
 package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -23,6 +32,7 @@ import (
 
 	"github.com/larsartmann/go-appkit"
 	appkithealth "github.com/larsartmann/go-appkit/health"
+	appkitsecurity "github.com/larsartmann/go-appkit/security"
 	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/go-health"
 	dashboard "github.com/larsartmann/go-health-dashboard"
@@ -36,6 +46,8 @@ const (
 )
 
 func main() {
+	hardened := flag.Bool("hardened", false, "serve the dashboard behind DashboardHardenedPreset + a strict BuildCSP middleware")
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
@@ -56,16 +68,28 @@ func main() {
 
 	probe := appkithealth.NewProbe(checks, health.WithCriticalServices("database"))
 
-	mounted, err := appkithealth.New(probe, appkithealth.WithDashboard(
+	dashboardOpts := []dashboard.Option{
 		dashboard.WithTrend(dashboardTrendCount),
 		dashboard.WithMetrics(true),
-	))
-	if err != nil {
-		log.Fatalf("health surface: %v", err)
 	}
 
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = "localhost:" + port
+
+	if *hardened {
+		// Bridge the security module's context-based nonce to the preset's
+		// request-based extractor contract (same one-liner as the integration
+		// module's hardened-dashboard test).
+		nonceFn := func(r *http.Request) string { return appkitsecurity.NonceFromContext(r.Context()) }
+		dashboardOpts = appkithealth.DashboardHardenedPreset("/health", nonceFn)
+		cfg.OuterMiddlewares = []func(http.Handler) http.Handler{hardenedCSP}
+	}
+
+	mounted, err := appkithealth.New(probe, appkithealth.WithDashboard(dashboardOpts...))
+	if err != nil {
+		log.Fatalf("health surface: %v", err)
+	}
+
 	// The dashboard's live view rides /health/sse; the default 30s
 	// WriteTimeout would cut the stream every 30s (browser auto-reconnects —
 	// degraded, not broken). NoTimeout keeps the stream stable for the demo.
@@ -109,4 +133,25 @@ func main() {
 	if err != nil {
 		log.Fatalf("run: %v", err)
 	}
+}
+
+// hardenedCSP mints a per-request nonce, exposes it through the security
+// module's context contract, and sets the matching strict policy header —
+// the middleware a real operator runs in front of the mux (never inside the
+// health module: it is core-free and security-free by design).
+func hardenedCSP(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nonce, err := appkitsecurity.GenerateNonce()
+		if err != nil {
+			http.Error(w, "nonce generation failed", http.StatusInternalServerError)
+
+			return
+		}
+
+		w.Header().Set("Content-Security-Policy", appkitsecurity.BuildCSP(appkitsecurity.CSPConfig{
+			Environment: appkitsecurity.Production,
+			Nonce:       nonce,
+		}))
+		next.ServeHTTP(w, r.WithContext(appkitsecurity.WithNonce(r.Context(), nonce)))
+	})
 }

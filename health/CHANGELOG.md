@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Dependency sweep (2026-09-29): go-health v0.2.0 → v0.4.1,
+  go-health-dashboard v0.9.0 → v0.10.1. The go-health v0.3.0 evaluation
+  backlog item is overtaken by this bump: the module suite (incl. the
+  probe/recorder paths and the F1 injector example) passes unchanged on
+  v0.4.1. Behavior change absorbed: none observed in the wrapped surface
+  (NewProbe, Mounted lifecycle, DashboardHardenedPreset all green).
+
 ## [0.1.3] - 2026-09-29
 
 ### Fixed
