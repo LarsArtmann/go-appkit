@@ -8,6 +8,7 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
 	"github.com/larsartmann/go-cqrs-lite/projection/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
+	"github.com/larsartmann/go-error-family"
 )
 
 // newDLQService creates an EventService with the SQLite DLQ enabled at the
@@ -28,13 +29,16 @@ func newDLQService(t *testing.T, threshold int) *EventService {
 	return eventSvc
 }
 
-// flakyProjection fails while broken is true and succeeds afterwards.
+// flakyProjection fails while broken is true and succeeds afterwards. The
+// failure is a Rejection (non-retryable poison): projectionhost v4.5+
+// quarantines ONLY Rejection/Corruption-family errors to the DLQ — retryable
+// errors restart the worker instead and never land in the store.
 func flakyProjection(broken *atomic.Bool) projection.Projection { //nolint:ireturn // upstream interface
 	return projection.NewProjection(
 		"dlq-projection",
 		func(_ context.Context, _ event.Event) error {
 			if broken.Load() {
-				return errPoison
+				return errPoisonRejection
 			}
 
 			return nil
@@ -168,6 +172,10 @@ func TestEventService_DLQ_MemoryStorePassthrough(t *testing.T) {
 }
 
 var errPoison = &poisonError{}
+
+// errPoisonRejection is the DLQ-test poison: a Rejection-family error, which
+// the projectionhost classifies as non-retryable poison and quarantines.
+var errPoisonRejection = errorfamily.NewRejection("test.poison", "poison")
 
 type poisonError struct{}
 
