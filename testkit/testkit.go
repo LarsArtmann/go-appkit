@@ -149,6 +149,7 @@ func DrainWindowProbe(base func() string, readyPath string, readyStatus *int) fu
 			return nil
 		}
 
+		//nolint:exhaustruct_v5 // default Transport/CheckRedirect/Jar are correct for a bounded readiness probe
 		resp, err := (&http.Client{Timeout: 2 * time.Second}).Do(req)
 		if err != nil {
 			return nil
