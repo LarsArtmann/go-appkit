@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- Example-only `github.com/larsartmann/go-appkit` dependency
+  v0.6.0 → v0.7.0 (picks up the `testkit.DrainWindowProbe`/`[]Hook`
+  surfaces; the security package itself still has zero appkit
+  dependencies, so consumers are unaffected).
+
 ## [0.2.0] - 2026-09-29
 
 ### Added
@@ -19,8 +28,11 @@ All notable changes to this project are documented in this file.
 ### Changed
 
 - The module go.mod now requires `github.com/larsartmann/go-appkit`
-  v0.5.1 — EXAMPLE-ONLY (the security package itself keeps zero appkit
-  dependencies), mirroring the errorpages module's example pattern.
+  v0.6.0 (erratum 2026-09-29: this entry originally said v0.5.1, but a
+  post-tag dependency sweep had already bumped the tagged artifact to
+  v0.6.0 — text corrected to match the shipped go.mod) — EXAMPLE-ONLY
+  (the security package itself keeps zero appkit dependencies),
+  mirroring the errorpages module's example pattern.
 - Go directive 1.26.7 → 1.27.1 (repo-wide toolchain unification;
   `go doc -all` diff vs v0.1.0 is the package-doc paragraph above and
   nothing else).
