@@ -6,7 +6,7 @@ require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.12.0
 	github.com/larsartmann/go-appkit v0.6.0
 	github.com/larsartmann/go-appkit/errorpages v0.1.0
-	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.4
+	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.5
 	github.com/larsartmann/go-appkit/health v0.1.3
 	github.com/larsartmann/go-appkit/otel v0.1.1
 	github.com/larsartmann/go-appkit/realtime v0.1.1
