@@ -15,7 +15,6 @@
 vendor/
 
 # Go workspace file
-go.work
 
 # IDE
 .idea/
@@ -66,5 +65,4 @@ workflow-audit-log.*
 reports/
 
 ## Go
-go.work.sum
 # <<< buildflow-managed (.gitignore) <<<

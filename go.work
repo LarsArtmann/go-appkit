@@ -1,0 +1,17 @@
+go 1.27.1
+
+use (
+	.
+	./cqrs
+	./docs
+	./errorpages
+	./flightrecorder
+	./flightrecorderhealth
+	./health
+	./integration
+	./otel
+	./realtime
+	./security
+)
+
+replace github.com/larsartmann/go-etag => github.com/larsartmann/go-etag v0.6.0
