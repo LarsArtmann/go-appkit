@@ -150,7 +150,7 @@ func TestEventService_DLQ_MemoryStorePassthrough(t *testing.T) {
 	store := projectionhost.NewMemoryDeadLetterStore()
 
 	eventSvc := newTestEventService(t, EventConfig{
-	DLQ: &DLQConfig{Threshold: 1, Store: store},
+		DLQ: &DLQConfig{Threshold: 1, Store: store},
 	})
 	if eventSvc.DeadLetterStore() != store {
 		t.Error("expected configured store to be returned verbatim")

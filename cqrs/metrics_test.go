@@ -62,7 +62,7 @@ func TestEventConfig_Metrics_RecordsProjectionLifecycle(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc := newTestEventService(t, EventConfig{
-	Metrics: rec,
+		Metrics: rec,
 	})
 	proj := projection.NewProjection(
 		"metrics-projection",
@@ -96,7 +96,7 @@ func TestEventConfig_Metrics_RecordsErrors(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc := newTestEventService(t, EventConfig{
-	Metrics: rec,
+		Metrics: rec,
 	})
 	boom := errors.New("handler boom")
 
@@ -130,7 +130,7 @@ func TestEventConfig_Metrics_HandlerEndpoint(t *testing.T) {
 	rec := &countingRecorder{}
 
 	eventSvc := newTestEventService(t, EventConfig{
-	Metrics: rec,
+		Metrics: rec,
 	})
 	proj := projection.NewProjection(
 		"endpoint-projection",

@@ -125,7 +125,7 @@ func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 	handler := &capturingHandler{}
 
 	eventSvc := newTestEventService(t, EventConfig{
-	Logger: slog.New(handler),
+		Logger: slog.New(handler),
 	})
 	boom := errors.New("handler boom")
 
