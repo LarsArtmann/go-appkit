@@ -14,6 +14,7 @@ package integration_test
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"testing"
@@ -88,13 +89,31 @@ func TestSSEStreamClosesInLockstepWithHealthDrain(t *testing.T) {
 		t.Fatalf("stream content-type = %q, want text/event-stream", ct)
 	}
 
+	// Broadcast only AFTER the handler's subscription is registered: the
+	// header flush precedes the subscribe step, so an earlier broadcast can
+	// race it (intermittently lost). SubscriberCount is the sync point.
+	subscribed := false
+	for range 50 {
+		if hub.SubscriberCount() == 1 {
+			subscribed = true
+
+			break
+		}
+
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if !subscribed {
+		t.Fatal("handler never subscribed to the hub")
+	}
+
 	hub.Broadcast(sse.Event{Event: "live", Data: "{}", ID: sse.NewEventID("sse-drain-1")})
 	hub.Broadcast(sse.Event{Event: "live", Data: "{}", ID: sse.NewEventID("sse-drain-2")})
 
 	events := ssetest.MustReadNEvents(t, stream.Body, 2)
 	for i, id := range []string{"sse-drain-1", "sse-drain-2"} {
-		if events[i].Type != "live" || events[i].ID.String() != id {
-			t.Fatalf("event %d = %q/%s, want live/%s", i, events[i].Type, events[i].ID.String(), id)
+		if events[i].Type != "live" || events[i].ID != id {
+			t.Fatalf("event %d = %q/%s, want live/%s", i, events[i].Type, events[i].ID, id)
 		}
 	}
 
@@ -130,7 +149,7 @@ func TestSSEStreamClosesInLockstepWithHealthDrain(t *testing.T) {
 
 	select {
 	case readErr := <-eof:
-		if readErr != nil && readErr != io.EOF {
+		if readErr != nil && !errors.Is(readErr, io.EOF) {
 			t.Fatalf("stream read after drain = %v, want clean EOF", readErr)
 		}
 	case <-time.After(5 * time.Second):
