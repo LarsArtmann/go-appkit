@@ -111,8 +111,10 @@
 //
 // # Build requirement
 //
-// GOEXPERIMENT=jsonv2 is required (go-health serializes responses with
-// encoding/json/v2 and the dashboard depends on go-sse).
+// Builds plain on the unified go 1.27.1 floor: json/v2 is default-on
+// (go-health serializes responses with encoding/json/v2 and the dashboard
+// depends on go-sse). The old GOEXPERIMENT=jsonv2 prefix is only needed on
+// pre-1.26 gated toolchains.
 //
 // # Serving notes (verified live 2026-09-16)
 //

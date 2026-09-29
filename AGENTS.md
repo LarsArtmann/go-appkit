@@ -6,24 +6,24 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 - Go multi-module repository (`github.com/larsartmann/go-appkit`), Go 1.27.1 (all 11 go.mods + go.work unified 2026-09-29).
 - Eleven Go modules in one repo, independently versioned (ten released + the unreleased `integration` test module):
-  - **core** (`/`) — package `appkit`, HTTP service framework. v0.5.1 (2026-09-17, pushed: doc-only — Addr()/Running() drain-window godoc fix, zero API delta; v0.5.0 same day: additions-only API diff — opt-in dependency-free Prometheus surface (`ServiceConfig.Metrics`, Basic Auth mandatory), `ServiceConfig.Version` + `/version`, `testkit` sub-package; shutdown phase logging ships here too). v0.4.0 had the lifecycle hooks + NoDrainDelay; v1.0.0 target.
+  - **core** (`/`) — package `appkit`, HTTP service framework. v0.6.0 (2026-09-29: `testkit.TestServer.Shutdown` call-time stop, hook error-code contract pinned by tests, internal runHooks/sortedRoutes refactors, httputil v1.4.0, go 1.27.1 — additions-only API diff). v0.5.1 (2026-09-17, doc-only — Addr()/Running() drain-window godoc fix, zero API delta; v0.5.0 same day: additions-only API diff — opt-in dependency-free Prometheus surface (`ServiceConfig.Metrics`, Basic Auth mandatory), `ServiceConfig.Version` + `/version`, `testkit` sub-package; shutdown phase logging ships here too). v0.4.0 had the lifecycle hooks + NoDrainDelay; v1.0.0 target.
   - **cqrs** (`/cqrs`) — package `cqrs`, CQRS/ES integration over go-cqrs-lite's `system` engine. v0.5.0 (2026-09-07, pushed: BREAKING — engine room moved off the deprecated `stack/sqlite` preset onto `system.New`; `Bundle()` → `System()`; `SQLitePath` → `DSN`/`Driver`/`Pragmas`; adds the typed command/query facade and operator config via `ConfigPath`/`Deployment`). v0.4.0 had aligned `FlightRecorder` to `*go-flightrecorder.Recorder`.
   - **realtime** (`/realtime`) — package `realtime`, SSE transport layer built on go-sse. v0.1.1 (2026-09-16: `X-Accel-Buffering: no` + `event: error` w/ `retry: 30000` on store failure, wire-pinned).
-  - **security** (`/security`) — package `security`, opt-in HTTP security batteries ported from CV per the canonical battery spec (W2): API-key auth (+GET/HEAD-only `?key=`), CSRF + API-key bypass, keyed rate limits (mandatory `MaxKeys`, 429 aborts chain), origin check, typed body limit, text/URL sanitization (`&not=` trap), CSP nonce + policy builder (unsafe-eval NEVER), env-tuned headers (HSTS production-only). ALL opt-in — nothing joins the default stack. v0.1.0 (2026-09-16). See the Security Module section below.
+  - **security** (`/security`) — package `security`, opt-in HTTP security batteries ported from CV per the canonical battery spec (W2): API-key auth (+GET/HEAD-only `?key=`), CSRF + API-key bypass, keyed rate limits (mandatory `MaxKeys`, 429 aborts chain), origin check, typed body limit, text/URL sanitization (`&not=` trap), CSP nonce + policy builder (unsafe-eval NEVER), env-tuned headers (HSTS production-only). ALL opt-in — nothing joins the default stack. v0.2.0 (2026-09-29: `example/` hardened-chain demo + `THREAT_MODEL.md`, example-only appkit dep). v0.1.0 (2026-09-16). See the Security Module section below.
   - **otel** (`/otel`) — package `otel` (alias `appkitotel`), OpenTelemetry provider setup + otelhttp middleware bridge + trace-correlated logging. v0.1.1 (2026-09-16, pushed: httputil v1.2.0 bump ships pattern-named spans + `http.route` through `OuterMiddlewares`; no API changes). Has `benchmark_test.go` — no-op ~21µs vs full tracing+metrics ~27µs per request (see otel README Performance).
   - **flightrecorder** (`/flightrecorder`) — package `flightrecorder`, HTTP middleware for Go runtime trace capture. v0.1.0 (pushed, proxy-verified).
-  - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. v0.1.3 (2026-09-20; go-health v0.2.0 family alignment).
-  - **health** (`/health`) — package `health` (alias `appkithealth`), bridges go-health probes + go-health-dashboard real-time UI into appkit services. v0.1.2 (2026-09-20: F1 WithHealthRecorder-cliff godoc + injector-path example, DashboardHardenedPreset, go-health v0.2.0 + dashboard v0.9.0). See the Health Module section below.
+  - **flightrecorderhealth** (`/flightrecorderhealth`) — package `flightrecorderhealth`, bridges go-flightrecorder with go-health: dashboard visibility + auto-capture on health failures. v0.1.4 (2026-09-29: Register eager `ProvideNamedValue`, sorted `failed_services`, error-family v0.11.0); v0.1.3 (2026-09-20; go-health v0.2.0 family alignment).
+  - **health** (`/health`) — package `health` (alias `appkithealth`), bridges go-health probes + go-health-dashboard real-time UI into appkit services. v0.1.3 (2026-09-29: DashboardHardenedPreset godoc fix + setStarted refactor); v0.1.2 (2026-09-20: F1 WithHealthRecorder-cliff godoc + injector-path example, DashboardHardenedPreset, go-health v0.2.0 + dashboard v0.9.0). See the Health Module section below.
   - **docs** (`/docs`) — opt-in auto-documentation via catalog/v4. v0.3.0 (2026-09-16, pushed: UN-GHOSTED — path-A repath `docs-mod/` → `docs/` so the module path `.../docs` matches the directory; the v0.2.0 tag was UNFETCHABLE from the proxy). See the docs-ghost history in FEATURES.md (docs section) + the docs module CHANGELOG.
   - **errorpages** (`/errorpages`) — pretty classified error pages (HTML/JSON) via templ-components/errorpage. v0.1.0 current (no re-tag needed: since-tag delta is test-only, `83c91bc`).
-  - **integration** (`/integration`) — cross-module + cross-repo E2E composition tests, never released. Pins PUBLISHED tags — the LATEST published of every family module (pin contract: `integration/doc.go`; checked by the `documentedPins` fixture + `scripts/check-pin-drift.sh`) — so it always tests what consumers resolve; carries the composition-contract suite (metrics/version/testkit compose, drain-window ordering — `svc.Addr()` is nil inside DrainHooks, pinned 2026-09-17; full health-stack E2E `TestHealthStackThroughAppkitService` + hardened-dashboard CSP test + security×realtime rate-limit E2E, pinned 2026-09-20/23); runs plain (jsonv2 is default-on at 1.26.7 — the health pins pull go-health/go-sse, so on OLDER gated toolchains add the GOEXPERIMENT prefix). Added 2026-09-04. See the Integration Module section below.
+  - **integration** (`/integration`) — cross-module + cross-repo E2E composition tests, never released. Pins PUBLISHED tags — the LATEST published of every family module (pin contract: `integration/doc.go`; checked by the `documentedPins` fixture + `scripts/check-pin-drift.sh`) — so it always tests what consumers resolve; carries the composition-contract suite (metrics/version/testkit compose, drain-window ordering — `svc.Addr()` is nil inside DrainHooks, pinned 2026-09-17; full health-stack E2E `TestHealthStackThroughAppkitService` + hardened-dashboard CSP test + security×realtime rate-limit E2E, pinned 2026-09-20/23); runs plain at the unified 1.27.1 floor (jsonv2 default-on; GOEXPERIMENT prefixes retired 2026-09-29). Added 2026-09-04. See the Integration Module section below.
 - Library consumed by Go applications (reference consumer: cqrs-htmx `setup` — `RunWithAppkit` stable there since 2026-09-07; setup/v4.12.0 (2026-09-22, published-tag verified 2026-09-28) pins core v0.5.1 AND ships the `Config.Metrics`/`Config.Version` threading (M4); their v5-window revisit (ADR-0052) awaits core > v0.5.1 to drop their go-etag stub-replace; setup is NEVER a dependency of appkit — direction is setup → core only). Source in repository root; example in `example/main.go`.
 - CI: `.github/workflows/ci.yml` (per-module build/vet/test matrix under `GOEXPERIMENT=jsonv2`, fresh-consumer proxy smoke, cqrs-lint job, `go-directives` + `pin-drift` guard jobs — the directives guard exists because an auto-commit drifted root go.mod to 1.27.1 on 2026-09-18 and broke every workspace command; md/docs paths ignored) + `.github/dependabot.yml` (weekly grouped gomod updates per module). No Makefile, justfile, or flake.nix — use standard Go tooling locally.
-- **`encoding/json/v2` is DEFAULT-ON in Go 1.26.7** (verified 2026-09-04: every module builds plain `go build` with no GOEXPERIMENT; `go env GOEXPERIMENT` reports `jsonv2`). The per-module `GOEXPERIMENT=jsonv2` prefixes below are only needed on OLDER 1.26.x toolchains where jsonv2 was still gated — kept for completeness, drop them when the toolchain floor moves past 1.26.7.
+- **`encoding/json/v2` is DEFAULT-ON** (verified 2026-09-04 on Go 1.26, still true at the unified 1.27.1 floor). The per-module `GOEXPERIMENT=jsonv2` prefixes were RETIRED 2026-09-29 — the build-command blocks below carry `GOTOOLCHAIN=go1.27.1` instead (machine default is go1.26.7 with `GOTOOLCHAIN=local`; see the Toolchain paragraph).
 
 ## Release State
 
-- Every module tag is ON ORIGIN through **core v0.5.1** (2026-09-17): health v0.1.2 + flightrecorderhealth v0.1.3 (2026-09-20, health-family train), core v0.5.1 (doc-only; v0.5.0 the same day), security v0.1.0 / realtime v0.1.1 / docs v0.3.0 (ghost un-ghosted) / otel v0.1.1 + httputil v1.2.0 (2026-09-16), cqrs v0.5.0 (2026-09-07), flightrecorder v0.1.0, errorpages v0.1.0. Wave history and per-version deltas live in the module CHANGELOGs; the pending-work queue lives in TODO_LIST.
+- Every module tag is ON ORIGIN through **core v0.6.0** (2026-09-29 four-module train: core v0.6.0 / security v0.2.0 / health v0.1.3 / flightrecorderhealth v0.1.4 — shipped together with the go 1.27.1 unification; proxy-verified). Prior: health v0.1.2 + flightrecorderhealth v0.1.3 (2026-09-20, health-family train), core v0.5.1 (doc-only; v0.5.0 the same day), security v0.1.0 / realtime v0.1.1 / docs v0.3.0 (ghost un-ghosted) / otel v0.1.1 + httputil v1.2.0 (2026-09-16), cqrs v0.5.0 (2026-09-07), flightrecorder v0.1.0, errorpages v0.1.0. Wave history and per-version deltas live in the module CHANGELOGs; the pending-work queue lives in TODO_LIST.
 - **pkg.go.dev:** all submodule pages 404'd and core rendered `License: UNKNOWN` with godoc hidden (pkg.go.dev does not index modules without a module-root LICENSE; an unclassifiable proprietary LICENSE hides core godoc). LICENSE files landed in every module root 2026-09-04 and ship in the wave-2+ tags. **License DECIDED 2026-09-16: stays proprietary/unlicensed** (Lars's ruling; no MIT swap) — godoc stays hidden by choice, permanently; do not re-open or re-ask. **pkg.go.dev VERIFIED 2026-09-17: every module page RENDERS (docs v0.3.0, health v0.1.1, security v0.1.0, core v0.5.1 — 404s gone); item CLOSED.**
 - **Tag hygiene:** no module requires an UNRELEASED sibling (errorpages → core is a published-tag require), so every tag is independently consumer-valid. NEVER tag a module whose go.mod carries a filesystem `replace` — working-tree replaces used for cross-repo debugging (e.g. the otel → local httputil replace used while developing the pattern-propagation fix) must be removed before tagging.
 - **Cross-repo context:** the setup-vs-appkit comparison (10 findings, all routed) lives at `/home/lars/projects/docs/review/2026-08-16_setup-vs-go-appkit-comparison.md`; execution plan (executed): `doc/planning/archived/2026-08-16_12-04-SUPERB-release-wave-and-harvest.html`.
@@ -33,41 +33,41 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 ## Sub-module Build Commands
 
 ```bash
-# Core (requires GOEXPERIMENT=jsonv2 — httputil/httpspec test dep imports encoding/json/v2)
-GOEXPERIMENT=jsonv2 go test ./... -race -count=1
-GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go build ./...
+# Core (requires GOTOOLCHAIN=go1.27.1 — httputil/httpspec test dep imports encoding/json/v2)
+GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+GOTOOLCHAIN=go1.27.1 go vet ./... && GOTOOLCHAIN=go1.27.1 go build ./...
 
-# cqrs module (requires GOEXPERIMENT=jsonv2 — codec/v4 uses encoding/json/jsontext)
-cd cqrs && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
-cd cqrs && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
+# cqrs module (requires GOTOOLCHAIN=go1.27.1 — codec/v4 uses encoding/json/jsontext)
+cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
 
-# docs module (requires GOEXPERIMENT=jsonv2 — catalog/v4 uses encoding/json/v2)
-cd docs && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
-cd docs && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
+# docs module (requires GOTOOLCHAIN=go1.27.1 — catalog/v4 uses encoding/json/v2)
+cd docs && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+cd docs && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
 
-# realtime module (requires GOEXPERIMENT=jsonv2)
-cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
-cd realtime && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./...
+# realtime module
+cd realtime && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+cd realtime && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./...
 
 # otel module (no GOEXPERIMENT required — plain encoding/json)
 cd otel && GOWORK=off go test ./... -race -count=1
 cd otel && GOWORK=off go vet ./... && GOWORK=off go build ./...
 
-# errorpages module (requires GOEXPERIMENT=jsonv2 — errorpage uses encoding/json/v2)
-cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
-cd errorpages && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
+# errorpages module (requires GOTOOLCHAIN=go1.27.1 — errorpage uses encoding/json/v2)
+cd errorpages && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+cd errorpages && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
 
-# flightrecorder module (requires GOEXPERIMENT=jsonv2 — imports encoding/json/v2 directly)
-cd flightrecorder && GOEXPERIMENT=jsonv2 go test ./... -race -count=1
-cd flightrecorder && GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go build ./...
+# flightrecorder module (requires GOTOOLCHAIN=go1.27.1 — imports encoding/json/v2 directly)
+cd flightrecorder && GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+cd flightrecorder && GOTOOLCHAIN=go1.27.1 go vet ./... && GOTOOLCHAIN=go1.27.1 go build ./...
 
-# flightrecorderhealth module (GOEXPERIMENT=jsonv2 required since the go-health v0.1.1 bump, 2026-09-04)
-cd flightrecorderhealth && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
-cd flightrecorderhealth && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
+# flightrecorderhealth module (GOTOOLCHAIN=go1.27.1 required since the go-health v0.1.1 bump, 2026-09-04)
+cd flightrecorderhealth && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+cd flightrecorderhealth && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
 
-# health module (requires GOEXPERIMENT=jsonv2 — go-health json/v2 + go-sse)
-cd health && GOWORK=off GOEXPERIMENT=jsonv2 go test ./... -race -count=1
-cd health && GOWORK=off GOEXPERIMENT=jsonv2 go vet ./... && GOWORK=off GOEXPERIMENT=jsonv2 go build ./...
+# health module (requires GOTOOLCHAIN=go1.27.1 — go-health json/v2 + go-sse)
+cd health && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
+cd health && GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
 
 # integration module (no GOEXPERIMENT required — cqrs-htmx/transport is lean; pins PUBLISHED tags)
 cd integration && GOWORK=off go test ./... -race -count=1
@@ -196,7 +196,7 @@ cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
 
 | Module                                   | Version | Role                                                 |
 | ---------------------------------------- | ------- | ---------------------------------------------------- |
-| `github.com/larsartmann/httputil`        | v1.1.1  | Middleware, health endpoints, Middleware type        |
+| `github.com/larsartmann/httputil`        | v1.4.0  | Middleware, health endpoints, Middleware type        |
 | `github.com/charmbracelet/log`           | v1.0.0  | Pretty slog handler (Logger implements slog.Handler) |
 | `github.com/larsartmann/go-error-family` | v0.10.1 | Error classification, HTTPStatus, LogError           |
 
@@ -204,9 +204,9 @@ cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
 
 | Module                                   | Version | Role                                                   |
 | ---------------------------------------- | ------- | ------------------------------------------------------ |
-| `github.com/larsartmann/go-sse`          | v0.6.0  | SSE transport: Stream, Broadcaster, EventStore, Replay |
+| `github.com/larsartmann/go-sse`          | v0.6.1  | SSE transport: Stream, Broadcaster, EventStore, Replay |
 | `github.com/larsartmann/go-error-family` | v0.10.1 | Error classification (shared with core)                |
-| `github.com/larsartmann/go-branded-id`   | v0.5.1  | Phantom-typed EventID (transitive via go-sse)          |
+| `github.com/larsartmann/go-branded-id`   | v0.6.0  | Phantom-typed EventID (transitive via go-sse)          |
 
 ## Flightrecorder Module Dependencies
 
@@ -227,25 +227,25 @@ cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
 
 | Module                                                           | Version | Role                                                                                     |
 | ---------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| `github.com/larsartmann/go-cqrs-lite/system/v4`                  | v4.7.0  | System builder (domain config, decider/command/query registration, host)                 |
-| `github.com/larsartmann/go-cqrs-lite/command/v4`                 | v4.10.0 | Command types, dispatcher                                                                |
-| `github.com/larsartmann/go-cqrs-lite/query/v4`                   | v4.8.0  | Query types, dispatcher                                                                  |
-| `github.com/larsartmann/go-cqrs-lite/decider/v4`                 | v4.6.0  | Decider type                                                                             |
-| `github.com/larsartmann/go-cqrs-lite/middleware/v4`              | v4.6.0  | Command middleware (Recovery/Tracing/Logging)                                            |
-| `github.com/larsartmann/go-cqrs-lite/otel/v4`                    | v4.4.0  | `cqrsotel.Tracer` for command tracing middleware                                         |
-| `github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4` | v4.3.0  | SQLite meta engine (blank import for driver registration)                                |
-| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4`          | v4.4.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                               |
-| `github.com/larsartmann/go-cqrs-lite/event/v4`                   | v4.11.0 | Event types, stream refs, event construction                                             |
-| `github.com/larsartmann/go-cqrs-lite/id/v4`                      | v4.6.0  | Branded IDs (stream, event)                                                              |
-| `github.com/larsartmann/go-cqrs-lite/projection/v4`              | v4.3.0  | Projection type and `NewProjection`                                                      |
-| `github.com/larsartmann/go-cqrs-lite/storage/v4`                 | v4.9.0  | SQLite checkpoint store + schema                                                         |
+| `github.com/larsartmann/go-cqrs-lite/system/v4`                  | v4.10.0 | System builder (domain config, decider/command/query registration, host)                 |
+| `github.com/larsartmann/go-cqrs-lite/command/v4`                 | v4.12.0 | Command types, dispatcher                                                                |
+| `github.com/larsartmann/go-cqrs-lite/query/v4`                   | v4.9.0  | Query types, dispatcher                                                                  |
+| `github.com/larsartmann/go-cqrs-lite/decider/v4`                 | v4.7.0  | Decider type                                                                             |
+| `github.com/larsartmann/go-cqrs-lite/middleware/v4`              | v4.7.0  | Command middleware (Recovery/Tracing/Logging)                                            |
+| `github.com/larsartmann/go-cqrs-lite/otel/v4`                    | v4.5.0  | `cqrsotel.Tracer` for command tracing middleware                                         |
+| `github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4` | v4.4.0  | SQLite meta engine (blank import for driver registration)                                |
+| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4`          | v4.5.1  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                               |
+| `github.com/larsartmann/go-cqrs-lite/event/v4`                   | v4.12.0 | Event types, stream refs, event construction                                             |
+| `github.com/larsartmann/go-cqrs-lite/id/v4`                      | v4.6.1  | Branded IDs (stream, event)                                                              |
+| `github.com/larsartmann/go-cqrs-lite/projection/v4`              | v4.4.0  | Projection type and `NewProjection`                                                      |
+| `github.com/larsartmann/go-cqrs-lite/storage/v4`                 | v4.10.1 | SQLite checkpoint store + schema                                                         |
 | `github.com/larsartmann/go-flightrecorder`                       | v0.2.0  | Flight recorder (projectionhost v4.4.0 unified on it; shared with appkit/flightrecorder) |
-| `github.com/larsartmann/go-error-family`                         | v0.10.1 | Error classification (shared with core)                                                  |
+| `github.com/larsartmann/go-error-family`                         | v0.11.0 | Error classification (shared with core); v0.11.0 since the 2026-09-29 dependency sweep   |
 
 All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09-16 against the local checkout).
 
 - Migrated to go-cqrs-lite v4 on 2026-08-15, then onto the `system` engine in v0.5.0 (2026-09-07). Migration guide: go-cqrs-lite `docs/migration/MIGRATION-GUIDE.md`.
-- **GOEXPERIMENT=jsonv2 required** (codec/v4 → encoding/json/jsontext).
+- **GOTOOLCHAIN=go1.27.1 required** (codec/v4 → encoding/json/jsontext).
 - v4 codec default flipped JSON→CBOR for new writes; old JSON data still reads (self-describing events). SSE consumers of raw event payloads need CBOR→JSON transcoding.
 - Storage posture (v0.5.0): `EventConfig.DSN`/`Driver`/`Pragmas` replace the old stack/sqlite preset (`SQLitePath` still works as a deprecated alias, removed at v0.6.0; `StackOptions` are GONE — use `Pragmas`). SQLite defaults: WAL + busy_timeout. Operator config: `ConfigPath` (koanf YAML + `CQRS_` env overrides) and `Deployment` (precedence: Deployment > ConfigPath > DSN/Driver/Pragmas).
 - Projection readiness: `EventService.ReadyCheck()` + `EventService.LagPerProjection()`; core `ServiceConfig.ReadyCheck func() bool` composes external checks with the drain probe for `/health/ready`. v0.5.0 semantics: `ReadyCheck` reports NOT-ready before `StartProjections` (safer default).
@@ -299,7 +299,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 
 ## Realtime Module Gotchas
 
-- **`GOEXPERIMENT=jsonv2` required** to build (transitive via go-sse → go-branded-id). Always prefix commands with it.
+- **Runs plain at the unified 1.27.1 floor** (jsonv2 default-on; GOEXPERIMENT prefixes retired 2026-09-29).
 - **`GOWORK=off` recommended** if a parent `go.work` includes sibling projects with stale checksums.
 - Handler flushes headers immediately after `NewStream` — this is critical for Go HTTP clients and reverse proxies.
 - Hub's `BroadcastPatch` accepts any type with `Event() sse.Event` — no go-datastar import needed.
@@ -321,7 +321,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 | `health_stack_test.go` / `hardened_dashboard_test.go` / `security_realtime_test.go` | Full health-stack E2E (drain lockstep, trigger capture) + strict-CSP hardened dashboard (pinned 2026-09-20) + rate-limit-in-front-of-SSE (429 aborts the chain, pinned 2026-09-23). |
 | `pin_drift_test.go`                                                                 | go.mod pins == the `documentedPins` fixture; no filesystem `replace` directives.                                                                                                    |
 
-- Pins PUBLISHED tags only (LATEST published — deliberately NOT mirroring any consumer's older resolution; since setup/v4.12.0 the core pin is ALIGNED with setup anyway; charter in `integration/doc.go`, values in the `documentedPins` fixture; `scripts/check-pin-drift.sh` guards BOTH the family tags AND the cross-repo contract pins — cqrs-htmx v4.12.0, go-sse v0.6.1, ssetest v0.3.0, httputil v1.4.0 — against the module proxy since 2026-09-28). Tests use a 1ms explicit `DrainDelay` (or `NoDrainDelay`); runs plain on 1.26.7+ (jsonv2 default-on — OLDER gated toolchains need the `GOEXPERIMENT=jsonv2` prefix); added to `go.work`.
+- Pins PUBLISHED tags only (LATEST published — deliberately NOT mirroring any consumer's older resolution; since setup/v4.12.0 the core pin is ALIGNED with setup anyway; charter in `integration/doc.go`, values in the `documentedPins` fixture; `scripts/check-pin-drift.sh` guards BOTH the family tags AND the cross-repo contract pins — cqrs-htmx v4.12.0, go-sse v0.6.1, ssetest v0.4.0, httputil v1.4.0 — against the module proxy since 2026-09-28). Tests use a 1ms explicit `DrainDelay` (or `NoDrainDelay`); runs plain on the unified 1.27.1 floor; added to `go.work`.
 - **Read the PINNED module's API (module cache or `git show <tag>:<file>`) before writing integration tests against it** — the working tree may carry unreleased APIs (e.g. `ts.Shutdown`) that the published tag lacks; the pin charter will (correctly) refuse to compile them.
 
 ## otel Module Gotchas
@@ -333,7 +333,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 
 ## Health Module Gotchas
 
-- **`GOEXPERIMENT=jsonv2` required** to build and test (go-health handlers + go-sse). Always prefix commands with it; `GOWORK=off` for hermetic runs.
+- **Runs plain at the unified 1.27.1 floor** (jsonv2 default-on; GOEXPERIMENT prefixes retired 2026-09-29); `GOWORK=off` for hermetic runs.
 - **WithDashboard requires `RegisterHealth: &false`** — the dashboard owns `/health`; a forgotten opt-out panics in `RegisterRoutes` (duplicate pattern), not silently.
 - **No `GET /` method-qualified catch-all alongside the dashboard** — the dashboard registers method-agnostic `/health`; Go's ServeMux precedence panics on the pair. Register the root handler without a method (the example documents this inline).
 - **`NewProbe` bypasses the `HealthRecorder` path** — go-health nils the recorder on `NewWithHealthCheck` probes (accessors.go, ALL published versions incl. v0.3.0), so `WithHealthRecorder` passed to `NewProbe` is silently dropped and a `flightrecorderhealth.Trigger` wired that way captures nothing. The NewProbe godoc now warns explicitly and `ExampleNewProbe_recorderViaInjector` output-pins the working injector path (`health.New` + `WithHealthRecorder`); upstream sentinel-error ask drafted (`doc/feedback/outgoing/2026-09-20_upstream-ask-gohealth-recorder-sentinel.md`, filing gated).
@@ -347,7 +347,7 @@ All pinned cqrs-lite subpackage versions match the latest tags (verified 2026-09
 
 ## Release Ritual (added 2026-09-04, extended 2026-09-17)
 
-1. **API-break check before every tag:** `git archive <old-tag> | tar -x -C /tmp/old && GOWORK=off GOEXPERIMENT=jsonv2 go doc -all . > /tmp/new.txt` (old from the extracted dir, new from the working tree), then diff — additions only → minor bump; ANY removal or signature change → breaking (0.x: minor bump + migration notes in CHANGELOG). Proven during wave 2 (core v0.3.0 → v0.4.0). `goapidiff`/`apidiff` not installed; `go install @latest` is network-blocked in this environment.
+1. **API-break check before every tag:** `git archive <old-tag> | tar -x -C /tmp/old && GOWORK=off GOTOOLCHAIN=go1.27.1 go doc -all . > /tmp/new.txt` (old from the extracted dir, new from the working tree), then diff — additions only → minor bump; ANY removal or signature change → breaking (0.x: minor bump + migration notes in CHANGELOG). Proven during wave 2 (core v0.3.0 → v0.4.0). `goapidiff`/`apidiff` not installed; `go install @latest` is network-blocked in this environment.
 2. Date the module's CHANGELOG `[Unreleased]` → `[version] - <date>`.
 3. Hermetic verify the module (`GOWORK=off`, jsonv2 only where the toolchain still needs it); fresh-consumer proxy test after push per `doc/recipes/fresh-consumer-proxy-check.md`.
 4. Annotated tags only, message states the semantic delta; doc-only releases prefix the tag message with `docs:` (v0.5.1 convention).
