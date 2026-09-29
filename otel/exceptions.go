@@ -41,7 +41,7 @@ func Recovery(logger *slog.Logger) httputil.Middleware {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
-			defer func() {
+			defer func(ctx context.Context) {
 				rec := recover()
 				if rec == nil {
 					return
@@ -51,9 +51,9 @@ func Recovery(logger *slog.Logger) httputil.Middleware {
 					panic(rec)
 				}
 
-				recordPanic(req.Context(), rec)
+				recordPanic(ctx, rec)
 
-				logger.Error(
+				logger.ErrorContext(ctx,
 					"panic recovered",
 					slog.Any("error", rec),
 					slog.String("method", req.Method),
@@ -65,7 +65,7 @@ func Recovery(logger *slog.Logger) httputil.Middleware {
 				resp.WriteHeader(http.StatusInternalServerError)
 
 				_, _ = resp.Write([]byte("Internal Server Error"))
-			}()
+			}(req.Context())
 
 			next.ServeHTTP(resp, req)
 		})
