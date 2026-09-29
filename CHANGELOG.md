@@ -1,5 +1,32 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `appkit.Hook` — a type ALIAS for `func(context.Context) error` naming the
+  element type of `DrainHooks`/`ShutdownHooks` (`[]Hook` in the config).
+  Deliberately an alias, not a definition: existing
+  `[]func(context.Context) error` literals and variables keep compiling
+  unchanged; a hard definition would break every consumer's slice literal
+  for zero behavioral gain (revisit at the v1 API review).
+- `testkit.DrainWindowProbe` — a drain hook that observes the drain window
+  from inside it (GETs a readiness path and records the observed status),
+  replacing the hand-rolled "ready is 503 while /ping still answers"
+  assertion. Covered by `testkit`'s own test.
+
+### Changed
+
+- `metricsCollector` series keys are a typed `seriesKey` struct
+  (method/route/status) instead of a `|`-joined string that every scrape
+  re-parsed with `SplitN`. Exposition order and the exported metric names
+  are unchanged.
+- `example` honors `PORT` (dev machines often have 8080 occupied; same
+  convention as the otel example). Default stays `:8080`.
+- Tests: `errors.Join` message shape for multi-hook failures is pinned
+  (newline-separated, one line per hook; each sentinel reachable via
+  `errors.Is` through the Infrastructure wrapper).
+
 ## [0.6.0] - 2026-09-29
 
 ### Added
