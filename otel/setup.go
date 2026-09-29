@@ -8,11 +8,13 @@ import (
 
 	errorfamily "github.com/larsartmann/go-error-family"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
 // SetupOption configures the provider setup.
@@ -192,7 +194,7 @@ func (p *Provider) Shutdown(ctx context.Context) error {
 //
 //	provider, err := appkitotel.Setup(
 //	    appkitotel.WithService("orders-api", "1.0.0", "instance-1"),
-//	    appkitotel.WithSpanExporter(otlpExporter),
+//	    appkitotel.WithOTLP(),
 //	)
 //	if err != nil {
 //	    return err
@@ -200,15 +202,31 @@ func (p *Provider) Shutdown(ctx context.Context) error {
 //	cfg := appkit.DefaultServiceConfig()
 //	cfg.ShutdownHooks = []func(context.Context) error{provider.Shutdown}
 //
-// Without a span exporter, spans are recorded but not exported — ideal for
-// in-memory testing. The global TracerProvider, MeterProvider, and
-// propagator are set so [Middleware] picks them up automatically; pass
-// WithoutGlobalRegistration to keep the process globals untouched.
+// # Environment-driven setup (zero code)
+//
+// Export is off until something asks for it. Asking happens in code
+// ([WithOTLP], [WithSpanExporter], [WithStdoutExporter], [WithMetricReader])
+// or through the environment: when OTEL_EXPORTER_OTLP_ENDPOINT (or a
+// signal-specific OTEL_EXPORTER_OTLP_TRACES_ENDPOINT /
+// OTEL_EXPORTER_OTLP_METRICS_ENDPOINT) is set, Setup builds the OTLP/HTTP
+// exporters for the affected signals itself. Explicit code options win per
+// signal. Combined with OTEL_SERVICE_NAME and OTEL_TRACES_SAMPLER, a bare
+// Setup() call is fully deployment-configurable.
+//
+// The global TracerProvider, MeterProvider, and propagator are set so
+// [Middleware] picks them up automatically; pass WithoutGlobalRegistration
+// to keep the process globals untouched.
 func Setup(opts ...SetupOption) (*Provider, error) {
 	cfg := &setupConfig{} //nolint:exhaustruct_v5 // options applied below
 
 	for _, opt := range opts {
 		opt(cfg)
+	}
+
+	ctx := context.Background()
+
+	if err := applyOTLPWiring(ctx, cfg); err != nil {
+		return nil, err
 	}
 
 	res, err := buildResource(cfg)
@@ -236,14 +254,17 @@ func Setup(opts ...SetupOption) (*Provider, error) {
 		otel.SetTextMapPropagator(propagator)
 	}
 
-	sampler := sdktrace.ParentBased(sdktrace.AlwaysSample())
-	if cfg.sampler != nil {
-		sampler = cfg.sampler
-	}
+	sampler := cfg.sampler
 
 	tpOpts := []sdktrace.TracerProviderOption{
 		sdktrace.WithResource(res),
-		sdktrace.WithSampler(sampler),
+	}
+
+	// An explicit sampler overrides the env-derived one (the SDK reads
+	// OTEL_TRACES_SAMPLER itself when WithSampler is not passed); with
+	// neither, the SDK default ParentBased(AlwaysSample) applies.
+	if sampler != nil {
+		tpOpts = append(tpOpts, sdktrace.WithSampler(sampler))
 	}
 
 	if spanExporter != nil {
@@ -271,13 +292,55 @@ func Setup(opts ...SetupOption) (*Provider, error) {
 	return &Provider{tracerProvider: tracerProvider, meterProvider: meterProvider}, nil
 }
 
-// buildResource assembles the OTel resource from the configured service
-// identity plus the SDK's standard detectors (environment, telemetry SDK).
+// applyOTLPWiring fills the unset exporter slots from OTLP: an explicit
+// [WithOTLP] always wires both signals (unless the signal has its own
+// explicit option); otherwise the environment decides per signal. This is
+// the zero-code path — the deployment env turns telemetry on and off.
+// Construction failures surface to Setup's caller: a misconfigured exporter
+// must fail the process at startup, not silently drop telemetry.
+func applyOTLPWiring(ctx context.Context, cfg *setupConfig) error {
+	explicit := cfg.otlp != nil
+
+	if cfg.spanExporter == nil && cfg.stdoutWriter == nil && (explicit || otlpTracesEnvConfigured()) {
+		exp, err := newOTLPSpanExporter(ctx, cfg.otlp)
+		if err != nil {
+			return err
+		}
+
+		cfg.spanExporter = exp
+	}
+
+	if cfg.metricReader == nil && (explicit || otlpMetricsEnvConfigured()) {
+		reader, err := newOTLPMetricReader(ctx, cfg.otlp)
+		if err != nil {
+			return err
+		}
+
+		cfg.metricReader = reader
+	}
+
+	return nil
+}
+
+// buildResource assembles the OTel resource: the SDK standard detectors
+// (environment variables incl. OTEL_SERVICE_NAME, telemetry SDK, host) fill
+// the base, and the code-configured service identity wins on conflict.
 func buildResource(cfg *setupConfig) (*resource.Resource, error) {
-	attrs := ServiceResourceAttributes(cfg.serviceName, cfg.serviceVersion, cfg.instanceID)
+	var attrs []attribute.KeyValue
+
+	if cfg.serviceName != "" {
+		attrs = ServiceResourceAttributes(cfg.serviceName, cfg.serviceVersion, cfg.instanceID)
+	}
+
+	if cfg.environment != "" {
+		attrs = append(attrs, semconv.DeploymentEnvironment(cfg.environment))
+	}
 
 	res, err := resource.New(
 		context.Background(),
+		resource.WithFromEnv(),
+		resource.WithTelemetrySDK(),
+		resource.WithHost(),
 		resource.WithAttributes(attrs...),
 	)
 	if err != nil {
