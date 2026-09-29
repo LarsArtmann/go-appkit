@@ -1,7 +1,6 @@
 package otel
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,15 +8,16 @@ import (
 	"testing"
 	"time"
 
+	errorfamily "github.com/larsartmann/go-error-family"
+	"github.com/larsartmann/go-error-family/errorfamilytest"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	collectormetricpb "go.opentelemetry.io/proto/otlp/collector/metrics/v1"
 	collectortracepb "go.opentelemetry.io/proto/otlp/collector/trace/v1"
-	metricpb "go.opentelemetry.io/proto/otlp/metrics/v1"
-	tracepb "go.opentelemetry.io/proto/otlp/trace/v1"
+	resourcepb "go.opentelemetry.io/proto/otlp/resource/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -184,7 +184,7 @@ func TestWithOTLP_ExportsSpansToEndpoint(t *testing.T) {
 	first := receipts.traces[0]
 	receipts.mu.Unlock()
 
-	resAttrs := attribute.NewSet(first.ResourceSpans[0].Resource.GetAttributes()...)
+	resAttrs := protoResourceAttributes(first.ResourceSpans[0].Resource)
 	if got, ok := resAttrs.Value(attribute.Key("service.name")); !ok || got.AsString() != "otlp-svc" {
 		t.Errorf("exported service.name = %q (found=%v), want otlp-svc", got.AsString(), ok)
 	}
@@ -251,7 +251,6 @@ func TestWithOTLP_ExportsMetricsToEndpoint(t *testing.T) {
 // but OTEL_EXPORTER_OTLP_ENDPOINT in the environment, and Setup wires both
 // signals itself.
 func TestSetup_EnvEndpointAutoEnablesOTLP(t *testing.T) {
-	t.Parallel()
 
 	server, receipts := newOTLPCollector(t)
 	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", server.URL)
@@ -282,7 +281,6 @@ func TestSetup_EnvEndpointAutoEnablesOTLP(t *testing.T) {
 // service with its own exporter must not double-export to the environment's
 // collector, so the OTLP path stays off for that signal.
 func TestSetup_ExplicitExporterBeatsEnvEndpoint(t *testing.T) {
-	t.Parallel()
 
 	cold, coldReceipts := newOTLPCollector(t)
 	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", cold.URL)
@@ -322,7 +320,6 @@ func TestSetup_ExplicitExporterBeatsEnvEndpoint(t *testing.T) {
 // switches off only the trace signal; the metric signal still follows the
 // environment. Signal independence is what makes partial migrations safe.
 func TestSetup_OTLPMetricsShareExplicitSpanExporter(t *testing.T) {
-	t.Parallel()
 
 	server, receipts := newOTLPCollector(t)
 	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", server.URL)
@@ -385,7 +382,7 @@ func TestSetup_ExplicitMetricReaderBeatsOTLP(t *testing.T) {
 
 	counter.Add(t.Context(), 1)
 
-	var data sdkmetric.ResourceMetrics
+	var data metricdata.ResourceMetrics
 	if err := reader.Collect(t.Context(), &data); err != nil {
 		t.Fatalf("collect: %v", err)
 	}
@@ -416,7 +413,6 @@ func TestSetup_ExplicitMetricReaderBeatsOTLP(t *testing.T) {
 // OTEL_SERVICE_NAME flow into the resource without code, and explicit code
 // configuration still wins on conflict.
 func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
-	t.Parallel()
 
 	exporter := &tracetest.InMemoryExporter{}
 	t.Setenv("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment=qa-team,region=eu-1")
@@ -460,7 +456,6 @@ func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
 // the service — completes the zero-code story for consumers that discover
 // their identity from the platform.
 func TestSetup_EnvServiceNameWhenNoWithService(t *testing.T) {
-	t.Parallel()
 
 	exporter := &tracetest.InMemoryExporter{}
 	t.Setenv("OTEL_SERVICE_NAME", "platform-named")
@@ -495,7 +490,6 @@ func TestSetup_EnvServiceNameWhenNoWithService(t *testing.T) {
 // TestSetup_EnvSamplerHonored: OTEL_TRACES_SAMPLER works without a
 // WithSampler option — production can head-sample by deployment env alone.
 func TestSetup_EnvSamplerHonored(t *testing.T) {
-	t.Parallel()
 
 	exporter := &tracetest.InMemoryExporter{}
 	t.Setenv("OTEL_TRACES_SAMPLER", "always_off")
@@ -519,6 +513,23 @@ func TestSetup_EnvSamplerHonored(t *testing.T) {
 	if err := provider.Shutdown(t.Context()); err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
+}
+
+// protoResourceAttributes converts the wire-format resource attributes of
+// an exported span batch into an attribute set for assertions.
+func protoResourceAttributes(res *resourcepb.Resource) attribute.Set {
+	if res == nil {
+		return attribute.NewSet()
+	}
+
+	attrs := make([]attribute.KeyValue, 0, len(res.Attributes))
+	for _, kv := range res.Attributes {
+		if value := kv.GetValue(); value != nil {
+			attrs = append(attrs, attribute.String(kv.GetKey(), value.GetStringValue()))
+		}
+	}
+
+	return attribute.NewSet(attrs...)
 }
 
 // TestOTLPSentinelsClassified pins the classification contract of the OTLP
