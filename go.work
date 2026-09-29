@@ -13,5 +13,3 @@ use (
 	./realtime
 	./security
 )
-
-replace github.com/larsartmann/go-etag => github.com/larsartmann/go-etag v0.6.0
