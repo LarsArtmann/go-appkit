@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `example -hardened`: the demo now composes the hardened-posture dashboard
+  (DashboardHardenedPreset) behind a strict `security.BuildCSP` middleware
+  with a per-request nonce — the exact composition the integration module's
+  hardened-dashboard test pins, runnable with
+  `go run ./example -hardened`. Example-only: pulls the security module in
+  as an example dependency (the library surface stays security-free).
+
 ### Changed
 
 - Dependency sweep (2026-09-29): go-health v0.2.0 → v0.4.1,
