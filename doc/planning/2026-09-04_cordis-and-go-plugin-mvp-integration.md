@@ -1,7 +1,7 @@
 # Integration Research — cordis and go-plugin-mvp → go-appkit
 
 > **Date:** 2026-09-04. **Type:** Point-in-time research (re-verify before acting).
-> **Question:** Can and should go-appkit integrate [`/home/lars/forks/cordis`](../../../forks/cordis) (Go port of the Cordis meta-framework) and/or [`/home/lars/projects/go-plugin-mvp`](../../go-plugin-mvp) (Kernovia plugin marketplace)?
+> **Question:** Can and should go-appkit integrate [`/home/lars/forks/cordis`](../../../../forks/cordis) (Go port of the Cordis meta-framework) and/or [`github.com/LarsArtmann/go-plugin-mvp`](https://github.com/LarsArtmann/go-plugin-mvp) (Kernovia plugin marketplace)?
 >
 > **Verdicts:**
 >
