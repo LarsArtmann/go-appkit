@@ -178,6 +178,7 @@ state as a check. See that module's README for the full wiring.
 [go-appkit]: https://github.com/larsartmann/go-appkit
 [go-health]: https://github.com/larsartmann/go-health
 [go-health-dashboard]: https://github.com/larsartmann/go-health-dashboard
+
 ## Build & verify
 
 ```bash

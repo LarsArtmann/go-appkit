@@ -107,6 +107,7 @@ handler never runs). This composition is pinned end-to-end by
 ## License
 
 PROPRIETARY — see [LICENSE](LICENSE).
+
 ## Build & verify
 
 ```bash
@@ -121,4 +122,3 @@ machines whose default toolchain is older (this repo pins
 `go 1.27.1` in every go.mod). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,
 via the module proxy — how consumers resolve it.
-

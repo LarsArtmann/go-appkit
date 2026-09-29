@@ -183,6 +183,7 @@ Errors are constructed via [go-error-family](https://github.com/LarsArtmann/go-e
 | ---------------------------------- | -------------- | -------------------------------------------------- |
 | `flightrecorder.recorder_missing`  | Rejection      | `Checkable.HealthCheck` with nil recorder.         |
 | `flightrecorder.recorder_disabled` | Infrastructure | `Checkable.HealthCheck` when recorder not started. |
+
 ## Build & verify
 
 ```bash

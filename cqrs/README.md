@@ -317,6 +317,7 @@ Gotchas worth knowing:
   the finding (comma-separate multiple rules); `ignore-start`/`ignore-end`
   for ranges. v4.6.0 flags stale suppressions whose rule no longer fires —
   remove them when told they are safe to drop.
+
 ## Build & verify
 
 ```bash

@@ -94,11 +94,11 @@
 25. **AGENTS cap re-baseline after T20** (structure-linter budget).
 26. ** Satellite-train policy:** security + otel now carry small unreleased deltas — batch them into the next natural train; no dedicated tag for doc-level drift.
 27. **T13** the moment G3 is answered (g1): script or strip.
-28–36. **Gated, do NOT start without the word:** T15 six upstream filings (go-health pack could be direct fixes in our repo); T16 errorpages `httputil.ResponseRecorder` swap; T22 pdg backlog sweep; T23 prompt-crusher merge resolution; T27 govulncheck (health + security); T28 browser CSP pass + THREAT_MODEL link; T10.1 SSH secret → T10.3 watch one green master run; battery waves W3–W5 (demand-gated); cordis bridge (trigger 1/3 now lit — see g3).
-37. **Next docs-health pass:** archive/annotate this report per convention; the status tree is growing.
-38. **Repeat the guards trio** (pin-drift, directives, parity) as the closing sweep once f1–f16 land.
-39. **cqrs-lint re-run** if any cqrs-wrapper-adjacent change sneaks in (scorecard delta goes in the module CHANGELOG).
-40. **Answer-bottleneck note:** ~10 of the items above collapse the moment the three §g questions are answered.
+    28–36. **Gated, do NOT start without the word:** T15 six upstream filings (go-health pack could be direct fixes in our repo); T16 errorpages `httputil.ResponseRecorder` swap; T22 pdg backlog sweep; T23 prompt-crusher merge resolution; T27 govulncheck (health + security); T28 browser CSP pass + THREAT_MODEL link; T10.1 SSH secret → T10.3 watch one green master run; battery waves W3–W5 (demand-gated); cordis bridge (trigger 1/3 now lit — see g3).
+28. **Next docs-health pass:** archive/annotate this report per convention; the status tree is growing.
+29. **Repeat the guards trio** (pin-drift, directives, parity) as the closing sweep once f1–f16 land.
+30. **cqrs-lint re-run** if any cqrs-wrapper-adjacent change sneaks in (scorecard delta goes in the module CHANGELOG).
+31. **Answer-bottleneck note:** ~10 of the items above collapse the moment the three §g questions are answered.
 
 ## g) QUESTIONS ONLY YOU CAN ANSWER
 

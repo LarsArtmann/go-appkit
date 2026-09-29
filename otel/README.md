@@ -109,21 +109,21 @@ stack traces and trace links. This module produces them two ways:
   ```
 
 Gotcha: when `Recovery` runs inside the span middleware, otelhttp overwrites
-the span status *description* at span end — the exception event (type,
+the span status _description_ at span end — the exception event (type,
 message, stacktrace) is what survives, and that is exactly what the
 exceptions view indexes.
 
 ## What you get
 
-| Signal    | Instrument                                           | Notes                                                   |
-| --------- | ---------------------------------------------------- | ------------------------------------------------------- |
-| Traces    | one SERVER span per request                          | named after the ServeMux pattern (`GET /users/{id}`)    |
-| Traces    | W3C `traceparent`/`baggage` in and out               | continues caller traces; feeds downstream calls         |
-| Traces    | `exception` events (panics + handled errors)         | `Recovery` + `RecordError`; feeds SigNoz's Exceptions view |
-| Metrics   | `http.server.request.duration` (+ size, active)      | method/route/status attributes; route-based, no blowups |
-| Logs      | `trace_id` + `span_id` on records logged with ctx    | `TraceHandler` decorates any `slog.Handler`             |
-| Export    | OTLP/HTTP for traces + metrics, env-driven or in code | `WithOTLP`; `OTEL_EXPORTER_OTLP_*` natively honored    |
-| Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks` | flush after drain — spans cover the final requests      |
+| Signal    | Instrument                                            | Notes                                                      |
+| --------- | ----------------------------------------------------- | ---------------------------------------------------------- |
+| Traces    | one SERVER span per request                           | named after the ServeMux pattern (`GET /users/{id}`)       |
+| Traces    | W3C `traceparent`/`baggage` in and out                | continues caller traces; feeds downstream calls            |
+| Traces    | `exception` events (panics + handled errors)          | `Recovery` + `RecordError`; feeds SigNoz's Exceptions view |
+| Metrics   | `http.server.request.duration` (+ size, active)       | method/route/status attributes; route-based, no blowups    |
+| Logs      | `trace_id` + `span_id` on records logged with ctx     | `TraceHandler` decorates any `slog.Handler`                |
+| Export    | OTLP/HTTP for traces + metrics, env-driven or in code | `WithOTLP`; `OTEL_EXPORTER_OTLP_*` natively honored        |
+| Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks`  | flush after drain — spans cover the final requests         |
 
 ## Options that matter
 
@@ -219,6 +219,7 @@ with zero additional allocations; export I/O is excluded by design (batching
 processor, no exporter wired). The no-op baseline is the cost of the
 middleware existing in the chain with the module imported but no providers —
 the strictly-opt-in guarantee in numbers.
+
 ## Build & verify
 
 ```bash

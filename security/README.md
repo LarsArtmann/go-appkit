@@ -54,6 +54,7 @@ query-key-rejected-on-POST, the `&not=` trap, eval-never, HSTS-off-outside-produ
 ## License
 
 PROPRIETARY — see [LICENSE](LICENSE).
+
 ## Build & verify
 
 ```bash

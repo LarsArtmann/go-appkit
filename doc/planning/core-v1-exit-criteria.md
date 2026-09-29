@@ -59,15 +59,15 @@ target stays honest.
 
 Assessed against master at core v0.7.0 (2026-09-29 satellite-train day), toolchain unified at go 1.27.1:
 
-| # | Criterion | Status | Evidence / gap |
-|---|-----------|--------|----------------|
-| 1 | API frozen one minor cycle | NOT MET | v0.6.0→v0.7.0 added surface (testkit.DrainWindowProbe, []Hook) — additions-only, removal-free streak intact, but the identifier SET changed. Candidate freeze window: v0.7.0→v0.8.0. |
-| 2 | Zero data-loss shutdown paths | MET | ShutdownHooks once + hook error-code contract pinned by tests (v0.6.0/v0.7.0 trains); drain-window ordering pinned in integration. |
-| 3 | Lifecycle guarantees + named tests | MET | Addr() nil-during-drain pinned (2026-09-17, composition-contract suite); Shutdown idempotent; health opt-out tested. |
-| 4 | Error contract stable | MET | go-error-family classification + HTTPStatus tests, shared with errorpages (identical mapping). |
-| 5 | Two independent consumers, full cycle, no replace | NOT MET | One family consumer (cqrs-htmx setup, pinned v0.5.1 stable since 2026-09-07). PapDashboard not appkit-hosted; no second consumer. THE long pole. |
-| 6 | Telemetry seam v1-shaped | MET | OuterMiddlewares + hooks stable; otel pattern/route propagation pinned against PUBLISHED tags (otel_pattern_test). |
-| 7 | Docs tell the truth | PARTIAL | FEATURES.md otel section still lists only the v0.1.x surface (split brain, flagged 2026-09-29 11:59 report); fix queued. Everything else current through the v0.7.0 train. |
+| # | Criterion                                         | Status  | Evidence / gap                                                                                                                                                                       |
+| - | ------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1 | API frozen one minor cycle                        | NOT MET | v0.6.0→v0.7.0 added surface (testkit.DrainWindowProbe, []Hook) — additions-only, removal-free streak intact, but the identifier SET changed. Candidate freeze window: v0.7.0→v0.8.0. |
+| 2 | Zero data-loss shutdown paths                     | MET     | ShutdownHooks once + hook error-code contract pinned by tests (v0.6.0/v0.7.0 trains); drain-window ordering pinned in integration.                                                   |
+| 3 | Lifecycle guarantees + named tests                | MET     | Addr() nil-during-drain pinned (2026-09-17, composition-contract suite); Shutdown idempotent; health opt-out tested.                                                                 |
+| 4 | Error contract stable                             | MET     | go-error-family classification + HTTPStatus tests, shared with errorpages (identical mapping).                                                                                       |
+| 5 | Two independent consumers, full cycle, no replace | NOT MET | One family consumer (cqrs-htmx setup, pinned v0.5.1 stable since 2026-09-07). PapDashboard not appkit-hosted; no second consumer. THE long pole.                                     |
+| 6 | Telemetry seam v1-shaped                          | MET     | OuterMiddlewares + hooks stable; otel pattern/route propagation pinned against PUBLISHED tags (otel_pattern_test).                                                                   |
+| 7 | Docs tell the truth                               | PARTIAL | FEATURES.md otel section still lists only the v0.1.x surface (split brain, flagged 2026-09-29 11:59 report); fix queued. Everything else current through the v0.7.0 train.           |
 
 Soft: GOEXPERIMENT-free floor MET (retired 2026-09-29); benchmark baselines recorded (logging 2026-09-04, otel re-baselined 2026-09-16); health v0.1.4 and otel v0.1.1 both BELOW the ≥v0.2.0 soft bar (otel v0.2.0 queued, health's v0.2.0 unscoped).
 

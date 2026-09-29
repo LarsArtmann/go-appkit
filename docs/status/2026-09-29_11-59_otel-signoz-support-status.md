@@ -11,32 +11,32 @@
 Each item: what / evidence / scope.
 
 1. **OTLP/HTTP export for both signals, one option** — `WithOTLP(...)` + `WithOTLPEndpoint` / `WithOTLPHeaders` / `WithOTLPTimeout` in `otel/otlp.go`. Traces via batch processor, metrics via periodic reader. Base-URL semantics: standard `/v1/traces` + `/v1/metrics` appended (a path on the endpoint becomes a prefix) — this fixed a real trap: the exporters' `WithEndpointURL` normalizes a pathless URL to `/`, so `WithOTLPEndpoint("http://localhost:4318")` would have silently POSTed to `/`.
-   *Evidence:* `otlp_test.go` — 10 tests incl. real OTLP/HTTP round-trips against an in-process protobuf collector stub (decoded `ExportTraceServiceRequest` / `ExportMetricsServiceRequest`, resource assertions). Suite green.
-2. **Zero-code setup path** — `Setup()` auto-enables OTLP per signal when `OTEL_EXPORTER_OTLP_ENDPOINT` (or the signal-specific endpoint vars) is set; explicit code wins per signal (safe partial migrations). Plus env-native: `OTEL_SERVICE_NAME`, `OTEL_RESOURCE_ATTRIBUTES`, `OTEL_TRACES_SAMPLER`(+`_ARG`) (achieved by *not* forcing a sampler anymore — the SDK reads env itself), and new `WithEnvironment` → `deployment.environment`.
-   *Evidence:* dedicated tests for env auto-enable, explicit-beats-env (dead collector receives nothing), mixed explicit-span-exporter + env-metrics, `WithOTLP` + `WithMetricReader` composition, env service name, env resource attrs, env sampler `always_off`.
+   _Evidence:_ `otlp_test.go` — 10 tests incl. real OTLP/HTTP round-trips against an in-process protobuf collector stub (decoded `ExportTraceServiceRequest` / `ExportMetricsServiceRequest`, resource assertions). Suite green.
+2. **Zero-code setup path** — `Setup()` auto-enables OTLP per signal when `OTEL_EXPORTER_OTLP_ENDPOINT` (or the signal-specific endpoint vars) is set; explicit code wins per signal (safe partial migrations). Plus env-native: `OTEL_SERVICE_NAME`, `OTEL_RESOURCE_ATTRIBUTES`, `OTEL_TRACES_SAMPLER`(+`_ARG`) (achieved by _not_ forcing a sampler anymore — the SDK reads env itself), and new `WithEnvironment` → `deployment.environment`.
+   _Evidence:_ dedicated tests for env auto-enable, explicit-beats-env (dead collector receives nothing), mixed explicit-span-exporter + env-metrics, `WithOTLP` + `WithMetricReader` composition, env service name, env resource attrs, env sampler `always_off`.
 3. **Exception capture** — `otel/exceptions.go`: `Recovery(logger)` middleware (panic → semconv `exception` event with type/message/stacktrace + error span status + httputil-compatible `panic recovered` log line + 500; `http.ErrAbortHandler` re-panics; nil logger → `slog.Default()`) and `RecordError(ctx, err)` for handled errors. Both produce exactly what SigNoz's Exceptions view indexes (researched: event name `exception`, attrs `exception.type/message/stacktrace`; OTLP :4318/:4317).
-   *Evidence:* 7 tests in `exceptions_test.go` (error panic, non-error panic values, sentinel re-panic, degrade-without-span, nil logger, helper happy path + no-ops).
+   _Evidence:_ 7 tests in `exceptions_test.go` (error panic, non-error panic values, sentinel re-panic, degrade-without-span, nil logger, helper happy path + no-ops).
 4. **SigNoz dashboard** — `otel/dashboards/appkit-http-dashboard.json` (schemaVersion v6): request rate, 5xx error rate (LIKE '5%'), p50/p90/p99 latency per route, status-code distribution, top-endpoints table; `service.name` variable (multi+all). Query grammar copied from SigNoz's official `apm/http-api-monitoring.json` template (`rate()`, `p90(durationNano)`, `spanKind = 'Server'`, groupBy shapes). Plus `dashboards/README.md` (import steps, wiring, SigNoz quickstart).
-   *Evidence:* JSON parses; structure field-by-field adapted from the official SigNoz/dashboards repo template. **But see (b)/(d): never imported into a live SigNoz.**
+   _Evidence:_ JSON parses; structure field-by-field adapted from the official SigNoz/dashboards repo template. **But see (b)/(d): never imported into a live SigNoz.**
 5. **Example app reworked** — `otel/example/main.go`: zero-code OTLP (stdout fallback only when no endpoint env), `Recovery` wired in `ExtraMiddlewares`, `/boom` (handled error → RecordError), `/panic` (panic → Recovery).
-   *Evidence:* live smoke run: `/users/alice` 200, `/boom` 500, `/panic` 500 (recovered), `/health` 200 (filtered); exported stream contained exactly **2 exception events** with `exception.type/message/stacktrace`; `panic recovered` log line present; 3 trace-correlated log lines; graceful SIGINT flushed cleanly.
+   _Evidence:_ live smoke run: `/users/alice` 200, `/boom` 500, `/panic` 500 (recovered), `/health` 200 (filtered); exported stream contained exactly **2 exception events** with `exception.type/message/stacktrace`; `panic recovered` log line present; 3 trace-correlated log lines; graceful SIGINT flushed cleanly.
 6. **Docs train** — otel `README.md` (SigNoz-in-3-steps, Exceptions section, zero-code quick start, options table), `doc.go` (SigNoz + Exceptions sections), module `CHANGELOG.md` (`[Unreleased]` with full delta incl. the design-posture change), `AGENTS.md` (module bullet, file table, deps table, 3 new gotchas — line cap satisfied), `TODO_LIST.md` (new P2 release-train item).
-   *Evidence:* structure linter 0 issues (AGENTS ≤377); all guards green.
-7. **Known gotchas captured where they hurt** — otelhttp overwrites span status *description* on 5xx (exception EVENT survives — that's what SigNoz reads); `WithOTLPEndpoint` is a base URL; `Recovery` placement rules. Written into AGENTS.md otel Gotchas + code docs.
-   *Evidence:* status-description behavior pinned indirectly by tests asserting events (the middleware test dropped the description assertion after observing the overwrite).
+   _Evidence:_ structure linter 0 issues (AGENTS ≤377); all guards green.
+7. **Known gotchas captured where they hurt** — otelhttp overwrites span status _description_ on 5xx (exception EVENT survives — that's what SigNoz reads); `WithOTLPEndpoint` is a base URL; `Recovery` placement rules. Written into AGENTS.md otel Gotchas + code docs.
+   _Evidence:_ status-description behavior pinned indirectly by tests asserting events (the middleware test dropped the description assertion after observing the overwrite).
 
 ---
 
 ## b) PARTIALLY DONE
 
 1. **otel v0.2.0 release train** — code complete, CHANGELOG drafted under `[Unreleased]`.
-   *Remaining:* ritual step 1 (mechanical API-break diff vs `otel/v0.1.1` via `git archive` — additions-only expected, **not run**), CHANGELOG dating, annotated tag, push, fresh-consumer proxy check, integration-module re-pin. *Blocker:* push is user-gated. *Effort:* M.
+   _Remaining:_ ritual step 1 (mechanical API-break diff vs `otel/v0.1.1` via `git archive` — additions-only expected, **not run**), CHANGELOG dating, annotated tag, push, fresh-consumer proxy check, integration-module re-pin. _Blocker:_ push is user-gated. _Effort:_ M.
 2. **SigNoz end-to-end validation** — dashboard JSON and the exceptions contract are doc-researched and template-derived, not proven against a live SigNoz ingest (no SigNoz running here).
-   *Remaining:* import dashboard in a real SigNoz, confirm Exceptions view lights up from the example's two exception flavors. *Blocker:* needs a running SigNoz instance (user infra). *Effort:* M.
+   _Remaining:_ import dashboard in a real SigNoz, confirm Exceptions view lights up from the example's two exception flavors. _Blocker:_ needs a running SigNoz instance (user infra). _Effort:_ M.
 3. **Integration-module coverage of the new surface** — `/integration` pins **PUBLISHED** tags by charter (correctly refuses unreleased APIs), so `Recovery`, `WithOTLP`, env auto-enable are composition-tested only module-locally, not through a full appkit `Service` there.
-   *Remaining:* after release, re-pin to otel v0.2.0 + add a full-stack panic→exception E2E. *Effort:* M.
-4. **Performance story for the new code** — no benchmark for `Recovery` / `RecordError`; README perf table not extended (panic path is cold-path, but "superb" deserves numbers). *Effort:* S.
-5. **LSP vs linter mismatch** — LSP keeps reporting a stale `contextcheck` warning at `exceptions.go:44`; real `golangci-lint` says 0 issues. Cosmetic, but it will nag every future session until an LSP restart proves it gone. *Effort:* S.
+   _Remaining:_ after release, re-pin to otel v0.2.0 + add a full-stack panic→exception E2E. _Effort:_ M.
+4. **Performance story for the new code** — no benchmark for `Recovery` / `RecordError`; README perf table not extended (panic path is cold-path, but "superb" deserves numbers). _Effort:_ S.
+5. **LSP vs linter mismatch** — LSP keeps reporting a stale `contextcheck` warning at `exceptions.go:44`; real `golangci-lint` says 0 issues. Cosmetic, but it will nag every future session until an LSP restart proves it gone. _Effort:_ S.
 
 ---
 
@@ -57,7 +57,7 @@ Each item: what / evidence / scope.
 
 Radical honesty section.
 
-1. **FEATURES.md otel section is now a split brain I created.** CHANGELOG/README/AGENTS say the new surface exists; `FEATURES.md` §otel still lists only the old one. I know the file-purpose table (FEATURES.md = feature inventory) and skipped it anyway. Impact: next docs-health pass flags it; anyone reading FEATURES sees a lying inventory. *Fix:* S — one table update.
+1. **FEATURES.md otel section is now a split brain I created.** CHANGELOG/README/AGENTS say the new surface exists; `FEATURES.md` §otel still lists only the old one. I know the file-purpose table (FEATURES.md = feature inventory) and skipped it anyway. Impact: next docs-health pass flags it; anyone reading FEATURES sees a lying inventory. _Fix:_ S — one table update.
 2. **Dashboard JSON shipped unvalidated against its only consumer.** The single highest-risk artifact of the train (v6 schema quirks, `CompositeQuery` in the table panel, layout `$ref`s) has exactly zero proof it imports cleanly into SigNoz. "JSON parses" ≠ "SigNoz accepts". Mitigation exists (structure copied from official templates) — but copied-from-official is exactly how subtle version skew bites.
 3. **The lint-fix phase was sloppy — bulk edits broke the build 3 times.** My regex/python bulk passes created duplicate `err :=` declarations, `undefined: counter`, a mangled import block that summoned `golang.org/x/telemetry/counter` from nowhere, and earlier I nearly shipped `if err := context.Canceled; err != nil`. All caught by the compiler, but that's ~5 wasted cycles from impatience. Correct tool was `golangci-lint run --fix` + targeted edits.
 4. **An AGENTS.md merge hit the wrong table row.** My row-merge script folded the otel `exceptions.go` content into the **flightrecorder** module's `middleware.go` row (nearest-match search). Linter stayed green (line count fine) so I nearly shipped corrupt docs; caught on visual inspection and fixed both rows.
@@ -82,60 +82,60 @@ Radical honesty section.
 
 ## f) TOP 50 THINGS WE SHOULD GET DONE NEXT
 
-*Brainstorm ranked roughly by impact; effort: S <30min, M 30min–2h, L >2h. This section is the primary input for `docs-health` HARVEST — per your "wait for instructions", I have NOT harvested; say the word.*
+_Brainstorm ranked roughly by impact; effort: S <30min, M 30min–2h, L >2h. This section is the primary input for `docs-health` HARVEST — per your "wait for instructions", I have NOT harvested; say the word._
 
-| # | Task | Impact | Effort | Category |
-|---|------|--------|--------|----------|
-| 1 | Fix FEATURES.md otel section (add v0.2.0 surface: WithOTLP/env-setup/Recovery/RecordError/dashboards) | Critical | S | Docs |
-| 2 | Release otel v0.2.0: API-break diff vs v0.1.1, date CHANGELOG, tag, push, proxy check | Critical | M | Release |
-| 3 | Restore CI `SSH_PRIVATE_KEY` secret + one green master run (user-gated) | Critical | S | Infra |
-| 4 | Validate dashboard JSON against a live SigNoz import (needs instance) | High | M | Quality |
-| 5 | E2E exceptions proof in real SigNoz (example's /panic + /boom visible in Exceptions view) | High | M | Quality |
-| 6 | After release: re-pin integration to otel v0.2.0 + full-stack panic→exception E2E through appkit Service | High | M | Quality |
-| 7 | Add `BenchmarkRecovery`/`BenchmarkRecordError` + extend README perf table | Medium | S | Quality |
-| 8 | Document non-goals in README: no OTLP logs signal; 5xx-without-panic ⇒ no exception event | Medium | S | Docs |
-| 9 | SigNoz version-compat note (v6 schema ≥ ~v0.135) in dashboards/README | Medium | S | Docs |
-| 10 | Design + test an opt-in auto-exception-on-5xx (e.g. `Middleware(WithExceptionsOn5xx())`) | Medium | M | Feature |
-| 11 | Pin `OTEL_METRIC_EXPORT_INTERVAL` env behavior with a test | Low | S | Quality |
-| 12 | Record the grpc-indirect dep tradeoff explicitly (CHANGELOG/AGENTS design note) | Medium | S | Docs |
-| 13 | Make the example smoke test repeatable (`example_test.go` or scripts/) | Medium | M | Quality |
-| 14 | Add gzip/compression + retry env notes to README production section | Low | S | Docs |
-| 15 | Deferred Register entry: OTLP logs exporter (trigger: consumer demand / otel/log stabilizes) | Low | S | Docs |
-| 16 | Tail-sampling recipe doc (WithSampler vs OTEL_TRACES_SAMPLER combos) | Low | S | Docs |
-| 17 | SigNoz alert example (5xx error-rate alert JSON) next to the dashboard | Low | S | Docs |
-| 18 | otel×realtime SSE E2E (spans/metrics on NoTimeout SSE path) — watchlist item | Medium | M | Quality |
-| 19 | otel×health-dashboard E2E (which dashboard routes traced vs filtered) | Medium | M | Quality |
-| 20 | Reconcile TODO_LIST P2 "cqrs lacks integration E2E" with the cqrs lifecycle E2E that AGENTS says landed 2026-09-29 (split brain) | Medium | S | Docs |
-| 21 | `golangci-lint run --fix` pass across all modules to bank the auto-fixable backlog | Low | M | Cleanup |
-| 22 | Restart/Clear LSP so the stale contextcheck warning on exceptions.go:44 provably dies | Low | S | Cleanup |
-| 23 | AGENTS slim-down decision (structural; 377-cap will bite the next train again) | Medium | L | Cleanup |
-| 24 | Commit go.work or CI-generate it (CI `go-directives` job vacuous today) | High | S | Infra |
-| 25 | BuildFlow dprint exit-14 on CHANGELOG-only commits — upstream fix or document escape hatch | Low | M | Tooling |
-| 26 | go-structure-linter `exclude_patterns` inert binary — file upstream issue or bump binary | Low | S | Tooling |
-| 27 | Push httputil `docs/integrations/huma.md` (404 fix, Deferred Register) | Low | S | Docs |
-| 28 | errorpages: swap hand-rolled statusRecorder for httputil.ResponseRecorder (USER GATE, open since 09-16) | Medium | S | Cleanup |
-| 29 | health: file the upstream go-health recorder-sentinel ask (drafted, USER-gated) | Medium | S | Upstream |
-| 30 | File the drafted upstream asks batch (go-sse ReplayFiltered, httputil Logging ctx, NewServerListener go/no-go) | Medium | M | Upstream |
-| 31 | govulncheck on health + security (needs networked machine) | Medium | S | Quality |
-| 32 | benchstat re-baseline of otel middleware numbers post-1.27.1 (open candidate) | Low | S | Quality |
-| 33 | otel README: cross-link the new flightrecorder metrics hook (frmetrics.go is undocumented in AGENTS file table) | Low | S | Docs |
-| 34 | Codify "span status description clobbered by otelhttp" as an integration assertion (post re-pin) | Low | S | Quality |
-| 35 | Example: add metrics-visible-in-SigNoz demo note (counter via Provider meter) | Low | S | Docs |
-| 36 | errorpages×otel composition E2E (pretty 500s + exception events together) | Low | M | Quality |
-| 37 | flightrecorder×otel doc cross-link (one shared Recorder instance guidance) | Low | S | Docs |
-| 38 | Dashboard: exceptions-oriented panel once SigNoz builder supports error-index queries cleanly | Low | S | Feature |
-| 39 | Multi-env deploy doc: k8s/Compose snippet with OTEL_* env for appkit services | Low | S | Docs |
-| 40 | Consider `WithOTLPMetricsInterval` explicit option (only if env-native proves insufficient) | Low | S | Feature |
-| 41 | Split-brain sweep: AGENTS vs TODO_LIST vs FEATURES release-state lines after v0.2.0 ships | Medium | S | Docs |
-| 42 | Battery wave W3 `httpx` module (B1 ResultHandler — error taxonomy parity with errorpages) | Low | L | Feature |
-| 43 | Battery W4 `worker` supervisor+pool (demand-gated) | Low | L | Feature |
-| 44 | Battery W5 C2 projection→broadcast folded contract (must-have if cqrs+realtime consumers appear) | Low | L | Feature |
-| 45 | cqrs README cookbook re-verification vs scenario/v4 (standing ritual, next go-cqrs-lite release) | Medium | S | Quality |
-| 46 | Consumer-claim drift ritual decision (USER-gated posture question) | Medium | S | Docs |
-| 47 | `check-pin-drift.sh`: add the otel dashboard JSON to checked artifacts (name/path guard) | Low | S | Tooling |
-| 48 | Template a `.golangci.yml` shared test-exclusion union generator (8 modules carry identical blocks) | Low | M | Cleanup |
-| 49 | Add `dashboards/` to any packaging decision (should example assets ship with releases?) | Low | S | Release |
-| 50 | PapDashboard/cordis reverse-adoption re-entry triggers review (P3, surfaces the no-TLS gap again) | Low | S | Planning |
+| #  | Task                                                                                                                             | Impact   | Effort | Category |
+| -- | -------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | -------- |
+| 1  | Fix FEATURES.md otel section (add v0.2.0 surface: WithOTLP/env-setup/Recovery/RecordError/dashboards)                            | Critical | S      | Docs     |
+| 2  | Release otel v0.2.0: API-break diff vs v0.1.1, date CHANGELOG, tag, push, proxy check                                            | Critical | M      | Release  |
+| 3  | Restore CI `SSH_PRIVATE_KEY` secret + one green master run (user-gated)                                                          | Critical | S      | Infra    |
+| 4  | Validate dashboard JSON against a live SigNoz import (needs instance)                                                            | High     | M      | Quality  |
+| 5  | E2E exceptions proof in real SigNoz (example's /panic + /boom visible in Exceptions view)                                        | High     | M      | Quality  |
+| 6  | After release: re-pin integration to otel v0.2.0 + full-stack panic→exception E2E through appkit Service                         | High     | M      | Quality  |
+| 7  | Add `BenchmarkRecovery`/`BenchmarkRecordError` + extend README perf table                                                        | Medium   | S      | Quality  |
+| 8  | Document non-goals in README: no OTLP logs signal; 5xx-without-panic ⇒ no exception event                                        | Medium   | S      | Docs     |
+| 9  | SigNoz version-compat note (v6 schema ≥ ~v0.135) in dashboards/README                                                            | Medium   | S      | Docs     |
+| 10 | Design + test an opt-in auto-exception-on-5xx (e.g. `Middleware(WithExceptionsOn5xx())`)                                         | Medium   | M      | Feature  |
+| 11 | Pin `OTEL_METRIC_EXPORT_INTERVAL` env behavior with a test                                                                       | Low      | S      | Quality  |
+| 12 | Record the grpc-indirect dep tradeoff explicitly (CHANGELOG/AGENTS design note)                                                  | Medium   | S      | Docs     |
+| 13 | Make the example smoke test repeatable (`example_test.go` or scripts/)                                                           | Medium   | M      | Quality  |
+| 14 | Add gzip/compression + retry env notes to README production section                                                              | Low      | S      | Docs     |
+| 15 | Deferred Register entry: OTLP logs exporter (trigger: consumer demand / otel/log stabilizes)                                     | Low      | S      | Docs     |
+| 16 | Tail-sampling recipe doc (WithSampler vs OTEL_TRACES_SAMPLER combos)                                                             | Low      | S      | Docs     |
+| 17 | SigNoz alert example (5xx error-rate alert JSON) next to the dashboard                                                           | Low      | S      | Docs     |
+| 18 | otel×realtime SSE E2E (spans/metrics on NoTimeout SSE path) — watchlist item                                                     | Medium   | M      | Quality  |
+| 19 | otel×health-dashboard E2E (which dashboard routes traced vs filtered)                                                            | Medium   | M      | Quality  |
+| 20 | Reconcile TODO_LIST P2 "cqrs lacks integration E2E" with the cqrs lifecycle E2E that AGENTS says landed 2026-09-29 (split brain) | Medium   | S      | Docs     |
+| 21 | `golangci-lint run --fix` pass across all modules to bank the auto-fixable backlog                                               | Low      | M      | Cleanup  |
+| 22 | Restart/Clear LSP so the stale contextcheck warning on exceptions.go:44 provably dies                                            | Low      | S      | Cleanup  |
+| 23 | AGENTS slim-down decision (structural; 377-cap will bite the next train again)                                                   | Medium   | L      | Cleanup  |
+| 24 | Commit go.work or CI-generate it (CI `go-directives` job vacuous today)                                                          | High     | S      | Infra    |
+| 25 | BuildFlow dprint exit-14 on CHANGELOG-only commits — upstream fix or document escape hatch                                       | Low      | M      | Tooling  |
+| 26 | go-structure-linter `exclude_patterns` inert binary — file upstream issue or bump binary                                         | Low      | S      | Tooling  |
+| 27 | Push httputil `docs/integrations/huma.md` (404 fix, Deferred Register)                                                           | Low      | S      | Docs     |
+| 28 | errorpages: swap hand-rolled statusRecorder for httputil.ResponseRecorder (USER GATE, open since 09-16)                          | Medium   | S      | Cleanup  |
+| 29 | health: file the upstream go-health recorder-sentinel ask (drafted, USER-gated)                                                  | Medium   | S      | Upstream |
+| 30 | File the drafted upstream asks batch (go-sse ReplayFiltered, httputil Logging ctx, NewServerListener go/no-go)                   | Medium   | M      | Upstream |
+| 31 | govulncheck on health + security (needs networked machine)                                                                       | Medium   | S      | Quality  |
+| 32 | benchstat re-baseline of otel middleware numbers post-1.27.1 (open candidate)                                                    | Low      | S      | Quality  |
+| 33 | otel README: cross-link the new flightrecorder metrics hook (frmetrics.go is undocumented in AGENTS file table)                  | Low      | S      | Docs     |
+| 34 | Codify "span status description clobbered by otelhttp" as an integration assertion (post re-pin)                                 | Low      | S      | Quality  |
+| 35 | Example: add metrics-visible-in-SigNoz demo note (counter via Provider meter)                                                    | Low      | S      | Docs     |
+| 36 | errorpages×otel composition E2E (pretty 500s + exception events together)                                                        | Low      | M      | Quality  |
+| 37 | flightrecorder×otel doc cross-link (one shared Recorder instance guidance)                                                       | Low      | S      | Docs     |
+| 38 | Dashboard: exceptions-oriented panel once SigNoz builder supports error-index queries cleanly                                    | Low      | S      | Feature  |
+| 39 | Multi-env deploy doc: k8s/Compose snippet with OTEL_* env for appkit services                                                    | Low      | S      | Docs     |
+| 40 | Consider `WithOTLPMetricsInterval` explicit option (only if env-native proves insufficient)                                      | Low      | S      | Feature  |
+| 41 | Split-brain sweep: AGENTS vs TODO_LIST vs FEATURES release-state lines after v0.2.0 ships                                        | Medium   | S      | Docs     |
+| 42 | Battery wave W3 `httpx` module (B1 ResultHandler — error taxonomy parity with errorpages)                                        | Low      | L      | Feature  |
+| 43 | Battery W4 `worker` supervisor+pool (demand-gated)                                                                               | Low      | L      | Feature  |
+| 44 | Battery W5 C2 projection→broadcast folded contract (must-have if cqrs+realtime consumers appear)                                 | Low      | L      | Feature  |
+| 45 | cqrs README cookbook re-verification vs scenario/v4 (standing ritual, next go-cqrs-lite release)                                 | Medium   | S      | Quality  |
+| 46 | Consumer-claim drift ritual decision (USER-gated posture question)                                                               | Medium   | S      | Docs     |
+| 47 | `check-pin-drift.sh`: add the otel dashboard JSON to checked artifacts (name/path guard)                                         | Low      | S      | Tooling  |
+| 48 | Template a `.golangci.yml` shared test-exclusion union generator (8 modules carry identical blocks)                              | Low      | M      | Cleanup  |
+| 49 | Add `dashboards/` to any packaging decision (should example assets ship with releases?)                                          | Low      | S      | Release  |
+| 50 | PapDashboard/cordis reverse-adoption re-entry triggers review (P3, surfaces the no-TLS gap again)                                | Low      | S      | Planning |
 
 ---
 
@@ -147,4 +147,4 @@ Radical honesty section.
 
 ---
 
-*Point-in-time snapshot. Section (f) is the HARVEST feed for TODO_LIST/ROADMAP — awaiting your go.*
+_Point-in-time snapshot. Section (f) is the HARVEST feed for TODO_LIST/ROADMAP — awaiting your go._

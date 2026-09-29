@@ -165,5 +165,5 @@ root/testkit); tree clean at `7ff0b36`.
 
 ---
 
-*Point-in-time snapshot. All claims above verified against the tree at
-7ff0b36 unless explicitly marked as lagging (pkg.go.dev crawler).*
+_Point-in-time snapshot. All claims above verified against the tree at
+7ff0b36 unless explicitly marked as lagging (pkg.go.dev crawler)._

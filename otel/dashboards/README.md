@@ -10,8 +10,8 @@ spans reach SigNoz, no metric configuration required.
 SigNoz UI: **Dashboards → New Dashboard → Import JSON** (or the folder "+" →
 Import), then pick the file.
 
-| File                       | What it shows                                                                       |
-| -------------------------- | ----------------------------------------------------------------------------------- |
+| File                         | What it shows                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `appkit-http-dashboard.json` | Request rate, 5xx error rate, p50/p90/p99 latency and status-code distribution per route, top-endpoints table |
 
 The `service.name` variable filters everything (multi-select + "all"); the
