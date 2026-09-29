@@ -23,7 +23,7 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 ## Release State
 
-- Every module tag is ON ORIGIN through **core v0.6.0** (2026-09-29 five-module train: core v0.6.0 / security v0.2.0 / health v0.1.3 / flightrecorderhealth v0.1.4 + v0.1.5 — the v0.1.5 is a directive-floor correction, see its CHANGELOG; cqrs v0.6.0 the same day: BREAKING `SQLitePath` removal + the cqrs-lite sweep; shipped together with the go 1.27.1 unification; all proxy-verified). Prior: health v0.1.2 + flightrecorderhealth v0.1.3 (2026-09-20, health-family train), core v0.5.1 (doc-only; v0.5.0 the same day), security v0.1.0 / realtime v0.1.1 / docs v0.3.0 (ghost un-ghosted) / otel v0.1.1 + httputil v1.2.0 (2026-09-16), cqrs v0.5.0 (2026-09-07), flightrecorder v0.1.0, errorpages v0.1.0. Wave history and per-version deltas live in the module CHANGELOGs; the pending-work queue lives in TODO_LIST.
+- Every module tag is ON ORIGIN through **core v0.6.0** (2026-09-29 satellite train: realtime v0.1.2 / flightrecorder v0.1.1 / docs v0.3.1 / health v0.1.4 — all dependency-only, all proxy-verified, integration re-pinned; earlier the same day: core v0.6.0 / security v0.2.0 / health v0.1.3 / flightrecorderhealth v0.1.4 + v0.1.5 — the v0.1.5 is a directive-floor correction, see its CHANGELOG; cqrs v0.6.0: BREAKING `SQLitePath` removal + the cqrs-lite sweep; shipped together with the go 1.27.1 unification; all proxy-verified). Prior: health v0.1.2 + flightrecorderhealth v0.1.3 (2026-09-20, health-family train), core v0.5.1 (doc-only; v0.5.0 the same day), security v0.1.0 / realtime v0.1.1 / docs v0.3.0 (ghost un-ghosted) / otel v0.1.1 + httputil v1.2.0 (2026-09-16), cqrs v0.5.0 (2026-09-07), flightrecorder v0.1.0, errorpages v0.1.0. Wave history and per-version deltas live in the module CHANGELOGs; the pending-work queue lives in TODO_LIST.
 - **pkg.go.dev:** all submodule pages 404'd and core rendered `License: UNKNOWN` with godoc hidden (pkg.go.dev does not index modules without a module-root LICENSE; an unclassifiable proprietary LICENSE hides core godoc). LICENSE files landed in every module root 2026-09-04 and ship in the wave-2+ tags. **License DECIDED 2026-09-16: stays proprietary/unlicensed** (Lars's ruling; no MIT swap) — godoc stays hidden by choice, permanently; do not re-open or re-ask. **pkg.go.dev VERIFIED 2026-09-17: every module page RENDERS (docs v0.3.0, health v0.1.1, security v0.1.0, core v0.5.1 — 404s gone); item CLOSED.**
 - **Tag hygiene:** no module requires an UNRELEASED sibling (errorpages → core is a published-tag require), so every tag is independently consumer-valid. NEVER tag a module whose go.mod carries a filesystem `replace` — working-tree replaces used for cross-repo debugging (e.g. the otel → local httputil replace used while developing the pattern-propagation fix) must be removed before tagging.
 - **Cross-repo context:** the setup-vs-appkit comparison (10 findings, all routed) lives at `/home/lars/projects/docs/review/2026-08-16_setup-vs-go-appkit-comparison.md`; execution plan (executed): `doc/planning/archived/2026-08-16_12-04-SUPERB-release-wave-and-harvest.html`.
@@ -104,7 +104,7 @@ cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
 | `README.md`  | Module overview, quick start, options table, shutdown ordering, known limitations.                                                                                              |
 
 - **SSE only.** No WebSocket support, provided, or planned.
-- Depends on `go-sse v0.6.0` only (no core, no go-datastar, no go-cqrs-lite dependency).
+- Depends on `go-sse v0.6.1` only (no core, no go-datastar, no go-cqrs-lite dependency).
 - `BroadcastPatch` uses duck-typed `PatchLike interface { Event() sse.Event }` — works with go-datastar patches without importing go-datastar.
 - Handler flushes headers immediately after `NewStream` so clients receive 200 OK without waiting for first event.
 
@@ -146,7 +146,7 @@ cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
 - The `go-health` dependency exists solely for the compile-time interface assertion in `contract_test.go` — no runtime usage. If go-health's `HealthRecorder` interface changes, the build breaks instead of failing silently.
 - Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family) constructors: `flightrecorder.recorder_missing` is `Rejection`, `flightrecorder.recorder_disabled` is `Infrastructure`.
 - Tests use `do.New()` with registered `healthSvc` mocks, `WithMinAge(50ms)` + `WithMaxBytes(1MiB)` + 100ms warmup sleep for trace data.
-- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.2.0` (2026-09-20 v0.1.3; contract assertions unchanged), `samber/do v2.1.0`, `go-error-family v0.10.1`.
+- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.2.0` (2026-09-20 v0.1.3; contract assertions unchanged — the health module moved to v0.4.1 but frh's own pin stays until its next train), `samber/do v2.1.0`, `go-error-family v0.11.0`.
 
 ## Health Module — Code Organization
 
@@ -163,7 +163,7 @@ cd integration && GOWORK=off go vet ./... && GOWORK=off golangci-lint run ./...
 - Dashboard is opt-in (`WithDashboard`); it then registers the probe endpoints from ITS route config (WithBasePath applies uniformly) and serves `/health` — consumers must set `RegisterHealth: &false` (mux panics on the duplicate otherwise).
 - Without dashboard: probe routes only (`/healthz`, `/readyz`, `/startupz`), coexists with appkit's default health endpoints.
 - `Mounted.Drain` in `DrainHooks` = go-health readiness 503 for the WHOLE drain window, in lockstep with appkit's own ready probe (the reason core gained `DrainHooks`).
-- Dependencies: `go-health v0.2.0`, `go-health-dashboard v0.9.0` (both RELEASED in health v0.1.2, 2026-09-20; go-health v0.3.0 exists upstream — see TODO/plan for the evaluation), `go-error-family v0.10.1`.
+- Dependencies: `go-health v0.4.1`, `go-health-dashboard v0.10.1` (swept in health v0.1.4, 2026-09-29 — the v0.3.0 evaluation backlog item is OVERTAKEN, suite green), `go-appkit/security v0.2.0` (EXAMPLE-ONLY — the library surface stays security-free), `go-error-family v0.11.0`.
 
 ## otel Module — Code Organization
 
