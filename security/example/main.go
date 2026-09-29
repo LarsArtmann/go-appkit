@@ -25,7 +25,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"io"
 	"log/slog"
@@ -158,7 +158,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, body map[string]string) {
 	w.Header().Set("Content-Type", "application/json")
 
-	encodeErr := json.NewEncoder(w).Encode(body)
+	encodeErr := json.MarshalWrite(w, body)
 	if encodeErr != nil {
 		http.Error(w, "encoding failed", http.StatusInternalServerError)
 	}

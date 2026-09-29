@@ -3,8 +3,8 @@ module github.com/larsartmann/go-appkit/security
 go 1.27.1
 
 require (
-	github.com/larsartmann/go-appkit v0.5.1
-	github.com/larsartmann/httputil v1.2.0
+	github.com/larsartmann/go-appkit v0.6.0
+	github.com/larsartmann/httputil v1.4.0
 	github.com/microcosm-cc/bluemonday v1.0.27
 )
 
@@ -22,7 +22,7 @@ require (
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
-	github.com/larsartmann/go-error-family v0.10.1 // indirect
+	github.com/larsartmann/go-error-family v0.11.0 // indirect
 	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
 	github.com/larsartmann/go-etag/server v0.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect

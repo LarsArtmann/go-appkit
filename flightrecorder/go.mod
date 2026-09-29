@@ -3,9 +3,9 @@ module github.com/larsartmann/go-appkit/flightrecorder
 go 1.27.1
 
 require (
-	github.com/larsartmann/go-error-family v0.10.1
+	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-flightrecorder v0.2.0
-	github.com/larsartmann/httputil v1.2.0
+	github.com/larsartmann/httputil v1.4.0
 )
 
 require (

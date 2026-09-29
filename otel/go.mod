@@ -3,10 +3,10 @@ module github.com/larsartmann/go-appkit/otel
 go 1.27.1
 
 require (
-	github.com/larsartmann/go-appkit v0.5.1
-	github.com/larsartmann/go-error-family v0.10.1
+	github.com/larsartmann/go-appkit v0.6.0
+	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-flightrecorder v0.2.0
-	github.com/larsartmann/httputil v1.2.0
+	github.com/larsartmann/httputil v1.4.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.71.0
 	go.opentelemetry.io/otel v1.46.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.46.0
