@@ -140,3 +140,54 @@ func TestServe_ExplicitShutdownIsIdempotentAndUnreachable(t *testing.T) {
 		t.Errorf("second Shutdown = %v, want nil (idempotent)", err)
 	}
 }
+
+// TestDrainWindowProbe_ObservesDrainContract exercises the drain-window
+// helper end to end: a drain hook built from DrainWindowProbe sees the ready
+// probe already at 503 while /ping still answers 200 — the exact assertion
+// consumers hand-roll today.
+func TestDrainWindowProbe_ObservesDrainContract(t *testing.T) {
+	t.Parallel()
+
+	cfg := appkit.DefaultServiceConfig()
+	cfg.Addr = "127.0.0.1:0"
+	cfg.DrainDelay = 150 * time.Millisecond
+
+	readyStatus, pingStatus := 0, 0
+
+	// base is assigned after Serve; the probe's supplier resolves lazily at
+	// hook-run time, which is exactly the late-capture the helper documents.
+	var base string
+
+	cfg.DrainHooks = append(cfg.DrainHooks,
+		testkit.DrainWindowProbe(func() string { return base }, "/health/ready", &readyStatus),
+		testkit.DrainWindowProbe(func() string { return base }, "/ping", &pingStatus),
+	)
+
+	svc, err := appkit.NewService(cfg)
+	if err != nil {
+		t.Fatalf("NewService: %v", err)
+	}
+
+	svc.Mux.HandleFunc("GET /ping", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := testkit.Serve(t, svc)
+
+	base = server.FullChainURL
+
+	shutdownCtx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		t.Fatalf("Shutdown: %v", err)
+	}
+
+	if readyStatus != http.StatusServiceUnavailable {
+		t.Errorf("ready status during drain = %d, want 503", readyStatus)
+	}
+
+	if pingStatus != http.StatusOK {
+		t.Errorf("ping status during drain = %d, want 200 (socket still serves)", pingStatus)
+	}
+}

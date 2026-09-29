@@ -133,6 +133,35 @@ func (ts *TestServer) Shutdown(ctx context.Context) error {
 // service starts).
 func (ts *TestServer) Mux() *http.ServeMux { return ts.service.Mux }
 
+// DrainWindowProbe returns a drain hook that observes the drain window from
+// inside it: the hook GETs readyPath over the URL supplied by base (call it
+// with a closure over the address variable — Service.Addr is nil inside
+// drain hooks, so the base is captured BEFORE Shutdown but resolved lazily
+// at hook time, after the config is built) and records the observed status
+// into readyStatus, so the test can assert the drain contract in one place:
+// the probe reports 503 while the socket still serves traffic. The returned
+// hook always returns nil — observation failures (connection refused) leave
+// readyStatus untouched rather than failing the drain.
+func DrainWindowProbe(base func() string, readyPath string, readyStatus *int) func(context.Context) error {
+	return func(ctx context.Context) error {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, base()+readyPath, nil)
+		if err != nil {
+			return nil
+		}
+
+		resp, err := (&http.Client{Timeout: 2 * time.Second}).Do(req)
+		if err != nil {
+			return nil //nolint:nilerr // observation failure must not fail the drain
+		}
+
+		defer func() { _ = resp.Body.Close() }()
+
+		*readyStatus = resp.StatusCode
+
+		return nil
+	}
+}
+
 // stop runs the full stop sequence exactly once (both Shutdown and the
 // cleanup enter through stopOnce): graceful shutdown, server-error drain,
 // goroutine-baseline assertion. Errors are joined.
