@@ -72,6 +72,21 @@ type ServiceConfig struct {
 	// module). Optional.
 	OuterMiddlewares []httputil.Middleware
 
+	// StartHooks run once, in order, inside Start AFTER the listener has
+	// bound but BEFORE serving begins — Addr and Running already observe
+	// the bound listener there (the startup mirror of the drain-window
+	// contract, where Addr is nil inside DrainHooks). Use them for
+	// post-listen announcements: sd_notify READY=1 (the systemd module),
+	// dynamic port registration, or warming state that must exist before
+	// the first request. Hooks receive context.Background — Start is
+	// context-free by API design, so startup work must not bind to a
+	// cancelable lifetime; anything long-running owns its stop (e.g. via
+	// a ShutdownHook). Every hook runs even when an earlier one fails;
+	// errors are joined, wrapped under server.start_hook_failed, and FAIL
+	// the start: the listener is closed again and the service never
+	// serves. Optional.
+	StartHooks []Hook
+
 	// DrainHooks run once, in order, at the start of the shutdown drain —
 	// after the ready probe flips to false but BEFORE the DrainDelay wait
 	// and the listener close — each receiving the shutdown context. Use them

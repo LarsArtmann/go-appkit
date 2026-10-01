@@ -99,9 +99,11 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 	return svc, nil
 }
 
-// Start creates the listener and begins serving in a goroutine.
-// Returns a synchronous error if the listener cannot bind.
-// The returned channel receives any serve error (nil on graceful shutdown).
+// Start creates the listener, runs the StartHooks (post-listen, pre-serve),
+// and begins serving in a goroutine. Returns a synchronous error if the
+// listener cannot bind or a StartHook fails — on hook failure the listener
+// is closed again and the service never serves. The returned channel
+// receives any serve error (nil on graceful shutdown).
 func (s *Service) Start() (<-chan error, error) {
 	listener, err := (&net.ListenConfig{}).Listen( //nolint:exhaustruct_v5 // zero config is intentional
 		context.Background(), "tcp", s.cfg.Addr)
@@ -112,6 +114,27 @@ func (s *Service) Start() (<-chan error, error) {
 	s.mu.Lock()
 	s.ln = listener
 	s.mu.Unlock()
+
+	// Start hooks run after the listener is bound (Addr and Running
+	// already observe it) but before the serve loop accepts traffic — the
+	// startup mirror of the drain window. Unlike the shutdown hooks, any
+	// failure fails the whole start: a half-announced service must never
+	// serve. The phase line mirrors the shutdown phase-log contract.
+	phaseStart := time.Now()
+
+	hooksErr := s.runStartHooks(context.Background())
+
+	if hooksErr != nil {
+		s.mu.Lock()
+		s.ln = nil
+		s.mu.Unlock()
+
+		_ = listener.Close()
+
+		return nil, hooksErr
+	}
+
+	s.logStartupPhase("start_hooks", phaseStart)
 
 	errCh := make(chan error, 1)
 
@@ -237,6 +260,20 @@ func (s *Service) Shutdown(ctx context.Context) error {
 // phase name and its duration.
 func (s *Service) logPhase(phase string, start time.Time) {
 	s.Logger.Info("shutdown phase complete", "phase", phase, "duration", time.Since(start))
+}
+
+// logStartupPhase emits the startup phase line, mirroring logPhase so a
+// boot can be diagnosed from logs alone. Emitted only when the phase
+// succeeded — a failed startup surfaces through Start's classified error
+// instead, and a service that never serves must not log completion lines.
+func (s *Service) logStartupPhase(phase string, start time.Time) {
+	s.Logger.Info("startup phase complete", "phase", phase, "duration", time.Since(start))
+}
+
+// runStartHooks invokes each configured StartHook in order and joins the
+// errors; Start aborts on any failure, closing the listener again.
+func (s *Service) runStartHooks(ctx context.Context) error {
+	return s.runHooks(ctx, s.cfg.StartHooks, "server.start_hook_failed", "start hook failed")
 }
 
 // runDrainHooks invokes each configured DrainHook in order with the shutdown
