@@ -133,7 +133,7 @@ appkit has no outbound-client resilience; battery W4 `polite` is the future home
 **Bounded follow-ups:**
 
 1. ~~Create this research doc~~ (done).
-2. TODO_LIST P3: systemd integration item, gated on the core post-listen hook (prerequisite) — with go-daemon `socket.go` as the reference and the core hook flagged as the additions-only enabling seam.
+2. TODO_LIST P3: systemd integration item, gated on the core post-listen hook (prerequisite) — with go-daemon `socket.go` as the reference and the core hook flagged as the additions-only enabling seam. **EXECUTED 2026-10-01 (same day, owner-directed):** core `ServiceConfig.StartHooks []Hook` + the opt-in `/systemd` module landed race-green; the TODO_LIST item now tracks only the release train (core v0.8.0 → systemd v0.1.0 → integration pin). One deliberate deviation from §Option B: the watchdog pings to the FINAL phase (ShutdownHooks), not stopped in DrainHooks — whether the manager enforces the watchdog after `STOPPING=1` is version-dependent, so pinging is safe either way (go-daemon's own proven behavior).
 3. TODO_LIST P3: SSE-hub coherence + go-aichat reverse-adoption watch item (triggers recorded).
 4. Optional, user-gated: propose reverse adoption to the go-aichat/KeyHolderAI side (their repo, their gate — not executed here).
 
