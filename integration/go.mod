@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/integration
 go 1.27.1
 
 require (
-	github.com/larsartmann/cqrs-htmx/v4 v4.12.0
+	github.com/larsartmann/cqrs-htmx/v4 v4.13.0
 	github.com/larsartmann/go-appkit v0.7.0
 	github.com/larsartmann/go-appkit/cqrs v0.6.0
 	github.com/larsartmann/go-appkit/errorpages v0.1.0
@@ -57,6 +57,7 @@ require (
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-playground/form/v4 v4.5.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
@@ -66,7 +67,7 @@ require (
 	github.com/knadh/koanf/providers/env v1.1.0 // indirect
 	github.com/knadh/koanf/providers/file v1.2.1 // indirect
 	github.com/knadh/koanf/v2 v2.3.7 // indirect
-	github.com/larsartmann/go-branded-id v0.6.0 // indirect
+	github.com/larsartmann/go-branded-id v0.7.0 // indirect
 	github.com/larsartmann/go-codec v0.3.0 // indirect
 	github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.0 // indirect
 	github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4 v4.2.0 // indirect
@@ -93,7 +94,8 @@ require (
 	github.com/larsartmann/go-health-dashboard v0.10.1 // indirect
 	github.com/larsartmann/go-idempotency v0.3.0 // indirect
 	github.com/larsartmann/go-retry v0.7.1 // indirect
-	github.com/larsartmann/go-sse/sseparse v0.1.0 // indirect
+	github.com/larsartmann/go-sse/sseparse v0.2.0 // indirect
+	github.com/larsartmann/httputil/server_timing v1.0.1 // indirect
 	github.com/larsartmann/templ-components v1.19.4 // indirect
 	github.com/larsartmann/templ-components/datastar v1.19.4 // indirect
 	github.com/larsartmann/templ-components/errorpage v1.19.4 // indirect
@@ -112,7 +114,7 @@ require (
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.33.0 // indirect
-	github.com/onsi/gomega v1.43.1 // indirect
+	github.com/onsi/gomega v1.44.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
