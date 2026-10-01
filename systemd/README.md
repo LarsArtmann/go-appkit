@@ -18,7 +18,7 @@ go get github.com/larsartmann/go-appkit/systemd
 
 Requires a go-appkit core tag carrying `ServiceConfig.StartHooks`
 (v0.8.0+; until that tag exists the module's go.mod carries a dev-only
-filesystem `replace` onto the repo root — see *Release state* below).
+filesystem `replace` onto the repo root — see _Release state_ below).
 
 ## Quick start
 
@@ -50,11 +50,11 @@ module feeds at `WatchdogSec/2`.
 
 ## Ordering contract
 
-| Hook         | Appkit seam   | Sends                        | Failure behavior                                                            |
-| ------------ | ------------- | ---------------------------- | --------------------------------------------------------------------------- |
-| `Start`      | `StartHooks`  | `READY=1`, starts watchdog   | Send failure returns an error → the whole start fails (fail-closed)         |
-| `Drain`      | `DrainHooks`  | `STOPPING=1`                 | Send failure returns an error, joined into the shutdown result              |
-| `Shutdown`   | `ShutdownHooks` | stops the watchdog goroutine | Cannot fail; idempotent                                                     |
+| Hook       | Appkit seam     | Sends                        | Failure behavior                                                    |
+| ---------- | --------------- | ---------------------------- | ------------------------------------------------------------------- |
+| `Start`    | `StartHooks`    | `READY=1`, starts watchdog   | Send failure returns an error → the whole start fails (fail-closed) |
+| `Drain`    | `DrainHooks`    | `STOPPING=1`                 | Send failure returns an error, joined into the shutdown result      |
+| `Shutdown` | `ShutdownHooks` | stops the watchdog goroutine | Cannot fail; idempotent                                             |
 
 The watchdog deliberately pings **to the end of the final phase**, through
 the whole drain and shutdown: whether the manager still enforces the
@@ -67,18 +67,18 @@ plain values for manual wiring; each is independently usable.
 
 ## Options
 
-| Option         | Default         | Effect                                            |
-| -------------- | --------------- | ------------------------------------------------- |
-| `WithLogger`   | `slog.Default()` | Logger for notify diagnostics (Debug=success, Warn=degraded) |
+| Option       | Default          | Effect                                                       |
+| ------------ | ---------------- | ------------------------------------------------------------ |
+| `WithLogger` | `slog.Default()` | Logger for notify diagnostics (Debug=success, Warn=degraded) |
 
 ## Error taxonomy
 
 Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family)
 classification:
 
-| Code                          | Classification  | Meaning                                  |
-| ----------------------------- | --------------- | ---------------------------------------- |
-| `systemd.notify_failed`       | Infrastructure  | sd_notify datagram send failed           |
+| Code                            | Classification | Meaning                                 |
+| ------------------------------- | -------------- | --------------------------------------- |
+| `systemd.notify_failed`         | Infrastructure | sd_notify datagram send failed          |
 | `systemd.watchdog_check_failed` | Infrastructure | `WATCHDOG_USEC` present but unparseable |
 
 ## Testing
@@ -115,10 +115,10 @@ never concurrently with other modules' lint runs.
 
 ## Dependencies
 
-| Module                            | Version | Role                                    |
-| --------------------------------- | ------- | --------------------------------------- |
-| `github.com/coreos/go-systemd/v22`| v22.7.0 | sd_notify protocol (unixgram transport) |
-| `github.com/larsartmann/go-appkit`| v0.7.0* | `ServiceConfig` hook slices, `Hook` type |
+| Module                             | Version | Role                                     |
+| ---------------------------------- | ------- | ---------------------------------------- |
+| `github.com/coreos/go-systemd/v22` | v22.7.0 | sd_notify protocol (unixgram transport)  |
+| `github.com/larsartmann/go-appkit` | v0.7.0* | `ServiceConfig` hook slices, `Hook` type |
 
 \* dev: replaced onto `../` until the first core tag with `StartHooks`
 ships; the reference implementation for the notify/watchdog sequence is

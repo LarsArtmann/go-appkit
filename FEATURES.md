@@ -184,15 +184,15 @@ line without request context, so only handler-level logs correlate with spans
 
 ## systemd (`github.com/larsartmann/go-appkit/systemd`) — UNRELEASED
 
-| Feature                                                              | Status           | Evidence                                                                     |
-| -------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------- |
-| `Install(&cfg)` one-call sd_notify lifecycle (append-only)            | FULLY_FUNCTIONAL | `hooks.go`, `hooks_test.go` (UNRELEASED, rides the core v0.8.0 train)        |
-| `New(opts...)` manual wiring (`Start`/`Drain`/`Shutdown` hooks)      | FULLY_FUNCTIONAL | `hooks.go` (UNRELEASED)                                                      |
-| `READY=1` post-listen via `StartHooks` (send failure fails the start) | FULLY_FUNCTIONAL | `hooks_test.go` — first datagram on a real unixgram socket (UNRELEASED)      |
-| `STOPPING=1` at drain start via `DrainHooks`                         | FULLY_FUNCTIONAL | `hooks_test.go` (UNRELEASED)                                                 |
-| Watchdog keepalive at `WatchdogSec/2`, pinging to the final phase    | FULLY_FUNCTIONAL | `notify.go`, `TestRunWatchdog_PingsUntilStopped` (UNRELEASED)                |
-| No-op outside systemd (`NOTIFY_SOCKET` unset)                        | FULLY_FUNCTIONAL | `TestInstall_NoSocketOutsideSystemd` (UNRELEASED)                           |
-| Full lifecycle through a live `appkit.Service`                       | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService` (UNRELEASED)                     |
+| Feature                                                               | Status           | Evidence                                                                |
+| --------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------- |
+| `Install(&cfg)` one-call sd_notify lifecycle (append-only)            | FULLY_FUNCTIONAL | `hooks.go`, `hooks_test.go` (UNRELEASED, rides the core v0.8.0 train)   |
+| `New(opts...)` manual wiring (`Start`/`Drain`/`Shutdown` hooks)       | FULLY_FUNCTIONAL | `hooks.go` (UNRELEASED)                                                 |
+| `READY=1` post-listen via `StartHooks` (send failure fails the start) | FULLY_FUNCTIONAL | `hooks_test.go` — first datagram on a real unixgram socket (UNRELEASED) |
+| `STOPPING=1` at drain start via `DrainHooks`                          | FULLY_FUNCTIONAL | `hooks_test.go` (UNRELEASED)                                            |
+| Watchdog keepalive at `WatchdogSec/2`, pinging to the final phase     | FULLY_FUNCTIONAL | `notify.go`, `TestRunWatchdog_PingsUntilStopped` (UNRELEASED)           |
+| No-op outside systemd (`NOTIFY_SOCKET` unset)                         | FULLY_FUNCTIONAL | `TestInstall_NoSocketOutsideSystemd` (UNRELEASED)                       |
+| Full lifecycle through a live `appkit.Service`                        | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService` (UNRELEASED)                |
 
 ## integration (`github.com/larsartmann/go-appkit/integration` — never released)
 

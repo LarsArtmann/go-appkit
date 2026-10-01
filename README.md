@@ -71,8 +71,8 @@ Each module is independently versioned and usable on its own:
 | [flightrecorder](flightrecorder/)             | `github.com/larsartmann/go-appkit/flightrecorder`       | On-demand runtime/trace capture middleware + snapshot endpoint                                                         |
 | [flightrecorderhealth](flightrecorderhealth/) | `github.com/larsartmann/go-appkit/flightrecorderhealth` | Bridges flight recorder with go-health: dashboard visibility + auto-capture on health failures                         |
 | [health](health/)                             | `github.com/larsartmann/go-appkit/health`               | go-health probes (critical/non-critical, startup latch) + real-time health dashboard, one wiring call                  |
-| [security](security/)                             | `github.com/larsartmann/go-appkit/security`             | Hardening middleware: CSRF, rate limiting, body limits, sanitization, CSP nonce, security headers                      |
-| [systemd](systemd/)                               | `github.com/larsartmann/go-appkit/systemd`               | sd_notify for `Type=notify` units: READY=1 post-listen, STOPPING=1 at drain start, `WatchdogSec/2` keepalive          |
+| [security](security/)                         | `github.com/larsartmann/go-appkit/security`             | Hardening middleware: CSRF, rate limiting, body limits, sanitization, CSP nonce, security headers                      |
+| [systemd](systemd/)                           | `github.com/larsartmann/go-appkit/systemd`              | sd_notify for `Type=notify` units: READY=1 post-listen, STOPPING=1 at drain start, `WatchdogSec/2` keepalive           |
 
 > The `security` module is fully opt-in: NOTHING from it sits in core's
 > default middleware stack — batteries compose explicitly via
