@@ -13,8 +13,8 @@ import (
 // is unset — i.e. when not running under systemd — so callers can treat
 // the whole module as a no-op there. A real send failure is classified as
 // an Infrastructure error under the systemd.notify_failed code.
-func notify(state string) (sent bool, err error) {
-	sent, err = sd.SdNotify(false, state)
+func notify(state string) (bool, error) {
+	sent, err := sd.SdNotify(false, state)
 	if err != nil {
 		return false, errorfamily.WrapInfrastructuref(err, "systemd.notify_failed", "sd_notify %s", state)
 	}

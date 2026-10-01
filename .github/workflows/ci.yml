@@ -41,6 +41,7 @@ jobs:
           ./cqrs,
           ./realtime,
           ./security,
+          ./systemd,
           ./otel,
           ./health,
           ./flightrecorder,

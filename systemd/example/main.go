@@ -10,19 +10,18 @@
 //	WatchdogSec=30
 //	ExecStart=/usr/local/bin/example
 //
-//	PORT overrides the listen port (dev machines often have 8080 occupied —
+// PORT overrides the listen port (dev machines often have 8080 occupied —
 // same convention as the core and otel examples).
 package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 
 	appkit "github.com/larsartmann/go-appkit"
-	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/go-appkit/systemd"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 func main() {
@@ -38,9 +37,16 @@ func main() {
 	// the config's hook slices.
 	systemd.Install(&cfg)
 
+	err := run(cfg)
+	if err != nil {
+		os.Exit(errorfamily.HandleError(err))
+	}
+}
+
+func run(cfg appkit.ServiceConfig) error {
 	svc, err := appkit.NewService(cfg)
 	if err != nil {
-		panic(err)
+		return err //nolint:wrapcheck // top-level main boundary
 	}
 
 	defer func() { _ = svc.Close() }()
@@ -51,9 +57,5 @@ func main() {
 		_, _ = w.Write([]byte("hello from a Type=notify service"))
 	})
 
-	if err := svc.Run(context.Background()); err != nil { //nolint:wrapcheck // top-level main returns the error as-is
-		os.Exit(errorfamily.HandleError(err))
-	}
-
-	fmt.Fprintln(os.Stdout, "stopped")
+	return svc.Run(context.Background()) //nolint:wrapcheck // top-level main returns the error as-is
 }

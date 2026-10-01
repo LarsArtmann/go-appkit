@@ -58,7 +58,8 @@ func TestInstall_LifecycleThroughAppkitService(t *testing.T) {
 	shutdownCtx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
-	if err := svc.Shutdown(shutdownCtx); err != nil {
+	err = svc.Shutdown(shutdownCtx)
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 
@@ -97,8 +98,8 @@ func TestInstall_ComposesWithConsumerHooks(t *testing.T) {
 
 	Install(&cfg, WithLogger(discardLogger()))
 
-	if len(cfg.StartHooks) != 2 || &cfg.StartHooks[0] == nil {
-		t.Fatalf("StartHooks = %d hooks, want 2 (consumer first)", len(cfg.StartHooks))
+	if len(cfg.StartHooks) != 2 {
+		t.Fatalf("StartHooks = %d hooks, want 2 (consumer first, then sd_notify)", len(cfg.StartHooks))
 	}
 
 	if len(cfg.DrainHooks) != 1 || len(cfg.ShutdownHooks) != 1 {
@@ -138,7 +139,8 @@ func TestInstall_NoSocketOutsideSystemd(t *testing.T) {
 	shutdownCtx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
-	if err := svc.Shutdown(shutdownCtx); err != nil {
+	err = svc.Shutdown(shutdownCtx)
+	if err != nil {
 		t.Fatalf("shutdown outside systemd must be clean: %v", err)
 	}
 
@@ -200,11 +202,13 @@ func TestHooks_ShutdownWithoutStartIsSafe(t *testing.T) {
 
 	hooks := New(WithLogger(discardLogger()))
 
-	if err := hooks.Shutdown(context.Background()); err != nil {
+	err := hooks.Shutdown(context.Background())
+	if err != nil {
 		t.Fatalf("Shutdown without Start: %v", err)
 	}
 
-	if err := hooks.Shutdown(context.Background()); err != nil {
+	err = hooks.Shutdown(context.Background())
+	if err != nil {
 		t.Fatalf("second Shutdown must be a no-op: %v", err)
 	}
 }

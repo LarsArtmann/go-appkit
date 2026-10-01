@@ -2,7 +2,6 @@ package systemd
 
 import (
 	"errors"
-	"io"
 	"log/slog"
 	"net"
 	"path/filepath"
@@ -21,7 +20,7 @@ var envMu sync.Mutex
 
 // discardLogger silences hook diagnostics in tests.
 func discardLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil)) //nolint:exhaustruct_v5 // zero HandlerOptions is the quiet default
+	return slog.New(slog.DiscardHandler)
 }
 
 // notifySocket is a test double for systemd's $NOTIFY_SOCKET: a bound
@@ -53,13 +52,14 @@ func newNotifySocket(t *testing.T) *notifySocket {
 func (s *notifySocket) awaitMessage(t *testing.T, what string) string {
 	t.Helper()
 
-	if err := s.conn.SetReadDeadline(time.Now().Add(2 * time.Second)); err != nil {
+	err := s.conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+	if err != nil {
 		t.Fatalf("set read deadline: %v", err)
 	}
 
-	buf := make([]byte, 4096)
+	var buf [4096]byte
 
-	n, err := s.conn.Read(buf)
+	n, err := s.conn.Read(buf[:])
 	if err != nil {
 		t.Fatalf("await %s: %v", what, err)
 	}
@@ -83,13 +83,14 @@ func (s *notifySocket) collectMessages(t *testing.T, window time.Duration) []str
 			return messages
 		}
 
-		if err := s.conn.SetReadDeadline(time.Now().Add(remaining)); err != nil {
+		err := s.conn.SetReadDeadline(time.Now().Add(remaining))
+		if err != nil {
 			t.Fatalf("set read deadline: %v", err)
 		}
 
-		buf := make([]byte, 4096)
+		var buf [4096]byte
 
-		n, err := s.conn.Read(buf)
+		n, err := s.conn.Read(buf[:])
 		if err != nil {
 			return messages // window elapsed
 		}
@@ -102,13 +103,15 @@ func (s *notifySocket) collectMessages(t *testing.T, window time.Duration) []str
 func (s *notifySocket) assertQuiet(t *testing.T, window time.Duration) {
 	t.Helper()
 
-	if err := s.conn.SetReadDeadline(time.Now().Add(window)); err != nil {
+	err := s.conn.SetReadDeadline(time.Now().Add(window))
+	if err != nil {
 		t.Fatalf("set read deadline: %v", err)
 	}
 
-	buf := make([]byte, 4096)
+	var buf [4096]byte
 
-	if n, err := s.conn.Read(buf); err == nil {
+	n, err := s.conn.Read(buf[:])
+	if err == nil {
 		t.Fatalf("expected silence for %v, got %q", window, string(buf[:n]))
 	}
 }
