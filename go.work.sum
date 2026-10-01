@@ -111,6 +111,7 @@ github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfn
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/larsartmann/go-branded-id v0.5.1/go.mod h1:ElTJY6HNf3ziPytNA5mpW32bxjfsZ/C8ILn4nPQdbmI=
+github.com/larsartmann/go-branded-id v0.6.0/go.mod h1:gM5FhB6d23qZO8hIU/rHpUnm/6dwKy9UGMhgvXDqNsc=
 github.com/larsartmann/go-cqrs-lite/command/v4 v4.9.0/go.mod h1:fUGZ+RYOdhyp22xBYx+avKGM5IBxWc1q+Sw50SBLpBs=
 github.com/larsartmann/go-cqrs-lite/encryption/v4 v4.3.0/go.mod h1:4qb8oM3TK0KWYxxZJtkKkpdPnQWVKpjbS42uMyBmeoo=
 github.com/larsartmann/go-cqrs-lite/encryption/v4 v4.4.1/go.mod h1:oQLVfrliM2F7dXih9jVUVOdzzB8nCFAflctJNkXbp8s=

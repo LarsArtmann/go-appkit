@@ -218,15 +218,16 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
   bundle's domain chain. Verified equivalences live in their
   `setup/run_appkit_test.go` (SSE header flush through the full stack, drain
   readiness transitions, response parity, hardened adoption benchmark).
-- Consumed version: **`go-appkit v0.5.1`** — verified in the PUBLISHED
-  `setup/v4.12.0` tag (2026-09-22; `setup/go.mod:15`, re-verified 2026-09-28)
+- Consumed version: **`go-appkit v0.7.0`** — verified in the PUBLISHED
+  `setup/v4.13.2` tag (2026-10-01; `setup/go.mod:15`, re-verified 2026-10-01)
   and in their working tree. **M4 is SHIPPED in that tag**:
   `Config.Metrics`/`Config.Version` thread into `appkit.ServiceConfig` on the
   `RunWithAppkit` path (`run_appkit.go:78-79`). Still theirs: the
   `Bundle.Run`/`Bundle.RunHandler` internals still serve via httputil
   (Metrics/Version are RunWithAppkit-only there), and the v5-window revisit
-  (ADR-0052) — plus they await core > v0.5.1 to drop their `go.work` go-etag
-  stub-replace (a concrete consumer-pull signal for the next core release).
+  (ADR-0052). Their `go.work` go-etag stub-replace is GONE — core v0.7.0 cleared
+  the > v0.5.1 condition they awaited, and setup/v4.13.2 carries the split
+  go-etag/entitytag+server v0.6.0.
 
 All released modules verified as fresh proxy consumers (blank-import smoke
 modules in clean dirs, `go build` green): the 2026-09-04 waves, cqrs v0.5.0

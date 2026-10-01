@@ -57,7 +57,6 @@ require (
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-playground/form/v4 v4.5.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
@@ -95,7 +94,6 @@ require (
 	github.com/larsartmann/go-idempotency v0.3.0 // indirect
 	github.com/larsartmann/go-retry v0.7.1 // indirect
 	github.com/larsartmann/go-sse/sseparse v0.2.0 // indirect
-	github.com/larsartmann/httputil/server_timing v1.0.1 // indirect
 	github.com/larsartmann/templ-components v1.19.4 // indirect
 	github.com/larsartmann/templ-components/datastar v1.19.4 // indirect
 	github.com/larsartmann/templ-components/errorpage v1.19.4 // indirect
@@ -113,8 +111,6 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
-	github.com/onsi/ginkgo/v2 v2.33.0 // indirect
-	github.com/onsi/gomega v1.44.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
