@@ -8,7 +8,7 @@ require (
 )
 
 require (
-	github.com/larsartmann/go-branded-id v0.6.0 // indirect
+	github.com/larsartmann/go-branded-id v0.7.0 // indirect
 	github.com/larsartmann/go-error-family v0.11.0 // indirect
 	github.com/larsartmann/go-sse/sseparse v0.1.0 // indirect
 )

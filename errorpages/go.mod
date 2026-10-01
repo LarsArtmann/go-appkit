@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/errorpages
 go 1.27.1
 
 require (
-	github.com/larsartmann/go-appkit v0.6.0
+	github.com/larsartmann/go-appkit v0.7.0
 	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/templ-components/errorpage v1.19.4
 )
