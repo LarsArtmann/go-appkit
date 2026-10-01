@@ -53,8 +53,8 @@ That gives you:
 go get github.com/larsartmann/go-appkit
 ```
 
-Requires Go 1.26.7 or later (this is the toolchain the framework is
-verified on; `encoding/json/v2` must be available, see below).
+Requires Go 1.27.1 or later (the unified toolchain floor this framework
+is verified on; `encoding/json/v2` is default-on there, see below).
 
 ## Modules in this repository
 
@@ -71,7 +71,8 @@ Each module is independently versioned and usable on its own:
 | [flightrecorder](flightrecorder/)             | `github.com/larsartmann/go-appkit/flightrecorder`       | On-demand runtime/trace capture middleware + snapshot endpoint                                                         |
 | [flightrecorderhealth](flightrecorderhealth/) | `github.com/larsartmann/go-appkit/flightrecorderhealth` | Bridges flight recorder with go-health: dashboard visibility + auto-capture on health failures                         |
 | [health](health/)                             | `github.com/larsartmann/go-appkit/health`               | go-health probes (critical/non-critical, startup latch) + real-time health dashboard, one wiring call                  |
-| [security](security/)                         | `github.com/larsartmann/go-appkit/security`             | Hardening middleware: CSRF, rate limiting, body limits, sanitization, CSP nonce, security headers                      |
+| [security](security/)                             | `github.com/larsartmann/go-appkit/security`             | Hardening middleware: CSRF, rate limiting, body limits, sanitization, CSP nonce, security headers                      |
+| [systemd](systemd/)                               | `github.com/larsartmann/go-appkit/systemd`               | sd_notify for `Type=notify` units: READY=1 post-listen, STOPPING=1 at drain start, `WatchdogSec/2` keepalive          |
 
 > The `security` module is fully opt-in: NOTHING from it sits in core's
 > default middleware stack — batteries compose explicitly via
@@ -107,6 +108,7 @@ All config is via `ServiceConfig`. Zero-value fields get production defaults:
 | `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack                                                                                                        |
 | `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack                                                                                                      |
 | `OuterMiddlewares` | `[]httputil.Middleware` | `nil`     | Wrap the entire chain (default stack included), outermost — where tracing sits                                                              |
+| `StartHooks`       | `[]Hook`                | `nil`     | Run once inside `Start`, after the listener binds but before serving (`Addr`/`Running` already live); any error fails the start             |
 | `DrainHooks`       | `[]func(ctx) error`     | `nil`     | Run once at drain start, while traffic is still served (errors joined)                                                                      |
 | `ShutdownHooks`    | `[]func(ctx) error`     | `nil`     | Run once after connections are released (e.g. telemetry flush; errors joined)                                                               |
 | `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                                                                              |
@@ -228,6 +230,13 @@ err := svc.Shutdown(ctx)
 ```
 
 ### Graceful drain sequence
+
+`Start` runs `StartHooks` synchronously after the listener binds and
+before the first request is served (`Addr`/`Running` already observe the
+listener there — the startup mirror of the drain-window contract). Any
+StartHook error fails the start; the phase emits a `startup phase complete`
+log line. Post-listen announcements (sd_notify `READY=1` via the `systemd`
+module, dynamic port registration) are the canonical uses.
 
 When `Shutdown` is called:
 

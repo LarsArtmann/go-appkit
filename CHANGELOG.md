@@ -1,5 +1,25 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `ServiceConfig.StartHooks` (`[]Hook`) — the post-listen startup seam the
+  2026-10-01 go-daemon/go-aichat research identified as the prerequisite for
+  systemd integration. Hooks run once, in order, inside `Start` AFTER the
+  listener binds but BEFORE serving begins: `Addr()`/`Running()` already
+  observe the listener inside them (the startup mirror of the drain-window
+  contract, where `Addr()` is nil inside `DrainHooks`). Hooks receive
+  `context.Background` — `Start` is context-free by API design. Every hook
+  runs even when an earlier one fails (identical to `DrainHooks`/
+  `ShutdownHooks` semantics); errors are joined, wrapped under the
+  `server.start_hook_failed` code, and FAIL the start: the listener is
+  closed again and the service never serves. Success emits a
+  `startup phase complete` log line (`phase=start_hooks` + duration),
+  mirroring the shutdown phase-log contract. Additions-only API diff.
+  Unlocked the opt-in `systemd` module (sd_notify READY/STOPPING +
+  watchdog) as a sibling module.
+
 ## [0.7.0] - 2026-09-29
 
 ### Added

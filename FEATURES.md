@@ -21,6 +21,7 @@ aspirations.
 | `OuterMiddlewares` outermost hook                 | FULLY_FUNCTIONAL | `config.go:65`, `middleware_test.go`             |
 | `ShutdownHooks` post-shutdown flush hooks         | FULLY_FUNCTIONAL | `service.go`, `shutdownhooks_test.go`            |
 | `DrainHooks` drain-start readiness hooks          | FULLY_FUNCTIONAL | `config.go`, `service.go`, `drainhooks_test.go`  |
+| `StartHooks` post-listen startup seam             | FULLY_FUNCTIONAL | `config.go`, `service.go`, `starthooks_test.go`  |
 | Shutdown phase logging (per-phase INFO)           | FULLY_FUNCTIONAL | `service.go` (`logPhase`), `shutdownlog_test.go` |
 | `NoDrainDelay` fast-test shutdown sentinel        | FULLY_FUNCTIONAL | `config.go:37`, `config_test.go`                 |
 | charmbracelet/logging (`InitLogger`)              | FULLY_FUNCTIONAL | `logger.go`                                      |
@@ -30,12 +31,12 @@ aspirations.
 | `Version` + `GET /version` build info             | FULLY_FUNCTIONAL | `version.go`, `metrics_test.go`                  |
 | `testkit.Serve` full-chain test harness           | FULLY_FUNCTIONAL | `testkit/testkit.go`, `testkit/testkit_test.go`  |
 
-Shipped in core **v0.5.0** (2026-09-17; additions-only API diff vs v0.4.0,
-proxy-tested; v0.5.1 the same day is doc-only — zero API delta).
-Unreleased deltas (CHANGELOG `[Unreleased]`, ride the next train):
-`testkit.TestServer.Shutdown`, hook error-code contract tests
-(`server.drain_hook_failed` / `server.shutdown_hook_failed`), the
-behavior-neutral `runHooks` extraction.
+Shipped through core **v0.7.0** (2026-09-29; lifecycle hooks in v0.4.0,
+metrics/version/testkit in v0.5.0, `appkit.Hook` alias +
+`testkit.DrainWindowProbe` in v0.7.0 — additions-only API diffs,
+proxy-tested). Unreleased deltas (CHANGELOG `[Unreleased]`, ride the next
+train): `ServiceConfig.StartHooks` post-listen seam (the startup mirror of
+the drain-window contract) + the `startup phase complete` log line.
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
@@ -180,6 +181,18 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 Known limitation: httputil's `Logging` middleware emits the request-completion
 line without request context, so only handler-level logs correlate with spans
 (documented in `doc.go`).
+
+## systemd (`github.com/larsartmann/go-appkit/systemd`) — UNRELEASED
+
+| Feature                                                              | Status           | Evidence                                                                     |
+| -------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------- |
+| `Install(&cfg)` one-call sd_notify lifecycle (append-only)            | FULLY_FUNCTIONAL | `hooks.go`, `hooks_test.go` (UNRELEASED, rides the core v0.8.0 train)        |
+| `New(opts...)` manual wiring (`Start`/`Drain`/`Shutdown` hooks)      | FULLY_FUNCTIONAL | `hooks.go` (UNRELEASED)                                                      |
+| `READY=1` post-listen via `StartHooks` (send failure fails the start) | FULLY_FUNCTIONAL | `hooks_test.go` — first datagram on a real unixgram socket (UNRELEASED)      |
+| `STOPPING=1` at drain start via `DrainHooks`                         | FULLY_FUNCTIONAL | `hooks_test.go` (UNRELEASED)                                                 |
+| Watchdog keepalive at `WatchdogSec/2`, pinging to the final phase    | FULLY_FUNCTIONAL | `notify.go`, `TestRunWatchdog_PingsUntilStopped` (UNRELEASED)                |
+| No-op outside systemd (`NOTIFY_SOCKET` unset)                        | FULLY_FUNCTIONAL | `TestInstall_NoSocketOutsideSystemd` (UNRELEASED)                           |
+| Full lifecycle through a live `appkit.Service`                       | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService` (UNRELEASED)                     |
 
 ## integration (`github.com/larsartmann/go-appkit/integration` — never released)
 
