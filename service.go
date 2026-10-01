@@ -123,7 +123,6 @@ func (s *Service) Start() (<-chan error, error) {
 	phaseStart := time.Now()
 
 	hooksErr := s.runStartHooks(context.Background())
-
 	if hooksErr != nil {
 		s.mu.Lock()
 		s.ln = nil

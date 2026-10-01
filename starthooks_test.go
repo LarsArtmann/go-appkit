@@ -17,8 +17,8 @@ func TestStartHooks_RunAfterListenInsideStart(t *testing.T) {
 	var svc *Service
 
 	var (
-		hookAddr        string
-		runningInHook   bool
+		hookAddr          string
+		runningInHook     bool
 		runningAfterStart bool
 	)
 
@@ -81,8 +81,16 @@ func TestStartHooks_RunInOrder(t *testing.T) {
 		Addr:       "localhost:0",
 		DrainDelay: NoDrainDelay,
 		StartHooks: []func(context.Context) error{
-			func(context.Context) error { calls = append(calls, "first"); return nil },
-			func(context.Context) error { calls = append(calls, "second"); return nil },
+			func(context.Context) error {
+				calls = append(calls, "first")
+
+				return nil
+			},
+			func(context.Context) error {
+				calls = append(calls, "second")
+
+				return nil
+			},
 		},
 	})
 	if err != nil {
