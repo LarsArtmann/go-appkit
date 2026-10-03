@@ -10,7 +10,7 @@ require (
 
 require (
 	github.com/justinas/nosurf v1.2.0 // indirect
-	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
-	github.com/larsartmann/go-etag/server v0.6.0 // indirect
+	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
+	github.com/larsartmann/go-etag/server v0.6.1 // indirect
 	golang.org/x/time v0.16.0 // indirect
 )

@@ -22,8 +22,8 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
-	github.com/larsartmann/go-etag/entitytag v0.6.0 // indirect
-	github.com/larsartmann/go-etag/server v0.6.0 // indirect
+	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
+	github.com/larsartmann/go-etag/server v0.6.1 // indirect
 	github.com/larsartmann/httputil v1.4.0 // indirect
 	github.com/larsartmann/templ-components/icons v1.19.4 // indirect
 	github.com/larsartmann/templ-components/utils v1.19.4 // indirect

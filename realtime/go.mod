@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/realtime
 go 1.27.1
 
 require (
-	github.com/larsartmann/go-sse v0.6.1
+	github.com/larsartmann/go-sse v0.6.2
 	github.com/larsartmann/go-sse/ssetest v0.4.0
 )
 
