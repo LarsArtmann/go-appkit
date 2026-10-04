@@ -33,7 +33,7 @@ require (
 	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
 	github.com/larsartmann/go-etag/server v0.6.1 // indirect
 	github.com/larsartmann/go-sse v0.6.2 // indirect
-	github.com/larsartmann/httputil v1.4.0 // indirect
+	github.com/larsartmann/httputil v1.4.1 // indirect
 	github.com/larsartmann/templ-components v1.19.4 // indirect
 	github.com/larsartmann/templ-components/datastar v1.19.4 // indirect
 	github.com/larsartmann/templ-components/htmx v1.19.4 // indirect

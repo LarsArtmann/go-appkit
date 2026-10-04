@@ -4,7 +4,7 @@ go 1.27.1
 
 require (
 	github.com/larsartmann/go-appkit v0.7.0
-	github.com/larsartmann/httputil v1.4.0
+	github.com/larsartmann/httputil v1.4.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 )
 

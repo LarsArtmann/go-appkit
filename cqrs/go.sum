@@ -111,6 +111,8 @@ github.com/larsartmann/go-branded-id v0.7.0 h1:k5KT50Kh0WmeniH0rQ3Gvm2RdSAQFZtuR
 github.com/larsartmann/go-branded-id v0.7.0/go.mod h1:gM5FhB6d23qZO8hIU/rHpUnm/6dwKy9UGMhgvXDqNsc=
 github.com/larsartmann/go-codec v0.3.0 h1:KqwarePns8Xcxg0YEf4NjLnPXIl9i1nvFp2Jaxvc464=
 github.com/larsartmann/go-codec v0.3.0/go.mod h1:zUkKQzRqGltYF0kBwzrETezAKJDErcs0H2cc1/cY9x0=
+github.com/larsartmann/go-codec v0.3.1 h1:9025JGvz7CVbfDgUVLIWfmg117683XZ5D2wUXhXsSr4=
+github.com/larsartmann/go-codec v0.3.1/go.mod h1:OYx+M0nVF+7xR0bjQdVJwF4ROFRskyg5spMsOMl1F80=
 github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.1 h1:CX89EF36K6Gzu0bBLi1Lq3rQL2k2xt6DsTDpSZMvlzY=
 github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.1/go.mod h1:7TQ7fSd6bRqd7lYSTDMPIDCDZtzU/r3KqivP9m1M7gk=
 github.com/larsartmann/go-cqrs-lite/command/v4 v4.13.0 h1:NqRdlRJiF6YJ+crC8hntA2d8XYeURnIPJdkGbgght74=
@@ -181,6 +183,8 @@ github.com/larsartmann/go-flightrecorder v0.2.0 h1:vCyd+jXA5SsJxTS7zaOvlzJiNPqy+
 github.com/larsartmann/go-flightrecorder v0.2.0/go.mod h1:KOAVyRuxUX0eeKPc3mjAwOKsenSS1SjBqnJ0KKPxyhA=
 github.com/larsartmann/go-idempotency v0.3.0 h1:iCuxh2gdr3iSqpaKLfilkXTzT0s6ha3x2XBtoYBGDDA=
 github.com/larsartmann/go-idempotency v0.3.0/go.mod h1:VjTQypq0FQLA9AmageDkuFoUFfN2hd3eErSFZo9ip+I=
+github.com/larsartmann/go-idempotency v0.3.1 h1:LzCg+4DI/RrqPJvR6bmmxMUE/jfUK2quREj0/2exSXI=
+github.com/larsartmann/go-idempotency v0.3.1/go.mod h1:cgc4TyjWbLh8qG+7iNgl3qrjfDhvjjzKkfVblVm9cTQ=
 github.com/larsartmann/go-retry v0.7.1 h1:e3MwEB8SvR0p1XMOtkFofFOS2y5rITzNLmbgZfCtO0c=
 github.com/larsartmann/go-retry v0.7.1/go.mod h1:jIPlAHcD/D+lqBo9CLWAEaJQqDgyFtvDE2RoG1SbZL4=
 github.com/larsartmann/go-sqlitestore v0.1.0 h1:+u9nCNdyHZPjduUXWdfy087b9tSeo8GVXrsK4NieVWA=
@@ -237,6 +241,7 @@ github.com/onsi/ginkgo/v2 v2.33.0 h1:C8gBA6Uc2ZEubiV+SXiu5tZnMTwEmXHgkJwGozKtZf8
 github.com/onsi/ginkgo/v2 v2.33.0/go.mod h1:+aXOY+vzZ5mu2iI2HpTZUPmM//oQfsNFX6gU9kNcA44=
 github.com/onsi/gomega v1.43.1 h1:vGIPFuYrIO6/0Z09s0I0QQQgFchiX4+tb1re3MScJYo=
 github.com/onsi/gomega v1.43.1/go.mod h1:e/C2HwaZ1DhvjzXXuFhcR7hY7Sh9pl7MmoWKEjzwcdA=
+github.com/onsi/gomega v1.44.0 h1:eAiGl3Pw5jz5GQdDff0BcxYpAX1JxW8xD7mFUuwNfZQ=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
 github.com/opencontainers/image-spec v1.1.1 h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJwooC2xJA040=
