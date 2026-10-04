@@ -353,8 +353,16 @@ func TestRunWatchdog_PingsUntilStopped(t *testing.T) {
 		t.Fatalf("first datagram = %q, want WATCHDOG=1", got)
 	}
 
-	if got := Counters().WatchdogPings - pingsBefore; got < 1 {
-		t.Errorf("WatchdogPings delta = %d, want >= 1 after the first ping", got)
+	// The counter increments after the datagram is already on the wire,
+	// so poll briefly instead of asserting synchronously.
+	counterDeadline := time.Now().Add(2 * time.Second)
+
+	for Counters().WatchdogPings == pingsBefore {
+		if time.Now().After(counterDeadline) {
+			t.Fatal("WatchdogPings never advanced after the first ping")
+		}
+
+		time.Sleep(2 * time.Millisecond)
 	}
 
 	// More pings arrive while running.
