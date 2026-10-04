@@ -86,7 +86,7 @@ func New(opts ...Option) Hooks {
 
 	return Hooks{
 		Start: func(context.Context) error {
-			sent, err := notify(sd.SdNotifyReady)
+			sent, err := notify(notifyReady, sd.SdNotifyReady)
 			if err != nil {
 				return err
 			}
@@ -121,7 +121,7 @@ func New(opts ...Option) Hooks {
 			return nil
 		},
 		Drain: func(context.Context) error {
-			sent, err := notify(sd.SdNotifyStopping)
+			sent, err := notify(notifyStopping, sd.SdNotifyStopping)
 			if err != nil {
 				return err
 			}

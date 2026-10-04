@@ -122,7 +122,7 @@ func TestNotify_DeliversStateToSocket(t *testing.T) {
 
 	sock := newNotifySocket(t)
 
-	sent, err := notify("READY=1")
+	sent, err := notify(notifyReady, "READY=1")
 	if err != nil {
 		t.Fatalf("notify: %v", err)
 	}
@@ -142,7 +142,7 @@ func TestNotify_NoSocketIsANoOp(t *testing.T) {
 
 	t.Setenv("NOTIFY_SOCKET", "")
 
-	sent, err := notify("READY=1")
+	sent, err := notify(notifyReady, "READY=1")
 	if err != nil {
 		t.Fatalf("notify outside systemd must not error: %v", err)
 	}
@@ -161,7 +161,7 @@ func TestNotify_SendFailureIsClassified(t *testing.T) {
 	// for.
 	t.Setenv("NOTIFY_SOCKET", filepath.Join(t.TempDir(), "missing.sock"))
 
-	sent, err := notify("READY=1")
+	sent, err := notify(notifyReady, "READY=1")
 	if err == nil {
 		t.Fatal("notify to a dead socket must fail")
 	}
@@ -176,6 +176,109 @@ func TestNotify_SendFailureIsClassified(t *testing.T) {
 
 	if !errors.Is(err, syscall.ENOENT) {
 		t.Errorf("the transport errno must stay reachable through the wrapper: %v", err)
+	}
+}
+
+func TestNotify_CountersTrackSuccessfulSends(t *testing.T) {
+	envMu.Lock()
+	t.Cleanup(envMu.Unlock)
+
+	sock := newNotifySocket(t)
+
+	before := Counters()
+
+	sent, err := notify(notifyReady, "READY=1")
+	if err != nil || !sent {
+		t.Fatalf("notify READY: sent=%v err=%v", sent, err)
+	}
+
+	sent, err = notify(notifyStopping, "STOPPING=1")
+	if err != nil || !sent {
+		t.Fatalf("notify STOPPING: sent=%v err=%v", sent, err)
+	}
+
+	sent, err = notify(notifyWatchdog, "WATCHDOG=1")
+	if err != nil || !sent {
+		t.Fatalf("notify WATCHDOG: sent=%v err=%v", sent, err)
+	}
+
+	after := Counters()
+
+	if got := after.ReadySent - before.ReadySent; got != 1 {
+		t.Errorf("ReadySent delta = %d, want 1", got)
+	}
+
+	if got := after.StoppingSent - before.StoppingSent; got != 1 {
+		t.Errorf("StoppingSent delta = %d, want 1", got)
+	}
+
+	if got := after.WatchdogPings - before.WatchdogPings; got != 1 {
+		t.Errorf("WatchdogPings delta = %d, want 1", got)
+	}
+
+	if got := after.NotifyFailures - before.NotifyFailures; got != 0 {
+		t.Errorf("NotifyFailures delta = %d, want 0", got)
+	}
+
+	if got := sock.awaitMessage(t, "READY=1"); got != "READY=1" {
+		t.Fatalf("datagram = %q, want READY=1", got)
+	}
+}
+
+func TestNotify_FailureBumpsOnlyFailuresCounter(t *testing.T) {
+	envMu.Lock()
+	t.Cleanup(envMu.Unlock)
+
+	// A socket path nothing listens on: the send fails at the transport.
+	t.Setenv("NOTIFY_SOCKET", filepath.Join(t.TempDir(), "missing.sock"))
+
+	before := Counters()
+
+	sent, err := notify(notifyReady, "READY=1")
+	if err == nil {
+		t.Fatal("notify to a dead socket must fail")
+	}
+
+	if sent {
+		t.Error("notify must report sent=false on failure")
+	}
+
+	after := Counters()
+
+	if got := after.NotifyFailures - before.NotifyFailures; got != 1 {
+		t.Errorf("NotifyFailures delta = %d, want 1", got)
+	}
+
+	if got := after.ReadySent - before.ReadySent; got != 0 {
+		t.Errorf("ReadySent delta = %d, want 0 on failure", got)
+	}
+
+	if got := after.WatchdogPings - before.WatchdogPings; got != 0 {
+		t.Errorf("WatchdogPings delta = %d, want 0 on failure", got)
+	}
+}
+
+func TestNotify_NoSocketLeavesCountersUntouched(t *testing.T) {
+	envMu.Lock()
+	t.Cleanup(envMu.Unlock)
+
+	t.Setenv("NOTIFY_SOCKET", "")
+
+	before := Counters()
+
+	sent, err := notify(notifyReady, "READY=1")
+	if err != nil {
+		t.Fatalf("notify outside systemd must not error: %v", err)
+	}
+
+	if sent {
+		t.Error("notify must report sent=false without NOTIFY_SOCKET")
+	}
+
+	after := Counters()
+
+	if after != before {
+		t.Errorf("counters changed on the no-op path: before=%+v after=%+v", before, after)
 	}
 }
 
@@ -242,10 +345,16 @@ func TestRunWatchdog_PingsUntilStopped(t *testing.T) {
 
 	const pingEvery = 20 * time.Millisecond
 
+	pingsBefore := Counters().WatchdogPings
+
 	go runWatchdog(discardLogger(), stop, pingEvery)
 
 	if got := sock.awaitMessage(t, "first WATCHDOG=1"); got != "WATCHDOG=1" {
 		t.Fatalf("first datagram = %q, want WATCHDOG=1", got)
+	}
+
+	if got := Counters().WatchdogPings - pingsBefore; got < 1 {
+		t.Errorf("WatchdogPings delta = %d, want >= 1 after the first ping", got)
 	}
 
 	// More pings arrive while running.
