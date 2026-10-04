@@ -51,6 +51,15 @@
 // Install appends to the config's hook slices — consumer hooks compose
 // before and after.
 //
+// # Observability
+//
+// Every successful send advances process-global counters, snapshot by
+// [Counters]: READY=1 / STOPPING=1 sends, watchdog pings, and send
+// failures. Read it at scrape time to export sd_notify activity as
+// metrics — a counter frozen while its counterpart should advance is the
+// operational alarm (watchdog pings stalling under an armed WatchdogSec
+// mean the process stopped making progress).
+//
 // This module is transport-only: it sends notifications, it does not parse
 // unit files, manage socket activation, or read the journal.
 package systemd

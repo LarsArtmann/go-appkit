@@ -34,6 +34,8 @@ type NotifyCounters struct {
 // per-process, so scrape-time readers (Prometheus collectors) must not
 // need a handle to the Hooks that sent the notifications. Monotonic for
 // the life of the process; safe for concurrent use.
+//
+//nolint:gochecknoglobals // sd_notify state is process-global by protocol
 var (
 	notifyReadySent     atomic.Int64
 	notifyStoppingSent  atomic.Int64

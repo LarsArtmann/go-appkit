@@ -71,6 +71,16 @@ plain values for manual wiring; each is independently usable.
 | ------------ | ---------------- | ------------------------------------------------------------ |
 | `WithLogger` | `slog.Default()` | Logger for notify diagnostics (Debug=success, Warn=degraded) |
 
+## Observability
+
+`Counters()` snapshots the process-global sd_notify activity counters —
+`ReadySent`, `StoppingSent`, `WatchdogPings`, `NotifyFailures`. Only
+successful sends count: outside systemd everything stays zero, so a
+nonzero counter against a non-notify unit is itself a misconfiguration
+signal. Read them at scrape time to export sd_notify health as metrics —
+a frozen `WatchdogPings` counter under an armed `WatchdogSec` is the
+pre-expiry hang signal.
+
 ## Error taxonomy
 
 Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family)

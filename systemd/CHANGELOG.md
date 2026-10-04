@@ -30,6 +30,12 @@
   while serving, `STOPPING=1` during shutdown, silence after the final
   phase — plus the full lifecycle through a live `appkit.Service`.
 - `example/main.go` — Type=notify demo service with the unit-file snippet.
+- `Counters()` — snapshot of the process-global sd_notify activity
+  counters (`ReadySent`/`StoppingSent`/`WatchdogPings`/`NotifyFailures`;
+  only successful sends count) for scrape-time metrics export — a frozen
+  watchdog-ping counter under an armed `WatchdogSec` is the pre-expiry
+  hang signal. Surface mirrors go-daemon's `ReadNotifyCounters`, where
+  bank-sync ADR-017 (2026-10-04) proved the demand.
 
 ### Release gating
 
