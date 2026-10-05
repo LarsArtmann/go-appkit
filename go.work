@@ -1,5 +1,11 @@
 go 1.27.1
 
+// ./integration is deliberately NOT a workspace member: it pins PUBLISHED
+// tags only (pin charter in integration/doc.go), and workspace membership
+// (a) resolves its pins to local code, contradicting the charter, and
+// (b) merges its requires into the repo-level aggregate node in
+// project-dependency-graph, creating a false cqrs-htmx cycle. Its documented
+// verify is hermetic anyway: GOWORK=off (integration/README.md).
 use (
 	.
 	./cqrs
@@ -8,7 +14,6 @@ use (
 	./flightrecorder
 	./flightrecorderhealth
 	./health
-	./integration
 	./otel
 	./realtime
 	./security
