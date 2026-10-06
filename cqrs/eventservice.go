@@ -164,7 +164,6 @@ type EventService struct {
 	sys    *system.System
 	dlq    projectionhost.DeadLetterStore
 	auxDB  *sql.DB
-	inFile *inFlightTracker
 	mu     sync.Mutex
 	closed bool
 }
@@ -184,7 +183,7 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		return nil, err
 	}
 
-	sys, inFile, err := buildSystem(cfg, deployment, cpStore, dlqStore)
+	sys, err := buildSystem(cfg, deployment, cpStore, dlqStore)
 	if err != nil {
 		return nil, closeOnConstructionFailure(aux, err)
 	}
@@ -194,10 +193,9 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 	}
 
 	return &EventService{ //nolint:exhaustruct_v5 // zero-value mu and closed
-		sys:    sys,
-		dlq:    dlqStore,
-		auxDB:  aux,
-		inFile: inFile,
+		sys:   sys,
+		dlq:   dlqStore,
+		auxDB: aux,
 	}, nil
 }
 
@@ -458,15 +456,15 @@ type bootstrapSample struct {
 
 // buildSystem constructs the system.System with derived host options and
 // middleware wiring for the C/Q facade. The in-flight drain tracker is
-// installed outermost so Shutdown waits for entire command chains. dlqStore
-// is the resolved default dead-letter store (nil when DLQ is disabled or
-// consumer-supplied).
+// installed outermost and registered as a system.Drainer so sys.Drain (and
+// GracefulClose) waits for entire command chains. dlqStore is the resolved
+// default dead-letter store (nil when DLQ is disabled or consumer-supplied).
 func buildSystem(
 	cfg EventConfig,
 	deployment system.DeploymentConfig,
 	cpStore event.CheckpointStore,
 	dlqStore projectionhost.DeadLetterStore,
-) (*system.System, *inFlightTracker, error) {
+) (*system.System, error) {
 	inFile := newInFlightTracker()
 
 	middleware := append([]command.Middleware{inFile.commandMiddleware()}, cfg.CommandMiddleware...)
@@ -487,16 +485,18 @@ func buildSystem(
 
 	sys, err := system.New(context.Background(), domain, deployment)
 	if err != nil {
-		return nil, nil, errorfamily.WrapInfrastructuref(
+		return nil, errorfamily.WrapInfrastructuref(
 			err, "cqrs.system_failed", "failed to create CQRS system",
 		)
 	}
+
+	sys.RegisterDrainer(inFile)
 
 	if len(cfg.QueryMiddleware) > 0 {
 		sys.QueryDispatcher().Use(cfg.QueryMiddleware...)
 	}
 
-	return sys, inFile, nil
+	return sys, nil
 }
 
 // closeOnConstructionFailure tears down the half-built aux handle when
@@ -685,9 +685,16 @@ func (es *EventService) StartProjections(ctx context.Context) error {
 }
 
 // Shutdown gracefully stops projections and closes the event store.
-// In-flight commands are drained first (bounded by the context), then the
-// system closes in dependency order. Safe to call multiple times (idempotent
-// via mutex guard).
+// In-flight commands are drained first via the system's drainer seam,
+// bounded by the context, then the system ALWAYS closes — even when the
+// drain context expires, engines and registered closers run, so nothing
+// leaks on a stuck command handler. Drain and close errors are joined.
+// Safe to call multiple times (idempotent via mutex guard).
+//
+// This is Drain+Close rather than a bare sys.GracefulClose delegation
+// because (as of system v4.10.2) GracefulClose returns without closing
+// when its drain phase fails — its godoc promises otherwise, but the
+// implementation would reintroduce the engine leak this method prevents.
 func (es *EventService) Shutdown(ctx context.Context) error {
 	es.mu.Lock()
 
@@ -700,17 +707,10 @@ func (es *EventService) Shutdown(ctx context.Context) error {
 	es.closed = true
 	es.mu.Unlock()
 
-	drainErr := es.inFile.drain(ctx)
-	if drainErr != nil {
-		// Classified Infrastructure: a failed in-flight drain is environmental
-		// (stuck command handlers), not a caller mistake — consumers get 503
-		// semantics and the correct retry classification.
-		return errorfamily.WrapInfrastructuref(
-			drainErr, "cqrs.drain_inflight_failed", "cqrs: drain in-flight commands",
-		)
-	}
+	drainErr := es.sys.Drain(ctx)
+	closeErr := es.sys.Close()
 
-	return es.sys.GracefulClose(ctx) //nolint:wrapcheck // delegation
+	return errors.Join(drainErr, closeErr) //nolint:wrapcheck // both sides already classified
 }
 
 // host returns the projection host, tolerating deployments without one.

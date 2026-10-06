@@ -115,7 +115,10 @@ func (svc *EventService) QueryDispatcher() *query.Dispatcher {
 }
 
 // inFlightTracker counts commands executing through the outermost
-// middleware slot so Shutdown can wait for them before closing engines.
+// middleware slot so shutdown can wait for them before closing engines.
+// It implements system.Drainer and is registered on the system at
+// construction (sys.RegisterDrainer), so sys.Drain/GracefulClose waits for
+// entire command chains before infrastructure connections drop.
 type inFlightTracker struct {
 	mu      sync.Mutex
 	pending int
@@ -160,10 +163,10 @@ func (t *inFlightTracker) pendingCount() int {
 	return t.pending
 }
 
-// drain blocks until all in-flight commands complete or the context
+// Drain blocks until all in-flight commands complete or the context
 // expires. It never aborts running commands — that is the engines' job via
-// context cancellation in GracefulClose.
-func (t *inFlightTracker) drain(ctx context.Context) error {
+// context cancellation during close. Satisfies system.Drainer.
+func (t *inFlightTracker) Drain(ctx context.Context) error {
 	ticker := time.NewTicker(2 * time.Millisecond)
 	defer ticker.Stop()
 
