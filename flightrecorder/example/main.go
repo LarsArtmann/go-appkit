@@ -96,7 +96,7 @@ func run(cfg appkit.ServiceConfig) error {
 		logger.Info("flightrecorder: snapshot complete", attrs...)
 	}
 
-	opts := append( //nolint:gocritic // options slice grows by one hook, not a perf path
+	opts := append(
 		appkitfr.OpsRecorderLoggerPreset(traceDir, demoMaxSnapshots, demoMaxBytes, logger),
 		fr.WithMetrics(metricsHook),
 	)
