@@ -379,7 +379,177 @@ probe := appkithealth.NewProbe(map[string]appkithealth.CheckFunc{
 		return eventSvc.CheckStaleness(2 * time.Second)
 	},
 })
+
+// Per-projection lag for ops dashboards (a map, not an error):
+for name, lag := range eventSvc.LagPerProjection() {
+	slog.Info("projection lag", "projection", name, "lag", lag)
+}
 ```
+
+## Domain declarations
+
+`EventConfig.Domain` passes a `system.DomainConfig` through to the composition
+root, replacing hand-rolled host projections with typed read models: declare
+the shape once and the planner builds the collection, its indexes, and the
+fold wiring. Merge contract: the wrapper's in-flight drain tracker stays
+outermost, its host-bootstrap projection is appended only when `Domain`
+declares no projections of its own, derived host-option wiring wins conflicts,
+and `EventConfig.CheckpointStore` wins over `Domain.CheckpointStore`.
+
+```go
+type TaskView struct {
+	ID       string
+	Title    string
+	Status   string
+	Priority int
+}
+
+type TaskCreated struct { // Created/Updated/Deleted suffix drives the fold
+	ID       string
+	Title    string
+	Status   string
+	Priority int
+}
+
+es, err := cqrs.NewEventService(cqrs.EventConfig{
+	DSN: "events.db",
+	Domain: &system.DomainConfig{
+		Projections: []system.ProjectionDeclaration{
+			system.QuerySet[TaskView]("tasks").
+				On("task.created", TaskCreated{}).
+				Filterable("status"). // generates an index
+				Sortable("priority", false).
+				Done(),
+		},
+	},
+})
+
+// Reads, after StartProjections and catch-up:
+active, err := system.Find[TaskView](ctx, es.System(), "tasks",
+	system.Where("status", "active"),
+	system.OrderBy("priority", system.Desc))
+```
+
+`Lookup` point reads inherit their folds from the matching `Evolve`, and
+non-convention events get explicit folds via `OnEvolution`:
+
+```go
+Domain: &system.DomainConfig{
+	Evolutions: []system.EvolutionSpec{
+		system.OnEvolution(
+			system.Evolve[TaskView]("task").On("task.created", TaskCreated{}),
+			"task.completed", TaskCompleted{},
+			func(_ TaskCompleted, v *TaskView) { v.Status = "done" },
+		).Done(),
+	},
+	Projections: []system.ProjectionDeclaration{
+		system.Lookup[TaskView]("get-task").Done(), // no samples: inherits
+	},
+}
+
+task, err := system.Get[TaskView](ctx, es.System(), "get-task", taskID)
+```
+
+Declare `Events` (the complete journal vocabulary: command emissions plus
+external imports) and construction enforces the coeffect graph: consuming an
+UNDECLARED type fails `NewEventService` with
+`system.ErrDanglingEventSubscription`, which is nearly always a typo.
+
+```go
+Events: []event.Type{"task.created", "task.completed"},
+```
+
+### Command lifecycle audit trail
+
+ADR-0117's `WithCommandLifecycle` is one call returning the recorder, a
+middleware pair, and prebuilt projection declarations (dead-letter queue,
+retry counts, failure/rejection logs, processing time, commands by actor).
+The recorder appends lifecycle events to the event store, so it needs a store
+handle BEFORE construction, while through this wrapper the store only exists
+after `NewEventService`. Bind it lazily: the `Commands` hook runs inside
+construction, before any dispatch can happen, so the delegate is always set
+by the time the middleware first emits.
+
+```go
+// lazyStore delegates to the real event store once the service exists.
+type lazyStore struct {
+	mu   sync.Mutex
+	real event.Store
+}
+
+func (s *lazyStore) bind(store event.Store) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.real = store
+}
+
+func (s *lazyStore) delegate() event.Store {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.real
+}
+
+func (s *lazyStore) Save(
+	ctx context.Context, ref id.StreamRef, events []event.Event, expected event.Version,
+) error {
+	return s.delegate().Save(ctx, ref, events, expected)
+}
+
+func (s *lazyStore) AppendBatch(
+	ctx context.Context, ref id.StreamRef, events []event.Event,
+) error {
+	return s.delegate().AppendBatch(ctx, ref, events)
+}
+
+func (s *lazyStore) Load(ctx context.Context, ref id.StreamRef) ([]event.Event, error) {
+	return s.delegate().Load(ctx, ref)
+}
+
+func (s *lazyStore) LoadFromVersion(
+	ctx context.Context, ref id.StreamRef, version event.Version,
+) ([]event.Event, error) {
+	return s.delegate().LoadFromVersion(ctx, ref, version)
+}
+
+func (s *lazyStore) LoadToVersion(
+	ctx context.Context, ref id.StreamRef, maxVersion event.Version,
+) ([]event.Event, error) {
+	return s.delegate().LoadToVersion(ctx, ref, maxVersion)
+}
+
+func (s *lazyStore) LoadToTimestamp(
+	ctx context.Context, ref id.StreamRef, maxTime time.Time,
+) ([]event.Event, error) {
+	return s.delegate().LoadToTimestamp(ctx, ref, maxTime)
+}
+
+store := &lazyStore{}
+cl := system.WithCommandLifecycle(store)
+
+es, err := cqrs.NewEventService(cqrs.EventConfig{
+	DSN: "events.db",
+	Domain: &system.DomainConfig{
+		// Outer emits received/completed/dead-lettered; Attempt emits
+		// failed/retried per attempt; retry middleware belongs between them.
+		Middleware:  []command.Middleware{cl.OuterMiddleware, cl.AttemptMiddleware},
+		Projections: cl.Projections, // prebuilt lifecycle read models
+		Commands: func(sys *system.System) {
+			store.bind(sys.EventStore())
+		},
+	},
+})
+
+// Read the lifecycle models like any declared query:
+counts, err := metaengine.ExecuteTypedByName[
+	clprojections.RetryCountQuery, map[string]int64](
+	ctx, es.System().MetaEngine(), clprojections.RetryCount().Name,
+	clprojections.RetryCountQuery{})
+```
+
+Lifecycle events are ordinary journal events: they replay, checkpoint, and
+drain with everything else.
 
 ## Command/query facade
 
