@@ -6,11 +6,11 @@ require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.13.1
 	github.com/larsartmann/go-appkit v0.7.0
 	github.com/larsartmann/go-appkit/cqrs v0.6.1
-	github.com/larsartmann/go-appkit/errorpages v0.1.0
-	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.5
-	github.com/larsartmann/go-appkit/health v0.1.4
-	github.com/larsartmann/go-appkit/otel v0.1.1
-	github.com/larsartmann/go-appkit/realtime v0.1.2
+	github.com/larsartmann/go-appkit/errorpages v0.1.1
+	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.6
+	github.com/larsartmann/go-appkit/health v0.1.5
+	github.com/larsartmann/go-appkit/otel v0.2.0
+	github.com/larsartmann/go-appkit/realtime v0.1.3
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.13.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.7.2
@@ -20,7 +20,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.1
 	github.com/larsartmann/go-cqrs-lite/system/v4 v4.10.2
 	github.com/larsartmann/go-error-family v0.11.0
-	github.com/larsartmann/go-flightrecorder v0.2.0
+	github.com/larsartmann/go-flightrecorder v0.2.1
 	github.com/larsartmann/go-health v0.5.0
 	github.com/larsartmann/go-sse v0.6.2
 	github.com/larsartmann/go-sse/ssetest v0.4.0
@@ -60,6 +60,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.31.0 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/knadh/koanf/maps v0.1.3 // indirect
 	github.com/knadh/koanf/parsers/yaml v1.1.1 // indirect
@@ -121,16 +122,25 @@ require (
 	github.com/xo/terminfo v1.2.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.72.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.47.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.47.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.47.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.47.0 // indirect
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
+	go.opentelemetry.io/proto/otlp v1.11.1 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba // indirect
+	golang.org/x/exp v0.0.0-20261005173118-76772065c9b0 // indirect
 	golang.org/x/net v0.59.0 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20261005182115-fad411399dd8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
+	google.golang.org/grpc v1.84.0 // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
 	modernc.org/libc v1.77.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect

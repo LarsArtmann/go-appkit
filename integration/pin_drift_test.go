@@ -26,12 +26,12 @@ import (
 // family tag. Nothing else in this file or the script needs to change.
 var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit":                      "v0.7.0",
-	"github.com/larsartmann/go-appkit/cqrs":                 "v0.6.0",
-	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.0",
-	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.5",
-	"github.com/larsartmann/go-appkit/health":               "v0.1.4",
-	"github.com/larsartmann/go-appkit/otel":                 "v0.1.1",
-	"github.com/larsartmann/go-appkit/realtime":             "v0.1.2",
+	"github.com/larsartmann/go-appkit/cqrs":                 "v0.6.1",
+	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.1",
+	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.6",
+	"github.com/larsartmann/go-appkit/health":               "v0.1.5",
+	"github.com/larsartmann/go-appkit/otel":                 "v0.2.0",
+	"github.com/larsartmann/go-appkit/realtime":             "v0.1.3",
 	"github.com/larsartmann/go-appkit/security":             "v0.2.0",
 
 	"github.com/larsartmann/cqrs-htmx/v4":   "v4.13.1",
@@ -44,11 +44,13 @@ var documentedPins = map[string]string{
 	// the published family modules carry (go-health v0.5.0 = the health
 	// module's pin since the 2026-10-06 dependency sweep — the earlier
 	// "v0.3.0 evaluation pending" lock is OVERTAKEN, the suite is green on
-	// v0.5.0; go-flightrecorder v0.2.0 = frh/cqrs/otel's pin;
+	// v0.5.0; go-flightrecorder v0.2.1 = otel v0.2.0's floor (the upstream
+	// async-capture race fix) — frh/cqrs still pin v0.2.0 on their trains,
+	// safe: they never combine Reset with async captures;
 	// samber/do v2.1.0 = frh's pin) — deliberately NOT asserted against the
 	// proxy LATEST by scripts/check-pin-drift.sh; re-align by hand when the
 	// owning family module bumps them.
-	"github.com/larsartmann/go-flightrecorder": "v0.2.0",
+	"github.com/larsartmann/go-flightrecorder": "v0.2.1",
 	"github.com/larsartmann/go-health":         "v0.5.0",
 	"github.com/samber/do/v2":                  "v2.1.0",
 }
