@@ -192,6 +192,8 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		sys.RegisterCloser(auxCloserName, aux)
 	}
 
+	logScreamFindings(cfg, sys)
+
 	return &EventService{ //nolint:exhaustruct_v5 // zero-value mu and closed
 		sys:   sys,
 		dlq:   dlqStore,
@@ -466,6 +468,37 @@ func buildSystem(
 	}
 
 	return sys, nil
+}
+
+// logScreamFindings surfaces the system's construction-time safety report
+// through the config's logger so volatile-driver and durability-downgrade
+// deployments are visible at boot instead of only via ScreamReport().
+// WARN+OVERRIDE findings log at WARN (the operator can silence them via the
+// deployment's acknowledge_warnings), ADVISORY at INFO, and SCREAM at ERROR
+// (unreachable after a successful system.New, kept defensive). A clean
+// report logs nothing.
+func logScreamFindings(cfg EventConfig, sys *system.System) {
+	report := sys.ScreamReport()
+	if report == nil || len(report.Diagnostics) == 0 {
+		return
+	}
+
+	logger := cfg.Logger
+	if logger == nil {
+		logger = slog.Default()
+	}
+
+	for _, diag := range report.Diagnostics {
+		switch diag.Tier {
+		case system.TierWarnOverride:
+			logger.Warn("cqrs: deployment safety finding — acknowledge via acknowledge_warnings if intended",
+				"rule", diag.Rule, "detail", diag.Detail, "tier", string(diag.Tier))
+		case system.TierAdvisory:
+			logger.Info("cqrs: deployment advisory", "rule", diag.Rule, "detail", diag.Detail)
+		case system.TierScream:
+			logger.Error("cqrs: deployment safety violation", "rule", diag.Rule, "detail", diag.Detail)
+		}
+	}
 }
 
 // closeOnConstructionFailure tears down the half-built aux handle when

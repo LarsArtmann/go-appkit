@@ -1,8 +1,11 @@
 package cqrs
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"log/slog"
+	"strings"
 	"testing"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -184,6 +187,49 @@ func TestEventService_HealthAccessors(t *testing.T) {
 	report := eventSvc.ScreamReport()
 	if report == nil {
 		t.Fatal("expected non-nil ScreamReport")
+	}
+}
+
+func TestNewEventService_LogsScreamWarningsForVolatileSourceOfTruth(t *testing.T) {
+	t.Parallel()
+
+	var buf bytes.Buffer
+
+	logger := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelWarn}))
+
+	eventSvc, err := NewEventService(EventConfig{Driver: memoryDriver, Logger: logger})
+	if err != nil {
+		t.Fatalf("NewEventService: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	out := buf.String()
+	if !strings.Contains(out, "volatile-source-of-truth") {
+		t.Errorf("expected volatile-source-of-truth warning at construction, got: %q", out)
+	}
+
+	if !strings.Contains(out, "acknowledge_warnings") {
+		t.Errorf("expected the acknowledgment escape hatch in the warning, got: %q", out)
+	}
+}
+
+func TestNewEventService_CleanDeploymentLogsNoScream(t *testing.T) {
+	t.Parallel()
+
+	var buf bytes.Buffer
+
+	logger := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelWarn}))
+
+	eventSvc, err := NewEventService(EventConfig{DSN: t.TempDir() + "/test.db", Logger: logger})
+	if err != nil {
+		t.Fatalf("NewEventService: %v", err)
+	}
+
+	defer func() { _ = eventSvc.Shutdown(context.Background()) }()
+
+	if out := buf.String(); out != "" {
+		t.Errorf("expected no safety findings for a clean sqlite deployment, got: %q", out)
 	}
 }
 
