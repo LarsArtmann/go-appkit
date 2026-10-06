@@ -473,22 +473,22 @@ by the time the middleware first emits.
 ```go
 // lazyStore delegates to the real event store once the service exists.
 type lazyStore struct {
-	mu   sync.Mutex
-	real event.Store
+	mu     sync.Mutex
+	target event.Store
 }
 
 func (s *lazyStore) bind(store event.Store) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.real = store
+	s.target = store
 }
 
 func (s *lazyStore) delegate() event.Store {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	return s.real
+	return s.target
 }
 
 func (s *lazyStore) Save(
@@ -551,12 +551,15 @@ counts, err := metaengine.ExecuteTypedByName[
 Lifecycle events are ordinary journal events: they replay, checkpoint, and
 drain with everything else.
 
+Every recipe in this section is compile-checked by a godoc Example in
+`example_test.go` — keep them in sync when editing either side.
+
 ### Streaming read models
 
 Declared collections are watchable: `metaengine.NewWatcher` over the
 collection plus `metaengine.ServeSSE` streams every materialized change to
-browser EventSource clients, with optional replay-journal reconnection
-(`WithReplay`) so a reconnecting client catches up via `Last-Event-ID`.
+browser EventSource clients. A client that reconnects with `Last-Event-ID`
+automatically catches up on missed changes (capped by `WithSSEReplayLimit`).
 
 ```go
 watcher := metaengine.NewWatcher[TaskView](es.System().MetaEngine(), "tasks")

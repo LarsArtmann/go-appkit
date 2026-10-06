@@ -4,13 +4,18 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/larsartmann/go-appkit/cqrs"
+	"github.com/larsartmann/go-cqrs-lite/command/v4"
+	clprojections "github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4"
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
+	"github.com/larsartmann/go-cqrs-lite/metaengine/v4"
 	"github.com/larsartmann/go-cqrs-lite/projection/v4"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
 )
@@ -216,4 +221,157 @@ func ExampleNewEventService_domain() {
 	// Output:
 	// Ship v0.7.0
 	// Write domain tests
+}
+
+// exampleLazyStore delegates to the real event store once the service
+// exists, so system.WithCommandLifecycle can be constructed before
+// cqrs.NewEventService while still appending lifecycle events to the real
+// journal. The DomainConfig.Commands hook binds the delegate during
+// construction, before any dispatch can emit.
+type exampleLazyStore struct {
+	mu     sync.Mutex
+	target event.Store
+}
+
+func (s *exampleLazyStore) bind(store event.Store) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.target = store
+}
+
+func (s *exampleLazyStore) delegate() event.Store {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.target
+}
+
+func (s *exampleLazyStore) Save(
+	ctx context.Context, ref id.StreamRef, events []event.Event, expected event.Version,
+) error {
+	return s.delegate().Save(ctx, ref, events, expected)
+}
+
+func (s *exampleLazyStore) AppendBatch(
+	ctx context.Context, ref id.StreamRef, events []event.Event,
+) error {
+	return s.delegate().AppendBatch(ctx, ref, events)
+}
+
+func (s *exampleLazyStore) Load(ctx context.Context, ref id.StreamRef) ([]event.Event, error) {
+	return s.delegate().Load(ctx, ref)
+}
+
+func (s *exampleLazyStore) LoadFromVersion(
+	ctx context.Context, ref id.StreamRef, version event.Version,
+) ([]event.Event, error) {
+	return s.delegate().LoadFromVersion(ctx, ref, version)
+}
+
+func (s *exampleLazyStore) LoadToVersion(
+	ctx context.Context, ref id.StreamRef, maxVersion event.Version,
+) ([]event.Event, error) {
+	return s.delegate().LoadToVersion(ctx, ref, maxVersion)
+}
+
+func (s *exampleLazyStore) LoadToTimestamp(
+	ctx context.Context, ref id.StreamRef, maxTime time.Time,
+) ([]event.Event, error) {
+	return s.delegate().LoadToTimestamp(ctx, ref, maxTime)
+}
+
+// Mirrors the README "Command lifecycle audit trail" recipe: ADR-0117's
+// one-call lifecycle wiring plus the lazy store binding that solves the
+// recorder-needs-a-store-before-construction ordering. Compile-checked
+// corpus for the recipe; not executed (no Output).
+func ExampleNewEventService_domainCommandLifecycle() {
+	store := &exampleLazyStore{}
+	cl := system.WithCommandLifecycle(store)
+
+	es, err := cqrs.NewEventService(cqrs.EventConfig{
+		Driver: "memory",
+		Domain: &system.DomainConfig{
+			// Outer emits received/completed/dead-lettered; Attempt emits
+			// failed/retried per attempt; retry middleware belongs between them.
+			Middleware:  []command.Middleware{cl.OuterMiddleware, cl.AttemptMiddleware},
+			Projections: cl.Projections, // prebuilt lifecycle read models
+			Commands: func(sys *system.System) {
+				store.bind(sys.EventStore())
+			},
+		},
+	})
+	if err != nil {
+		fmt.Println("construct:", err)
+
+		return
+	}
+
+	defer func() { _ = es.Shutdown(context.Background()) }()
+
+	// Read the lifecycle models like any declared query (after commands
+	// have flowed and the lifecycle projections caught up):
+	counts, err := metaengine.ExecuteTypedByName[
+		clprojections.RetryCountQuery, map[string]int64](
+		context.Background(), es.System().MetaEngine(), clprojections.RetryCount().Name,
+		clprojections.RetryCountQuery{})
+	if err != nil {
+		fmt.Println("retry counts:", err)
+
+		return
+	}
+
+	fmt.Println("commands tracked:", len(counts))
+}
+
+// Mirrors the README "Streaming read models" recipe: watch a declared
+// collection and stream every materialized change to EventSource clients.
+// Reconnection replay is automatic when the client sends Last-Event-ID,
+// capped by WithSSEReplayLimit. Compile-checked corpus for the recipe;
+// not executed (no Output).
+func ExampleEventService_System() {
+	type taskView struct {
+		ID       string
+		Title    string
+		Status   string
+		Priority int
+	}
+
+	type taskCreated struct {
+		ID       string
+		Title    string
+		Status   string
+		Priority int
+	}
+
+	es, err := cqrs.NewEventService(cqrs.EventConfig{
+		Driver: "memory",
+		Domain: &system.DomainConfig{
+			Projections: []system.ProjectionDeclaration{
+				system.QuerySet[taskView]("tasks").
+					On("task.created", taskCreated{}).
+					Done(),
+			},
+		},
+	})
+	if err != nil {
+		fmt.Println("construct:", err)
+
+		return
+	}
+
+	defer func() { _ = es.Shutdown(context.Background()) }()
+
+	watcher := metaengine.NewWatcher[taskView](es.System().MetaEngine(), "tasks")
+
+	defer watcher.Close()
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /events/tasks", func(w http.ResponseWriter, r *http.Request) {
+		_ = metaengine.ServeSSE(w, r, watcher, //nolint:errcheck // stream ends with the request
+			metaengine.WithSSEHeartbeat(30*time.Second))
+	})
+
+	_ = mux // mount on the appkit Service's mux in a real service
 }

@@ -4,6 +4,7 @@ go 1.27.1
 
 require (
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.13.1
+	github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4 v4.2.2
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.7.2
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.13.1
 	github.com/larsartmann/go-cqrs-lite/id/v4 v4.7.1
@@ -44,7 +45,6 @@ require (
 	github.com/larsartmann/go-branded-id v0.7.0 // indirect
 	github.com/larsartmann/go-codec v0.3.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2 // indirect
-	github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4 v4.2.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/commandlifecycle/v4 v4.2.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/dedup/v4 v4.2.4 // indirect
 	github.com/larsartmann/go-cqrs-lite/dispatcher/v4 v4.5.2 // indirect
