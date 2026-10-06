@@ -27,11 +27,29 @@ env:
   GOPRIVATE: "github.com/larsartmann/*,github.com/LarsArtmann/*"
 
 jobs:
+  # Single loud failure when the private-repo secret is missing, instead of
+  # twelve identical ssh-agent errors across the matrix. This class of blind
+  # spot ran red-and-unnoticed for 6 days (2026-10-01..07): every guard and
+  # proxy-smoke job was green while the actual test matrix was dead.
+  ci-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check SSH_PRIVATE_KEY secret is present
+        if: github.event_name != 'pull_request'
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if [[ -z "$SSH_KEY" ]]; then
+            echo "::error::SSH_PRIVATE_KEY resolves empty - restore the repo secret (Settings -> Secrets -> Actions). The test matrix is skipped until then; guard jobs and proxy-smoke still run independently."
+            exit 1
+          fi
+
   # Per-module build + vet + test + race, mirroring the documented local
   # commands in AGENTS.md ("Sub-module Build Commands"). The root core module
   # has no go.work-safe standalone build issue; each module builds standalone
   # so published-tag drift is caught before tagging.
   test:
+    needs: ci-preflight
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
