@@ -591,3 +591,107 @@ func TestEventService_DomainSqliteFile_PersistsAcrossRestart(t *testing.T) {
 		return countErr == nil && counts["total"] == 1
 	})
 }
+
+// recordingScheduler satisfies system.TimerScheduler: signals start, blocks
+// until the owned context is cancelled, then signals stop.
+type recordingScheduler struct {
+	started chan struct{}
+	stopped chan struct{}
+}
+
+func (r *recordingScheduler) Start(ctx context.Context) error {
+	close(r.started)
+	<-ctx.Done()
+	close(r.stopped)
+
+	return nil
+}
+
+// Domain.Timers hands scheduler lifecycle to the composition root: the
+// scheduler stays idle through construction, starts with StartProjections
+// (sys.Start), and stops on Shutdown (GracefulClose cancels the owned
+// context).
+func TestEventService_DomainTimers_LifecycleOwnedBySystem(t *testing.T) {
+	t.Parallel()
+
+	sched := &recordingScheduler{
+		started: make(chan struct{}),
+		stopped: make(chan struct{}),
+	}
+
+	eventSvc := newDomainServiceCfg(t, func(domain *system.DomainConfig) {
+		domain.Timers = func(sys *system.System) {
+			sys.ManageTimers(sched)
+		}
+	})
+
+	select {
+	case <-sched.started:
+		t.Fatal("scheduler must not start before StartProjections")
+	case <-time.After(50 * time.Millisecond):
+	}
+
+	err := eventSvc.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("StartProjections: %v", err)
+	}
+
+	select {
+	case <-sched.started:
+	case <-time.After(5 * time.Second):
+		t.Fatal("scheduler never started after StartProjections")
+	}
+
+	err = eventSvc.Shutdown(context.Background())
+	if err != nil {
+		t.Fatalf("Shutdown: %v", err)
+	}
+
+	select {
+	case <-sched.stopped:
+	case <-time.After(5 * time.Second):
+		t.Fatal("scheduler never stopped after Shutdown")
+	}
+}
+
+// Domain.ShutdownDependencies must reach system validation: a typo'd engine
+// name fails construction instead of silently no-oping at Close() time.
+func TestNewEventService_DomainShutdownDependencies_UnknownEngineFails(t *testing.T) {
+	t.Parallel()
+
+	_, err := NewEventService(EventConfig{
+		Driver: memoryDriver,
+		Domain: &system.DomainConfig{
+			ShutdownDependencies: []system.ShutdownDependency{
+				{Before: "typo-engine", After: "default"},
+			},
+		},
+	})
+	if err == nil {
+		t.Fatal("expected construction to fail on the unknown engine name")
+	}
+
+	if !errors.Is(err, system.ErrUnknownEngine) {
+		t.Errorf("expected ErrUnknownEngine in the chain, got: %v", err)
+	}
+}
+
+// The same passthrough accepts a valid edge over the synthesized engine
+// names without error.
+func TestNewEventService_DomainShutdownDependencies_ValidEdgeConstructs(t *testing.T) {
+	t.Parallel()
+
+	eventSvc, err := NewEventService(EventConfig{
+		Driver: memoryDriver,
+		Domain: &system.DomainConfig{
+			ShutdownDependencies: []system.ShutdownDependency{
+				{Before: "projections", After: "default"},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("construction with a valid edge must succeed: %v", err)
+	}
+
+	t.Cleanup(func() { _ = eventSvc.Shutdown(context.Background()) })
+}
