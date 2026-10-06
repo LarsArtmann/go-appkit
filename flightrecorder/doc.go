@@ -37,13 +37,23 @@
 //  3. After the handler completes, constructs a [fr.TriggerContext] with
 //     Kind="http", Type="METHOD /path", Duration, and Err (non-nil if status
 //     exceeds the error threshold, default 500).
-//  4. Evaluates the trigger function. If it returns true, captures a snapshot.
-//  5. Resets the recorder's once-latch so subsequent problematic requests
-//     can also capture traces.
+//  4. Evaluates the trigger function. If it returns true, INITIATES a
+//     snapshot asynchronously ([fr.Recorder.SnapshotIfAsync] with
+//     [context.WithoutCancel]) — the request never pays trace-write
+//     latency. Completion telemetry (bytes, path, sink errors) belongs to
+//     the recorder's [fr.WithMetrics] hook; WithLogger logs the initiation
+//     with method/path/duration/status for request correlation.
+//  5. With auto-reset (default), re-arms the recorder's once-latch so
+//     subsequent problematic requests can also capture.
 //
 // The once-latch from go-flightrecorder prevents snapshot races when multiple
 // goroutines detect problems simultaneously. Only the first caller in a burst
 // captures a trace; the latch is then re-armed via Reset for the next event.
+// Sink choice matters for repeated captures: a snapshot-dir sink writes a new
+// timestamped, retained file per initiated capture (deterministic), while a
+// writer/file sink is once-latched — with auto-reset re-armed per initiation,
+// tight bursts may still deduplicate (prefer the dir sink; see
+// [OpsRecorderPreset]).
 //
 // # Process-global singleton
 //

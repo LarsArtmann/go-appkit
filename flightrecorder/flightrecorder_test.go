@@ -221,6 +221,74 @@ func waitForTraceFile(t *testing.T, path string) {
 	t.Fatalf("trace file not written within 2s at %s", path)
 }
 
+// waitForTraceCount polls until dir holds at least want non-empty files.
+func waitForTraceCount(t *testing.T, dir string, want int) {
+	t.Helper()
+
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		entries, err := os.ReadDir(dir)
+		if err == nil {
+			nonEmpty := 0
+
+			for _, entry := range entries {
+				if info, statErr := entry.Info(); statErr == nil && info.Size() > 0 {
+					nonEmpty++
+				}
+			}
+
+			if nonEmpty >= want {
+				return
+			}
+		}
+
+		time.Sleep(time.Millisecond)
+	}
+
+	t.Fatalf("dir %s never reached %d non-empty trace files within 2s", dir, want)
+}
+
+// countingWriter is a goroutine-safe io.Writer for assertions on async
+// captures (bytes.Buffer races with a concurrent capture goroutine under
+// -race).
+type countingWriter struct {
+	mu     sync.Mutex
+	total  int
+	writes int
+}
+
+func (w *countingWriter) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.total += len(p)
+	w.writes++
+
+	return len(p), nil
+}
+
+func (w *countingWriter) totalBytes() int {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	return w.total
+}
+
+// waitForBytes polls until the writer has received at least want bytes.
+func waitForBytes(t *testing.T, w *countingWriter, want int) {
+	t.Helper()
+
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		if w.totalBytes() >= want {
+			return
+		}
+
+		time.Sleep(time.Millisecond)
+	}
+
+	t.Fatalf("writer never reached %d bytes within 2s (have %d)", want, w.totalBytes())
+}
+
 // --- Middleware trigger tests ---
 
 func TestMiddleware_CapturesOnError(t *testing.T) {
@@ -374,15 +442,15 @@ func TestMiddleware_WithLogger(t *testing.T) {
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/data", nil)
 	handler.ServeHTTP(rr, req)
 
-	assertTraceWritten(t, tracePath)
+	waitForTraceFile(t, tracePath)
 
 	logOutput := buf.String()
 	if logOutput == "" {
 		t.Fatal("expected log output, got empty string")
 	}
 
-	if !bytes.Contains(buf.Bytes(), []byte("flightrecorder: trace snapshot captured")) {
-		t.Fatalf("expected log to contain capture message, got: %s", logOutput)
+	if !bytes.Contains(buf.Bytes(), []byte("flightrecorder: trace capture initiated")) {
+		t.Fatalf("expected log to contain capture-initiation message, got: %s", logOutput)
 	}
 }
 
@@ -402,7 +470,7 @@ func TestMiddleware_WithAutoResetDisabled(t *testing.T) {
 	req1 := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr1, req1)
 
-	assertTraceWritten(t, tracePath)
+	waitForTraceFile(t, tracePath)
 
 	// Delete the trace file so we can verify second request does NOT write
 	err := os.Remove(tracePath)
@@ -419,7 +487,15 @@ func TestMiddleware_WithAutoResetDisabled(t *testing.T) {
 }
 
 func TestMiddleware_AutoResetDefault_AllowsMultipleCaptures(t *testing.T) {
-	rec, buf := newBufferRecorder(t)
+	dir := t.TempDir()
+
+	rec, err := fr.New(
+		fr.WithSnapshotDir(dir),
+		fr.WithSnapshotPrefix("trace"),
+	)
+	if err != nil {
+		t.Fatalf("fr.New() error: %v", err)
+	}
 
 	cleanup := startRecorder(t, rec)
 	defer cleanup()
@@ -430,25 +506,20 @@ func TestMiddleware_AutoResetDefault_AllowsMultipleCaptures(t *testing.T) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 
-	// First request
+	// First request captures to the first timestamped file (dir sinks are
+	// not once-latched — every initiated capture writes a new file).
 	rr1 := httptest.NewRecorder()
 	req1 := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr1, req1)
 
-	firstSize := buf.Len()
-	if firstSize == 0 {
-		t.Fatal("expected first capture to write trace data, got 0 bytes")
-	}
+	waitForTraceCount(t, dir, 1)
 
 	// Second request should also capture (autoReset is default true)
 	rr2 := httptest.NewRecorder()
 	req2 := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr2, req2)
 
-	secondSize := buf.Len()
-	if secondSize <= firstSize {
-		t.Fatalf("expected second capture to grow buffer: first=%d, second=%d", firstSize, secondSize)
-	}
+	waitForTraceCount(t, dir, 2)
 }
 
 func TestMiddleware_NilTriggerNeverCaptures(t *testing.T) {
@@ -665,7 +736,12 @@ func TestMount_RegistersHandler(t *testing.T) {
 // --- Integration: middleware + handler together ---
 
 func TestMiddleware_ThenHandler_ManualSnapshotAfterAutoCapture(t *testing.T) {
-	rec, buf := newBufferRecorder(t)
+	cw := &countingWriter{}
+
+	rec, err := fr.New(fr.WithWriter(cw))
+	if err != nil {
+		t.Fatalf("fr.New() error: %v", err)
+	}
 
 	cleanup := startRecorder(t, rec)
 	defer cleanup()
@@ -690,10 +766,12 @@ func TestMiddleware_ThenHandler_ManualSnapshotAfterAutoCapture(t *testing.T) {
 
 	_ = resp1.Body.Close()
 
-	firstSize := buf.Len()
-	if firstSize == 0 {
-		t.Fatal("expected middleware capture to write trace data, got 0 bytes")
-	}
+	// The async capture must land BEFORE the manual snapshot: the handler
+	// resets the once-latch, and if the latch still carries the middleware's
+	// arm the manual write is silently skipped.
+	waitForBytes(t, cw, 1)
+
+	firstSize := cw.totalBytes()
 
 	// Now manually snapshot — handler resets the latch, should capture again
 	resp2 := httpPostJSON(t, ts.URL+"/debug/snapshot")
@@ -703,8 +781,7 @@ func TestMiddleware_ThenHandler_ManualSnapshotAfterAutoCapture(t *testing.T) {
 		t.Fatalf("expected 200, got %d", resp2.StatusCode)
 	}
 
-	secondSize := buf.Len()
-	if secondSize <= firstSize {
-		t.Fatalf("expected manual capture to grow buffer: first=%d, second=%d", firstSize, secondSize)
+	if secondSize := cw.totalBytes(); secondSize <= firstSize {
+		t.Fatalf("expected manual capture to grow writer: first=%d, second=%d", firstSize, secondSize)
 	}
 }
