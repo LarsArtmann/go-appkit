@@ -29,7 +29,6 @@ import (
 	_ "github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4" // registers the "sqlite" driver (blank-import contract)
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
 	"github.com/larsartmann/go-cqrs-lite/query/v4"
-	"github.com/larsartmann/go-cqrs-lite/storage/v4/eventstore"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
 	errorfamily "github.com/larsartmann/go-error-family"
 	fr "github.com/larsartmann/go-flightrecorder"
@@ -118,11 +117,12 @@ type EventConfig struct {
 	Metrics projectionhost.MetricsRecorder
 
 	// CheckpointStore overrides the projection checkpoint store. When nil
-	// (default) a persistent SQL checkpoint store is created on the config's
-	// own SQLite database (driver "sqlite" with a DSN); other drivers fall
-	// back to system's engine-backed checkpoint store where the engine
-	// supports it (ADR-0142), else in-memory. Use this to force a custom
-	// store for any driver.
+	// (default), checkpoints persist via system's engine-backed checkpoint
+	// store (ADR-0142: the system_checkpoints collection on the projection
+	// engine) where the engine supports it — sqlite and postgres deployments
+	// persist across restarts; memory deployments do not. Use this to force a
+	// custom store for any driver (e.g. the legacy SQL checkpoint table via
+	// eventstore.NewSQLiteCheckpointStore — see the README upgrade note).
 	CheckpointStore event.CheckpointStore
 
 	// CommandMiddleware wraps every command dispatched through the service
@@ -178,12 +178,12 @@ func NewEventService(cfg EventConfig) (*EventService, error) {
 		return nil, err
 	}
 
-	aux, dlqStore, cpStore, err := openAuxResources(cfg, deployment)
+	aux, dlqStore, err := openAuxResources(cfg, deployment)
 	if err != nil {
 		return nil, err
 	}
 
-	sys, err := buildSystem(cfg, deployment, cpStore, dlqStore)
+	sys, err := buildSystem(cfg, deployment, dlqStore)
 	if err != nil {
 		return nil, closeOnConstructionFailure(aux, err)
 	}
@@ -282,32 +282,32 @@ func defaultDeployment(driver, dsn string, pragmas []string) system.DeploymentCo
 	}
 }
 
-// openAuxResources opens the auxiliary *sql.DB backing the default
-// persistent checkpoint and DLQ stores. It returns no aux handle when the
-// deployment is not sqlite-with-file (or both stores are consumer-supplied
-// or absent).
+// openAuxResources opens the auxiliary *sql.DB backing the default DLQ
+// store (the only remaining aux consumer since checkpoints moved to
+// system's engine-backed default, ADR-0142). It returns no aux handle when
+// the deployment is not sqlite-with-file or the DLQ is disabled or
+// consumer-supplied.
 func openAuxResources( //nolint:ireturn // upstream interface
 	cfg EventConfig,
 	deployment system.DeploymentConfig,
-) (*sql.DB, projectionhost.DeadLetterStore, event.CheckpointStore, error) {
+) (*sql.DB, projectionhost.DeadLetterStore, error) {
 	wantDefaultDLQ := wantsDefaultDLQ(cfg)
-	wantDefaultCP := cfg.CheckpointStore == nil
 	sqliteFile := deploymentUsesSQLiteFile(deployment)
 
-	if (!wantDefaultDLQ && !wantDefaultCP) || !sqliteFile {
+	if !wantDefaultDLQ || !sqliteFile {
 		if wantDefaultDLQ && !sqliteFile {
-			return nil, nil, nil, errorfamily.NewRejection(
+			return nil, nil, errorfamily.NewRejection(
 				"cqrs.dlq_store_required",
 				`DLQConfig.Store is required when the driver is not "sqlite"`,
 			)
 		}
 
-		return nil, dlqStoreOrNil(cfg), cfg.CheckpointStore, nil
+		return nil, dlqStoreOrNil(cfg), nil
 	}
 
 	aux, openErr := sql.Open(defaultSQLiteDriver, auxDSN(cfg, deployment))
 	if openErr != nil {
-		return nil, nil, nil, errorfamily.WrapInfrastructuref(
+		return nil, nil, errorfamily.WrapInfrastructuref(
 			openErr,
 			"cqrs.open_failed",
 			"failed to open auxiliary database at %s",
@@ -315,14 +315,14 @@ func openAuxResources( //nolint:ireturn // upstream interface
 		)
 	}
 
-	dlqStore, cpStore, storeErr := buildAuxStores(context.Background(), cfg, aux)
+	dlqStore, storeErr := buildAuxStores(context.Background(), cfg, aux)
 	if storeErr != nil {
 		_ = aux.Close()
 
-		return nil, nil, nil, storeErr
+		return nil, nil, storeErr
 	}
 
-	return aux, dlqStore, cpStore, nil
+	return aux, dlqStore, nil
 }
 
 // deploymentUsesSQLiteFile reports whether the deployment resolves to a
@@ -354,8 +354,8 @@ func dlqStoreOrNil(cfg EventConfig) projectionhost.DeadLetterStore { //nolint:ir
 
 // auxDSN picks the file DSN the aux handle opens: the first sqlite file
 // engine in the deployment, falling back to the config-level DSN. A busy
-// timeout is injected so checkpoint/DLQ writes wait out engine-side lock
-// contention instead of failing with SQLITE_BUSY.
+// timeout is injected so DLQ writes wait out engine-side lock contention
+// instead of failing with SQLITE_BUSY.
 func auxDSN(cfg EventConfig, deployment system.DeploymentConfig) string {
 	dsn := ""
 
@@ -388,19 +388,19 @@ func sortedEngineNames(deployment system.DeploymentConfig) []string {
 	return slices.Sorted(maps.Keys(deployment.Engines))
 }
 
-// buildAuxStores creates the default DLQ and checkpoint stores on the aux
-// handle, honoring consumer overrides.
+// buildAuxStores creates the default DLQ store on the aux handle, honoring
+// consumer overrides.
 func buildAuxStores( //nolint:ireturn // upstream interface
 	ctx context.Context,
 	cfg EventConfig,
 	handle *sql.DB,
-) (projectionhost.DeadLetterStore, event.CheckpointStore, error) {
+) (projectionhost.DeadLetterStore, error) {
 	dlqStore := dlqStoreOrNil(cfg)
 
 	if wantsDefaultDLQ(cfg) {
 		store, err := projectionhost.NewSQLiteDeadLetterStore(ctx, handle)
 		if err != nil {
-			return nil, nil, errorfamily.WrapInfrastructure(
+			return nil, errorfamily.WrapInfrastructure(
 				err, "cqrs.dlq_provision_failed", "failed to create dead-letter store",
 			)
 		}
@@ -408,37 +408,7 @@ func buildAuxStores( //nolint:ireturn // upstream interface
 		dlqStore = store
 	}
 
-	cpStore := cfg.CheckpointStore
-
-	if cpStore == nil {
-		schemaErr := applyCheckpointSchema(ctx, handle)
-		if schemaErr != nil {
-			return nil, nil, schemaErr
-		}
-
-		store, err := eventstore.NewSQLiteCheckpointStore(handle)
-		if err != nil {
-			return nil, nil, errorfamily.WrapInfrastructure(
-				err, "cqrs.checkpoint_provision_failed", "failed to create checkpoint store",
-			)
-		}
-
-		cpStore = store
-	}
-
-	return dlqStore, cpStore, nil
-}
-
-// applyCheckpointSchema creates the checkpoint table on the aux handle.
-func applyCheckpointSchema(ctx context.Context, handle *sql.DB) error {
-	_, err := handle.ExecContext(ctx, eventstore.SQLiteCheckpointSchema())
-	if err != nil {
-		return errorfamily.WrapInfrastructure(
-			err, "cqrs.checkpoint_provision_failed", "failed to create checkpoint schema",
-		)
-	}
-
-	return nil
+	return dlqStore, nil
 }
 
 // hostBootstrapDeclaration names the zero-entry count projection that
@@ -462,7 +432,6 @@ type bootstrapSample struct {
 func buildSystem(
 	cfg EventConfig,
 	deployment system.DeploymentConfig,
-	cpStore event.CheckpointStore,
 	dlqStore projectionhost.DeadLetterStore,
 ) (*system.System, error) {
 	inFile := newInFlightTracker()
@@ -480,7 +449,7 @@ func buildSystem(
 				Done(),
 		},
 		ProjectionHostOptions: cfg.hostOptions(dlqStore),
-		CheckpointStore:       cpStore,
+		CheckpointStore:       cfg.CheckpointStore,
 	}
 
 	sys, err := system.New(context.Background(), domain, deployment)

@@ -105,7 +105,7 @@ instances:
 		t.Fatalf("write config: %v", writeErr)
 	}
 
-	eventSvc, err := NewEventService(EventConfig{ConfigPath: configPath})
+	eventSvc, err := NewEventService(EventConfig{ConfigPath: configPath, DLQ: &DLQConfig{}})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -114,7 +114,7 @@ instances:
 
 	_, dbErr := eventSvc.DB()
 	if dbErr != nil {
-		t.Errorf("expected aux DB from config-file DSN, got: %v", dbErr)
+		t.Errorf("expected aux DB for the default DLQ store from config-file DSN, got: %v", dbErr)
 	}
 }
 
@@ -142,7 +142,9 @@ func TestNewEventService_DLQDefaultRequiresSQLite(t *testing.T) {
 func TestEventService_DB(t *testing.T) {
 	t.Parallel()
 
-	eventSvc := newTestEventService(t, EventConfig{})
+	// The aux DB exists for the default DLQ store; checkpoints ride the
+	// engine-backed default since ADR-0142.
+	eventSvc := newTestEventService(t, EventConfig{DLQ: &DLQConfig{}})
 	db, err := eventSvc.DB()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

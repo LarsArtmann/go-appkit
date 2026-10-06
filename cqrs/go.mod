@@ -13,7 +13,6 @@ require (
 	github.com/larsartmann/go-cqrs-lite/projection/v4 v4.4.2
 	github.com/larsartmann/go-cqrs-lite/projectionhost/v4 v4.5.3
 	github.com/larsartmann/go-cqrs-lite/query/v4 v4.10.1
-	github.com/larsartmann/go-cqrs-lite/storage/v4 v4.10.4
 	github.com/larsartmann/go-cqrs-lite/system/v4 v4.10.2
 	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-flightrecorder v0.2.0
@@ -54,6 +53,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/metaengine/v4 v4.16.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/record/v4 v4.6.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/snapshot/v4 v4.6.1 // indirect
+	github.com/larsartmann/go-cqrs-lite/storage/v4 v4.10.4 // indirect
 	github.com/larsartmann/go-cqrs-lite/watermill/v4 v4.6.4 // indirect
 	github.com/larsartmann/go-idempotency v0.3.1 // indirect
 	github.com/larsartmann/go-retry v0.7.1 // indirect

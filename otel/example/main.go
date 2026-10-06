@@ -31,6 +31,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/larsartmann/go-appkit"
 	appkitotel "github.com/larsartmann/go-appkit/otel"
 	errorfamily "github.com/larsartmann/go-error-family"
 	fr "github.com/larsartmann/go-flightrecorder"
@@ -109,7 +110,10 @@ func run(cfg appkit.ServiceConfig) error {
 	// spans; the recorder closes during graceful shutdown (Close drains
 	// in-flight async captures); the provider flushes after the server
 	// released its connections.
-	cfg.ShutdownHooks = []func(context.Context) error{rec.Close, provider.Shutdown}
+	cfg.ShutdownHooks = []func(context.Context) error{
+		func(context.Context) error { return rec.Close() }, // Close drains in-flight async captures
+		provider.Shutdown,
+	}
 
 	cfg.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
 	cfg.ExtraMiddlewares = []httputil.Middleware{appkitotel.Recovery(logger)}
