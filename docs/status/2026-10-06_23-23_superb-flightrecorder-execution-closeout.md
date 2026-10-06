@@ -11,7 +11,8 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 ## a) FULLY DONE (implemented, verified, shipped)
 
 **Code (all `-race` green, lint 0 issues):**
-1. **T1 async capture** — `middleware.go:113` uses `SnapshotIfAsync(context.WithoutCancel(...))`; `WithLogger` logs capture *initiation* (message renamed `trace capture initiated`, method/path/duration/status); `WithAutoReset` semantics preserved; doc.go documents the sink-choice tradeoff (dir sinks = deterministic per-initiation files; writer sinks = once-latched, best-effort under bursts).
+
+1. **T1 async capture** — `middleware.go:113` uses `SnapshotIfAsync(context.WithoutCancel(...))`; `WithLogger` logs capture _initiation_ (message renamed `trace capture initiated`, method/path/duration/status); `WithAutoReset` semantics preserved; doc.go documents the sink-choice tradeoff (dir sinks = deterministic per-initiation files; writer sinks = once-latched, best-effort under bursts).
 2. **T2 `OpsRecorderLoggerPreset`** — 7 options, nil-logger graceful; lifecycle + retention failures now land in slog (F3 closed).
 3. **T3 download mode** — `SnapshotHandler(rec, opts...)` / `Mount(..., opts...)` variadic (additions-only, call sites unchanged); `WithSnapshotFilename` with gzip caveat; `?download=1` buffers before write, octet-stream + exact Content-Length, JSON error contract on failure.
 4. **T4 otel bridge shipped** — `type` attribute on both `appkit_flightrecorder_*` metrics (fails-first test then green); example wired (dir-sink recorder + `/slow` route + `rec.Close` in ShutdownHooks + `provider.Shutdown` ordering); README signal table + bridge section.
@@ -69,6 +70,7 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 ## f) UP TO 50 NEXT THINGS (dependency-ordered; P=plan-derived, D=discovered this session)
 
 **Immediate (small, high-value):**
+
 1. Re-run the audit (`library-deep-dive` Phase 1-7) against the post-train tree to convert the 73→~90 projection into a measured score (P; the audit's own recommendations are now all closed except F8→upstream-ask, which is drafted).
 2. Add the working golangci-lint invocation + LSP cache-race caveat to AGENTS.md Build/Lint section (D).
 3. Extend `scripts/check-pin-drift.sh` with a fixture-vs-go.mod comparison so guard jobs catch fixture drift without running the test suite (D6).
@@ -136,4 +138,4 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 
 ---
 
-*Provenance: releases `flightrecorder/v0.2.0` (tag `7081a21`), `otel/v0.2.0` (tag `7081a21`), upstream `go-flightrecorder v0.2.1` (commit `48dfd20`) — all on origin and proxy-verified at ~22:45 CEST 2026-10-06; final verification sweep (suites + guards + remote tags) green at 22:50. Note: master shows [ahead 11] at 23:23 from OTHER sessions' post-close work (cqrs v0.7.0 re-pin et al) — not this session's; this session's work was fully pushed when it closed.*
+_Provenance: releases `flightrecorder/v0.2.0` (tag `7081a21`), `otel/v0.2.0` (tag `7081a21`), upstream `go-flightrecorder v0.2.1` (commit `48dfd20`) — all on origin and proxy-verified at ~22:45 CEST 2026-10-06; final verification sweep (suites + guards + remote tags) green at 22:50. Note: master shows [ahead 11] at 23:23 from OTHER sessions' post-close work (cqrs v0.7.0 re-pin et al) — not this session's; this session's work was fully pushed when it closed._

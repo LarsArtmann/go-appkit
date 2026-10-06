@@ -11,13 +11,13 @@ research, and library analysis. New reports land HERE.
 
 ## Current (unarchived)
 
-| Report                                                            | One-line summary                                                                                                                                                                       |
-| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `2026-09-24_16-52_dedup-session-and-toolchain-drift.md`           | Dedup episode 1: 2 of 3 clone groups extracted, repo-unbuildable root cause (toolchain drift), partial 1.27.1 unification; annotated by the 2026-09-28 pass                            |
-| `2026-09-28_23-03_dedup-sweep-t1-and-unification-continuation.md` | Dedup episode 2 (`-t 1`): 7 accepted clone groups with rationale, sorted-keys stdlib swaps, testkit.Serve adoption in integration; its go-appkit items executed by the 09-28/29 passes |
-| `2026-09-29_00-05_whouses-member-key-via-fix-status.md`           | pdg session: severed go.work member-key traversal fixed in who-uses; crm consumer path revealed; cross-repo follow-ups routed                                                          |
-| `2026-10-01_07-16_systemd-integration-execution-status.md`        | go-daemon/go-aichat research EXECUTED: core `StartHooks` seam + the unreleased `/systemd` module landed race-green + wired; release train (core v0.8.0 first) remains                  |
-| `2026-10-06_22-21_superb-flightrecorder-execution-status.md`      | Mid-execution snapshot of the flightrecorder-adoption plan: T1–T4 done incl. the upstream fr v0.2.1 race fix; supersedes its own open questions (answered same day)                    |
+| Report                                                            | One-line summary                                                                                                                                                                           |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `2026-09-24_16-52_dedup-session-and-toolchain-drift.md`           | Dedup episode 1: 2 of 3 clone groups extracted, repo-unbuildable root cause (toolchain drift), partial 1.27.1 unification; annotated by the 2026-09-28 pass                                |
+| `2026-09-28_23-03_dedup-sweep-t1-and-unification-continuation.md` | Dedup episode 2 (`-t 1`): 7 accepted clone groups with rationale, sorted-keys stdlib swaps, testkit.Serve adoption in integration; its go-appkit items executed by the 09-28/29 passes     |
+| `2026-09-29_00-05_whouses-member-key-via-fix-status.md`           | pdg session: severed go.work member-key traversal fixed in who-uses; crm consumer path revealed; cross-repo follow-ups routed                                                              |
+| `2026-10-01_07-16_systemd-integration-execution-status.md`        | go-daemon/go-aichat research EXECUTED: core `StartHooks` seam + the unreleased `/systemd` module landed race-green + wired; release train (core v0.8.0 first) remains                      |
+| `2026-10-06_22-21_superb-flightrecorder-execution-status.md`      | Mid-execution snapshot of the flightrecorder-adoption plan: T1–T4 done incl. the upstream fr v0.2.1 race fix; supersedes its own open questions (answered same day)                        |
 | `2026-10-06_23-23_superb-flightrecorder-execution-closeout.md`    | Plan EXECUTED end-to-end: flightrecorder/v0.2.0 + otel/v0.2.0 + upstream fr v0.2.1 tagged/pushed/proxy-verified; integration re-pinned; cooldown ask drafted (filing gated); 50 next items |
 
 Execution plans are indexed beside the reports they execute — the ACTIVE
