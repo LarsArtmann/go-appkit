@@ -1,28 +1,13 @@
 # Changelog
 
-## [0.1.1] - 2026-09-16
+## [0.2.0] - 2026-10-06
 
-### Fixed
-
-- Pattern-named spans (`GET /users/{id}`) and `http.route` metrics now work
-  through the documented `OuterMiddlewares` wiring: the fix ships via the
-  `httputil v1.2.0` bump (all request-forking middlewares propagate the
-  matched pattern back up; regression-pinned upstream by
-  `TestPatternPropagation*` and here by the integration module's
-  `TestSpanNameAndRouteThroughAppkitOuterMiddlewares` against published
-  tags). The README known-issue block is removed in the same change.
-
-### Documented
-
-- Benchmark table re-baselined (n=10, mean±sd) with the dated methodology.
-
-## [Unreleased]
 
 ### Added
 
 - `NewFlightRecorderMetricsHook(meter)`: bridges go-flightrecorder's
   `MetricsHook` into an OTel meter (`appkit_flightrecorder_snapshots_total`
-  by source/kind + `appkit_flightrecorder_snapshot_duration_seconds`).
+  by source/kind/type + `appkit_flightrecorder_snapshot_duration_seconds`).
   Nil-meter returns a no-op hook.
 - **SigNoz-grade OTLP export**: `WithOTLP(...)` wires OTLP/HTTP for BOTH
   signals in one option (traces via batch processor, metrics via a periodic
@@ -62,6 +47,15 @@
   auto-enable and precedence, resource env variables, env sampler, and the
   exception/panic contracts. Suite race-green.
 
+- `example/` now wires the flight-recorder bridge end to end: a dir-sink
+  recorder built with `fr.WithMetrics(NewFlightRecorderMetricsHook(meter))`,
+  a `/slow` route firing captures via `fr.SnapshotIf`, and `rec.Close` in
+  the service's ShutdownHooks (drains in-flight async captures before the
+  telemetry flush).
+- README gains a "Flight-recorder metric bridge" section: signal-table rows
+  for both `appkit_flightrecorder_*` metrics, the construction-time wiring
+  snippet, and the SigNoz charting hint (chart `snapshots_total` by `type`).
+
 ### Changed
 
 - Design posture: OTLP/HTTP exporters are now part of this module's
@@ -72,8 +66,32 @@
 - The sampler is no longer forced to `ParentBased(AlwaysSample)` when
   `WithSampler` is unset — the SDK then honors `OTEL_TRACES_SAMPLER`
   itself, with the same default when the variable is absent.
+- `go-flightrecorder` floor v0.2.0 → v0.2.1 (upstream data-race fix in
+  `Reset` vs in-flight async captures; required by any consumer combining
+  `SnapshotIfAsync` with `Reset` — the flightrecorder module's middleware
+  does exactly that).
+- The metrics bridge emits a third attribute, `type` (the
+  `TriggerContext.Type` operation label, e.g. `GET /slow`), on both
+  `appkit_flightrecorder_*` metrics — dashboards can attribute captures per
+  operation; manual captures carry an empty type.
 
-## [0.1.0] - 2026-09-04
+## [0.1.1] - 2026-09-16
+
+### Fixed
+
+- Pattern-named spans (`GET /users/{id}`) and `http.route` metrics now work
+  through the documented `OuterMiddlewares` wiring: the fix ships via the
+  `httputil v1.2.0` bump (all request-forking middlewares propagate the
+  matched pattern back up; regression-pinned upstream by
+  `TestPatternPropagation*` and here by the integration module's
+  `TestSpanNameAndRouteThroughAppkitOuterMiddlewares` against published
+  tags). The README known-issue block is removed in the same change.
+
+### Documented
+
+- Benchmark table re-baselined (n=10, mean±sd) with the dated methodology.
+
+ - 2026-09-04
 
 ### Added
 
