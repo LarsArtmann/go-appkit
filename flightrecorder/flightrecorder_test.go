@@ -157,9 +157,11 @@ func assertTraceNotWritten(t *testing.T, path string) {
 // the middleware does not pay trace-write latency on the request path: the
 // response must complete while a capture write is stuck on the gate.
 type gatedWriter struct {
+	startOnce   sync.Once
+	doneOnce    sync.Once
+	releaseOnce sync.Once
 	writeStarted chan struct{}
 	writeDone    chan struct{}
-	releaseOnce  sync.Once
 	release      chan struct{}
 	mu           sync.Mutex
 	data         []byte
@@ -174,11 +176,7 @@ func newGatedWriter() *gatedWriter {
 }
 
 func (w *gatedWriter) Write(p []byte) (int, error) {
-	select {
-	case <-w.writeStarted:
-	default:
-		close(w.writeStarted)
-	}
+	w.startOnce.Do(func() { close(w.writeStarted) })
 
 	<-w.release
 
@@ -186,7 +184,7 @@ func (w *gatedWriter) Write(p []byte) (int, error) {
 	w.data = append(w.data, p...)
 	w.mu.Unlock()
 
-	close(w.writeDone)
+	w.doneOnce.Do(func() { close(w.writeDone) })
 
 	return len(p), nil
 }
