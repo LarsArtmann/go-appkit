@@ -3,8 +3,8 @@ package otel
 // The real-capture proof for the flight-recorder bridge: an actual
 // fr.Recorder (runtime/trace feeding a real snapshot write) drives the
 // hook through the recorder's own plumbing — manual and trigger captures
-// both — and the emitted metrics carry the recorder's real source and
-// kind values, not the synthetic events the unit test feeds.
+// both — and the emitted metrics carry the recorder's real source, kind,
+// and type values, not the synthetic events the unit test feeds.
 
 import (
 	"bytes"
@@ -86,7 +86,7 @@ func TestFlightRecorderMetricsHook_RealCaptureCycle(t *testing.T) {
 		t.Fatalf("collect: %v", collectErr)
 	}
 
-	counts, durationCount, durationSum := summarizeFrMetrics(t, data)
+	counts, types, durationCount, durationSum := summarizeFrMetrics(t, data)
 
 	if counts["manual"] != 1 {
 		t.Errorf("snapshots_total[source=manual] = %d, want 1 (all: %v)", counts["manual"], counts)
@@ -94,6 +94,12 @@ func TestFlightRecorderMetricsHook_RealCaptureCycle(t *testing.T) {
 
 	if counts["trigger"] != 1 {
 		t.Errorf("snapshots_total[source=trigger] = %d, want 1 (all: %v)", counts["trigger"], counts)
+	}
+
+	// Dashboards label captures per operation — the trigger capture must
+	// carry its TriggerContext.Type through as the `type` attribute.
+	if types["slow.route"] != 1 {
+		t.Errorf("snapshots_total[type=slow.route] = %d, want 1 (all: %v)", types["slow.route"], types)
 	}
 
 	if durationCount != 2 {
@@ -106,14 +112,15 @@ func TestFlightRecorderMetricsHook_RealCaptureCycle(t *testing.T) {
 }
 
 // summarizeFrMetrics folds the collected resource metrics into snapshot
-// counts by source plus duration count and sum.
+// counts by source and by type plus duration count and sum.
 func summarizeFrMetrics(
 	t *testing.T,
 	data metricdata.ResourceMetrics,
-) (map[string]int64, float64, float64) {
+) (map[string]int64, map[string]int64, float64, float64) {
 	t.Helper()
 
 	counts := map[string]int64{}
+	types := map[string]int64{}
 	durationCount := float64(0)
 	durationSum := float64(0)
 
@@ -129,6 +136,9 @@ func summarizeFrMetrics(
 				for _, point := range sum.DataPoints {
 					source, _ := point.Attributes.Value("source")
 					counts[source.AsString()] += point.Value
+
+					typ, _ := point.Attributes.Value("type")
+					types[typ.AsString()] += point.Value
 				}
 			case frSnapshotDuration:
 				hist, ok := m.Data.(metricdata.Histogram[float64])
@@ -144,5 +154,5 @@ func summarizeFrMetrics(
 		}
 	}
 
-	return counts, durationCount, durationSum
+	return counts, types, durationCount, durationSum
 }
