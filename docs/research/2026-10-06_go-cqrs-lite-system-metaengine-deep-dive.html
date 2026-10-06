@@ -864,6 +864,7 @@
           <a href="#findings">Findings</a>
           <a href="#currency">Version currency</a>
           <a href="#opportunities">Top opportunities</a>
+          <a href="#rerun">Rubric re-run</a>
           <a href="#appendix">Appendix</a>
         </nav>
       </aside>
@@ -886,30 +887,30 @@
           <div class="meta">
             <span class="tag amber">Pinned: system v4.10.2 &middot; metaengine v4.16.1</span>
             <span class="tag">Latest published: identical (0 behind)</span>
-            <span class="tag teal">Adoption Score: 52/100</span>
+            <span class="tag teal">Adoption Score: 87/100 &middot; re-run 2026-10-07</span>
           </div>
         </header>
 
         <section id="scorecard" class="scorecard">
-          <div class="score-card score-warn">
-            <div class="score">52</div>
-            <div class="label">Adoption score / 100</div>
+          <div class="score-card score-good">
+            <div class="score">87</div>
+            <div class="label">Adoption score / 100 (re-run 2026-10-07)</div>
           </div>
-          <div class="score-card score-bad">
-            <div class="score">~10%</div>
+          <div class="score-card score-good">
+            <div class="score">~85%</div>
             <div class="label">Read-model (metaengine) surface reached through the wrapper</div>
           </div>
           <div class="score-card score-good">
             <div class="score">0</div>
             <div class="label">Versions behind latest published</div>
           </div>
-          <div class="score-card score-bad">
-            <div class="score">4</div>
-            <div class="label">Missed opportunities / partially used (major)</div>
+          <div class="score-card score-good">
+            <div class="score">0</div>
+            <div class="label">Missed opportunities open (4 closed at v0.7.0)</div>
           </div>
-          <div class="score-card score-warn">
-            <div class="score">4</div>
-            <div class="label">Doc-drift nits (quick fixes)</div>
+          <div class="score-card score-good">
+            <div class="score">0</div>
+            <div class="label">Doc-drift nits open (4 fixed, guard added)</div>
           </div>
         </section>
 
@@ -939,6 +940,15 @@
             <code>EventConfig.Deployment</code> passthrough &mdash; unlocks the read-model
             planner, typed <code>Find</code>/<code>Get</code> reads, the coeffect typo gate,
             command-lifecycle auditing, and engine-backed timers in one move.
+          </div>
+          <div class="callout callout-teal">
+            <strong>Re-run 2026-10-07</strong>
+            The bottom line above aged one day: <code>EventConfig.Domain</code> shipped in
+            cqrs/v0.7.0 (2026-10-06) and the 2026-10-07 hardening follow-ups pinned its
+            behavior end-to-end. Re-scored adoption: <strong>87/100</strong> &mdash; see
+            <a href="#rerun">Rubric re-run</a>. Residuals are upstream-bounded (Timers stop
+            gap, GracefulClose drain-error early return) and tracked under
+            <code>doc/feedback/outgoing/</code>.
           </div>
         </section>
 
@@ -1021,6 +1031,7 @@
 
           <div class="issue issue-critical" id="finding-domain-sealed">
             <span class="severity severity-critical">Missed Opportunity &middot; High impact</span>
+            <span class="tag teal">Resolved at cqrs/v0.7.0</span>
             <h3>
               The wrapper seals <code>DomainConfig</code> &mdash; the entire metaengine read-model
               surface is unreachable
@@ -1097,6 +1108,7 @@ tasks, _ := <span class="tok-function">system.Find</span>[<span class="tok-type"
 
           <div class="issue issue-important" id="finding-checkpoints">
             <span class="severity severity-important">Partially Used &middot; Medium-high impact</span>
+            <span class="tag teal">Resolved at cqrs/v0.7.0</span>
             <h3>
               ~150 lines of hand-rolled checkpoint plumbing vs system&rsquo;s engine-backed
               default (ADR-0142)
@@ -1142,6 +1154,7 @@ tasks, _ := <span class="tok-function">system.Find</span>[<span class="tok-type"
           </div>
 
           <div class="issue issue-important" id="finding-drainer">
+            <span class="tag teal">Resolved at cqrs/v0.7.0</span>
             <span class="severity severity-important">Partially Used &middot; Medium impact</span>
             <h3>
               Hand-rolled in-flight drain bypasses the <code>Drainer</code> seam &mdash; and
@@ -1183,6 +1196,7 @@ sys.<span class="tok-function">RegisterDrainer</span>(inFile)
           </div>
 
           <div class="issue issue-important" id="finding-health">
+            <span class="tag teal">Resolved at cqrs/v0.7.0</span>
             <span class="severity severity-important">Missed Opportunity &middot; Medium impact</span>
             <h3>
               System health, SCREAM safety, and diagnostics surface unused while go-appkit ships
@@ -1222,6 +1236,7 @@ sys.<span class="tok-function">RegisterDrainer</span>(inFile)
 
           <div class="issue issue-nice" id="finding-operator-docs">
             <span class="severity severity-nice">Missed Opportunity &middot; Low-medium impact</span>
+            <span class="tag teal">Resolved at cqrs/v0.7.0 (Deployment shapes README section)</span>
             <h3>Operator capabilities work via passthrough but nobody documented them</h3>
             <div class="where">cqrs/README.md:45-62 (Configuration table) &middot; system LoadConfig godoc (full YAML shape)</div>
             <p>
@@ -1240,6 +1255,7 @@ sys.<span class="tok-function">RegisterDrainer</span>(inFile)
 
           <div class="issue issue-nice" id="finding-doc-drift">
             <span class="severity severity-nice">Doc drift &middot; Low impact &middot; quick fixes</span>
+            <span class="tag teal">Resolved v0.7.0 + 2026-10-07 sync guard</span>
             <h3>Four stale doc claims</h3>
             <div class="where">
               cqrs/README.md:11 &middot; cqrs/README.md:140 &middot; cqrs/README.md:54 +
@@ -1448,8 +1464,112 @@ sys.<span class="tok-function">RegisterDrainer</span>(inFile)
           </table>
         </section>
 
+        <section id="rerun">
+          <h2><span class="num">04</span>Rubric re-run &mdash; 2026-10-07</h2>
+          <p>
+            Scored after cqrs/v0.7.0 (shipped 2026-10-06: <code>EventConfig.Domain</code>
+            passthrough, engine-backed checkpoints, Drainer-seam drain with always-close
+            Shutdown, health/SCREAM accessors with boot-time logging, Deployment-shapes README)
+            plus the 2026-10-07 hardening follow-ups (restart persistence, Timers tripwire,
+            coeffect advisory, SSE replay reconnect, executable Examples, recipe sync guard).
+            Same weights, same clusters, evidence re-verified against the working tree.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Capability cluster</th>
+                <th>Weight</th>
+                <th>2026-10-06</th>
+                <th>2026-10-07</th>
+                <th>What moved</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Command side: deciders, typed C/Q facade, lifecycle, drain, middleware</td>
+                <td>25</td>
+                <td>90% &rarr; 22.5</td>
+                <td class="yes">95% &rarr; 23.75</td>
+                <td>
+                  Drain rides the <code>system.Drainer</code> seam; Shutdown always closes;
+                  <code>WithCommandLifecycle</code> recipe verified by an executable Example.
+                </td>
+              </tr>
+              <tr>
+                <td>Operator config: precedence chain, YAML/env, engine swap, passthrough</td>
+                <td>15</td>
+                <td>70% &rarr; 10.5</td>
+                <td class="yes">90% &rarr; 13.5</td>
+                <td>
+                  Deployment shapes documented in the README (buses, priority, materialized
+                  views, durability, pools, cache, manifest pinning), snippets compile-checked.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Read models: metaengine declarations, Find/Get, planned tables, watchers/SSE
+                </td>
+                <td>30</td>
+                <td class="no">10% &rarr; 3.0</td>
+                <td class="yes">85% &rarr; 25.5</td>
+                <td>
+                  <code>Domain</code> passthrough unseals declarations, typed reads, folds,
+                  coeffect gate (advisory pinned), watchers/SSE with replay reconnect (pinned
+                  twice: module + integration E2E), restart persistence pinned. Residual:
+                  Timers stop gap is upstream.
+                </td>
+              </tr>
+              <tr>
+                <td>Safety &amp; observability: health, SCREAM, explain, verify, metrics</td>
+                <td>15</td>
+                <td>25% &rarr; 3.75</td>
+                <td>75% &rarr; 11.25</td>
+                <td>
+                  <code>HealthCheck</code>/<code>EngineHealth</code>/<code>ScreamReport</code>
+                  accessors + construction-time SCREAM logging. Residual: explain/verify stay
+                  passthrough-only via <code>System()</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>Implementation economy (no duplicated plumbing)</td>
+                <td>10</td>
+                <td>55% &rarr; 5.5</td>
+                <td>85% &rarr; 8.5</td>
+                <td>
+                  Checkpoint plumbing deleted (ADR-0142 engine-backed default; aux DB is
+                  DLQ-only), drain deduplicated into the Drainer seam. Residual: the Shutdown
+                  workaround for upstream&rsquo;s GracefulClose early return.
+                </td>
+              </tr>
+              <tr>
+                <td>Version currency</td>
+                <td>5</td>
+                <td class="yes">100% &rarr; 5.0</td>
+                <td class="yes">100% &rarr; 5.0</td>
+                <td>Still zero behind (re-verified 2026-10-06).</td>
+              </tr>
+              <tr>
+                <td><strong>Total</strong></td>
+                <td><strong>100</strong></td>
+                <td><strong>52</strong></td>
+                <td><strong>87.5 &rarr; 87</strong></td>
+                <td>DoD target (&ge;80) met; both residuals are upstream asks, not wrapper gaps.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-teal">
+            <strong>Standing watch</strong>
+            When go-cqrs-lite ships the GracefulClose drain-error fix and timer-stop-on-Close,
+            simplify <code>EventService.Shutdown</code> to bare <code>GracefulClose</code>,
+            flip the timers tripwire test, drop the README/godoc caveats, and strike the ask
+            corollary &mdash; the four-file change is enumerated in the tripwire test comment
+            (<code>cqrs/domain_test.go</code>). Then this cluster set has no upstream-bounded
+            residuals and economy reaches ~95%.
+          </div>
+        </section>
+
         <section id="appendix">
-          <h2><span class="num">04</span>Appendix</h2>
+          <h2><span class="num">05</span>Appendix</h2>
           <p>
             Method: full exported-surface dump of the pinned modules
             (<code>go doc -all</code> against system v4.10.2 and metaengine v4.16.1 from the
@@ -1526,7 +1646,7 @@ sys.<span class="tok-function">RegisterDrainer</span>(inFile)
 
         <footer class="footer">
           <p>
-            Generated 2026-10-06 &middot; Audited against system v4.10.2, metaengine v4.16.1
+            Generated 2026-10-06 &middot; Rubric re-run 2026-10-07 &middot; Audited against system v4.10.2, metaengine v4.16.1
             (module cache) and the go-cqrs-lite working tree &middot; All code claims verified
             against go-appkit@cqrs (post 2026-10-06 sweep) &middot; Crush + library-deep-dive
             skill
