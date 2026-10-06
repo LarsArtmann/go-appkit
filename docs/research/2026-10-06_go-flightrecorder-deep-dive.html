@@ -925,14 +925,30 @@
         <section id="summary">
           <h2><span class="num">00</span>Summary</h2>
           <p>
-            Replace this with the bottom-line verdict. A good summary tells the
-            reader whether the subject is ready, what the biggest risk is, and
-            what one action would unlock the most value.
+            go-appkit is not a casual consumer of go-flightrecorder &mdash; it is the library&rsquo;s
+            adapter layer. Three modules exist to put the recorder in front of traffic:
+            <code>flightrecorder</code> (HTTP middleware + manual snapshot endpoint),
+            <code>flightrecorderhealth</code> (health-dashboard visibility + auto-capture on failing
+            health batches), and the <code>cqrs</code> projection wiring, plus an OTel metrics
+            bridge in <code>otel</code>. That surface is adopted with real discipline: the
+            process-global singleton constraint is designed around rather than fought, the ops
+            sink stack (directory + retention + compression) is composed as a preset, the health
+            path captures asynchronously exactly as the library&rsquo;s README prescribes, and all
+            five pinning modules sit on the latest tag. The gaps are precise, not diffuse: the
+            HTTP middleware &mdash; the hottest path in the family &mdash; still uses the blocking
+            <code>SnapshotIf</code>, the one place the library&rsquo;s own docs say not to; the
+            observability hooks are invited everywhere and registered nowhere, leaving
+            retention-cleanup failures invisible; and the debug endpoint reports that a trace was
+            captured instead of handing the trace over, though the library ships
+            <code>SnapshotToWriter</code> for exactly that endpoint.
           </p>
           <div class="callout callout-amber">
             <strong>The bottom line</strong>
-            State the verdict plainly. If the report is blocking, say so. If
-            it's mostly positive, lead with that.
+            Verdict: strong adoption (73/100) with a short, high-leverage punch list. The score is
+            dragged down almost entirely by one architectural choice &mdash; synchronous capture on
+            the request goroutine &mdash; and two unwired seams (the library&rsquo;s logger hook and
+            the repo&rsquo;s own OTel bridge). Nothing is a misuse; every fix is additive and local,
+            and together they take this to ~90.
           </div>
         </section>
 
@@ -940,25 +956,71 @@
         <section id="strengths">
           <h2><span class="num">&#9670;</span>What's already excellent</h2>
           <p>
-            Before the criticism: acknowledge what works. This builds trust and
-            keeps the report from reading like a pure complaint list.
+            Before the findings: six things this codebase already does superbly. Each one is the
+            pattern other consumers of this library should copy.
           </p>
 
           <div class="strengths">
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength one</strong>
-                <span>Explain why it matters and what it enables.</span>
+                <strong>One-recorder discipline is designed in, not bolted on</strong>
+                <span>The process-global singleton is the sharpest edge in the library, and every
+                module respects it: the cqrs config explicitly offers one shared recorder for HTTP
+                + projection captures (cqrs/eventservice.go:92-104), the health adapter treats nil
+                as pass-through (adapter.go:181-183), and the middleware re-arms the once-latch
+                instead of spawning recorders (middleware.go:110-112).</span>
               </div>
             </div>
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength two</strong>
-                <span
-                  >Reference files, metrics, or patterns where possible.</span
-                >
+                <strong>The ops sink stack is composed exactly as the library intends</strong>
+                <span>OpsRecorderPreset returns the production posture in one spread-friendly call:
+                directory sink + multi-instance prefix + retention + size cap + gzip-3 + 10s
+                MinAge &mdash; 6 of the library&rsquo;s 10 options (preset.go:31-40), documented as
+                &ldquo;a CONVENIENCE PRESET, not magic&rdquo; so consumers append their own
+                hooks.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Async capture on the health path matches the guidance to the letter</strong>
+                <span>SnapshotIfAsync(context.WithoutCancel(ctx), &hellip;) (adapter.go:213) is the
+                exact pattern the fr README prescribes for hot paths: detached context,
+                non-blocking, mutex held only for nanoseconds around the decision.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>TriggerContext fidelity at every integration point</strong>
+                <span>Kind/Type/Duration/Err are populated everywhere: &ldquo;http&rdquo; +
+                &ldquo;METHOD /path&rdquo; + threshold-classified error (middleware.go:88-93),
+                &ldquo;health.check&rdquo;/&ldquo;batch&rdquo; + first failing service
+                (adapter.go:189-194), &ldquo;projection&rdquo;/name/terminal error (cqrs). This is
+                the contract SnapshotEvent&rsquo;s dashboard labels were built for.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Cooldown exists because the library lacks it</strong>
+                <span>WithCooldown is a correct mutex-guarded rate limit (adapter.go:205-219; the
+                lock spans read + write so two concurrent batches cannot both decide the cooldown
+                elapsed) that protects directory sinks from flapping-service trace floods. The
+                library should absorb this &mdash; see the appendix.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Version currency: 5/5 modules pin the latest tag</strong>
+                <span>v0.2.0 (2026-08-11) is the newest release; the 17 commits since are an
+                internal captureOnce dedup, a CI bump, and docs &mdash; zero public API in the gap
+                (verified by git diff v0.2.0..HEAD). The integration module&rsquo;s documentedPins
+                fixture + check-pin-drift.sh keep the pins honest.</span>
               </div>
             </div>
           </div>
@@ -969,52 +1031,244 @@
           <h2><span class="num">01</span>Findings</h2>
           <p>These are the issues that need attention, ordered by impact.</p>
 
-          <!-- Issue 1 -->
+          <!-- Finding 1 -->
           <div class="issue issue-critical" id="issue-1">
             <span class="severity severity-critical"
-              >Blocking &middot; High impact</span
+              >Missed opportunity &middot; High impact</span
             >
-            <h3>Critical issue title</h3>
+            <h3>
+              The HTTP middleware captures traces synchronously &mdash; on the exact hot path the
+              library says not to
+            </h3>
             <div class="where">
-              path/to/file.go:42-58 &middot; short context
+              flightrecorder/middleware.go:95 &middot; 7 sync call paths in flightrecorder_test.go
             </div>
             <p>
-              Describe the problem, cite the code or behavior, and explain why
-              it matters to the reader's goals.
+              go-flightrecorder&rsquo;s README (lines 154-156) is unambiguous:
+              <code>SnapshotIfAsync</code> &ldquo;captures in a background goroutine so trace I/O
+              never blocks the hot path (e.g., HTTP middleware)&rdquo;. The canonical HTTP adapter
+              &mdash; the one the library&rsquo;s own ROADMAP names as an official integration
+              &mdash; calls the blocking <code>SnapshotIf</code> instead. With the default
+              <code>WithAutoReset(true)</code>, every trigger-matching request re-arms the latch
+              and blocks again: a latency incident that trips
+              <code>fr.OnLatency(50ms)</code> makes every slow request additionally pay the trace
+              write &mdash; a buffer the library docs size at ~10&thinsp;MB of trace data per busy
+              second, up to 64&thinsp;MiB under the ops preset, gzip-3 &mdash; i.e. tens to
+              hundreds of milliseconds added to exactly the requests already having a bad day.
+              Blocking is correct on the manual debug endpoint; it is the wrong default
+              per-request.
             </p>
-            <pre><code>// Example of the problematic pattern
-func BadExample() {}</code></pre>
+            <pre><code><span class="tok-comment">// Before (middleware.go:95) — blocking write on the request goroutine:</span>
+captured := rec.<span class="tok-func">SnapshotIf</span>(r.Context(), tc, trigger)
+
+<span class="tok-comment">// After — capture leaves the request path; context outlives the write:</span>
+captured := rec.<span class="tok-func">SnapshotIfAsync</span>(<span class="tok-builtin">context</span>.<span class="tok-func">WithoutCancel</span>(r.Context()), tc, trigger)</code></pre>
             <div class="callout callout-teal">
-              <strong>Fix: recommended action</strong>
-              State the concrete fix, including file names, function names, or
-              configuration changes.
+              <strong>Fix: switch to SnapshotIfAsync and log from the hook</strong>
+              The health adapter already demonstrates the exact pattern (adapter.go:213). Move the
+              &ldquo;trace snapshot captured&rdquo; log line into a <code>fr.WithMetrics</code> hook
+              keyed on <code>event.Source</code>/<code>event.Kind</code> &mdash; the method and
+              path are already carried in <code>TriggerContext.Type</code>. Tests should assert
+              capture completion via the hook rather than the HTTP response.
             </div>
           </div>
 
-          <!-- Issue 2 -->
+          <!-- Finding 2 -->
           <div class="issue issue-important" id="issue-2">
             <span class="severity severity-important"
-              >Important &middot; Medium impact</span
+              >Missed opportunity &middot; Medium impact</span
             >
-            <h3>Important issue title</h3>
-            <div class="where">path/to/another.go:12-19</div>
+            <h3>
+              The /debug endpoint reports that a trace was captured &mdash; instead of delivering
+              the trace
+            </h3>
+            <div class="where">
+              flightrecorder/handler.go:41-48 &middot; SnapshotToWriter call sites: 0
+            </div>
             <p>
-              Explain the risk. Important issues are not blockers but would make
-              a careful reviewer hesitate before shipping.
+              <code>SnapshotToWriter</code>&rsquo;s own godoc names this endpoint as its reason to
+              exist: &ldquo;the low-level escape hatch for callers that need a one-shot capture to
+              an arbitrary destination (e.g., an HTTP response buffer for a /debug/trace
+              endpoint)&rdquo;. <code>SnapshotHandler</code> instead writes to the configured sink
+              and returns a JSON status line &mdash; so the operator must shell into the box to
+              fetch the artifact, and in writer-sink setups (every in-memory/test configuration in
+              this repo) the captured bytes are not inspectable at all. The library built the
+              escape hatch; the adapter never uses it.
             </p>
+            <pre><code><span class="tok-comment">// In SnapshotHandler, before the sink write:</span>
+<span class="tok-keyword">if</span> r.URL.Query().<span class="tok-func">Has</span>(<span class="tok-string">"download"</span>) {
+    w.Header().<span class="tok-func">Set</span>(<span class="tok-string">"Content-Type"</span>, <span class="tok-string">"application/octet-stream"</span>)
+    w.Header().<span class="tok-func">Set</span>(<span class="tok-string">"Content-Disposition"</span>, <span class="tok-string">`attachment; filename="trace.trace.gz"`</span>)
+    _, _ = rec.<span class="tok-func">SnapshotToWriter</span>(r.Context(), w) <span class="tok-comment">// respects compression</span>
+    <span class="tok-keyword">return</span>
+}</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: an opt-in download mode</strong>
+              Keep the sink behavior as the default; add <code>?download=1</code> streaming the
+              buffer straight into the response. Turns the endpoint from &ldquo;trust me, it&rsquo;s
+              captured&rdquo; into &ldquo;here is the artifact&rdquo;.
+            </div>
           </div>
 
-          <!-- Issue 3 -->
-          <div class="issue issue-nice" id="issue-3">
-            <span class="severity severity-nice"
-              >Nice to have &middot; Low impact</span
+          <!-- Finding 3 -->
+          <div class="issue issue-important" id="issue-3">
+            <span class="severity severity-important"
+              >Partially used &middot; High impact</span
             >
-            <h3>Nice-to-have improvement</h3>
-            <div class="where">docs/ or config</div>
+            <h3>fr.WithLogger is registered nowhere — so retention-cleanup failures are invisible</h3>
+            <div class="where">
+              0 registrations repo-wide &middot; preset.go:31-40 (invites appending it) &middot;
+              two parallel hand-rolled loggers: middleware.go:36-38, adapter.go:119-121
+            </div>
             <p>
-              Minor polish, documentation gaps, or future-proofing suggestions
-              go here.
+              The ops preset composes six options and its godoc explicitly invites appending
+              <code>fr.WithMetrics</code>/<code>fr.WithLogger</code> &mdash; nobody ever does. The
+              consequence is silent: with <code>WithMaxSnapshots</code> retention,
+              &ldquo;cleanup failures are reported via WithLogger and never fail a snapshot&rdquo;
+              (WithMaxSnapshots godoc). With no hook registered, a failing cleanup &mdash; disk
+              full, permissions &mdash; produces no error anywhere while the trace directory fills.
+              Start/stop lifecycle diagnostics are lost the same way. Meanwhile two hand-rolled
+              logging options exist in the adapters that cover <em>capture</em> events only; the
+              library hook is the only one that sees what the wrappers cannot.
             </p>
+            <pre><code>rec, err := fr.<span class="tok-func">New</span>(<span class="tok-func">append</span>(appkitfr.<span class="tok-func">OpsRecorderPreset</span>(dir, <span class="tok-number">5</span>, <span class="tok-number">64</span>&lt;&lt;<span class="tok-number">20</span>),
+    fr.<span class="tok-func">WithLogger</span>(<span class="tok-keyword">func</span>(format <span class="tok-type">string</span>, args ...<span class="tok-type">any</span>) {
+        slog.<span class="tok-func">Warnf</span>(format, args...) <span class="tok-comment">// retention-cleanup failures land here</span>
+    }))...)</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: make the logger a first-class part of the ops story</strong>
+              Either an <code>OpsRecorderLoggerPreset(dir, maxSnapshots, maxBytes, log)</code>
+              variant, or &mdash; lighter &mdash; a compile-checked example that appends
+              <code>fr.WithLogger</code> to the preset, which is exactly the extension point the
+              preset documents.
+            </div>
+          </div>
+
+          <!-- Finding 4 -->
+          <div class="issue issue-important" id="issue-4">
+            <span class="severity severity-important"
+              >Partially used &middot; Medium impact</span
+            >
+            <h3>The OTel metrics bridge: built, tested &mdash; and wired to nothing</h3>
+            <div class="where">
+              otel/frmetrics.go:29 &middot; frmetrics_e2e_test.go:26-45 &middot; shipped call
+              sites: 0
+            </div>
+            <p>
+              <code>NewFlightRecorderMetricsHook</code> translates <code>fr.SnapshotEvent</code>
+              into <code>appkit_flightrecorder_snapshots_total&#123;source,kind&#125;</code> plus a
+              duration histogram, with an E2E test that runs a real capture cycle against a real
+              meter provider &mdash; and then nothing in the repository calls it outside its own
+              tests. It appears in no example, no README, no preset. The hook also drops
+              <code>SnapshotEvent.Type</code> (frmetrics.go:52-55 labels <code>source</code> and
+              <code>kind</code> only), although the library carries the field precisely
+              &ldquo;so dashboards can label by operation (e.g. http.request vs
+              event.handler)&rdquo; (observe.go doc).
+            </p>
+            <pre><code>attrs := metric.<span class="tok-func">WithAttributes</span>(
+    attribute.<span class="tok-func">String</span>(<span class="tok-string">"source"</span>, event.Source),
+    attribute.<span class="tok-func">String</span>(<span class="tok-string">"kind"</span>, event.Kind),
+    attribute.<span class="tok-func">String</span>(<span class="tok-string">"type"</span>, event.Type), <span class="tok-comment">// add</span>
+)</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: ship the seam, not just the bridge</strong>
+              Wire <code>fr.WithMetrics(appkitotel.NewFlightRecorderMetricsHook(meter))</code> into
+              the otel example main, add the <code>type</code> attribute, and document the metric
+              names in the otel README&rsquo;s signal table &mdash; the module already treats
+              metric names as a published contract (frmetrics.go:11-16).
+            </div>
+          </div>
+
+          <!-- Finding 5 -->
+          <div class="issue issue-important" id="issue-5">
+            <span class="severity severity-important"
+              >Partially used &middot; Low impact</span
+            >
+            <h3>Composite triggers OnAny / OnAll: zero call sites, zero documentation</h3>
+            <div class="where">repo-wide: 4 of 6 triggers in use &middot; OnAny/OnAll unused</div>
+            <p>
+              <code>OnError</code>, <code>OnAlways</code>, <code>OnErrorOrLatency</code>, and
+              <code>OnLatency</code> are all in active use across the adapters and cqrs defaults.
+              The composites are not &mdash; including in docs. <code>OnAll</code> is the
+              documented cure for capture noise under error storms (&ldquo;fire only on slow
+              errors, not fast errors&rdquo;) which is directly relevant once findings 1 and 3
+              land: async capture + directory sink + a broad error trigger can churn trace files
+              at retention speed during a storm.
+            </p>
+            <pre><code><span class="tok-comment">// Fire only on SLOW errors — fast failures stay log-only:</span>
+trigger := fr.<span class="tok-func">OnAll</span>(fr.<span class="tok-func">OnError</span>(), fr.<span class="tok-func">OnLatency</span>(<span class="tok-number">500</span>*time.Millisecond))</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: guidance where consumers look</strong>
+              Add the narrowing pattern to the module&rsquo;s doc.go cookbook and use it in the ops
+              example (finding 7).
+            </div>
+          </div>
+
+          <!-- Finding 6 -->
+          <div class="issue issue-important" id="issue-6">
+            <span class="severity severity-important"
+              >Partially used &middot; Low impact</span
+            >
+            <h3>Typed errors are never handled — a double-start yields a raw AlreadyEnabledError</h3>
+            <div class="where">
+              0 references to ErrAlreadyEnabled / ConfigError / SnapshotError repo-wide &middot;
+              shared-recorder posture documented at cqrs/eventservice.go:92-104
+            </div>
+            <p>
+              The library&rsquo;s error taxonomy &mdash; <code>ErrAlreadyEnabled</code>,
+              <code>*ConfigError</code>, <code>*SnapshotError</code> with
+              <code>errors.Is/As</code> support &mdash; is leaned on nowhere in shipped code or
+              examples. The exposed edge is startup: the documented posture is ONE shared recorder
+              serving HTTP and projections, so a consumer who starts a second recorder (their own
+              boot code plus a library example) gets a raw <code>*AlreadyEnabledError</code> from
+              <code>Start()</code> with no error-family classification and no pointer to the
+              sharing pattern.
+            </p>
+            <pre><code><span class="tok-keyword">if</span> err := recorder.<span class="tok-func">Start</span>(); err != <span class="tok-keyword">nil</span> {
+    <span class="tok-keyword">if</span> errors.<span class="tok-func">Is</span>(err, fr.ErrAlreadyEnabled) {
+        <span class="tok-comment">// one recorder per process: reuse the active one, don't start a second</span>
+    }
+}</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: classify at the wiring boundary</strong>
+              Map the sentinel to <code>errorfamily.Infrastructure</code> in start-hook wrappers
+              and show the <code>errors.Is</code> check in the ops example.
+            </div>
+          </div>
+
+          <!-- Finding 7 -->
+          <div class="issue issue-important" id="issue-7">
+            <span class="severity severity-important"
+              >Process gap &middot; Medium impact</span
+            >
+            <h3>No runnable ops example — the production loop exists only as doc snippets</h3>
+            <div class="where">
+              flightrecorder/ has no example/ directory &middot; doc.go:10-30 snippets &middot;
+              repo standard: &ldquo;doc snippets are code&rdquo;
+            </div>
+            <p>
+              The module&rsquo;s own repo standard (go-appkit AGENTS.md Gotchas) is:
+              &ldquo;Doc snippets are code: compile-check README/doc.go examples in a scratch
+              module before shipping.&rdquo; The full production loop &mdash;
+              <code>OpsRecorderPreset</code> + <code>Start</code> + <code>Middleware</code> +
+              <code>SnapshotHandler</code> + <code>WithMetrics</code>/<code>WithLogger</code> +
+              <code>Close</code> on shutdown hooks &mdash; is assembled nowhere. The sibling otel
+              and health modules each ship a live-verified example main; this adapter predates
+              that convention, and it is the module where option-combination mistakes (missing
+              logger, missing Start, dir sink without retention) are easiest to make.
+            </p>
+            <pre><code><span class="tok-comment">// example/main.go — the full loop, compile-checked like its siblings:</span>
+rec, _ := fr.<span class="tok-func">New</span>(<span class="tok-func">append</span>(appkitfr.<span class="tok-func">OpsRecorderPreset</span>(dir, <span class="tok-number">5</span>, <span class="tok-number">64</span>&lt;&lt;<span class="tok-number">20</span>), hooks...)...)
+rec.<span class="tok-func">Start</span>()        <span class="tok-comment">// wired via appkit StartHooks; errors.Is(ErrAlreadyEnabled) guarded</span>
+<span class="tok-keyword">defer</span> rec.<span class="tok-func">Close</span>()  <span class="tok-comment">// drains in-flight async captures on shutdown</span>
+appkitfr.<span class="tok-func">Middleware</span>(rec, fr.<span class="tok-func">OnErrorOrLatency</span>(<span class="tok-number">100</span>*time.Millisecond))
+appkitfr.<span class="tok-func">Mount</span>(svc.Mux, <span class="tok-string">"POST /debug/flightrecorder/snapshot"</span>, rec)</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: one example binds findings 1-6 together</strong>
+              An <code>example/main.go</code> in the module (PORT-env override per house style)
+              makes every recommendation above demonstrable and keeps the doc-snippet contract
+              enforceable.
+            </div>
           </div>
         </section>
 
