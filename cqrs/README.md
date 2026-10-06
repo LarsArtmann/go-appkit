@@ -551,22 +551,25 @@ counts, err := metaengine.ExecuteTypedByName[
 Lifecycle events are ordinary journal events: they replay, checkpoint, and
 drain with everything else.
 
-Every recipe in this section is compile-checked by a godoc Example in
+Every recipe in this section is exercised by a godoc Example in
 `example_test.go` — keep them in sync when editing either side.
 
 ### Streaming read models
 
 Declared collections are watchable: `metaengine.NewWatcher` over the
 collection plus `metaengine.ServeSSE` streams every materialized change to
-browser EventSource clients. A client that reconnects with `Last-Event-ID`
-automatically catches up on missed changes (capped by `WithSSEReplayLimit`).
+browser EventSource clients. Attach a replay journal with
+`watcher.WithReplay(n)` and a reconnecting client that sends
+`Last-Event-ID` catches up on missed changes (capped by
+`WithSSEReplayLimit`).
 
 ```go
 watcher := metaengine.NewWatcher[TaskView](es.System().MetaEngine(), "tasks")
+replay := watcher.WithReplay(1000) // enable Last-Event-ID reconnection
 defer watcher.Close()
 
 mux.HandleFunc("GET /events/tasks", func(w http.ResponseWriter, r *http.Request) {
-	_ = metaengine.ServeSSE(w, r, watcher, //nolint:errcheck // stream ends with the request
+	_ = metaengine.ServeSSE(w, r, watcher, // stream ends with the request
 		metaengine.WithSSEHeartbeat(30*time.Second))
 })
 ```

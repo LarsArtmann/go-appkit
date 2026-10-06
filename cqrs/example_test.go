@@ -244,51 +244,68 @@ func (s *exampleLazyStore) bind(store event.Store) {
 	s.target = store
 }
 
-func (s *exampleLazyStore) delegate() event.Store {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	return s.target
-}
-
 func (s *exampleLazyStore) Save(
 	ctx context.Context, ref id.StreamRef, events []event.Event, expected event.Version,
 ) error {
-	return s.delegate().Save(ctx, ref, events, expected)
+	s.mu.Lock()
+	target := s.target
+	s.mu.Unlock()
+
+	return target.Save(ctx, ref, events, expected) //nolint:wrapcheck // transparent proxy by design
 }
 
 func (s *exampleLazyStore) AppendBatch(
 	ctx context.Context, ref id.StreamRef, events []event.Event,
 ) error {
-	return s.delegate().AppendBatch(ctx, ref, events)
+	s.mu.Lock()
+	target := s.target
+	s.mu.Unlock()
+
+	return target.AppendBatch(ctx, ref, events) //nolint:wrapcheck // transparent proxy by design
 }
 
 func (s *exampleLazyStore) Load(ctx context.Context, ref id.StreamRef) ([]event.Event, error) {
-	return s.delegate().Load(ctx, ref)
+	s.mu.Lock()
+	target := s.target
+	s.mu.Unlock()
+
+	return target.Load(ctx, ref) //nolint:wrapcheck // transparent proxy by design
 }
 
 func (s *exampleLazyStore) LoadFromVersion(
 	ctx context.Context, ref id.StreamRef, version event.Version,
 ) ([]event.Event, error) {
-	return s.delegate().LoadFromVersion(ctx, ref, version)
+	s.mu.Lock()
+	target := s.target
+	s.mu.Unlock()
+
+	return target.LoadFromVersion(ctx, ref, version) //nolint:wrapcheck // transparent proxy by design
 }
 
 func (s *exampleLazyStore) LoadToVersion(
 	ctx context.Context, ref id.StreamRef, maxVersion event.Version,
 ) ([]event.Event, error) {
-	return s.delegate().LoadToVersion(ctx, ref, maxVersion)
+	s.mu.Lock()
+	target := s.target
+	s.mu.Unlock()
+
+	return target.LoadToVersion(ctx, ref, maxVersion) //nolint:wrapcheck // transparent proxy by design
 }
 
 func (s *exampleLazyStore) LoadToTimestamp(
 	ctx context.Context, ref id.StreamRef, maxTime time.Time,
 ) ([]event.Event, error) {
-	return s.delegate().LoadToTimestamp(ctx, ref, maxTime)
+	s.mu.Lock()
+	target := s.target
+	s.mu.Unlock()
+
+	return target.LoadToTimestamp(ctx, ref, maxTime) //nolint:wrapcheck // transparent proxy by design
 }
 
 // Mirrors the README "Command lifecycle audit trail" recipe: ADR-0117's
 // one-call lifecycle wiring plus the lazy store binding that solves the
-// recorder-needs-a-store-before-construction ordering. Compile-checked
-// corpus for the recipe; not executed (no Output).
+// recorder-needs-a-store-before-construction ordering. Reads a lifecycle
+// read model through the same typed query surface consumers use.
 func ExampleNewEventService_domainCommandLifecycle() {
 	store := &exampleLazyStore{}
 	cl := system.WithCommandLifecycle(store)
@@ -313,6 +330,13 @@ func ExampleNewEventService_domainCommandLifecycle() {
 
 	defer func() { _ = es.Shutdown(context.Background()) }()
 
+	err = es.StartProjections(context.Background())
+	if err != nil {
+		fmt.Println("start:", err)
+
+		return
+	}
+
 	// Read the lifecycle models like any declared query (after commands
 	// have flowed and the lifecycle projections caught up):
 	counts, err := metaengine.ExecuteTypedByName[
@@ -326,13 +350,15 @@ func ExampleNewEventService_domainCommandLifecycle() {
 	}
 
 	fmt.Println("commands tracked:", len(counts))
+
+	// Output:
+	// commands tracked: 0
 }
 
 // Mirrors the README "Streaming read models" recipe: watch a declared
-// collection and stream every materialized change to EventSource clients.
-// Reconnection replay is automatic when the client sends Last-Event-ID,
-// capped by WithSSEReplayLimit. Compile-checked corpus for the recipe;
-// not executed (no Output).
+// collection, dispatch a command, and the materialized change streams to
+// the EventSource client as a Server-Sent Event. Reconnection replay is
+// enabled by watcher.WithReplay and capped by WithSSEReplayLimit.
 func ExampleEventService_System() {
 	type taskView struct {
 		ID       string
@@ -346,6 +372,19 @@ func ExampleEventService_System() {
 		Title    string
 		Status   string
 		Priority int
+	}
+
+	type taskState struct{ Count int }
+
+	taskDecider := decider.Decider[taskState]{
+		Initial: taskState{},
+		Apply: func(state taskState, evt event.Event) (taskState, error) {
+			if evt.Type() == "task.created" {
+				state.Count++
+			}
+
+			return state, nil
+		},
 	}
 
 	es, err := cqrs.NewEventService(cqrs.EventConfig{
@@ -366,6 +405,39 @@ func ExampleEventService_System() {
 
 	defer func() { _ = es.Shutdown(context.Background()) }()
 
+	err = cqrs.RegisterDecider(es, "Tasks", taskDecider)
+	if err != nil {
+		fmt.Println("register decider:", err)
+
+		return
+	}
+
+	err = cqrs.RegisterCommand[*command.BasicCommand, taskState](es, "task.create",
+		func(ctx context.Context, cmd *command.BasicCommand) system.Op[taskState] {
+			return system.Execute(ctx, cmd.StreamID(), "Tasks",
+				func(_ taskState, ver event.Version) ([]event.Event, error) {
+					evt, evtErr := event.New("task.created", cmd.StreamID(), "Tasks", ver+1,
+						taskCreated{ID: "task-1", Title: "Stream tasks", Status: "active", Priority: 1})
+					if evtErr != nil {
+						return nil, evtErr //nolint:wrapcheck // example boundary
+					}
+
+					return []event.Event{evt}, nil
+				})
+		})
+	if err != nil {
+		fmt.Println("register command:", err)
+
+		return
+	}
+
+	err = es.StartProjections(context.Background())
+	if err != nil {
+		fmt.Println("start:", err)
+
+		return
+	}
+
 	watcher := metaengine.NewWatcher[taskView](es.System().MetaEngine(), "tasks")
 
 	defer watcher.Close()
@@ -373,9 +445,57 @@ func ExampleEventService_System() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /events/tasks", func(w http.ResponseWriter, r *http.Request) {
-		_ = metaengine.ServeSSE(w, r, watcher, //nolint:errcheck // stream ends with the request
+		_ = metaengine.ServeSSE(w, r, watcher, // stream ends with the request
 			metaengine.WithSSEHeartbeat(30*time.Second))
 	})
 
-	_ = mux // mount on the appkit Service's mux in a real service
+	server := httptest.NewServer(mux)
+
+	defer server.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, server.URL+"/events/tasks", nil)
+	if err != nil {
+		fmt.Println("request:", err)
+
+		return
+	}
+
+	resp, err := server.Client().Do(req)
+	if err != nil {
+		fmt.Println("connect:", err)
+
+		return
+	}
+
+	defer func() { _ = resp.Body.Close() }()
+
+	cmd, err := command.New("task.create", id.NewStreamID())
+	if err != nil {
+		fmt.Println("command:", err)
+
+		return
+	}
+
+	err = es.Dispatch(context.Background(), cmd)
+	if err != nil {
+		fmt.Println("dispatch:", err)
+
+		return
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+
+	for scanner.Scan() {
+		if data, ok := strings.CutPrefix(scanner.Text(), "data:"); ok {
+			fmt.Println(strings.TrimSpace(data))
+
+			break
+		}
+	}
+
+	// Output:
+	// {"ID":"task-1","Title":"Stream tasks","Status":"active","Priority":1}
 }
