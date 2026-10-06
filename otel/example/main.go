@@ -41,10 +41,10 @@ import (
 // Demo tuning knobs: named constants keep the demo honest about what the
 // retention caps and the slow-route threshold are.
 const (
-	demoMaxSnapshots    = 5
-	demoMaxBytes        = 64 << 20
-	demoSlowRouteDelay  = 150 * time.Millisecond
-	demoCaptureLatency  = 100 * time.Millisecond
+	demoMaxSnapshots   = 5
+	demoMaxBytes       = 64 << 20
+	demoSlowRouteDelay = 150 * time.Millisecond
+	demoCaptureLatency = 100 * time.Millisecond
 )
 
 func main() {
@@ -164,7 +164,7 @@ func run(cfg appkit.ServiceConfig) error {
 
 		_, _ = w.Write([]byte("finally done"))
 
-		rec.SnapshotIf(r.Context(), fr.TriggerContext{
+		rec.SnapshotIf(r.Context(), fr.TriggerContext{ //nolint:exhaustruct_v5 // success route: no Err
 			Kind:     "http",
 			Type:     "GET /slow",
 			Duration: time.Since(start),
