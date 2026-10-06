@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+### Added
+
+- `EventConfig.Domain`: a `*system.DomainConfig` passthrough that unseals the
+  metaengine read-model surface — `Lookup`/`QuerySet`/`Count` declarations
+  with typed `system.Find`/`Get` reads, `Evolve` folds (with explicit
+  `OnEvolution` mutations), the `Events` coeffect typo gate
+  (`ErrDanglingEventSubscription`), `Timers`, command-domain middleware, and
+  shutdown ordering. Merge contract (drain tracker outermost, bootstrap
+  appended only when Domain declares no projections, derived host options
+  and `EventConfig.CheckpointStore` win) is pinned by tests; a nil Domain is
+  byte-identical to v0.6.x. Runnable godoc example included.
+- `HealthCheck(ctx)`, `EngineHealth(ctx)`, and `ScreamReport()` accessors on
+  `EventService`, delegating to the system's engine health and
+  config-safety report.
+- Construction-time SCREAM surfacing: `NewEventService` logs the system's
+  safety findings (WARN+OVERRIDE at WARN, ADVISORY at INFO, SCREAM at ERROR)
+  so a volatile-source-of-truth or durability-downgrade deployment is
+  visible at boot, not only via `ScreamReport()`.
+- README: "Domain declarations" section (quickstart, Evolve/Lookup
+  inheritance, coeffect gate), the `WithCommandLifecycle` audit-trail recipe
+  (lazily-bound event store), "Streaming read models" (`NewWatcher` +
+  `ServeSSE`), "Deployment shapes" (buses, priority, materialized views,
+  durability, pools, cache, manifest pinning), and the go-health bridge
+  snippet with per-projection lag.
+
 ### Changed
 
 - `Shutdown` now drains in-flight commands through the system drainer seam
