@@ -115,17 +115,17 @@ exceptions view indexes.
 
 ## What you get
 
-| Signal    | Instrument                                            | Notes                                                      |
-| --------- | ----------------------------------------------------- | ---------------------------------------------------------- |
-| Traces    | one SERVER span per request                           | named after the ServeMux pattern (`GET /users/{id}`)       |
-| Traces    | W3C `traceparent`/`baggage` in and out                | continues caller traces; feeds downstream calls            |
-| Traces    | `exception` events (panics + handled errors)          | `Recovery` + `RecordError`; feeds SigNoz's Exceptions view |
-| Metrics   | `http.server.request.duration` (+ size, active)       | method/route/status attributes; route-based, no blowups    |
-| Metrics   | `appkit_flightrecorder_snapshots_total{source,kind,type}` | flight-recorder bridge; per-operation capture counts   |
-| Metrics   | `appkit_flightrecorder_snapshot_duration_seconds`     | flight-recorder bridge; snapshot write latency             |
-| Logs      | `trace_id` + `span_id` on records logged with ctx     | `TraceHandler` decorates any `slog.Handler`                |
-| Export    | OTLP/HTTP for traces + metrics, env-driven or in code | `WithOTLP`; `OTEL_EXPORTER_OTLP_*` natively honored        |
-| Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks`  | flush after drain — spans cover the final requests         |
+| Signal    | Instrument                                                | Notes                                                      |
+| --------- | --------------------------------------------------------- | ---------------------------------------------------------- |
+| Traces    | one SERVER span per request                               | named after the ServeMux pattern (`GET /users/{id}`)       |
+| Traces    | W3C `traceparent`/`baggage` in and out                    | continues caller traces; feeds downstream calls            |
+| Traces    | `exception` events (panics + handled errors)              | `Recovery` + `RecordError`; feeds SigNoz's Exceptions view |
+| Metrics   | `http.server.request.duration` (+ size, active)           | method/route/status attributes; route-based, no blowups    |
+| Metrics   | `appkit_flightrecorder_snapshots_total{source,kind,type}` | flight-recorder bridge; per-operation capture counts       |
+| Metrics   | `appkit_flightrecorder_snapshot_duration_seconds`         | flight-recorder bridge; snapshot write latency             |
+| Logs      | `trace_id` + `span_id` on records logged with ctx         | `TraceHandler` decorates any `slog.Handler`                |
+| Export    | OTLP/HTTP for traces + metrics, env-driven or in code     | `WithOTLP`; `OTEL_EXPORTER_OTLP_*` natively honored        |
+| Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks`      | flush after drain — spans cover the final requests         |
 
 ## Flight-recorder metric bridge
 

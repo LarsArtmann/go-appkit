@@ -5,7 +5,7 @@ go 1.27.1
 require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.13.1
 	github.com/larsartmann/go-appkit v0.7.0
-	github.com/larsartmann/go-appkit/cqrs v0.6.0
+	github.com/larsartmann/go-appkit/cqrs v0.6.1
 	github.com/larsartmann/go-appkit/errorpages v0.1.0
 	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.5
 	github.com/larsartmann/go-appkit/health v0.1.4

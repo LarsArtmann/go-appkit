@@ -1,7 +1,5 @@
 github.com/Oudwins/tailwind-merge-go v0.2.3 h1:RCiZ/DlLpoJnE5QSs1sRPDtIs3We0RQpsLH7bBWfbUI=
 github.com/Oudwins/tailwind-merge-go v0.2.3/go.mod h1:kkZodgOPvZQ8f7SIrlWkG/w1g9JTbtnptnePIh3V72U=
-github.com/a-h/templ v0.3.1020 h1:ypAT/L5ySWEnZ6Zft/5yfoWXYYkhFNvEFOeeqecg4tw=
-github.com/a-h/templ v0.3.1020/go.mod h1:A2DlK61v+K+NRoGnhmYbNYVmtYHcFO5/AisMvBdDxTM=
 github.com/a-h/templ v0.3.1070 h1:3iCOXHXqFXa99OQzgkUOLJbNzv/QjFGLwKZkBAg+ADA=
 github.com/a-h/templ v0.3.1070/go.mod h1:iIqB3g2RHBe/WlnPwa+Bvhh1TKXHWLRnBD9NWHOLm78=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
@@ -62,8 +60,6 @@ github.com/larsartmann/go-etag/entitytag v0.6.1 h1:tBr+hR4dqks75SY+pqmUNHUajzOG6
 github.com/larsartmann/go-etag/entitytag v0.6.1/go.mod h1:e09zrSYF6RS8c0IzxZnI1HZQw15gIgwlyp3zerGv+bI=
 github.com/larsartmann/go-etag/server v0.6.1 h1:JVguufBCoLSj83bHM1FqgfSEYc2x1E31kL/Gt1pESHY=
 github.com/larsartmann/go-etag/server v0.6.1/go.mod h1:o3VNBhO58/5rIm0qaU3jLsgRPyjTcaMBtfbHm0lphJk=
-github.com/larsartmann/go-health v0.4.1 h1:l0Ta2Dcw0XFnZCKamfYs55DyQgKLOb6naPTpNYgGGLo=
-github.com/larsartmann/go-health v0.4.1/go.mod h1:r0Lh5t786Za1uh/7XqdDIZH+b3GiJU4c9e5SVfxUYAo=
 github.com/larsartmann/go-health v0.5.0 h1:ilAPxxCvocGDIB/XT5aOJVRXjqQhcWZkkbUTXDe68o8=
 github.com/larsartmann/go-health v0.5.0/go.mod h1:r0Lh5t786Za1uh/7XqdDIZH+b3GiJU4c9e5SVfxUYAo=
 github.com/larsartmann/go-health-dashboard v0.10.2 h1:Q83IYHXZlrQINrc07NXi00Xwtr4ePp/rykqHOxQgMU8=
@@ -116,8 +112,6 @@ github.com/xo/terminfo v1.2.0 h1:d0ZTOCpuGE0lwSAOs0zcJjwz3jWQyqcRt9XbGJpCOl4=
 github.com/xo/terminfo v1.2.0/go.mod h1:lGzkSo8Fe7IRh/w+Gqz7n5mDog4FVXCj3gy/DYTBqio=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
-golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba h1:Ck8QetSgk912qxWLMCKxd0in+aiyBQyDSMae6e/xmpU=
-golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba/go.mod h1:50RgIsmK7OwqzTTeqcSXQW8SswW0o8fRcDxmqGluJ8E=
 golang.org/x/exp v0.0.0-20261005173118-76772065c9b0 h1:qUp3i6M39kccSm3OMMIE3tvs7YQWO9rFeCKdk1sSaFk=
 golang.org/x/exp v0.0.0-20261005173118-76772065c9b0/go.mod h1:SRjTzy5WcYqRRqquLUvHeeovSwLO0CZ3xcltZNO4Fck=
 golang.org/x/mod v0.41.0 h1:qJmnOUb4YB+FsEuM3HcWucdZASCPGhsX6uljO6pog0c=

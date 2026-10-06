@@ -191,20 +191,20 @@ cd <module> && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
 
 ## Flightrecorder Module Dependencies
 
-| Module                                     | Version | Role                                                   |
-| ------------------------------------------ | ------- | ------------------------------------------------------ |
+| Module                                     | Version | Role                                                                                                                               |
+| ------------------------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `github.com/larsartmann/go-flightrecorder` | v0.2.1  | Flight recorder core: Recorder, triggers, typed errors (v0.2.1 REQUIRED: atomic once-latch — v0.2.0 raced Reset vs async captures) |
-| `github.com/larsartmann/httputil`          | v1.4.1  | Middleware type, ResponseRecorder for status capture   |
+| `github.com/larsartmann/httputil`          | v1.4.1  | Middleware type, ResponseRecorder for status capture                                                                               |
 
 ## otel Module Dependencies
 
-| Module                                                           | Version | Role                                                                                     |
-| ---------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| `go.opentelemetry.io/contrib/.../otelhttp`                       | v0.71.0 | Server spans, semconv metrics, W3C propagation                                           |
-| `go.opentelemetry.io/otel` (+sdk, metric, trace)                 | v1.46.0 | Tracer/meter providers, SDK, stdout exporter                                             |
-| `go.opentelemetry.io/otel/exporters/otlp/otlp{trace,metric}http` | v1.46.0 | OTLP/HTTP exporters for traces+metrics (WithOTLP; v0.2.0 posture change — in-module now) |
-| `github.com/larsartmann/go-flightrecorder`                      | v0.2.1  | `fr.SnapshotEvent`/`MetricsHook` types for the flight-recorder metric bridge (v0.2.1: atomic once-latch) |
-| `github.com/larsartmann/httputil`                                | v1.4.0  | `Middleware` type (bridge target)                                                        |
+| Module                                                           | Version | Role                                                                                                     |
+| ---------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `go.opentelemetry.io/contrib/.../otelhttp`                       | v0.71.0 | Server spans, semconv metrics, W3C propagation                                                           |
+| `go.opentelemetry.io/otel` (+sdk, metric, trace)                 | v1.46.0 | Tracer/meter providers, SDK, stdout exporter                                                             |
+| `go.opentelemetry.io/otel/exporters/otlp/otlp{trace,metric}http` | v1.46.0 | OTLP/HTTP exporters for traces+metrics (WithOTLP; v0.2.0 posture change — in-module now)                 |
+| `github.com/larsartmann/go-flightrecorder`                       | v0.2.1  | `fr.SnapshotEvent`/`MetricsHook` types for the flight-recorder metric bridge (v0.2.1: atomic once-latch) |
+| `github.com/larsartmann/httputil`                                | v1.4.0  | `Middleware` type (bridge target)                                                                        |
 
 ## cqrs Module Dependencies
 

@@ -17,6 +17,7 @@ contained hermetically but NOT repaired for other users.
 ## a) FULLY DONE (verified green: `-race -count=1` suite, `golangci-lint` 0 issues, integration suite green)
 
 ### E1 — Drainer seam integration (the 1% → 51% tier) — commit `b335413` + daemon-carried parts
+
 - `inFlightTracker.Drain` exported (implements `system.Drainer`); registered via
   `sys.RegisterDrainer(inFile)` in `buildSystem`; `EventService.inFile` field deleted.
 - `Shutdown` collapsed to: idempotence guard → `sys.Drain(ctx)` → **always** `sys.Close()` →
@@ -31,6 +32,7 @@ contained hermetically but NOT repaired for other users.
 - Godocs updated on `Shutdown` + tracker (incl. why not bare GracefulClose).
 
 ### E2 — Drain + checkpoint regression tests — commit `41856f7`
+
 - Restart-resume persistence already pinned by the existing
   `TestEventService_DefaultCheckpointStore_PersistsAcrossRestart` (kept as the regression proof).
 - NEW `TestEventService_CheckpointStoreOverrideWins` + `countingCheckpointStore`: proves a
@@ -38,6 +40,7 @@ contained hermetically but NOT repaired for other users.
 - Integration suite re-run green — no drain-semantics reconciliation was needed (E2.4).
 
 ### E3 — Checkpoint simplification — landed via daemon commit `1ed6156`
+
 - Aux `*sql.DB` now opens **only** for the default DLQ; `wantDefaultCP` logic,
   `applyCheckpointSchema`, and the `storage/v4/eventstore` import deleted (~50 LOC net);
   `buildSystem` signature simplified; `storage/v4` became `// indirect` after `go mod tidy`.
@@ -47,6 +50,7 @@ contained hermetically but NOT repaired for other users.
   (the aux DB's only remaining purpose); `DB()`, `auxDSN`, `CheckpointStore` godocs corrected.
 
 ### E4 — Upgrade notes + escape hatch — landed via daemon commits
+
 - `cqrs/CHANGELOG.md`: `[Unreleased]` section with both Changed entries (drain path +
   checkpoint migration). **Also fixed a pre-existing defect:** the v0.6.1 release had
   inserted its block ABOVE the `# Changelog` title (another session's bug).
@@ -56,6 +60,7 @@ contained hermetically but NOT repaired for other users.
   (`/tmp/escape-hatch`, local replace) — compiles.
 
 ### E5 — Health/SCREAM accessors — commit `964f1e6`
+
 - New `cqrs/healthaccessors.go`: `HealthCheck(ctx)`, `EngineHealth(ctx) []system.EngineHealth`,
   `ScreamReport() *system.ScreamReport` (delegations, godoc'd).
 - `TestEventService_HealthAccessors` green (sqlite svc: nil error, non-empty named engines,
@@ -64,6 +69,7 @@ contained hermetically but NOT repaired for other users.
   (`/tmp/health-bridge`, both replaces) — compiles (pre-clears E12.2).
 
 ### E6 — Construction-time SCREAM surfacing — commit `180be9a`
+
 - `logScreamFindings` in `NewEventService`: WARN+OVERRIDE → WARN (with the
   `acknowledge_warnings` escape hatch named), ADVISORY → INFO, SCREAM → ERROR (defensive);
   clean report logs nothing; nil Logger falls back to `slog.Default()`.
@@ -73,6 +79,7 @@ contained hermetically but NOT repaired for other users.
   and `TestNewEventService_CleanDeploymentLogsNoScream` (empty buffer). Both green.
 
 ### E7 — README deployment-shapes section — landed via daemon commits `8d66e89`/`0a64aab`
+
 - `cqrs/testdata/deployment-{buses,priority-views,manifest}.yaml` + `deployment_test.go`:
   every snippet round-trips through the pinned `system.LoadConfig` (the exact parser
   `ConfigPath` uses) with field-level spot assertions (publish fan-out count, perQuery
@@ -82,6 +89,7 @@ contained hermetically but NOT repaired for other users.
   testdata source of truth. Stale `CheckpointStore` row in the config table fixed.
 
 ### Environment crisis contained (not repo work, but the session's biggest fight)
+
 - The shared `/mnt/buildcache` module cache corrupted mid-session at scale (empty `.go` files
   across otel v1.47.0, stdr, backoff, auto/sdk, shortuuid, modernc/libc; later even stdlib and
   the toolchain — `go tool compile: segmentation fault`). Files verified intact on disk one
@@ -99,6 +107,7 @@ contained hermetically but NOT repaired for other users.
 ## b) PARTIALLY DONE
 
 ### E8 — Owner gate (brief done, verdict NOT recorded)
+
 - E8.1 DONE: decision brief appended to the TODO_LIST cqrs item (line ~47): demand evidence
   (zero cqrs+realtime composition consumers; W5-C2 first projected consumer), additive-only
   proposal with pinned merge rules, cost ~2 focused days, accepted v5-rename exposure,
@@ -171,56 +180,56 @@ contained hermetically but NOT repaired for other users.
 
 ## f) NEXT — up to 50 things (ordered; #1 is blocking)
 
-| # | Task | Gate |
-|---|------|------|
-| 1 | **E8.2: record owner verdict** (GO / NO-GO / GO-on-W5-C2) in the TODO_LIST brief | BLOCKING |
-| 2 | E9.1 add `Domain *system.DomainConfig` field + merge-contract godoc | GO only |
-| 3 | E9.2 `mergeDomain`: bootstrap appended ONLY when consumer declares no projections | GO only |
-| 4 | E9.3 middleware merge `[inFlight] + Domain.Middleware + CommandMiddleware` | GO only |
-| 5 | E9.4 merge HostOptions/CheckpointStore (derived wins); passthrough Events/Timers/Evolutions/decoders/ShutdownDependencies | GO only |
-| 6 | E9.5 prove nil-Domain path unchanged (zero test edits, suite green) | GO only |
-| 7 | E9.6 lint pass (exhaustruct nolints, wrapcheck delegations) | GO only |
-| 8 | E9.7 `cqrs-lint` scorecard + CHANGELOG delta | GO only |
-| 9 | E10.1 QuerySet → `system.Find` filtered+sorted round-trip test | GO only |
-| 10 | E10.2 coeffect gate test (`ErrDanglingEventSubscription` on undeclared event) | GO only |
-| 11 | E10.3 bootstrap-skip test (consumer declares ≥1 projection) | GO only |
-| 12 | E10.4 `Evolve`/`Lookup` + typed `Get` point-read test | GO only |
-| 13 | E10.5 runnable godoc example with verified output | GO only |
-| 14 | E10.6 hermetic race suite + README quickstart scratch-compile | GO only |
-| 15 | E11.1 `WithCommandLifecycle` recipe README section | GO only |
-| 16 | E11.2 compile-check the recipe snippet | GO only |
-| 17 | E11.3 cross-link from TODO_LIST cqrs item | GO only |
-| 18 | E12.1 go-health bridge README section (snippet already compiles) | GO only |
-| 19 | E12.3 optional cross-link in health module README | GO only |
-| 20 | E13.1 `metaengine.NewWatcher` + `ServeSSE` example | GO only |
-| 21 | E13.2 example test: httptest client asserts streamed events after dispatch | GO only |
-| 22 | E13.3 README note: raw-event vs materialized read-model streaming | GO only |
-| 23 | E13.4 stretch: integration E2E through an appkit Service (`NoTimeout`) | GO only |
-| 24 | E4-completion: add CHANGELOG `### Added` (accessors, scream logging, [Domain]) | either |
-| 25 | Ritual-debt: run `cqrs-lint` scorecard for E1–E7, record delta in CHANGELOG | either |
-| 26 | Draft upstream ask: system GracefulClose doc/impl mismatch (or fix TODO_LIST wording) | either |
-| 27 | E14.1 API-break check: `git archive cqrs/v0.6.1` vs worktree `go doc -all` diff | either |
-| 28 | E14.2 date CHANGELOG `[Unreleased]` → `[0.7.0] - 2026-10-07`; hermetic verify cqrs + integration | either |
-| 29 | E14.3 integration re-pin `cqrs v0.7.0` + `documentedPins` fixture + `go mod tidy` (GOWORK=off) | either |
-| 30 | E14.4 guards: `check-pin-drift.sh` + `check-go-directives.sh` green | either |
-| 31 | E14.5 annotated tag + `pre-tag-checks.sh cqrs/v0.7.0` | either |
-| 32 | E14.6 push master + tag; fresh-consumer proxy check (needs networked machine) | either |
-| 33 | E14.7 record adoption-closure outcome + scorecard delta in CHANGELOG | either |
-| 34 | E15.1 AGENTS: Release State + cqrs bullet (v0.7.0, new surface, storage/v4 → indirect) | either |
-| 35 | E15.2 TODO_LIST: close the P2 cqrs item per verdict; carry NO-GO remainder to watchlist | either |
-| 36 | E15.3 `go-structure-linter` — AGENTS ≤ 377 counted lines | either |
-| 37 | Re-verify integration suite once more before the tag | either |
-| 38 | Update AGENTS cqrs dependency table rows for the tidy (storage/v4 indirect) | either |
-| 39 | Persist the hermetic build recipe to project memory | either |
-| 40 | Decide: repair `/mnt/buildcache` (re-extract corrupted modules) or escalate to disk owner | either |
-| 41 | Configure Crush LSP against the private cache / silence broken gopls | either |
-| 42 | Annotate the SUPERB plan file with execution state (docs-health ANNOTATE, non-destructive) | either |
-| 43 | Tick the verdict checkbox in the TODO_LIST E8 brief after the owner answers | either |
-| 44 | Clean up or document the /tmp scratch modules (escape-hatch, health-bridge) for reuse in E10–E13 | GO only |
-| 45 | Re-check `Shutdown` godoc wording after any E9 Timers decision (timers stop only in GracefulClose Phase 0 — Drain+Close leaves them if Domain.Timers lands) | GO only |
-| 46 | Consider a wrapper test asserting `sys.ShutdownOrder()` sanity after Domain passthrough | GO only |
-| 47 | After tagging: re-pin check that no consumer resolves a broken v0.7.0 (proxy smoke) | either |
-| 48 | Post-release: docs-health HARVEST from this report's section (f) into TODO_LIST | either |
+| #  | Task                                                                                                                                                        | Gate     |
+| -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| 1  | **E8.2: record owner verdict** (GO / NO-GO / GO-on-W5-C2) in the TODO_LIST brief                                                                            | BLOCKING |
+| 2  | E9.1 add `Domain *system.DomainConfig` field + merge-contract godoc                                                                                         | GO only  |
+| 3  | E9.2 `mergeDomain`: bootstrap appended ONLY when consumer declares no projections                                                                           | GO only  |
+| 4  | E9.3 middleware merge `[inFlight] + Domain.Middleware + CommandMiddleware`                                                                                  | GO only  |
+| 5  | E9.4 merge HostOptions/CheckpointStore (derived wins); passthrough Events/Timers/Evolutions/decoders/ShutdownDependencies                                   | GO only  |
+| 6  | E9.5 prove nil-Domain path unchanged (zero test edits, suite green)                                                                                         | GO only  |
+| 7  | E9.6 lint pass (exhaustruct nolints, wrapcheck delegations)                                                                                                 | GO only  |
+| 8  | E9.7 `cqrs-lint` scorecard + CHANGELOG delta                                                                                                                | GO only  |
+| 9  | E10.1 QuerySet → `system.Find` filtered+sorted round-trip test                                                                                              | GO only  |
+| 10 | E10.2 coeffect gate test (`ErrDanglingEventSubscription` on undeclared event)                                                                               | GO only  |
+| 11 | E10.3 bootstrap-skip test (consumer declares ≥1 projection)                                                                                                 | GO only  |
+| 12 | E10.4 `Evolve`/`Lookup` + typed `Get` point-read test                                                                                                       | GO only  |
+| 13 | E10.5 runnable godoc example with verified output                                                                                                           | GO only  |
+| 14 | E10.6 hermetic race suite + README quickstart scratch-compile                                                                                               | GO only  |
+| 15 | E11.1 `WithCommandLifecycle` recipe README section                                                                                                          | GO only  |
+| 16 | E11.2 compile-check the recipe snippet                                                                                                                      | GO only  |
+| 17 | E11.3 cross-link from TODO_LIST cqrs item                                                                                                                   | GO only  |
+| 18 | E12.1 go-health bridge README section (snippet already compiles)                                                                                            | GO only  |
+| 19 | E12.3 optional cross-link in health module README                                                                                                           | GO only  |
+| 20 | E13.1 `metaengine.NewWatcher` + `ServeSSE` example                                                                                                          | GO only  |
+| 21 | E13.2 example test: httptest client asserts streamed events after dispatch                                                                                  | GO only  |
+| 22 | E13.3 README note: raw-event vs materialized read-model streaming                                                                                           | GO only  |
+| 23 | E13.4 stretch: integration E2E through an appkit Service (`NoTimeout`)                                                                                      | GO only  |
+| 24 | E4-completion: add CHANGELOG `### Added` (accessors, scream logging, [Domain])                                                                              | either   |
+| 25 | Ritual-debt: run `cqrs-lint` scorecard for E1–E7, record delta in CHANGELOG                                                                                 | either   |
+| 26 | Draft upstream ask: system GracefulClose doc/impl mismatch (or fix TODO_LIST wording)                                                                       | either   |
+| 27 | E14.1 API-break check: `git archive cqrs/v0.6.1` vs worktree `go doc -all` diff                                                                             | either   |
+| 28 | E14.2 date CHANGELOG `[Unreleased]` → `[0.7.0] - 2026-10-07`; hermetic verify cqrs + integration                                                            | either   |
+| 29 | E14.3 integration re-pin `cqrs v0.7.0` + `documentedPins` fixture + `go mod tidy` (GOWORK=off)                                                              | either   |
+| 30 | E14.4 guards: `check-pin-drift.sh` + `check-go-directives.sh` green                                                                                         | either   |
+| 31 | E14.5 annotated tag + `pre-tag-checks.sh cqrs/v0.7.0`                                                                                                       | either   |
+| 32 | E14.6 push master + tag; fresh-consumer proxy check (needs networked machine)                                                                               | either   |
+| 33 | E14.7 record adoption-closure outcome + scorecard delta in CHANGELOG                                                                                        | either   |
+| 34 | E15.1 AGENTS: Release State + cqrs bullet (v0.7.0, new surface, storage/v4 → indirect)                                                                      | either   |
+| 35 | E15.2 TODO_LIST: close the P2 cqrs item per verdict; carry NO-GO remainder to watchlist                                                                     | either   |
+| 36 | E15.3 `go-structure-linter` — AGENTS ≤ 377 counted lines                                                                                                    | either   |
+| 37 | Re-verify integration suite once more before the tag                                                                                                        | either   |
+| 38 | Update AGENTS cqrs dependency table rows for the tidy (storage/v4 indirect)                                                                                 | either   |
+| 39 | Persist the hermetic build recipe to project memory                                                                                                         | either   |
+| 40 | Decide: repair `/mnt/buildcache` (re-extract corrupted modules) or escalate to disk owner                                                                   | either   |
+| 41 | Configure Crush LSP against the private cache / silence broken gopls                                                                                        | either   |
+| 42 | Annotate the SUPERB plan file with execution state (docs-health ANNOTATE, non-destructive)                                                                  | either   |
+| 43 | Tick the verdict checkbox in the TODO_LIST E8 brief after the owner answers                                                                                 | either   |
+| 44 | Clean up or document the /tmp scratch modules (escape-hatch, health-bridge) for reuse in E10–E13                                                            | GO only  |
+| 45 | Re-check `Shutdown` godoc wording after any E9 Timers decision (timers stop only in GracefulClose Phase 0 — Drain+Close leaves them if Domain.Timers lands) | GO only  |
+| 46 | Consider a wrapper test asserting `sys.ShutdownOrder()` sanity after Domain passthrough                                                                     | GO only  |
+| 47 | After tagging: re-pin check that no consumer resolves a broken v0.7.0 (proxy smoke)                                                                         | either   |
+| 48 | Post-release: docs-health HARVEST from this report's section (f) into TODO_LIST                                                                             | either   |
 
 ---
 
