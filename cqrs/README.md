@@ -193,6 +193,53 @@ Instruments: `cqrs.projection.event.count` (projection, event type, status),
 follow go-cqrs-lite's `cqrs.*` conventions, so one dashboard schema covers
 HTTP spans and projection metrics.
 
+## Upgrading from v0.6.x
+
+**Checkpoint storage moved.** Default projection checkpoints no longer live
+in the aux SQL table `checkpoints`; they ride system's engine-backed
+checkpoint store (ADR-0142, the `system_checkpoints` collection on the
+projection engine) — same file, one fewer sqlite connection. On the first
+start after upgrading, every projection replays its stream exactly once
+because the new collection starts empty; read models are derived, so the
+replay is safe (it is the same work `ResetProjection` does). The old
+`checkpoints` table is orphaned and can be dropped manually.
+
+Two smaller consequences: `DB()` (the aux handle) now exists only when the
+default DLQ wants it, and `Shutdown` always closes the system even when the
+in-flight drain hits its deadline (previously the engines leaked on a stuck
+command handler — the drain error is now joined with the close error).
+
+**Escape hatch** — keep the pre-v0.7 SQL checkpoint table instead of the
+engine-backed default:
+
+```go
+import (
+	"database/sql"
+
+	"github.com/larsartmann/go-cqrs-lite/storage/v4/eventstore"
+	// the "sqlite" driver is registered by importing this module (blank import).
+)
+
+db, err := sql.Open("sqlite", "file:events.db?_pragma=busy_timeout(5000)")
+if err != nil {
+	return err
+}
+
+if _, err := db.ExecContext(ctx, eventstore.SQLiteCheckpointSchema()); err != nil {
+	return err
+}
+
+store, err := eventstore.NewSQLiteCheckpointStore(db)
+if err != nil {
+	return err
+}
+
+eventSvc, err := cqrs.NewEventService(cqrs.EventConfig{
+	DSN:             "file:events.db",
+	CheckpointStore: store, // legacy SQL checkpoints; close db yourself after Shutdown
+})
+```
+
 ## Accessors
 
 | Method                                   | Returns                          | Purpose                                                                                     |

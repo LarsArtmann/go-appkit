@@ -1,10 +1,31 @@
+# Changelog
+
+## [Unreleased]
+
+### Changed
+
+- `Shutdown` now drains in-flight commands through the system drainer seam
+  (`RegisterDrainer`) and ALWAYS closes the system afterwards — engines and
+  registered closers no longer leak when the drain context expires on a
+  stuck command handler. Drain and close errors are joined instead of the
+  drain short-circuiting the close; the `cqrs.drain_inflight_failed`
+  Infrastructure error is gone (the drainer's own `cqrs.drain_cancelled`
+  Transient error surfaces through `sys.Drain`). Idempotence is unchanged.
+- Default projection checkpoints moved from the aux SQL table `checkpoints`
+  to system's engine-backed checkpoint store (ADR-0142, the
+  `system_checkpoints` collection on the projection engine). Consequences
+  for sqlite-file deployments: the aux sqlite connection no longer opens
+  unless the default DLQ wants it (`DB()` now rejects without a DLQ);
+  upgrading replays every projection exactly once (the old table is
+  orphaned — read models are derived, so the replay is safe). Escape
+  hatch: keep the legacy SQL store via `EventConfig.CheckpointStore`
+  (README, "Upgrading from v0.6.x").
+
 ## [0.6.1] - 2026-10-06
 
 ### Changed
 
 - Bumped the go-cqrs-lite fleet to the 2026-10-05/06 waves (command/event v4.13.1, id v4.7.1, query v4.10.1, system v4.10.2, metaengine v4.16.1 + sqliteengine v4.5.1 + projectionadapter v4.5.2, decider/middleware v4.7.2, otel v4.5.2, projection v4.4.2, projectionhost v4.5.3, storage v4.10.4, claiming v4.0.2, commandlifecycle(+projections) v4.2.2, dedup v4.2.4, dispatcher v4.5.2, kv v4.3.3, metadata v4.7.3, record v4.6.2, snapshot v4.6.1, watermill v4.6.4). Dependency-only; test-suite polish since v0.6.0 rides along.
-
-# Changelog
 
 ## [0.6.0] - 2026-09-29
 
