@@ -60,6 +60,48 @@
 // tight bursts may still deduplicate (prefer the dir sink; see
 // [OpsRecorderPreset]).
 //
+// # Cookbook
+//
+// Capture slow failures only — [fr.OnAll] requires EVERY sub-trigger to
+// fire, so fast 500s and slow 200s burn no retention budget:
+//
+//	mw := flightrecorder.Middleware(rec,
+//	    fr.OnAll(fr.OnError(), fr.OnLatency(100*time.Millisecond)))
+//
+// Share ONE recorder with another subsystem (e.g. go-appkit/cqrs's
+// EventConfig.FlightRecorder): Go allows a single active recorder per
+// process, and a second [fr.Recorder.Start] in the same process fails with
+// [fr.ErrAlreadyEnabled] (typed: [fr.AlreadyEnabledError]). Match it
+// explicitly instead of string-comparing the runtime error:
+//
+//	if err := rec.Start(); err != nil {
+//	    if errors.Is(err, fr.ErrAlreadyEnabled) { /* already running — fine */ }
+//	    else { /* fail closed */ }
+//	}
+//
+// Dir-sink captures are not rate-limited: every trigger match writes a new
+// timestamped file. For flapping dependencies (a retry storm fires OnError
+// repeatedly), narrow the trigger with a minimum-interval latch — a tiny
+// atomic wrapper composes with any [fr.TriggerFunc] via [fr.OnAll]:
+//
+//	func minInterval(min time.Duration) fr.TriggerFunc {
+//	    var last atomic.Int64 // unix nano of the last fire; 0 = never
+//	    return func(fr.TriggerContext) bool {
+//	        now := time.Now().UnixNano()
+//	        if prev := last.Load(); prev != 0 && now-prev < int64(min) {
+//	            return false
+//	        }
+//	        last.Store(now)
+//	        return true
+//	    }
+//	}
+//
+//	// fr.OnAll(fr.OnError(), fr.OnLatency(100*time.Millisecond), minInterval(30*time.Second))
+//
+// (30–60s is a sensible range. The go-appkit/flightrecorderhealth module
+// ships the same idea for health-check triggers as a
+// flightrecorderhealth.WithCooldown option on NewTrigger.)
+//
 // # Process-global singleton
 //
 // Go's runtime/trace allows only one active flight recorder per process.
