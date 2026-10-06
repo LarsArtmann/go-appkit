@@ -11,7 +11,8 @@
 #   git push origin master <tag>
 #
 # Checks:
-#   1. The three standing guards (directives, pin-drift, dependabot parity).
+#   1. The four standing guards (directives, pin-drift, dependabot parity,
+#      workspace charter).
 #   2. The TAGGED ARTIFACT's go.mod (git show <tag>:…, not the working tree):
 #      go directive == the go.work floor, no `toolchain` directive, and no
 #      filesystem `replace` (tag hygiene: working-tree replaces used for
@@ -35,7 +36,7 @@ fail() {
 }
 
 # --- 1) Standing guards -----------------------------------------------------
-for guard in check-go-directives.sh check-pin-drift.sh check-dependabot-parity.sh; do
+for guard in check-go-directives.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh; do
 	echo "== $guard =="
 	if ! "./scripts/$guard"; then
 		fail "$guard failed — fix before pushing $tag"

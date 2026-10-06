@@ -178,3 +178,14 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check dependabot + CI matrix parity
         run: ./scripts/check-dependabot-parity.sh
+
+  # Workspace charter (2026-10-06): go.work must carry exactly the root +
+  # every go.mod directory except ./integration (pin charter: published tags
+  # only). The auto-commit daemon re-added the leaked membership twice after
+  # manual reverts; this makes the next one fail loudly.
+  workspace-charter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check go.work membership charter
+        run: ./scripts/check-workspace-charter.sh
