@@ -141,6 +141,20 @@ type EventConfig struct {
 	// FlightRecorder, and DLQ are appended after these, so derived wiring
 	// wins conflicts.
 	HostOptions []projectionhost.HostOption
+
+	// Domain passes a system.DomainConfig through to the composition root,
+	// unlocking the metaengine read-model surface that raw host projections
+	// cannot express: Lookup/QuerySet/Count declarations (typed reads via
+	// the System accessor), Evolve folds, the Events coeffect typo gate,
+	// Timers, command-domain middleware, and shutdown ordering. Nil (default)
+	// keeps the wrapper's raw-projection behavior unchanged.
+	//
+	// Merge contract: the wrapper's in-flight drain tracker stays outermost;
+	// its host-bootstrap projection is appended only when Domain declares no
+	// projections of its own; derived host-option wiring wins conflicts;
+	// CheckpointStore on THIS config wins over Domain.CheckpointStore. See
+	// the README "Domain declarations" section for examples.
+	Domain *system.DomainConfig
 }
 
 // DLQConfig configures the projection dead-letter queue.
@@ -413,19 +427,6 @@ func buildAuxStores( //nolint:ireturn // upstream interface
 	return dlqStore, nil
 }
 
-// hostBootstrapDeclaration names the zero-entry count projection that
-// guarantees system.New creates the projection host even when consumers only
-// register raw host projections (the host is built exclusively when
-// DomainConfig.Projections is non-empty). It counters no event types and has
-// no read-model cost.
-const hostBootstrapDeclaration = "appkit-host"
-
-// bootstrapSample is the decoder sample for the never-emitted bootstrap
-// event type.
-type bootstrapSample struct {
-	ID string
-}
-
 // buildSystem constructs the system.System with derived host options and
 // middleware wiring for the C/Q facade. The in-flight drain tracker is
 // installed outermost and registered as a system.Drainer so sys.Drain (and
@@ -438,23 +439,7 @@ func buildSystem(
 ) (*system.System, error) {
 	inFile := newInFlightTracker()
 
-	middleware := append([]command.Middleware{inFile.commandMiddleware()}, cfg.CommandMiddleware...)
-
-	domain := system.DomainConfig{ //nolint:exhaustruct_v5 // domain registration is the consumer's job
-		Middleware: middleware,
-		Projections: []system.ProjectionDeclaration{
-			// Host bootstrap: a count over an event type no domain emits, so
-			// system.New always creates the projection host even when
-			// consumers only register raw host projections.
-			system.Count(hostBootstrapDeclaration).
-				On("appkit.internal.never", bootstrapSample{ID: ""}, 1, "ID").
-				Done(),
-		},
-		ProjectionHostOptions: cfg.hostOptions(dlqStore),
-		CheckpointStore:       cfg.CheckpointStore,
-	}
-
-	sys, err := system.New(context.Background(), domain, deployment)
+	sys, err := system.New(context.Background(), mergeDomain(cfg, inFile, dlqStore), deployment)
 	if err != nil {
 		return nil, errorfamily.WrapInfrastructuref(
 			err, "cqrs.system_failed", "failed to create CQRS system",
