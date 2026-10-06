@@ -1,18 +1,22 @@
 package cqrs_test
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/larsartmann/go-appkit/cqrs"
 	"github.com/larsartmann/go-cqrs-lite/command/v4"
 	clprojections "github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4"
+	"github.com/larsartmann/go-cqrs-lite/decider/v4"
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
 	"github.com/larsartmann/go-cqrs-lite/metaengine/v4"
