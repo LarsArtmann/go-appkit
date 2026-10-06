@@ -710,7 +710,9 @@ func (es *EventService) Shutdown(ctx context.Context) error {
 	drainErr := es.sys.Drain(ctx)
 	closeErr := es.sys.Close()
 
-	return errors.Join(drainErr, closeErr) //nolint:wrapcheck // both sides already classified
+	// Both sides carry their own classification (the drainer wraps
+	// context.DeadlineExceeded as Transient; Close joins engine errors).
+	return errors.Join(drainErr, closeErr)
 }
 
 // host returns the projection host, tolerating deployments without one.
