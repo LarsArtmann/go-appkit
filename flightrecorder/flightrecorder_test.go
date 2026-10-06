@@ -157,9 +157,9 @@ func assertTraceNotWritten(t *testing.T, path string) {
 // the middleware does not pay trace-write latency on the request path: the
 // response must complete while a capture write is stuck on the gate.
 type gatedWriter struct {
-	startOnce   sync.Once
-	doneOnce    sync.Once
-	releaseOnce sync.Once
+	startOnce    sync.Once
+	doneOnce     sync.Once
+	releaseOnce  sync.Once
 	writeStarted chan struct{}
 	writeDone    chan struct{}
 	release      chan struct{}
@@ -230,7 +230,8 @@ func waitForTraceCount(t *testing.T, dir string, want int) {
 			nonEmpty := 0
 
 			for _, entry := range entries {
-				if info, statErr := entry.Info(); statErr == nil && info.Size() > 0 {
+				info, statErr := entry.Info()
+				if statErr == nil && info.Size() > 0 {
 					nonEmpty++
 				}
 			}
@@ -551,7 +552,8 @@ func TestMiddleware_CaptureIsNonBlocking(t *testing.T) {
 
 	recorderMu.Lock()
 
-	if err := rec.Start(); err != nil {
+	err = rec.Start()
+	if err != nil {
 		recorderMu.Unlock()
 		t.Fatalf("rec.Start() error: %v", err)
 	}
