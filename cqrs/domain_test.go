@@ -8,7 +8,6 @@ package cqrs
 import (
 	"context"
 	"errors"
-	"io"
 	"log/slog"
 	"reflect"
 	"slices"
@@ -82,9 +81,8 @@ func TestMergeDomain_MiddlewareOrder_TrackerThenDomainThenConfig(t *testing.T) {
 	}
 
 	handler := command.Handler(func(_ context.Context, _ command.Command) error { return nil })
-	for i := len(merged.Middleware) - 1; i >= 0; i-- {
-		next, mw := handler, merged.Middleware[i]
-		handler = mw(next)
+	for _, mw := range slices.Backward(merged.Middleware) {
+		handler = mw(handler)
 	}
 
 	cmd, err := command.New("merge.order", id.NewStreamID())
@@ -92,8 +90,9 @@ func TestMergeDomain_MiddlewareOrder_TrackerThenDomainThenConfig(t *testing.T) {
 		t.Fatalf("create command: %v", err)
 	}
 
-	if err := handler(context.Background(), cmd); err != nil {
-		t.Fatalf("invoke chain: %v", err)
+	invokeErr := handler(context.Background(), cmd)
+	if invokeErr != nil {
+		t.Fatalf("invoke chain: %v", invokeErr)
 	}
 
 	if !slices.Equal(order, []string{"domain", "config"}) {
@@ -150,7 +149,7 @@ func TestMergeDomain_HostOptions_DerivedAppendedLast(t *testing.T) {
 	marker := projectionhost.WithBatchSize(1)
 
 	merged := mergeDomain(EventConfig{
-		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+		Logger: slog.New(slog.DiscardHandler),
 		Domain: &system.DomainConfig{ProjectionHostOptions: []projectionhost.HostOption{marker}},
 	}, newInFlightTracker(), nil)
 
@@ -189,16 +188,16 @@ func TestMergeDomain_Passthrough_Verbatim(t *testing.T) {
 	commands := func(*system.System) {}
 	queries := func(*system.System) {}
 	timers := func(*system.System) {}
-	decoder := func(_ string, _ []byte) (any, error) { return nil, nil }
+	decoder := func(_ string, _ []byte) (any, error) { return map[string]any{}, nil }
 
 	consumer := &system.DomainConfig{
-		Commands:                   commands,
-		Queries:                    queries,
-		Timers:                     timers,
-		Events:                     []event.Type{"task.created", "task.completed"},
-		DisableCoeffectValidation:  true,
-		ProjectionDecoder:           decoder,
-		ShutdownDependencies:        []system.ShutdownDependency{{Before: "a", After: "b"}},
+		Commands:                  commands,
+		Queries:                   queries,
+		Timers:                    timers,
+		Events:                    []event.Type{"task.created", "task.completed"},
+		DisableCoeffectValidation: true,
+		ProjectionDecoder:         decoder,
+		ShutdownDependencies:      []system.ShutdownDependency{{Before: "a", After: "b"}},
 		Evolutions: []system.EvolutionSpec{
 			system.Evolve[TaskView]("task").On("task.created", TaskCreated{}).Done(),
 		},
@@ -354,7 +353,8 @@ func TestEventService_DomainQuerySet_FindRoundTrip(t *testing.T) {
 	appendDomainEvent(t, eventSvc, "task.created", "task-3", 1,
 		TaskCreated{ID: "task-3", Title: "File the coeffect typo", Status: "done", Priority: 1})
 
-	if err := eventSvc.StartProjections(context.Background()); err != nil {
+	err := eventSvc.StartProjections(context.Background())
+	if err != nil {
 		t.Fatalf("StartProjections: %v", err)
 	}
 
@@ -418,9 +418,11 @@ func TestNewEventService_DomainCoeffectGate_RejectsDanglingSubscription(t *testi
 		Domain: &system.DomainConfig{
 			Events: []event.Type{"task.created"},
 			Projections: []system.ProjectionDeclaration{
-				system.QuerySet[TaskView]("tasks").
-					On("task.created", TaskCreated{}).
-					On("task.creted", TaskCreated{}). // the typo the gate exists for
+				// A count projection: consumes arbitrary event types without
+				// the Created/Updated/Deleted sample convention, so the typo'd
+				// type survives builder validation and hits the gate.
+				system.Count("task-counts").
+					On("task.creted", TaskCreated{}, 1, "ID"). // the typo the gate exists for
 					Done(),
 			},
 		},
@@ -495,27 +497,24 @@ func TestEventService_DomainEvolveLookup_GetPointRead(t *testing.T) {
 
 	appendDomainEvent(t, eventSvc, "task.created", "task-1", 1,
 		TaskCreated{ID: "task-1", Title: "Inherit folds", Status: "active", Priority: 1})
+	appendDomainEvent(t, eventSvc, "task.completed", "task-1", 2, TaskCompleted{ID: "task-1"})
 
-	if err := eventSvc.StartProjections(context.Background()); err != nil {
+	err := eventSvc.StartProjections(context.Background())
+	if err != nil {
 		t.Fatalf("StartProjections: %v", err)
 	}
 
 	ctx := context.Background()
 	sys := eventSvc.System()
 
-	waitFor(t, "created task visible", func() bool {
-		task, err := system.Get[TaskView](ctx, sys, "get-task", "task-1")
-		return err == nil && task.Title == "Inherit folds"
+	waitFor(t, "convention and explicit folds applied", func() bool {
+		task, getErr := system.Get[TaskView](ctx, sys, "get-task", "task-1")
+
+		return getErr == nil && task.Title == "Inherit folds" && task.Status == "done"
 	})
 
-	appendDomainEvent(t, eventSvc, "task.completed", "task-1", 2, TaskCompleted{ID: "task-1"})
-
-	waitFor(t, "explicit fold applied", func() bool {
-		task, err := system.Get[TaskView](ctx, sys, "get-task", "task-1")
-		return err == nil && task.Status == "done"
-	})
-
-	if _, err := system.Get[TaskView](ctx, sys, "get-task", "missing"); !errors.Is(err, system.ErrNotFound) {
+	_, err = system.Get[TaskView](ctx, sys, "get-task", "missing")
+	if !errors.Is(err, system.ErrNotFound) {
 		t.Errorf("expected ErrNotFound for a missing key, got: %v", err)
 	}
 }
