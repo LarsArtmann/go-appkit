@@ -42,6 +42,8 @@ view, _ := cqrs.DispatchQueryChecked[TaskQuery, TaskView](ctx, es, 2*time.Second
 err = es.Shutdown(ctx)
 ```
 
+Runnable end-to-end as `ExampleNewEventService` in `example_test.go`.
+
 ## Configuration
 
 | Field                   | Type                             | Default              | Effect                                                                                                                                                                                                                                                                       |
@@ -180,6 +182,8 @@ _ = es.ResetProjection(ctx, "user-projection", projectionhost.WithPurgeDeadLette
 
 The default SQLite store also implements `projectionhost.DeadLetterStoreAdmin`
 (Count, ListPaged, PurgeBefore) — type-assert to use it for admin dashboards.
+Replay is exercised by `ExampleEventService_ReplayDeadLetters` in
+`example_test.go`.
 
 ### Sharing one flight recorder
 
@@ -465,6 +469,9 @@ drain-error early return is fixed upstream (ask drafted under
 Events: []event.Type{"task.created", "task.completed"},
 ```
 
+The declarations above run as `ExampleNewEventService_domain` in
+`example_test.go`.
+
 ### Command lifecycle audit trail
 
 ADR-0117's `WithCommandLifecycle` is one call returning the recorder, a
@@ -557,8 +564,9 @@ counts, err := metaengine.ExecuteTypedByName[
 Lifecycle events are ordinary journal events: they replay, checkpoint, and
 drain with everything else.
 
-Every recipe in this section is exercised by a godoc Example in
-`example_test.go` — keep them in sync when editing either side.
+This recipe runs verbatim-equivalent as `ExampleNewEventService_domainCommandLifecycle`
+in `example_test.go`; `readme_sync_test.go` fails if a README recipe and its
+Example drift apart.
 
 ### Streaming read models
 
@@ -584,7 +592,8 @@ This streams MATERIALIZED read models (post-fold state). For raw domain
 events (pre-fold journal records), pair the
 [appkit/realtime](../realtime) module's journal-backed replay instead — the
 two answer different questions ("what does the list look like now" vs "what
-happened").
+happened"). The recipe runs as `ExampleEventService_System` in
+`example_test.go`, including the replay-journal reconnect.
 
 ## Command/query facade
 
