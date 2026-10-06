@@ -5,7 +5,7 @@ go 1.27.1
 require (
 	github.com/larsartmann/go-appkit v0.7.0
 	github.com/larsartmann/go-error-family v0.11.0
-	github.com/larsartmann/go-flightrecorder v0.2.0
+	github.com/larsartmann/go-flightrecorder v0.2.1
 	github.com/larsartmann/httputil v1.4.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.72.0
 	go.opentelemetry.io/otel v1.47.0
