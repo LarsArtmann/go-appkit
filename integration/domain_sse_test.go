@@ -55,7 +55,7 @@ var boardDecider = decider.Decider[boardState]{
 	},
 }
 
-type boardTaskAdded struct {
+type boardTaskCreated struct {
 	ID     string
 	Title  string
 	Status string
@@ -95,7 +95,7 @@ func TestCQRSDomainSSEThroughAppkitService(t *testing.T) {
 		Domain: &system.DomainConfig{
 			Projections: []system.ProjectionDeclaration{
 				system.QuerySet[boardTaskView]("board-tasks").
-					On("board.task_added", boardTaskAdded{}).
+					On("board.task_added", boardTaskCreated{}).
 					Done(),
 			},
 		},
@@ -114,7 +114,7 @@ func TestCQRSDomainSSEThroughAppkitService(t *testing.T) {
 			return system.Execute(ctx, cmd.StreamID(), "Board",
 				func(_ boardState, ver event.Version) ([]event.Event, error) {
 					evt, evtErr := event.New("board.task_added", cmd.StreamID(), "Board", ver+1,
-						boardTaskAdded{
+						boardTaskCreated{
 							ID:     cmd.StreamID().String(),
 							Title:  "E2E Domain task",
 							Status: "active",
