@@ -45,6 +45,14 @@
   orphaned — read models are derived, so the replay is safe). Escape
   hatch: keep the legacy SQL store via `EventConfig.CheckpointStore`
   (README, "Upgrading from v0.6.x").
+- cqrs-lint scorecard after the adoption-closure train: unchanged at 5/28
+  relevant modules (Grade Minimal) — the `Domain` seam is a passthrough, so
+  adoption lives in consumers' module graphs, not the wrapper's. All four
+  findings of the 2026-10-06 deep dive
+  (`docs/research/2026-10-06_go-cqrs-lite-system-metaengine-deep-dive.html`,
+  audit score 52/100) are closed: the sealed DomainConfig (F1), the aux-DB
+  checkpoint duplication (F2), the hand-rolled drain that leaked engines on
+  timeout (F3), and the invisible health/SCREAM surface (F4).
 
 ## [0.6.1] - 2026-10-06
 
