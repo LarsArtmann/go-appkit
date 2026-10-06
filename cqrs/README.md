@@ -51,7 +51,7 @@ err = es.Shutdown(ctx)
 | `Pragmas`               | `[]string`                       | WAL + busy_timeout | SQLite pragmas. The defaults match the old `stack/sqlite` preset (`journal_mode=WAL`, `busy_timeout=5000`).                                                                                                                                                                  |
 | `ConfigPath`            | `string`                         | —                  | Load the deployment from YAML via `system.LoadConfig` (koanf tags + `CQRS_` env overrides, e.g. `CQRS_ENGINES__PRIMARY__DRIVER`). Wins over `DSN`/`Driver`/`Pragmas`.                                                                                                        |
 | `Deployment`            | `*system.DeploymentConfig`       | —                  | Fully pre-loaded operator config; wins over everything. Must declare a `RoleProjections` instance.                                                                                                                                                                           |
-| `CheckpointStore`       | `event.CheckpointStore`          | persistent SQL     | Projection checkpoint store override. Default: SQLite table on the service's database (driver `sqlite` + DSN); other drivers fall back to system's engine-backed checkpoint store where the engine supports it (ADR-0142), else in-memory.                                                                                                                                  |
+| `CheckpointStore`       | `event.CheckpointStore`          | system engine-backed | Projection checkpoint store override. Default: system's engine-backed store (ADR-0142, the `system_checkpoints` collection) — persists for sqlite/postgres, volatile for memory. Escape hatch for the legacy SQL table: see "Upgrading from v0.6.x".                                                                 |
 | `CommandMiddleware`     | `[]command.Middleware`           | none               | Wraps every dispatched command. Compose via `DefaultCommandMiddleware(logger, tracer)` + your own. An in-flight drain tracker is installed outermost automatically.                                                                                                          |
 | `QueryMiddleware`       | `[]query.Middleware`             | none               | Wraps every dispatched query.                                                                                                                                                                                                                                                |
 | `Logger`                | `*slog.Logger`                   | `slog.Default()`   | Receives projection worker lifecycle events (crashes, restarts, dead-letter captures). Wire the same logger you gave `appkit.Service`.                                                                                                                                       |
@@ -60,6 +60,106 @@ err = es.Shutdown(ctx)
 | `FlightRecorderTrigger` | `fr.TriggerFunc`                 | nil (= OnAlways)   | Gate for the capture: receives an `fr.TriggerContext` (Kind `"projection"`, Type = projection name, Err = terminal error). Default captures every terminal failure.                                                                                                          |
 | `Metrics`               | `projectionhost.MetricsRecorder` | nil (disabled)     | Observes projection lifecycle events (processed, errored, dead-lettered, restarts, checkpoint lag). Backend-agnostic.                                                                                                                                                        |
 | `HostOptions`           | `[]projectionhost.HostOption`    | none               | Advanced host tuning — e.g. `WithCheckpointEvery(n)` (batch live-phase checkpoint saves), `WithOnFailed(fn)` (failure callback), `WithMaxRestarts`, `WithBatchSize`. Derived wiring (Logger, Metrics, FlightRecorder, DLQ) wins conflicts.                                   |
+
+### Deployment shapes
+
+Everything below is operator config, loaded through `ConfigPath`/`Deployment`
+with the same YAML `system.LoadConfig` parses — every snippet here lives in
+[`testdata/`](testdata/) and round-trips through the real parser in a test,
+so it cannot drift from the pinned system version.
+
+**Buses and publish fan-out.** Events from an instance publish to every bus
+in its `publish` list (multi-bus fan-out); the projection host consumes from
+the deployment's bus topology. Non-gochannel bus drivers (`nats`, `redis`)
+must be blank-imported by the consumer to self-register:
+
+```yaml
+# testdata/deployment-buses.yaml
+engines:
+  primary:
+    driver: sqlite
+    dsn: file:events.db
+buses:
+  local:
+    driver: gochannel
+  edge:
+    driver: nats
+    url: nats://localhost:4222
+instances:
+  - role: source-of-truth
+    engine: primary
+    publish: [local, edge]
+  - role: projections
+    engine: primary
+```
+
+**Priorities, materialized views, durability, engine pools.** Layout
+priorities (ADR-0124) resolve query-level → engine-level → global →
+Balanced. Materialized views accelerate engine-side aggregates — a
+deployment-time concern, never declared in code. A projections instance
+with `engines:` (plural) is a mixed pool the planner routes freely within:
+
+```yaml
+# testdata/deployment-priority-views.yaml
+engines:
+  hot:
+    driver: sqlite
+    dsn: file:events.db
+    priority: ReadSpeed
+    materialized_views:
+      - collection: orders
+        fn: SUM
+        column: amount
+        group_by: customer
+  archive:
+    driver: sqlite
+    dsn: file:archive.db
+    priority: StorageSpace
+priority:
+  global: Balanced
+  perEngine:
+    hot: ReadSpeed
+  perQuery:
+    orders_by_customer: ReadSpeed
+instances:
+  - role: source-of-truth
+    engine: hot
+    durability: normal
+  - role: projections
+    engines: [hot, archive]
+```
+
+Durability tiers: `strict` (fsync every commit), `normal` (crash-safe, WAL
+checkpoint window may be lost on power loss), `relaxed` (volatile — triggers
+a WARN+OVERRIDE safety finding unless acknowledged).
+
+**Manifest pinning, acknowledged warnings, cache.** `manifest_path` pins the
+projection plan across restarts: removing a read model or changing its query
+shape SCREAMs instead of silently orphaning data. `acknowledge_warnings`
+silences a specific WARN+OVERRIDE finding by `rule:role`. `cache` adds a
+read-through W-TinyLFU tier in front of an instance's event store:
+
+```yaml
+# testdata/deployment-manifest.yaml
+engines:
+  primary:
+    driver: sqlite
+    dsn: file:events.db
+instances:
+  - role: source-of-truth
+    engine: primary
+    cache:
+      capacity: 10000
+  - role: projections
+    engine: primary
+manifest_path: /var/lib/app/projection-manifest.json
+acknowledge_warnings:
+  - "durability-downgrade:events"
+```
+
+`NewEventService` logs any unacknowledged WARN+OVERRIDE findings at WARN on
+boot (rule + detail + the acknowledgment escape hatch); `ScreamReport()`
+returns the structured findings for dashboards.
 
 ### Dead-letter queue
 
