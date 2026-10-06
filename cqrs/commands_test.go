@@ -494,6 +494,93 @@ func (c *eventCounter) projection() projection.Projection { //nolint:ireturn // 
 	)
 }
 
+func TestEventService_CheckpointStoreOverrideWins(t *testing.T) {
+	t.Parallel()
+
+	store := &countingCheckpointStore{}
+
+	eventSvc, err := NewEventService(EventConfig{
+		DSN:            t.TempDir() + "/test.db",
+		CheckpointStore: store,
+	})
+	if err != nil {
+		t.Fatalf("NewEventService: %v", err)
+	}
+
+	t.Cleanup(func() { _ = eventSvc.Shutdown(context.Background()) })
+
+	counter := &eventCounter{name: "cp-override", expected: 1, fresh: true}
+
+	err = eventSvc.Host().Register(counter.projection())
+	if err != nil {
+		t.Fatalf("register: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, "test.cp")
+
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("start: %v", err)
+	}
+
+	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+	waitFor(t, "events counted", func() bool { return counter.processed() >= 1 })
+
+	if store.saveCount() == 0 {
+		t.Error("consumer-supplied checkpoint store never saved — the default overrode it")
+	}
+
+	if store.loadCount() == 0 {
+		t.Error("consumer-supplied checkpoint store never loaded — the default overrode it")
+	}
+}
+
+// countingCheckpointStore is an in-memory CheckpointStore that records
+// Save/Load calls, proving a consumer override is actually wired in.
+type countingCheckpointStore struct {
+	mu      sync.Mutex
+	saved   map[string]event.Checkpoint
+	saves   int
+	loads   int
+}
+
+func (c *countingCheckpointStore) Save(_ context.Context, name string, cp event.Checkpoint) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.saved == nil {
+		c.saved = map[string]event.Checkpoint{}
+	}
+
+	c.saved[name] = cp
+	c.saves++
+
+	return nil
+}
+
+func (c *countingCheckpointStore) Load(_ context.Context, name string) (event.Checkpoint, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.loads++
+
+	return c.saved[name], nil //nolint:nilnil // zero-value checkpoint when absent
+}
+
+func (c *countingCheckpointStore) saveCount() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return c.saves
+}
+
+func (c *countingCheckpointStore) loadCount() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return c.loads
+}
+
 func TestEventService_MissingDriverFailsConstruction(t *testing.T) {
 	t.Parallel()
 

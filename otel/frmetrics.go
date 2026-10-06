@@ -17,9 +17,11 @@ const frSnapshotDuration = "appkit_flightrecorder_snapshot_duration_seconds"
 
 // NewFlightRecorderMetricsHook bridges the flight recorder's capture events
 // into an OTel meter: every snapshot (manual, trigger, or async) increments
-// `appkit_flightrecorder_snapshots_total{source,kind}` and records
-// `appkit_flightrecorder_snapshot_duration_seconds`. Wire it at recorder
-// construction:
+// `appkit_flightrecorder_snapshots_total{source,kind,type}` and records
+// `appkit_flightrecorder_snapshot_duration_seconds`. The `type` label is
+// the operation type from the [fr.TriggerContext] (e.g. "GET /slow-route"),
+// so dashboards can attribute captures per operation; manual captures leave
+// it empty. Wire it at recorder construction:
 //
 //	rec, err := fr.New(fr.WithSnapshotDir(dir),
 //	    fr.WithMetrics(appkitotel.NewFlightRecorderMetricsHook(meter)))
@@ -52,6 +54,7 @@ func NewFlightRecorderMetricsHook(meter metric.Meter) flightrecorderMetricsHook 
 		attrs := metric.WithAttributes(
 			attribute.String("source", event.Source),
 			attribute.String("kind", event.Kind),
+			attribute.String("type", event.Type),
 		)
 
 		counter.Add(context.Background(), 1, attrs)
