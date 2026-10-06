@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+(nothing yet)
+
+## [0.7.0] - 2026-10-06
+
 ### Added
 
 - `EventConfig.Domain`: a `*system.DomainConfig` passthrough that unseals the
