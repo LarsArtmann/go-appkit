@@ -1,8 +1,8 @@
 // Command otel-demo shows the appkit otel module in action: a service with
 // a span on every request, semantic-convention metrics, W3C trace-context
 // propagation, trace-correlated handler logs, exceptions in both flavors
-// (panics and handled errors), and a telemetry flush wired into graceful
-// shutdown.
+// (panics and handled errors), flight-recorder captures reported as OTel
+// metrics, and a telemetry flush wired into graceful shutdown.
 //
 // Run and try:
 //
@@ -10,6 +10,7 @@
 //	curl -i http://localhost:8080/users/alice   # span + correlated log
 //	curl -i http://localhost:8080/boom          # handled error -> exception event
 //	curl -i http://localhost:8080/panic         # panic -> exception event + stack trace
+//	curl -i http://localhost:8080/slow          # 150ms route -> fr capture -> appkit_flightrecorder_snapshots_total{type="GET /slow"}
 //	curl -i http://localhost:8080/health        # no span — health is filtered
 //	ctrl-C                                      # graceful drain, then telemetry flushes
 //
@@ -28,10 +29,12 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/larsartmann/go-appkit"
 	appkitotel "github.com/larsartmann/go-appkit/otel"
 	errorfamily "github.com/larsartmann/go-error-family"
+	fr "github.com/larsartmann/go-flightrecorder"
 	"github.com/larsartmann/httputil"
 )
 
@@ -77,13 +80,37 @@ func run(cfg appkit.ServiceConfig) error {
 		return fmt.Errorf("otel setup: %w", err)
 	}
 
+	// Flight recorder: ONE per process (Go runtime constraint). Captures on
+	// error-status or >100ms requests land as timestamped files, and every
+	// capture completion flows into OTel metrics via the bridge — in SigNoz,
+	// chart appkit_flightrecorder_snapshots_total by type to see which
+	// operations produced traces.
+	traceDir, err := os.MkdirTemp("", "otel-demo-traces")
+	if err != nil {
+		return fmt.Errorf("create trace dir: %w", err)
+	}
+
+	rec, err := fr.New(
+		fr.WithSnapshotDir(traceDir),
+		fr.WithSnapshotPrefix("trace"),
+		fr.WithMaxSnapshots(5),
+		fr.WithMaxBytes(64<<20),
+		fr.WithMetrics(appkitotel.NewFlightRecorderMetricsHook(provider.AsMeterProvider().Meter("otel-demo"))),
+	)
+	if err != nil {
+		return fmt.Errorf("create flight recorder: %w", err)
+	}
+
 	// Tracing wraps the whole request (including the default middleware
 	// stack); Recovery turns panics into exception events inside those
-	// spans; the provider flushes after the server released its
-	// connections during graceful shutdown.
+	// spans; the recorder starts after the listener binds and closes during
+	// graceful shutdown (Close drains in-flight async captures); the
+	// provider flushes after the server released its connections.
+	cfg.StartHooks = []appkit.Hook{func(context.Context) error { return rec.Start() }}
+	cfg.ShutdownHooks = []func(context.Context) error{rec.Close, provider.Shutdown}
+
 	cfg.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
 	cfg.ExtraMiddlewares = []httputil.Middleware{appkitotel.Recovery(logger)}
-	cfg.ShutdownHooks = []func(context.Context) error{provider.Shutdown}
 
 	svc, err := appkit.NewService(cfg)
 	if err != nil {
@@ -110,6 +137,22 @@ func run(cfg appkit.ServiceConfig) error {
 
 	svc.Mux.HandleFunc("GET /panic", func(_ http.ResponseWriter, _ *http.Request) {
 		panic(errCacheStampede) // Recovery records the exception, answers 500
+	})
+
+	svc.Mux.HandleFunc("GET /slow", func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		time.Sleep(150 * time.Millisecond)
+
+		w.WriteHeader(http.StatusOK)
+
+		_, _ = w.Write([]byte("finally done"))
+
+		rec.SnapshotIf(r.Context(), fr.TriggerContext{
+			Kind:     "http",
+			Type:     "GET /slow",
+			Duration: time.Since(start),
+		}, fr.OnLatency(100*time.Millisecond))
 	})
 
 	return svc.Run(context.Background()) //nolint:wrapcheck // top-level main returns the error as-is
