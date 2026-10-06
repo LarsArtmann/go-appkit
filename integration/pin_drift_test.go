@@ -34,22 +34,22 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/realtime":             "v0.1.2",
 	"github.com/larsartmann/go-appkit/security":             "v0.2.0",
 
-	"github.com/larsartmann/cqrs-htmx/v4":   "v4.13.0",
-	"github.com/larsartmann/go-sse":         "v0.6.1",
+	"github.com/larsartmann/cqrs-htmx/v4":   "v4.13.1",
+	"github.com/larsartmann/go-sse":         "v0.6.2",
 	"github.com/larsartmann/go-sse/ssetest": "v0.4.0",
-	"github.com/larsartmann/httputil":       "v1.4.0",
+	"github.com/larsartmann/httputil":       "v1.4.1",
 
 	// Composition-contract legs (T14, 2026-09-29): the third-party surfaces
 	// the composition tests exercise. These are VERSION-LOCKED to the pins
-	// the published family modules carry (go-health v0.4.1 = the health
-	// module's pin since health v0.1.4's dependency sweep — the earlier
+	// the published family modules carry (go-health v0.5.0 = the health
+	// module's pin since the 2026-10-06 dependency sweep — the earlier
 	// "v0.3.0 evaluation pending" lock is OVERTAKEN, the suite is green on
-	// v0.4.1; go-flightrecorder v0.2.0 = frh/cqrs/otel's pin;
+	// v0.5.0; go-flightrecorder v0.2.0 = frh/cqrs/otel's pin;
 	// samber/do v2.1.0 = frh's pin) — deliberately NOT asserted against the
 	// proxy LATEST by scripts/check-pin-drift.sh; re-align by hand when the
 	// owning family module bumps them.
 	"github.com/larsartmann/go-flightrecorder": "v0.2.0",
-	"github.com/larsartmann/go-health":         "v0.4.1",
+	"github.com/larsartmann/go-health":         "v0.5.0",
 	"github.com/samber/do/v2":                  "v2.1.0",
 }
 
