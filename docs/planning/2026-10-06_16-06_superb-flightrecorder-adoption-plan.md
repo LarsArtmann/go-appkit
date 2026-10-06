@@ -90,22 +90,27 @@
 | M32 | doc.go: cooldown guidance for dir sinks (30–60s, cross-ref frh `WithCooldown`) | T6 | 8 | 100% |
 | M33 | Compile-check updated doc.go snippets | T6 | 12 | 100% |
 | M34 | `flightrecorder` hermetic test re-run after all code changes | T7 | 8 | 20% |
-| M35 | `otel` hermetic test re-run + sequential lint of both modules | T7 | 20 | 20% |
+| M35a | `otel` hermetic test re-run (`GOWORK=off go test ./... -race`) | T7 | 8 | 20% |
+| M35b | Sequential `golangci-lint` of `flightrecorder/` then `otel/` from their own directories | T7 | 12 | 20% |
 | M36 | `go-structure-linter` root run (exclude flags per AGENTS.md) → 0 findings | T7 | 8 | 20% |
 | M37 | flightrecorder CHANGELOG: `[Unreleased]` → `[v0.2.0]` — async capture behavior change + migration note, preset variant, handler options | T8 | 12 | 100% |
 | M38 | otel CHANGELOG v0.2.0 entry gains frmetrics `type`-attribute + example-wiring bullets | T8 | 8 | 100% |
-| M39 | API-diff check vs `flightrecorder/v0.1.1` (git-archive ritual) — verify additions-only | T8 | 20 | 100% |
+| M39a | Extract godoc artifacts: `git archive flightrecorder/v0.1.1` + working-tree `go doc -all` | T8 | 8 | 100% |
+| M39b | Diff old vs new API — verify additions-only; record verdict for the tag message | T8 | 12 | 100% |
 | M40 | AGENTS.md: release-state + flightrecorder/otel module bullets; TODO_LIST: harvest remaining plan items | T8 | 12 | 100% |
 | M41 | `./scripts/check-pin-drift.sh` + `check-go-directives.sh` green | T8 | 8 | 100% |
 | M42 | Annotated tags (`flightrecorder/v0.2.0`, `otel/v0.2.0` per D1) + `pre-tag-checks.sh` + push master + tags | T9 | 12 | 100% |
-| M43 | Fresh-consumer proxy check per `doc/recipes/fresh-consumer-proxy-check.md` | T9 | 30 | 100% |
+| M43a | Fresh-consumer check: scaffold scratch module, `go get` the new tags | T9 | 12 | 100% |
+| M43b | Build + test the scratch consumer; record resolved versions per the recipe | T9 | 12 | 100% |
 | M44 | Integration go.mod pins → new tags; `documentedPins` fixture + `doc.go` pin contract | T10 | 12 | 100% |
-| M45 | Integration suite `GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./...` green; `check-pin-drift.sh` green | T10 | 15 | 100% |
+| M45a | Integration suite `GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./...` green | T10 | 12 | 100% |
+| M45b | `./scripts/check-pin-drift.sh` green (family tags + cross-repo contract legs) | T10 | 5 | 100% |
 | M46 | Verify cooldown ask against fr TODO_LIST/ROADMAP (verify-before-filing gate) | T11 | 12 | 100% |
-| M47 | Draft `doc/feedback/outgoing/2026-10-06_upstream-ask-goflightrecorder-cooldown.md` | T11 | 20 | 100% |
+| M47a | Draft `doc/feedback/outgoing/2026-10-06_upstream-ask-goflightrecorder-cooldown.md` (evidence: adapter.go:205-219) | T11 | 12 | 100% |
+| M47b | Self-review the draft against the source-verification gate; finalize | T11 | 8 | 100% |
 | M48 | Link the ask from TODO_LIST (filing remains gated); final commit + push | T11 | 8 | 100% |
 
-**Total: 48 micro-tasks, ~499 min. Task count ≤ 150 per skill budget; every micro-task ≤ 12 min.**
+**Total: 53 micro-tasks, 551 min (~9.2 h). Task count ≤ 150 per skill budget; every micro-task ≤ 12 min (verified: max 12).**
 
 ---
 
@@ -135,17 +140,18 @@ flowchart TD
 
     subgraph T6T7["verify + cookbook (T6, T7)"]
         M30["M30 OnAll recipe"] --> M31["M31 ErrAlreadyEnabled recipe"] --> M32["M32 cooldown note"] --> M33["M33 compile-check"]
-        M34["M34 fr hermetic test"] --> M35["M35 otel hermetic + lints"] --> M36["M36 structure linter"]
+        M34["M34 fr hermetic test"] --> M35a["M35a otel hermetic test"] --> M35b["M35b sequential lints"] --> M36["M36 structure linter"]
     end
 
     subgraph T8T11["100% · trains + fleet (T8–T11)"]
-        M37["M37 fr CHANGELOG"] --> M38["M38 otel CHANGELOG"] --> M39["M39 API diff"] --> M40["M40 AGENTS+TODO"] --> M41["M41 guards"]
+        M37["M37 fr CHANGELOG"] --> M38["M38 otel CHANGELOG"] --> M39a["M39a extract godoc artifacts"] --> M39b["M39b additions-only diff"] --> M40["M40 AGENTS+TODO"] --> M41["M41 guards"]
         M41 --> D1{"D1: ship otel v0.2.0 same train?"}
         D1 -->|yes| M42["M42 tags + pre-tag-checks + push"]
-        D1 -->|no| M42b["M42 fr-only tag + push"]
-        M42 --> M43["M43 fresh-consumer proxy"]
-        M43 --> M44["M44 integration re-pin"] --> M45["M45 integration suite"]
-        M45 --> M46["M46 verify cooldown ask"] --> M47["M47 draft feedback"] --> M48["M48 link + final push"]
+        D1 -->|no| M42b["M42b fr-only tag + push"]
+        M42 --> M43a["M43a scratch consumer + go get"]
+        M43a --> M43b["M43b build + test + record versions"]
+        M43b --> M44["M44 integration re-pin"] --> M45a["M45a integration suite"] --> M45b["M45b pin-drift green"]
+        M45b --> M46["M46 verify cooldown ask"] --> M47a["M47a draft feedback"] --> M47b["M47b self-review + finalize"] --> M48["M48 link + final push"]
     end
 
     M07 --> M08
@@ -159,7 +165,7 @@ flowchart TD
     M36 --> M37
 ```
 
-Parallel lanes: T2 ∥ T3 ∥ T5 scaffold after M07; T4 after M11+M16; all release work (M37+) strictly after M36 (structure linter green).
+Parallel lanes: T2 ∥ T3 ∥ T5 scaffold after M07; T4 after M11+M16; all release work (M37+) strictly after M36 (structure linter green). `M42b` is the D1=no variant of M42 (flightrecorder-only train; otel tags later unchanged).
 
 ---
 
