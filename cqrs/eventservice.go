@@ -119,9 +119,10 @@ type EventConfig struct {
 
 	// CheckpointStore overrides the projection checkpoint store. When nil
 	// (default) a persistent SQL checkpoint store is created on the config's
-	// own SQLite database (driver "sqlite" with a DSN); other drivers get
-	// in-memory checkpoints (full replays after restart). Use this to force
-	// a custom store for any driver.
+	// own SQLite database (driver "sqlite" with a DSN); other drivers fall
+	// back to system's engine-backed checkpoint store where the engine
+	// supports it (ADR-0142), else in-memory. Use this to force a custom
+	// store for any driver.
 	CheckpointStore event.CheckpointStore
 
 	// CommandMiddleware wraps every command dispatched through the service

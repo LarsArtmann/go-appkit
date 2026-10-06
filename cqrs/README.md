@@ -8,8 +8,8 @@ layer (metaengine + `projectionhost`) behind a lifecycle-managed `EventService`.
 > preset (removed at go-cqrs-lite v5) onto `system.New`. Operators can swap engines at
 > deployment time; see the Configuration table and the C/Q facade section below.
 
-> **Build note:** requires `GOEXPERIMENT=jsonv2` (go-cqrs-lite's codec/v4 uses
-> `encoding/json/jsontext`), available from Go 1.25.
+> **Build note:** Go 1.27.1 (the module's `go` floor). `encoding/json/v2` is
+> default-on at that version — no `GOEXPERIMENT` needed (retired 2026-09-29).
 
 ## Usage
 
@@ -51,7 +51,7 @@ err = es.Shutdown(ctx)
 | `Pragmas`               | `[]string`                       | WAL + busy_timeout | SQLite pragmas. The defaults match the old `stack/sqlite` preset (`journal_mode=WAL`, `busy_timeout=5000`).                                                                                                                                                                  |
 | `ConfigPath`            | `string`                         | —                  | Load the deployment from YAML via `system.LoadConfig` (koanf tags + `CQRS_` env overrides, e.g. `CQRS_ENGINES__PRIMARY__DRIVER`). Wins over `DSN`/`Driver`/`Pragmas`.                                                                                                        |
 | `Deployment`            | `*system.DeploymentConfig`       | —                  | Fully pre-loaded operator config; wins over everything. Must declare a `RoleProjections` instance.                                                                                                                                                                           |
-| `CheckpointStore`       | `event.CheckpointStore`          | persistent SQL     | Projection checkpoint store override. Default: SQLite table on the service's database (driver `sqlite` + DSN); in-memory for other drivers.                                                                                                                                  |
+| `CheckpointStore`       | `event.CheckpointStore`          | persistent SQL     | Projection checkpoint store override. Default: SQLite table on the service's database (driver `sqlite` + DSN); other drivers fall back to system's engine-backed checkpoint store where the engine supports it (ADR-0142), else in-memory.                                                                                                                                  |
 | `CommandMiddleware`     | `[]command.Middleware`           | none               | Wraps every dispatched command. Compose via `DefaultCommandMiddleware(logger, tracer)` + your own. An in-flight drain tracker is installed outermost automatically.                                                                                                          |
 | `QueryMiddleware`       | `[]query.Middleware`             | none               | Wraps every dispatched query.                                                                                                                                                                                                                                                |
 | `Logger`                | `*slog.Logger`                   | `slog.Default()`   | Receives projection worker lifecycle events (crashes, restarts, dead-letter captures). Wire the same logger you gave `appkit.Service`.                                                                                                                                       |
@@ -137,7 +137,7 @@ mux.HandleFunc("GET /tasks", func(w http.ResponseWriter, r *http.Request) {
 `CheckStaleness(budget)` guards against the maximum lag across all workers,
 `CheckProjectionStaleness(name, budget)` against one named read model. A
 budget <= 0 disables the check; a worker that has not processed any event yet
-counts as fresh. For dashboards, `EventService.Status()` returns the
+counts as fresh. For dashboards, `es.Host().Status()` returns the
 projection states as a SLICE (one entry per registered projection), and
 `LagPerProjection()` maps each projection to its lag. On large streams, tune
 catch-up throughput with

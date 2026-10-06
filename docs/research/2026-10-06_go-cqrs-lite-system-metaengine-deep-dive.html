@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Report Title</title>
+    <title>go-cqrs-lite system + metaengine — Adoption &amp; Utilization Audit (go-appkit)</title>
     <style>
       /* =========================================================================
          BAUHAUS LIGHT — Editorial template
@@ -847,224 +847,686 @@
       }
     </style>
   </head>
-  <body>
-    <!-- Full-bleed top bar (optional — remove for quieter reports) -->
+<body>
     <div class="top-bar">
-      <span>REPORT TYPE</span>
-      <span>YYYY-MM-DD</span>
-      <span>AUTHOR / TEAM</span>
+      <span>LIBRARY DEEP DIVE</span>
+      <span>2026-10-06</span>
+      <span>go-appkit / cqrs module</span>
     </div>
 
     <div class="layout">
-      <!-- Sidebar TOC (hidden below 1024px; use inline .toc if you prefer) -->
       <aside class="sidebar" data-nav>
         <nav>
           <div class="label">Contents</div>
           <a href="#summary">Summary</a>
           <a href="#scorecard">Scorecard</a>
-          <a href="#strengths">Strengths</a>
+          <a href="#strengths">Current usage</a>
           <a href="#findings">Findings</a>
-          <a href="#proposal">Proposal</a>
+          <a href="#currency">Version currency</a>
+          <a href="#opportunities">Top opportunities</a>
           <a href="#appendix">Appendix</a>
         </nav>
       </aside>
 
-      <!-- Main content -->
       <main class="main">
-        <!-- Hero -->
         <header class="hero">
-          <!-- Optional Bauhaus signature: geometric shape cluster. Remove for quieter hero. -->
           <div class="hero-shapes">
             <div class="bar"></div>
             <div class="circle"></div>
             <div class="square"></div>
             <div class="tri"></div>
           </div>
-          <div class="eyebrow">REPORT TYPE &middot; YYYY-MM-DD</div>
-          <h1>Report Title</h1>
+          <div class="eyebrow">LIBRARY DEEP DIVE &middot; 2026-10-06</div>
+          <h1>go-cqrs-lite <code>system</code> + <code>metaengine</code> &mdash; Adoption &amp; Utilization Audit</h1>
           <p class="subtitle">
-            One or two sentences that set the frame: who this is for, what was
-            reviewed, and what the reader will take away.
+            Are go-appkit&rsquo;s <code>cqrs</code> wrapper and its consumers using the ADR-0123
+            composition root and the cost-based storage planner superbly? The command side and the
+            operator story: yes. The read-model half of the bargain: almost entirely locked out.
           </p>
           <div class="meta">
-            <span class="tag amber">Scope: example</span>
-            <span class="tag">Version: 1.0.0</span>
-            <span class="tag teal">Status: draft</span>
+            <span class="tag amber">Pinned: system v4.10.2 &middot; metaengine v4.16.1</span>
+            <span class="tag">Latest published: identical (0 behind)</span>
+            <span class="tag teal">Adoption Score: 52/100</span>
           </div>
         </header>
 
-        <!-- Scorecard -->
         <section id="scorecard" class="scorecard">
-          <div class="score-card score-good">
-            <div class="score">8</div>
-            <div class="label">Items passing</div>
-          </div>
           <div class="score-card score-warn">
-            <div class="score">3</div>
-            <div class="label">Warnings</div>
+            <div class="score">52</div>
+            <div class="label">Adoption score / 100</div>
           </div>
           <div class="score-card score-bad">
-            <div class="score">1</div>
-            <div class="label">Blockers</div>
+            <div class="score">~10%</div>
+            <div class="label">Read-model (metaengine) surface reached through the wrapper</div>
           </div>
-          <div class="score-card">
-            <div class="score">12</div>
-            <div class="label">Total reviewed</div>
+          <div class="score-card score-good">
+            <div class="score">0</div>
+            <div class="label">Versions behind latest published</div>
+          </div>
+          <div class="score-card score-bad">
+            <div class="score">4</div>
+            <div class="label">Missed opportunities / partially used (major)</div>
+          </div>
+          <div class="score-card score-warn">
+            <div class="score">4</div>
+            <div class="label">Doc-drift nits (quick fixes)</div>
           </div>
         </section>
 
-        <!-- Summary -->
         <section id="summary">
           <h2><span class="num">00</span>Summary</h2>
           <p>
-            Replace this with the bottom-line verdict. A good summary tells the
-            reader whether the subject is ready, what the biggest risk is, and
-            what one action would unlock the most value.
+            go-appkit&rsquo;s <code>cqrs</code> module adopted <code>system.New</code> early (v0.5.0,
+            2026-09-07) and gets the two-config split, the operator precedence chain, lifecycle,
+            DLQ, flight-recorder, and metrics wiring genuinely right &mdash; and the 2026-10-06
+            dependency sweep left every go-cqrs-lite pin at the latest published tag. But the
+            wrapper constructs <code>system.DomainConfig</code> internally and never exposes it:
+            consumers cannot declare a single metaengine read model. Every <code>Lookup</code>,
+            <code>QuerySet</code>, <code>Count</code>, or <code>Evolve</code> fold &mdash; the
+            entire &ldquo;Store + Query declarations&rdquo; half of ADR-0123 that the library&rsquo;s
+            own guidance calls <em>required</em> for new code &mdash; is unreachable except through
+            hand-rolled raw <code>projectionhost</code> projections. Two smaller findings compound
+            it: ~150 lines of hand-rolled checkpoint plumbing that duplicates system&rsquo;s
+            engine-backed default (ADR-0142), and a hand-rolled in-flight drain that bypasses the
+            <code>Drainer</code> seam and skips <code>GracefulClose</code> entirely on drain
+            timeout.
           </p>
           <div class="callout callout-amber">
             <strong>The bottom line</strong>
-            State the verdict plainly. If the report is blocking, say so. If
-            it's mostly positive, lead with that.
+            Verdict: not yet &ldquo;superb&rdquo;. The wrapper commands the C in CQRS superbly and
+            the metaengine barely at all. One API addition &mdash; an
+            <code>EventConfig.Domain</code> passthrough mirroring the existing
+            <code>EventConfig.Deployment</code> passthrough &mdash; unlocks the read-model
+            planner, typed <code>Find</code>/<code>Get</code> reads, the coeffect typo gate,
+            command-lifecycle auditing, and engine-backed timers in one move.
           </div>
         </section>
 
-        <!-- Strengths -->
         <section id="strengths">
-          <h2><span class="num">&#9670;</span>What's already excellent</h2>
+          <h2><span class="num">&#9670;</span>What&rsquo;s already excellent</h2>
           <p>
-            Before the criticism: acknowledge what works. This builds trust and
-            keeps the report from reading like a pure complaint list.
+            Baseline from the consumer side: <code>cqrs/eventservice.go</code> and
+            <code>cqrs/commands.go</code> (all citations against system v4.10.2 / metaengine
+            v4.16.1, the exact pinned versions).
           </p>
 
           <div class="strengths">
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength one</strong>
-                <span>Explain why it matters and what it enables.</span>
+                <strong>The two-config split is honored exactly as designed</strong>
+                <span
+                  >Operators get the full precedence chain Deployment &gt; ConfigPath (koanf YAML +
+                  <code>CQRS_</code> env) &gt; Driver/DSN/Pragmas
+                  (cqrs/eventservice.go:205-263), and a full
+                  <code>*system.DeploymentConfig</code> passthrough field. The consumer never
+                  touches infrastructure &mdash; precisely the D11 contract.</span
+                >
               </div>
             </div>
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength two</strong>
+                <strong>Version currency is perfect</strong>
                 <span
-                  >Reference files, metrics, or patterns where possible.</span
+                  >system v4.10.2, metaengine v4.16.1, sqliteengine v4.5.1, projectionadapter
+                  v4.5.2 &mdash; every pin IS the latest published tag (2026-10-06 sweep). Zero
+                  features missed by being behind.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>The bootstrap-<code>Count</code> host guarantee is clever and documented</strong>
+                <span
+                  >A zero-cost counter over a never-emitted event type keeps the projection host
+                  alive for raw host projections (cqrs/eventservice.go:445-482) &mdash; and
+                  system&rsquo;s memory-engine fallback means the host is never nil.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Lifecycle &amp; ops wiring is first-rate</strong>
+                <span
+                  >Derived-wiring-wins <code>HostOptions</code> ordering, fail-closed DLQ store
+                  requirement for non-sqlite drivers, one shared
+                  <code>*fr.Recorder</code> type across HTTP and projection captures, a
+                  backend-agnostic <code>MetricsRecorder</code> plus an OTel implementation, and
+                  read-your-writes staleness guards that match the library&rsquo;s intended
+                  read-time-check posture (cqrs/commands.go:86-104).</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Correct layering of metaengine as an indirect dependency</strong>
+                <span
+                  >The wrapper does not hand-wire engines; it blank-imports
+                  <code>sqliteengine</code> for driver registration and lets
+                  <code>system</code> own planning &mdash; the right shape per ADR-0123. The gap
+                  is the sealed declaration surface, not the layering.</span
                 >
               </div>
             </div>
           </div>
         </section>
 
-        <!-- Findings -->
         <section id="findings">
           <h2><span class="num">01</span>Findings</h2>
-          <p>These are the issues that need attention, ordered by impact.</p>
+          <p>Ordered by impact. Every claim cites the pinned module&rsquo;s docs or source.</p>
 
-          <!-- Issue 1 -->
-          <div class="issue issue-critical" id="issue-1">
-            <span class="severity severity-critical"
-              >Blocking &middot; High impact</span
-            >
-            <h3>Critical issue title</h3>
+          <div class="issue issue-critical" id="finding-domain-sealed">
+            <span class="severity severity-critical">Missed Opportunity &middot; High impact</span>
+            <h3>
+              The wrapper seals <code>DomainConfig</code> &mdash; the entire metaengine read-model
+              surface is unreachable
+            </h3>
             <div class="where">
-              path/to/file.go:42-58 &middot; short context
+              cqrs/eventservice.go:473-485 (buildSystem hard-codes DomainConfig) &middot;
+              cqrs/eventservice.go:51-143 (EventConfig has no Domain seam) &middot; README.md:28
+              teaches raw <code>es.Host().Register(myProjection)</code>
             </div>
             <p>
-              Describe the problem, cite the code or behavior, and explain why
-              it matters to the reader's goals.
+              What the library offers: <code>system.DomainConfig.Projections</code> accepts sealed
+              declarations from the <code>Count</code> / <code>Evolve</code> /
+              <code>Lookup[R]</code> / <code>QuerySet[R]</code> builders (filterable/sortable
+              fields become engine indexes), <code>Evolutions</code> share folds across
+              projections, and typed reads come free via <code>system.Find[R]</code>,
+              <code>system.Get[R]</code>, <code>system.GetCount</code>. The planner auto-projects
+              them across interchangeable engines &mdash; this is the &ldquo;Store +
+              Query[Q,R]&rdquo; pattern the library&rsquo;s own adoption guidance marks
+              <strong>REQUIRED</strong> for new code (ADR-0123).
             </p>
-            <pre><code>// Example of the problematic pattern
-func BadExample() {}</code></pre>
+            <p>
+              What the project does instead: <code>buildSystem</code> constructs the
+              <code>DomainConfig</code> internally with a single bootstrap counter, and
+              <code>EventConfig</code> exposes no way to add to it &mdash; declarations are only
+              readable at <code>system.New</code> time (system constructor.go:56-59, 137-186).
+              Consumers are steered to hand-rolled raw <code>projectionhost</code> projections:
+              manual event decoding, manual state, manual reads &mdash; exactly the low-level
+              wiring the composition root exists to eliminate. Also sealed behind the same wall:
+              the <code>Events</code> coeffect gate (catches a typo&rsquo;d event subscription at
+              startup instead of as a silently-never-updating projection),
+              <code>ProjectionTypeDecoder</code> (the recommended decoder),
+              <code>WithCommandLifecycle</code> (one-call command audit trail, ADR-0117),
+              <code>DomainConfig.Timers</code> + <code>sys.TimerEngine()</code> (engine-backed
+              scheduled commands, ADR-0142), and <code>ShutdownDependencies</code>.
+            </p>
+            <p>
+              Impact: every go-appkit CQRS consumer pays a per-read-model tax of hand-written
+              projection + read code that the planner generates, with no index pushdown, no typed
+              reads, and no typo gate. This is the single largest lever in the audit.
+            </p>
             <div class="callout callout-teal">
-              <strong>Fix: recommended action</strong>
-              State the concrete fix, including file names, function names, or
-              configuration changes.
+              <strong>Recommendation</strong>
+              Mirror the existing <code>Deployment</code> passthrough with a
+              <code>Domain</code> passthrough (or discrete fields), merged so derived wiring
+              still wins conflicts. System already auto-wires a projection adapter into the
+              existing host, so declarations flow through unchanged infrastructure.
+            </div>
+            <pre><code><span class="tok-comment">// EventConfig gains the developer seam:</span>
+<span class="tok-keyword">type</span> <span class="tok-type">EventConfig</span> <span class="tok-keyword">struct</span> {
+    <span class="tok-comment">// ... existing fields ...</span>
+    <span class="tok-comment">// Domain carries developer declarations: Projections</span>
+    <span class="tok-comment">// (system.Lookup/QuerySet/Count/Evolve), Evolutions, decoders,</span>
+    <span class="tok-comment">// Events coeffect gate, Timers, ShutdownDependencies.</span>
+    Domain *<span class="tok-type">system.DomainConfig</span>
+}
+
+<span class="tok-comment">// Consumer declares read models instead of hand-rolling projections:</span>
+es, _ := cqrs.<span class="tok-function">NewEventService</span>(cqrs.<span class="tok-type">EventConfig</span>{
+    DSN: <span class="tok-string">"app.db"</span>,
+    Domain: &amp;<span class="tok-type">system.DomainConfig</span>{
+        Projections: []<span class="tok-type">system.ProjectionDeclaration</span>{
+            <span class="tok-function">system.QuerySet</span>[<span class="tok-type">TaskView</span>](<span class="tok-string">"tasks"</span>).
+                <span class="tok-function">On</span>(<span class="tok-string">"task.created"</span>, <span class="tok-type">TaskCreated</span>{}).
+                <span class="tok-function">Filterable</span>(<span class="tok-string">"status"</span>, <span class="tok-string">"priority"</span>).
+                <span class="tok-function">Sortable</span>(<span class="tok-string">"priority"</span>, <span class="tok-keyword">true</span>).<span class="tok-function">Done</span>(),
+        },
+    },
+})
+
+<span class="tok-comment">// Typed, index-backed reads for free:</span>
+tasks, _ := <span class="tok-function">system.Find</span>[<span class="tok-type">TaskView</span>](ctx, es.<span class="tok-function">System</span>(), <span class="tok-string">"tasks"</span>,
+    <span class="tok-function">system.Where</span>(<span class="tok-string">"status"</span>, <span class="tok-string">"active"</span>), <span class="tok-function">system.Limit</span>(<span class="tok-number">10</span>))</code></pre>
+          </div>
+
+          <div class="issue issue-important" id="finding-checkpoints">
+            <span class="severity severity-important">Partially Used &middot; Medium-high impact</span>
+            <h3>
+              ~150 lines of hand-rolled checkpoint plumbing vs system&rsquo;s engine-backed
+              default (ADR-0142)
+            </h3>
+            <div class="where">
+              cqrs/eventservice.go:286-443 (openAuxResources, buildAuxStores,
+              applyCheckpointSchema, auxDSN, deploymentUsesSQLiteFile)
+            </div>
+            <p>
+              What the library offers: when <code>DomainConfig.CheckpointStore</code> is nil,
+              system persists checkpoints as a <code>system_checkpoints</code> Map collection on
+              the deployment-declared engine &mdash; durable wherever the engine is, no extra
+              connection (DomainConfig godoc, ADR-0142, in the pinned v4.10.2; constructor.go
+              resolveCheckpointStore). The sqlite engine implements the Map backend, so the
+              wrapper&rsquo;s default sqlite deployments get durable checkpoints by doing
+              nothing.
+            </p>
+            <p>
+              What the project does instead: for every sqlite-file deployment it opens a second
+              <code>*sql.DB</code>, applies the checkpoint schema by hand, and builds
+              <code>eventstore.NewSQLiteCheckpointStore</code> &mdash; overriding the better
+              default with duplicated infrastructure. Note the aux handle remains justified for
+              the DLQ default (<code>projectionhost.NewSQLiteDeadLetterStore</code> needs a
+              <code>*sql.DB</code>; system offers no engine-backed DLQ) &mdash; only the
+              checkpoint half is removable.
+            </p>
+            <p>
+              Bonus doc drift: <code>EventConfig.CheckpointStore</code>&rsquo;s comment and the
+              README row claim non-sqlite drivers get &ldquo;in-memory checkpoints (full replays
+              after restart)&rdquo; &mdash; outdated. Since ADR-0142, pebble/turso/etc.
+              deployments that leave the store nil already fall through to system&rsquo;s
+              engine-backed durable default.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Stop setting <code>CheckpointStore</code> for sqlite-file deployments; pass the
+              consumer override through or nil, and let system ride the engine. Keep the aux DB
+              solely for the DLQ store; delete <code>applyCheckpointSchema</code>, the
+              <code>eventstore</code> import, and the checkpoint half of
+              <code>buildAuxStores</code> (~60 lines and one sqlite connection gone). Fix the
+              stale doc claims in the same change.
             </div>
           </div>
 
-          <!-- Issue 2 -->
-          <div class="issue issue-important" id="issue-2">
-            <span class="severity severity-important"
-              >Important &middot; Medium impact</span
-            >
-            <h3>Important issue title</h3>
-            <div class="where">path/to/another.go:12-19</div>
+          <div class="issue issue-important" id="finding-drainer">
+            <span class="severity severity-important">Partially Used &middot; Medium impact</span>
+            <h3>
+              Hand-rolled in-flight drain bypasses the <code>Drainer</code> seam &mdash; and
+              skips close on drain timeout
+            </h3>
+            <div class="where">
+              cqrs/commands.go:117-180 (inFlightTracker) &middot; cqrs/eventservice.go:690-713
+              (Shutdown: manual drain, early return)
+            </div>
             <p>
-              Explain the risk. Important issues are not blockers but would make
-              a careful reviewer hesitate before shipping.
+              What the library offers: <code>sys.RegisterDrainer(d)</code> +
+              <code>System.GracefulClose</code> drains all registered
+              <code>Drainer</code>&nbsp;s <em>then</em> closes &mdash; and crucially, &ldquo;if
+              the context expires during draining, Close is still attempted&rdquo;
+              (System.GracefulClose godoc; seam shipped 2026-08-08, before the wrapper&rsquo;s
+              v0.5.0 rewrite).
             </p>
-          </div>
-
-          <!-- Issue 3 -->
-          <div class="issue issue-nice" id="issue-3">
-            <span class="severity severity-nice"
-              >Nice to have &middot; Low impact</span
-            >
-            <h3>Nice-to-have improvement</h3>
-            <div class="where">docs/ or config</div>
             <p>
-              Minor polish, documentation gaps, or future-proofing suggestions
-              go here.
+              What the project does instead: the wrapper drains its in-flight tracker manually
+              before calling <code>GracefulClose</code> &mdash; and on drain timeout
+              <em>returns without ever closing the system</em>, leaking engine handles. The
+              tracker is a perfect <code>Drainer</code> already
+              (<code>Drain(ctx) error</code>); it just isn&rsquo;t registered.
             </p>
-          </div>
-        </section>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Register the tracker at construction, delete the manual sequencing, and let
+              GracefulClose own the order &mdash; smaller surface plus the guaranteed close
+              attempt.
+            </div>
+            <pre><code><span class="tok-comment">// In buildSystem, after system.New:</span>
+sys.<span class="tok-function">RegisterDrainer</span>(inFile)
 
-        <!-- Proposal -->
-        <section id="proposal">
-          <h2><span class="num">02</span>What the solution could look like</h2>
-          <p>
-            If the findings were fixed, what would the new state be? Show the
-            target API, structure, or workflow.
-          </p>
-          <pre><code>// Target state after the recommended changes
-type BetterAPI struct {
-    Field string
+<span class="tok-comment">// Shutdown collapses to:</span>
+<span class="tok-keyword">func</span> (es *<span class="tok-type">EventService</span>) <span class="tok-function">Shutdown</span>(ctx context.Context) <span class="tok-type">error</span> {
+    <span class="tok-comment">// ...idempotency guard unchanged...</span>
+    <span class="tok-keyword">return</span> es.sys.<span class="tok-function">GracefulClose</span>(ctx) <span class="tok-comment">// drains tracker, closes even if ctx expires</span>
 }</code></pre>
-          <div class="callout callout-teal">
-            <strong>This is the target</strong>
-            Summarize why this state is better and what it unlocks.
+          </div>
+
+          <div class="issue issue-important" id="finding-health">
+            <span class="severity severity-important">Missed Opportunity &middot; Medium impact</span>
+            <h3>
+              System health, SCREAM safety, and diagnostics surface unused while go-appkit ships
+              a health module
+            </h3>
+            <div class="where">
+              cqrs/eventservice.go:637-678 (only ReadyCheck / LagPerProjection / staleness exposed)
+              &middot; not used anywhere: sys.HealthCheck, HealthCheckDetailed, VerifyProjections,
+              ScreamReport, Explain, ProjectionExplain, ProjectionPlan, Snapshot (Topology),
+              ShutdownOrder, metaengine Doctor
+            </div>
+            <p>
+              What the library offers: <code>HealthCheck</code> (K8s-probe-shaped aggregate:
+              engines ping + failed-worker detection), <code>HealthCheckDetailed</code>
+              (per-engine <code>EngineHealth</code> for dashboards), <code>ScreamReport</code>
+              (config-safety findings), <code>VerifyProjections</code>, and rich introspection
+              (<code>Explain</code>, <code>ProjectionPlan</code>, <code>Topology</code>).
+            </p>
+            <p>
+              Why it matters here specifically: a YAML deployment that forgets a
+              <code>RoleProjections</code> instance silently gets a <em>memory</em> projection
+              store (system constructor.go:173-186 fallback) &mdash; persistent event log,
+              volatile read models. SCREAM flags exactly this class of mistake, and the wrapper
+              never surfaces the report. go-appkit&rsquo;s own <code>health</code> module (go-health
+              bridge) is the natural consumer of <code>EngineHealth</code>; today the two never
+              meet.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Add thin accessors (<code>HealthCheck</code>, <code>EngineHealth</code>,
+              <code>ScreamReport</code>) to <code>EventService</code>, document wiring them into
+              <code>appkithealth.NewProbe</code> checks, and log the SCREAM report at
+              construction when it has errors. A full health-module adapter is a natural
+              follow-up module train.
+            </div>
+          </div>
+
+          <div class="issue issue-nice" id="finding-operator-docs">
+            <span class="severity severity-nice">Missed Opportunity &middot; Low-medium impact</span>
+            <h3>Operator capabilities work via passthrough but nobody documented them</h3>
+            <div class="where">cqrs/README.md:45-62 (Configuration table) &middot; system LoadConfig godoc (full YAML shape)</div>
+            <p>
+              Reachable today through <code>ConfigPath</code>/<code>Deployment</code> yet absent
+              from every go-appkit doc: multi-bus fan-out (<code>buses</code> +
+              <code>publish</code>, <code>PublisherFor</code>), layout-priority objectives
+              (<code>priority</code>, ADR-0124), operator-declared materialized views
+              (<code>materialized_views</code>, ADR-0135), durability tiers per instance,
+              mixed projection engine pools (<code>engines: [sqlite, pebble]</code>), read-through
+              cache tiers, and SCREAM plan-drift pinning (<code>manifest_path</code> +
+              <code>acknowledge_warnings</code>). A &ldquo;supported deployment shapes&rdquo;
+              README section is a cheap, high-leverage doc win &mdash; these are precisely the
+              knobs the operator-story exists for.
+            </p>
+          </div>
+
+          <div class="issue issue-nice" id="finding-doc-drift">
+            <span class="severity severity-nice">Doc drift &middot; Low impact &middot; quick fixes</span>
+            <h3>Four stale doc claims</h3>
+            <div class="where">
+              cqrs/README.md:11 &middot; cqrs/README.md:140 &middot; cqrs/README.md:54 +
+              eventservice.go:120-125 &middot; AGENTS.md:212,218
+            </div>
+            <p>
+              (1) README still says the module &ldquo;requires
+              <code>GOEXPERIMENT=jsonv2</code> (Go 1.25+)&rdquo; &mdash; retired 2026-09-29;
+              jsonv2 is default-on at the unified 1.27.1 floor. (2) README references
+              <code>EventService.Status()</code> &mdash; no such method; the real API is
+              <code>es.Host().Status()</code>. (3) The CheckpointStore docs&rsquo;
+              &ldquo;in-memory for other drivers&rdquo; claim is outdated (see checkpoint
+              finding). (4) AGENTS.md&rsquo;s dependency table rows lag the go.mod
+              (system v4.10.0&rarr;v4.10.2, sqliteengine v4.4.0&rarr;v4.5.1).
+            </p>
+          </div>
+
+          <div class="issue issue-nice" id="finding-not-applicable">
+            <span class="severity severity-nice">Not Applicable &middot; judged, not missed</span>
+            <h3>Deliberately out of scope &mdash; correctly so</h3>
+            <div class="where">anti-recommendations held: no security/DI/cron in core</div>
+            <p>
+              Several system/metaengine capabilities are rightly absent from a lifecycle wrapper:
+              <code>NewCachedEventStore</code> / <code>CacheConfig</code> tiers (niche, hot-stream
+              optimization), <code>TieredStore</code>/<code>SwapEngine</code>/
+              <code>PromoteEngine</code> live-migration machinery (store-level concerns behind
+              <code>System()</code> if ever needed), graph/vector ADTs (no consumer demand), and
+              the adapter types (<code>CommandAdapter</code>, <code>QueryAdapter</code>,
+              <code>EventAdapter</code>) which system already wires internally. Counting these as
+              gaps would be noise; the audit scores them N/A.
+            </p>
           </div>
         </section>
 
-        <!-- Appendix -->
-        <section id="appendix">
-          <h2><span class="num">03</span>Appendix</h2>
+        <section id="currency">
+          <h2><span class="num">02</span>Version currency</h2>
           <p>
-            Methodology, links to related files, or a priority matrix can live
-            here.
+            Every go-cqrs-lite pin is the latest published tag &mdash; the interesting question
+            is which <em>already-pinned</em> capabilities go-appkit hasn&rsquo;t reached for:
           </p>
+          <div class="callout callout-teal">
+            <strong>On the latest, everywhere</strong>
+            system v4.10.2 = latest &middot; metaengine v4.16.1 = latest &middot; sqliteengine
+            v4.5.1 = latest &middot; projectionadapter v4.5.2 = latest. Zero-version gap.
+          </div>
           <table class="compare">
             <thead>
               <tr>
-                <th>Issue</th>
-                <th>Severity</th>
-                <th>Effort</th>
-                <th>Status</th>
+                <th>Capability</th>
+                <th>Landed</th>
+                <th>In current pin?</th>
+                <th>Used by go-appkit?</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Issue one</td>
-                <td class="no">Critical</td>
-                <td>Low</td>
-                <td class="no">Open</td>
+                <td>Engine-backed checkpoint default (ADR-0142)</td>
+                <td>2026-09-19</td>
+                <td class="yes">Yes</td>
+                <td class="no">No &mdash; overridden by aux-DB plumbing (finding 2)</td>
               </tr>
               <tr>
-                <td>Issue two</td>
-                <td class="no">Important</td>
-                <td>Medium</td>
-                <td class="yes">In progress</td>
+                <td>Timers: TimerEngine / ManageTimers (ADR-0142)</td>
+                <td>2026-09-19</td>
+                <td class="yes">Yes</td>
+                <td class="no">No &mdash; sealed behind DomainConfig (finding 1)</td>
+              </tr>
+              <tr>
+                <td>Materialized view accelerations (ADR-0135)</td>
+                <td>2026-09-07</td>
+                <td class="yes">Yes</td>
+                <td class="no">Undocumented (finding 5)</td>
+              </tr>
+              <tr>
+                <td>Layout priority objectives (ADR-0124)</td>
+                <td>2026-08-11</td>
+                <td class="yes">Yes</td>
+                <td class="no">Undocumented (finding 5)</td>
+              </tr>
+              <tr>
+                <td>Drainer seam + GracefulClose ordering</td>
+                <td>2026-08-08</td>
+                <td class="yes">Yes</td>
+                <td class="no">Hand-rolled instead (finding 3)</td>
+              </tr>
+              <tr>
+                <td>WithCommandLifecycle one-call audit (ADR-0117)</td>
+                <td>2026-08-11</td>
+                <td class="yes">Yes</td>
+                <td class="no">Sealed behind DomainConfig (finding 1)</td>
+              </tr>
+              <tr>
+                <td>Coeffect gate (typo&rsquo;d event subscriptions fail at New)</td>
+                <td>pre-v4.10</td>
+                <td class="yes">Yes</td>
+                <td class="no">Sealed behind DomainConfig (finding 1)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Pattern: the pins are current, but several capabilities landed <em>after</em> the
+            wrapper&rsquo;s v0.5.0 design congealed (2026-09-07) and were never revisited. The
+            dependency sweep keeps go-appkit current; nothing sweeps the design.
+          </p>
+        </section>
+
+        <section id="opportunities">
+          <h2><span class="num">03</span>Top opportunities</h2>
+          <p>Ranked by impact &times; ease (each 1&ndash;5). Items 1&ndash;3 change one module.</p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Opportunity</th>
+                <th>Impact</th>
+                <th>Ease</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>
+                  <code>EventConfig.Domain</code> passthrough &mdash; unseal read-model
+                  declarations, decoders, coeffect gate, timers
+                </td>
+                <td class="yes">5</td>
+                <td>3</td>
+                <td><span class="highlight">15</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>
+                  Register the in-flight tracker as a <code>Drainer</code>; delete manual drain
+                  sequencing
+                </td>
+                <td class="yes">3</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">15</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>
+                  Ride system&rsquo;s engine-backed checkpoint default; keep the aux DB for the
+                  DLQ only
+                </td>
+                <td class="yes">3</td>
+                <td>4</td>
+                <td><span class="highlight">12</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>
+                  Expose <code>HealthCheck</code> / <code>EngineHealth</code> /
+                  <code>ScreamReport</code> + document the go-health bridge
+                </td>
+                <td class="yes">3</td>
+                <td>4</td>
+                <td><span class="highlight">12</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>
+                  README section: supported deployment shapes (buses, priority, materialized
+                  views, durability, manifest pinning)
+                </td>
+                <td>2</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">10</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Fix the four doc-drift nits (README build note, Status(), checkpoint docs, AGENTS rows)</td>
+                <td>1</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">5</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>Opt-in <code>WithCommandLifecycle</code> wiring once the Domain seam exists</td>
+                <td>3</td>
+                <td>2</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>
+                  health-module adapter (cqrs &rarr; go-health <code>Checkable</code> over
+                  EngineHealth)
+                </td>
+                <td>2</td>
+                <td>3</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>
+                  <code>ServeSSE</code> read-model streaming example (metaengine watcher &mdash;
+                  pairs with the existing realtime module)
+                </td>
+                <td>2</td>
+                <td>2</td>
+                <td>4</td>
               </tr>
             </tbody>
           </table>
         </section>
 
-        <!-- Footer -->
+        <section id="appendix">
+          <h2><span class="num">04</span>Appendix</h2>
+          <p>
+            Method: full exported-surface dump of the pinned modules
+            (<code>go doc -all</code> against system v4.10.2 and metaengine v4.16.1 from the
+            module cache), diffed against every import site in go-appkit (wrapper, tests,
+            integration module), cross-checked with the go-cqrs-lite working tree, tags, and
+            capability landing dates (<code>git log -S</code>). Scoring weights below.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Capability cluster</th>
+                <th>Weight</th>
+                <th>Leverage</th>
+                <th>Contribution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Command side: deciders, typed C/Q facade, lifecycle, drain, middleware</td>
+                <td>25</td>
+                <td class="yes">90%</td>
+                <td>22.5</td>
+              </tr>
+              <tr>
+                <td>Operator config: precedence chain, YAML/env, engine swap, passthrough</td>
+                <td>15</td>
+                <td>70%</td>
+                <td>10.5</td>
+              </tr>
+              <tr>
+                <td>
+                  Read models: metaengine declarations, Find/Get, planned tables, watchers/SSE
+                </td>
+                <td>30</td>
+                <td class="no">10%</td>
+                <td>3.0</td>
+              </tr>
+              <tr>
+                <td>Safety &amp; observability: health, SCREAM, explain, verify, metrics</td>
+                <td>15</td>
+                <td>25%</td>
+                <td>3.75</td>
+              </tr>
+              <tr>
+                <td>Implementation economy (no duplicated plumbing)</td>
+                <td>10</td>
+                <td>55%</td>
+                <td>5.5</td>
+              </tr>
+              <tr>
+                <td>Version currency</td>
+                <td>5</td>
+                <td class="yes">100%</td>
+                <td>5.0</td>
+              </tr>
+              <tr>
+                <td><strong>Total</strong></td>
+                <td><strong>100</strong></td>
+                <td></td>
+                <td><strong>52.25 &rarr; 52</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Related skills for follow-through: <code>deduplicate-code</code> (checkpoint/drain
+            plumbing removal), <code>data-model-review</code> (the
+            <code>EventConfig.Domain</code> seam shape), <code>go-release</code> when the next
+            cqrs module train ships.
+          </p>
+        </section>
+
         <footer class="footer">
           <p>
-            Generated YYYY-MM-DD &middot; Reviewed against version X.Y.Z
-            &middot; All claims verified against source code where noted
+            Generated 2026-10-06 &middot; Audited against system v4.10.2, metaengine v4.16.1
+            (module cache) and the go-cqrs-lite working tree &middot; All code claims verified
+            against go-appkit@cqrs (post 2026-10-06 sweep) &middot; Crush + library-deep-dive
+            skill
           </p>
         </footer>
       </main>
