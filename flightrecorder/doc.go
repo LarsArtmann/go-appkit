@@ -29,6 +29,11 @@
 //	svc, _ := appkit.NewService(cfg)
 //	flightrecorder.Mount(svc.Mux, "POST /debug/flightrecorder/snapshot", rec)
 //
+// Fetch the artifact over HTTP — append ?download=1 to stream the trace as
+// an attachment (no shell access needed; honors WithSnapshotFilename):
+//
+//	curl -X POST 'http://localhost:8080/debug/flightrecorder/snapshot?download=1' -OJ
+//
 // # How the middleware works
 //
 // For each request, the middleware:

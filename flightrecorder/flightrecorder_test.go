@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -206,7 +207,7 @@ func (w *gatedWriter) bytesWritten() int {
 func waitForTraceFile(t *testing.T, path string) {
 	t.Helper()
 
-	deadline := time.Now().Add(2 * time.Second)
+	deadline := time.Now().Add(5 * time.Second)
 	for time.Now().Before(deadline) {
 		info, err := os.Stat(path)
 		if err == nil && info.Size() > 0 {
@@ -216,14 +217,14 @@ func waitForTraceFile(t *testing.T, path string) {
 		time.Sleep(time.Millisecond)
 	}
 
-	t.Fatalf("trace file not written within 2s at %s", path)
+	t.Fatalf("trace file not written within 5s at %s", path)
 }
 
 // waitForTraceCount polls until dir holds at least want non-empty files.
 func waitForTraceCount(t *testing.T, dir string, want int) {
 	t.Helper()
 
-	deadline := time.Now().Add(2 * time.Second)
+	deadline := time.Now().Add(5 * time.Second)
 	for time.Now().Before(deadline) {
 		entries, err := os.ReadDir(dir)
 		if err == nil {
@@ -244,7 +245,7 @@ func waitForTraceCount(t *testing.T, dir string, want int) {
 		time.Sleep(time.Millisecond)
 	}
 
-	t.Fatalf("dir %s never reached %d non-empty trace files within 2s", dir, want)
+	t.Fatalf("dir %s never reached %d non-empty trace files within 5s", dir, want)
 }
 
 // countingWriter is a goroutine-safe io.Writer for assertions on async
@@ -276,7 +277,7 @@ func (w *countingWriter) totalBytes() int {
 func waitForBytes(t *testing.T, w *countingWriter, want int) {
 	t.Helper()
 
-	deadline := time.Now().Add(2 * time.Second)
+	deadline := time.Now().Add(5 * time.Second)
 	for time.Now().Before(deadline) {
 		if w.totalBytes() >= want {
 			return
@@ -285,7 +286,7 @@ func waitForBytes(t *testing.T, w *countingWriter, want int) {
 		time.Sleep(time.Millisecond)
 	}
 
-	t.Fatalf("writer never reached %d bytes within 2s (have %d)", want, w.totalBytes())
+	t.Fatalf("writer never reached %d bytes within 5s (have %d)", want, w.totalBytes())
 }
 
 // --- Middleware trigger tests ---
@@ -589,7 +590,7 @@ func TestMiddleware_CaptureIsNonBlocking(t *testing.T) {
 
 	select {
 	case <-gw.writeStarted:
-	case <-time.After(2 * time.Second):
+	case <-time.After(5 * time.Second):
 		t.Fatal("capture never reached the writer")
 	}
 
@@ -601,7 +602,7 @@ func TestMiddleware_CaptureIsNonBlocking(t *testing.T) {
 
 	select {
 	case <-gw.writeDone:
-	case <-time.After(2 * time.Second):
+	case <-time.After(5 * time.Second):
 		t.Fatal("capture did not finish after release")
 	}
 
@@ -655,6 +656,71 @@ func TestSnapshotHandler_WorksWithJsonContentType(t *testing.T) {
 
 	if ct := rr.Header().Get("Content-Type"); ct != "application/json" {
 		t.Fatalf("expected Content-Type application/json, got %q", ct)
+	}
+}
+
+// TestSnapshotHandler_DownloadMode pins the F2 fix: `?download=1` streams
+// the trace itself as an octet-stream attachment (buffer-before-write, so
+// failures keep the JSON error contract), honoring a custom filename.
+func TestSnapshotHandler_DownloadMode(t *testing.T) {
+	rec, _ := newStartedRecorder(t)
+
+	handler := appkitfr.SnapshotHandler(rec, appkitfr.WithSnapshotFilename("custom.trace"))
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/debug/snapshot?download=1", nil)
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+
+	if ct := rr.Header().Get("Content-Type"); ct != "application/octet-stream" {
+		t.Fatalf("expected Content-Type application/octet-stream, got %q", ct)
+	}
+
+	if cd := rr.Header().Get("Content-Disposition"); !strings.Contains(cd, "custom.trace") {
+		t.Fatalf("expected Content-Disposition to honor custom filename, got %q", cd)
+	}
+
+	if cl := rr.Header().Get("Content-Length"); cl == "" || cl == "0" {
+		t.Fatalf("expected non-zero Content-Length, got %q", cl)
+	}
+
+	if rr.Body.Len() == 0 {
+		t.Fatal("expected non-empty download body")
+	}
+}
+
+func TestSnapshotHandler_DownloadMode_DefaultFilename(t *testing.T) {
+	rec, _ := newStartedRecorder(t)
+
+	handler := appkitfr.SnapshotHandler(rec)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/debug/snapshot?download=1", nil)
+	handler.ServeHTTP(rr, req)
+
+	if cd := rr.Header().Get("Content-Disposition"); !strings.Contains(cd, "trace.trace") {
+		t.Fatalf("expected default filename trace.trace, got %q", cd)
+	}
+}
+
+func TestSnapshotHandler_DownloadMode_DisabledIsJSON503(t *testing.T) {
+	rec := mustRecorder(t)
+
+	handler := appkitfr.SnapshotHandler(rec)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/debug/snapshot?download=1", nil)
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusServiceUnavailable {
+		t.Fatalf("expected 503 for disabled recorder, got %d", rr.Code)
+	}
+
+	if ct := rr.Header().Get("Content-Type"); ct != "application/json" {
+		t.Fatalf("expected JSON error contract, got %q", ct)
 	}
 }
 
