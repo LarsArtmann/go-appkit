@@ -156,6 +156,37 @@ func TestEventService_DB(t *testing.T) {
 	}
 }
 
+func TestEventService_HealthAccessors(t *testing.T) {
+	t.Parallel()
+
+	eventSvc := newTestEventService(t, EventConfig{})
+
+	err := eventSvc.HealthCheck(context.Background())
+	if err != nil {
+		t.Errorf("expected healthy sqlite deployment, got: %v", err)
+	}
+
+	engines := eventSvc.EngineHealth(context.Background())
+	if len(engines) == 0 {
+		t.Fatal("expected at least one engine health entry")
+	}
+
+	for _, eng := range engines {
+		if eng.Name == "" {
+			t.Errorf("engine health entry without a name: %+v", eng)
+		}
+
+		if eng.Error != nil {
+			t.Errorf("engine %s unhealthy: %v", eng.Name, eng.Error)
+		}
+	}
+
+	report := eventSvc.ScreamReport()
+	if report == nil {
+		t.Fatal("expected non-nil ScreamReport")
+	}
+}
+
 func TestEventService_Shutdown_Idempotent(t *testing.T) {
 	t.Parallel()
 

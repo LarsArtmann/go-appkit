@@ -251,6 +251,9 @@ eventSvc, err := cqrs.NewEventService(cqrs.EventConfig{
 | `ReplayDeadLetters(ctx, name)`           | `(ReplayResult, error)`          | Pure retry of quarantined events into their projections.                                    |
 | `ResetProjection(ctx, name, opts...)`    | `error`                          | Rewind a projection checkpoint (optionally purging dead letters).                           |
 | `ReadyCheck()`                           | `bool`                           | All workers live or drained; wire to appkit's `/health/ready`.                              |
+| `HealthCheck(ctx)`                       | `error`                          | K8s-grade liveness/readiness: engines ping + no failed workers.                             |
+| `EngineHealth(ctx)`                      | `[]system.EngineHealth`          | Per-engine health (name + error) for dashboards — all engines, not just the first failure.   |
+| `ScreamReport()`                         | `*system.ScreamReport`          | Config-safety findings; `NewEventService` logs warnings at boot.                            |
 | `LagPerProjection()`                     | `map[string]time.Duration`       | Event-age lag per projection.                                                               |
 | `CheckStaleness(budget)`                 | `error`                          | Read-time guard: Transient error when max lag exceeds budget.                               |
 | `CheckProjectionStaleness(name, budget)` | `error`                          | Per-projection read-time guard; Rejection for unknown names.                                |
@@ -258,7 +261,25 @@ eventSvc, err := cqrs.NewEventService(cqrs.EventConfig{
 | `Shutdown(ctx)`                          | `error`                          | Stops workers and closes the store. Idempotent.                                             |
 
 `Shutdown` drains in-flight commands first, then stops workers and closes
-engines, joining any errors instead of swallowing them.
+engines, joining any errors instead of swallowing them. Even when the drain
+context expires on a stuck command, the close still runs — engines never
+leak.
+
+### Wiring health into go-health / appkithealth
+
+`HealthCheck` composes cleanly with the `appkithealth` module — one probe,
+one dashboard, for HTTP and CQRS engines alike:
+
+```go
+import appkithealth "github.com/larsartmann/go-appkit/health"
+
+probe := appkithealth.NewProbe(map[string]appkithealth.CheckFunc{
+	"cqrs-engines": eventSvc.HealthCheck,
+	"cqrs-lag": func(_ context.Context) error {
+		return eventSvc.CheckStaleness(2 * time.Second)
+	},
+})
+```
 
 ## Command/query facade
 
