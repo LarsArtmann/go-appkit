@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"testing"
@@ -517,4 +518,76 @@ func TestEventService_DomainEvolveLookup_GetPointRead(t *testing.T) {
 	if !errors.Is(err, system.ErrNotFound) {
 		t.Errorf("expected ErrNotFound for a missing key, got: %v", err)
 	}
+}
+
+// A file-backed sqlite DSN with Domain declarations survives a full restart:
+// the journal replays, the keyed view upserts idempotently, and the
+// engine-backed checkpoints keep the delta-based Count at exactly one —
+// a replay-from-zero bug would double it.
+func TestEventService_DomainSqliteFile_PersistsAcrossRestart(t *testing.T) {
+	t.Parallel()
+
+	dsn := filepath.Join(t.TempDir(), "events.db")
+
+	tasksDomain := func() *system.DomainConfig {
+		return &system.DomainConfig{
+			Projections: []system.ProjectionDeclaration{
+				system.QuerySet[TaskView]("tasks").
+					On("task.created", TaskCreated{}).
+					Done(),
+				system.Count("task-counts").
+					On("task.created", TaskCreated{}, 1, "total").
+					Done(),
+			},
+		}
+	}
+
+	first, err := NewEventService(EventConfig{DSN: dsn, Domain: tasksDomain()})
+	if err != nil {
+		t.Fatalf("first NewEventService: %v", err)
+	}
+
+	appendDomainEvent(t, first, "task.created", "task-1", 1,
+		TaskCreated{ID: "task-1", Title: "Persist me", Status: "active", Priority: 3})
+
+	err = first.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("first StartProjections: %v", err)
+	}
+
+	ctx := context.Background()
+
+	waitFor(t, "first service materialized the task", func() bool {
+		tasks, findErr := system.Find[TaskView](ctx, first.System(), "tasks")
+
+		return findErr == nil && len(tasks) == 1
+	})
+
+	err = first.Shutdown(ctx)
+	if err != nil {
+		t.Fatalf("first Shutdown: %v", err)
+	}
+
+	second, err := NewEventService(EventConfig{DSN: dsn, Domain: tasksDomain()})
+	if err != nil {
+		t.Fatalf("second NewEventService: %v", err)
+	}
+
+	t.Cleanup(func() { _ = second.Shutdown(context.Background()) })
+
+	err = second.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("second StartProjections: %v", err)
+	}
+
+	waitFor(t, "restarted service replayed without duplication", func() bool {
+		tasks, findErr := system.Find[TaskView](ctx, second.System(), "tasks")
+		if findErr != nil || len(tasks) != 1 || tasks[0].Title != "Persist me" {
+			return false
+		}
+
+		counts, countErr := system.GetCount(ctx, second.System(), "task-counts")
+
+		return countErr == nil && counts["total"] == 1
+	})
 }
