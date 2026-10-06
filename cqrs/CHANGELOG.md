@@ -2,7 +2,25 @@
 
 ## [Unreleased]
 
-(nothing yet)
+### Added
+
+- Behavioral pins (test-only, no API change): Domain read models persist
+  across restart on a file DSN (replay does not double-count);
+  `Domain.Timers` schedulers start with `StartProjections` and — tripwire
+  until the upstream `Close` gap is fixed — are NOT stopped by `Shutdown`
+  (see the Timers caveat in the README and the upstream ask under
+  `doc/feedback/outgoing/`); `ShutdownDependencies` validation edges;
+  the coeffect unconsumed-event advisory; SSE replay reconnection via
+  `watcher.WithReplay` (reconnect receives exactly the missed suffix).
+- Executable godoc Examples `ExampleNewEventService_domainCommandLifecycle`
+  and `ExampleEventService_System`, plus README defect fixes they exposed:
+  the nonexistent `WithReplay` SSE option corrected to
+  `watcher.WithReplay(n)` (capped by `WithSSEReplayLimit`) and the recipe's
+  lazy-store field renamed off the predeclared `real`.
+- `readme_sync_test.go`: fails when a README recipe references an API the
+  module does not carry (`cqrs.*` must be exported; exercised dependency
+  prefixes must appear in module code) or when an Example and its README
+  reference drift apart in either direction.
 
 ## [0.7.0] - 2026-10-06
 
