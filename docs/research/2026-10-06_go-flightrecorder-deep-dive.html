@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Report Title</title>
+    <title>go-flightrecorder — Adoption &amp; Utilization Audit</title>
     <style>
       /* =========================================================================
          BAUHAUS LIGHT — Editorial template
@@ -1272,61 +1272,318 @@ appkitfr.<span class="tok-func">Mount</span>(svc.Mux, <span class="tok-string">"
           </div>
         </section>
 
-        <!-- Proposal -->
-        <section id="proposal">
-          <h2><span class="num">02</span>What the solution could look like</h2>
+        <!-- Version currency -->
+        <section id="currency">
+          <h2><span class="num">02</span>Version currency</h2>
           <p>
-            If the findings were fixed, what would the new state be? Show the
-            target API, structure, or workflow.
-          </p>
-          <pre><code>// Target state after the recommended changes
-type BetterAPI struct {
-    Field string
-}</code></pre>
-          <div class="callout callout-teal">
-            <strong>This is the target</strong>
-            Summarize why this state is better and what it unlocks.
-          </div>
-        </section>
-
-        <!-- Appendix -->
-        <section id="appendix">
-          <h2><span class="num">03</span>Appendix</h2>
-          <p>
-            Methodology, links to related files, or a priority matrix can live
-            here.
+            All five pinning modules (flightrecorder, flightrecorderhealth, cqrs, otel,
+            integration) require <code>v0.2.0</code> &mdash; which is the newest tag
+            (2026-08-11). The audit therefore grades the current surface, not a stale one: the
+            v0.2.0 release is what carries the modern API this report assesses (directory sink +
+            retention + prefix, gzip compression, <code>SnapshotIfAsync</code> with drain-on-stop,
+            the <code>WithMetrics</code>/<code>WithLogger</code> hooks, nil-safe lifecycle,
+            <code>SnapshotToWriter</code>, and the typed error taxonomy).
           </p>
           <table class="compare">
             <thead>
               <tr>
-                <th>Issue</th>
-                <th>Severity</th>
-                <th>Effort</th>
-                <th>Status</th>
+                <th>Version</th>
+                <th>Type</th>
+                <th>Notable change</th>
+                <th>Relevance</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Issue one</td>
-                <td class="no">Critical</td>
-                <td>Low</td>
-                <td class="no">Open</td>
+                <td>v0.2.0</td>
+                <td>Feature (pinned)</td>
+                <td>
+                  Full modern surface: async capture, dir sink + retention + prefix, compression,
+                  observability hooks, <code>SnapshotToWriter</code>, typed errors
+                </td>
+                <td class="yes">Current pin — buys everything graded above</td>
               </tr>
               <tr>
-                <td>Issue two</td>
-                <td class="no">Important</td>
-                <td>Medium</td>
-                <td class="yes">In progress</td>
+                <td>HEAD (86a1cb5)</td>
+                <td>Unreleased ×17 commits</td>
+                <td>
+                  Internal <code>captureOnce</code>/<code>snapshot</code> dedup, golangci-lint CI
+                  bump, config + docs — zero public API delta (verified via
+                  <code>git diff v0.2.0..HEAD</code>)
+                </td>
+                <td class="no">Nothing to chase</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-teal">
+            <strong>On the latest tag, provably</strong>
+            <code>git describe --tags</code> = <code>v0.2.0-17-g86a1cb5</code>; the 17 commits
+            since the tag change no exported symbol. Version currency is not a finding in this
+            audit — the findings are all adoption, not staleness.
+          </div>
+        </section>
+
+        <!-- Top opportunities -->
+        <section id="opportunities">
+          <h2><span class="num">03</span>Top opportunities</h2>
+          <p>
+            Pareto-ranked by impact × ease. The first three items alone close the majority of the
+            score gap; each is local to one file plus its tests.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Opportunity</th>
+                <th>Impact</th>
+                <th>Ease</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Async capture in the HTTP middleware (finding 1)</td>
+                <td class="yes">5</td>
+                <td>4</td>
+                <td><span class="highlight">20</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Trace download mode on the /debug endpoint (finding 2)</td>
+                <td>4</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">20</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Wire fr.WithLogger into the ops path (finding 3)</td>
+                <td>4</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">20</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Compile-checked ops example binding the full loop (finding 7)</td>
+                <td>3</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">15</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Ship + document the OTel hook, add the type label (finding 4)</td>
+                <td>3</td>
+                <td>4</td>
+                <td><span class="highlight">12</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Composite-trigger capture-noise guidance (finding 5)</td>
+                <td>2</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">10</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>Typed-error classification at startup (finding 6)</td>
+                <td>2</td>
+                <td>4</td>
+                <td><span class="highlight">8</span></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>Upstream ask: library-level cooldown (see appendix)</td>
+                <td>3</td>
+                <td>2</td>
+                <td><span class="highlight">6</span></td>
               </tr>
             </tbody>
           </table>
         </section>
 
+        <!-- Appendix -->
+        <section id="appendix">
+          <h2><span class="num">04</span>Appendix</h2>
+
+          <h3>Capability coverage matrix</h3>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Library capability</th>
+                <th>Status</th>
+                <th>Evidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Lifecycle: New/Start/Stop/Close/Enabled/Reset</td>
+                <td class="yes">Fully leveraged</td>
+                <td>middleware.go:110-112 &middot; handler.go:29+39 &middot; adapter.go:63</td>
+              </tr>
+              <tr>
+                <td>Nil-safe optional-recorder pattern</td>
+                <td class="yes">Fully leveraged</td>
+                <td>adapter.go:181-183 (nil pass-through), adapter.go:59-61 (nil rejection)</td>
+              </tr>
+              <tr>
+                <td>Ops sink stack: dir + prefix + retention + cap + gzip + MinAge</td>
+                <td class="yes">Fully leveraged</td>
+                <td>preset.go:31-40 (6 of 10 options composed)</td>
+              </tr>
+              <tr>
+                <td>Writer sinks (WithWriter / WithFile)</td>
+                <td class="yes">Fully leveraged</td>
+                <td>Tests across 4 modules; documented sink choice per deployment</td>
+              </tr>
+              <tr>
+                <td>Async capture (SnapshotIfAsync)</td>
+                <td class="no">Partially used</td>
+                <td>Health path: adapter.go:213 (correct) &middot; HTTP middleware: blocking</td>
+              </tr>
+              <tr>
+                <td>Sync capture (Snapshot / SnapshotIf)</td>
+                <td class="no">Partially used</td>
+                <td>Right tool on handler.go:41 &middot; wrong default on middleware.go:95</td>
+              </tr>
+              <tr>
+                <td>Trigger system (OnError/OnAlways/OnErrorOrLatency/OnLatency)</td>
+                <td class="no">Partially used</td>
+                <td>4 of 6 in active use &middot; OnAny/OnAll: 0 call sites</td>
+              </tr>
+              <tr>
+                <td>MetricsHook + SnapshotSource labels</td>
+                <td class="no">Partially used</td>
+                <td>Bridge exists (otel/frmetrics.go:29) &middot; 0 shipped call sites</td>
+              </tr>
+              <tr>
+                <td>LoggerHook</td>
+                <td class="no">Missed opportunity</td>
+                <td>0 registrations; retention-cleanup failures unreported</td>
+              </tr>
+              <tr>
+                <td>SnapshotEvent.Type dashboard label</td>
+                <td class="no">Partially used</td>
+                <td>Dropped in the bridge (frmetrics.go:52-55)</td>
+              </tr>
+              <tr>
+                <td>SnapshotToWriter escape hatch</td>
+                <td class="no">Missed opportunity</td>
+                <td>0 call sites; godoc&rsquo;s named use case (/debug endpoint) unbuilt</td>
+              </tr>
+              <tr>
+                <td>Typed errors (ErrAlreadyEnabled/ConfigError/SnapshotError)</td>
+                <td class="no">Partially used</td>
+                <td>0 references; double-start yields raw *AlreadyEnabledError</td>
+              </tr>
+              <tr>
+                <td>SnapshotToFile</td>
+                <td>Not applicable</td>
+                <td>Dir pattern supersedes for ops; file sink covered via WithFile tests</td>
+              </tr>
+              <tr>
+                <td>Version currency</td>
+                <td class="yes">Fully leveraged</td>
+                <td>5/5 modules at v0.2.0 = latest tag; pin drift guarded in CI</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Adoption score breakdown (weighted by impact)</h3>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Weight</th>
+                <th>Grade</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Lifecycle &amp; concurrency correctness</td>
+                <td>20</td>
+                <td class="yes">Fully</td>
+                <td>20</td>
+              </tr>
+              <tr>
+                <td>Hot-path capture strategy</td>
+                <td>20</td>
+                <td class="no">Partial</td>
+                <td>12</td>
+              </tr>
+              <tr>
+                <td>Ops sink &amp; retention stack</td>
+                <td>15</td>
+                <td class="yes">Fully</td>
+                <td>15</td>
+              </tr>
+              <tr>
+                <td>Observability hooks</td>
+                <td>15</td>
+                <td class="no">Partial</td>
+                <td>7</td>
+              </tr>
+              <tr>
+                <td>Trigger system</td>
+                <td>10</td>
+                <td class="no">Partial</td>
+                <td>8</td>
+              </tr>
+              <tr>
+                <td>Debug/delivery surface</td>
+                <td>10</td>
+                <td class="no">Partial</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td>Typed errors</td>
+                <td>5</td>
+                <td class="no">Partial</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td>Version currency</td>
+                <td>5</td>
+                <td class="yes">Fully</td>
+                <td>5</td>
+              </tr>
+              <tr>
+                <td><strong>Total</strong></td>
+                <td><strong>100</strong></td>
+                <td></td>
+                <td><strong>73</strong></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Reverse finding: what the library is missing (upstream candidate)</h3>
+          <p>
+            The health adapter hand-rolls a cooldown because the library offers no rate limiting:
+            a mutex-guarded <code>lastCapture</code> check (adapter.go:96-135, 205-219) with the
+            lock deliberately spanning decision + dispatch. The HTTP middleware will want the same
+            protection once capture goes async against a directory sink (finding 1). A
+            <code>WithMinInterval(d)</code>-style recorder option would delete the adapter code and
+            protect every consumer &mdash; a candidate upstream ask, to be verified against the fr
+            repo&rsquo;s TODO_LIST before filing.
+          </p>
+
+          <h3>Methodology</h3>
+          <p>
+            Every claim was verified against local source, zero network-sourced claims: the
+            go-appkit working tree (file reads + repo-wide greps), the go-flightrecorder v0.2.0
+            tag and HEAD 86a1cb5 (<code>go doc -all</code> for the API surface,
+            <code>git diff v0.2.0..HEAD</code> for the unreleased delta), and the library README.
+            Companion report in this series:
+            <code>2026-10-06_go-cqrs-lite-system-metaengine-deep-dive.html</code> (the cqrs
+            module&rsquo;s engine-room audit, 52/100).
+          </p>
+        </section>
+
         <!-- Footer -->
         <footer class="footer">
           <p>
-            Generated YYYY-MM-DD &middot; Reviewed against version X.Y.Z
-            &middot; All claims verified against source code where noted
+            Generated 2026-10-06 &middot; Reviewed against go-flightrecorder v0.2.0 (HEAD
+            86a1cb5) &middot; All claims verified against source code
           </p>
         </footer>
       </main>
