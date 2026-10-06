@@ -3,9 +3,10 @@
 # findable by one grep and nothing ran it; this script is that grep, run
 # permanently:
 #
-#   1. The AGENTS.md release line ("ON ORIGIN through **core vX.Y.Z**") names a
-#      tag that actually exists (catches: release shipped while AGENTS still
-#      named the previous version).
+#   1. The AGENTS.md release line ("ON ORIGIN through **core vX.Y.Z**" or the
+#      "Latest per module: core vX.Y.Z, ..." form) names a tag that actually
+#      exists (catches: release shipped while AGENTS still named the previous
+#      version).
 #   2. integration/go.mod pins the LATEST published tag of every go-appkit
 #      family module it requires (catches: release train without the
 #      integration pin bump — integration must always test exactly what a
@@ -34,7 +35,10 @@ ok() { echo "OK:   $*"; }
 # 1) AGENTS release line vs git tags.
 core_version="$(sed -n 's/.*ON ORIGIN through \*\*core \(v[0-9][0-9.]*\)\*\*.*/\1/p' AGENTS.md | head -n1)"
 if [[ -z "$core_version" ]]; then
-	fail "AGENTS.md has no 'ON ORIGIN through **core vX.Y.Z**' release line"
+	core_version="$(sed -n 's/.*Latest per module: core \(v[0-9][0-9.]*\),.*/\1/p' AGENTS.md | head -n1)"
+fi
+if [[ -z "$core_version" ]]; then
+	fail "AGENTS.md has no 'ON ORIGIN through **core vX.Y.Z**' or 'Latest per module: core vX.Y.Z' release line"
 elif git tag -l -- "$core_version" | grep -qxF "$core_version"; then
 	ok "AGENTS release line $core_version exists as a tag"
 else
