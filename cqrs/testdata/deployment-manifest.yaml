@@ -1,0 +1,17 @@
+# The manifest pins the projection plan across restarts: removing a query or
+# changing its shape SCREAMs instead of silently orphaning data.
+# acknowledge_warnings silences specific WARN+OVERRIDE findings by rule:role.
+engines:
+  primary:
+    driver: sqlite
+    dsn: file:events.db
+instances:
+  - role: source-of-truth
+    engine: primary
+    cache:
+      capacity: 10000
+  - role: projections
+    engine: primary
+manifest_path: /var/lib/app/projection-manifest.json
+acknowledge_warnings:
+  - "durability-downgrade:events"

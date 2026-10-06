@@ -1,0 +1,19 @@
+# Fan-out: events publish to every listed bus (D9 multi-bus). The projection
+# host consumes from the deployment's bus topology; non-gochannel drivers
+# (nats, redis) must be blank-imported by the consumer.
+engines:
+  primary:
+    driver: sqlite
+    dsn: file:events.db
+buses:
+  local:
+    driver: gochannel
+  edge:
+    driver: nats
+    url: nats://localhost:4222
+instances:
+  - role: source-of-truth
+    engine: primary
+    publish: [local, edge]
+  - role: projections
+    engine: primary

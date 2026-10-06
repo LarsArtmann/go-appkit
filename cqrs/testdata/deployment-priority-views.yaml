@@ -1,0 +1,29 @@
+# Layout-planning priorities (ADR-0124) resolve query-level > engine-level >
+# global > Balanced. Materialized views accelerate aggregates at the engine;
+# durability tiers pin persistence guarantees per instance.
+engines:
+  hot:
+    driver: sqlite
+    dsn: file:events.db
+    priority: ReadSpeed
+    materialized_views:
+      - collection: orders
+        fn: SUM
+        column: amount
+        group_by: customer
+  archive:
+    driver: sqlite
+    dsn: file:archive.db
+    priority: StorageSpace
+priority:
+  global: Balanced
+  perEngine:
+    hot: ReadSpeed
+  perQuery:
+    orders_by_customer: ReadSpeed
+instances:
+  - role: source-of-truth
+    engine: hot
+    durability: normal
+  - role: projections
+    engines: [hot, archive]
