@@ -41,6 +41,8 @@ _The live P1 is unchanged and compounding with the P2 unification item: master C
 
 ## P3 — Demand-gated / watchlist
 
+- [ ] **Upstream ask (DRAFTED, filing user-gated): go-flightrecorder cooldown trigger combinator** (`doc/feedback/outgoing/2026-10-06_upstream-ask-goflightrecorder-cooldown.md`, 2026-10-06): fr's trigger package has OnAll/OnAny but no rate limiting, so flapping dependencies burn the dir-sink retention budget; frh hand-rolled cooldown (adapter.go mutex+timestamp) and the flightrecorder middleware prescribes a DIY minInterval recipe in its doc.go cookbook — two independent implementations = upstream-layer feature. Verified absent upstream (TODO_LIST/ROADMAP/FEATURES zero hits at 48dfd20). File → then delete frh's hand-rolled cooldown in favor of the upstream combinator on frh's next train.
+
 - [ ] **fr v0.2.1 sweep on the frh + cqrs trains (2026-10-06):** upstream go-flightrecorder v0.2.1 fixed a data race (`Reset` vs in-flight `SnapshotIfAsync` on the bare `sync.Once` latch; atomic-pointer swap + regression test upstream). flightrecorderhealth (adapter.go uses `SnapshotIfAsync` but never Reset) and cqrs (eventservice default trigger) are SAFE on v0.2.0 — they don't combine the two — so the bump rides their own next trains; do NOT bump casually (member go.mod changes ride release trains only, per the go-work-sync gotcha).
 - [ ] **Example StartHooks migration when core v0.8.0 tags (2026-10-06):** the new flightrecorder `example/` and the otel `example/` both start the recorder before `Run` because pinned core is v0.7.0 (no StartHooks). Once the core v0.8.0 train ships, move `rec.Start()` into `cfg.StartHooks` in both examples (the systemd module demonstrates the seam) and drop the in-doc-comment caveats.
 
