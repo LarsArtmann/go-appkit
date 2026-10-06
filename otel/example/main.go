@@ -38,6 +38,15 @@ import (
 	"github.com/larsartmann/httputil"
 )
 
+// Demo tuning knobs: named constants keep the demo honest about what the
+// retention caps and the slow-route threshold are.
+const (
+	demoMaxSnapshots    = 5
+	demoMaxBytes        = 64 << 20
+	demoSlowRouteDelay  = 150 * time.Millisecond
+	demoCaptureLatency  = 100 * time.Millisecond
+)
+
 func main() {
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = ":8080"
@@ -93,15 +102,16 @@ func run(cfg appkit.ServiceConfig) error {
 	rec, err := fr.New(
 		fr.WithSnapshotDir(traceDir),
 		fr.WithSnapshotPrefix("trace"),
-		fr.WithMaxSnapshots(5),
-		fr.WithMaxBytes(64<<20),
+		fr.WithMaxSnapshots(demoMaxSnapshots),
+		fr.WithMaxBytes(demoMaxBytes),
 		fr.WithMetrics(appkitotel.NewFlightRecorderMetricsHook(provider.AsMeterProvider().Meter("otel-demo"))),
 	)
 	if err != nil {
 		return fmt.Errorf("create flight recorder: %w", err)
 	}
 
-	if err := rec.Start(); err != nil {
+	err = rec.Start()
+	if err != nil {
 		return fmt.Errorf("start flight recorder: %w", err)
 	}
 
@@ -148,7 +158,7 @@ func run(cfg appkit.ServiceConfig) error {
 	svc.Mux.HandleFunc("GET /slow", func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		time.Sleep(150 * time.Millisecond)
+		time.Sleep(demoSlowRouteDelay)
 
 		w.WriteHeader(http.StatusOK)
 
@@ -158,7 +168,7 @@ func run(cfg appkit.ServiceConfig) error {
 			Kind:     "http",
 			Type:     "GET /slow",
 			Duration: time.Since(start),
-		}, fr.OnLatency(100*time.Millisecond))
+		}, fr.OnLatency(demoCaptureLatency))
 	})
 
 	return svc.Run(context.Background()) //nolint:wrapcheck // top-level main returns the error as-is
