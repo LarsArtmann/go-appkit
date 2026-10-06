@@ -6,7 +6,9 @@ package cqrs
 
 import (
 	"context"
+	"errors"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -301,6 +303,91 @@ func TestEventService_Shutdown_DrainsInFlightCommands(t *testing.T) {
 		t.Errorf("expected the in-flight command to complete, got %d completions", completions)
 	}
 }
+
+func TestEventService_Shutdown_DrainTimeoutStillCloses(t *testing.T) {
+	t.Parallel()
+
+	release := make(chan struct{})
+
+	var closerRan atomic.Bool
+
+	eventSvc, err := NewEventService(EventConfig{
+		Driver: memoryDriver,
+		CommandMiddleware: []command.Middleware{
+			func(next command.Handler) command.Handler {
+				return func(ctx context.Context, cmd command.Command) error {
+					<-release // park the command past the drain deadline
+
+					return next(ctx, cmd)
+				}
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("NewEventService: %v", err)
+	}
+
+	eventSvc.System().RegisterCloser("drain-timeout-probe", funcCloser(func() error {
+		closerRan.Store(true)
+
+		return nil
+	}))
+
+	err = RegisterDecider(eventSvc, "Facade", facadeDecider)
+	if err != nil {
+		t.Fatalf("RegisterDecider: %v", err)
+	}
+
+	err = RegisterCommand[*command.BasicCommand, facadeState](eventSvc, "facade.bump",
+		func(ctx context.Context, cmd *command.BasicCommand) system.Op[facadeState] {
+			return system.Execute(ctx, cmd.StreamID(), "Facade",
+				func(state facadeState, ver event.Version) ([]event.Event, error) {
+					return nil, nil
+				})
+		})
+	if err != nil {
+		t.Fatalf("RegisterCommand: %v", err)
+	}
+
+	dispatchDone := make(chan error, 1)
+
+	go func() {
+		dispatchDone <- eventSvc.Dispatch(context.Background(), newFacadeCommand(t, id.NewStreamID()))
+	}()
+
+	time.Sleep(50 * time.Millisecond) // let the command enter the middleware
+
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	shutdownErr := eventSvc.Shutdown(ctx)
+
+	// The drain timeout must surface to the caller...
+	if shutdownErr == nil {
+		t.Fatal("expected an error from Shutdown when the drain context expires")
+	}
+
+	if !errors.Is(shutdownErr, context.DeadlineExceeded) {
+		t.Errorf("expected context.DeadlineExceeded in the joined shutdown error, got: %v", shutdownErr)
+	}
+
+	// ...but the registered closer must STILL have run: engines never leak
+	// on a stuck command handler.
+	if !closerRan.Load() {
+		t.Error("registered closer did not run after drain timeout — engines would leak")
+	}
+
+	// Release the parked command so the dispatch goroutine can finish (its
+	// handler now fails against closed engines, which is expected under a
+	// bounded drain and therefore not asserted).
+	close(release)
+	<-dispatchDone
+}
+
+// funcCloser adapts a function to io.Closer for RegisterCloser probes.
+type funcCloser func() error
+
+func (f funcCloser) Close() error { return f() }
 
 func TestDefaultCommandMiddleware_ComposesRecoveryTracingLogging(t *testing.T) {
 	t.Parallel()

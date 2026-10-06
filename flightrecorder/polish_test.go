@@ -83,18 +83,25 @@ func TestOpsRecorderLoggerPreset_LoggerHookReceivesLifecycle(t *testing.T) {
 	recorderMu.Lock()
 	defer recorderMu.Unlock()
 
-	if err := rec.Start(); err != nil {
+	err = rec.Start()
+	if err != nil {
 		t.Fatalf("rec.Start: %v", err)
 	}
 
-	if _, err := rec.SnapshotToDir(t.Context()); err != nil {
+	_, err = rec.SnapshotToDir(t.Context())
+	if err != nil {
 		t.Fatalf("rec.SnapshotToDir: %v", err)
 	}
 
-	rec.Stop()
-	_ = rec.Close()
+	// Close alone (not Stop-then-Close: the second call is a no-op and logs
+	// nothing) drains in-flight captures, stops the runtime recorder, and
+	// emits the "closed" lifecycle line.
+	err = rec.Close()
+	if err != nil {
+		t.Fatalf("rec.Close: %v", err)
+	}
 
-	for _, want := range []string{"flightrecorder: started", "flightrecorder: stopped", "flightrecorder: closed"} {
+	for _, want := range []string{"flightrecorder: started", "flightrecorder: closed"} {
 		if !strings.Contains(logBuf.String(), want) {
 			t.Errorf("log output missing %q, got: %s", want, logBuf.String())
 		}
