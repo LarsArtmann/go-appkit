@@ -257,7 +257,7 @@ func TestMiddleware_CapturesOnLatency(t *testing.T) {
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/slow", nil)
 	handler.ServeHTTP(rr, req)
 
-	assertTraceWritten(t, tracePath)
+	waitForTraceFile(t, tracePath)
 }
 
 func TestMiddleware_DoesNotCaptureOnSuccess(t *testing.T) {
@@ -295,6 +295,8 @@ func TestMiddleware_CapturesOnErrorOrLatency_ErrorCase(t *testing.T) {
 
 	waitForTraceFile(t, tracePath)
 }
+
+func TestMiddleware_CapturesOnErrorOrLatency_LatencyCase(t *testing.T) {
 	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, fr.OnErrorOrLatency(50*time.Millisecond))
@@ -308,7 +310,7 @@ func TestMiddleware_CapturesOnErrorOrLatency_ErrorCase(t *testing.T) {
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/slow", nil)
 	handler.ServeHTTP(rr, req)
 
-	assertTraceWritten(t, tracePath)
+	waitForTraceFile(t, tracePath)
 }
 
 // --- Middleware option tests ---
