@@ -121,9 +121,31 @@ exceptions view indexes.
 | Traces    | W3C `traceparent`/`baggage` in and out                | continues caller traces; feeds downstream calls            |
 | Traces    | `exception` events (panics + handled errors)          | `Recovery` + `RecordError`; feeds SigNoz's Exceptions view |
 | Metrics   | `http.server.request.duration` (+ size, active)       | method/route/status attributes; route-based, no blowups    |
+| Metrics   | `appkit_flightrecorder_snapshots_total{source,kind,type}` | flight-recorder bridge; per-operation capture counts   |
+| Metrics   | `appkit_flightrecorder_snapshot_duration_seconds`     | flight-recorder bridge; snapshot write latency             |
 | Logs      | `trace_id` + `span_id` on records logged with ctx     | `TraceHandler` decorates any `slog.Handler`                |
 | Export    | OTLP/HTTP for traces + metrics, env-driven or in code | `WithOTLP`; `OTEL_EXPORTER_OTLP_*` natively honored        |
 | Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks`  | flush after drain — spans cover the final requests         |
+
+## Flight-recorder metric bridge
+
+`NewFlightRecorderMetricsHook` turns every go-flightrecorder capture (manual,
+trigger, or async) into the two `appkit_flightrecorder_*` metrics above — no
+counter plumbing, no vendor lock-in. Wire it when the RECORDER is built (the
+hook fires on capture completion, which the HTTP middleware never sees):
+
+```go
+rec, err := fr.New(
+    fr.WithSnapshotDir("/var/lib/myapp/traces"),
+    fr.WithMaxSnapshots(5),
+    fr.WithMetrics(appkitotel.NewFlightRecorderMetricsHook(provider.AsMeterProvider().Meter("myapp"))),
+)
+```
+
+Chart `snapshots_total` by `type` in SigNoz to see which operations produced
+traces; a silent counter plus a full disk is exactly the retention-failure
+case the flightrecorder module's `OpsRecorderLoggerPreset` surfaces in logs.
+See `example/main.go` for the full loop (the `/slow` route fires captures).
 
 ## Options that matter
 

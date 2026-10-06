@@ -31,7 +31,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/larsartmann/go-appkit"
 	appkitotel "github.com/larsartmann/go-appkit/otel"
 	errorfamily "github.com/larsartmann/go-error-family"
 	fr "github.com/larsartmann/go-flightrecorder"
@@ -101,12 +100,15 @@ func run(cfg appkit.ServiceConfig) error {
 		return fmt.Errorf("create flight recorder: %w", err)
 	}
 
+	if err := rec.Start(); err != nil {
+		return fmt.Errorf("start flight recorder: %w", err)
+	}
+
 	// Tracing wraps the whole request (including the default middleware
 	// stack); Recovery turns panics into exception events inside those
-	// spans; the recorder starts after the listener binds and closes during
-	// graceful shutdown (Close drains in-flight async captures); the
-	// provider flushes after the server released its connections.
-	cfg.StartHooks = []appkit.Hook{func(context.Context) error { return rec.Start() }}
+	// spans; the recorder closes during graceful shutdown (Close drains
+	// in-flight async captures); the provider flushes after the server
+	// released its connections.
 	cfg.ShutdownHooks = []func(context.Context) error{rec.Close, provider.Shutdown}
 
 	cfg.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
