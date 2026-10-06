@@ -153,6 +153,74 @@ func assertTraceNotWritten(t *testing.T, path string) {
 	}
 }
 
+// gatedWriter is an io.Writer whose Write blocks until released. It proves
+// the middleware does not pay trace-write latency on the request path: the
+// response must complete while a capture write is stuck on the gate.
+type gatedWriter struct {
+	writeStarted chan struct{}
+	writeDone    chan struct{}
+	releaseOnce  sync.Once
+	release      chan struct{}
+	mu           sync.Mutex
+	data         []byte
+}
+
+func newGatedWriter() *gatedWriter {
+	return &gatedWriter{
+		writeStarted: make(chan struct{}),
+		writeDone:    make(chan struct{}),
+		release:      make(chan struct{}),
+	}
+}
+
+func (w *gatedWriter) Write(p []byte) (int, error) {
+	select {
+	case <-w.writeStarted:
+	default:
+		close(w.writeStarted)
+	}
+
+	<-w.release
+
+	w.mu.Lock()
+	w.data = append(w.data, p...)
+	w.mu.Unlock()
+
+	close(w.writeDone)
+
+	return len(p), nil
+}
+
+func (w *gatedWriter) unblock() {
+	w.releaseOnce.Do(func() { close(w.release) })
+}
+
+func (w *gatedWriter) bytesWritten() int {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	return len(w.data)
+}
+
+// waitForTraceFile polls until a non-empty trace file exists at path (async
+// captures complete after the request returns; Stop/Close drain, but they
+// permanently stop the recorder, so in-flight tests poll instead).
+func waitForTraceFile(t *testing.T, path string) {
+	t.Helper()
+
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		info, err := os.Stat(path)
+		if err == nil && info.Size() > 0 {
+			return
+		}
+
+		time.Sleep(time.Millisecond)
+	}
+
+	t.Fatalf("trace file not written within 2s at %s", path)
+}
+
 // --- Middleware trigger tests ---
 
 func TestMiddleware_CapturesOnError(t *testing.T) {
@@ -389,6 +457,78 @@ func TestMiddleware_NilTriggerNeverCaptures(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	assertTraceNotWritten(t, tracePath)
+}
+
+// TestMiddleware_CaptureIsNonBlocking pins the async-capture contract: the
+// request must never pay trace-write latency. A capture whose Write is stuck
+// on a gate must not block the response; releasing the gate must land the
+// bytes (Stop/Close drain in-flight async captures, but here the goroutine
+// finishes on its own once the gate opens).
+func TestMiddleware_CaptureIsNonBlocking(t *testing.T) {
+	gw := newGatedWriter()
+
+	rec, err := fr.New(fr.WithWriter(gw))
+	if err != nil {
+		t.Fatalf("fr.New() error: %v", err)
+	}
+
+	recorderMu.Lock()
+
+	if err := rec.Start(); err != nil {
+		recorderMu.Unlock()
+		t.Fatalf("rec.Start() error: %v", err)
+	}
+
+	t.Cleanup(func() {
+		rec.Stop()
+		_ = rec.Close()
+		recorderMu.Unlock()
+	})
+	t.Cleanup(gw.unblock) // runs FIRST (LIFO): the drain must not wait on the gate
+
+	mw := appkitfr.Middleware(rec, fr.OnError())
+
+	handler := mw(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
+
+	served := make(chan struct{})
+	go func() {
+		handler.ServeHTTP(rr, req)
+		close(served)
+	}()
+
+	select {
+	case <-served:
+	case <-time.After(5 * time.Second):
+		gw.unblock()
+		t.Fatal("middleware blocked on the capture write; requests must not pay trace-write latency")
+	}
+
+	select {
+	case <-gw.writeStarted:
+	case <-time.After(2 * time.Second):
+		t.Fatal("capture never reached the writer")
+	}
+
+	if written := gw.bytesWritten(); written != 0 {
+		t.Fatalf("blocked capture already wrote %d bytes before release", written)
+	}
+
+	gw.unblock()
+
+	select {
+	case <-gw.writeDone:
+	case <-time.After(2 * time.Second):
+		t.Fatal("capture did not finish after release")
+	}
+
+	if gw.bytesWritten() == 0 {
+		t.Fatal("expected trace bytes after release, got 0")
+	}
 }
 
 // --- Handler tests ---
