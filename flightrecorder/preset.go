@@ -1,6 +1,8 @@
 package flightrecorder
 
 import (
+	"fmt"
+	"log/slog"
 	"time"
 
 	fr "github.com/larsartmann/go-flightrecorder"
@@ -37,4 +39,29 @@ func OpsRecorderPreset(dir string, maxSnapshots int, maxBytes uint64) []fr.Optio
 		fr.WithCompression(presetCompression),
 		fr.WithMinAge(presetMinAge),
 	}
+}
+
+// OpsRecorderLoggerPreset is [OpsRecorderPreset] plus [fr.WithLogger]: the
+// recorder's lifecycle events and — critically — RETENTION FAILURES land in
+// the service log instead of vanishing silently (a full disk or a permission
+// error would otherwise eat new snapshots with no signal). Pass the service
+// logger; a nil logger skips the hook (the preset stays usable, but you give
+// up the failure visibility this variant exists for).
+//
+// The returned slice carries 7 options when a logger is set (6 otherwise);
+// append yours after spreading, same as the base preset:
+//
+//	rec, err := fr.New(flightrecorder.OpsRecorderLoggerPreset(
+//	    "/var/lib/appkit/traces", 5, 64<<20, svc.Logger,
+//	)...)
+func OpsRecorderLoggerPreset(dir string, maxSnapshots int, maxBytes uint64, log *slog.Logger) []fr.Option {
+	opts := OpsRecorderPreset(dir, maxSnapshots, maxBytes)
+
+	if log != nil {
+		opts = append(opts, fr.WithLogger(func(format string, args ...any) {
+			log.Info(fmt.Sprintf(format, args...))
+		}))
+	}
+
+	return opts
 }

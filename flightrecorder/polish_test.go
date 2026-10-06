@@ -1,6 +1,8 @@
 package flightrecorder_test
 
 import (
+	"bytes"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -54,6 +56,48 @@ func TestOpsRecorderPreset_OptionCount(t *testing.T) {
 			"preset carries %d options, want 6 (dir, prefix, max snapshots, max bytes, compression, min age)",
 			len(opts),
 		)
+	}
+}
+
+// TestOpsRecorderLoggerPreset_LoggerHookReceivesLifecycle pins the ops-
+// visibility contract: the logger variant wires fr.WithLogger, so recorder
+// lifecycle events — and, critically, retention failures that would
+// otherwise vanish silently — land in the service log.
+func TestOpsRecorderLoggerPreset_LoggerHookReceivesLifecycle(t *testing.T) {
+	var logBuf bytes.Buffer
+
+	logger := slog.New(slog.NewTextHandler(&logBuf, nil))
+
+	dir := t.TempDir()
+
+	opts := flightrecorder.OpsRecorderLoggerPreset(dir, 3, 1<<20, logger)
+	if len(opts) != 7 {
+		t.Fatalf("logger preset carries %d options, want 7 (base 6 + WithLogger)", len(opts))
+	}
+
+	rec, err := fr.New(opts...)
+	if err != nil {
+		t.Fatalf("fr.New: %v", err)
+	}
+
+	recorderMu.Lock()
+	defer recorderMu.Unlock()
+
+	if err := rec.Start(); err != nil {
+		t.Fatalf("rec.Start: %v", err)
+	}
+
+	if _, err := rec.SnapshotToDir(t.Context()); err != nil {
+		t.Fatalf("rec.SnapshotToDir: %v", err)
+	}
+
+	rec.Stop()
+	_ = rec.Close()
+
+	for _, want := range []string{"flightrecorder: started", "flightrecorder: stopped", "flightrecorder: closed"} {
+		if !strings.Contains(logBuf.String(), want) {
+			t.Errorf("log output missing %q, got: %s", want, logBuf.String())
+		}
 	}
 }
 
