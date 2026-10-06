@@ -551,6 +551,29 @@ counts, err := metaengine.ExecuteTypedByName[
 Lifecycle events are ordinary journal events: they replay, checkpoint, and
 drain with everything else.
 
+### Streaming read models
+
+Declared collections are watchable: `metaengine.NewWatcher` over the
+collection plus `metaengine.ServeSSE` streams every materialized change to
+browser EventSource clients, with optional replay-journal reconnection
+(`WithReplay`) so a reconnecting client catches up via `Last-Event-ID`.
+
+```go
+watcher := metaengine.NewWatcher[TaskView](es.System().MetaEngine(), "tasks")
+defer watcher.Close()
+
+mux.HandleFunc("GET /events/tasks", func(w http.ResponseWriter, r *http.Request) {
+	_ = metaengine.ServeSSE(w, r, watcher, //nolint:errcheck // stream ends with the request
+		metaengine.WithSSEHeartbeat(30*time.Second))
+})
+```
+
+This streams MATERIALIZED read models (post-fold state). For raw domain
+events (pre-fold journal records), pair the
+[appkit/realtime](../realtime) module's journal-backed replay instead — the
+two answer different questions ("what does the list look like now" vs "what
+happened").
+
 ## Command/query facade
 
 The service exposes go-cqrs-lite's typed C/Q surface directly — no need to
