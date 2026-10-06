@@ -240,7 +240,7 @@ func TestMiddleware_CapturesOnError(t *testing.T) {
 		t.Fatalf("expected 500, got %d", rr.Code)
 	}
 
-	assertTraceWritten(t, tracePath)
+	waitForTraceFile(t, tracePath)
 }
 
 func TestMiddleware_CapturesOnLatency(t *testing.T) {
@@ -289,10 +289,12 @@ func TestMiddleware_CapturesOnErrorOrLatency_ErrorCase(t *testing.T) {
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/fail", nil)
 	handler.ServeHTTP(rr, req)
 
-	assertTraceWritten(t, tracePath)
-}
+	if rr.Code != http.StatusBadGateway {
+		t.Fatalf("expected 502, got %d", rr.Code)
+	}
 
-func TestMiddleware_CapturesOnErrorOrLatency_LatencyCase(t *testing.T) {
+	waitForTraceFile(t, tracePath)
+}
 	rec, tracePath := newStartedRecorder(t)
 
 	mw := appkitfr.Middleware(rec, fr.OnErrorOrLatency(50*time.Millisecond))
@@ -327,7 +329,11 @@ func TestMiddleware_WithErrorThreshold(t *testing.T) {
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/missing", nil)
 	handler.ServeHTTP(rr, req)
 
-	assertTraceWritten(t, tracePath)
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", rr.Code)
+	}
+
+	waitForTraceFile(t, tracePath)
 }
 
 func TestMiddleware_WithErrorThreshold_NotTriggeredBelow(t *testing.T) {

@@ -1,6 +1,7 @@
 package flightrecorder
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
@@ -31,8 +32,13 @@ func WithErrorThreshold(code int) MiddlewareOption {
 }
 
 // WithLogger sets the slog logger for snapshot capture events. When set,
-// the middleware logs each capture with the request method, path, duration,
-// and status code. Default: no logging.
+// the middleware logs each capture INITIATION with the request method, path,
+// duration, and status code — synchronously, so the line is request-
+// correlated. Capture completion (bytes written, file path, sink errors)
+// happens on the async capture goroutine where the middleware has no
+// presence; route it via [fr.WithMetrics] on the recorder at construction
+// time instead (the middleware cannot register recorder hooks because the
+// recorder is consumer-built). Default: no logging.
 func WithLogger(logger *slog.Logger) MiddlewareOption {
 	return func(c *middlewareConfig) { c.logger = logger }
 }
@@ -53,8 +59,20 @@ func WithAutoReset(enabled bool) MiddlewareOption {
 // The middleware measures request duration and captures the HTTP status code
 // via [httputil.ResponseRecorder]. After the handler completes, it constructs
 // a [fr.TriggerContext] and delegates the capture decision to the trigger
-// function. If the trigger fires, a snapshot is written to the recorder's
-// configured destination (set via [fr.WithFile] or [fr.WithWriter]).
+// function. If the trigger fires, the capture is INITIATED asynchronously via
+// [fr.Recorder.SnapshotIfAsync] — the request never pays trace-write latency
+// (a MiB-scale file write). The detached context
+// ([context.WithoutCancel]) keeps request values (e.g. trace context)
+// visible to completion hooks while surviving the request returning; the
+// capture lands in the recorder's configured destination (set via
+// [fr.WithFile], [fr.WithWriter], or [fr.WithSnapshotDir]).
+//
+// With a snapshot-dir sink every initiated capture writes a new timestamped,
+// retained file — the deterministic pattern for repeated captures. With a
+// writer/file sink the library's once-latch applies: concurrent bursts
+// deduplicate to one capture, and WithAutoReset (default) re-arms the latch
+// per initiation so later incidents capture again (best-effort under tight
+// bursts — prefer the dir sink for guaranteed per-incident files).
 //
 // Example — capture on errors or requests slower than 100ms:
 //
@@ -92,14 +110,14 @@ func Middleware(rec *fr.Recorder, trigger fr.TriggerFunc, opts ...MiddlewareOpti
 				Err:      statusError(responseRecorder.Status(), cfg.errorThreshold),
 			}
 
-			captured := rec.SnapshotIf(r.Context(), tc, trigger)
-			if !captured {
+			initiated := rec.SnapshotIfAsync(context.WithoutCancel(r.Context()), tc, trigger)
+			if !initiated {
 				return
 			}
 
 			if cfg.logger != nil {
 				cfg.logger.InfoContext(r.Context(),
-					"flightrecorder: trace snapshot captured",
+					"flightrecorder: trace capture initiated",
 					"method", r.Method,
 					"path", r.URL.Path,
 					"duration", duration,
