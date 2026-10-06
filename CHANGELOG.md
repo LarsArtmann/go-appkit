@@ -37,6 +37,24 @@
 
 ### Changed
 
+- 2026-10-06 dependency sweep (manual `go get` + sequential per-module
+  `GOWORK=off go mod tidy`; `buildflow update` is frozen for workspaces —
+  BuildFlow#32). Fleet pins moved to the 2026-10-05/06 published waves:
+  go-cqrs-lite (cqrs module: 24 requires incl. command/event v4.13.1,
+  id v4.7.1, metaengine v4.16.1), templ-components family v1.20.1
+  (docs/errorpages/health — heals the v1.20.0 zero-pseudo poison),
+  catalog v4.7.1 (docs; v4.6.1's generated templ does not compile against
+  templ-components v1.20.1), go-health v0.5.0 (health +
+  flightrecorderhealth + integration legs), go-sse/sseparse v0.2.1
+  (realtime, integration), cqrs-htmx v4.13.1 + httputil v1.4.1 +
+  go-sse v0.6.2 (integration charter pins; documentedPins re-aligned).
+  Released as cqrs 0.6.1, docs 0.3.2, errorpages 0.1.1,
+  flightrecorderhealth 0.1.6, health 0.1.5, realtime 0.1.3; core, otel
+  and systemd ride their pending content trains (v0.8.0 / v0.2.0 /
+  v0.1.0 — systemd still carries the dev replace). All 13 modules:
+  build + test + race green, check-pin-drift OK, integration suite OK
+  on the new pins.
+
 - `metricsCollector` series keys are a typed `seriesKey` struct
   (method/route/status) instead of a `|`-joined string that every scrape
   re-parsed with `SplitN`. Exposition order and the exported metric names

@@ -1,3 +1,9 @@
+## [0.1.1] - 2026-10-06
+
+### Changed
+
+- Bumped templ-components family v1.19.4 → v1.20.1 (errorpage/icons/utils). Lint cosmetics since v0.1.0 ride along (exhaustruct_v5 nolint on the zero-status recorder, override shadow rename). No API changes.
+
 # Changelog
 
 ## [Unreleased]

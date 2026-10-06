@@ -1,3 +1,9 @@
+## [0.1.5] - 2026-10-06
+
+### Changed
+
+- Bumped go-health v0.4.1 → v0.5.0 and the templ-components family v1.19.4 → v1.20.1 (root/datastar/htmx/icons/utils). Dependency-only.
+
 # Changelog
 
 All notable changes to this project are documented in this file.
