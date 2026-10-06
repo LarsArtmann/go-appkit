@@ -500,7 +500,7 @@ func TestEventService_CheckpointStoreOverrideWins(t *testing.T) {
 	store := &countingCheckpointStore{}
 
 	eventSvc, err := NewEventService(EventConfig{
-		DSN:            t.TempDir() + "/test.db",
+		DSN:             t.TempDir() + "/test.db",
 		CheckpointStore: store,
 	})
 	if err != nil {
@@ -538,10 +538,10 @@ func TestEventService_CheckpointStoreOverrideWins(t *testing.T) {
 // countingCheckpointStore is an in-memory CheckpointStore that records
 // Save/Load calls, proving a consumer override is actually wired in.
 type countingCheckpointStore struct {
-	mu      sync.Mutex
-	saved   map[string]event.Checkpoint
-	saves   int
-	loads   int
+	mu    sync.Mutex
+	saved map[string]event.Checkpoint
+	saves int
+	loads int
 }
 
 func (c *countingCheckpointStore) Save(_ context.Context, name string, cp event.Checkpoint) error {
@@ -564,7 +564,7 @@ func (c *countingCheckpointStore) Load(_ context.Context, name string) (event.Ch
 
 	c.loads++
 
-	return c.saved[name], nil //nolint:nilnil // zero-value checkpoint when absent
+	return c.saved[name], nil // zero-value checkpoint when absent
 }
 
 func (c *countingCheckpointStore) saveCount() int {
