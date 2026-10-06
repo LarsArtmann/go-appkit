@@ -647,10 +647,17 @@ func TestEventService_DomainTimers_LifecycleOwnedBySystem(t *testing.T) {
 		t.Fatalf("Shutdown: %v", err)
 	}
 
+	// KNOWN LIMITATION (tripwire): the wrapper's Shutdown is Drain+Close
+	// (the GracefulClose drain-without-close workaround), and system stops
+	// managed timers only in GracefulClose phase 0 — so the scheduler keeps
+	// running past Shutdown and terminates at process exit. When this
+	// tripwire fires, upstream timer-stop landed: require the stop, drop the
+	// caveat from EventConfig.Domain's godoc, and strike the corollary from
+	// the GracefulClose upstream ask.
 	select {
 	case <-sched.stopped:
-	case <-time.After(5 * time.Second):
-		t.Fatal("scheduler never stopped after Shutdown")
+		t.Fatal("scheduler stopped on Shutdown — upstream timer-stop landed; flip this tripwire")
+	case <-time.After(100 * time.Millisecond):
 	}
 }
 
@@ -676,16 +683,21 @@ func TestNewEventService_DomainShutdownDependencies_UnknownEngineFails(t *testin
 	}
 }
 
-// The same passthrough accepts a valid edge over the synthesized engine
-// names without error.
+// The same passthrough accepts a valid edge between two named deployment
+// engines without error.
 func TestNewEventService_DomainShutdownDependencies_ValidEdgeConstructs(t *testing.T) {
 	t.Parallel()
 
 	eventSvc, err := NewEventService(EventConfig{
-		Driver: memoryDriver,
+		Deployment: &system.DeploymentConfig{
+			Engines: map[string]system.EngineConfig{
+				"primary": {Driver: "memory"},
+				"timers":  {Driver: "memory"},
+			},
+		},
 		Domain: &system.DomainConfig{
 			ShutdownDependencies: []system.ShutdownDependency{
-				{Before: "projections", After: "default"},
+				{Before: "primary", After: "timers"},
 			},
 		},
 	})

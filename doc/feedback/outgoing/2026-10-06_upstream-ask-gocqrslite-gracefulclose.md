@@ -64,6 +64,29 @@ re-enters Phase 2 with an already-expired context must not regress that
 property; the simplest correct shape runs Close unconditionally when a
 drain error was already collected.
 
+## Corollary found by the wrapper's behavioral tests (2026-10-06, same session)
+
+`System.Close()` never stops managed timers: `stopTimers()` is called only
+in `GracefulClose` Phase 0 (timers.go / system.go). Any consumer that
+assembles its own shutdown from the public pieces — Drain + Close, exactly
+what the workaround above must do — leaks every scheduler registered via
+`ManageTimers` past shutdown; they keep dispatching against closed engines
+until process exit. The system's own Phase-0 comment ("scheduler dispatch
+must not race the drain/close phases") states the invariant; only the
+GracefulClose path enforces it.
+
+Candidate fix: make `stopTimers` idempotent (it already is — nils
+`s.timerCancel`) and call it at the top of `Close()` as well, or export a
+`StopTimers()` so wrappers can sequence it before Drain. Either way the
+wrappers that hand scheduler lifecycle to `ManageTimers` get the documented
+"system-owned concern" behavior on every shutdown path, not just
+GracefulClose.
+
+Pinned consumer-side by `cqrs/domain_test.go`
+`TestEventService_DomainTimers_LifecycleOwnedBySystem` as a characterization
+tripwire (asserts the scheduler is NOT stopped within 100ms of Shutdown;
+fires the moment upstream lands the fix).
+
 ## Self-review (verify-before-filing gate)
 
 - Read `system.go:262-330` and `shutdown.go` at the v4.10.2 tag directly
