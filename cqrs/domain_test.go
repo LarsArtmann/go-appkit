@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"slices"
+	"sync"
 	"testing"
 	"time"
 
@@ -680,6 +681,66 @@ func TestNewEventService_DomainShutdownDependencies_UnknownEngineFails(t *testin
 
 	if !errors.Is(err, system.ErrUnknownEngine) {
 		t.Errorf("expected ErrUnknownEngine in the chain, got: %v", err)
+	}
+}
+
+// captureHandler records every log record routed through it; used to pin
+// construction-time advisories that system emits on the DEFAULT logger.
+type captureHandler struct {
+	mu      sync.Mutex
+	records []slog.Record
+}
+
+func (h *captureHandler) Enabled(context.Context, slog.Level) bool {
+	return true
+}
+
+func (h *captureHandler) Handle(_ context.Context, r slog.Record) error {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.records = append(h.records, r)
+
+	return nil
+}
+
+func (h *captureHandler) WithAttrs([]slog.Attr) slog.Handler { return h }
+
+func (h *captureHandler) WithGroup(string) slog.Handler { return h }
+
+// The Events gate is asymmetric by design: consuming an UNDECLARED type is a
+// hard error, while a DECLARED type nothing consumes is only an advisory on
+// the default logger (dead events are legitimate for audit-only journals).
+func TestNewEventService_DomainCoeffectGate_UnconsumedEventIsAdvisory(t *testing.T) {
+	t.Parallel()
+
+	captured := &captureHandler{}
+	previous := slog.Default()
+	slog.SetDefault(slog.New(captured))
+	t.Cleanup(func() { slog.SetDefault(previous) })
+
+	eventSvc, err := NewEventService(EventConfig{
+		Driver: memoryDriver,
+		Domain: &system.DomainConfig{
+			Events: []event.Type{"task.created", "task.audited"}, // audited: consumed by nothing
+			Projections: []system.ProjectionDeclaration{
+				system.QuerySet[TaskView]("tasks").
+					On("task.created", TaskCreated{}).
+					Done(),
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("a declared-but-unconsumed type must stay advisory, got: %v", err)
+	}
+
+	t.Cleanup(func() { _ = eventSvc.Shutdown(context.Background()) })
+
+	found := slices.ContainsFunc(captured.records, func(r slog.Record) bool {
+		return r.Message == "system: unconsumed event type declared"
+	})
+	if !found {
+		t.Error("expected the unconsumed-event advisory on the default logger at construction")
 	}
 }
 

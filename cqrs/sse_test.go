@@ -140,3 +140,112 @@ func TestEventService_DomainQuerySet_ServeSSEStreamsLiveChanges(t *testing.T) {
 		t.Fatal("the dispatched task never arrived on the SSE stream")
 	}
 }
+
+// The reconnection contract of the replay journal: a client that connects
+// fresh receives the full journal, and a client that reconnects with the
+// last received Last-Event-ID receives exactly the missed suffix — never
+// the already-delivered prefix.
+func TestEventService_DomainQuerySet_ServeSSEReplaysMissedEventsOnReconnect(t *testing.T) {
+	t.Parallel()
+
+	eventSvc := newDomainService(t)
+	registerTaskCommand(t, eventSvc)
+
+	err := eventSvc.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("StartProjections: %v", err)
+	}
+
+	watcher := metaengine.NewWatcher[TaskView](eventSvc.System().MetaEngine(), "tasks")
+	defer watcher.Close()
+
+	replay := watcher.WithReplay(64) // enable Last-Event-ID reconnection
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = metaengine.ServeSSE(w, r, watcher)
+	}))
+	defer server.Close()
+
+	firstID := id.NewStreamID()
+	secondID := id.NewStreamID()
+
+	for _, streamID := range []id.StreamID{firstID, secondID} {
+		cmd, cmdErr := command.New("task.create", streamID)
+		if cmdErr != nil {
+			t.Fatalf("create command: %v", cmdErr)
+		}
+
+		dispatchErr := eventSvc.Dispatch(context.Background(), cmd)
+		if dispatchErr != nil {
+			t.Fatalf("dispatch: %v", dispatchErr)
+		}
+	}
+
+	waitFor(t, "both events recorded in the replay journal", func() bool {
+		return replay.LatestSeq() == 2
+	})
+
+	readStream := func(lastEventID string, want int) ([]string, string) {
+		t.Helper()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		req, reqErr := http.NewRequestWithContext(ctx, http.MethodGet, server.URL, nil)
+		if reqErr != nil {
+			t.Fatalf("build request: %v", reqErr)
+		}
+
+		if lastEventID != "" {
+			req.Header.Set("Last-Event-ID", lastEventID)
+		}
+
+		resp, doErr := server.Client().Do(req)
+		if doErr != nil {
+			t.Fatalf("connect to SSE stream: %v", doErr)
+		}
+
+		defer func() { _ = resp.Body.Close() }()
+
+		var dataLines []string
+
+		var lastID string
+
+		scanner := bufio.NewScanner(resp.Body)
+
+		for scanner.Scan() {
+			t.Logf("LINE %q", scanner.Text())
+			if idLine, ok := strings.CutPrefix(scanner.Text(), "id:"); ok {
+				lastID = strings.TrimSpace(idLine)
+			}
+
+			if data, ok := strings.CutPrefix(scanner.Text(), "data:"); ok {
+				dataLines = append(dataLines, strings.TrimSpace(data))
+
+				if len(dataLines) == want {
+					break
+				}
+			}
+		}
+
+		if len(dataLines) != want {
+			t.Fatalf("expected %d SSE data lines, got %d", want, len(dataLines))
+		}
+
+		if lastID == "" {
+			t.Fatal("the replay stream must carry id: fields for reconnection")
+		}
+
+		return dataLines, lastID
+	}
+
+	full, fullLastID := readStream("", 2)
+	if !strings.Contains(full[0], firstID.String()) || !strings.Contains(full[1], secondID.String()) {
+		t.Errorf("fresh connection must replay the journal in dispatch order, got: %v", full)
+	}
+
+	missed, _ := readStream(fullLastID, 1)
+	if !strings.Contains(missed[0], secondID.String()) || strings.Contains(missed[0], firstID.String()) {
+		t.Errorf("reconnect must replay exactly the missed suffix, got: %v", missed)
+	}
+}
