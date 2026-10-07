@@ -7,6 +7,10 @@
 #      "Latest per module: core vX.Y.Z, ..." form) names a tag that actually
 #      exists (catches: release shipped while AGENTS still named the previous
 #      version).
+#   1b. EVERY module's claim in the "Latest per module" list equals that
+#      module's newest tag, and every tagged module is claimed (catches the
+#      2026-10-06 class — family train shipped while AGENTS still said
+#      "pending" — for all modules, not just core).
 #   2. integration/go.mod pins the LATEST published tag of every go-appkit
 #      family module it requires (catches: release train without the
 #      integration pin bump — integration must always test exactly what a
@@ -43,6 +47,73 @@ elif git tag -l -- "$core_version" | grep -qxF "$core_version"; then
 	ok "AGENTS release line $core_version exists as a tag"
 else
 	fail "AGENTS release line says $core_version but git tag -l has no such tag"
+fi
+
+# 1b) Per-module claims: every "name vX.Y.Z" in the "Latest per module" list
+#     must equal that module's newest tag, and every tagged module must be
+#     claimed. Catches the 2026-10-06 class (family train shipped while
+#     AGENTS still said "pending") for EVERY module, mechanically — the
+#     same-train release-state rule (Release Ritual step 3) as code.
+tag_pattern() {
+	case "$1" in
+		core) echo "v*" ;;
+		cqrs | otel | flightrecorder | health | realtime | docs | errorpages | security | systemd) echo "$1/v*" ;;
+		frh) echo "flightrecorderhealth/v*" ;;
+		*) return 1 ;;
+	esac
+}
+
+latest_line="$(sed -n 's/.*Latest per module: //p' AGENTS.md | head -n1)"
+if [[ -z "$latest_line" ]]; then
+	fail "AGENTS.md has no 'Latest per module: ...' line (per-module claims unparseable)"
+else
+	# The list ends the parenthetical release sentence; cut at the first ').'
+	claims="${latest_line%%).*}"
+	pairs="$(printf '%s\n' "$claims" | tr ',' '\n' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+	entry_count="$(printf '%s\n' "$pairs" | grep -c . || true)"
+	pair_count="$(printf '%s\n' "$pairs" | awk 'NF == 2 && $2 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ {n++} END {print n + 0}')"
+	if [[ "$entry_count" != "$pair_count" ]]; then
+		fail "Latest-per-module line has $entry_count entries but only $pair_count parse as 'name vX.Y.Z' (format drift?)"
+	fi
+	declare -A claimed=()
+	while read -r name version; do
+		[[ -n "$name" ]] || continue
+		if ! pattern="$(tag_pattern "$name")"; then
+			fail "unknown module short name '$name' in the Latest-per-module line (extend tag_pattern in check-pin-drift.sh)"
+			continue
+		fi
+		claimed["$name"]=1
+		tag_latest="$(git tag -l -- "$pattern" | sort -V | tail -n1)"
+		tag_version="${tag_latest#*/}"
+		if [[ -z "$tag_latest" ]]; then
+			fail "$name: AGENTS claims $version but no tags match $pattern (claim ahead of a tag that does not exist)"
+		elif [[ "$version" != "$tag_version" ]]; then
+			fail "$name: AGENTS claims $version but the newest tag is $tag_latest (same-train release-state update missed?)"
+		else
+			ok "$name claim $version == newest tag $tag_latest"
+		fi
+	done <<<"$(printf '%s\n' "$pairs" | awk 'NF == 2 && $2 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/')"
+
+	# Reverse: every TAGGED module must appear in the claims (module set from
+	# go.work use entries — the charter guard keeps that list honest).
+	while read -r use_entry; do
+		case "$use_entry" in
+			".") dir_name="core" ;;
+			./integration) continue ;;
+			.*) dir_name="${use_entry#./}" ;;
+			*) continue ;;
+		esac
+		short="$dir_name"
+		[[ "$dir_name" == "flightrecorderhealth" ]] && short="frh"
+		if ! pattern="$(tag_pattern "$short" 2>/dev/null)"; then
+			fail "go.work member $use_entry is missing from the pin-guard module map (extend tag_pattern)"
+			continue
+		fi
+		tag_latest="$(git tag -l -- "$pattern" | sort -V | tail -n1)"
+		if [[ -n "$tag_latest" && -z "${claimed[$short]:-}" ]]; then
+			fail "$dir_name has tags (newest $tag_latest) but is not claimed in the Latest-per-module line"
+		fi
+	done < <(awk '/^use \(/{f=1; next} /^\)/{f=0} f && NF {print $1}' go.work)
 fi
 
 # 2) integration pins == latest published family tag.
