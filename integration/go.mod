@@ -12,6 +12,7 @@ require (
 	github.com/larsartmann/go-appkit/otel v0.2.0
 	github.com/larsartmann/go-appkit/realtime v0.1.3
 	github.com/larsartmann/go-appkit/security v0.2.0
+	github.com/larsartmann/go-appkit/systemd v0.1.0
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.13.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.7.2
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.13.1
@@ -50,6 +51,7 @@ require (
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/coreos/go-systemd/v22 v22.7.0 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/failsafe-go/failsafe-go v0.9.8 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
