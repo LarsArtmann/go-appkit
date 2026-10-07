@@ -56,10 +56,10 @@ fi
 #     same-train release-state rule (Release Ritual step 3) as code.
 tag_pattern() {
 	case "$1" in
-		core) echo "v*" ;;
-		cqrs | otel | flightrecorder | health | realtime | docs | errorpages | security | systemd) echo "$1/v*" ;;
-		frh) echo "flightrecorderhealth/v*" ;;
-		*) return 1 ;;
+	core) echo "v*" ;;
+	cqrs | otel | flightrecorder | health | realtime | docs | errorpages | security | systemd) echo "$1/v*" ;;
+	frh) echo "flightrecorderhealth/v*" ;;
+	*) return 1 ;;
 	esac
 }
 
@@ -98,10 +98,10 @@ else
 	# go.work use entries — the charter guard keeps that list honest).
 	while read -r use_entry; do
 		case "$use_entry" in
-			".") dir_name="core" ;;
-			./integration) continue ;;
-			.*) dir_name="${use_entry#./}" ;;
-			*) continue ;;
+		".") dir_name="core" ;;
+		./integration) continue ;;
+		.*) dir_name="${use_entry#./}" ;;
+		*) continue ;;
 		esac
 		short="$dir_name"
 		[[ "$dir_name" == "flightrecorderhealth" ]] && short="frh"

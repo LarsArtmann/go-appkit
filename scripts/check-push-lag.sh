@@ -40,9 +40,9 @@ fi
 # git log lists newest first; the last line is the oldest unpushed commit.
 oldest_ct="$(git log "$remote_ref..HEAD" --format=%ct | tail -n1)"
 now="$(date +%s)"
-age_hours=$(( (now - oldest_ct) / 3600 ))
+age_hours=$(((now - oldest_ct) / 3600))
 
-if (( age_hours >= threshold_hours )); then
+if ((age_hours >= threshold_hours)); then
 	echo "FAIL: $count commit(s) on $branch unpushed for ${age_hours}h (threshold ${threshold_hours}h) — push stalled? Run: git push origin $branch"
 	exit 1
 fi

@@ -7,14 +7,14 @@
 
 ## 1) Where the daemon lives (the answer)
 
-| What            | Where / value                                                                                       |
-| --------------- | --------------------------------------------------------------------------------------------------- |
-| Unit            | `/etc/systemd/system/projects-management-automation.service` (SYSTEM unit, `User=lars`, `SyslogIdentifier=pma`) |
+| What            | Where / value                                                                                                                                |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit            | `/etc/systemd/system/projects-management-automation.service` (SYSTEM unit, `User=lars`, `SyslogIdentifier=pma`)                              |
 | Source          | https://github.com/LarsArtmann/projects-management-automation (local clone: `~/projects/projects-management-automation`, binary rev 8f430ae) |
-| Config          | `/etc/projects-management-automation/service.yaml`                                                   |
-| Logs            | journal, query with `journalctl -t pma` (owner; `systemctl` is blocked for agents)                    |
-| Health endpoint | `127.0.0.1:9190` (`PMA_HEALTH_LISTEN_ADDR`)                                                           |
-| State           | `/var/lib/pma/cooldown-state.json`                                                                   |
+| Config          | `/etc/projects-management-automation/service.yaml`                                                                                           |
+| Logs            | journal, query with `journalctl -t pma` (owner; `systemctl` is blocked for agents)                                                           |
+| Health endpoint | `127.0.0.1:9190` (`PMA_HEALTH_LISTEN_ADDR`)                                                                                                  |
+| State           | `/var/lib/pma/cooldown-state.json`                                                                                                           |
 
 Why agents never saw it: it is a system-level unit (not `~/.config/systemd/user/`),
 `systemctl` is blocked in agent shells, and its process runs with a nix-store
@@ -78,15 +78,15 @@ So the daemon commits with hooks pointed at an empty directory. Implications:
 
 ## 5) Damage-mode ledger (hashes + timestamps)
 
-| # | Event | Evidence |
-| - | ----- | -------- |
-| 1 | go.work `./integration` re-add, leak #3 | caught by charter guard; fixed `ae3b2d4` 2026-10-06 |
-| 2 | go.work re-add, leak #4 | `620a3b1` 2026-10-07 09:53:48; fixed `19100c5` |
-| 3 | go.work re-add, leak #5 — bundled with the session report file | `0cfc4ab` 2026-10-07 10:12:20; fixed `103a7ad`; charter guard red on origin run 37592301037 |
-| 4 | Staged-file theft from an active agent session (5× in ~30 min) | `1da7bfb` 10:22 (check-pin-drift.sh), `535636e` 10:26 (core CHANGELOG), `6347ba5` 10:33 (systemd module + AGENTS), `80fb3da` 10:42 (integration leg), `b80c8bc` 10:50 (.buildflow.yml) — in every case the content survived (the daemon committed it), but the intended commit message and attribution were lost |
-| 5 | Reflog-silent commit rewind | `bb47fbc` vanished 2026-10-06; content recovered from index; post-commit watch now guards the class |
-| 6 | ~30-min push stall unnoticed | 22:47Z→23:16Z 2026-10-06; `scripts/check-push-lag.sh` now guards (warning in pre-commit) |
-| 7 | `.buildflow.yml` mutations (license-check skip + GOTOOLCHAIN pin removal) | `620a3b1`/`31526ce` + staged 10:50; probed 2026-10-07: BOTH were correct modernizations (license-check passes; toolchain auto-derives) — accepted in `86b612d` |
+| # | Event                                                                     | Evidence                                                                                                                                                                                                                                                                                                         |
+| - | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | go.work `./integration` re-add, leak #3                                   | caught by charter guard; fixed `ae3b2d4` 2026-10-06                                                                                                                                                                                                                                                              |
+| 2 | go.work re-add, leak #4                                                   | `620a3b1` 2026-10-07 09:53:48; fixed `19100c5`                                                                                                                                                                                                                                                                   |
+| 3 | go.work re-add, leak #5 — bundled with the session report file            | `0cfc4ab` 2026-10-07 10:12:20; fixed `103a7ad`; charter guard red on origin run 37592301037                                                                                                                                                                                                                      |
+| 4 | Staged-file theft from an active agent session (5× in ~30 min)            | `1da7bfb` 10:22 (check-pin-drift.sh), `535636e` 10:26 (core CHANGELOG), `6347ba5` 10:33 (systemd module + AGENTS), `80fb3da` 10:42 (integration leg), `b80c8bc` 10:50 (.buildflow.yml) — in every case the content survived (the daemon committed it), but the intended commit message and attribution were lost |
+| 5 | Reflog-silent commit rewind                                               | `bb47fbc` vanished 2026-10-06; content recovered from index; post-commit watch now guards the class                                                                                                                                                                                                              |
+| 6 | ~30-min push stall unnoticed                                              | 22:47Z→23:16Z 2026-10-06; `scripts/check-push-lag.sh` now guards (warning in pre-commit)                                                                                                                                                                                                                         |
+| 7 | `.buildflow.yml` mutations (license-check skip + GOTOOLCHAIN pin removal) | `620a3b1`/`31526ce` + staged 10:50; probed 2026-10-07: BOTH were correct modernizations (license-check passes; toolchain auto-derives) — accepted in `86b612d`                                                                                                                                                   |
 
 Pattern: pma never destroyed content. Every damage mode is a RACE or an
 ATTRIBUTION loss: it stages mid-flight edits, bundles unrelated mutations,

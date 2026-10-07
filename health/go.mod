@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/health
 go 1.27.1
 
 require (
-	github.com/larsartmann/go-appkit v0.7.0
+	github.com/larsartmann/go-appkit v0.8.0
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-health v0.5.0

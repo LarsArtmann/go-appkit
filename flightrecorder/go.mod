@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/flightrecorder
 go 1.27.1
 
 require (
-	github.com/larsartmann/go-appkit v0.7.0
+	github.com/larsartmann/go-appkit v0.8.0
 	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
 	github.com/larsartmann/httputil v1.4.1
@@ -29,6 +29,7 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v1.2.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/exp v0.0.0-20261005173118-76772065c9b0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
