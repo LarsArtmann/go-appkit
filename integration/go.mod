@@ -6,6 +6,7 @@ require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.13.2
 	github.com/larsartmann/go-appkit v0.8.0
 	github.com/larsartmann/go-appkit/cqrs v0.7.0
+	github.com/larsartmann/go-appkit/docs v0.3.2
 	github.com/larsartmann/go-appkit/errorpages v0.1.1
 	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.6
 	github.com/larsartmann/go-appkit/health v0.1.5
@@ -13,6 +14,7 @@ require (
 	github.com/larsartmann/go-appkit/realtime v0.1.3
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-appkit/systemd v0.1.0
+	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.7.1
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.13.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.7.2
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.13.1
@@ -73,10 +75,8 @@ require (
 	github.com/knadh/koanf/providers/env v1.1.0 // indirect
 	github.com/knadh/koanf/providers/file v1.2.1 // indirect
 	github.com/knadh/koanf/v2 v2.3.7 // indirect
-	github.com/larsartmann/go-appkit/docs v0.3.2 // indirect
 	github.com/larsartmann/go-branded-id v0.7.0 // indirect
 	github.com/larsartmann/go-codec v0.3.1 // indirect
-	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.7.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4 v4.2.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/commandlifecycle/v4 v4.2.2 // indirect
