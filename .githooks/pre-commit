@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# ACTIVE pre-commit hook — lives in .githooks/ because the machine-wide
+# git config sets core.hooksPath=.githooks (relative), which made the
+# previous .git/hooks/pre-commit INERT: no guard has run at commit time
+# since that override landed (found 2026-10-07, SUPERB T06/T07).
+#
+# Fatal: the three OFFLINE standing guards (fast, read-only, no network).
+# Warning-only: push-lag watch.
+#
+# Deliberately NOT the full BuildFlow pre-commit block: its dprint step
+# exits 14 (no files to format) on CHANGELOG-only commits — a known
+# upstream issue (Deferred Register) — and running it on every auto-commit
+# daemon heuristic commit risks daemon lockups. Run `buildflow` manually;
+# revisit when buildflow learns to skip empty staged sets.
+# shellcheck shell=bash
+
+set -u
+
+GUARD_FAIL=0
+
+for guard in check-go-directives.sh check-dependabot-parity.sh check-workspace-charter.sh; do
+	if ! ./scripts/"$guard" >/dev/null 2>&1; then
+		echo "pre-commit: $guard FAILED (see scripts/$guard output)"
+		GUARD_FAIL=1
+	fi
+done
+
+# check-pin-drift.sh is deliberately NOT in the fatal set: its cross-repo
+# legs need the module proxy (network); an offline commit must not be
+# blocked. CI and pre-tag-checks.sh run it where network exists.
+
+if lag="$(./scripts/check-push-lag.sh 2>/dev/null)"; then
+	:
+else
+	echo "pre-commit WARNING: $lag"
+fi
+
+if [ "${GUARD_FAIL:-0}" = "1" ]; then
+	echo "pre-commit: project guards blocked the commit (fix, or commit with --no-verify + justification)"
+	exit 1
+fi
+
+exit 0
