@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-07
+
 ### Added
 
 - `ServiceConfig.StartHooks` (`[]Hook`) — the post-listen startup seam the
