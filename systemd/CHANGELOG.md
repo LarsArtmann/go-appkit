@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-07
+
 ### Added
 
 - Initial implementation of the opt-in systemd (sd_notify) module — the
@@ -39,9 +41,8 @@
 
 ### Release gating
 
-- Requires the first core tag carrying `StartHooks` (v0.8.0). Until then
-  `go.mod` carries a dev-only `replace github.com/larsartmann/go-appkit
-  => ../` — REMOVE it and bump the require before tagging
-  (`scripts/pre-tag-checks.sh` rejects tags with filesystem replaces).
-  After the first tag: integration pin + `documentedPins` entry + CI
-  proxy-smoke matrix slot.
+- Requires the first core tag carrying `StartHooks` — v0.8.0, tagged the
+  same day. The dev-only `replace github.com/larsartmann/go-appkit => ../`
+  was lifted and the require bumped to the published tag before this tag
+  (`scripts/pre-tag-checks.sh` rejects filesystem replaces); integration
+  pin + `documentedPins` entry + CI proxy-smoke slot ride the same train.
