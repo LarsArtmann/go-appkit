@@ -18,6 +18,8 @@ github.com/ThreeDotsLabs/watermill-redisstream v1.4.5 h1:SCETqsAYo/CRBb7H3+zWCcS
 github.com/ThreeDotsLabs/watermill-redisstream v1.4.5/go.mod h1:Da3wqG1OcvHPODjuJcxSCY1O7D4loIZQpVbZ5u94xRo=
 github.com/a-h/templ v0.3.1020 h1:ypAT/L5ySWEnZ6Zft/5yfoWXYYkhFNvEFOeeqecg4tw=
 github.com/a-h/templ v0.3.1020/go.mod h1:A2DlK61v+K+NRoGnhmYbNYVmtYHcFO5/AisMvBdDxTM=
+github.com/a-h/templ v0.3.1070 h1:3iCOXHXqFXa99OQzgkUOLJbNzv/QjFGLwKZkBAg+ADA=
+github.com/a-h/templ v0.3.1070/go.mod h1:iIqB3g2RHBe/WlnPwa+Bvhh1TKXHWLRnBD9NWHOLm78=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ2ASbcXHWsFqH8hp8=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
@@ -87,6 +89,12 @@ github.com/gkampitakis/ciinfo v0.3.4 h1:5eBSibVuSMbb/H6Elc0IIEFbkzCJi3lm94n0+U7Z
 github.com/gkampitakis/ciinfo v0.3.4/go.mod h1:1NIwaOcFChN4fa/B0hEBdAb6npDlFL8Bwx4dfRLRqAo=
 github.com/gkampitakis/go-snaps v0.5.23 h1:okh5QR48zpUjpWtu65AtqxdCY8huJq+dEDuUzd1PuKg=
 github.com/gkampitakis/go-snaps v0.5.23/go.mod h1:uy3lVzCCRRsAwYqSocyw5fY8xRLCYEfqoOJNxr8HonM=
+github.com/go-faster/errors v0.8.0 h1:9T9eJrM+72dFk7n4DfhuaDDe6cyuFCSW2oNUkN77Yqc=
+github.com/go-faster/errors v0.8.0/go.mod h1:5ySTjWFiphBs07IKuiL69nxdfd5+fzh1u7FPGZP2quo=
+github.com/go-faster/jx v1.2.0 h1:T2YHJPrFaYu21fJtUxC9GzmluKu8rVIFDwwGBKTDseI=
+github.com/go-faster/jx v1.2.0/go.mod h1:UWLOVDmMG597a5tBFPLIWJdUxz5/2emOpfsj9Neg0PE=
+github.com/go-faster/yaml v0.4.6 h1:lOK/EhI04gCpPgPhgt0bChS6bvw7G3WwI8xxVe0sw9I=
+github.com/go-faster/yaml v0.4.6/go.mod h1:390dRIvV4zbnO7qC9FGo6YYutc+wyyUSHBgbXL52eXk=
 github.com/go-json-experiment/json v0.0.0-20260820222146-c27c302e5fc3 h1:UADEEmDKgfXbtnGJZ97beY5XLo9ZechG1nlU4KnRrkE=
 github.com/go-json-experiment/json v0.0.0-20260820222146-c27c302e5fc3/go.mod h1:tphK2c80bpPhMOI4v6bIc2xWywPfbqi1Z06+RcrMkDg=
 github.com/go-logfmt/logfmt v0.6.1 h1:4hvbpePJKnIzH1B+8OR/JPbTx37NktoI9LE2QZBBkvE=
@@ -159,6 +167,8 @@ github.com/larsartmann/go-appkit v0.8.0 h1:SaeciIb1WtHn2zBmc9eKJ3zEb/c7Hcz59tHKf
 github.com/larsartmann/go-appkit v0.8.0/go.mod h1:txVMEPI/ZL4npZDu08bgaylCGo2J8l2N0ysRIPdjMvU=
 github.com/larsartmann/go-appkit/cqrs v0.7.0 h1:hFYZULY73oT+7+tOgeVjUpOqPAHGIiaIpY5lemljGno=
 github.com/larsartmann/go-appkit/cqrs v0.7.0/go.mod h1:qZcUpQ60PBZlzn176ud+Wq2l8unbmTHbQ5wAw6pgfdI=
+github.com/larsartmann/go-appkit/docs v0.3.2 h1:mirb9m28Wu0Z5ViGKLnlbkeuVN/IRnKsm7gynHjsLfs=
+github.com/larsartmann/go-appkit/docs v0.3.2/go.mod h1:IfdCsXZZrh4s3rgKGjif7YZrbYx1hJaaCwCKMdscWho=
 github.com/larsartmann/go-appkit/errorpages v0.1.1 h1:YfE2/exCeMqcrJJ1Ediik1/LYadZ5u+JJ3otzCqSADY=
 github.com/larsartmann/go-appkit/errorpages v0.1.1/go.mod h1:/r//kt9i29ycM3EuPcehOtmYn4NOHMj6hF7AdtoWMPU=
 github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.6 h1:dqKUodmmD6EsxaZap04nhozctg+RlCDO85616v951z8=
@@ -177,6 +187,8 @@ github.com/larsartmann/go-branded-id v0.7.0 h1:k5KT50Kh0WmeniH0rQ3Gvm2RdSAQFZtuR
 github.com/larsartmann/go-branded-id v0.7.0/go.mod h1:gM5FhB6d23qZO8hIU/rHpUnm/6dwKy9UGMhgvXDqNsc=
 github.com/larsartmann/go-codec v0.3.1 h1:9025JGvz7CVbfDgUVLIWfmg117683XZ5D2wUXhXsSr4=
 github.com/larsartmann/go-codec v0.3.1/go.mod h1:OYx+M0nVF+7xR0bjQdVJwF4ROFRskyg5spMsOMl1F80=
+github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.7.1 h1:ZutI5JyR4p82422IQMirU2b0e7DjF2eLF1/HoN/PbP0=
+github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.7.1/go.mod h1:+3XATHOFGymxtU41rPTYmEOwvGKiwm0fnUYjvaRnn00=
 github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2 h1:yakAjC4K02sVvudipDP/fhLfSXDuo5rnNBY+hDou34Y=
 github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2/go.mod h1:7TQ7fSd6bRqd7lYSTDMPIDCDZtzU/r3KqivP9m1M7gk=
 github.com/larsartmann/go-cqrs-lite/command/v4 v4.13.1 h1:wL7o9VtwmIxudrTD70UROY8zLf2WbQgJO/YRSGQX0JY=
@@ -373,6 +385,8 @@ github.com/samber/go-type-to-string v1.8.0 h1:5z6tDTjtXxkIAoAuHAZYMYR8mkBZjVgeSH
 github.com/samber/go-type-to-string v1.8.0/go.mod h1:jpU77vIDoIxkahknKDoEx9C8bQ1ADnh2sotZ8I4QqBU=
 github.com/samber/lo v1.53.0 h1:t975lj2py4kJPQ6haz1QMgtId2gtmfktACxIXArw3HM=
 github.com/samber/lo v1.53.0/go.mod h1:4+MXEGsJzbKGaUEQFKBq2xtfuznW9oz/WrgyzMzRoM0=
+github.com/segmentio/asm v1.2.1 h1:DTNbBqs57ioxAD4PrArqftgypG4/qNpXoJx8TVXxPR0=
+github.com/segmentio/asm v1.2.1/go.mod h1:BqMnlJP91P8d+4ibuonYZw9mfnzI9HfxselHZr5aAcs=
 github.com/sergi/go-diff v1.4.0 h1:n/SP9D5ad1fORl+llWyN+D6qoUETXNZARKjyY2/KVCw=
 github.com/sergi/go-diff v1.4.0/go.mod h1:A0bzQcvG0E7Rwjx0REVgAGH58e96+X0MeOfepqsbeW4=
 github.com/shirou/gopsutil/v4 v4.26.9 h1:CaBo/hBFqvlJoLvAQEKdHdf5GD97/MN2ACfyv63+2Ig=
@@ -441,6 +455,8 @@ go.uber.org/atomic v1.12.0 h1:BvcXdFKuviU4fTL/f+SxdQ5qJX/Jix8pAkgdUcb3XOE=
 go.uber.org/atomic v1.12.0/go.mod h1:I6c4cg+6HCxRjfjSsYtApoFILnpc0CGUdGkXVqbYVNk=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
+go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
+go.uber.org/multierr v1.11.0/go.mod h1:20+QtiLqy0Nd6FdQB9TLXag12DsQkrbs3htMFfDN80Y=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
 golang.org/x/crypto v0.57.0 h1:3ZVCjf8Ggz7zneR/EHRVx68Ctf+2pmIMP2UFhh9cC6M=

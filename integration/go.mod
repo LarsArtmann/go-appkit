@@ -37,7 +37,7 @@ require (
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
 	github.com/ThreeDotsLabs/watermill v1.5.3 // indirect
-	github.com/a-h/templ v0.3.1020 // indirect
+	github.com/a-h/templ v0.3.1070 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.26.0 // indirect
@@ -57,6 +57,9 @@ require (
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.6 // indirect
+	github.com/go-faster/errors v0.8.0 // indirect
+	github.com/go-faster/jx v1.2.0 // indirect
+	github.com/go-faster/yaml v0.4.6 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -70,8 +73,10 @@ require (
 	github.com/knadh/koanf/providers/env v1.1.0 // indirect
 	github.com/knadh/koanf/providers/file v1.2.1 // indirect
 	github.com/knadh/koanf/v2 v2.3.7 // indirect
+	github.com/larsartmann/go-appkit/docs v0.3.2 // indirect
 	github.com/larsartmann/go-branded-id v0.7.0 // indirect
 	github.com/larsartmann/go-codec v0.3.1 // indirect
+	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.7.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4 v4.2.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/commandlifecycle/v4 v4.2.2 // indirect
@@ -116,6 +121,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/samber/go-type-to-string v1.8.0 // indirect
+	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
@@ -130,6 +136,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.11.1 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/exp v0.0.0-20261005173118-76772065c9b0 // indirect
 	golang.org/x/net v0.59.0 // indirect
