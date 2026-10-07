@@ -14,15 +14,6 @@ env:
   # resolve every module, making it the more honest lint mode fleet-wide.
   GOWORK: "off"
 skip_steps:
-  # go-structure-linter: BuildFlow's step runs the binary WITHOUT the three
-  # --exclude flags the repo's documented invocation requires
-  # (root-package-files / internal-directory / examples-directory — the root
-  # package IS the public `appkit` package, see AGENTS.md), producing 9
-  # false findings; the linter's own yaml exclude config is inert in the
-  # installed binary (documented upstream gap). The repo runs the linter
-  # directly with the flags; re-enable when BuildFlow supports per-tool
-  # rule excludes or the binary honors its config file.
-  - go-structure-linter
   # This repo deliberately pins PATCH-level go directives (go 1.27.1) with
   # strict equality across all 11 go.mods + go.work, enforced by
   # scripts/check-go-directives.sh and integration's documentedGoDirective

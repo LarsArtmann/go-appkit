@@ -1,0 +1,4 @@
+# The root package IS the public `appkit` package (AGENTS.md "Structure
+# linting"): these three layout rules reject a deliberately-flat library.
+# Verified 2026-09-29: bare run 11 findings -> 0 with these excludes.
+exclude_patterns: [root-package-files, internal-directory, examples-directory]
