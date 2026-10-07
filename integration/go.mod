@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/integration
 go 1.27.1
 
 require (
-	github.com/larsartmann/cqrs-htmx/v4 v4.13.1
+	github.com/larsartmann/cqrs-htmx/v4 v4.13.2
 	github.com/larsartmann/go-appkit v0.7.0
 	github.com/larsartmann/go-appkit/cqrs v0.7.0
 	github.com/larsartmann/go-appkit/errorpages v0.1.1
