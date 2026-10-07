@@ -1,12 +1,9 @@
 # go-appkit BuildFlow policy — non-default values ONLY (canonical keys per the
 # buildflow skill; unknown keys warn on every load).
 env:
-  # The machine default toolchain is go1.26.7 with GOTOOLCHAIN=local, while the
-  # unified repo floor is go 1.27.1. Without this, every BuildFlow go
-  # subprocess (govulncheck, license-check, tidy, golangci-lint's embedded go)
-  # fails with "requires go >= 1.27.1" — seen live 2026-09-29 across three
-  # surfaces before this line existed.
-  GOTOOLCHAIN: go1.27.1
+  # GOTOOLCHAIN removed 2026-10-07: auto-derived by BuildFlow when the repo
+  # floor (go 1.27.1) exceeds the local go (1.26.7); directive equality
+  # policy is enforced by scripts/check-go-directives.sh, not this env pin.
   # Hermetic per-module resolution: ./integration is NOT a workspace member
   # (pin charter: published tags only), so plain golangci-lint inside it dies
   # with "directory prefix . does not contain modules listed in go.work"
