@@ -1,6 +1,6 @@
 # i18n for go-appkit — research + module sketch
 
-Date: 2026-10-08 · Status: RESEARCHED, not adopted · Demand gate: P3 (TODO_LIST)
+Date: 2026-10-09 · Status: RESEARCHED, not adopted · Demand gate: P3 (TODO_LIST)
 
 **Question.** How do we help appkit consumers with i18n "and co" (locale
 negotiation, message lookup, hreflang/SEO, formats)? Sources: the proven T49
@@ -121,7 +121,7 @@ Deliberately NOT in v0.1.0 (anti-recommendations, hold the family line):
 
 ## Recommendation
 
-1. **Now:** record the demand gate (TODO_LIST P3 row points here). Nothing
+1. **Now:** record the demand gate (TODO_LIST P3 row points here; researched 2026-10-09 22:39 CEST). Nothing
    else — a 13th module for N=1 consumer fails the fleet-pressure test the
    systemd module applied ("demand-proven").
 2. **Trigger to build:** a second bilingual consumer, a consumer ask, or
