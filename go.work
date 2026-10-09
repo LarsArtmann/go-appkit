@@ -20,3 +20,9 @@ use (
 	./security
 	./systemd
 )
+
+// Dev replaces for the systemscenario harness pilot (2026-10-09, ADR-0153):
+// systemscenario is pre-tag, and it needs the system Clock seam (unpublished).
+// Drop both when the next go-cqrs-lite tag wave ships systemscenario/v4 + system/v4.12.
+replace github.com/larsartmann/go-cqrs-lite/systemscenario/v4 => /home/lars/projects/go-cqrs-lite/systemscenario
+replace github.com/larsartmann/go-cqrs-lite/system/v4 => /home/lars/projects/go-cqrs-lite/system

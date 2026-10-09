@@ -13,6 +13,7 @@ codeberg.org/go-pdf/fpdf v0.10.0/go.mod h1:Y0DGRAdZ0OmnZPvjbMp/1bYxmIPxm0ws4tfoP
 filippo.io/edwards25519 v1.2.0/go.mod h1:xzAOLCNug/yB62zG1bQ8uziwrIqIuxhctzJT18Q77mc=
 git.sr.ht/~sbinet/gg v0.6.0/go.mod h1:uucygbfC9wVPQIfrmwM2et0imr8L7KQWywX0xpFMm94=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6/go.mod h1:8o94RPi1/7XTJvwPpRSzSUedZrtlirdB3r9Z20bi2f8=
+github.com/Azure/go-ansiterm v0.0.0-20261006220739-8c912ac31dd4/go.mod h1:MTUE7ZuZO89FAtAwozGg6AWD83pcdefnEq5gF82MB8s=
 github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/DATA-DOG/go-sqlmock v1.5.2/go.mod h1:88MAG/4G7SMwSE3CeA0ZKzrT5CiOU3OJ+JlNzwDqpNU=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.33.0/go.mod h1:pJTkW8hEUIIi3Pf65lPZOnn4Y81yCllX6IWk2jNXdkM=
@@ -61,6 +62,7 @@ github.com/fatih/color v1.19.0/go.mod h1:zNk67I0ZUT1bEGsSGyCZYZNrHuTkJJB+r6Q9VuM
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
 github.com/fxamacker/cbor/v2 v2.9.3/go.mod h1:vM4b+DJCtHn+zz7h3FFp/hDAI9WNWCsZj23V5ytsSxQ=
+github.com/fxamacker/cbor/v2 v2.9.4/go.mod h1:vM4b+DJCtHn+zz7h3FFp/hDAI9WNWCsZj23V5ytsSxQ=
 github.com/gkampitakis/ciinfo v0.3.2/go.mod h1:1NIwaOcFChN4fa/B0hEBdAb6npDlFL8Bwx4dfRLRqAo=
 github.com/gkampitakis/go-diff v1.3.2/go.mod h1:LLgOrpqleQe26cte8s36HTWcTmMEur6OPYerdAAS9tk=
 github.com/gkampitakis/go-snaps v0.5.15/go.mod h1:HNpx/9GoKisdhw9AFOBT1N7DBs9DiHo/hGheFGBZ+mc=
@@ -138,9 +140,13 @@ github.com/larsartmann/go-cqrs-lite/encryption/v4 v4.4.2/go.mod h1:8kijUbfBC5VTU
 github.com/larsartmann/go-cqrs-lite/event/v4 v4.10.0/go.mod h1:MWTYJl1b6wR+hXr4IHYQsVtPAnMW2nRU4zW7HY/GGOM=
 github.com/larsartmann/go-cqrs-lite/flightrecorder/v4 v4.0.0/go.mod h1:AuZLD6VfU2mPj7DENWMRag8kXzsf4+dHgM6fAbODszQ=
 github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4 v4.3.0/go.mod h1:A8rKgOqgOsLzmEJAH7VrL8ggeAEQ/W0no27IYCul/zs=
+github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4 v4.5.2 h1:62R7BYzsBmre3ZpLI/1Ix17kx+wUbnQwfJI/z4HbkZg=
+github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4 v4.5.2/go.mod h1:8ROLpkWKi10BvYkgMIj1bjJJrKABX0gKQuUDt2bAjzQ=
+github.com/larsartmann/go-cqrs-lite/scheduling/v4 v4.6.2/go.mod h1:cZXsFgzBWnYj5QMOYWGwU5zuD5q78G6kWW3dygQ/GI4=
 github.com/larsartmann/go-cqrs-lite/schema/v4 v4.4.0/go.mod h1:xiMgL4wrynJ4QR8GdpKgRZCgHc4LhQOMdXePka4I07w=
 github.com/larsartmann/go-cqrs-lite/snapshot/v4 v4.5.0/go.mod h1:MZbb0l7pO2OZ8jYnehntwXlC6I866BI8rA2flyZw4sA=
 github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.5.1/go.mod h1:BXfT13JgxuQL1qwlVBdmQUxCiwnxwB5EkktLe5A7hYw=
+github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2/go.mod h1:yl5xmDZ2IbDv6WkBMzbeJ8mNenfWRpXpImfj1gTTTus=
 github.com/larsartmann/go-datastar/static v0.2.0/go.mod h1:Mkt7d9FrtMiiT3bGpJv+5RRX4+5x1/gJv9YWuFlWaD4=
 github.com/larsartmann/go-datastar/static v0.6.0 h1:tiBq1J+QE8jN2UW15AvckBBdT2b2z7AsGqaes+tz5lk=
 github.com/larsartmann/go-datastar/static v0.6.0/go.mod h1:t981dvnOKLlKU/Bo8BXlQSgwnifi18t+qtOkFNPfba8=
@@ -152,8 +158,11 @@ github.com/larsartmann/go-etag v0.3.1/go.mod h1:Ky5ngONjO+ufeS1rasedzwD5xkZo3WZ7
 github.com/larsartmann/go-etag v0.4.0 h1:QsMgYKOgsE//KVXRW42KuVfKAlpYMek8OZVBfMKvt7M=
 github.com/larsartmann/go-etag v0.6.0 h1:43stOYdTa8/woRt7pGyEMUhgrZCzdIBsEYk1uEcTMO4=
 github.com/larsartmann/go-etag v0.6.0/go.mod h1:ts9V8UTryTjZ/Aw+ZCi9w2i5L33nwUZmScQsPxsm1cg=
+github.com/larsartmann/go-flightrecorder v0.2.0/go.mod h1:KOAVyRuxUX0eeKPc3mjAwOKsenSS1SjBqnJ0KKPxyhA=
 github.com/larsartmann/go-health v0.4.0/go.mod h1:Mud5voytlhllNYPsKeXUFA833dqlyy9liW3jApR/X18=
 github.com/larsartmann/go-idempotency v0.2.0/go.mod h1:VjTQypq0FQLA9AmageDkuFoUFfN2hd3eErSFZo9ip+I=
+github.com/larsartmann/go-retry v0.8.0 h1:R7twMiRiZNWQKryF3nqtE/3R3Td5xkhiHIoXEnlCZNM=
+github.com/larsartmann/go-retry v0.8.0/go.mod h1:p1ITwjm4NMVRhJHV/23ymaIbAdGuvufounnvFbgItXs=
 github.com/larsartmann/go-sse v0.6.0/go.mod h1:ndYQ/lEnJVzTWqvF/h4+XMG/hJK/bEn6zSkfpkBAuUg=
 github.com/larsartmann/templ-components/charts/echarts v1.11.0/go.mod h1:BV/gwsZk7pm3IOSeGkjKr6Ttqve3QffaHIE/USOnlNw=
 github.com/larsartmann/templ-components/charts/echarts v1.12.0/go.mod h1:XHwf2IaLEiDXAkB0wb6K7VL8zFQPQxevHjZDbS9yyxU=

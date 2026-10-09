@@ -10,13 +10,14 @@ env:
   # (seen live 2026-10-06, 2 of 13 nodes). GOWORK=off is also how consumers
   # resolve every module, making it the more honest lint mode fleet-wide.
   GOWORK: "off"
+tool_options:
+  go-version-auto-configure:
+    respect_patch_floor: true
+
 skip_steps:
-  # This repo deliberately pins PATCH-level go directives (go 1.27.1) with
-  # strict equality across all 11 go.mods + go.work, enforced by
-  # scripts/check-go-directives.sh and integration's documentedGoDirective
-  # fixture. The fleet major.minor-only policy reports ~10 noise findings per
-  # run, and the normalize family downgraded flightrecorderhealth's directive
-  # to go 1.27 AFTER the 2026-09-29 unification train — the downgrade shipped
-  # in v0.1.4 and had to be corrected in v0.1.5. Do not re-enable without
-  # changing the repo's floor policy first.
-  - go-version-auto-configure
+  # go-version-auto-configure UNSKIPPED 2026-10-07: gvac v0.2.5's
+  # respect_patch_floor makes this repo's deliberate PATCH-level pins
+  # (go 1.27.1, strict equality across all 11 go.mods + go.work,
+  # scripts/check-go-directives.sh) policy instead of drift — at or below
+  # the installed toolchain they are reported by no rule at all, so the
+  # v0.1.4-class downgrade cannot recur. Option lives in tool_options.
