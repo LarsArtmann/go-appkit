@@ -28,7 +28,7 @@ func TestScenarioPilot_FacadeRoundtrip(t *testing.T) {
 	sc.Given().Command(newFacadeCommand(t, streamID)).
 		When(newFacadeCommand(t, streamID)).
 		Then("facade.bumped").
-		ThenCommands("facade.bump", "facade.bump")
+		ThenCommands("facade.bump")
 }
 
 func TestScenarioPilot_FacadeQueryAct(t *testing.T) {

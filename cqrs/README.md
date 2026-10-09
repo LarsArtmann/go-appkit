@@ -459,11 +459,10 @@ external imports) and construction enforces the coeffect graph: consuming an
 UNDECLARED type fails `NewEventService` with
 `system.ErrDanglingEventSubscription`, which is nearly always a typo.
 
-Timers caveat: schedulers registered via `Domain.Timers` start with
-`StartProjections` but are NOT stopped by `Shutdown` — system stops managed
-timers only in `GracefulClose`, which this wrapper cannot use until its
-drain-error early return is fixed upstream (ask drafted under
-`doc/feedback/outgoing/`). They terminate at process exit.
+Timers (updated 2026-10-09): schedulers registered via `Domain.Timers`
+start with `StartProjections` and ARE stopped by `Shutdown` — upstream
+system stops managed timers in `Close` phase 0 (ADR-0142 lifecycle; the
+tripwire flipped 2026-10-09).
 
 ```go
 Events: []event.Type{"task.created", "task.completed"},

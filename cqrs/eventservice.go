@@ -149,12 +149,10 @@ type EventConfig struct {
 	// Timers, command-domain middleware, and shutdown ordering. Nil (default)
 	// keeps the wrapper's raw-projection behavior unchanged.
 	//
-	// Timers caveat: schedulers registered inside Domain.Timers start with
-	// StartProjections but are NOT stopped by Shutdown — system stops
-	// managed timers only in GracefulClose (which this wrapper cannot use
-	// until its drain-error early return is fixed upstream; see
-	// doc/feedback/outgoing/2026-10-06_upstream-ask-gocqrslite-gracefulclose.md).
-	// They terminate at process exit.
+	// Timers (updated 2026-10-09): schedulers registered inside
+	// Domain.Timers start with StartProjections and ARE stopped by Shutdown
+	// — upstream system stops managed timers in Close phase 0 (ADR-0142
+	// lifecycle; tripwire flipped 2026-10-09).
 	//
 	// Merge contract: the wrapper's in-flight drain tracker stays outermost;
 	// its host-bootstrap projection is appended only when Domain declares no

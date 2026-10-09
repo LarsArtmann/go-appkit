@@ -648,19 +648,13 @@ func TestEventService_DomainTimers_LifecycleOwnedBySystem(t *testing.T) {
 		t.Fatalf("Shutdown: %v", err)
 	}
 
-	// KNOWN LIMITATION (tripwire): the wrapper's Shutdown is Drain+Close
-	// (the GracefulClose drain-without-close workaround), and system stops
-	// managed timers only in GracefulClose phase 0 — so the scheduler keeps
-	// running past Shutdown and terminates at process exit. When this
-	// tripwire fires, upstream timer-stop landed: flip this tripwire to
-	// require the stop and update the three caveat carriers — the
-	// EventConfig.Domain godoc (eventservice.go), the README Timers
-	// caveat, and the corollary in the GracefulClose upstream ask
-	// (doc/feedback/outgoing/).
+	// FLIPPED 2026-10-09: upstream timer-stop landed (system stops managed
+	// timers in Close phase 0 since the ADR-0142 lifecycle; verified via the
+	// systemscenario-pilot dev replaces). Shutdown now stops the scheduler.
 	select {
 	case <-sched.stopped:
-		t.Fatal("scheduler stopped on Shutdown — upstream timer-stop landed; flip this tripwire")
-	case <-time.After(100 * time.Millisecond):
+	case <-time.After(5 * time.Second):
+		t.Fatal("scheduler did not stop on Shutdown — timer lifecycle regressed")
 	}
 }
 
