@@ -136,3 +136,45 @@ Sources: sperrmuell-direct T49 (`internal/i18n/`, `internal/domain/locale.go`,
 `cmd/server/locale.go`, `cmd/server/routes.go`, `scripts/gen-i18n-keys.py`);
 go.dev/blog/matchlang; pkg.go.dev go-i18n/v2 + x/text; developers.google.com
 localized-versions guidance.
+
+---
+
+## SPLIT-BRAIN annotation (2026-10-10, non-destructive appendix)
+
+A PARALLEL session answered the same owner question in httputil 7 minutes
+earlier (22:32 vs this doc's 22:39):
+`~/projects/httputil/docs/status/2026-10-09_22-32_i18n-research-language-negotiation-session-status.md`
+(seeded httputil ROADMAP "Post-v1.0 ideas": `Language()` middleware,
+`LanguageExtractorChain`, `Content-Language` + `Vary: Accept-Language` by
+default — verified present in their ROADMAP §42 + `_Updated_` line).
+
+Agreements: go-i18n for messages; precedence prefix > cookie > header >
+default; no Accept-Language auto-redirect; slug/hreflang stay app-owned;
+closed locale enum stays consumer-side; extraction is small.
+
+Divergences this doc must not silently win:
+
+1. **HOME of negotiation.** That session puts `Language()` in httputil core
+   (zero-dep, reuses `compression_qvalue.go` grammar, KeyExtractor/Nonce
+   precedents); this doc sketched `Server.Middleware` in a new appkit module
+   — a WOULD-BE DUPLICATE. Consolidation proposal: negotiation lives ONCE in
+   httputil; `appkit/i18n` keeps only the content lane (Translator, guard
+   helpers, Alternates, errorpages seam) and consumes httputil's context
+   (appkit satellites already depend on httputil: otel, flightrecorder).
+2. **Matcher posture.** This doc: x/text Matcher as the module's core value;
+   theirs: primary-subtag default + x/text as a `TagMatcher` plugin (their
+   dependency policy). Their default reproduces the pt/zh script-class
+   weakness for non-Latin consumers, mitigated by the plugin + integration
+   doc. Owner ruling owed — both sessions escalated independently (their
+   g1/f1 vs this doc's Q1) without knowing the other existed.
+3. **They found what this doc missed:** no surveyed library NOR sperrmuell
+   sets `Content-Language`/`Vary: Accept-Language` — sperrmuell's
+   header-negotiated `/api/quote` is cache-incorrect under any shared cache
+   today. Fixable independently of everything above (their f32/g3).
+4. **Their ordering catch:** localized CSRF error pages imply Language OUTER
+   to CSRF, contradicting sperrmuell's innermost `withLocale` — unresolved
+   in both artifacts.
+
+Until the owner rules the fleet-level home, treat this doc's module-sketch
+negotiation half (Server/Middleware/Negotiate) as SUPERSEDED-IN-WAITING; the
+Translator / guard-helper / Alternates / errorpages-seam half stands.
