@@ -63,7 +63,12 @@ func TestDocsCompositionThroughAppkitService(t *testing.T) {
 			t.Errorf("GET %s: status = %d, want 200", tt.path, resp.StatusCode)
 		}
 
-		if ct := resp.Header.Get("Content-Type"); !slices.Contains([]string{"application/json", "application/json; charset=utf-8"}, ct) {
+		if ct := resp.Header.Get(
+			"Content-Type",
+		); !slices.Contains(
+			[]string{"application/json", "application/json; charset=utf-8"},
+			ct,
+		) {
 			t.Errorf("GET %s: Content-Type = %q, want application/json", tt.path, ct)
 		}
 
