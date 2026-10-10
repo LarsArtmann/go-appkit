@@ -10,8 +10,8 @@ only this session's run.**
 
 ## Stat cards
 
-| Done | Partial | Not started | Fucked up |
-| ---- | ------- | ----------- | --------- |
+| Done | Partial | Not started | Fucked up                                       |
+| ---- | ------- | ----------- | ----------------------------------------------- |
 | 7    | 2       | 4           | 1 (self-caught, cost: one stale recommendation) |
 
 ---
@@ -112,6 +112,7 @@ first this time (10:21) — last session's misdating lesson held.
 ## f) UP TO 50 THINGS TO GET DONE NEXT (brainstorm, ordered by gate)
 
 **Gate: owner tag/push (1 decision, unblocks 2–9)**
+
 1. Cut + push httputil v1.6.0 (coordinated per RELEASE.md; their g1 still
    unanswered — I will not touch tags without explicit words).
 2. T24: sperrmuell migration onto `httputil.Language()` + extractor chain,
@@ -130,30 +131,30 @@ first this time (10:21) — last session's misdating lesson held.
 
 **Gate: owner rulings (2 answers, unblocks 10–12)**
 10. Vary end state: two-line documented vs Compression dedupe migration
-    (their g2; touches v1.0-shipped behavior).
+(their g2; touches v1.0-shipped behavior).
 11. Evidence bar for live-web survey claims (their g3) → then the gin/echo/
-    kaptinlin HEAD re-scan (their TODO leftover 1).
+kaptinlin HEAD re-scan (their TODO leftover 1).
 12. Fuzz budget for `FuzzParseAcceptLanguage` (uniform 300s now; 3 bugs in
-    45s argues for more) — b)2's explicit decision item.
+45s argues for more) — b)2's explicit decision item.
 
 **httputil, no gate (bounded, next session)**
 13. TODO leftover 2: sperrmuell-shape cookbook page (D5 worked example,
-    hreflang caveat pointer).
+hreflang caveat pointer).
 14. TODO leftover 4: guard-test pattern advice section in
-    docs/integrations/go-i18n.md.
+docs/integrations/go-i18n.md.
 15. TODO leftover 5: Language() misuse classes into the consumer-audit
-    checklist post-v1.6.0.
+checklist post-v1.6.0.
 16. c1: `buildflow --build-mode dev` expected-findings composition check.
 17. c3: BenchmarkLanguage static-request harness + benchmarks.md rows.
 18. c4: formatter×nolint verify-then-retire (one more fmt pass).
 19. f18-style micro-Non-goals sweep (`Upgrade`, `Pragma`) — one-line
-    records, prevents relitigation.
+records, prevents relitigation.
 20. `ExampleLanguageSpecs` in httpspec if the examples audit says thin.
 21. Coverage re-verify for language.go rows after any change.
 22. `go doc`/pkg.go.dev rendering check post-tag.
 23. art-dupl `-t 2` re-baseline on the release tree (fresh date in AGENTS).
 24. DOMAIN_LANGUAGE.md glossary: negotiation/primary-subtag/extractor
-    entries.
+entries.
 25. httpspec README: link the two new spec names beside the other families.
 26. Verified-date stamp inside go-i18n.md if the re-scan confirms.
 27. Nightly: corpus seeds review for the new target (6 curated entries).
@@ -162,45 +163,45 @@ first this time (10:21) — last session's misdating lesson held.
 28. Annotate the 01:43 status report (its f-items resolved fleet-side).
 29. AGENTS.md cross-repo i18n pointer — only with a removal (361/377 cap).
 30. Quarterly demand-gate re-check for the parked content lane
-    (standing-ritual candidate).
+(standing-ritual candidate).
 31. errorpages `Config.Locale` seam — fires with real demand (parked, keep
-    parked).
+parked).
 32. Confirm dprint/BuildFlow formatted the new planning docs without churn.
 
 **Process (cheap, this week)**
 33. Encode the §d staleness rule where future sessions trip over it
-    (project AGENTS gotcha, cap tradeoff applies).
+(project AGENTS gotcha, cap tradeoff applies).
 34. Same for the annotator lesson: `--emit-keys` verbatim (theirs, but the
-    class generalizes: never re-derive tool output from memory).
+class generalizes: never re-derive tool output from memory).
 35. Consider a fleet `docs/status/` cross-index or a session-start
-    "sibling freshness" glance ritual.
+"sibling freshness" glance ritual.
 36. When the 04-07 report's three watchers fire or die, annotate them.
 37. Keep the two LSP-stale warnings on the known-noise list (CLI is
-    authoritative).
+authoritative).
 38. `docs/status/README.md`: record that `.md`-at-explicit-demand reports
-    are the standing dispatch shape (two more data points today).
+are the standing dispatch shape (two more data points today).
 39. `doc/planning/` index one-liner or explicit leave-as-is decision.
 40. Re-run the fleet sweep after T24 lands (does sperrmuell's adoption
-    change the appkit-lane N?).
+change the appkit-lane N?).
 
 **Watchers (deliberately bare, no action)**
 41. `LanguageWhen` route-conditional variant.
 42. Matched-vs-default context distinction.
 43. `AbsentEncoding`-style empty-header policy doc.
 44. Appkit content lane (Translator/guards/Alternates) — fires on real
-    demand only; sketches preserved in the research doc.
+demand only; sketches preserved in the research doc.
 45. Accept-Charset-style Non-goals for other dead headers (dup of 18 —
-    pick one home).
+pick one home).
 46. Nightly rolling-issue policy: confirm the new target files correctly
-    on failure (first red run is the test).
+on failure (first red run is the test).
 47. corpus: FuzzParseAcceptLanguage seeds from the three fixed bugs'
-    repros.
+repros.
 48. Consider `Vary` dedupe as an httpspec spec assertion upgrade (strict
-    comma-joined form) only after the g2 ruling.
+comma-joined form) only after the g2 ruling.
 49. Post-v1.6.0: fresh-consumer proxy check note for httputil consumers in
-    go-appkit's integration legs.
+go-appkit's integration legs.
 50. Owner review + inline annotation of this report (docs-health
-    convention).
+convention).
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
@@ -215,5 +216,5 @@ first this time (10:21) — last session's misdating lesson held.
 
 ---
 
-*Point-in-time snapshot — goes stale. Section f is docs-health HARVEST input.
-`.md` at explicit path demand (standing dispatch shape).*
+_Point-in-time snapshot — goes stale. Section f is docs-health HARVEST input.
+`.md` at explicit path demand (standing dispatch shape)._
