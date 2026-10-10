@@ -26,3 +26,6 @@ use (
 // Drop both when the next go-cqrs-lite tag wave ships systemscenario/v4 + system/v4.12.
 replace github.com/larsartmann/go-cqrs-lite/systemscenario/v4 => /home/lars/projects/go-cqrs-lite/systemscenario
 replace github.com/larsartmann/go-cqrs-lite/system/v4 => /home/lars/projects/go-cqrs-lite/system
+// schema: local system/ consumes the untagged schema.Event/EventSchema API
+// (2026-10-09); published schema/v4.5.2 lacks it. Drop with the pair above.
+replace github.com/larsartmann/go-cqrs-lite/schema/v4 => /home/lars/projects/go-cqrs-lite/schema

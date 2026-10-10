@@ -148,6 +148,7 @@ github.com/larsartmann/go-cqrs-lite/schema/v4 v4.5.2 h1:dNo54oocKyH0A++jFE9dpPTQ
 github.com/larsartmann/go-cqrs-lite/schema/v4 v4.5.2/go.mod h1:AtVwms79ENwNgA+y9uOSThz3jJEb7Aed00e2rNMreSA=
 github.com/larsartmann/go-cqrs-lite/snapshot/v4 v4.5.0/go.mod h1:MZbb0l7pO2OZ8jYnehntwXlC6I866BI8rA2flyZw4sA=
 github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.5.1/go.mod h1:BXfT13JgxuQL1qwlVBdmQUxCiwnxwB5EkktLe5A7hYw=
+github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2 h1:h7624nwPbDVqIpCX2xkBd8FPen7hDraHFfVsMFhFdZs=
 github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2/go.mod h1:yl5xmDZ2IbDv6WkBMzbeJ8mNenfWRpXpImfj1gTTTus=
 github.com/larsartmann/go-datastar/static v0.2.0/go.mod h1:Mkt7d9FrtMiiT3bGpJv+5RRX4+5x1/gJv9YWuFlWaD4=
 github.com/larsartmann/go-datastar/static v0.6.0 h1:tiBq1J+QE8jN2UW15AvckBBdT2b2z7AsGqaes+tz5lk=
