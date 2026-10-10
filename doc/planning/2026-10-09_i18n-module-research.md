@@ -178,3 +178,6 @@ Divergences this doc must not silently win:
 Until the owner rules the fleet-level home, treat this doc's module-sketch
 negotiation half (Server/Middleware/Negotiate) as SUPERSEDED-IN-WAITING; the
 Translator / guard-helper / Alternates / errorpages-seam half stands.
+**UPDATE 2026-10-10:** the ruling surface is now
+`doc/planning/2026-10-10_i18n-fleet-decision-memo.md` — both sessions'
+questions consolidated there; rule once.
