@@ -12,8 +12,8 @@ first labeled; corrected mid-report, see §d).
 
 ## Stat cards
 
-| Done | Partial | Not started | Fucked up |
-| ---- | ------- | ----------- | --------- |
+| Done | Partial | Not started | Fucked up              |
+| ---- | ------- | ----------- | ---------------------- |
 | 6    | 2       | 3           | 2 (1 fixed in-session) |
 
 ---
@@ -77,14 +77,14 @@ first labeled; corrected mid-report, see §d).
 ## d) TOTALLY FUCKED UP
 
 1. **Misdated artifacts (fixed in-session, root cause named):** planning doc
-   + TODO row were labeled `2026-10-08` because I trusted the conversation
-   env header instead of running `date`. mtimes prove **2026-10-09 22:39**.
-   Corrected this turn: file renamed to `2026-10-09_i18n-module-research.md`,
-   internal `Date:` fixed, TODO row date + doc path fixed (remaining
-   `2026-10-08` in the doc refers to sperrmuell's T49 ship date — correct).
-   Root cause: an unverified external claim (env date) encoded into artifact
-   names — exactly the `verify-external-claims` failure mode. Rule going
-   forward: `date` before any timestamped filename, always.
+   - TODO row were labeled `2026-10-08` because I trusted the conversation
+     env header instead of running `date`. mtimes prove **2026-10-09 22:39**.
+     Corrected this turn: file renamed to `2026-10-09_i18n-module-research.md`,
+     internal `Date:` fixed, TODO row date + doc path fixed (remaining
+     `2026-10-08` in the doc refers to sperrmuell's T49 ship date — correct).
+     Root cause: an unverified external claim (env date) encoded into artifact
+     names — exactly the `verify-external-claims` failure mode. Rule going
+     forward: `date` before any timestamped filename, always.
 2. **Unverified fact published as fact:** "N=1 bilingual consumer" in a
    shipped planning doc + TODO row without a fleet sweep (see b1). Not
    corrected by the misdate fix — needs the grep sweep before anyone acts
@@ -109,6 +109,7 @@ first labeled; corrected mid-report, see §d).
 ## f) UP TO 50 THINGS TO GET DONE NEXT (brainstorm, sorted by impact)
 
 **Verify the research's own claims**
+
 1. Fleet sweep for i18n/locale demand: grep cv, cqrs-htmx, PapDashboard,
    go-aichat, templ-components website, docs module — settle N=1 or N=k.
 2. Verify go-i18n + x/text latest tags against the module proxy (pre-pin).
@@ -121,95 +122,95 @@ first labeled; corrected mid-report, see §d).
 
 **Route the cross-repo payoff**
 6. Write the sperrmuell-direct Matcher-upgrade item into THEIR TODO_LIST
-   (pending Lars's answer to Q2 below).
+(pending Lars's answer to Q2 below).
 7. Backport decision: does sperrmuell adopt appkit's module later (reverse
-   direction), or keep its internal package and only share the recipe?
+direction), or keep its internal package and only share the recipe?
 
 **When the i18n trigger fires — module build order (each = bounded)**
 8. `/i18n` scaffold: go.mod (1.27.1), doc.go, LICENSE, README, .golangci.yml
-   (test-exclusion union), go.work entry + workspace-charter guard.
+(test-exclusion union), go.work entry + workspace-charter guard.
 9. `NewServer(supported, default, opts...)` — cached `language.Matcher`.
 10. `Middleware`: prefix-strip (opt) > cookie (opt) > Accept-Language >
-    default; ctx injection; public-path preservation for switchers.
+default; ctx injection; public-path preservation for switchers.
 11. `WithContext`/`FromContext` context helpers (nil-safe like frh).
 12. `Negotiate(header, supported, fallback)` one-shot for JSON APIs.
 13. Cookie semantics decision: `?lang=`→cookie set, in v0.1 or deferred.
 14. `NewTranslator(fs.FS, default, opts...)` — JSON unmarshal default,
-    embed-friendly.
+embed-friendly.
 15. `T`/`S`/`Plural` with visible fallback chain + slog warnings
-    (T49 semantics, preserved).
+(T49 semantics, preserved).
 16. `MissingIn(tag)`/`AllKeys()` guard helpers (parity tests as library).
 17. `Prefix(tag, canonical)` + `Alternate`/`Alternates(base, current,
     supported)` incl. x-default.
 18. Negotiation table tests: de-AT, pt-BR vs pt-PT, zh-TW, sr-Latn,
-    q-values, ties, garbage headers, empty header.
+q-values, ties, garbage headers, empty header.
 19. Fallback-chain tests: missing-in-locale warn path, missing-everywhere
-    error path, key-as-last-resort visibility.
+error path, key-as-last-resort visibility.
 20. `example/` bilingual demo (embed FS, /en prefix, switcher, plural keys).
 21. README cookbook: slug translation + 308s + hreflang/sitemap recipe,
-    ported from sperrmuell routes.go (documented, not built).
+ported from sperrmuell routes.go (documented, not built).
 22. `integration/` pin + composition E2E leg (testkit.Serve, 1ms drain).
 23. Fresh-consumer proxy check + tag v0.1.0 (release ritual, additions-only
-    n/a — new module).
+n/a — new module).
 24. AGENTS.md entry (observes the 361/377 line cap: one removal per
-    addition) + Release State wave line.
+addition) + Release State wave line.
 25. `cqrs`-style scorecard equivalent: none exists — skip deliberately,
-    note in CHANGELOG.
+note in CHANGELOG.
 
 **Adjacent seams ("and co")**
 26. `errorpages.Config.Locale func(*http.Request) language.Tag` (default:
-    i18n.FromContext when present) — additive, own train.
+i18n.FromContext when present) — additive, own train.
 27. templ-components train: translated default 404/405 copy (de/en props)
-    or document English-only stance — owner decision.
+or document English-only stance — owner decision.
 28. templ-components: doc the relative-time ↔ `documentElement.lang` contract
-    next to `Base.Locale`.
+next to `Base.Locale`.
 29. Date localization decision note: no x/text/date exists — per-locale
-    layouts server-side or client Intl; write it into the module README
-    when built.
+layouts server-side or client Intl; write it into the module README
+when built.
 30. v0.2 candidate: `message.Printer`/currency helpers in the module.
 31. Watcher: kaptinlin/go-i18n (full ICU MessageFormat) — re-check on any
-    consumer demand for gender/select.
+consumer demand for gender/select.
 
 **Session-hygiene / process debt surfaced this session**
 32. Encode the `date`-first rule where future sessions trip over it
-    (project AGENTS gotcha candidate — line-cap tradeoff).
+(project AGENTS gotcha candidate — line-cap tradeoff).
 33. AGENTS.md cross-repo context pointer for the i18n research (only with a
-    removal — cap discipline).
+removal — cap discipline).
 34. Batteries-spec routing decision: i18n is NOT CV-derived — does it get a
-    cluster ID there, or does the TODO row remain the sole tracker?
+cluster ID there, or does the TODO row remain the sole tracker?
 35. docs-health HARVEST: fold §f items 1-7 + 26-31 into TODO_LIST/ROADMAP
-    (this report is the input; do not entomb).
+(this report is the input; do not entomb).
 36. Annotate the planning doc if the fleet sweep changes the demand gate
-    (docs-health VERIFY/ANNOTATE, non-destructive).
+(docs-health VERIFY/ANNOTATE, non-destructive).
 
 **Sperrmuell-side improvements noticed (their repo, route via Q2)**
 37. Replace `i18n.ParseAcceptLanguage` primary-subtag cut with
-    `language.NewMatcher` (correctness: pt/zh/script classes).
+`language.NewMatcher` (correctness: pt/zh/script classes).
 38. Their `ParseLocale` silently ignores region subtags — Matcher would
-    also fix `zh-Hans`/`zh-Hant` distinction they currently collapse.
+also fix `zh-Hans`/`zh-Hant` distinction they currently collapse.
 39. Guard suite extension: q-value tie-breaking test for their parser
-    (order-stable) survives the Matcher swap.
+(order-stable) survives the Matcher swap.
 
 **Cheap hygiene in THIS repo (noticed while working)**
 40. `docs/status/README.md` — confirm the `.md`-at-explicit-demand
-    convention is recorded there (this report is another data point).
+convention is recorded there (this report is another data point).
 41. `doc/planning/` has no index/README — 20+ dated docs, discoverability
-    by grep only (candidate one-liner index or leave as-is, decide once).
+by grep only (candidate one-liner index or leave as-is, decide once).
 42. TODO_LIST row 58 wording: "13th opt-in module" — verify the count when
-    it lands (12 today; systemd pushed it to 12? recount at build time).
+it lands (12 today; systemd pushed it to 12? recount at build time).
 43. When the module lands: `scripts/check-workspace-charter.sh` forces the
-    go.work entry — expected, budget for it.
+go.work entry — expected, budget for it.
 44. Verify dprint/BuildFlow formats the two new md files without churn
-    (dprint.json excludes CHANGELOG only — planning docs ARE formatted).
+(dprint.json excludes CHANGELOG only — planning docs ARE formatted).
 
 **Later / speculative (ROADMAP fuel, not commitments)**
 45. `testkit` negotiation probe helper (assert ctx tag after middleware).
 46. otel: locale as a span attribute? (privacy-sensitive — default NO,
-    document why if ever asked).
+document why if ever asked).
 47. security: `?key=` API-key auth and locale negotiation interplay on
-    technical paths (middleware-order note for the cookbook).
+technical paths (middleware-order note for the cookbook).
 48. realtime SSE + locale: per-connection locale for server-pushed events
-    (only if a consumer pushes localized events — none today).
+(only if a consumer pushes localized events — none today).
 49. docs module (catalog): locale-aware doc rendering — YAGNI until asked.
 50. Re-run the demand gate quarterly while P3 (standing-ritual candidate).
 
@@ -232,6 +233,6 @@ example, or also an EN-canonical global-SaaS shape (all locales prefixed,
 
 ---
 
-*Point-in-time snapshot — goes stale. Section f is docs-health HARVEST input.
+_Point-in-time snapshot — goes stale. Section f is docs-health HARVEST input.
 Written as `.md` per explicit user instruction (skill default is HTML;
-one-off override, not propagated into the skill).*
+one-off override, not propagated into the skill)._

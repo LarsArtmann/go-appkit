@@ -30,13 +30,13 @@ sets so the owner rules ONCE instead of across two repos.
 
 **Where does HTTP language negotiation live?**
 
-| | Proposal A (RECOMMENDED): httputil `Language()` | Proposal B: go-appkit `/i18n` module |
-| --- | --- | --- |
-| Scope | HTTP edge only: extractor chain, matching, ctx, `Content-Language`/`Vary` | Everything: negotiation + Translator + guards + hreflang |
-| Dep posture | zero-dep primary-subtag default; x/text via `TagMatcher` plugin | x/text Matcher in-dep from day one |
-| Precedents | KeyExtractor/Nonce/q-parser/Vary — same-repo patterns | realtime/otel-style satellite module |
-| Consumers | ALL 45 httputil consumers | appkit family only |
-| Weakness | primary-subtag default mishandles pt/zh script classes (plugin mitigates) | would duplicate httputil's middleware for appkit consumers |
+|             | Proposal A (RECOMMENDED): httputil `Language()`                           | Proposal B: go-appkit `/i18n` module                       |
+| ----------- | ------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Scope       | HTTP edge only: extractor chain, matching, ctx, `Content-Language`/`Vary` | Everything: negotiation + Translator + guards + hreflang   |
+| Dep posture | zero-dep primary-subtag default; x/text via `TagMatcher` plugin           | x/text Matcher in-dep from day one                         |
+| Precedents  | KeyExtractor/Nonce/q-parser/Vary — same-repo patterns                     | realtime/otel-style satellite module                       |
+| Consumers   | ALL 45 httputil consumers                                                 | appkit family only                                         |
+| Weakness    | primary-subtag default mishandles pt/zh script classes (plugin mitigates) | would duplicate httputil's middleware for appkit consumers |
 
 **Recommendation: A, with B shrunk to the content lane.** Negotiation is a
 middleware concern; httputil owns middleware; appkit composes httputil

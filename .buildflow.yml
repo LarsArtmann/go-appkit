@@ -15,9 +15,9 @@ tool_options:
     respect_patch_floor: true
 
 skip_steps:
-  # go-version-auto-configure UNSKIPPED 2026-10-07: gvac v0.2.5's
-  # respect_patch_floor makes this repo's deliberate PATCH-level pins
-  # (go 1.27.1, strict equality across all 11 go.mods + go.work,
-  # scripts/check-go-directives.sh) policy instead of drift — at or below
-  # the installed toolchain they are reported by no rule at all, so the
-  # v0.1.4-class downgrade cannot recur. Option lives in tool_options.
+# go-version-auto-configure UNSKIPPED 2026-10-07: gvac v0.2.5's
+# respect_patch_floor makes this repo's deliberate PATCH-level pins
+# (go 1.27.1, strict equality across all 11 go.mods + go.work,
+# scripts/check-go-directives.sh) policy instead of drift — at or below
+# the installed toolchain they are reported by no rule at all, so the
+# v0.1.4-class downgrade cannot recur. Option lives in tool_options.
