@@ -132,6 +132,21 @@ Deliberately NOT in v0.1.0 (anti-recommendations, hold the family line):
    errorpages release, whichever comes first — the `Config.Locale` func is
    additive and independent.
 
+## Fleet demand sweep verdict (2026-10-10 03:00 CEST, httputil-plan F07/F08)
+
+`rg` across `~/projects` (Go, non-test; Accept-Language / x/text/language /
+i18n patterns): HTTP-level locale demand exists in **four** repos —
+sperrmuell-direct, go-website-template (`internal/i18n` package),
+artmann-technologies-website (`internal/i18n.Lang` through middleware), and
+webphone (Accept-Language fallback in views). This **validates the httputil
+consolidation ruling** (negotiation once in `httputil.Language()`; see the
+consolidated plan,
+`httputil/docs/planning/2026-10-10_02-48-SUPERB-i18n-consolidated-plan.html`).
+It does **not** fire this module's trigger: go.mod inspection shows only
+sperrmuell-direct imports go-appkit, so the appkit-side consumer count is
+still N=1 and the content lane stays parked. The demand repos need
+*negotiation*, not an appkit *content* module.
+
 Sources: sperrmuell-direct T49 (`internal/i18n/`, `internal/domain/locale.go`,
 `cmd/server/locale.go`, `cmd/server/routes.go`, `scripts/gen-i18n-keys.py`);
 go.dev/blog/matchlang; pkg.go.dev go-i18n/v2 + x/text; developers.google.com
