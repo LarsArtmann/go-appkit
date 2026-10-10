@@ -196,3 +196,17 @@ Translator / guard-helper / Alternates / errorpages-seam half stands.
 **UPDATE 2026-10-10:** the ruling surface is now
 `doc/planning/2026-10-10_i18n-fleet-decision-memo.md` — both sessions'
 questions consolidated there; rule once.
+
+**RESOLVED 2026-10-10 (08:11 train):** the fork was ruled AND executed in
+httputil — `Language()` ships in v1.6.0 [Unreleased] (owner-gated tag; all
+six D-gates RULED: negotiation in core · RFC-strict `Vary` + `DisableVary` ·
+zero-dep matcher + `TagMatcher` hatch with `docs/integrations/x-text.md`
+shipped · sperrmuell shape as worked example · no-406/confidence Non-goal ·
+cross-repo authority exercised). The sperrmuell `/api/*` cache fix landed
+2026-10-10, all 7 verify gates green (httputil ROADMAP §42 D5). The appkit
+content lane is PARKED pending real demand (fleet sweep: N=4 negotiation
+repos, appkit consumers N=1) — this doc's negotiation half is retired; the
+content-lane half is parked with it. Verdicts: httputil ROADMAP §42; design
+note `httputil/docs/planning/2026-10-10_03-30_language-middleware-design.md`;
+train report `httputil/docs/status/2026-10-10_08-11_i18n-train-completion-prerelease-9of9-green-status.md`;
+the decision memo's checklist is fully resolved.

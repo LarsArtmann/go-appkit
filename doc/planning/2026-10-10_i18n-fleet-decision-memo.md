@@ -1,6 +1,19 @@
 # i18n fleet decision memo — rule once, build twice
 
-Date: 2026-10-10 · Status: AWAITING OWNER RULING · Supersedes: nothing; consolidates two parallel research sessions
+Date: 2026-10-10 · Status: **RESOLVED same day — see block below** · Supersedes: nothing; consolidates two parallel research sessions
+
+> **RESOLVED 2026-10-10:** all five rulings landed in httputil's train
+> (faster than this memo's review cycle). Fork → Proposal A extended
+> (negotiation once in httputil `Language()`, v1.6.0 [Unreleased],
+> owner-gated tag; appkit content lane PARKED, appkit consumers N=1, fleet
+> sweep N=4 negotiation repos). Vary → RFC-strict default + `DisableVary`
+> (D2). x/text adapter doc → shipped as load-bearing (D3,
+> `docs/integrations/x-text.md`). Build order → design note 03:30 →
+> implementation → `prerelease-check.sh` 9/9 green 08:11. sperrmuell fix →
+> GO, landed 2026-10-10 with all 7 verify gates green (D5/D6). Verdicts of
+> record: httputil ROADMAP §42 + design note
+> `httputil/docs/planning/2026-10-10_03-30_language-middleware-design.md`.
+> The checklist below is preserved as the question record.
 
 Two sessions answered the same owner question independently on 2026-10-09
 (22:32 httputil, 22:39 go-appkit). Their findings agree on the ecosystem and
