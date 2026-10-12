@@ -109,6 +109,7 @@ Per-module code-organization tables, dependency tables, and gotchas for core, sy
 
 - After adding a cqrs wrapper feature: re-run `cqrs-lint scorecard` (from `cqrs/`, build must be green or the scorecard silently reports 0%) and record the delta in the module CHANGELOG entry.
 - After each go-cqrs-lite release: re-verify the cqrs README cookbook snippets (scenario/v4, testutil) still match the shipped APIs.
+- **lo adoption is DEFERRED by policy** (issue LarsArtmann/go-auto-upgrade#3): `.buildflow.yml` sets `tool_options: {go-auto-upgrade: {migrators: "recommended,-lotidy"}}`, silencing every lo-dependency-missing / suggest-lo-* finding (lotidy coordinates both lo directions — verified 2026-10-12: 14 findings -> 0). When the lo adoption dependency train arrives: `go get github.com/samber/lo`, REMOVE the migrators option, re-run, only then `go mod tidy` (the tidy-prune trap — tidy before anything imports lo undoes the require).
 
 ## Performance Baselines (2026-09-04, go 1.26.7 linux/amd64)
 
