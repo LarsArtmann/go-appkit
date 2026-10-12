@@ -145,8 +145,8 @@ smaller discipline gaps are listed honestly below.
 
 ## f) NEXT (candidates from this session only; not researched beyond it)
 
-1. Update AGENTS.md health table (probe.go row) + core table (testkit row)
-   for the new implementations.
+1. ~~Update AGENTS.md health table (probe.go row) + core table (testkit row)~~ done — 2026-10-12 — AGENTS health (probe.go row), core (testkit row), and integration tables updated by the docs-health pass
+   ~~for the new implementations.~~
 2. Ship release trains: tag core (testkit.NewService) + health (NewProbe
    switch), per release ritual (pre-tag-checks, fresh-consumer proxy check).
 3. Re-pin integration module after both tags land; consider a duration_ns

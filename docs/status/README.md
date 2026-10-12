@@ -52,11 +52,11 @@ archived 2026-10-12 (`docs/planning/archived/`). The standing verdict docs in
 watchlist references; executed/superseded plans live in `doc/planning/archived/`
 and `docs/planning/archived/` with verdict banners.
 
-Everything else is resolved and lives in `archived/` (43 files as of
+Everything else is resolved and lives in `archived/` (44 files as of
 2026-10-12). New reports land here and migrate to `archived/` after a
 docs-health pass resolves their items.
 
-## Archived (43 files as of 2026-10-12)
+## Archived (44 files as of 2026-10-12)
 
 Recent additions (verdicts inline; the full list lives in `archived/`):
 

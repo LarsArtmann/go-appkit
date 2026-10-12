@@ -28,8 +28,8 @@ require (
 	github.com/larsartmann/go-flightrecorder v0.2.1
 	github.com/larsartmann/go-health v0.5.0
 	github.com/larsartmann/go-sse v0.6.2
-	github.com/larsartmann/go-sse/ssetest v0.4.0
-	github.com/larsartmann/httputil v1.4.1
+	github.com/larsartmann/go-sse/ssetest v0.5.0
+	github.com/larsartmann/httputil v1.5.0
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/samber/do/v2 v2.1.0
 	go.opentelemetry.io/otel v1.47.0
