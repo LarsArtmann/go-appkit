@@ -106,7 +106,7 @@ This test IS the CQRS integration contract.
 - Does appkit still export its own sentinels?
 - Does `example/main.go` use `HandleError(err)` as CLI terminator?
 
-**Fix:** Full specification in [error-family-adoption.md](./error-family-adoption.md). Short version:
+**Fix:** Short version:
 
 - `Validate()` returns `error` (which happens to be `*errorfamily.Error` — satisfies the interface, callers don't need to know).
 - `HTTPHandler` wraps individual handlers, not the mux. Documented as a pattern: `mux.Handle("POST /", errorfamily.HTTPHandler(myHandler))`.

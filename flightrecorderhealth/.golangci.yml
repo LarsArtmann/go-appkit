@@ -139,10 +139,6 @@ linters:
               desc: setup is NEVER a dependency of appkit — the direction is setup → appkit (SUPERB v4 C3)
     cyclop:
       max-complexity: 12
-    exhaustruct_v5:
-      exclude:
-        - sync.Mutex
-        - time.Time
     funlen:
       lines: 200
       statements: 100

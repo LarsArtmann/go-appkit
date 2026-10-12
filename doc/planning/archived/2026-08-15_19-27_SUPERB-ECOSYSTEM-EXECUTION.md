@@ -1,6 +1,6 @@
 # SUPERB Ecosystem Execution Plan
 
-> **Created:** 2026-08-15 19:27 · **Source:** [Ecosystem Utilization Audit](../research/2026-08-15_ecosystem-deep-dive.html) (commit `ded32e5`)
+> **Created:** 2026-08-15 19:27 · **Source:** [Ecosystem Utilization Audit](../../research/2026-08-15_ecosystem-deep-dive.html) (commit `ded32e5`)
 > **Status:** Approved for execution · **Repo state at planning time:** clean @ `ded32e5`
 > **Verdict driving this plan:** go-cqrs-lite 28/100 (v3.7.x, 4 of ~35 module families), cqrs-htmx 0/100 (relationship plan dead, never documented), templ-components 0/100 (errorpage bridge missed).
 

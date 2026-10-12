@@ -149,25 +149,6 @@ linters:
               desc: setup is NEVER a dependency of appkit — the direction is setup → appkit (SUPERB v4 C3)
     cyclop:
       max-complexity: 12
-    exhaustruct_v5:
-      exclude:
-        - net/http.Client
-        - net/http.Server
-        - net/http.Request
-        - net/http.Response
-        - net/http.Transport
-        - net/http.Cookie
-        - net.TCPAddr
-        - net.Dialer
-        - log/slog.HandlerOptions
-        - sync.WaitGroup
-        - sync.Once
-        - sync.Mutex
-        - time.Time
-        - time.Ticker
-        - time.Timer
-        - bytes.Buffer
-        - os/exec.Cmd
     funlen:
       lines: 200
       statements: 100
