@@ -65,13 +65,14 @@ func TestHarnessPilot_HTTPActsHarnessAssertions(t *testing.T) {
 		t.Fatalf("NewEventService: %v", err)
 	}
 
-	if err := cqrs.RegisterDecider(es, "Lifecycle", lifecycleDecider); err != nil {
+	err = cqrs.RegisterDecider(es, "Lifecycle", lifecycleDecider)
+	if err != nil {
 		t.Fatalf("RegisterDecider: %v", err)
 	}
 
 	registerPilotBump(t, es)
 
-	if err := cqrs.RegisterQuery[lifecycleCountQuery, int](es, "lifecycle.count",
+	err = cqrs.RegisterQuery[lifecycleCountQuery, int](es, "lifecycle.count",
 		func(ctx context.Context, _ lifecycleCountQuery) (int, error) {
 			events, loadErr := es.System().EventStore().Load(
 				ctx, id.NewStreamRef("Lifecycle", streamID))
@@ -87,14 +88,16 @@ func TestHarnessPilot_HTTPActsHarnessAssertions(t *testing.T) {
 			}
 
 			return n, nil
-		}); err != nil {
+		})
+	if err != nil {
 		t.Fatalf("RegisterQuery: %v", err)
 	}
 
 	startCtx, startCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer startCancel()
 
-	if err := es.StartProjections(startCtx); err != nil {
+	err = es.StartProjections(startCtx)
+	if err != nil {
 		t.Fatalf("StartProjections: %v", err)
 	}
 

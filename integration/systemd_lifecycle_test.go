@@ -50,7 +50,8 @@ func bindNotifySocket(t *testing.T) *notifySocket {
 func (s *notifySocket) readOne(t *testing.T, window time.Duration) string {
 	t.Helper()
 
-	if err := s.conn.SetReadDeadline(time.Now().Add(window)); err != nil {
+	err := s.conn.SetReadDeadline(time.Now().Add(window))
+	if err != nil {
 		t.Fatalf("set read deadline: %v", err)
 	}
 
@@ -108,7 +109,8 @@ func TestSystemdLifecycleThroughAppkitService(t *testing.T) {
 		t.Fatalf("first datagram = %q, want READY=1", got)
 	}
 
-	if err := ts.Shutdown(t.Context()); err != nil {
+	err = ts.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 

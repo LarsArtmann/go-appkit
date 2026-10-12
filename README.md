@@ -147,10 +147,15 @@ For tests, the `testkit` sub-package boots the REAL service — full
 middleware chain, framework routes and all — and tears it down with a
 goroutine-leak assert. Never `httptest.NewServer(svc.Mux)`: a raw-mux
 server bypasses the entire chain (three production bugs in the reference
-consumer were only visible through the full chain):
+consumer were only visible through the full chain). Build the service
+with `testkit.NewService(t, cfg)` — test-safe defaults (ephemeral loopback
+address, `DrainDelay: NoDrainDelay`) so teardown does not wait out the 5s
+production drain — then register routes and `Serve`:
 
 ```go
 func TestReady(t *testing.T) {
+    svc := testkit.NewService(t, cfg) // test-safe defaults (no 5s drain)
+
     testkit.Serve(t, svc) // starts svc, registers leak-checked teardown
 
     resp, err := http.Get("http://" + svc.Addr().String() + "/health/ready")

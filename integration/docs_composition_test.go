@@ -23,8 +23,10 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/catalog/v4/docserver"
 )
 
-type docsE2EStartCommand struct{ RequestedBy string }
-type docsE2EStartedEvent struct{ StartedBy string }
+type (
+	docsE2EStartCommand struct{ RequestedBy string }
+	docsE2EStartedEvent struct{ StartedBy string }
+)
 
 func TestDocsCompositionThroughAppkitService(t *testing.T) {
 	t.Parallel()
@@ -60,7 +62,12 @@ func TestDocsCompositionThroughAppkitService(t *testing.T) {
 		{"/docs/asyncapi.json", "SUPERB Docs E2E"},
 		{"/docs/catalog.json", "SUPERB Docs E2E"},
 	} {
-		resp, err := http.Get(baseURL + tt.path)
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, baseURL+tt.path, nil)
+		if err != nil {
+			t.Fatalf("GET %s: build request: %v", tt.path, err)
+		}
+
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			t.Fatalf("GET %s: %v", tt.path, err)
 		}
@@ -89,7 +96,8 @@ func TestDocsCompositionThroughAppkitService(t *testing.T) {
 		}
 	}
 
-	if err := ts.Shutdown(t.Context()); err != nil {
+	err = ts.Shutdown(t.Context())
+	if err != nil {
 		t.Fatalf("shutdown: %v", err)
 	}
 }

@@ -8,6 +8,11 @@
 // the default: it starts the REAL service on its own listener, so tests
 // exercise exactly what production serves.
 //
+// [NewService] is the build step with test-safe defaults applied: an
+// ephemeral loopback address and no drain wait, so config-driven tests
+// neither collide on the production port nor pay the production drain on
+// teardown.
+//
 // Teardown order (via t.Cleanup): wait for shutdown, then assert the
 // goroutine count returned to baseline — a server that leaks ~25 goroutines
 // makes every subsequent test in the package load-flaky. Tests that stop the
@@ -61,6 +66,11 @@ const (
 
 	// errDrainTimeout bounds the server-error drain and the leak re-check.
 	errDrainTimeout = 2 * time.Second
+
+	// testAddr is the loopback any-port address NewService defaults to: an
+	// ephemeral port that cannot collide across parallel test binaries,
+	// bound to loopback only.
+	testAddr = "127.0.0.1:0"
 )
 
 // TestServer is a running service under test.
@@ -78,9 +88,47 @@ type TestServer struct {
 	stopOnce sync.Once
 }
 
+// NewService builds an appkit.Service from cfg with test-safe defaults
+// applied, failing tb on invalid configuration (the error handling every
+// test otherwise hand-rolls). The two production-safe-but-test-hostile
+// defaults are neutralized: Addr left unset or at the production default
+// becomes "127.0.0.1:0" (ephemeral port on loopback — the production
+// ":8080" collides across parallel test binaries), and DrainDelay left
+// unset or at the production default becomes [appkit.NoDrainDelay]
+// (Serve's teardown runs the service's full Shutdown, which would
+// otherwise wait out the 5s production drain — per test). Explicitly-set
+// values always win: a custom DrainDelay is kept for drain-window tests
+// (pair it with [DrainWindowProbe]), and a custom Addr is kept verbatim.
+func NewService(tb testing.TB, cfg appkit.ServiceConfig) *appkit.Service {
+	tb.Helper()
+
+	def := appkit.DefaultServiceConfig()
+
+	if cfg.Addr == "" || cfg.Addr == def.Addr {
+		cfg.Addr = testAddr
+	}
+
+	if cfg.DrainDelay == 0 || cfg.DrainDelay == def.DrainDelay {
+		cfg.DrainDelay = appkit.NoDrainDelay
+	}
+
+	svc, err := appkit.NewService(cfg)
+	if err != nil {
+		tb.Fatalf("testkit.NewService: %v", err)
+	}
+
+	return svc
+}
+
 // Serve starts svc and registers teardown with t.Cleanup: a graceful
 // shutdown, then a goroutine-baseline assertion (tolerance 5) so a leaked
 // goroutine fails the test instead of flaking the suite.
+//
+// The teardown runs the service's full Shutdown, including its
+// DrainDelay — the production default waits 5s per test. Build the
+// service with [NewService] (test-safe defaults) or set DrainDelay to
+// [appkit.NoDrainDelay] yourself; drain-window tests keep an explicit
+// small DrainDelay on purpose and pair it with [DrainWindowProbe].
 func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
 	tb.Helper()
 

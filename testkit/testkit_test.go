@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
@@ -59,18 +60,12 @@ func TestServe_FullChainServesDefaultStack(t *testing.T) {
 // TestServe_ShutdownIsClean pins the goroutine-baseline teardown: an
 // explicit TestServer.Shutdown runs the leak assertion and leaves cleanup
 // nothing to redo (either would fail the test if a goroutine leaked).
+// Built via NewService, so this test also proves the test-safe defaults
+// compose with the explicit-stop flow (and does not pay the 5s drain).
 func TestServe_ShutdownIsClean(t *testing.T) {
 	t.Parallel()
 
-	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = "127.0.0.1:0"
-
-	svc, err := appkit.NewService(cfg)
-	if err != nil {
-		t.Fatalf("NewService: %v", err)
-	}
-
-	server := testkit.Serve(t, svc)
+	server := testkit.Serve(t, testkit.NewService(t, appkit.DefaultServiceConfig()))
 
 	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.FullChainURL+"/health", nil)
 	if err != nil {
@@ -138,6 +133,69 @@ func TestServe_ExplicitShutdownIsIdempotentAndUnreachable(t *testing.T) {
 
 	if err := server.Shutdown(ctx); err != nil {
 		t.Errorf("second Shutdown = %v, want nil (idempotent)", err)
+	}
+}
+
+// TestNewService_NeutralizesProductionDefaults pins the test-safe
+// defaults: a config straight from DefaultServiceConfig — production
+// ":8080" address and 5s DrainDelay — serves on a loopback ephemeral
+// port and shuts down without waiting out the drain. Both neutralizations
+// are behavioral: the URL shows the loopback address, and the explicit
+// shutdown completes far inside the 5s a production drain would cost.
+func TestNewService_NeutralizesProductionDefaults(t *testing.T) {
+	t.Parallel()
+
+	server := testkit.Serve(t, testkit.NewService(t, appkit.DefaultServiceConfig()))
+
+	parsed, err := url.Parse(server.FullChainURL)
+	if err != nil {
+		t.Fatalf("parse FullChainURL %q: %v", server.FullChainURL, err)
+	}
+
+	if host := parsed.Hostname(); host != "127.0.0.1" {
+		t.Errorf("served host = %q, want 127.0.0.1 (loopback, not the production addr)", host)
+	}
+
+	if port := parsed.Port(); port == "8080" {
+		t.Error("served port = 8080, want an ephemeral port (production addr must not leak into tests)")
+	}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	start := time.Now()
+
+	if err := server.Shutdown(ctx); err != nil {
+		t.Fatalf("shutdown: %v", err)
+	}
+
+	if elapsed := time.Since(start); elapsed >= 3*time.Second {
+		t.Errorf("shutdown took %v, want <3s (the 5s production drain default must be neutralized)", elapsed)
+	}
+}
+
+// TestNewService_KeepsExplicitDrainDelay pins the explicit-value-wins rule:
+// a custom DrainDelay passes through untouched, so drain-window tests
+// (DrainWindowProbe) keep working through the test-safe constructor.
+func TestNewService_KeepsExplicitDrainDelay(t *testing.T) {
+	t.Parallel()
+
+	cfg := appkit.DefaultServiceConfig()
+	cfg.DrainDelay = 120 * time.Millisecond
+
+	server := testkit.Serve(t, testkit.NewService(t, cfg))
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	start := time.Now()
+
+	if err := server.Shutdown(ctx); err != nil {
+		t.Fatalf("shutdown: %v", err)
+	}
+
+	if elapsed := time.Since(start); elapsed < 120*time.Millisecond {
+		t.Errorf("shutdown took %v, want >=120ms (explicit DrainDelay must be kept)", elapsed)
 	}
 }
 

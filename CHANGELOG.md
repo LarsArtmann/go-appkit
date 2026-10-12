@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+
+- `testkit.NewService(tb, cfg)` — the config-taking service constructor
+  with test-safe defaults, fixing the 5s-per-test teardown trap (#26):
+  `Serve`'s cleanup runs the service's full `Shutdown`, which waits out
+  the service's `DrainDelay` — the production default is 5s, and because
+  `Serve` takes an already-built service, a test could only escape it by
+  knowing to set `NoDrainDelay` before construction. `NewService`
+  neutralizes the two production-safe-but-test-hostile defaults: `Addr`
+  left unset or at the production default becomes `127.0.0.1:0` (ephemeral
+  loopback port — the production `:8080` collides across parallel test
+  binaries), and `DrainDelay` left unset or at the production default
+  becomes `NoDrainDelay`. Explicitly-set values always win (drain-window
+  tests keep their custom delay), and invalid config fails `tb` instead of
+  returning an error every test hand-rolled. `Serve`'s doc comment now
+  names the teardown cost and both escape hatches.
+
 ## [0.8.0] - 2026-10-07
 
 ### Added
