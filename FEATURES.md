@@ -149,22 +149,22 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 
 ## health (`github.com/larsartmann/go-appkit/health`)
 
-| Feature                                                                                  | Status           | Evidence                                                        |
-| ---------------------------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------- |
-| `NewProbe` injector-free probe (concurrent, panic-isolated checks)                       | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go`                                     |
-| Critical/non-critical readiness classification                                           | FULLY_FUNCTIONAL | `TestNewProbe_ClassificationFollowsCriticality`                 |
-| `New` + `RegisterRoutes` / `Mount` mux wiring                                            | FULLY_FUNCTIONAL | `mount.go`, `mount_test.go`                                     |
-| Kubelet probe routes (custom paths opt-in)                                               | FULLY_FUNCTIONAL | `TestMount_ProbeOnlyRegistersKubeletRoutes`                     |
-| Real-time dashboard (HTML/JSON/SSE/metrics/trend) opt-in                                 | FULLY_FUNCTIONAL | `TestMount_WithDashboardServesHTMLJSONAndProbes`                |
-| Drain lockstep (`Drain` → readiness 503 for the drain window)                            | FULLY_FUNCTIONAL | `TestMount_DrainFlipsDashboardReadiness`, live E2E              |
-| Lifecycle guards (double-Start rejection, idempotent Shutdown)                           | FULLY_FUNCTIONAL | `TestMount_LifecycleGuardsAndIdempotence`                       |
-| SDK validation errors surface via `Start` (errors.Is preserved)                          | FULLY_FUNCTIONAL | `TestMount_StartPropagatesProbeValidationErrors`                |
-| Runnable example (verified live: dashboard, probes, drain 503s)                          | FULLY_FUNCTIONAL | `example/main.go`                                               |
-| Compile-time contract assertion (`dashboard.Prober`)                                     | FULLY_FUNCTIONAL | `contract_test.go` (shipped in v0.1.2)                          |
-| `WithProbeRoutes`+`WithDashboard` conflict semantics tested-as-documented                | FULLY_FUNCTIONAL | `mount_test.go` (shipped in v0.1.2)                             |
-| `DashboardHardenedPreset` (BasePath + nonce extractor bundled)                           | FULLY_FUNCTIONAL | `mount.go`, `TestDashboardHardenedPreset_*` (shipped in v0.1.2) |
-| `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz                             | FULLY_FUNCTIONAL | `benchmark_test.go`, `FuzzNewProbe_*` (shipped in v0.1.2)                           |
-| Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (shipped in v0.1.2)                           |
+| Feature                                                                                  | Status           | Evidence                                                                                                                      |
+| ---------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `NewProbe` injector-free probe (concurrent, panic-isolated checks)                       | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go`                                                                                                   |
+| Critical/non-critical readiness classification                                           | FULLY_FUNCTIONAL | `TestNewProbe_ClassificationFollowsCriticality`                                                                               |
+| `New` + `RegisterRoutes` / `Mount` mux wiring                                            | FULLY_FUNCTIONAL | `mount.go`, `mount_test.go`                                                                                                   |
+| Kubelet probe routes (custom paths opt-in)                                               | FULLY_FUNCTIONAL | `TestMount_ProbeOnlyRegistersKubeletRoutes`                                                                                   |
+| Real-time dashboard (HTML/JSON/SSE/metrics/trend) opt-in                                 | FULLY_FUNCTIONAL | `TestMount_WithDashboardServesHTMLJSONAndProbes`                                                                              |
+| Drain lockstep (`Drain` → readiness 503 for the drain window)                            | FULLY_FUNCTIONAL | `TestMount_DrainFlipsDashboardReadiness`, live E2E                                                                            |
+| Lifecycle guards (double-Start rejection, idempotent Shutdown)                           | FULLY_FUNCTIONAL | `TestMount_LifecycleGuardsAndIdempotence`                                                                                     |
+| SDK validation errors surface via `Start` (errors.Is preserved)                          | FULLY_FUNCTIONAL | `TestMount_StartPropagatesProbeValidationErrors`                                                                              |
+| Runnable example (verified live: dashboard, probes, drain 503s)                          | FULLY_FUNCTIONAL | `example/main.go`                                                                                                             |
+| Compile-time contract assertion (`dashboard.Prober`)                                     | FULLY_FUNCTIONAL | `contract_test.go` (shipped in v0.1.2)                                                                                        |
+| `WithProbeRoutes`+`WithDashboard` conflict semantics tested-as-documented                | FULLY_FUNCTIONAL | `mount_test.go` (shipped in v0.1.2)                                                                                           |
+| `DashboardHardenedPreset` (BasePath + nonce extractor bundled)                           | FULLY_FUNCTIONAL | `mount.go`, `TestDashboardHardenedPreset_*` (shipped in v0.1.2)                                                               |
+| `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz                             | FULLY_FUNCTIONAL | `benchmark_test.go`, `FuzzNewProbe_*` (shipped in v0.1.2)                                                                     |
+| Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (shipped in v0.1.2)                                                                                         |
 | Per-check durations + deadline-bound batches (`NewProbe` → go-health `NewChecks`, #25)   | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go` (CHANGELOG `[Unreleased]`; serves `duration_ns`, wedged check fails closed at the batch deadline) |
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
@@ -198,33 +198,33 @@ line without request context, so only handler-level logs correlate with spans
 Shipped as **systemd v0.1.0** (2026-10-07, the same train as core v0.8.0
 which carries the `StartHooks` seam it depends on):
 
-| Feature                                                                                     | Status           | Evidence                                                                |
-| ------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------- |
-| `Install(&cfg)` one-call sd_notify lifecycle (append-only)                                  | FULLY_FUNCTIONAL | `hooks.go`, `hooks_test.go`                                             |
-| `New(opts...)` manual wiring (`Start`/`Drain`/`Shutdown` hooks)                             | FULLY_FUNCTIONAL | `hooks.go`                                                              |
-| `READY=1` post-listen via `StartHooks` (send failure fails the start)                       | FULLY_FUNCTIONAL | `hooks_test.go` — first datagram on a real unixgram socket              |
-| `STOPPING=1` at drain start via `DrainHooks`                                                | FULLY_FUNCTIONAL | `hooks_test.go`                                                         |
-| Watchdog keepalive at `WatchdogSec/2`, pinging to the final phase                           | FULLY_FUNCTIONAL | `notify.go`, `TestRunWatchdog_PingsUntilStopped`                        |
-| No-op outside systemd (`NOTIFY_SOCKET` unset)                                               | FULLY_FUNCTIONAL | `TestInstall_NoSocketOutsideSystemd`                                    |
-| `Counters()` notify-activity snapshot (ReadySent/StoppingSent/WatchdogPings/NotifyFailures) | FULLY_FUNCTIONAL | `notify.go:48`, `TestNotify_CountersTrackSuccessfulSends`               |
-| Full lifecycle through a live `appkit.Service`                                              | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService`                             |
+| Feature                                                                                     | Status           | Evidence                                                   |
+| ------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------- |
+| `Install(&cfg)` one-call sd_notify lifecycle (append-only)                                  | FULLY_FUNCTIONAL | `hooks.go`, `hooks_test.go`                                |
+| `New(opts...)` manual wiring (`Start`/`Drain`/`Shutdown` hooks)                             | FULLY_FUNCTIONAL | `hooks.go`                                                 |
+| `READY=1` post-listen via `StartHooks` (send failure fails the start)                       | FULLY_FUNCTIONAL | `hooks_test.go` — first datagram on a real unixgram socket |
+| `STOPPING=1` at drain start via `DrainHooks`                                                | FULLY_FUNCTIONAL | `hooks_test.go`                                            |
+| Watchdog keepalive at `WatchdogSec/2`, pinging to the final phase                           | FULLY_FUNCTIONAL | `notify.go`, `TestRunWatchdog_PingsUntilStopped`           |
+| No-op outside systemd (`NOTIFY_SOCKET` unset)                                               | FULLY_FUNCTIONAL | `TestInstall_NoSocketOutsideSystemd`                       |
+| `Counters()` notify-activity snapshot (ReadySent/StoppingSent/WatchdogPings/NotifyFailures) | FULLY_FUNCTIONAL | `notify.go:48`, `TestNotify_CountersTrackSuccessfulSends`  |
+| Full lifecycle through a live `appkit.Service`                                              | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService`                |
 
 ## integration (`github.com/larsartmann/go-appkit/integration` — never released)
 
 Cross-module + cross-repo E2E contracts against PUBLISHED tags only:
 
-| Contract                                                                                 | Status           | Evidence                       |
-| ---------------------------------------------------------------------------------------- | ---------------- | ------------------------------ |
-| SSE header flush through the appkit default stack                                        | FULLY_FUNCTIONAL | `integration_test.go`          |
-| Journal replay via cqrs-htmx `transport.JournalSSEStore`                                 | FULLY_FUNCTIONAL | `integration_test.go`          |
-| Span name + `http.route` through `OuterMiddlewares` (pins the 2026-09-16 fix)            | FULLY_FUNCTIONAL | `otel_pattern_test.go`         |
-| Metrics/version/testkit compose + drain-window ordering (`Addr()` nil inside DrainHooks) | FULLY_FUNCTIONAL | `composition_contract_test.go` |
-| Rate-limit in front of SSE (429 + Retry-After aborts the chain)                          | FULLY_FUNCTIONAL | `security_realtime_test.go`    |
-| One-`Setup`-per-process + errorpages family→status parity                                | FULLY_FUNCTIONAL | `contract_parity_test.go`      |
-| SSE×health drain choreography (hub close frees Shutdown, /readyz 503, clean EOF)         | FULLY_FUNCTIONAL | `sse_health_drain_test.go`    |
-| cqrs domain SSE through a live Service (Domain passthrough + journal replay)             | FULLY_FUNCTIONAL | `domain_sse_test.go`          |
-| systemd lifecycle through a live Service (unixgram socket transport)                     | FULLY_FUNCTIONAL | `systemd_lifecycle_test.go`  |
-| docs docserver composition through the full default chain (openapi/asyncapi/catalog.json) | FULLY_FUNCTIONAL | `docs_composition_test.go`   |
+| Contract                                                                                  | Status           | Evidence                       |
+| ----------------------------------------------------------------------------------------- | ---------------- | ------------------------------ |
+| SSE header flush through the appkit default stack                                         | FULLY_FUNCTIONAL | `integration_test.go`          |
+| Journal replay via cqrs-htmx `transport.JournalSSEStore`                                  | FULLY_FUNCTIONAL | `integration_test.go`          |
+| Span name + `http.route` through `OuterMiddlewares` (pins the 2026-09-16 fix)             | FULLY_FUNCTIONAL | `otel_pattern_test.go`         |
+| Metrics/version/testkit compose + drain-window ordering (`Addr()` nil inside DrainHooks)  | FULLY_FUNCTIONAL | `composition_contract_test.go` |
+| Rate-limit in front of SSE (429 + Retry-After aborts the chain)                           | FULLY_FUNCTIONAL | `security_realtime_test.go`    |
+| One-`Setup`-per-process + errorpages family→status parity                                 | FULLY_FUNCTIONAL | `contract_parity_test.go`      |
+| SSE×health drain choreography (hub close frees Shutdown, /readyz 503, clean EOF)          | FULLY_FUNCTIONAL | `sse_health_drain_test.go`     |
+| cqrs domain SSE through a live Service (Domain passthrough + journal replay)              | FULLY_FUNCTIONAL | `domain_sse_test.go`           |
+| systemd lifecycle through a live Service (unixgram socket transport)                      | FULLY_FUNCTIONAL | `systemd_lifecycle_test.go`    |
+| docs docserver composition through the full default chain (openapi/asyncapi/catalog.json) | FULLY_FUNCTIONAL | `docs_composition_test.go`     |
 
 ## Consumers
 

@@ -12,11 +12,11 @@ from a fresh run.
 > now loads the 1.27.1-floor modules. The historical evidence below is kept for
 > provenance; re-verify ANY reproduction exists before filing, and drop the ask
 > if none does.
-**Target repo:** github.com/google/go-licenses
-**Evidence context:** go-appkit pins `go 1.27.1` in every go.mod
-(repo-wide toolchain unification, 2026-09-29); license checking is wired
-through `nix run nixpkgs#go-licenses` inside BuildFlow and had to be
-skipped for this repo.
+> **Target repo:** github.com/google/go-licenses
+> **Evidence context:** go-appkit pins `go 1.27.1` in every go.mod
+> (repo-wide toolchain unification, 2026-09-29); license checking is wired
+> through `nix run nixpkgs#go-licenses` inside BuildFlow and had to be
+> skipped for this repo.
 
 ## The ask
 
