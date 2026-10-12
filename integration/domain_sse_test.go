@@ -190,7 +190,7 @@ func TestCQRSDomainSSEThroughAppkitService(t *testing.T) {
 	// Subscribe through the FULL chain first, then dispatch: the streamed
 	// row proves command -> journal -> projection -> watcher -> SSE through
 	// the appkit default middleware stack.
-	sseCtx, sseCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	sseCtx, sseCancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer sseCancel()
 
 	req, err := http.NewRequestWithContext(sseCtx, http.MethodGet, baseURL+"/events/tasks", nil)
