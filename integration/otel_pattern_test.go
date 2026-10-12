@@ -3,7 +3,9 @@ package integration_test
 import (
 	"context"
 	"io"
+	"log/slog"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,6 +13,7 @@ import (
 	appkitotel "github.com/larsartmann/go-appkit/otel"
 	"github.com/larsartmann/httputil"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -121,6 +124,124 @@ func TestSpanNameAndRouteThroughAppkitOuterMiddlewares(t *testing.T) {
 	t.Logf("http.route attribute: %q", routeAttr)
 	if routeAttr != "/users/{id}" {
 		t.Errorf("http.route = %q, want %q (route attribute lost through OuterMiddlewares)", routeAttr, "/users/{id}")
+	}
+}
+
+// TestRecoveryExceptionEventThroughAppkitChain pins the
+// events-not-descriptions contract through PUBLISHED tags: when
+// appkitotel.Recovery runs inside appkitotel.Middleware (innermost, via
+// ExtraMiddlewares), otelhttp overwrites the span status DESCRIPTION at
+// span end — but the exception EVENT (type/message/stacktrace) survives,
+// and that event is what SigNoz's Exceptions view indexes. Asserting
+// descriptions would rot the day otelhttp changes its clobber; asserting
+// the event pins the consumer-visible contract.
+func TestRecoveryExceptionEventThroughAppkitChain(t *testing.T) {
+	t.Parallel()
+
+	spanExporter := tracetest.NewInMemoryExporter()
+	tp := sdktrace.NewTracerProvider(sdktrace.WithSyncer(spanExporter))
+
+	registerHealthOff := false
+	cfg := appkit.DefaultServiceConfig()
+	cfg.Addr = freeAddr(t)
+	cfg.RegisterHealth = &registerHealthOff
+	cfg.DrainDelay = appkit.NoDrainDelay
+	cfg.OuterMiddlewares = []httputil.Middleware{
+		appkitotel.Middleware(appkitotel.WithTracerProvider(tp)),
+	}
+	cfg.ExtraMiddlewares = []httputil.Middleware{
+		appkitotel.Recovery(slog.New(slog.NewTextHandler(io.Discard, nil))),
+	}
+
+	svc, err := appkit.NewService(cfg)
+	if err != nil {
+		t.Fatalf("new service: %v", err)
+	}
+	svc.Mux.HandleFunc("GET /panic", func(http.ResponseWriter, *http.Request) {
+		panic("integration boom")
+	})
+
+	errCh, err := svc.Start()
+	if err != nil {
+		t.Fatalf("start service: %v", err)
+	}
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		shutdownErr := svc.Shutdown(ctx)
+		if shutdownErr != nil {
+			t.Errorf("shutdown: %v", shutdownErr)
+		}
+		select {
+		case err := <-errCh:
+			if err != nil {
+				t.Errorf("server returned error: %v", err)
+			}
+		case <-time.After(2 * time.Second):
+			t.Error("server did not stop after shutdown")
+		}
+	})
+
+	deadline := time.Now().Add(2 * time.Second)
+	for !svc.Running() {
+		if time.Now().After(deadline) {
+			t.Fatal("service did not start within timeout")
+		}
+
+		time.Sleep(time.Millisecond)
+	}
+
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet,
+		"http://"+svc.Addr().String()+"/panic", nil)
+	if err != nil {
+		t.Fatalf("request: %v", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("request: %v", err)
+	}
+	_, _ = io.Copy(io.Discard, resp.Body)
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500", resp.StatusCode)
+	}
+
+	var serverSpan sdktrace.ReadOnlySpan
+
+	for _, span := range spanExporter.GetSpans().Snapshots() {
+		if span.Name() == "GET /panic" {
+			serverSpan = span
+		}
+	}
+
+	if serverSpan == nil {
+		t.Fatal("no server span named GET /panic recorded")
+	}
+
+	events := serverSpan.Events()
+	if len(events) != 1 {
+		t.Fatalf("server span has %d events, want exactly 1 exception event (events: %v)", len(events), events)
+	}
+	if events[0].Name != "exception" {
+		t.Errorf("event name = %q, want %q", events[0].Name, "exception")
+	}
+
+	attrs := map[string]string{}
+	for _, kv := range events[0].Attributes {
+		attrs[string(kv.Key)] = kv.Value.Emit()
+	}
+	if !strings.Contains(attrs["exception.message"], "integration boom") {
+		t.Errorf("exception.message = %q, want it to contain the panic value", attrs["exception.message"])
+	}
+	if attrs["exception.type"] == "" {
+		t.Error("exception.type attribute missing from the exception event")
+	}
+	if attrs["exception.stacktrace"] == "" {
+		t.Error("exception.stacktrace attribute missing from the exception event")
+	}
+	if serverSpan.Status().Code != codes.Error {
+		t.Errorf("span status code = %v, want Error", serverSpan.Status().Code)
 	}
 }
 

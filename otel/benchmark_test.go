@@ -2,7 +2,6 @@ package otel_test
 
 import (
 	"errors"
-	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -84,12 +83,13 @@ func BenchmarkRecovery_HappyPath(b *testing.B) {
 
 // BenchmarkRecovery_PanicPath measures a full panic capture: exception span
 // event with stacktrace, error status, log line, and the 500 response.
-// The handler panics on every request; the logger writes to io.Discard so
+// The handler panics on every request; the logger discards output so
 // the number isolates the telemetry work, not terminal I/O.
 func BenchmarkRecovery_PanicPath(b *testing.B) {
-	server := httptest.NewServer(otel.Recovery(discardLogger())(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+	panicHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
 		panic("boom")
-	})))
+	})
+	server := httptest.NewServer(otel.Recovery(discardLogger())(panicHandler))
 	b.Cleanup(server.Close)
 
 	client := server.Client()
@@ -97,7 +97,12 @@ func BenchmarkRecovery_PanicPath(b *testing.B) {
 	b.ResetTimer()
 
 	for b.Loop() {
-		res, err := client.Get(server.URL)
+		req, err := http.NewRequestWithContext(b.Context(), http.MethodGet, server.URL, nil)
+		if err != nil {
+			b.Fatalf("build request: %v", err)
+		}
+
+		res, err := client.Do(req)
 		if err != nil {
 			b.Fatalf("request failed: %v", err)
 		}
@@ -137,5 +142,5 @@ func BenchmarkRecordError_NoSpan(b *testing.B) {
 }
 
 func discardLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
+	return slog.New(slog.DiscardHandler)
 }

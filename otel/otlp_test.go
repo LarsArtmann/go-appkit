@@ -283,7 +283,8 @@ func TestWithOTLP_MetricExportIntervalEnv(t *testing.T) {
 		}
 
 		if time.Now().After(deadline) {
-			t.Fatalf("collector received %d metric exports in ~4s, want >= 3 (OTEL_METRIC_EXPORT_INTERVAL ignored?)", exports)
+			t.Fatalf("collector received %d metric exports in ~4s, want >= 3 (OTEL_METRIC_EXPORT_INTERVAL ignored?)",
+				exports)
 		}
 
 		time.Sleep(25 * time.Millisecond)
