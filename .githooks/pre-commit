@@ -29,6 +29,14 @@ done
 # legs need the module proxy (network); an offline commit must not be
 # blocked. CI and pre-tag-checks.sh run it where network exists.
 
+# Hermetic reminder for integration/ changes (warn-only): the module must be
+# verified with GOWORK=off — its suite self-enforces via TestMain (fails any
+# non-hermetic invocation, incl. parent-launched `go test ./integration/...`
+# which would resolve local code instead of the published pins).
+if git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -q '^integration/'; then
+	echo "pre-commit NOTE: integration/ staged — verify hermetically: cd integration && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1"
+fi
+
 if lag="$(./scripts/check-push-lag.sh 2>/dev/null)"; then
 	:
 else
