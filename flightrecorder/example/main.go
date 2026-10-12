@@ -14,10 +14,9 @@
 //	curl -X POST 'http://localhost:8080/debug/flightrecorder/snapshot?download=1' -OJ
 //	ctrl-C                                     # graceful shutdown; Close drains async captures
 //
-// The demo uses published core only: the recorder starts before Run and
-// closes in ShutdownHooks. On core v0.8.0+ the Start() call belongs in
-// StartHooks (after the listener binds, before serving) — see the systemd
-// module for that seam.
+// The demo uses published core only: the recorder starts in StartHooks
+// (after the listener binds, before serving — a Start failure fails the
+// whole start and the listener closes again) and closes in ShutdownHooks.
 package main
 
 import (
@@ -106,15 +105,22 @@ func run(cfg appkit.ServiceConfig) error {
 		return fmt.Errorf("create flight recorder: %w", err)
 	}
 
-	// Fail-closed: a demo about captures without a running recorder is a
-	// silent lie. (Start returns *AlreadyEnabledError — classified
-	// errors.Is(fr.ErrAlreadyEnabled) — if the process-global trace slot is
-	// taken; surface that loudly instead of running recorder-less.)
-	err = rec.Start()
-	if err != nil {
-		return errorfamily.Newf(errorfamily.Infrastructure,
-			"flightrecorder.start_failed",
-			"start flight recorder: %v", err)
+	// Fail-closed on the post-listen seam: StartHooks run after the listener
+	// binds and before serving — a Start failure fails the whole start (the
+	// listener closes again). (Start returns *AlreadyEnabledError —
+	// classified errors.Is(fr.ErrAlreadyEnabled) — if the process-global
+	// trace slot is taken; surface that loudly instead of running
+	// recorder-less.)
+	cfg.StartHooks = []func(context.Context) error{
+		func(context.Context) error {
+			if err := rec.Start(); err != nil {
+				return errorfamily.Newf(errorfamily.Infrastructure,
+					"flightrecorder.start_failed",
+					"start flight recorder: %v", err)
+			}
+
+			return nil
+		},
 	}
 
 	// OnAll narrowing: captures need BOTH an error response AND 100ms+ —
