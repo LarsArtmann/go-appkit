@@ -7,9 +7,9 @@ All notable changes to this project are documented in this file.
 ### Changed
 
 - Example-only `github.com/larsartmann/go-appkit` dependency
-  v0.6.0 → v0.7.0 (picks up the `testkit.DrainWindowProbe`/`[]Hook`
-  surfaces; the security package itself still has zero appkit
-  dependencies, so consumers are unaffected).
+  v0.6.0 → v0.8.0 (tracks the latest core through `testkit.DrainWindowProbe`,
+  `[]Hook`, and `ServiceConfig.StartHooks`; the security package itself
+  still has zero appkit dependencies, so consumers are unaffected).
 
 ## [0.2.0] - 2026-09-29
 

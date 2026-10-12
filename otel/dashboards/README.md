@@ -18,6 +18,13 @@ The `service.name` variable filters everything (multi-select + "all"); the
 filters expect HTTP **server** spans (`spanKind = 'Server'`), which is what
 `appkitotel.Middleware` produces.
 
+Version note: the dashboard uses schemaVersion **v6** (template-derived from
+SigNoz's own `apm/http-api-monitoring.json` of the ~v0.135 era) — older
+SigNoz instances that predate v6 may fail the import. The JSON is
+parse-verified but has NOT been imported into a live SigNoz (no instance in
+this environment); treat panel behavior as template-proven, not
+instance-proven.
+
 ## Wiring that feeds these dashboards
 
 The zero-code path — configure only the environment, no code changes:

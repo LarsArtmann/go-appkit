@@ -10,8 +10,20 @@
 > built from that post-mortem (now release-ritual step 4); four extra
 > dependency-only satellite trains shipped (realtime v0.1.2, flightrecorder
 > v0.1.1, docs v0.3.1, health v0.1.4) plus core v0.7.0 (`appkit.Hook` alias +
-> `testkit.DrainWindowProbe`). Still open: T10 (owner SSH secret), T13 (G3),
-> T15/T16/T22/T23/T27/T28 (gated), T20/T21/T29–T32 (queue).
+> `testkit.DrainWindowProbe`).
+>
+> **CLOSED OUT 2026-09-29 (queue-sweep session, `docs/status/2026-09-29_12-45`):**
+> T21 DONE (art-dupl suppression audit — 477 groups inspected, one harmful
+> clone fixed, policy: event-driven per the Decision 13 amendment); T29 DONE
+> (watchlist write-back); T30 DONE (Decision 14); T31 DONE (the
+> caller-wins-toolchain lesson class lives in crush-config `lessons.md`);
+> T32 DONE (graduation table in core-v1-exit-criteria.md); T20 batch 1 DONE
+> (AGENTS 377→342, every module README gained Build & verify). Remaining open
+> threads are ALL routed into TODO_LIST as of the 2026-10-12 docs-health pass:
+> T10 → P1 (owner SSH secret), T13/T15 → P2 (user-gated), T16 → P2 (user
+> gate), T20 batches 2–3 → P3 (AGENTS slim-down), T22 → P3 (their repo),
+> T23 → user intent, T27/T28 → P2 (environment). ARCHIVED 2026-10-12 with
+> zero unrouted items.
 
 **Created:** 2026-09-29 00:45 CEST · **Predecessor:** `doc/planning/archived/2026-09-17_19-20_SUPERB-v4-drift-guards-security-adoption-and-gated-unlocks.md` (EXECUTED IN TRAINS 09-20/23, archived 2026-09-28) ← v3 (superseded UNEXECUTED) ← v2/v1 (archived).
 **Inputs:** `TODO_LIST.md` (post 2026-09-28 docs-health harvest, 64 lines open-only), the three current status reports (`2026-09-24_16-52`, `2026-09-28_23-03`, `2026-09-29_00-05`), and the 2026-09-28/29 docs-health pass report (`docs/status/2026-09-29_00-38_docs-health-full-pass.md`).

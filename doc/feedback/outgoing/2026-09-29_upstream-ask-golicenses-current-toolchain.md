@@ -5,6 +5,13 @@ reproduction below on the target machine before filing; the evidence was
 recorded locally during go-appkit's BuildFlow configuration on
 2026-09-29 and the exact embedded-toolchain version should be quoted
 from a fresh run.
+
+> **Status update 2026-10-12 (docs-health pass): the premise BROKE.** BuildFlow's
+> `license-check` step passes 13/13 on this repo again (probed 2026-10-07; the
+> AGENTS.md BuildFlow gotcha documents the reversal) — the nix-run go-licenses
+> now loads the 1.27.1-floor modules. The historical evidence below is kept for
+> provenance; re-verify ANY reproduction exists before filing, and drop the ask
+> if none does.
 **Target repo:** github.com/google/go-licenses
 **Evidence context:** go-appkit pins `go 1.27.1` in every go.mod
 (repo-wide toolchain unification, 2026-09-29); license checking is wired

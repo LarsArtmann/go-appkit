@@ -4,7 +4,7 @@
 > Bounded, short-to-mid-term work lives in [TODO_LIST.md](TODO_LIST.md).
 > Point-in-time plans and research live in `doc/planning/`.
 
-**Updated:** 2026-09-28
+**Updated:** 2026-10-12
 
 ## North star
 
@@ -94,8 +94,10 @@ appkit never grows application-shaped code.
   shared `fr.Recorder` demo across HTTP middleware + projections; DLQ admin
   and dead-letter-age alerting recipes; SnapshotStore/ReadModels accessor
   examples (Bundle-reachable, undocumented).
-- go-health v0.3.0 aggregate/federation adoption (evaluated 2026-09-20,
-  plan T25): `aggregate` merges N in-process probes into one
+- go-health aggregate/federation adoption (evaluated 2026-09-20, plan T25;
+  re-checked 2026-10-12: the health module itself has swept to go-health
+  v0.5.0, so the old "v0.3.0 floor gate" is resolved — the idea remains
+  demand-gated, unchanged): `aggregate` merges N in-process probes into one
   go-health-compatible surface (passive, zero goroutines, "name/check"
   namespacing) — natural appkit composition is a `MountAggregate`-style
   handle next to `appkithealth.New` so a service running several surfaces
@@ -105,6 +107,4 @@ appkit never grows application-shaped code.
   framework concern. Neither ships now: no consumer demand signal yet.
   Trigger: a real consumer needs single-endpoint multi-surface readiness →
   wrap aggregate in a Mounted-compatible handle (health module stays
-  injector-free; go.mod floor would move to go-health v0.3.0, which
-  REQUIRES go >= 1.27.1 — the unification train now in flight resolves
-  that gate once it lands).
+  injector-free).

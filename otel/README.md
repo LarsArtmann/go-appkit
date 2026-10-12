@@ -209,6 +209,12 @@ README's observability section.
   and answers 500; the outer placement of `Middleware` (`OuterMiddlewares`)
   means both sit inside the span. The `http.ErrAbortHandler` sentinel
   re-panics untouched, matching httputil.Recovery.
+- **Non-goals (deliberate)**: no OTLP **logs** signal — `go.opentelemetry.io/otel/log`
+  is still experimental and this module is stable; revisit when it stabilizes
+  and a consumer asks for trace-correlated log ingestion. And a handler that
+  writes 5xx WITHOUT panicking produces an error span but NO exception event
+  (SigNoz's Exceptions view only indexes `Recovery`/`RecordError` output) —
+  an opt-in auto-exception-on-5xx is plausible but unbuilt.
 
 ## Go build notes
 

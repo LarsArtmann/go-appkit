@@ -85,6 +85,14 @@ Wire `hub.Shutdown` into `ServiceConfig.DrainHooks` or call it ahead of
 
 - Burst losses larger than the subscriber buffer (default 64) during a slow
   replay read are dropped; clients heal via `Last-Event-ID` reconnect.
+- The handler flushes headers BEFORE subscribing to the hub (clients get an
+  immediate 200), so a `Broadcast` racing the first subscription can miss
+  that event — the connection is live but the subscriber was not attached
+  yet. Production code that must not lose an event should broadcast from a
+  `StartHook` (post-listen) or sequence sends after connection
+  establishment; TESTS should sync on `hub.SubscriberCount()` before
+  broadcasting (the integration suite's SSE E2Es do exactly this — two
+  flake instances before the sync point, zero after).
 - Single-process broadcaster only — no cross-instance fan-out (put a real bus
   in front if you scale horizontally).
 - Store-failure replay aborts now send a named `event: error` with a

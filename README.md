@@ -313,9 +313,13 @@ Go >= 1.27.1 (every module's go.mod pins `go 1.27.1`; on older default
 toolchains prefix commands with `GOTOOLCHAIN=go1.27.1`):
 
 ```bash
-go test ./...            # workspace: builds + tests all 12 modules
+go test ./...            # workspace: builds + tests the 11 member modules
 GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
 ```
+
+The `integration` module (cross-module E2E) is deliberately NOT a workspace
+member — it pins PUBLISHED tags only, so its suite runs hermetic from its own
+directory: `cd integration && GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./...`.
 
 Per-module verify (hermetic, resolves like a consumer via the proxy) and
 per-module lint commands live in each module README under
