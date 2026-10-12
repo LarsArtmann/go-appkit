@@ -40,18 +40,18 @@
 
 ## c) NOT STARTED
 
-- The go-directive unification decision and rollout (needs Lars's policy call, see Questions).
-- CI state verification (the `go-directives` job reads `go.work`, which is **untracked** — on a fresh checkout the script has no file to parse, so the job is **suspected red** for a different reason than the mismatch; `ci.yml` has no go.work generation step, only comments).
-- Test pinning the `server.drain_hook_failed` / `server.shutdown_hook_failed` error codes (see d-3).
-- Audit of what the 82 suppressed clone groups contain.
-- HARVEST of this report's section (f) into TODO_LIST.md (deliberately deferred — instructed to wait).
-- Cross-project lesson write-up ("check GOTOOLCHAIN/go.work parity before trusting AGENTS build commands") to crush-config `references/lessons.md`.
+- ~~The go-directive unification decision and rollout (needs Lars's policy call, see Questions).~~ done — unified 2026-09-29 (SUPERB v5 T01/T02; Question 1 resolved by execution)
+- ~~CI state verification (the `go-directives` job reads `go.work`, which is **untracked** — on a fresh checkout the script has no file to parse, so the job is **suspected red** for a different reason than the mismatch; `ci.yml` has no go.work generation step, only comments).~~ done — go.work tracked 2026-09-29; CI job observed green parsing it (run 36542306033)
+- ~~Test pinning the `server.drain_hook_failed` / `server.shutdown_hook_failed` error codes (see d-3).~~ done — `hookcodes_test.go` (2026-09-28; shipped core v0.6.0)
+- ~~Audit of what the 82 suppressed clone groups contain.~~ done — the 2026-09-29 12-45 session audited the full 477-group heap; one harmful clone fixed; policy decided (Decision 13 amendment)
+- ~~HARVEST of this report's section (f) into TODO_LIST.md (deliberately deferred — instructed to wait).~~ done — 2026-09-28/29 docs-health harvests
+- ~~Cross-project lesson write-up ("check GOTOOLCHAIN/go.work parity before trusting AGENTS build commands") to crush-config `references/lessons.md`.~~ done — the caller-wins-toolchain lesson class lives there (2026-09-22 entry)
 
 ## d) TOTALLY FUCKED UP
 
 1. **The committed repo was unbuildable at ANY toolchain** (pre-existing, not from this session): go1.26.7+`GOTOOLCHAIN=local` rejects the go directive; go1.27.0 fails on go-etag v0.6.0 (`requires go >= 1.27.1`); the committed go.mod was internally inconsistent until tidied. Every AGENTS.md build command was copy-paste-broken.
 2. **`scripts/check-go-directives.sh` — the guard built to catch exactly this class — is FAIL on all 11 modules**, and because `go.work` is untracked, the CI job reading it likely cannot even parse a file on the runner. The guard exists, is committed, and appears to be firing red (or vacuously) in CI. Unverified remotely, flagged.
-3. **My claim "pinned contracts preserved" was overbroad.** TRUE: `shutdownlog_test` pins the phase logging, drain-window tests pin ordering. FALSE (discovered post-hoc): **no test anywhere pins the `server.drain_hook_failed` / `server.shutdown_hook_failed` codes** — grep matches only in `service.go`. The refactor preserved them by construction (constants passed through), but there is no regression net for exactly the values consumers match on.
+3. **My claim "pinned contracts preserved" was overbroad.** TRUE: `shutdownlog_test` pins the phase logging, drain-window tests pin ordering. FALSE (discovered post-hoc): **no test anywhere pins the `server.drain_hook_failed` / `server.shutdown_hook_failed` codes** — grep matches only in `service.go`. The refactor preserved them by construction (constants passed through), but there is no regression net for exactly the values consumers match on. ~~Closed 2026-09-28: `hookcodes_test.go` pins both codes exactly plus every-hook-runs-when-one-fails.~~
 4. **Self-inflicted, caught by gates (2 wasted cycles):** first `runHooks` version didn't compile (`undefined: ctx` — forgot the parameter in my own signature), and the second tripped vet's non-constant-format-string check. Gates worked; craftsmanship didn't. There is also **no pre-edit green baseline** — the baseline attempt failed on the toolchain and I proceeded to edit anyway, so a red test could not have been attributed to pre-existing vs regression.
 
 ## e) WHAT WE SHOULD IMPROVE
@@ -69,61 +69,61 @@
 **P0 — unblock the repo**
 
 1. ~~Decide the go-directive floor policy (Question 1 below).~~ done — direction set by execution (partial unification); completing the train is the TODO P2 item
-2. Unify all 11 go.mods to the chosen floor; regenerate `go work use`.
-3. Make `check-go-directives.sh` green locally.
-4. Re-run the full per-module matrix (build/vet/test -race) on all 11 modules.
-5. Re-run `golangci-lint` on all 11 modules.
-6. Verify gopls/LSP diagnostics recover after the go.work fix (restart LSP).
-7. Commit or CI-generate `go.work` (decide tracked status; CI job reads it).
-8. Verify the CI `go-directives` job's actual remote state (suspected red).
+2. ~~Unify all 11 go.mods to the chosen floor; regenerate `go work use`.~~ done — 2026-09-29 — SUPERB v5 T01/T02 unified all 11 go.mods + go.work; guard green 11/11
+3. ~~Make `check-go-directives.sh` green locally.~~ done — green 11/11 since 2026-09-29 (check-go-directives.sh)
+4. ~~Re-run the full per-module matrix (build/vet/test -race) on all 11 modules.~~ done — T03 matrix green 2026-09-29 — build+vet+test -race+lint x11
+5. ~~Re-run `golangci-lint` on all 11 modules.~~ done — 0 issues x11 (2026-09-29; re-verified 0 x12 by the 2026-10-12 fleet scan)
+6. ~~Verify gopls/LSP diagnostics recover after the go.work fix (restart LSP).~~ done — LSP recovered on the unified go.work (live diagnostics 2026-09-29); LSP-lint false-positive caveat in AGENTS since 2026-10-07
+7. ~~Commit or CI-generate `go.work` (decide tracked status; CI job reads it).~~ done — go.work tracked 2026-09-29 (T11) + charter-guarded 2026-10-07
+8. ~~Verify the CI `go-directives` job's actual remote state (suspected red).~~ done — CI go-directives green parsing the committed go.work (run 36542306033, 2026-09-29)
 9. ~~Run `./scripts/check-pin-drift.sh` (release-ritual step 5; cheap).~~ done — ran green 2026-09-28
 10. ~~Run the `integration` module suite (pins published tags) under the unified state.~~ done — integration suite green on the 1.27.1 workspace state (2026-09-28)
 11. ~~Update AGENTS.md build-command blocks to match the post-unification reality (drop GOTOOLCHAIN prefix and/or stale GOEXPERIMENT notes).~~ done — AGENTS toolchain note rewritten 2026-09-28
 12. ~~Trim AGENTS.md back under the cap with headroom (extract the toolchain note detail if needed).~~ done — 376→377 with the integration/doadapter rows added; standing pressure lives in the TODO P3 slim-down item
 13. ~~Add the hook-error-code pinning test (`server.drain_hook_failed` / `server.shutdown_hook_failed`).~~ done — hookcodes_test.go pins both codes + every-hook-runs (2026-09-28)
 14. ~~Add `[Unreleased]` CHANGELOG entries for the `setStarted` and `runHooks` refactors (core + health).~~ done — core + health (+ frh) [Unreleased] CHANGELOG entries added 2026-09-28
-15. Audit auto-commit `ea17377` (9 files) — what drifted the module directives in the first place.
+15. ~~Audit auto-commit `ea17377` (9 files) — what drifted the module directives in the first place.~~ **Won't implement — moot — the directives guard blocks the class at commit time (.githooks/pre-commit, 2026-10-07); the historical auto-commit is frozen history.**
 
 **P1 — close this session's gaps**
-16. Inspect the 82 suppressed art-dupl groups; confirm suppression is sound.
+16. ~~Inspect the 82 suppressed art-dupl groups; confirm suppression is sound.~~ done — audited 2026-09-29 (12-45 session) — full 477-group heap inspected; one harmful clone collapsed; suppression sound (Decision 13 amendment)
 17. ~~Re-run art-dupl at `-t 5` and `-t 10` for a comparison baseline.~~ done — superseded by the 2026-09-28 -t 1 sweep; standards recorded in AGENTS Clone posture
 18. ~~Decide standing policy for the accepted sorted-keys clone (exclude config vs keep visible).~~ done — Decision 13 in doc/planning/design-decisions.md owns the accepted-clone rationale
-19. Fresh-consumer proxy smoke for core (go.mod/go.sum changed; next tag ships them) per `doc/recipes/fresh-consumer-proxy-check.md`.
-20. Audit auto-commits `928633f` / `a1aea5b` (this session's daemon commits) for sane messages/content.
+19. ~~Fresh-consumer proxy smoke for core (go.mod/go.sum changed; next tag ships them) per `doc/recipes/fresh-consumer-proxy-check.md`.~~ done — v0.6.0 / v0.7.0 / v0.8.0 all fresh-consumer proxy-PASS (AGENTS Release State)
+20. ~~Audit auto-commits `928633f` / `a1aea5b` (this session's daemon commits) for sane messages/content.~~ **Won't implement — daemon commits are documented house policy; contents were verified green in-session (episode-1 items a6-a8).**
 21. ~~Run `check-dependabot-parity.sh` locally once (cheap guard verification).~~ done — ran green 2026-09-28
-22. Check whether dependabot's grouped gomod updates are what bumps go directives; add ignore/allow rules if so.
-23. Verify go-etag v0.6.0 is actually required transitively by which modules (the "unimported" in its commit message is misleading — `entitytag`/`server` are live in the graph).
-24. Wire `check-go-directives.sh` into BuildFlow pre-commit so parity breaks before push, not in CI.
-25. Record the cross-project lesson ("check GOTOOLCHAIN/go.work parity before trusting AGENTS build commands") in crush-config `references/lessons.md`.
+22. Check whether dependabot's grouped gomod updates are what bumps go directives; add ignore/allow rules if so. **→ no dependabot ignore rules added — the commit-time directives guard covers the class; parity guard green**
+23. ~~Verify go-etag v0.6.0 is actually required transitively by which modules (the "unimported" in its commit message is misleading — `entitytag`/`server` are live in the graph).~~ done — resolved 2026-09-29 — split go-etag/server v0.6.0 understood; integration excludes span the extraction boundary (AGENTS go.work gotcha)
+24. ~~Wire `check-go-directives.sh` into BuildFlow pre-commit so parity breaks before push, not in CI.~~ done — .githooks/pre-commit runs check-go-directives.sh FATAL (2026-10-07)
+25. ~~Record the cross-project lesson ("check GOTOOLCHAIN/go.work parity before trusting AGENTS build commands") in crush-config `references/lessons.md`.~~ done — the caller-wins-toolchain lesson class lives in crush-config references/lessons.md (2026-09-22 entry); the AGENTS BuildFlow gotcha carries the repo rule
 
 **P2 — quality / hygiene**
 26. ~~HARVEST this report into TODO_LIST.md (P0 items as actionable tasks, the rest as roadmap fuel).~~ done — 2026-09-28 docs-health harvest routed the actionable items into TODO_LIST
 27. ~~`sort.Strings` → `slices.Sort` modernization sweep (Go 1.21+ idiom; noticed at all three accepted sites).~~ done — frh sort.Strings → slices.Sort (2026-09-28); the other two sites already use slices.Sorted
-28. Consider a named `type Hook func(context.Context) error` to shorten the `runHooks` signature (config.go already declares the raw func type twice).
-29. Live E2E of `example/` and `health/example` after the refactors (tests cover compile paths; demos cover the wired path).
+28. ~~Consider a named `type Hook func(context.Context) error` to shorten the `runHooks` signature (config.go already declares the raw func type twice).~~ done — appkit.Hook alias shipped in core v0.7.0 (2026-09-29)
+29. ~~Live E2E of `example/` and `health/example` after the refactors (tests cover compile paths; demos cover the wired path).~~ done — T19b 2026-09-29 — root + health examples live-probed (drain choreography); fr + otel examples live-verified on their v0.2.0 trains
 30. ~~Design-decision entry for "accepted duplication" in `doc/planning/design-decisions.md` (one paragraph, so the accept survives personnel changes).~~ done — Decision 13 added to doc/planning/design-decisions.md (2026-09-28)
-31. Decide whether art-dupl becomes a recurring BuildFlow/ritual step or stays ad-hoc.
+31. ~~Decide whether art-dupl becomes a recurring BuildFlow/ritual step or stays ad-hoc.~~ done — DECIDED 2026-09-29 — art-dupl runs event-driven (Decision 13 amendment)
 32. ~~Dry-run the `go work use` fix in a scratch work file before touching the real one.~~ **NOT-DO — moot — go.work was already regenerated at 1.27.1.**
 33. Decide machine-level `GOTOOLCHAIN` policy (Question 2) — upgrade default toolchain to go1.27.1 or keep the pin.
 34. ~~Confirm health module's `go-health v0.3.0` evaluation note in AGENTS is still accurate post-drift (untouched this session, listed for the next docs pass).~~ done — ROADMAP entry verified accurate incl. the 1.27.1 floor gate (2026-09-28)
 
 **P3 — roadmap fuel (from this session only)**
-35. Testkit (`testkit.Serve`) could grow a drain-window assertion helper — the drain contract tests hand-roll it today.
+35. ~~Testkit (`testkit.Serve`) could grow a drain-window assertion helper — the drain contract tests hand-roll it today.~~ done — testkit.DrainWindowProbe shipped in core v0.7.0
 36. `Mounted.setStarted` godoc could cross-link the drain-latch note in `Shutdown` (docs polish).
-37. Errorpages/realtime/otel modules: untouched; schedule their go1.27.1 verification with the P0 matrix run (subsumed by item 4 — keep as checklist reminder).
-38. Consider vendoring-toolchain pinning (`go.mod` `toolchain` directive) so the floor survives `GOTOOLCHAIN=local` machines.
-39. `metrics.go` sortedRoutes: keys embed `|` separators with `SplitN` — a small typed seriesKey would kill the stringly-typed join/split pair (data-model polish noticed in passing).
-40. Add CI job ordering: directives-guard first so red parity fails fast before the expensive matrix.
+37. ~~Errorpages/realtime/otel modules: untouched; schedule their go1.27.1 verification with the P0 matrix run (subsumed by item 4 — keep as checklist reminder).~~ done — covered by the 2026-09-29 matrix and every later train; 2026-10-12 fleet scan all green
+38. ~~Consider vendoring-toolchain pinning (`go.mod` `toolchain` directive) so the floor survives `GOTOOLCHAIN=local` machines.~~ **NOT-DO — NOT-DO — pre-tag-checks.sh rejects toolchain lines; the repo mechanism is the GOTOOLCHAIN prefix (guard since 2026-09-29).**
+39. ~~`metrics.go` sortedRoutes: keys embed `|` separators with `SplitN` — a small typed seriesKey would kill the stringly-typed join/split pair (data-model polish noticed in passing).~~ done — typed seriesKey shipped in core v0.7.0
+40. ~~Add CI job ordering: directives-guard first so red parity fails fast before the expensive matrix.~~ **Won't implement — moot — guards are cheap independent jobs and ci-preflight fails loud since 2026-10-07.**
 41. ~~AGENTS.md Release Ritual: add "run check-go-directives.sh" next to check-pin-drift (step 5 extension).~~ done — Release Ritual step 5 now names check-go-directives.sh alongside check-pin-drift.sh
-42. Consider `errors.Join` output formatting test (multi-hook failure message shape is unobserved).
-43. Document the `/mnt/buildcache` toolchain cache trick in the recipes dir (session-specific discovery, generalizes).
-44. Add a session-startup doctor step: `go env GOTOOLCHAIN` + `check-go-directives.sh` before trusting any build command.
+42. ~~Consider `errors.Join` output formatting test (multi-hook failure message shape is unobserved).~~ done — shipped in core v0.7.0 (message-shape test)
+43. ~~Document the `/mnt/buildcache` toolchain cache trick in the recipes dir (session-specific discovery, generalizes).~~ **Won't implement — not written — the AGENTS Toolchain paragraph already carries the /mnt/buildcache fact; a recipe adds nothing.**
+44. Add a session-startup doctor step: `go env GOTOOLCHAIN` + `check-go-directives.sh` before trusting any build command. **→ AGENTS Build & Verify owns the GOTOOLCHAIN-prefix contract instead; no doctor step adopted**
 45. ~~Write the `server.*_hook_failed` codes into `doc/DOMAIN_LANGUAGE.md` if it exists — they are consumer-matchable contracts.~~ done — error codes recorded in doc/DOMAIN_LANGUAGE.md Events table (2026-09-28)
 46. ~~Evaluate whether `runHooks`'s "let every hook run" semantics deserve an explicit test (failure in hook 1 doesn't stop hook 2).~~ done — TestHooks_EveryHookRunsWhenAnEarlierOneFails (2026-09-28)
 47. ~~Add the accepted-duplication rationale as a one-line `// intentional:` marker decision — pending policy from item 18.~~ done — Decision 13 records the no-exclude-config suppression policy
 48. ~~Sweep for other `var errs []error` + `errors.Join` patterns that could reuse the new `runHooks` shape (none found this session; confirm).~~ done — swept 2026-09-24 (none found); re-confirmed no new sites 2026-09-28
-49. Go error-family: consider asking upstream for doc clarification on `WrapInfrastructuref` printf semantics (vet interaction surprised us).
-50. Post-unification: re-run the otel benchmark baseline once (module untouched, but toolchain jump 1.26.7 → 1.27.1 invalidates the 2026-09-16 numbers on principle).
+49. ~~Go error-family: consider asking upstream for doc clarification on `WrapInfrastructuref` printf semantics (vet interaction surprised us).~~ **Won't implement — never drafted — the vet gotcha is documented here (d-4) and avoided by the runHooks helper; no ask planned.**
+50. Post-unification: re-run the otel benchmark baseline once (module untouched, but toolchain jump 1.26.7 → 1.27.1 invalidates the 2026-09-16 numbers on principle). **→ routed — TODO_LIST benchstat re-baseline candidate (allocs proven identical 2026-09-29; ns/op waits for a quiet machine)**
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
