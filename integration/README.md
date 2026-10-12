@@ -10,9 +10,9 @@ resolve.
 
 ```bash
 cd integration
-GOWORK=off GOTOOLCHAIN=go1.27.1 go mod tidy
-GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 golangci-lint run ./...
+GOWORK=off GOTOOLCHAIN=go1.27.2 go mod tidy
+GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.2 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.2 golangci-lint run ./...
 ```
 
 Read the PINNED module's API (module cache or `git show <tag>:<file>`)

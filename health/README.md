@@ -183,12 +183,12 @@ state as a check. See that module's README for the full wiring.
 
 ```bash
 cd health
-GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
+GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.2 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.2 go build ./...
 golangci-lint run ./...        # from this directory
 ```
 
-`GOTOOLCHAIN=go1.27.1` is required for every command below on
+`GOTOOLCHAIN=go1.27.2` is required for every command below on
 machines whose default toolchain is older (this repo pins
 `go 1.27.1` in every go.mod). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,

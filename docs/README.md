@@ -10,10 +10,10 @@ directory repath).
 
 ```bash
 cd docs
-GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
+GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.2 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.2 go build ./...
 golangci-lint run ./...        # from this directory
 ```
 
-`GOTOOLCHAIN=go1.27.1` is required (catalog/v4 uses
+`GOTOOLCHAIN=go1.27.2` is required (catalog/v4 uses
 `encoding/json/v2`); `GOWORK=off` makes the run hermetic.

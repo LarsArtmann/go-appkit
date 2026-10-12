@@ -1,6 +1,9 @@
 package otel_test
 
 import (
+	"errors"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -70,4 +73,69 @@ func BenchmarkMiddleware_TracedAndMetered(b *testing.B) {
 		otel.WithTracerProvider(tp),
 		otel.WithMeterProvider(mp),
 	))
+}
+
+// BenchmarkRecovery_HappyPath measures the per-request cost of carrying the
+// deferred recover when nothing panics — the price every request pays for
+// panic capture, span or no span.
+func BenchmarkRecovery_HappyPath(b *testing.B) {
+	runMiddlewareBenchmark(b, otel.Recovery(discardLogger()))
+}
+
+// BenchmarkRecovery_PanicPath measures a full panic capture: exception span
+// event with stacktrace, error status, log line, and the 500 response.
+// The handler panics on every request; the logger writes to io.Discard so
+// the number isolates the telemetry work, not terminal I/O.
+func BenchmarkRecovery_PanicPath(b *testing.B) {
+	server := httptest.NewServer(otel.Recovery(discardLogger())(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		panic("boom")
+	})))
+	b.Cleanup(server.Close)
+
+	client := server.Client()
+
+	b.ResetTimer()
+
+	for b.Loop() {
+		res, err := client.Get(server.URL)
+		if err != nil {
+			b.Fatalf("request failed: %v", err)
+		}
+
+		_ = res.Body.Close()
+	}
+}
+
+// BenchmarkRecordError_Recording measures RecordError against a real
+// recording span: exception event with stacktrace plus error status.
+func BenchmarkRecordError_Recording(b *testing.B) {
+	tp := sdktrace.NewTracerProvider()
+	tracer := tp.Tracer("bench")
+
+	ctx, span := tracer.Start(b.Context(), "bench-span")
+	defer span.End()
+
+	err := errors.New("bench failure")
+
+	b.ResetTimer()
+
+	for b.Loop() {
+		otel.RecordError(ctx, err)
+	}
+}
+
+// BenchmarkRecordError_NoSpan measures the fast path: no recording span in
+// the context, the call returns immediately.
+func BenchmarkRecordError_NoSpan(b *testing.B) {
+	err := errors.New("bench failure")
+
+	b.ResetTimer()
+
+	for b.Loop() {
+		otel.RecordError(b.Context(), err)
+	}
+}
+
+func discardLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }

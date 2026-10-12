@@ -248,17 +248,31 @@ processor, no exporter wired). The no-op baseline is the cost of the
 middleware existing in the chain with the module imported but no providers —
 the strictly-opt-in guarantee in numbers.
 
+`BenchmarkRecovery_*` + `BenchmarkRecordError_*` (added 2026-10-12, same
+harness, go 1.27.2):
+
+| Variant                          | ns/op  | Notes                                        |
+| -------------------------------- | ------ | -------------------------------------------- |
+| Recovery happy path              | 17,056 | deferred-recover tax every request           |
+| Recovery panic path              | 50,080 | event + stacktrace + status + 500 + log line |
+| RecordError, recording span      |  5,962 | exception event with stacktrace + status     |
+| RecordError, no span (fast path) |      6 | guard clause only                            |
+
+A captured panic costs ~33µs over the happy path; a handled error costs
+~6µs per `RecordError` call. The panic-path logger writes to `io.Discard`
+in the benchmark, so terminal I/O is excluded there too.
+
 ## Build & verify
 
 ```bash
 cd otel
-GOWORK=off GOTOOLCHAIN=go1.27.1 go test ./... -race -count=1
-GOWORK=off GOTOOLCHAIN=go1.27.1 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.1 go build ./...
-GOWORK=off GOTOOLCHAIN=go1.27.1 go test -bench . -benchmem -run '^$' ./...
+GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.2 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.2 go build ./...
+GOWORK=off GOTOOLCHAIN=go1.27.2 go test -bench . -benchmem -run '^$' ./...
 golangci-lint run ./...        # from this directory
 ```
 
-`GOTOOLCHAIN=go1.27.1` is required for every command below on
+`GOTOOLCHAIN=go1.27.2` is required for every command below on
 machines whose default toolchain is older (this repo pins
 `go 1.27.1` in every go.mod). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,
