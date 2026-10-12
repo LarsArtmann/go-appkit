@@ -208,3 +208,19 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check go.work membership charter
         run: ./scripts/check-workspace-charter.sh
+
+  # Structure-linter config guard (2026-10-12): the binary exits 0 even when
+  # it REPORTS findings, so a silently lost .go-structure-linter.yaml would
+  # stay green while the 11 deliberate-layout findings return. The guard
+  # script fails on any findings total > 0 or a missing config file.
+  structure-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Install go-structure-linter
+        run: go install github.com/LarsArtmann/go-structure-linter/cmd/go-structure-linter@latest
+      - name: Check structure (config present, zero findings)
+        run: ./scripts/check-structure-linter.sh

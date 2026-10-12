@@ -1,11 +1,13 @@
 package integration
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestMain enforces this module's hermetic execution contract: the package
@@ -23,13 +25,20 @@ import (
 // go.work found — e.g. the directory opened on its own) resolves via the
 // proxy and is hermetic-equivalent: it passes.
 func TestMain(m *testing.M) {
-	cmd := exec.Command("go", "env", "GOWORK")
+	os.Exit(run(m))
+}
+
+func run(m *testing.M) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "go", "env", "GOWORK")
 	cmd.Env = os.Environ()
 	out, err := cmd.Output()
 	if err != nil {
 		fmt.Fprintf(os.Stderr,
 			"hermetic guard: cannot probe `go env GOWORK` (%v) — refusing to run unverified\n", err)
-		os.Exit(2)
+
+		return 2
 	}
 	resolved := strings.TrimSpace(string(out))
 	if resolved != "" && resolved != "off" {
@@ -39,7 +48,9 @@ func TestMain(m *testing.M) {
 				"the published tags consumers actually get. If ./integration leaked into go.work again, run\n"+
 				"scripts/check-workspace-charter.sh --fix . Otherwise verify hermetically:\n"+
 				"  cd integration && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1\n", resolved)
-		os.Exit(2)
+
+		return 2
 	}
-	os.Exit(m.Run())
+
+	return m.Run()
 }
