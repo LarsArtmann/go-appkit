@@ -15,13 +15,13 @@ tool_options:
     respect_patch_floor: true
 
 skip_steps:
-# go-work-sync SKIPPED 2026-10-12 (leak #8): the step treats any on-disk
-# module missing from go.work as drift and re-added ./integration — but
-# integration is deliberately NOT a workspace member (pin charter: published
-# tags only, integration/doc.go). scripts/check-workspace-charter.sh is the
-# dynamic membership authority in BOTH directions (a new module forces its
-# entry; integration stays out), so charter-unaware auto-sync only fights
-# that guard. Membership changes are made by hand when the guard demands.
+  # go-work-sync SKIPPED 2026-10-12 (leak #8): the step treats any on-disk
+  # module missing from go.work as drift and re-added ./integration — but
+  # integration is deliberately NOT a workspace member (pin charter: published
+  # tags only, integration/doc.go). scripts/check-workspace-charter.sh is the
+  # dynamic membership authority in BOTH directions (a new module forces its
+  # entry; integration stays out), so charter-unaware auto-sync only fights
+  # that guard. Membership changes are made by hand when the guard demands.
   - go-work-sync
 # go-version-auto-configure UNSKIPPED 2026-10-07: gvac v0.2.5's
 # respect_patch_floor makes this repo's deliberate PATCH-level pins

@@ -8,23 +8,23 @@
 
 ## Stat cards
 
-| Metric | Value |
-| ------ | ----- |
-| Live `**/2026-0*` files viewed + classified | 23 (archived/ dirs stayed closed per the skill) |
-| Living docs fixed | 6 (README, AGENTS, FEATURES, TODO_LIST, ROADMAP, security/CHANGELOG) + 3 module READMEs (otel, otel/dashboards, realtime) |
-| Inline annotation verdicts | ~420 across 11 reports (annotate.go prose/rows, dry-run first, evidence-cited) |
-| Files archived | 2 (dedup episode-2 report — check-rows complete; SUPERB v5 plan — banner completed) |
-| TODO_LIST rows removed as done | 8 (each verified against code/guards first) |
-| TODO_LIST rows added/updated | ~10 new + 3 rewritten + 1 extended |
-| Live defects fixed on sight | go.work leak #7 (charter violation, committed), tracked `buildflow-fsprobe` junk, 2 stale integration contract pins |
-| Guards at close | directives ✅ charter ✅ parity ✅ structure (AGENTS 366/377) ✅ integration suite+lint ✅ pin-drift 26 OK + 1 leg red BY DESIGN (cqrs-htmx hold, see a9) |
-| Self-caused process failures | 4 worth naming (see d) |
+| Metric                                      | Value                                                                                                                                                     |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Live `**/2026-0*` files viewed + classified | 23 (archived/ dirs stayed closed per the skill)                                                                                                           |
+| Living docs fixed                           | 6 (README, AGENTS, FEATURES, TODO_LIST, ROADMAP, security/CHANGELOG) + 3 module READMEs (otel, otel/dashboards, realtime)                                 |
+| Inline annotation verdicts                  | ~420 across 11 reports (annotate.go prose/rows, dry-run first, evidence-cited)                                                                            |
+| Files archived                              | 2 (dedup episode-2 report — check-rows complete; SUPERB v5 plan — banner completed)                                                                       |
+| TODO_LIST rows removed as done              | 8 (each verified against code/guards first)                                                                                                               |
+| TODO_LIST rows added/updated                | ~10 new + 3 rewritten + 1 extended                                                                                                                        |
+| Live defects fixed on sight                 | go.work leak #7 (charter violation, committed), tracked `buildflow-fsprobe` junk, 2 stale integration contract pins                                       |
+| Guards at close                             | directives ✅ charter ✅ parity ✅ structure (AGENTS 366/377) ✅ integration suite+lint ✅ pin-drift 26 OK + 1 leg red BY DESIGN (cqrs-htmx hold, see a9) |
+| Self-caused process failures                | 4 worth naming (see d)                                                                                                                                    |
 
 ---
 
 ## a) FULLY DONE (each verified this session)
 
-1. **Every live 2026-0* snapshot viewed and classified** — 10 docs/status reports read in full, SUPERB v5 plan read in full, 3 verdict docs + 3 research HTMLs + 4 outgoing drafts + batteries spec + architecture doc viewed and classified ANNOTATE/ARCHIVE/SKIP/LEAVE-ALONE per the skill's classification table. The two pre-annotated research HTMLs kept their banners; the un-bannered 2026-09-16 ecosystem scan got one (superseded-by pointer to the 2026-10-11 audit).
+1. __Every live 2026-0_ snapshot viewed and classified_* — 10 docs/status reports read in full, SUPERB v5 plan read in full, 3 verdict docs + 3 research HTMLs + 4 outgoing drafts + batteries spec + architecture doc viewed and classified ANNOTATE/ARCHIVE/SKIP/LEAVE-ALONE per the skill's classification table. The two pre-annotated research HTMLs kept their banners; the un-bannered 2026-09-16 ecosystem scan got one (superseded-by pointer to the 2026-10-11 audit).
 2. **go.work leak #7 fixed** — `./integration` was BACK in the use-block (committed by the unnamed workspace-sync tool; charter guard red as-found). Removed; guard green. Leak count in AGENTS bumped six → seven. Also `git rm`'d the tracked whitespace-only `buildflow-fsprobe-1747112478` artifact.
 3. **FEATURES.md version-truth restored** — core section: "v0.7.0 + unreleased StartHooks" → shipped-through v0.8.0 with the true current `[Unreleased]` delta (`testkit.NewService`, #26); systemd section de-UNRELEASED (v0.1.0 tagged 2026-10-07, all five row qualifiers cleaned); security stale "unreleased deltas" text → shipped-through v0.2.0 + example dep now v0.8.0; health gained the #25 durations/deadline row and the ghost evidence filename (`probe_benchmark_test.go` → `benchmark_test.go`) was fixed; integration table gained 5 shipped contracts (SSE×health drain, cqrs domain SSE, systemd lifecycle, docs docserver composition).
 4. **README.md truth fix** — "workspace: builds + tests all 12 modules" → 11 members + integration's hermetic GOWORK=off mode documented inline.
@@ -125,7 +125,7 @@
 33. Consumer-claims posture (user gate; g3).
 34. prompt-crusher merge (user intent).
 35. Browser CSP pass (env) · 36. govulncheck (env) · 37. BuildFlow full-mode (env-blocked) · 38. benchstat re-baseline (quiet machine).
-39. Battery waves W3-W5 (demand) · 40. cordis + PapDashboard watch · 41. cqrs-htmx v5-window recheck · 42. fr v0.2.1 sweep on frh/cqrs trains · 43. SSE-hub fleet coherence watch · 44. i18n post-v1.6.0 residue check · 45. Example StartHooks migration (trigger met) · 46. pdg backlog (their repo) · 47. D2-diagram composition leg candidate (14-17 f39, needs pinned-API check first) · 48. core v1.0.0 exit-criteria graduation watch · 49. watchlist refresh cadence (standing row) · 50. Answer the three §g questions (below).
+36. Battery waves W3-W5 (demand) · 40. cordis + PapDashboard watch · 41. cqrs-htmx v5-window recheck · 42. fr v0.2.1 sweep on frh/cqrs trains · 43. SSE-hub fleet coherence watch · 44. i18n post-v1.6.0 residue check · 45. Example StartHooks migration (trigger met) · 46. pdg backlog (their repo) · 47. D2-diagram composition leg candidate (14-17 f39, needs pinned-API check first) · 48. core v1.0.0 exit-criteria graduation watch · 49. watchlist refresh cadence (standing row) · 50. Answer the three §g questions (below).
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF (3)
 
@@ -137,37 +137,37 @@
 
 ## Appendix — Harvest ledger (2026-10-12 reports → TODO_LIST/ROADMAP; rectifies b3)
 
-| Source (report §item) | Disposition | Destination / reason |
-| --- | --- | --- |
-| 14-16 §f1 AGENTS tables fix | done in-audit | AGENTS health/core/integration rows rewritten this pass; marker left in source |
-| 14-16 §f2-4/§f12 release trains + comments | new row | TODO P2 "Release trains: core minor + health minor" |
-| 14-16 §f5 pbx-lens migration | not routed (their repo) | visible in source only — candidate to decline as their-repo |
-| 14-16 §f6 repo-internal testkit call sites | not routed | visible in source only — small, fold into #26 train |
-| 14-16 §f7-9 bench/fuzz/stopTimeout | new row | TODO P2 "health follow-through" |
-| 14-16 §f10 go-health panic-comment stance | merged | TODO P2 upstream-asks row, item 5 extension |
-| 14-16 §f11 options-vs-config | declined | YAGNI — the report itself says "only if a consumer asks" |
-| 14-16 §f13 docserver-vs-health check | not routed | visible in source only |
-| 14-16 §f14 sibling-consumer sweep | folded | TODO P2 health-follow-through context + f21 above |
-| 14-17 §f1-2 push + CI watch | existing rows | TODO P1 (owner) — unchanged |
-| 14-17 §f4 health follow-through | new row | TODO P2 "health follow-through" |
-| 14-17 §f5 GOWORK=off guard | new row | TODO P3 |
-| 14-17 §f8 charter --fix | new row | TODO P3 |
-| 14-17 §f9 TODO update | done in-audit | this pass harvested both reports |
-| 14-17 §f12 reviews README | new row | TODO P3 (should have been done on sight — d7) |
-| 14-17 §f19 docserver upstream note | new row (half) | TODO P3 docserver-title mirror; upstream note verify-before-filing |
-| 14-17 §f20 docs README mirror | new row | TODO P3 (same row as f19) |
-| 14-17 §f21-22 frh/otel-bridge after health train | merged | TODO P2 "health follow-through" |
-| 14-17 §f23/§f40 example smoke harness | new row | TODO P3 |
-| 14-17 §f25 replace-directive spot check | existing gate | pre-tag-checks asserts it every train |
-| 14-17 §f28 cookbook trigger check | done in-audit | system/v4 v4.13.0 found; DUE row added (a14) |
-| 14-17 §f29 push-lag FATAL escalation | not routed | owner call — §g of source |
-| 14-17 §f30 structure-linter CI config guard | new row | TODO P3 |
-| 14-17 §f33 read parallel agent's report | done in-audit | 14-16 read + harvested this pass |
-| 14-17 §f39 D2 composition leg | new row | f47 above (candidate, pinned-API check first) |
-| 14-17 §f45 HTML visual check | not routed | owner — opens the file |
-| pass-discovered: cqrs-htmx v4.14.0 floor demand | new row | TODO P2 (held pin, by-design red leg) |
-| pass-discovered: fr pkg.go.dev 404 | new row | TODO P2 |
-| pass-discovered: go-cqrs-lite v4.13.0 | new row | TODO P2 (ritual DUE) |
+| Source (report §item)                            | Disposition             | Destination / reason                                                           |
+| ------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------ |
+| 14-16 §f1 AGENTS tables fix                      | done in-audit           | AGENTS health/core/integration rows rewritten this pass; marker left in source |
+| 14-16 §f2-4/§f12 release trains + comments       | new row                 | TODO P2 "Release trains: core minor + health minor"                            |
+| 14-16 §f5 pbx-lens migration                     | not routed (their repo) | visible in source only — candidate to decline as their-repo                    |
+| 14-16 §f6 repo-internal testkit call sites       | not routed              | visible in source only — small, fold into #26 train                            |
+| 14-16 §f7-9 bench/fuzz/stopTimeout               | new row                 | TODO P2 "health follow-through"                                                |
+| 14-16 §f10 go-health panic-comment stance        | merged                  | TODO P2 upstream-asks row, item 5 extension                                    |
+| 14-16 §f11 options-vs-config                     | declined                | YAGNI — the report itself says "only if a consumer asks"                       |
+| 14-16 §f13 docserver-vs-health check             | not routed              | visible in source only                                                         |
+| 14-16 §f14 sibling-consumer sweep                | folded                  | TODO P2 health-follow-through context + f21 above                              |
+| 14-17 §f1-2 push + CI watch                      | existing rows           | TODO P1 (owner) — unchanged                                                    |
+| 14-17 §f4 health follow-through                  | new row                 | TODO P2 "health follow-through"                                                |
+| 14-17 §f5 GOWORK=off guard                       | new row                 | TODO P3                                                                        |
+| 14-17 §f8 charter --fix                          | new row                 | TODO P3                                                                        |
+| 14-17 §f9 TODO update                            | done in-audit           | this pass harvested both reports                                               |
+| 14-17 §f12 reviews README                        | new row                 | TODO P3 (should have been done on sight — d7)                                  |
+| 14-17 §f19 docserver upstream note               | new row (half)          | TODO P3 docserver-title mirror; upstream note verify-before-filing             |
+| 14-17 §f20 docs README mirror                    | new row                 | TODO P3 (same row as f19)                                                      |
+| 14-17 §f21-22 frh/otel-bridge after health train | merged                  | TODO P2 "health follow-through"                                                |
+| 14-17 §f23/§f40 example smoke harness            | new row                 | TODO P3                                                                        |
+| 14-17 §f25 replace-directive spot check          | existing gate           | pre-tag-checks asserts it every train                                          |
+| 14-17 §f28 cookbook trigger check                | done in-audit           | system/v4 v4.13.0 found; DUE row added (a14)                                   |
+| 14-17 §f29 push-lag FATAL escalation             | not routed              | owner call — §g of source                                                      |
+| 14-17 §f30 structure-linter CI config guard      | new row                 | TODO P3                                                                        |
+| 14-17 §f33 read parallel agent's report          | done in-audit           | 14-16 read + harvested this pass                                               |
+| 14-17 §f39 D2 composition leg                    | new row                 | f47 above (candidate, pinned-API check first)                                  |
+| 14-17 §f45 HTML visual check                     | not routed              | owner — opens the file                                                         |
+| pass-discovered: cqrs-htmx v4.14.0 floor demand  | new row                 | TODO P2 (held pin, by-design red leg)                                          |
+| pass-discovered: fr pkg.go.dev 404               | new row                 | TODO P2                                                                        |
+| pass-discovered: go-cqrs-lite v4.13.0            | new row                 | TODO P2 (ritual DUE)                                                           |
 
 ---
 
