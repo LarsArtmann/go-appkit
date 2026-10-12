@@ -8,13 +8,13 @@
 
 ## Headline
 
-| Thing | Before | After |
-| --- | --- | --- |
-| go floor | 1.27.1 (12 go.mods + go.work) | **1.27.2** everywhere, matrix green |
-| pin-drift guard | 1 leg red by design (cqrs-htmx hold) + guard's own toolchain pin stale | **27/27 legs GREEN**, guard now floor-derived |
-| Releases | core v0.8.0 / health v0.1.5, #25 #26 open | **core v0.9.0 + health v0.2.0 pushed, proxy-PASS ×2, both issues closed** (0 open) |
-| Guards | charter fail-only; no hermetic self-check; structure-lint unguarded in CI; pre-tag single-tag | **charter `--fix`; integration hermetic TestMain; structure-linter CI job; multi-tag pre-tag gate** |
-| Commits | — | 13 on origin (all pushed with the train) |
+| Thing           | Before                                                                                        | After                                                                                               |
+| --------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| go floor        | 1.27.1 (12 go.mods + go.work)                                                                 | **1.27.2** everywhere, matrix green                                                                 |
+| pin-drift guard | 1 leg red by design (cqrs-htmx hold) + guard's own toolchain pin stale                        | **27/27 legs GREEN**, guard now floor-derived                                                       |
+| Releases        | core v0.8.0 / health v0.1.5, #25 #26 open                                                     | **core v0.9.0 + health v0.2.0 pushed, proxy-PASS ×2, both issues closed** (0 open)                  |
+| Guards          | charter fail-only; no hermetic self-check; structure-lint unguarded in CI; pre-tag single-tag | **charter `--fix`; integration hermetic TestMain; structure-linter CI job; multi-tag pre-tag gate** |
+| Commits         | —                                                                                             | 13 on origin (all pushed with the train)                                                            |
 
 ## a) FULLY DONE
 

@@ -295,8 +295,8 @@ harness, go 1.27.2):
 | -------------------------------- | ------ | -------------------------------------------- |
 | Recovery happy path              | 17,056 | deferred-recover tax every request           |
 | Recovery panic path              | 50,080 | event + stacktrace + status + 500 + log line |
-| RecordError, recording span      |  5,962 | exception event with stacktrace + status     |
-| RecordError, no span (fast path) |      6 | guard clause only                            |
+| RecordError, recording span      | 5,962  | exception event with stacktrace + status     |
+| RecordError, no span (fast path) | 6      | guard clause only                            |
 
 A captured panic costs ~33µs over the happy path; a handled error costs
 ~6µs per `RecordError` call. The panic-path logger writes to `io.Discard`
