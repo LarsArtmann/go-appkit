@@ -26,7 +26,7 @@ import (
 // family tag. Nothing else in this file or the script needs to change.
 var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit":                      "v0.9.0",
-	"github.com/larsartmann/go-appkit/cqrs":                 "v0.7.0",
+	"github.com/larsartmann/go-appkit/cqrs":                 "v0.8.0",
 	"github.com/larsartmann/go-appkit/docs":                 "v0.3.2",
 	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.1",
 	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.6",
