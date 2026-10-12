@@ -27,6 +27,7 @@ import (
 var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit":                      "v0.8.0",
 	"github.com/larsartmann/go-appkit/cqrs":                 "v0.7.0",
+	"github.com/larsartmann/go-appkit/docs":                 "v0.3.2",
 	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.1",
 	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.6",
 	"github.com/larsartmann/go-appkit/health":               "v0.1.5",

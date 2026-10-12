@@ -19,8 +19,12 @@ import (
 	appkit "github.com/larsartmann/go-appkit"
 	appkitdocs "github.com/larsartmann/go-appkit/docs"
 	"github.com/larsartmann/go-appkit/testkit"
+	"github.com/larsartmann/go-cqrs-lite/catalog/v4"
 	"github.com/larsartmann/go-cqrs-lite/catalog/v4/docserver"
 )
+
+type docsE2EStartCommand struct{ RequestedBy string }
+type docsE2EStartedEvent struct{ StartedBy string }
 
 func TestDocsCompositionThroughAppkitService(t *testing.T) {
 	t.Parallel()
@@ -35,6 +39,11 @@ func TestDocsCompositionThroughAppkitService(t *testing.T) {
 	}
 
 	cb := appkitdocs.NewCatalogBuilder("SUPERB Docs E2E", "v0.3.2-test")
+	cb.Builder().AddService("docs-e2e", "Docs E2E Service", "1.0.0",
+		"Proves generated OpenAPI/AsyncAPI carry the builder title",
+		catalog.Command[docsE2EStartCommand]("docs.start"),
+		catalog.Event[docsE2EStartedEvent]("docs.started", catalog.Sends),
+	)
 	appkitdocs.RegisterDocs(svc.Mux, cb, docserver.Config{})
 
 	ts := testkit.Serve(t, svc)
