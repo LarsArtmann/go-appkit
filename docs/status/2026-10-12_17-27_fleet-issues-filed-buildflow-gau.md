@@ -9,13 +9,13 @@
 
 **5 issues filed and verified OPEN** (all source-verified in the local repos at BuildFlow `8a349283a`, drafts voice-checked 0 FAIL / 0 WARN, filed via `gh issue create --body-file`, landing confirmed):
 
-| Issue | Repo | One-line |
-| --- | --- | --- |
-| [#46](https://github.com/LarsArtmann/BuildFlow/issues/46) | BuildFlow | go-work-sync re-adds deliberately excluded modules — use-directive drift ignores `go_mod_ignore_dirs` (#18's wiring stopped at the go.mod checker) |
-| [#47](https://github.com/LarsArtmann/BuildFlow/issues/47) | BuildFlow | result cache replays stale verdicts after tool-config edits (`.jscpd.json` is not key material) |
-| [#48](https://github.com/LarsArtmann/BuildFlow/issues/48) | BuildFlow | jscpd: ≥50-line config-file clones gate-block by default; user `.jscpd.json` replaces curated defaults instead of merging |
-| [#49](https://github.com/LarsArtmann/BuildFlow/issues/49) | BuildFlow | lychee preflight: authenticate-vs-exclude policy (survey g1) still open — every private-repo project warns every run |
-| [go-auto-upgrade#3](https://github.com/LarsArtmann/go-auto-upgrade/issues/3) | go-auto-upgrade | no per-migrator opt-out: stdlib2lo suggestions unacknowledgeable for repos deferring lo adoption |
+| Issue                                                                        | Repo            | One-line                                                                                                                                           |
+| ---------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#46](https://github.com/LarsArtmann/BuildFlow/issues/46)                    | BuildFlow       | go-work-sync re-adds deliberately excluded modules — use-directive drift ignores `go_mod_ignore_dirs` (#18's wiring stopped at the go.mod checker) |
+| [#47](https://github.com/LarsArtmann/BuildFlow/issues/47)                    | BuildFlow       | result cache replays stale verdicts after tool-config edits (`.jscpd.json` is not key material)                                                    |
+| [#48](https://github.com/LarsArtmann/BuildFlow/issues/48)                    | BuildFlow       | jscpd: ≥50-line config-file clones gate-block by default; user `.jscpd.json` replaces curated defaults instead of merging                          |
+| [#49](https://github.com/LarsArtmann/BuildFlow/issues/49)                    | BuildFlow       | lychee preflight: authenticate-vs-exclude policy (survey g1) still open — every private-repo project warns every run                               |
+| [go-auto-upgrade#3](https://github.com/LarsArtmann/go-auto-upgrade/issues/3) | go-auto-upgrade | no per-migrator opt-out: stdlib2lo suggestions unacknowledgeable for repos deferring lo adoption                                                   |
 
 Drafts preserved at `docs/drafts/buildflow-*.md` + `docs/drafts/go-auto-upgrade-migrator-optout.md`.
 

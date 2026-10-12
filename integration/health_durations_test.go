@@ -135,6 +135,10 @@ func TestHealthDurationsThroughAppkitService(t *testing.T) {
 		t.Errorf("wedged check error = %q, want fail-closed deadline report through the full stack", wedged.Error)
 	}
 	if want := string(healthsdk.StatusWarn); payload.Status != want {
-		t.Errorf("roll-up status = %q, want %q (non-critical wedged check degrades, batch completes)", payload.Status, want)
+		t.Errorf(
+			"roll-up status = %q, want %q (non-critical wedged check degrades, batch completes)",
+			payload.Status,
+			want,
+		)
 	}
 }

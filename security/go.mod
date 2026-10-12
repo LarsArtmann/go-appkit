@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/security
 go 1.27.2
 
 require (
-	github.com/larsartmann/go-appkit v0.8.0
+	github.com/larsartmann/go-appkit v0.9.0
 	github.com/larsartmann/httputil v1.5.0
 	github.com/microcosm-cc/bluemonday v1.0.27
 )
