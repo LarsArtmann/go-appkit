@@ -4,12 +4,12 @@ go 1.27.2
 
 require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.14.0
-	github.com/larsartmann/go-appkit v0.8.0
+	github.com/larsartmann/go-appkit v0.9.0
 	github.com/larsartmann/go-appkit/cqrs v0.7.0
 	github.com/larsartmann/go-appkit/docs v0.3.2
 	github.com/larsartmann/go-appkit/errorpages v0.1.1
 	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.6
-	github.com/larsartmann/go-appkit/health v0.1.5
+	github.com/larsartmann/go-appkit/health v0.2.0
 	github.com/larsartmann/go-appkit/otel v0.2.0
 	github.com/larsartmann/go-appkit/realtime v0.1.3
 	github.com/larsartmann/go-appkit/security v0.2.0
@@ -26,7 +26,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.0.0
 	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
-	github.com/larsartmann/go-health v0.5.0
+	github.com/larsartmann/go-health v0.5.1
 	github.com/larsartmann/go-sse v0.6.2
 	github.com/larsartmann/go-sse/ssetest v0.5.0
 	github.com/larsartmann/httputil v1.5.0
@@ -49,7 +49,7 @@ require (
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
 	github.com/charmbracelet/lipgloss v1.1.0 // indirect
 	github.com/charmbracelet/log v1.0.0 // indirect
-	github.com/charmbracelet/x/ansi v0.11.8 // indirect
+	github.com/charmbracelet/x/ansi v0.11.9 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.15 // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
@@ -107,17 +107,17 @@ require (
 	github.com/larsartmann/go-idempotency v0.3.1 // indirect
 	github.com/larsartmann/go-retry v0.8.0 // indirect
 	github.com/larsartmann/go-sse/sseparse v0.2.1 // indirect
-	github.com/larsartmann/templ-components v1.20.1 // indirect
-	github.com/larsartmann/templ-components/datastar v1.20.1 // indirect
-	github.com/larsartmann/templ-components/errorpage v1.20.1 // indirect
-	github.com/larsartmann/templ-components/htmx v1.20.1 // indirect
-	github.com/larsartmann/templ-components/icons v1.20.1 // indirect
-	github.com/larsartmann/templ-components/utils v1.20.1 // indirect
+	github.com/larsartmann/templ-components v1.21.0 // indirect
+	github.com/larsartmann/templ-components/datastar v1.21.0 // indirect
+	github.com/larsartmann/templ-components/errorpage v1.21.0 // indirect
+	github.com/larsartmann/templ-components/htmx v1.21.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.21.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.21.0 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/maruel/natural v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
-	github.com/mattn/go-runewidth v0.0.30 // indirect
+	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/maypok86/otter/v2 v2.3.0 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
@@ -152,11 +152,11 @@ require (
 	go.opentelemetry.io/proto/otlp v1.11.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/exp v0.0.0-20261005173118-76772065c9b0 // indirect
-	golang.org/x/net v0.59.0 // indirect
-	golang.org/x/sync v0.23.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
-	golang.org/x/text v0.42.0 // indirect
+	golang.org/x/exp v0.0.0-20261009195045-ca0d7ba23607 // indirect
+	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20261005182115-fad411399dd8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
