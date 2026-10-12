@@ -27,11 +27,11 @@
 
 ## b) PARTIALLY DONE
 
-1. **BuildFlow full-mode verification — RUNNING, and it is MUTATING THE TREE.** Launched 10:23 as `env -u GOTOOLCHAIN buildflow --build-mode full` (shell 021), still running at report time with no summary out. Critical observation: **otel/exceptions_test.go, otel/otlp_test.go, otel/setup.go carry uncommitted modernization diffs** (`t.Context()`, named-return removal, range-over-func modernization) — authored by BuildFlow's fix-capable steps, NOT by me, and NOT yet verified by a post-mutation test/lint pass. They must be judged (diff review → otel suite → lint → commit-or-revert) AFTER the run exits — never left for the daemon to sweep unverified. My earlier claim "full mode is detect-only" was wrong (see d1).
-2. **T29 — research 3/5 done, write-back 0/5.** cordis/PapDashboard/cqrs-htmx checked (a4); nixpkgs go version + buildflow version probes hung in a background shell (038) with no result — need a rerun with a timeout and a log file. None of the as-of dates are written back to AGENTS/TODO yet.
-3. **#40 follow-through — HELD deliberately:** plan is bump security's example dep v0.6.0 → v0.7.0 + add the missing CHANGELOG `[Unreleased]` entry (covering the v0.6.0 auto-bump); held because a go.mod edit mid-BuildFlow would race its module-graph steps.
-4. **#39 etag-replace drop — scoped, HELD:** the `replace github.com/larsartmann/go-etag => … v0.6.0` is still in go.work; with ALL satellite trains now shipped the graphs should carry etag ≥ the split, so the replace is droppable — but same mid-run race, held until BuildFlow exits.
-5. **#43 /tmp cleanup:** the three guessed paths (`/tmp/core-old`, cspcheck, probe binaries) don't exist; a broader `/tmp` sweep was not performed.
+1. ~~**BuildFlow full-mode verification — RUNNING, and it is MUTATING THE TREE.** Launched 10:23 as `env -u GOTOOLCHAIN buildflow --build-mode full` (shell 021), still running at report time with no summary out. Critical observation: **otel/exceptions_test.go, otel/otlp_test.go, otel/setup.go carry uncommitted modernization diffs** (`t.Context()`, named-return removal, range-over-func modernization) — authored by BuildFlow's fix-capable steps, NOT by me, and NOT yet verified by a post-mutation test/lint pass. They must be judged (diff review → otel suite → lint → commit-or-revert) AFTER the run exits — never left for the daemon to sweep unverified. My earlier claim "full mode is detect-only" was wrong (see d1).~~ done — verdict loop executed by the 12-45 session (deadlock killed, mutations judged + committed)
+2. ~~**T29 — research 3/5 done, write-back 0/5.** cordis/PapDashboard/cqrs-htmx checked (a4); nixpkgs go version + buildflow version probes hung in a background shell (038) with no result — need a rerun with a timeout and a log file. None of the as-of dates are written back to AGENTS/TODO yet.~~ done — written back 2026-09-29
+3. ~~**#40 follow-through — HELD deliberately:** plan is bump security's example dep v0.6.0 → v0.7.0 + add the missing CHANGELOG `[Unreleased]` entry (covering the v0.6.0 auto-bump); held because a go.mod edit mid-BuildFlow would race its module-graph steps.~~ done — dep now at v0.8.0 with the entry corrected (2026-10-12)
+4. ~~**#39 etag-replace drop — scoped, HELD:** the `replace github.com/larsartmann/go-etag => … v0.6.0` is still in go.work; with ALL satellite trains now shipped the graphs should carry etag ≥ the split, so the replace is droppable — but same mid-run race, held until BuildFlow exits.~~ done — dropped 2026-09-29
+5. ~~**#43 /tmp cleanup:** the three guessed paths (`/tmp/core-old`, cspcheck, probe binaries) don't exist; a broader `/tmp` sweep was not performed.~~ **Won't implement — moot — the 12-45 session trashed the session-residue files that existed.**
 
 ## c) NOT STARTED
 
@@ -67,44 +67,44 @@
 
 ## f) NEXT (impact-ordered; ~40)
 
-1. **Wait for BuildFlow 021 → read the summary** → triage the findings gate: #35 (exhaustruct_v5.exclude config-verify warning — find the module, fix key), #36 (go-auto-upgrade findings: lo.FromPtr in frh adapter, lo.Map/lo.Filter in otel/realtime tests — fix or policy-skip with rationale), remaining-findings exit code.
-2. **Judge the otel diffs** (3 files): review each hunk → `GOTOOLCHAIN=go1.27.1 go test ./... -race` + golangci-lint in otel → commit as a modernization note or revert. Explicit verdict, before anything else touches the tree.
-3. **Full-tree diff audit vs f063f82** — confirm otel was BuildFlow's ONLY mutation target (f35/d8).
-4. **Drop the go.work etag replace** (#39): remove → `go work sync` → workspace build+test → guards → commit.
-5. **Security example dep → v0.7.0 + CHANGELOG [Unreleased] entry** covering the silent v0.6.0 auto-bump (#40 follow-through); example build + test.
-6. **Write back T29:** AGENTS Deferred Register cordis row (go/v0.1.0 TAGGED, trigger 1/3 MET, parts 2–3 open) + TODO watchlist as-of dates (PapDashboard v0.3.0, cqrs-htmx v4.12.0).
-7. **Finish T29's last two probes** (nixpkgs go, buildflow version) with timeout + log.
-8. **T30:** draft the external-consumer proxy ritual decision (proposal: verify-on-touch + quarterly cadence, never per-release; record as a numbered Decision in design-decisions.md).
-9. **T32:** verify the cqrs cookbook re-verify trigger wording; read core-v1-exit-criteria.md and record graduation status against the 1.27.1 floor + v0.7.0 surface; battery demand re-check line in TODO.
-10. **T31:** lessons.md entry in crush-config (commit THERE): "re-run guards between dependency-automation runs and tagging."
-11. **Upstream draft:** BuildFlow go-licenses ≥1.27 runner ask (from the license-check skip rationale).
-12. **Upstream draft:** go-structure-linter per-tool excludes / inert yaml `exclude_patterns` ask.
-13. **T20 batch 1:** extract AGENTS per-module build commands into module READMEs (AGENTS links them); restores ≥10 lines of cap headroom.
-14. **T20 batches 2–3:** gotcha-group extractions (otel pattern-propagation block → otel README; health NewProbe recorder-cliff → health README; …).
-15. **T21:** art-dupl suppression audit (~431 groups, both episodes), standing policy, Decision 13 cross-link.
-16. **#37:** jscpd policy — the per-module `.golangci.yml` duplication (277-line clones) is by-design; suppress with rationale or accept noise; record either way.
-17. **#43:** broader /tmp sweep (trash, never rm).
-18. **#45:** eyeball dependabot grouped config vs the four swept modules; confirm parity guard covers what it claims.
-19. **f31 from this session:** figure out why the CI **proxy-smoke job skipped** on both pushes (0s) — intended SSH-gating or a broken condition; fix or document.
-20. **Consider an AGENTS BuildFlow note** once b1 is confirmed: "full mode mutates the tree — quiet-tree rule" (prevents the next agent from repeating d1).
-21. **Modernization-policy decision** (from b1): are BuildFlow's test-file modernizations wanted per-module, or noise to revert? One sentence in AGENTS or a buildflow skip.
-22. **pkg.go.dev re-check next session** for flightrecorder v0.1.1 + docs v0.3.1 (crawler lag items from #49).
-23. **After the next cqrs-htmx release:** re-verify their go-etag stub-replace drop (their move; D2 ritual; core v0.6.0+ unblocked them).
-24. **otel ns/op re-baseline when machine load < 2** (T19 delta; allocs already identical, table annotated).
-25. **AGENTS cap re-baseline after T20** (structure-linter budget).
-26. ** Satellite-train policy:** security + otel now carry small unreleased deltas — batch them into the next natural train; no dedicated tag for doc-level drift.
-27. **T13** the moment G3 is answered (g1): script or strip.
+1. ~~**Wait for BuildFlow 021 → read the summary** → triage the findings gate: #35 (exhaustruct_v5.exclude config-verify warning — find the module, fix key), #36 (go-auto-upgrade findings: lo.FromPtr in frh adapter, lo.Map/lo.Filter in otel/realtime tests — fix or policy-skip with rationale), remaining-findings exit code.~~ done — BuildFlow 021 verdict loop done 2026-09-29 (12-45 session) — #35 not reproducing at the 2026-10-12 fleet scan; #36 no lo.* usage remains
+2. ~~**Judge the otel diffs** (3 files): review each hunk → `GOTOOLCHAIN=go1.27.1 go test ./... -race` + golangci-lint in otel → commit as a modernization note or revert. Explicit verdict, before anything else touches the tree.~~ done — otel diffs judged hunk-by-hunk, verified, committed (73353f8; shipped in otel v0.2.0)
+3. ~~**Full-tree diff audit vs f063f82** — confirm otel was BuildFlow's ONLY mutation target (f35/d8).~~ done — full-tree audit confirmed otel was the only code target
+4. ~~**Drop the go.work etag replace** (#39): remove → `go work sync` → workspace build+test → guards → commit.~~ done — etag replace dropped 2026-09-29 (integration excludes span the boundary)
+5. ~~**Security example dep → v0.7.0 + CHANGELOG [Unreleased] entry** covering the silent v0.6.0 auto-bump (#40 follow-through); example build + test.~~ done — dep tracked forward — now v0.8.0; CHANGELOG entry corrected 2026-10-12
+6. ~~**Write back T29:** AGENTS Deferred Register cordis row (go/v0.1.0 TAGGED, trigger 1/3 MET, parts 2–3 open) + TODO watchlist as-of dates (PapDashboard v0.3.0, cqrs-htmx v4.12.0).~~ done — T29 written back 2026-09-29 (AGENTS cordis row + TODO as-of dates)
+7. ~~**Finish T29's last two probes** (nixpkgs go, buildflow version) with timeout + log.~~ done — buildflow probed (e881e96, 12-45); the nixpkgs probe is unanswerable in this env — TODO_LIST watchlist re-checks on the next nixpkgs pull
+8. ~~**T30:** draft the external-consumer proxy ritual decision (proposal: verify-on-touch + quarterly cadence, never per-release; record as a numbered Decision in design-decisions.md).~~ done — Decision 14 (2026-09-29)
+9. ~~**T32:** verify the cqrs cookbook re-verify trigger wording; read core-v1-exit-criteria.md and record graduation status against the 1.27.1 floor + v0.7.0 surface; battery demand re-check line in TODO.~~ done — graduation table + trigger wording verified (2026-09-29)
+10. ~~**T31:** lessons.md entry in crush-config (commit THERE): "re-run guards between dependency-automation runs and tagging."~~ done — the lesson class lives in crush-config references/lessons.md (2026-09-22 entry)
+11. ~~**Upstream draft:** BuildFlow go-licenses ≥1.27 runner ask (from the license-check skip rationale).~~ **Won't implement — moot — license-check passes 13/13 since the 2026-10-07 probes.**
+12. ~~**Upstream draft:** go-structure-linter per-tool excludes / inert yaml `exclude_patterns` ask.~~ **NOT-DO — NOT-DO — CLOSED 2026-09-29: the installed binary honors the yaml config.**
+13. **T20 batch 1:** extract AGENTS per-module build commands into module READMEs (AGENTS links them); restores ≥10 lines of cap headroom. **→ routed — TODO_LIST P3 AGENTS slim-down**
+14. **T20 batches 2–3:** gotcha-group extractions (otel pattern-propagation block → otel README; health NewProbe recorder-cliff → health README; …). **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
+15. ~~**T21:** art-dupl suppression audit (~431 groups, both episodes), standing policy, Decision 13 cross-link.~~ done — audited 2026-09-29 — 477 groups, one harmful clone fixed
+16. ~~**#37:** jscpd policy — the per-module `.golangci.yml` duplication (277-line clones) is by-design; suppress with rationale or accept noise; record either way.~~ done — decided — Decision 13 amendment
+17. ~~**#43:** broader /tmp sweep (trash, never rm).~~ **Won't implement — moot — /tmp is ephemeral; the 12-45 session trashed what existed.**
+18. ~~**#45:** eyeball dependabot grouped config vs the four swept modules; confirm parity guard covers what it claims.~~ done — parity guard green; in pre-commit since 2026-10-07
+19. ~~**f31 from this session:** figure out why the CI **proxy-smoke job skipped** on both pushes (0s) — intended SSH-gating or a broken condition; fix or document.~~ done — root-caused + fixed — proxy-smoke decoupled from the matrix (d486532)
+20. ~~**Consider an AGENTS BuildFlow note** once b1 is confirmed: "full mode mutates the tree — quiet-tree rule" (prevents the next agent from repeating d1).~~ done — AGENTS BuildFlow gotcha carries the quiet-tree rule
+21. ~~**Modernization-policy decision** (from b1): are BuildFlow's test-file modernizations wanted per-module, or noise to revert? One sentence in AGENTS or a buildflow skip.~~ done — AGENTS carries the verdict-loop treatment (full-mode diffs are judged, never daemon-swept)
+22. **pkg.go.dev re-check next session** for flightrecorder v0.1.1 + docs v0.3.1 (crawler lag items from #49). **→ docs v0.3.2 renders (verified 2026-10-12); flightrecorder still 404 — escalated to TODO_LIST**
+23. ~~**After the next cqrs-htmx release:** re-verify their go-etag stub-replace drop (their move; D2 ritual; core v0.6.0+ unblocked them).~~ done — setup/v4.13.2 published 2026-10-01 — stub-replace gone, claims re-verified
+24. **otel ns/op re-baseline when machine load < 2** (T19 delta; allocs already identical, table annotated). **→ TODO_LIST benchstat re-baseline candidate**
+25. ~~**AGENTS cap re-baseline after T20** (structure-linter budget).~~ done — AGENTS at ~364/377 — headroom restored (batch 1, 2026-09-29)
+26. ~~** Satellite-train policy:** security + otel now carry small unreleased deltas — batch them into the next natural train; no dedicated tag for doc-level drift.~~ done — settled — dependency-only satellite trains are the norm (2026-10-06 wave)
+27. **T13** the moment G3 is answered (g1): script or strip. **→ all routed — T15/T16/T22/T23/T27/T28/T10.1/battery/cordis live in TODO_LIST rows**
     28–36. **Gated, do NOT start without the word:** T15 six upstream filings (go-health pack could be direct fixes in our repo); T16 errorpages `httputil.ResponseRecorder` swap; T22 pdg backlog sweep; T23 prompt-crusher merge resolution; T27 govulncheck (health + security); T28 browser CSP pass + THREAT_MODEL link; T10.1 SSH secret → T10.3 watch one green master run; battery waves W3–W5 (demand-gated); cordis bridge (trigger 1/3 now lit — see g3).
-28. **Next docs-health pass:** archive/annotate this report per convention; the status tree is growing.
-29. **Repeat the guards trio** (pin-drift, directives, parity) as the closing sweep once f1–f16 land.
-30. **cqrs-lint re-run** if any cqrs-wrapper-adjacent change sneaks in (scorecard delta goes in the module CHANGELOG).
+28. ~~**Next docs-health pass:** archive/annotate this report per convention; the status tree is growing.~~ done — THIS docs-health pass (2026-10-12) annotated + archived where fully resolved
+29. ~~**Repeat the guards trio** (pin-drift, directives, parity) as the closing sweep once f1–f16 land.~~ done — guards trio green through every train since
+30. ~~**cqrs-lint re-run** if any cqrs-wrapper-adjacent change sneaks in (scorecard delta goes in the module CHANGELOG).~~ done — scorecard re-run recorded in cqrs CHANGELOG (adoption-closure train)
 31. **Answer-bottleneck note:** ~10 of the items above collapse the moment the three §g questions are answered.
 
 ## g) QUESTIONS ONLY YOU CAN ANSWER
 
 1. **Machine toolchain (standing):** is upgrading the machine's default go to ≥1.27.1 on your agenda (nix-managed, I can't touch it)? YES → I retire the entire GOTOOLCHAIN-prefix discipline (AGENTS command blocks, .buildflow.yml env, hook notes) in one follow-up train. NO → the prefix stays and keeps being documented. (My nixpkgs probe hung — I cannot answer this myself.)
 2. **G3 (standing):** consumer-pin claims in AGENTS/FEATURES — KEEP them and I build `scripts/check-consumer-claims.sh` (re-verifies claims after each cqrs-htmx release), or STRIP exact consumer pins from AGENTS entirely? T13 is blocked on this word.
-3. **cordis bridge promotion (NEW today):** `go/v0.1.0` is now TAGGED — trigger 1 of 3 for the Deferred Register's cordis bridge is MET. Do you want the bridge PROMOTED from the register to a tracked TODO/planned item (it would still wait for a consumer stating the reactive-composition requirement AND the core v1.0.0 exit criteria), or does it stay cold in the register until all three light up?
+3. ~~**cordis bridge promotion (NEW today):** `go/v0.1.0` is now TAGGED — trigger 1 of 3 for the Deferred Register's cordis bridge is MET. Do you want the bridge PROMOTED from the register to a tracked TODO/planned item (it would still wait for a consumer stating the reactive-composition requirement AND the core v1.0.0 exit criteria), or does it stay cold in the register until all three light up?~~ done — answered — promoted to the TODO_LIST P3 cordis WATCHLIST row (2026-09-29); remaining triggers tracked there
 
 ---
 

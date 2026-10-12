@@ -87,23 +87,23 @@ root/testkit); tree clean at `7ff0b36`.
 
 ## b) PARTIALLY DONE
 
-1. **f20/f21 AGENTS note** — done as part of the BuildFlow gotcha bullet
-   (full-mode mutates, verdict loop, deadlock mechanics, go-work-sync
-   ban, etag-exclusion pattern). NOT separately double-checked against
-   the lessons.md wording; both exist and agree in substance.
-2. **#49 pkg.go.dev re-check:** flightrecorder v0.1.1 and docs v0.3.1
+1. ~~**f20/f21 AGENTS note** — done as part of the BuildFlow gotcha bullet~~ done — the AGENTS BuildFlow gotcha and the lessons.md entry agree
+   ~~(full-mode mutates, verdict loop, deadlock mechanics, go-work-sync~~
+   ~~ban, etag-exclusion pattern). NOT separately double-checked against~~
+   ~~the lessons.md wording; both exist and agree in substance.~~
+2. **#49 pkg.go.dev re-check:** flightrecorder v0.1.1 and docs v0.3.1 **→ docs renders (2026-10-12); flightrecorder escalated to TODO_LIST (404 past the 48h rule)**
    STILL 404 at ~12:20 (crawler lag, ~12h post-tag; realtime/health/core
    render). Re-check next session; escalate only if still 404 at 48h.
 
 ## c) NOT STARTED (deliberate)
 
-1. **otel v0.2.0 release train** — code-complete by the concurrent
-   SigNoz session; its ritual step 1 (API-break diff) unrun; push is
-   user-gated and the owning session is waiting. NOT mine to start.
-2. **T20 batches 2–3** (AGENTS gotcha-group extraction) — batch 1
+1. ~~**otel v0.2.0 release train** — code-complete by the concurrent~~ done — otel v0.2.0 shipped 2026-10-06
+   ~~SigNoz session; its ritual step 1 (API-break diff) unrun; push is~~
+   ~~user-gated and the owning session is waiting. NOT mine to start.~~
+2. **T20 batches 2–3** (AGENTS gotcha-group extraction) — batch 1 **→ TODO_LIST P3 AGENTS slim-down batches 2-3**
    already brought the file to 342/377; the remaining groups are
    higher-risk to move (module gotchas reference each other).
-3. **Gated set unchanged:** T13 (G3), T15 (upstream filings — the two
+3. **Gated set unchanged:** T13 (G3), T15 (upstream filings — the two **→ the gated set lives in TODO_LIST rows (upstream asks, errorpages, pdg, prompt-crusher, govulncheck, browser CSP, SSH secret, battery waves, SigNoz instance)**
    drafts wait), T16, T22, T23, T27, T28, T10.1, battery waves W3–W5,
    SigNoz validation (needs the user's instance).
 
@@ -137,19 +137,19 @@ root/testkit); tree clean at `7ff0b36`.
 
 ## e) TOP NEXT ACTIONS (for the next session)
 
-1. **Run the otel v0.2.0 release train** (or tell the SigNoz session to)
-   — ritual step 1 diff → CHANGELOG date → tag → gate → push → proxy →
-   integration re-pin. Highest-value unblocked release.
-2. **Re-check pkg.go.dev** for flightrecorder v0.1.1 + docs v0.3.1; if
+1. ~~**Run the otel v0.2.0 release train** (or tell the SigNoz session to)~~ done — otel v0.2.0 shipped 2026-10-06 (tagged, pushed, proxy-verified, integration re-pinned)
+   ~~— ritual step 1 diff → CHANGELOG date → tag → gate → push → proxy →~~
+   ~~integration re-pin. Highest-value unblocked release.~~
+2. **Re-check pkg.go.dev** for flightrecorder v0.1.1 + docs v0.3.1; if **→ split — docs v0.3.2 renders on pkg.go.dev (verified 2026-10-12); flightrecorder still 404 past 48h — escalated to TODO_LIST**
    still 404 at 48h post-tag, investigate (re-tag ritual exists for the
    docs-ghost class).
-3. **Fix FEATURES/docs-health ritual gap** (SigNoz session's f3): add
-   FEATURES.md to the same-train release-state update list in the
-   release ritual (AGENTS step 3).
-4. **Answer the 3+3 user questions** (mine: machine toolchain ≥1.27.1?,
+3. ~~**Fix FEATURES/docs-health ritual gap** (SigNoz session's f3): add~~ done — 2026-10-12 — Release Ritual step 3 now names FEATURES.md
+   ~~FEATURES.md to the same-train release-state update list in the~~
+   ~~release ritual (AGENTS step 3).~~
+4. **Answer the 3+3 user questions** (mine: machine toolchain ≥1.27.1?, **→ cordis promotion + otel release + OTLP logs all answered (watchlist row; v0.2.0 shipped; non-goal documented in README); machine toolchain + G3 remain TODO_LIST Open questions**
    G3 posture?, cordis promotion?; SigNoz session's: live SigNoz?,
    release now or batch?, OTLP logs now or wait?).
-5. **T20 batches 2–3** when the next train needs AGENTS headroom.
+5. **T20 batches 2–3** when the next train needs AGENTS headroom. **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
 
 ## f) THE QUESTIONS I CANNOT ANSWER MYSELF (blockers)
 
@@ -158,10 +158,10 @@ root/testkit); tree clean at `7ff0b36`.
    unification is done, the prefix tax is per-command forever otherwise.
 2. **G3 (consumer-claims guard):** keep consumer pins + build
    `scripts/check-consumer-claims.sh`, or strip them? Blocks T13.
-3. **cordis bridge:** promote to a tracked TODO now that trigger 1/3 is
-   lit, or keep cold? (Watchlist wording updated today either way.)
-4. **otel v0.2.0 push authorization** (the SigNoz session's g2, still
-   open): release train now or batch?
+3. ~~**cordis bridge:** promote to a tracked TODO now that trigger 1/3 is~~ done — answered — promoted to the TODO_LIST P3 cordis WATCHLIST row (2026-09-29)
+   ~~lit, or keep cold? (Watchlist wording updated today either way.)~~
+4. ~~**otel v0.2.0 push authorization** (the SigNoz session's g2, still~~ done — answered — the v0.2.0 train ran 2026-10-06
+   ~~open): release train now or batch?~~
 
 ---
 
