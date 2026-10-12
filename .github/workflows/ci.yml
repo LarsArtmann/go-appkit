@@ -224,3 +224,18 @@ jobs:
         run: go install github.com/LarsArtmann/go-structure-linter/cmd/go-structure-linter@latest
       - name: Check structure (config present, zero findings)
         run: ./scripts/check-structure-linter.sh
+
+  # Example smoke (SUPERB v6 T13): the seven example dirs carry no test
+  # files; this job builds each hermetically, boots it on an ephemeral
+  # port, probes health + one distinctive route, SIGTERMs, and requires
+  # the graceful-shutdown line. Replaces dated hand-run "live-verified"
+  # claims with mechanical evidence on every push.
+  example-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Smoke all examples (build, boot, probe, graceful stop)
+        run: ./scripts/example-smoke.sh

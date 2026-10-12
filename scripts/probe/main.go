@@ -13,7 +13,10 @@ import (
 	"time"
 )
 
-const wantArgs = 3
+const (
+	wantArgs     = 3
+	probeTimeout = 5 * time.Second
+)
 
 func main() {
 	if len(os.Args) != wantArgs {
@@ -24,8 +27,9 @@ func main() {
 
 	url, want := os.Args[1], os.Args[2]
 
-	client := &http.Client{Timeout: 5 * time.Second} //nolint:gosec // CLI probe: the URL is the operator's own argument
+	client := &http.Client{Timeout: probeTimeout} //nolint:exhaustruct_v5 // minimal probe client by design
 
+	//nolint:gosec // one-shot CLI probe: operator-supplied URL
 	res, err := client.Get(url) //nolint:noctx // one-shot CLI probe, no cancellation needed
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "probe %s: %v\n", url, err)
