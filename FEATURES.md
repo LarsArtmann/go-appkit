@@ -91,8 +91,8 @@ ALL opt-in — nothing joins the default stack (anti-recommendation held).
 Ported from the CV production stack per the canonical battery spec (W2).
 Shipped through security **v0.2.0** (2026-09-29: `example/` hardened-chain
 demo, `THREAT_MODEL.md`, example-only core dependency). The example dep
-tracks the latest core it needs (pinned v0.8.0; v0.9.0's delta is
-test-only — nothing for the example to adopt); the
+tracks the latest core it needs (pinned v0.9.0, swept by the 2026-10-12
+post-release example train; v0.9.0's delta over v0.8.0 is test-only); the
 package itself stays appkit-free.
 
 ## errorpages (`github.com/larsartmann/go-appkit/errorpages`)
@@ -239,16 +239,16 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
   bundle's domain chain. Verified equivalences live in their
   `setup/run_appkit_test.go` (SSE header flush through the full stack, drain
   readiness transitions, response parity, hardened adoption benchmark).
-- Consumed version: **`go-appkit v0.7.0`** — verified in the PUBLISHED
-  `setup/v4.13.2` tag (2026-10-01; `setup/go.mod:15`, re-verified 2026-10-01)
-  and in their working tree. **M4 is SHIPPED in that tag**:
+- Consumed version: **`go-appkit v0.8.0`** — verified in the PUBLISHED `setup/v4.14.2` tag
+  (2026-10-12; `setup/go.mod:16`; guard-checked by `scripts/check-consumer-claims.sh`).
+  Their working tree already carries v0.9.0 (2026-10-12, untagged).
+  **M4 is SHIPPED in that tag**:
   `Config.Metrics`/`Config.Version` thread into `appkit.ServiceConfig` on the
   `RunWithAppkit` path (`run_appkit.go:78-79`). Still theirs: the
   `Bundle.Run`/`Bundle.RunHandler` internals still serve via httputil
   (Metrics/Version are RunWithAppkit-only there), and the v5-window revisit
-  (ADR-0052). Their `go.work` go-etag stub-replace is GONE — core v0.7.0 cleared
-  the > v0.5.1 condition they awaited, and setup/v4.13.2 carries the split
-  go-etag/entitytag+server v0.6.0.
+  (ADR-0052). Their `go.work` go-etag stub-replace is GONE — setup/v4.14.2
+  carries the split go-etag/entitytag+server v0.6.1.
 
 All released modules verified as fresh proxy consumers (blank-import smoke
 modules in clean dirs, `go build` green): the 2026-09-04 waves, cqrs v0.5.0
