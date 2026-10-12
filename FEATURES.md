@@ -30,14 +30,15 @@ aspirations.
 | Opt-in Prometheus surface (`Metrics`, `/metrics`) | FULLY_FUNCTIONAL | `metrics.go`, `metrics_test.go`                  |
 | `Version` + `GET /version` build info             | FULLY_FUNCTIONAL | `version.go`, `metrics_test.go`                  |
 | `testkit.Serve` full-chain test harness           | FULLY_FUNCTIONAL | `testkit/testkit.go`, `testkit/testkit_test.go`  |
+| `testkit.NewService` test-safe defaults          | FULLY_FUNCTIONAL | `testkit/testkit.go`, `testkit_test.go` (v0.9.0) |
 
-Shipped through core **v0.8.0** (2026-10-07; lifecycle hooks in v0.4.0,
+Shipped through core **v0.9.0** (2026-10-12; lifecycle hooks in v0.4.0,
 metrics/version/testkit in v0.5.0, `appkit.Hook` alias +
-`testkit.DrainWindowProbe` in v0.7.0, `ServiceConfig.StartHooks` in v0.8.0 —
-additions-only API diffs, proxy-tested). Unreleased delta (CHANGELOG
-`[Unreleased]`): `testkit.NewService(tb, cfg)` — the config-taking constructor
-with test-safe defaults (ephemeral loopback addr + `NoDrainDelay`), closing
-issue #26's 5s-per-test teardown trap.
+`testkit.DrainWindowProbe` in v0.7.0, `ServiceConfig.StartHooks` in v0.8.0,
+`testkit.NewService(tb, cfg)` — the config-taking constructor with test-safe
+defaults (ephemeral loopback addr + `NoDrainDelay`), closing issue #26's
+5s-per-test teardown trap — in v0.9.0; additions-only API diffs,
+proxy-tested).
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
@@ -90,7 +91,8 @@ ALL opt-in — nothing joins the default stack (anti-recommendation held).
 Ported from the CV production stack per the canonical battery spec (W2).
 Shipped through security **v0.2.0** (2026-09-29: `example/` hardened-chain
 demo, `THREAT_MODEL.md`, example-only core dependency). The example dep
-tracks the latest core (v0.8.0 today, CHANGELOG `[Unreleased]`); the
+tracks the latest core it needs (pinned v0.8.0; v0.9.0's delta is
+test-only — nothing for the example to adopt); the
 package itself stays appkit-free.
 
 ## errorpages (`github.com/larsartmann/go-appkit/errorpages`)
@@ -165,7 +167,7 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | `DashboardHardenedPreset` (BasePath + nonce extractor bundled)                           | FULLY_FUNCTIONAL | `mount.go`, `TestDashboardHardenedPreset_*` (shipped in v0.1.2)                                                               |
 | `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz                             | FULLY_FUNCTIONAL | `benchmark_test.go`, `FuzzNewProbe_*` (shipped in v0.1.2)                                                                     |
 | Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (shipped in v0.1.2)                                                                                         |
-| Per-check durations + deadline-bound batches (`NewProbe` → go-health `NewChecks`, #25)   | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go` (CHANGELOG `[Unreleased]`; serves `duration_ns`, wedged check fails closed at the batch deadline) |
+| Per-check durations + deadline-bound batches (`NewProbe` → go-health `NewChecks`, #25)   | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go` (v0.2.0, 2026-10-12; serves `duration_ns`, wedged check fails closed at the batch deadline) |
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
 
