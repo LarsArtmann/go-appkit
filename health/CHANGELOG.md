@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### Verified
+
+- Post-v0.2.0 evidence pass (2026-10-12): `FuzzNewProbe_PanicIsolation`
+  ran a 20s session — 2.65M execs, zero panics escaped, no corpus written.
+  `BenchmarkNewProbe_Batch_{N1,N5,N20}` pre/post NewChecks (v0.1.5 tag vs
+  working tree, benchstat n=6): N1/N5 statistically flat; N20 +9ns/op
+  (+34% relative, p=0.002) — the per-check duration bookkeeping,
+  noise-level in absolute terms on the no-op batch harness.
+
 ## [0.2.0] - 2026-10-12
 
 ### Changed

@@ -1,10 +1,20 @@
+# Changelog
+
+## [0.1.7] - 2026-10-12
+
+### Changed
+
+- Bumped go-health v0.5.0 → v0.5.1 (contract re-verified: the compile-time
+  `HealthRecorder`/`HealthcheckerWithContext` assertions and the real
+  `health.New` integration test pass unchanged — the NewChecks per-check
+  duration surface does not alter the interception path). Dependency-only;
+  fr stays at v0.2.1 (atomic-latch fix, adopted 2026-10-06).
+
 ## [0.1.6] - 2026-10-06
 
 ### Changed
 
 - Bumped go-health v0.4.1 → v0.5.0. Dependency-only.
-
-# Changelog
 
 ## [0.1.5] - 2026-09-29
 
