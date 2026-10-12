@@ -8,8 +8,6 @@
 // DomainConfig/DeploymentConfig split. Operators can swap engines at
 // deployment time (Driver/DSN/Pragmas, or a koanf YAML config file);
 // developers register commands, queries, and projections on the service.
-//
-// cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a post-command drain
 package cqrs
 
 import (
@@ -338,6 +336,7 @@ func openAuxResources( //nolint:ireturn // upstream interface
 
 	dlqStore, storeErr := buildAuxStores(context.Background(), cfg, aux)
 	if storeErr != nil {
+		// cqrs-lint:ignore(C023) error-path cleanup: storeErr is the reported error; the close outcome cannot change the outcome
 		_ = aux.Close()
 
 		return nil, nil, storeErr

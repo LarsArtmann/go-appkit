@@ -1,4 +1,4 @@
-package cqrs
+package cqrs //cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a post-command drain
 
 import (
 	"context"
