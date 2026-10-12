@@ -6,6 +6,16 @@ surface. Package docs live in `doc.go`; the module CHANGELOG records the
 release history (including the v0.2.0 ghost-tag incident and the v0.3.0
 directory repath).
 
+## Gotcha: spec titles come from `Config.ServiceName`
+
+The OpenAPI/AsyncAPI `info.title` that `docserver` emits reads
+`docserver.Config.ServiceName` — NOT the CatalogBuilder title. Only
+`catalog.json` carries the builder title. Also: a catalog with ZERO
+registered commands/events emits empty `info` sections — register at least
+one command/event for real generated-schema coverage. Pinned end-to-end by
+`integration/docs_composition_test.go` through the full appkit default
+chain (caught 2026-10-12).
+
 ## Build & verify
 
 ```bash

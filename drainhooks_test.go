@@ -11,6 +11,12 @@ import (
 
 var errDrainHookFailed = errors.New("drain failed")
 
+// These tests hand-roll their own drain-window observation instead of using
+// testkit.DrainWindowProbe: they pin core's OWN drain contract (ordering vs
+// Addr()/ready), so they must not depend on the testkit layer built on top —
+// the same reason integration's composition suite carries the consumer-side
+// mirror.
+
 func TestDrainHooks_RunInTrafficWindowBeforeShutdown(t *testing.T) {
 	t.Parallel()
 
