@@ -67,73 +67,73 @@ after tagging.
 
 ## e) WHAT WE SHOULD IMPROVE (session-derived)
 
-1. **Write new test files TO the satellite lint standard from line one** (noinlineerr, makezero arrays, sloglint) — the config is documented; the churn was avoidable.
-2. **Never assert what you haven't verified** (errno semantics, script behavior) — the tests/linter caught two of three; the pre-tag-checks citation is still outstanding.
-3. **Carry planning decisions through or kill them explicitly**: the `StartWindowProbe` idea appeared in my plan, vanished silently. Either do it or write down why not.
-4. **AGENTS additions need a paired removal** — the P3 guidance exists; follow it or change it.
-5. **README verbatim-snippet compile checks** should be part of the module-template checklist, not argued around ("the example covers it" is a rationalization; the rule says compile the snippet).
-6. **Timing tests deserve margins derived from the documented flake class** (see testkit's 5s leakSettleTimeout precedent), not the minimum that passes locally.
+1. ~~**Write new test files TO the satellite lint standard from line one** (noinlineerr, makezero arrays, sloglint) — the config is documented; the churn was avoidable.~~ done — codified — per-module .golangci.yml + the shared test-exclusion union in AGENTS
+2. ~~**Never assert what you haven't verified** (errno semantics, script behavior) — the tests/linter caught two of three; the pre-tag-checks citation is still outstanding.~~ done — codified as the verdict-after-evidence guard (SUPERB plan guard 5)
+3. ~~**Carry planning decisions through or kill them explicitly**: the `StartWindowProbe` idea appeared in my plan, vanished silently. Either do it or write down why not.~~ **Won't implement — killed explicitly — starthooks_test + systemd_lifecycle_test pin the window; no probe abstraction.**
+4. ~~**AGENTS additions need a paired removal** — the P3 guidance exists; follow it or change it.~~ done — 2026-10-12 slim-down extracted detail to docs/agents/module-details.md
+5. ~~**README verbatim-snippet compile checks** should be part of the module-template checklist, not argued around ("the example covers it" is a rationalization; the rule says compile the snippet).~~ done — AGENTS "Doc snippets are code" rule + cqrs readme_sync_test.go
+6. ~~**Timing tests deserve margins derived from the documented flake class** (see testkit's 5s leakSettleTimeout precedent), not the minimum that passes locally.~~ done — SSE E2E wait widened 5s to 15s with flake evidence (2026-10-12)
 
 ## f) NEXT — up to 50 things (priority order; ★ = direct session follow-up)
 
 **Release train (the actual remaining gate)**
 
-1. ★ Read `scripts/pre-tag-checks.sh` and verify it handles `systemd/v0.1.0` + rejects the replace as claimed.
-2. ★ Core v0.8.0: API-break diff vs v0.7.0 (expect additions-only → minor), date CHANGELOG, tag, push (USER GATE on push).
-3. ★ systemd: lift `replace => ../`, bump require to core v0.8.0, `go mod tidy`, re-verify hermetic.
-4. ★ Date systemd CHANGELOG, tag `systemd/v0.1.0`, pre-tag-checks, push (USER GATE).
-5. ★ Fresh-consumer proxy check for both tags (`doc/recipes/fresh-consumer-proxy-check.md`).
-6. ★ integration: add systemd pin + `documentedPins` fixture entry (guard then demands latest).
-7. ★ CI proxy-smoke matrix: add `github.com/larsartmann/go-appkit/systemd`.
-8. ★ AGENTS/TODO_LIST same-train release-state updates (Release Ritual step 3) — AGENTS already carries the pending-train note to convert.
-9. ★ integration composition-contract test: `Addr()`/`Running()` live inside StartHooks (post-v0.8.0).
-10. ★ integration systemd E2E: boot Service + fake NOTIFY_SOCKET → READY/STOPPING datagrams, published tags only.
+1. ~~★ Read `scripts/pre-tag-checks.sh` and verify it handles `systemd/v0.1.0` + rejects the replace as claimed.~~ done — pre-tag-checks handles multi-tag waves, verified green 2026-10-12 (dd7e0fb)
+2. ~~★ Core v0.8.0: API-break diff vs v0.7.0 (expect additions-only → minor), date CHANGELOG, tag, push (USER GATE on push).~~ done — core v0.8.0 tagged 2026-10-07 (AGENTS release state)
+3. ~~★ systemd: lift `replace => ../`, bump require to core v0.8.0, `go mod tidy`, re-verify hermetic.~~ done — systemd v0.1.0 lifted the replace onto the published core tag, 2026-10-07
+4. ~~★ Date systemd CHANGELOG, tag `systemd/v0.1.0`, pre-tag-checks, push (USER GATE).~~ done — systemd/v0.1.0 on origin since 2026-10-07
+5. ~~★ Fresh-consumer proxy check for both tags (`doc/recipes/fresh-consumer-proxy-check.md`).~~ done — proxy checks green on the 10-07 train; re-run green for cqrs v0.8.0 + frh v0.1.7 on 2026-10-12
+6. ~~★ integration: add systemd pin + `documentedPins` fixture entry (guard then demands latest).~~ done — integration pins systemd v0.1.0; documentedPins carries it
+7. ~~★ CI proxy-smoke matrix: add `github.com/larsartmann/go-appkit/systemd`.~~ done — CI matrix slot ./systemd verified by check-dependabot-parity (green)
+8. ~~★ AGENTS/TODO_LIST same-train release-state updates (Release Ritual step 3) — AGENTS already carries the pending-train note to convert.~~ done — AGENTS release state dated on the train, re-dated 2026-10-12
+9. ~~★ integration composition-contract test: `Addr()`/`Running()` live inside StartHooks (post-v0.8.0).~~ done — starthooks_test.go (core) + integration/systemd_lifecycle_test.go pin it
+10. ~~★ integration systemd E2E: boot Service + fake NOTIFY_SOCKET → READY/STOPPING datagrams, published tags only.~~ done — integration/systemd_lifecycle_test.go — unixgram fake NOTIFY_SOCKET against published tags
 
 **Hardening my own work**
-11. ★ testkit `StartWindowProbe` (startup mirror of `DrainWindowProbe`) — decide build-or-drop, then record the decision.
-12. ★ Lengthen `TestRunWatchdog` windows (flake class: slow scheduling under load).
+11. ~~★ testkit `StartWindowProbe` (startup mirror of `DrainWindowProbe`) — decide build-or-drop, then record the decision.~~ **Won't implement — superseded — starthooks_test + systemd_lifecycle_test pin the startup window directly; no probe type needed.**
+12. ~~★ Lengthen `TestRunWatchdog` windows (flake class: slow scheduling under load).~~ done — generous margins already — pingEvery 20ms vs 2s deadlines (notify_test.go)
 13. ★ Godoc examples for systemd (`ExampleInstall`, `ExampleNew`) — frh convention, compile-checked doc source of truth.
 14. ★ Verbatim compile-check of the systemd README quick start (post-tag scratch module).
 15. ★ CHANGELOG nuance: note the startup phase line logs even with zero hooks (behavioral addition to every boot).
 16. ★ Consider `Install` returning the `Hooks` value so consumers can manually stop the watchdog on failed-start paths.
-17. ★ dprint check over the new .md files (daemon commits bypass the pre-commit hook's formatting guarantee — unverified).
-18. ★ Verify go.work.sum hygiene after the 12th member (workspace builds passed; no explicit audit).
-19. ★ Run the FULL workspace `go test ./... -race` once (I ran root + systemd + integration only).
+17. ~~★ dprint check over the new .md files (daemon commits bypass the pre-commit hook's formatting guarantee — unverified).~~ done — dprint check green 2026-10-12 (T18.1 pass)
+18. ~~★ Verify go.work.sum hygiene after the 12th member (workspace builds passed; no explicit audit).~~ done — 12 modules green at the 1.27.2 floor; no go.work.sum issues since
+19. ~~★ Run the FULL workspace `go test ./... -race` once (I ran root + systemd + integration only).~~ done — 2026-10-12 floor train ran all 12 modules -race green
 20. ★ Check CONTRIBUTING.md / other root docs for module-count staleness (README fixed; others unexamined).
 
 **Pre-existing queue surfaced by this session (context only — owned by TODO_LIST)**
 21. P1: restore `SSH_PRIVATE_KEY` Actions secret; get one fully green master run (my new CI slot is currently inside the dead-signal matrix).
-22. P2: otel v0.2.0 release train (code-complete since 2026-09-29) — could ride the SAME train as core v0.8.0.
-23. P2: go.work item refresh — tracked-status half resolved today by the daemon; update the item text + add the "lists exactly the module dirs" assert.
-24. P2: wire `check-go-directives.sh` into BuildFlow pre-commit (class fix; would have caught nothing today but the class stands).
-25. P2: cqrs E2E composition gap (7/10→11/12 released modules now have E2E; systemd will make it 12).
+22. ~~P2: otel v0.2.0 release train (code-complete since 2026-09-29) — could ride the SAME train as core v0.8.0.~~ done — otel v0.2.0 shipped 2026-10-06
+23. ~~P2: go.work item refresh — tracked-status half resolved today by the daemon; update the item text + add the "lists exactly the module dirs" assert.~~ done — charter guard derives the module list dynamically (check-workspace-charter.sh)
+24. ~~P2: wire `check-go-directives.sh` into BuildFlow pre-commit (class fix; would have caught nothing today but the class stands).~~ done — .githooks/pre-commit runs it FATAL since 2026-10-07 (stronger than the BuildFlow ask)
+25. ~~P2: cqrs E2E composition gap (7/10→11/12 released modules now have E2E; systemd will make it 12).~~ done — integration carries cqrs_lifecycle + systemd_lifecycle + domain SSE E2E — every released module composed
 26. P2: security browser-CSP pass; errorpages ResponseRecorder swap; health recorder-cliff upstream ask — unchanged.
 27. P3: SSE-hub coherence watch (this research) + realtime W5-C1 drop counters borrowing ssehub's `Drops()` shape.
 28. P3: go-aichat reverse-adoption proposal (USER GATE — question 3 below).
 29. P3: cqrs-htmx v5-window revisit — core > v0.5.1 unblock SHIPPED; their move.
-30. P3: AGENTS deep slim-down — my +15 lines raised the pressure; do the compensating trim or the deep cut.
-31. P3: consumer-claim drift ritual (post-AGENTS-edit relevance: I added consumer-adjacent claims? no — none added).
-32. ★ Trash `buildflow-fsprobe-1747112478` (root-dir junk noticed this session; `trash`, never `rm`).
-33. Commit a `.go-structure-linter.yaml` carrying the three excludes (AGENTS: binary honors it now) so bare runs are green without flags.
+30. ~~P3: AGENTS deep slim-down — my +15 lines raised the pressure; do the compensating trim or the deep cut.~~ done — AGENTS 126/220 lines after the 2026-10-12 slim-down; detail lives in docs/agents/module-details.md
+31. ~~P3: consumer-claim drift ritual (post-AGENTS-edit relevance: I added consumer-adjacent claims? no — none added).~~ done — scripts/check-consumer-claims.sh wired into pre-tag-checks (ac30874, 2026-10-12)
+32. ~~★ Trash `buildflow-fsprobe-1747112478` (root-dir junk noticed this session; `trash`, never `rm`).~~ done — junk no longer in the tree (2026-10-12)
+33. ~~Commit a `.go-structure-linter.yaml` carrying the three excludes (AGENTS: binary honors it now) so bare runs are green without flags.~~ done — .go-structure-linter.yaml committed; check-structure-linter.sh + CI guard it
 34. systemd `WithStatus(string)` helper for `STATUS=` announcements (demand-gated).
 35. Watchdog first-ping-immediacy decision (currently ticker-only, mirroring go-daemon; sd_notify guidance says half-interval pings — first at half — current behavior complies; record the reasoning in README).
-36. Docs-health VERIFY pass over the new module's README/FEATURES/CHANGELOG cross-claims.
+36. ~~Docs-health VERIFY pass over the new module's README/FEATURES/CHANGELOG cross-claims.~~ done — 2026-10-12 docs-health full pass rebuilt TODO/FEATURES
 37. Consider excluding the startup phase line at Debug when zero StartHooks configured (noise tradeoff; probably keep for symmetry).
 38. Benchstat re-baseline post-1.27.1 (standing P2; unaffected by today).
-39. Health/polish batch (standing P2 backlog).
+39. ~~Health/polish batch (standing P2 backlog).~~ done — T11 health batch done 2026-10-12 — bench, fuzz, frh v0.1.7, otel fr-bridge E2E
 40. Battery W3/W4/W5 (standing P3; W4 `polite` may want go-daemon's client-resilience reference — already routed).
 41. Cordis / PapDashboard / nixpkgs-toolchain watchlists (standing).
-42. Fresh status-report harvest into TODO_LIST on the next docs-health pass (this report included).
+42. ~~Fresh status-report harvest into TODO_LIST on the next docs-health pass (this report included).~~ done — this annotation pass is that harvest (2026-10-12)
 
 **Deliberately out of scope today (correctly untouched)**
 43. UDS serving (Option C) — demand-gated.
 44. Content negotiation W3-B5 (Option D) — W3-gated, go-daemon as conformance source.
-45. `go work sync` — NEVER casually (AGENTS); hand-edit only (done correctly today).
+45. ~~`go work sync` — NEVER casually (AGENTS); hand-edit only (done correctly today).~~ done — codified in AGENTS (BuildFlow gotcha block)
 46. BuildFlow full mode — deadlocks in this network-blocked env (lychee/shellcheck); dev mode unaffected.
-47. Re-opening the proprietary-license decision — closed 2026-09-16, permanently.
-48. godoc-visibility work — hidden by choice.
-49. Merging realtime with ssehub — watch item, not action.
-50. Any change to `ShutdownHooks never run for a never-started service` semantics to fix the watchdog-leak edge — the documented tradeoff (process exit as backstop) stands unless a consumer hits it.
+47. ~~Re-opening the proprietary-license decision — closed 2026-09-16, permanently.~~ **NOT-DO — closed 2026-09-16 ruling — permanently proprietary.**
+48. ~~godoc-visibility work — hidden by choice.~~ **NOT-DO — hidden by choice — same ruling.**
+49. Merging realtime with ssehub — watch item, not action. **→ watch item — SSE-hub coherence watchlist row**
+50. ~~Any change to `ShutdownHooks never run for a never-started service` semantics to fix the watchdog-leak edge — the documented tradeoff (process exit as backstop) stands unless a consumer hits it.~~ **NOT-DO — documented tradeoff stands — process exit is the backstop (systemd module godoc).**
 
 ## g) QUESTIONS (cannot be resolved from the repo)
 
