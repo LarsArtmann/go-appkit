@@ -2,9 +2,7 @@ package health
 
 import (
 	"context"
-	"sync"
 
-	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/go-health"
 )
 
@@ -12,26 +10,27 @@ import (
 // healthy, an error otherwise. Checks run concurrently on every batch —
 // background refreshes and live handler requests alike — and receive the
 // batch's timeout-bounded context (5s by default, tunable through the SDK's
-// WithTimeout).
+// WithTimeout). A check that ignores its context is abandoned at the batch
+// deadline with a fail-closed error naming it.
 type CheckFunc func(ctx context.Context) error
 
 // NewProbe creates a go-health Probe from named checks, without a samber/do
-// injector. The probe evaluates all checks as one batch, classifies them
-// through the SDK's options (WithCriticalServices gates readiness on the
-// named subset), caches the roll-up in the background, and serves the
-// three-probe handlers.
+// injector. It forwards to go-health's NewChecks: checks run concurrently
+// on every batch and each is self-timed, so every served response carries
+// per-check duration_ns alongside the probe-observed since (dashboards
+// rendering durations light up without any wiring change). A nil or empty
+// check map produces a probe that always reports pass — useful as a
+// placeholder, pointless as a health surface.
 //
 // # WithHealthRecorder is silently dropped on this path
 //
-// NewProbe forwards opts to go-health's NewWithHealthCheck, which nils the
-// recorder before assembling the probe (go-health accessors.go:
-// "cfg.recorder = nil"; its godoc states WithHealthRecorder "has no effect
-// here"). A [health.WithHealthRecorder] option passed to NewProbe is
-// therefore silently ignored: no HealthRecorder callbacks fire, and a
+// NewProbe forwards opts to go-health's NewChecks, which ignores
+// WithHealthRecorder (its godoc: "the given checks own batch execution").
+// A [health.WithHealthRecorder] option passed to NewProbe is therefore
+// silently ignored: no HealthRecorder callbacks fire, and a
 // flightrecorderhealth.Trigger wired this way captures zero traces — with no
-// error and no warning. This mirrors the upstream contract ("the explicit
-// function already owns batch execution"), not a defect in NewProbe, but it
-// is a trap.
+// error and no warning. This mirrors the upstream contract, not a defect in
+// NewProbe, but it is a trap.
 //
 // To drive trace capture from health batches, use the injector path
 // instead: register the checks in a samber/do injector, build the probe
@@ -39,62 +38,28 @@ type CheckFunc func(ctx context.Context) error
 // Trigger to the recorder side. See the package doc's quick start and the
 // runnable ExampleNewProbe_recorderViaInjector in this package.
 //
-// Checks are panic-isolated per check: a panicking check fails as that
-// check's error ("check %q panicked") instead of poisoning the batch. Other
-// checks still report, and the classifier grades the failure by criticality
-// exactly like any other failure.
-//
-// A nil or empty check map produces a probe that always reports pass —
-// useful as a placeholder, pointless as a health surface.
+// Failure modes, all owned by go-health's per-check runner: a panicking
+// check is recovered into that check's error (wrapping go-health's
+// ErrCheckPanicked — "health: check panicked: ...") instead of poisoning
+// the batch, and other checks still report; a nil CheckFunc in the map
+// fails closed as that check's error (wrapping ErrNilCheck); a check that
+// ignores its context is abandoned at the batch deadline with a fail-closed
+// error naming it, so one wedged dependency cannot hang the batch. Status
+// grading is unchanged: critical failures fail readiness, non-critical
+// failures degrade to warn.
 //
 // All other probe behavior (caching interval, batch timeout, method guard,
 // evaluation hooks) is configured through the SDK's own Option values.
+// Callers that must self-time composed checks (proxying an upstream probe's
+// own timings, batching externally) can use go-health's NewWithDetailedCheck
+// directly — the resulting *health.Probe composes with everything in this
+// package unchanged.
 func NewProbe(checks map[string]CheckFunc, opts ...health.Option) *health.Probe {
-	batch := func(ctx context.Context) map[string]error {
-		results := make(map[string]error, len(checks))
+	goChecks := make(map[string]health.CheckFunc, len(checks))
 
-		var (
-			resultsMu sync.Mutex
-			batchWG   sync.WaitGroup
-		)
-
-		for name, check := range checks {
-			batchWG.Go(func() {
-				defer recordCheckPanic(name, results, &resultsMu)
-
-				err := check(ctx)
-
-				resultsMu.Lock()
-				results[name] = err
-				resultsMu.Unlock()
-			})
-		}
-
-		batchWG.Wait()
-
-		return results
+	for name, check := range checks {
+		goChecks[name] = health.CheckFunc(check)
 	}
 
-	return health.NewWithHealthCheck(batch, opts...)
-}
-
-// recordCheckPanic converts a panic inside a check goroutine into that
-// check's error. Registered before the check runs so it also catches panics
-// thrown mid-execution; recover is nil-valued on the normal path.
-func recordCheckPanic(name string, results map[string]error, resultsMu *sync.Mutex) {
-	recovered := recover()
-	if recovered == nil {
-		return
-	}
-
-	resultsMu.Lock()
-	defer resultsMu.Unlock()
-
-	results[name] = errorfamily.Newf(
-		errorfamily.Infrastructure,
-		"health.check_panicked",
-		"check %q panicked: %v",
-		name,
-		recovered,
-	)
+	return health.NewChecks(goChecks, opts...)
 }

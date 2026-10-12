@@ -107,7 +107,10 @@
 // non-critical checks degrade the roll-up to warn (readiness stays 200).
 // NewProbe checks run concurrently per batch and are panic-isolated per
 // check: a panicking check fails as that check's error instead of poisoning
-// the batch.
+// the batch. Each check is self-timed — every response carries per-check
+// duration_ns — and a check that ignores its context is abandoned at the
+// batch deadline with a fail-closed error, so one wedged dependency cannot
+// hang the probe.
 //
 // # Build requirement
 //

@@ -1,7 +1,9 @@
 package health
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -190,5 +192,101 @@ func TestNewProbe_ChecksReceiveBoundedContext(t *testing.T) {
 
 	if !sawDeadline {
 		t.Error("checks must receive a timeout-bounded context")
+	}
+}
+
+// TestNewProbe_ReportsPerCheckDurations pins the metadata fix (#25): every
+// check is self-timed, so the served response carries per-check
+// duration_ns (previously always omitted on the NewProbe path). The slow
+// check's duration must reflect its runtime, and the field name must
+// survive JSON serialization — that is what duration-rendering dashboards
+// consume.
+func TestNewProbe_ReportsPerCheckDurations(t *testing.T) {
+	t.Parallel()
+
+	probe := NewProbe(map[string]CheckFunc{
+		"fast": func(context.Context) error { return nil },
+		"slow": func(ctx context.Context) error {
+			select {
+			case <-time.After(30 * time.Millisecond):
+			case <-ctx.Done():
+				t.Error("batch deadline cut the slow check short")
+			}
+
+			return nil
+		},
+	})
+
+	resp := probe.Evaluate(t.Context())
+
+	slow, ok := resp.Checks["slow"]
+	if !ok {
+		t.Fatal("slow check missing from response")
+	}
+
+	if slow.DurationNanos < 25*time.Millisecond.Nanoseconds() {
+		t.Errorf("slow check duration_ns = %d, want >=25ms (check must be self-timed)", slow.DurationNanos)
+	}
+
+	fast, ok := resp.Checks["fast"]
+	if !ok {
+		t.Fatal("fast check missing from response")
+	}
+
+	if fast.DurationNanos <= 0 {
+		t.Errorf("fast check duration_ns = %d, want >0 (every check reports timing)", fast.DurationNanos)
+	}
+
+	wire, err := json.Marshal(resp)
+	if err != nil {
+		t.Fatalf("marshal response: %v", err)
+	}
+
+	if !bytes.Contains(wire, []byte(`"duration_ns"`)) {
+		t.Errorf("wire response omits duration_ns: %s", wire)
+	}
+}
+
+// TestNewProbe_WedgedCheckFailsClosedAtDeadline pins the fail-closed
+// guarantee the NewChecks switch adds: a check that ignores its context is
+// abandoned at the batch deadline with an error naming it — the batch
+// completes, other checks report, and one wedged dependency cannot hang
+// the probe. The abandoned check goroutine eventually exits on its own
+// (time.After below); nothing blocks on it.
+func TestNewProbe_WedgedCheckFailsClosedAtDeadline(t *testing.T) {
+	t.Parallel()
+
+	probe := NewProbe(map[string]CheckFunc{
+		"healthy": func(context.Context) error { return nil },
+		"wedged": func(context.Context) error {
+			time.Sleep(2 * time.Second) // deliberate ctx-ignoring wedged check
+
+			return nil
+		},
+	}, health.WithTimeout(250*time.Millisecond))
+
+	err := probe.Start(t.Context())
+	if err != nil {
+		t.Fatalf("start: %v", err)
+	}
+
+	resp := probe.CachedResponse()
+
+	wedged, ok := resp.Checks["wedged"]
+	if !ok {
+		t.Fatal("wedged check missing from response")
+	}
+
+	if !strings.Contains(wedged.Error, "did not finish before the batch deadline") {
+		t.Errorf("wedged check error = %q, want fail-closed deadline report", wedged.Error)
+	}
+
+	if got := resp.Status; got != health.StatusWarn {
+		t.Errorf("status = %v, want warn (non-critical wedged check degrades, batch completes)", got)
+	}
+
+	healthy, ok := resp.Checks["healthy"]
+	if !ok || healthy.Error != "" {
+		t.Errorf("healthy check must still pass: ok=%v check=%+v", ok, healthy)
 	}
 }

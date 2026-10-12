@@ -1,3 +1,24 @@
+## [Unreleased]
+
+### Changed
+
+- `NewProbe` now forwards to go-health v0.5.0's `NewChecks` instead of a
+  hand-rolled batch through `NewWithHealthCheck`, closing the per-check
+  metadata gap (#25): every served response now carries per-check
+  `duration_ns` (previously always omitted on this path — dashboards
+  rendering durations light up without wiring changes), and a check that
+  ignores its context is abandoned at the batch deadline with a fail-closed
+  error naming it (previously such a check hung the whole batch — one wedged
+  dependency could stall every readiness answer past the timeout).
+  Status grading is unchanged (critical failure → fail, non-critical →
+  warn). Behavior deltas from the upstream runner: a recovered panic now
+  reports `health: check panicked: ...` (errors.Is-matchable via go-health's
+  `ErrCheckPanicked`) instead of this wrapper's errorfamily-coded message,
+  and a nil `CheckFunc` in the map fails closed as `health: check is nil`
+  instead of as a recovered panic. Callers needing self-managed timings can
+  use go-health's `NewWithDetailedCheck` directly — it composes with this
+  package unchanged.
+
 ## [0.1.5] - 2026-10-06
 
 ### Changed
