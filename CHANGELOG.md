@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-12
+
 ### Added
 
 - `testkit.NewService(tb, cfg)` — the config-taking service constructor
@@ -18,6 +20,11 @@
   tests keep their custom delay), and invalid config fails `tb` instead of
   returning an error every test hand-rolled. `Serve`'s doc comment now
   names the teardown cost and both escape hatches.
+
+### Changed
+
+- Go directive 1.27.1 → 1.27.2 (repo-wide floor train: cqrs-htmx
+  v4.14.0 requires ≥1.27.2; the bump also clears stdlib GO-2026-6617).
 
 ## [0.8.0] - 2026-10-07
 

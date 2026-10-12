@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-12
+
 ### Changed
 
 - `NewProbe` now forwards to go-health v0.5.0's `NewChecks` instead of a
@@ -18,6 +20,11 @@
   instead of as a recovered panic. Callers needing self-managed timings can
   use go-health's `NewWithDetailedCheck` directly — it composes with this
   package unchanged.
+
+### Changed
+
+- Go directive 1.27.1 → 1.27.2 (repo-wide floor train; clears stdlib
+  GO-2026-6617).
 
 ## [0.1.5] - 2026-10-06
 
