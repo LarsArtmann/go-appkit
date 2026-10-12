@@ -11,16 +11,9 @@ version: "2"
 #   - depguard (deny-only): cqrs-htmx/setup/v4 must never be imported —
 #     setup consumes appkit, never the reverse (SUPERB v4 C3)
 #   - no arangolint / clickhouselint: no database driver code in this module
-#   - goexperiment.* build-tags match this module's build requirements
 run:
   timeout: 5m
-  go: 1.26.7
-  build-tags:
-    - goexperiment.arenas
-    - goexperiment.goroutineleakprofile
-    # jsonv2 not required: this module builds with plain go build (see AGENTS.md)
-    - goexperiment.runtimesecret
-    - goexperiment.simd
+  go: "1.27.2"
   allow-parallel-runners: true
   allow-serial-runners: true
   issues-exit-code: 1

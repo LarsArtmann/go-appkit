@@ -11,20 +11,13 @@ version: "2"
 #   - depguard (deny-only): cqrs-htmx/setup/v4 must never be imported —
 #     setup consumes appkit, never the reverse (SUPERB v4 C3)
 #   - no arangolint / clickhouselint: no database driver code in this module
-#   - goexperiment.* build-tags match this module's build requirements
 #
 # Tests that touch NOTIFY_SOCKET / WATCHDOG_USEC are serialized (envMu):
 # process-global environment, same rationale as flightrecorderhealth's
 # recorderMu.
 run:
   timeout: 5m
-  go: 1.26.7
-  build-tags:
-    - goexperiment.arenas
-    - goexperiment.goroutineleakprofile
-    - goexperiment.jsonv2
-    - goexperiment.runtimesecret
-    - goexperiment.simd
+  go: "1.27.2"
   allow-parallel-runners: true
   allow-serial-runners: true
   issues-exit-code: 1

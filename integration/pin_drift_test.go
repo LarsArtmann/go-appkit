@@ -63,8 +63,10 @@ var documentedPins = map[string]string{
 // workspace command; a deliberate toolchain bump must land here, in
 // integration/go.mod, in go.work, and in AGENTS.md in the same change.
 // 2026-09-28: integration joined the root/go.work/health 1.27.1 side of the
-// unification (go mod tidy); 2026-09-29: all 11 modules unified at 1.27.1.
-const documentedGoDirective = "1.27.1"
+// unification (go mod tidy); 2026-09-29: all 11 modules unified at 1.27.1;
+// 2026-10-12: floor-trained to 1.27.2 (cqrs-htmx v4.14.0 requires >=1.27.2;
+// also clears GO-2026-6617) across all 12 go.mods + go.work.
+const documentedGoDirective = "1.27.2"
 
 func TestGoModPinsMatchDocumentedPins(t *testing.T) {
 	t.Parallel()
