@@ -51,9 +51,13 @@ const (
 	// the whole workspace's test binaries run concurrently) need scheduling
 	// time, not failure. Proven flake class 2026-09-29: testkit passed
 	// standalone and failed twice in `go test ./...` (11 binaries racing,
-	// machine saturated) at the 2s deadline; 5s clears it without weakening
-	// the guarantee — genuine leaks still fail, 3s later.
-	leakSettleTimeout = 5 * time.Second
+	// machine saturated) at the 2s deadline; 5s cleared it — genuine leaks
+	// still fail, 3s later. Second proven instance 2026-10-12: 5s tripped
+	// when a concurrent golangci-lint fleet saturated the machine (the
+	// settle loop exhausted all 5s and reported a leak that was not one);
+	// 10s keeps the early-exit green path untouched and doubles the
+	// saturation headroom. Genuine leaks still fail — later, never never.
+	leakSettleTimeout = 10 * time.Second
 
 	// errDrainTimeout bounds the server-error drain and the leak re-check.
 	errDrainTimeout = 2 * time.Second
