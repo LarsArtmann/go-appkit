@@ -71,8 +71,8 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 
 **Immediate (small, high-value):**
 
-1. Re-run the audit (`library-deep-dive` Phase 1-7) against the post-train tree to convert the 73→~90 projection into a measured score (P; the audit's own recommendations are now all closed except F8→upstream-ask, which is drafted).
-2. Add the working golangci-lint invocation + LSP cache-race caveat to AGENTS.md Build/Lint section (D).
+1. ~~Re-run the audit (`library-deep-dive` Phase 1-7) against the post-train tree to convert the 73→~90 projection into a measured score (P; the audit's own recommendations are now all closed except F8→upstream-ask, which is drafted).~~ done — rubric re-run 2026-10-07 scored 87/100 (DoD met; research report Rubric section)
+2. ~~Add the working golangci-lint invocation + LSP cache-race caveat to AGENTS.md Build/Lint section (D).~~ done — AGENTS Build & Verify + lint section carries invocation + cache-race caveat
 3. Extend `scripts/check-pin-drift.sh` with a fixture-vs-go.mod comparison so guard jobs catch fixture drift without running the test suite (D6).
 4. Add a `doc/recipes/localhost-e2e-check.md` recipe (fetch tool + scratch Go client + port hygiene) (D4).
 5. `-count=20` quiet-machine stress of the flightrecorder suite to retire the flake question; if it reproduces, instrument `waitForTraceCount` (D7).
@@ -84,13 +84,13 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 9. After upstream lands `OnCooldown`: delete frh's hand-rolled cooldown + the middleware's DIY cookbook recipe in favor of the upstream combinator (P/T11 follow-up already in TODO_LIST).
 
 **Next trains (each own ritual):**
-10. frh v0.1.7: fr v0.2.1 sweep (safe but fleet-consistent; ride with the upstream-cooldown adoption if it lands) (D).
-11. cqrs v0.6.2: fr v0.2.1 sweep (same reasoning) (D).
-12. core v0.8.0 + systemd v0.1.0 train (pre-existing P1 train: lift the systemd replace, tag, integration pin + documentedPins + proxy-smoke slot) (pre-existing).
-13. Then: examples StartHooks migration (both examples; drop the in-doc caveats) (P/D, gated on 12).
+10. ~~frh v0.1.7: fr v0.2.1 sweep (safe but fleet-consistent; ride with the upstream-cooldown adoption if it lands) (D).~~ done — frh v0.1.7 shipped 2026-10-12 with fr v0.2.1 confirmed
+11. ~~cqrs v0.6.2: fr v0.2.1 sweep (same reasoning) (D).~~ done — cqrs carried fr v0.2.1 from v0.8.0 (2026-10-12 sweep verified)
+12. ~~core v0.8.0 + systemd v0.1.0 train (pre-existing P1 train: lift the systemd replace, tag, integration pin + documentedPins + proxy-smoke slot) (pre-existing).~~ done — core v0.8.0 + systemd v0.1.0 train shipped 2026-10-07
+13. ~~Then: examples StartHooks migration (both examples; drop the in-doc caveats) (P/D, gated on 12).~~ done — both examples migrated to StartHooks, smoke-green (2026-10-12)
 14. otel example: clean up the `os.MkdirTemp` trace dir on shutdown (`defer os.RemoveAll` or document retention intent) (D).
 15. flightrecorder example: same temp-dir hygiene + TRACE_DIR documentation (D).
-16. AGENTS.md: once fr v0.2.1 is the fleet floor, sweep the "Once-latch semantics" gotcha wording (partially done; final pass when frh/cqrs sweep) (D).
+16. ~~AGENTS.md: once fr v0.2.1 is the fleet floor, sweep the "Once-latch semantics" gotcha wording (partially done; final pass when frh/cqrs sweep) (D).~~ done — module-details once-latch wording carries the v0.2.1 atomic-latch semantics
 17. Consider `SnapshotToWriter` godoc note upstream: it bypasses the once-latch (relevant to download endpoints) — small upstream-doc PR candidate (D).
 18. Consider exposing `OpsRecorderPreset`'s compression level as an option (deferred-register style; only on consumer demand) (D).
 19. `polish_test.go`: pin the nil-logger path (`OpsRecorderLoggerPreset(..., nil)` → 6 options) with a test (D).
@@ -102,10 +102,10 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 
 **Pre-existing fleet items touched by this session's context (unchanged, listed for completeness):**
 25. P1 CI secret (`SSH_PRIVATE_KEY`) — owner-only; blocks all green-run signal.
-26. go-directive re-drift class fix (BuildFlow wiring + semver-aware guard + toolchain directive).
-27. go.work tracking decision (CI reads an untracked file).
+26. ~~go-directive re-drift class fix (BuildFlow wiring + semver-aware guard + toolchain directive).~~ done — githooks FATAL + CI directives job since 2026-10-07
+27. ~~go.work tracking decision (CI reads an untracked file).~~ done — go.work tracked + charter guard asserts membership
 28. E2E gap: flightrecorder middleware through a live appkit Service (composition-gap watchlist; the example now exists — promoting it to an integration E2E is natural next).
-29. E2E gap: cqrs wrapper lifecycle (pre-existing P2).
+29. ~~E2E gap: cqrs wrapper lifecycle (pre-existing P2).~~ done — integration cqrs_lifecycle_test.go through a live Service (pinned 2026-09-29)
 30. security browser-CSP pass (pre-existing P2).
 31. errorpages statusRecorder→httputil.ResponseRecorder (user-gated, 10-line change).
 32. Composition-gap E2E watchlist items (otel×realtime, otel×health-dashboard, security×errorpages, SSE+health lifecycle).
@@ -132,7 +132,7 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 
 ## g) QUESTIONS FOR LARS (cannot self-answer)
 
-1. **Re-audit now or later?** Item 1 (re-run the deep-dive audit against the post-train tree to get the measured score) — do it next session, or fold into the next scheduled docs-health pass?
+1. **Re-audit now or later?** Item 1 (re-run the deep-dive audit against the post-train tree to get the measured score) — do it next session, or fold into the next scheduled docs-health pass? **→ answered — re-audit ran 2026-10-07 (87/100)**
 2. **File the cooldown ask?** The draft is verified and TODO_LIST-gated — file it upstream now, or batch it with the next upstream interaction?
 3. **Guard extension:** item 3 proposes teaching `check-pin-drift.sh` the fixture-vs-go.mod comparison (would have caught the concurrent train's red fixture without running the suite) — worth doing, or do you prefer the fixture stays test-only?
 
