@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/realtime
 
-go 1.27.1
+go 1.27.2
 
 require (
 	github.com/larsartmann/go-sse v0.6.2

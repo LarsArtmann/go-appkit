@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/errorpages
 
-go 1.27.1
+go 1.27.2
 
 require (
 	github.com/larsartmann/go-appkit v0.8.0

@@ -1,4 +1,4 @@
-go 1.27.1
+go 1.27.2
 
 // ./integration is deliberately NOT a workspace member: it pins PUBLISHED
 // tags only (pin charter in integration/doc.go), and workspace membership
