@@ -67,7 +67,7 @@ for tag in "${tags[@]}"; do
 	esac
 	gomod_path="${module_dir:+$module_dir/}go.mod"
 
-	tagged_go="$(git show "$tag:$gomod_path" 2>/dev/null | sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' | head -n1)"
+	tagged_go="$(git show "$tag:$gomod_path" 2>/dev/null | sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' | head -n1 || true)"
 	floor="$(sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' go.work | head -n1)"
 	if [[ -z "$tagged_go" ]]; then
 		fail "$tag:$gomod_path has no parseable 'go <version>' directive"
@@ -77,7 +77,7 @@ for tag in "${tags[@]}"; do
 		echo "OK:   $tag:$gomod_path declares go $tagged_go (floor)"
 	fi
 
-	tagged_toolchain="$(git show "$tag:$gomod_path" | sed -n 's/^toolchain go\([0-9][0-9.]*\)$/\1/p' | head -n1)"
+	tagged_toolchain="$(git show "$tag:$gomod_path" 2>/dev/null | sed -n 's/^toolchain go\([0-9][0-9.]*\)$/\1/p' | head -n1 || true)"
 	if [[ -n "$tagged_toolchain" ]]; then
 		fail "$tag:$gomod_path carries a toolchain directive — this repo's mechanism is the GOTOOLCHAIN prefix"
 	fi
