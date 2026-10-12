@@ -1,16 +1,16 @@
 # Changelog
 
-## [Unreleased]
+## [0.8.0] - 2026-10-12
 
 ### Added
 
 - Behavioral pins (test-only, no API change): Domain read models persist
   across restart on a file DSN (replay does not double-count);
-  `Domain.Timers` schedulers start with `StartProjections` and — tripwire
-  until the upstream `Close` gap is fixed — are NOT stopped by `Shutdown`
-  (see the Timers caveat in the README and the upstream ask under
-  `doc/feedback/outgoing/`); `ShutdownDependencies` validation edges;
-  the coeffect unconsumed-event advisory; SSE replay reconnection via
+  `Domain.Timers` schedulers start with `StartProjections` and — since the
+  upstream system `Close` gap was fixed (ADR-0142 lifecycle) — ARE stopped
+  by `Shutdown` (tripwire flipped 2026-10-09; see the Timers caveat in the
+  README); `ShutdownDependencies` validation edges; the coeffect
+  unconsumed-event advisory; SSE replay reconnection via
   `watcher.WithReplay` (reconnect receives exactly the missed suffix).
 - Executable godoc Examples `ExampleNewEventService_domainCommandLifecycle`
   and `ExampleEventService_System`, plus README defect fixes they exposed:
@@ -21,6 +21,24 @@
   module does not carry (`cqrs.*` must be exported; exercised dependency
   prefixes must appear in module code) or when an Example and its README
   reference drift apart in either direction.
+
+### Changed
+
+- go-cqrs-lite pin sweep onto the 2026-10-08..12 waves (dependency-only for
+  this wrapper's API): system v4.12.0 → v4.13.0 (RawQuery coeffect-gate fix,
+  schema declarations, Clock seam), event v4.13.1 → v4.14.0
+  (`ErrReentrantPublish` fails loud instead of deadlocking), projectionhost
+  v4.5.3 → v4.6.0 (drain ring + checkpoint-flush ctx fixes), decider v4.7.2 →
+  v4.8.0 (`WithSnapshotStateVersion`), metaengine v4.17.0 → v4.19.0 +
+  sqliteengine v4.5.2 → v4.5.3 (same-day `time.Time` range-filter corruption
+  fix, upstream #62), systemscenario v4.0.0 → v4.1.0. `storage/v4` left the
+  require graph entirely (system wires it internally). Suite + lint green;
+  cqrs-lint 4.16.x clean (E014 suppression moved to its firing site, new
+  C023 error-path-close suppression added); scorecard: Modernity Modern,
+  zero deprecated surfaces.
+- README cookbook re-verified against scenario/v4 v4.4.3 + testutil/v4
+  v4.3.4 in a scratch module (compile + run; the fold signature now returns
+  `(State, error)` — noted inline).
 
 ## [0.7.0] - 2026-10-06
 

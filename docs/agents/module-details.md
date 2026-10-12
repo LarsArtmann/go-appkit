@@ -238,22 +238,24 @@ context, NOT user documentation — each module's user-facing docs live in its o
 
 | Module                                                           | Version | Role                                                                                     |
 | ---------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| `github.com/larsartmann/go-cqrs-lite/system/v4`                  | v4.10.2 | System builder (domain config, decider/command/query registration, host)                 |
+| `github.com/larsartmann/go-cqrs-lite/system/v4`                  | v4.13.0 | System builder (domain config, schema declarations, Clock, decider/command/query registration, host) |
 | `github.com/larsartmann/go-cqrs-lite/command/v4`                 | v4.13.1 | Command types, dispatcher                                                                |
+| `github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4` | v4.2.3 | Command-lifecycle read model (WithCommandLifecycle recipe)                               |
 | `github.com/larsartmann/go-cqrs-lite/query/v4`                   | v4.10.1 | Query types, dispatcher                                                                  |
-| `github.com/larsartmann/go-cqrs-lite/decider/v4`                 | v4.7.2  | Decider type                                                                             |
+| `github.com/larsartmann/go-cqrs-lite/decider/v4`                 | v4.8.0  | Decider type (+ WithSnapshotStateVersion)                                                |
 | `github.com/larsartmann/go-cqrs-lite/middleware/v4`              | v4.7.2  | Command middleware (Recovery/Tracing/Logging)                                            |
 | `github.com/larsartmann/go-cqrs-lite/otel/v4`                    | v4.5.2  | `cqrsotel.Tracer` for command tracing middleware                                         |
-| `github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4` | v4.5.1  | SQLite meta engine (blank import for driver registration)                                |
-| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4`          | v4.5.3  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                               |
-| `github.com/larsartmann/go-cqrs-lite/event/v4`                   | v4.13.1 | Event types, stream refs, event construction                                             |
-| `github.com/larsartmann/go-cqrs-lite/id/v4`                      | v4.7.1  | Branded IDs (stream, event)                                                              |
+| `github.com/larsartmann/go-cqrs-lite/metaengine/v4`              | v4.19.0 | Engine planner (FilterBindValue time-fix, layout fingerprints)                           |
+| `github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4` | v4.5.3  | SQLite meta engine (blank import for driver registration; #62 time-filter fix)           |
+| `github.com/larsartmann/go-cqrs-lite/projectionhost/v4`          | v4.6.0  | Projection host (DLQ, logger, FR, metrics, lag, readiness)                               |
+| `github.com/larsartmann/go-cqrs-lite/event/v4`                   | v4.14.0 | Event types, stream refs, event construction (+ ErrReentrantPublish)                     |
+| `github.com/larsartmann/go-cqrs-lite/id/v4`                      | v4.7.2  | Branded IDs (stream, event)                                                              |
 | `github.com/larsartmann/go-cqrs-lite/projection/v4`              | v4.4.2  | Projection type and `NewProjection`                                                      |
-| `github.com/larsartmann/go-cqrs-lite/storage/v4`                 | v4.10.4 | SQLite checkpoint store + schema                                                         |
-| `github.com/larsartmann/go-flightrecorder`                       | v0.2.0  | Flight recorder (projectionhost v4.4.0 unified on it; shared with appkit/flightrecorder) |
+| `github.com/larsartmann/go-cqrs-lite/systemscenario/v4`          | v4.1.0  | System-level BDD harness (scenario_pilot_test.go rides it)                               |
+| `github.com/larsartmann/go-flightrecorder`                       | v0.2.1  | Flight recorder (atomic-latch fix; shared with appkit/flightrecorder)                    |
 | `github.com/larsartmann/go-error-family`                         | v0.11.0 | Error classification (shared with core); v0.11.0 since the 2026-09-29 dependency sweep   |
 
-All pinned cqrs-lite subpackage versions matched the latest tags at the 2026-10-06 sweep; SUPERSEDED 2026-10-12: go-cqrs-lite shipped `system/v4 v4.13.0` (proxy-verified) — the pin sweep + README-cookbook re-verification ritual are DUE (TODO_LIST P2).
+All pinned cqrs-lite subpackage versions match the latest tags (swept 2026-10-12 onto the 2026-10-08..12 cqrs-lite waves: system v4.11-v4.13, event v4.14.0, projectionhost v4.6.0, decider v4.8.0, metaengine v4.19.0, sqliteengine v4.5.3, systemscenario v4.1.0; `storage/v4` left the require graph entirely — system wires it internally). README cookbook re-verified 2026-10-12 against scenario/v4 v4.4.3 + testutil/v4 v4.3.4 (scratch-module compile+run; fold now returns `(State, error)`) and cqrs-lint 4.16.x (2 new-rule suppressions added; scorecard: Modernity Modern, 0 deprecated surfaces).
 
 ### Notes
 

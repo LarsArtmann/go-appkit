@@ -628,7 +628,9 @@ own `go.mod` when you use them.
 ### Decider tests with the scenario DSL
 
 `github.com/larsartmann/go-cqrs-lite/scenario/v4` gives your decide/fold pairs
-a fluent Given/When/Then suite — no database needed:
+a fluent Given/When/Then suite — no database needed (verified against
+scenario/v4 v4.4.3; the fold returns `(State, error)`, and `Then` still takes
+`event.Type` values):
 
 ```go
 import "github.com/larsartmann/go-cqrs-lite/scenario/v4"
