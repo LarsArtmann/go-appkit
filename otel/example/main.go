@@ -110,9 +110,18 @@ func run(cfg appkit.ServiceConfig) error {
 		return fmt.Errorf("create flight recorder: %w", err)
 	}
 
-	err = rec.Start()
-	if err != nil {
-		return fmt.Errorf("start flight recorder: %w", err)
+	// The recorder starts on the post-listen seam: StartHooks run after the
+	// listener binds and before serving — a Start failure fails the whole
+	// start (the listener closes again), so a demo without telemetry never
+	// answers a request.
+	cfg.StartHooks = []func(context.Context) error{
+		func(context.Context) error {
+			if err := rec.Start(); err != nil {
+				return fmt.Errorf("start flight recorder: %w", err)
+			}
+
+			return nil
+		},
 	}
 
 	// Tracing wraps the whole request (including the default middleware
