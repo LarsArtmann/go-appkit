@@ -53,7 +53,7 @@ var documentedPins = map[string]string{
 	// proxy LATEST by scripts/check-pin-drift.sh; re-align by hand when the
 	// owning family module bumps them.
 	"github.com/larsartmann/go-flightrecorder": "v0.2.1",
-	"github.com/larsartmann/go-health":         "v0.5.0",
+	"github.com/larsartmann/go-health":         "v0.5.1",
 	"github.com/samber/do/v2":                  "v2.1.0",
 }
 

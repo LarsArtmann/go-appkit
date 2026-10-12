@@ -4,7 +4,7 @@
 
 ### Changed
 
-- `NewProbe` now forwards to go-health v0.5.0's `NewChecks` instead of a
+- `NewProbe` now forwards to go-health v0.5.1's `NewChecks` instead of a
   hand-rolled batch through `NewWithHealthCheck`, closing the per-check
   metadata gap (#25): every served response now carries per-check
   `duration_ns` (previously always omitted on this path — dashboards
@@ -24,7 +24,8 @@
 ### Changed
 
 - Go directive 1.27.1 → 1.27.2 (repo-wide floor train; clears stdlib
-  GO-2026-6617).
+  GO-2026-6617); go-health v0.5.0 → v0.5.1 (carries `NewChecks`) and
+  go-health-dashboard v0.10.1 → v0.10.2 swept on the same train.
 
 ## [0.1.5] - 2026-10-06
 

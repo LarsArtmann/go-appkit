@@ -146,7 +146,7 @@ context, NOT user documentation — each module's user-facing docs live in its o
 - Dashboard is opt-in (`WithDashboard`); it then registers the probe endpoints from ITS route config (WithBasePath applies uniformly) and serves `/health` — consumers must set `RegisterHealth: &false` (mux panics on the duplicate otherwise).
 - Without dashboard: probe routes only (`/healthz`, `/readyz`, `/startupz`), coexists with appkit's default health endpoints.
 - `Mounted.Drain` in `DrainHooks` = go-health readiness 503 for the WHOLE drain window, in lockstep with appkit's own ready probe (the reason core gained `DrainHooks`).
-- Dependencies: `go-health v0.4.1`, `go-health-dashboard v0.10.1` (swept in health v0.1.4, 2026-09-29 — the v0.3.0 evaluation backlog item is OVERTAKEN, suite green), `go-appkit/security v0.2.0` (EXAMPLE-ONLY — the library surface stays security-free), `go-error-family v0.11.0`.
+- Dependencies: `go-health v0.5.1` (v0.2.0's `NewProbe`→`NewChecks` forward rides it; swept with the 2026-10-12 train), `go-health-dashboard v0.10.2`, `go-appkit/security v0.2.0` (EXAMPLE-ONLY — the library surface stays security-free), `go-error-family v0.11.0`.
 
 ### Gotchas
 
