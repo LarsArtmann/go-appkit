@@ -88,6 +88,12 @@ swaps the metric pipeline.
    Dashboards → New Dashboard → Import JSON). See
    `dashboards/README.md`.
 
+Your own metrics ride the same pipe: any instrument created from
+`provider.AsMeterProvider().Meter("myapp")` (counters, histograms) exports
+through the identical OTLP endpoint — the example's flight-recorder bridge
+(`appkit_flightrecorder_snapshots_total{type=...}`) is exactly that shape,
+and shows up in SigNoz next to the HTTP metrics with no extra wiring.
+
 ## Exceptions (SigNoz's Exceptions view)
 
 SigNoz turns `exception` span events into a dedicated exceptions view with
@@ -183,6 +189,40 @@ variables, which the exporters honor natively (endpoint, headers, timeout,
 compression, retries). Any custom `sdktrace.SpanExporter` /
 `sdkmetric.Reader` still fits via `WithSpanExporter` / `WithMetricReader` —
 and takes precedence over OTLP for its signal.
+
+Wire-level knobs worth knowing (source-verified against
+`otlp{trace,metric}http` v1.47.0):
+
+- **Compression:** `OTEL_EXPORTER_OTLP_COMPRESSION=gzip` (zero-code) or the
+  per-signal `OTEL_EXPORTER_OTLP_TRACES_COMPRESSION` /
+  `OTEL_EXPORTER_OTLP_METRICS_COMPRESSION`; the value must be exactly
+  `gzip` (anything else parses as no-compression).
+- **Retries:** built in — the OTLP/HTTP exporters back off and retry
+  throttled responses (429 with `Retry-After`) and transient 5xx/2xx-error
+  bodies themselves; nothing to configure on our side.
+- **Export cadence:** traces flush on batch (span count / 5s default);
+  metrics ride `OTEL_METRIC_EXPORT_INTERVAL` (milliseconds; SDK default
+  60s — pinned by `TestWithOTLP_MetricExportIntervalEnv`).
+
+### Tail sampling
+
+Head sampling (`WithSampler`, `OTEL_TRACES_SAMPLER`) drops spans at capture
+time and is the cheap default. True tail sampling (decide AFTER the trace
+is complete, e.g. keep 100% of errors, 1% of the rest) needs a collector:
+
+```go
+// Send everything to a local collector; let IT sample.
+provider, _ := appkitotel.Setup(
+    appkitotel.WithService("myapp", version, instance),
+    appkitotel.WithOTLP(appkitotel.WithOTLPEndpoint("http://localhost:4318")),
+)
+```
+
+Run `otelcol` with a `tail_sampling` processor (policies: `status_code`
+for errors, `probabilistic` for the rest) and forward from there. The
+application cannot do tail sampling itself — a Go SDK drops the span at
+End() unless a tail-sampling collector receives the WHOLE trace first
+(the reason `WithSampler` × `OTEL_TRACES_SAMPLER` is head-only by design).
 
 ## Relationship to go-cqrs-lite's otel module
 

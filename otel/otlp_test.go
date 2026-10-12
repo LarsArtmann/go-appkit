@@ -251,6 +251,50 @@ func TestWithOTLP_ExportsMetricsToEndpoint(t *testing.T) {
 	}
 }
 
+// TestWithOTLP_MetricExportIntervalEnv pins the SDK contract our WithOTLP
+// wiring rides: the PeriodicReader defaults to OTEL_METRIC_EXPORT_INTERVAL
+// (milliseconds; sdk/metric periodic_reader.go) unless a reader carries an
+// explicit interval. With the env set to 300ms and no ForceFlush anywhere,
+// the only possible source of metric export requests is the periodic
+// ticker — a 60s default (env ignored or overridden) produces zero.
+func TestWithOTLP_MetricExportIntervalEnv(t *testing.T) {
+	t.Setenv("OTEL_METRIC_EXPORT_INTERVAL", "300")
+
+	server, receipts := newOTLPCollector(t)
+
+	provider, err := Setup(
+		WithService("interval-svc", "1.0.0", ""),
+		WithOTLP(WithOTLPEndpoint(server.URL)),
+		WithoutGlobalRegistration(),
+	)
+	if err != nil {
+		t.Fatalf("setup: %v", err)
+	}
+
+	deadline := time.Now().Add(4 * time.Second)
+
+	for {
+		receipts.mu.Lock()
+		exports := len(receipts.metrics)
+		receipts.mu.Unlock()
+
+		if exports >= 3 {
+			break
+		}
+
+		if time.Now().After(deadline) {
+			t.Fatalf("collector received %d metric exports in ~4s, want >= 3 (OTEL_METRIC_EXPORT_INTERVAL ignored?)", exports)
+		}
+
+		time.Sleep(25 * time.Millisecond)
+	}
+
+	err = provider.Shutdown(t.Context())
+	if err != nil {
+		t.Fatalf("shutdown: %v", err)
+	}
+}
+
 // TestSetup_EnvEndpointAutoEnablesOTLP is the zero-code contract: nothing
 // but OTEL_EXPORTER_OTLP_ENDPOINT in the environment, and Setup wires both
 // signals itself.
