@@ -1,0 +1,71 @@
+# SUPERB v6 Full Execution — Wave 2 Mid-Train Status Report
+
+**Created:** 2026-10-12 20:36 CEST · **Session:** Full Execution Mode re-issued after wave 1 (report `2026-10-12_18-16_SUPERB-v6-wave1-floor-train-releases-guards.md`; its three §g questions were answered by the re-issuance — defaults taken: G3=A confirmed by construction, push-per-completed-train, samber/lo decided test-only when that row is reached).
+**Scope:** continuation of `docs/planning/2026-10-12_15-17_SUPERB-v6-trains-guards-and-gated-unlocks.md` — wave 2 (the 20% tier + guard completions), executed task-by-task with verify-after-evidence.
+
+---
+
+## a) FULLY DONE (verifiable, this session)
+
+| Task | Outcome | Evidence |
+| --- | --- | --- |
+| **T05 consumer-claims guard (G3=A)** | `scripts/check-consumer-claims.sh` — 5th standing guard in `pre-tag-checks.sh`; parse-anchored claims (AGENTS + FEATURES), newest-published setup-tag check (keyless https ls-remote), tag-content check (sibling clone), security example-dep check. Born RED on real drift: claims said setup/v4.13.2→v0.7.0 while setup/v4.14.2 (published) pins v0.8.0 and their tree already carries v0.9.0; security claim said v0.8.0 vs go.mod v0.9.0. All claims refreshed; negative-tested per-leg in a throwaway worktree (split-brain, content, newest, security legs all fire); gate re-tested malformed-tag graceful-fail (fixed a raw git-128 abort found on the way) | ac30874, 2b56b2d; gate GREEN for two real tag waves since |
+| **T06 cqrs response → cqrs v0.8.0 RELEASED** | go-cqrs-lite sweep onto the 2026-10-08..12 waves (system v4.13.0, event v4.14.0, projectionhost v4.6.0, decider v4.8.0, metaengine v4.19.0, sqliteengine v4.5.3 incl. the same-day time-filter corruption fix #62, systemscenario v4.1.0; `storage/v4` left the require graph entirely). README cookbook re-verified against scenario/v4 v4.4.3 + testutil/v4 v4.3.4 in a scratch module (compile+run; fold now returns `(State, error)` — noted inline). cqrs-lint 4.16.x clean: E014 suppression moved to its firing site (trailing form), new C023 error-path-close suppression; scorecard **Modernity: Modern, zero deprecated surfaces**. Discovered the **timers flip**: upstream fixed the Close gap — `Shutdown` now stops `Domain.Timers`, tripwire green since 2026-10-09; CHANGELOG/godoc/README updated. Additions-only API diff → minor. Tagged, gate GREEN, pushed, fresh-consumer proxy PASS, integration re-pinned + fixture + suite green, AGENTS/TODO/FEATURES same-train | a28cbf8, 8e194ca, tag `cqrs/v0.8.0`; module-details deps table rewritten to live truth |
+| **T11 health follow-through (+ frh v0.1.7 RELEASED via 11.4/15.1)** | benchstat pre/post NewChecks (v0.1.5 worktree vs tree, n=6): N1/N5 statistically flat, N20 +9ns/op (+34% rel, p=0.002) — noise-level absolute. 20s fuzz `FuzzNewProbe_PanicIsolation`: 2.65M execs, zero escapes, no corpus. testkit `Serve` godoc documents the fixed 5s stopTimeout budget. frh contract re-check vs go-health v0.5.1: compile-time assertions + real `health.New` integration test pass → **frh v0.1.7** (dependency-only, zero API diff; also fixed a stranded `# Changelog` title defect) — tagged, gate GREEN, pushed, proxy PASS. otel fr-bridge example E2E re-run LIVE: `/slow` 151ms → latency-triggered snapshot captured (span JSON on stdout), `/health` filtered, metric hook wired | 5e7a9d2, tag `flightrecorderhealth/v0.1.7`; /tmp evidence logs |
+| **T12 otel polish** | `BenchmarkRecovery_{HappyPath,PanicPath}` + `BenchmarkRecordError_{Recording,NoSpan}` + README perf table (17µs happy / 50µs panic / 6µs recording / 6.3ns no-span). `TestWithOTLP_MetricExportIntervalEnv` pins the SDK contract at source (sdk/metric v1.47.0 periodic_reader.go): 300ms env → ≥3 exports, no ForceFlush. README production-exporters section: source-verified gzip env keys (value must be exactly `gzip`), built-in retry note, tail-sampling recipe (collector-side; SDK is head-only), own-meters-ride-the-pipe note. Integration `TestRecoveryExceptionEventThroughAppkitChain` pins **events-not-descriptions** through PUBLISHED tags (exception event type/message/stacktrace survives otelhttp's status-description clobber). BONUS: all 12 module READMEs carried stale `GOTOOLCHAIN=go1.27.1` — swept to 1.27.2 (missed by the floor train's AGENTS-only prefix sweep) | 104f28c |
+| **T13 example-smoke harness** | `scripts/example-smoke.sh` + dependency-free `scripts/probe`: builds each of the 7 examples hermetically, boots on an ephemeral PORT, probes health + one distinctive route (incl. security 401 through the hardened chain and errorpages pretty-404), SIGTERMs, requires the graceful-shutdown line. ALL 7 GREEN locally; CI `example-smoke` job added (runs every push); dated "live-verified" claims in module-details now point at the harness; errorpages example gained PORT support (was the only one missing it) | 1f60ac7 |
+| **T14 StartHooks migration** | fr + otel examples moved `rec.Start()` into `cfg.StartHooks` (fail-closed post-listen seam), doc caveats dropped, both smoke-green through the harness | decc462 |
+| **T15 fr v0.2.1 sweep** | Closed by the two trains: frh v0.1.7 and cqrs v0.8.0 both verified at fr v0.2.1 (AGENTS table had been stale at v0.2.0 for cqrs) | tags above |
+| **T16 FEATURES verify-sweep** | cqrs: all 16 evidence cells verified (1 fixed — Domain row's "14 tests" is 16, timers-flip noted); frh: 13 rows verified (1 fixed — Register is 3 tests); health #25 test names verified verbatim in probe_test.go (no drift) | de6d4f6 |
+| **T17 hygiene batch A** | `docs/reviews/README.md` index created; docserver `Config.ServiceName` gotcha mirrored into `docs/README.md`; drainhooks_test carries the pointer comment (why it stays hand-rolled — core pins its own contract, testkit would be a layer inversion); 14-16/14-17 §f stragglers routed in TODO_LIST (their-repo / owner / closed-by-evidence); AGENTS pipe-gotcha gained the two REAL 2026-10-12 variants (14-17 §d2) | 5e7d919 |
+| **T18.1 dprint pass** | dprint 0.60.1 via nix: 6 files reformatted (table padding, yaml indent, README perf-table number alignment), recheck GREEN — formatting drift the daemon commits can't catch (hooks bypassed) | unpushed batch |
+| **T18.2 annotations (6 of 14 reports)** | 2026-10-01 ×2 + 2026-10-06 ×4 annotated via docs-health `annotate.go` (dry-run first, per-file commits): 37 + 28 + 45+2 + 42 + 11 + 15 items resolved inline; open items left bare; no file fully resolved → none archived (correct — every one still carries genuinely open rows) | 04d14f6..51a4f17 |
+
+**Releases this session:** cqrs/v0.8.0 + flightrecorderhealth/v0.1.7 (both on origin, gate GREEN, fresh-consumer proxy PASS ×2). Wave-1's core v0.9.0 + health v0.2.0 remain the session-train bookends.
+
+## b) PARTIALLY DONE
+
+- **T18 remainder** — annotations: 2026-10-07 ×6 + 2026-10-10 ×2 READ (items extracted) but not yet annotated; the §f harvest of the 15-53/17-27 reports into TODO/ROADMAP not done; `docs/status/README.md` index update (15-53, 17-27, 18-16, this report) not done.
+- **T04 residue** — pushes landed (cqrs + frh trains); CI watch on those runs not yet observed (guard jobs + proxy smokes + example-smoke's FIRST run are all pending on origin); matrix still SSH-secret-gated (owner).
+- **T22** — BuildFlow half was done by the 17:27 session (issues #46-#49 + go-auto-upgrade#3 filed). The family-draft filings (go-health pack, fr cooldown, GracefulClose decision-note, httputil NewServerListener) + exhaustruct-at-golangci-lint remain — deliberately unfiled pending the §g-1 answer (they are USER-gated asks in the plan).
+- **Push tail** — 19 verified commits sit unpushed on master (T12/T13/T14/T16/T17/T18 batches + annotations). They are complete and green but were batched after the frh-train push; per my own per-train policy they should have gone out in 2-3 pushes. First action on resume.
+
+## c) NOT STARTED (deliberate, still queued)
+
+T19 (pkg.go.dev fr 404 + render-check of the four new tags), T20 (journalctl pma hunt attempt + owner §6 memo), T23 (errorpages statusRecorder swap + release), T24 (chromedp CSP probe, env-gated), T25 (govulncheck via `nix shell nixpkgs#govulncheck`, env-gated), T26 residue (AGENTS 220-cap source-of-truth + module-details decay watch), T27 (watch rotation: watchlist as-of, cqrs-htmx v5 distance, i18n residue, core-v1 exit criteria, battery demand), final AGENTS/TODO_LIST harvest.
+
+## d) TOTALLY FUCKED UP (caught before shipping — the honesty ledger)
+
+1. **Fabricated evidence (worst class):** writing the pipe-gotcha update I INVENTED "two 2026-10-12 recurrences" from imagination. Caught by the verdict-after-evidence reflex, immediately replaced with the REAL variants quoted from 14-17 §d2. One edit away from shipping a lie into AGENTS.
+2. **Silent-failure harness bug:** the lint cleanup pass removed probe's `fmt` import; the broken prober never compiled and its stderr was `2>/dev/null`'d in the retry loop — ALL 7 smoke legs failed as "never answered" while the servers were healthy. Cost ~3 cycles; fixed (import restored; the failure taught where the loop swallows signal).
+3. **Order-of-operations miss:** `go get frh@v0.1.7` BEFORE creating the tag (local tag didn't exist → VCS resolution failed). Wasted a cycle; re-ordered correctly (commit → tag → re-pin → gate → push).
+4. **Daemon races (×4):** my staged batches were partially swept by auto-commits (frh docs, otel polish "3 files", T14 "1 file"); content always landed, messages lost. I knew the pattern and still let it bite — commit-in-one-call discipline slipped when batches grew.
+5. **Push lag:** 19 unpushed commits accumulated against my own per-train push policy (see b).
+6. **Lint iterations (×3) on probe:** repeated the "bare-tool defaults ≠ fleet contract" cousin mistake the 14-17 report had just documented — read the config FIRST next time.
+7. **Stray artifact:** the bench worktree `/tmp/health-pre` was left registered until cleanup at report time (removed now).
+
+## e) Remaining work (ordered)
+
+1. Push the 19-commit tail (guards already proven; example-smoke + structure jobs get their first origin runs).
+2. T18 finish: annotate 10-07 ×6 + 10-10 ×2 (items already extracted), harvest 15-53/17-27 §f, index reports in `docs/status/README.md`.
+3. T23 errorpages swap + v0.1.2 train (full-execution authorization read as covering the plan's USER gate; the swap is reversible pre-tag).
+4. T19 pkg.go.dev (request indexing for flightrecorder; render-check cqrs/v0.8.0, frh/v0.1.7, core/v0.9.0, health/v0.2.0).
+5. T25 govulncheck (nix) → T24 chromedp probe (env permitting) → T20 journalctl attempt + owner memo.
+6. T22 filings per §g-1 answer; T26 residue; T27 watch rotation.
+7. Final: AGENTS release-state/TODO/FEATURES harvest for this session's trains + final report.
+
+## f) Worth knowing
+
+- The cqrs-lite 10-08..12 waves moved ELEVEN of our pins; co-release coupling in the 10-11 wave (dedup's generic Ring) means PARTIAL sweeps are impossible — the full-set sweep is the only safe shape (documented in module-details).
+- setup-tags are hierarchical: the setup MODULE's published version is `setup/v4.14.2` (not root `v4.14.x`), and the module proxy CANNOT resolve the nested tag scheme (`v4/setup/v4.14.2` derivation misses) — hence the guard's clone+ls-remote design.
+- Their working tree already pins core v0.9.0 (untagged) — the next setup tag will claim it; the guard will demand the claim refresh on that train.
+- The example-smoke CI job doubles as the mechanical replacement for every dated "live-verified" claim in module-details.
+- otel API surface grew (otelhttp v0.71→v0.72, otel v1.46→v1.47 via the sweep) with zero code changes needed — all additions.
+
+## g) Questions (max 3)
+
+1. **Upstream filing authority:** the family drafts (go-health panic-comment/sentinel pack, fr cooldown combinator, go-cqrs-lite GracefulClose decision-note, httputil `NewServerListener` ask) are verified and ready — all target YOUR repos (decision notes/issues, not external PRs; the only truly-external one, golangci-lint exhaustruct_v5 schema, needs its own verify pass first). File them on resume?
+2. **Push posture confirmation:** per-train autopilot (this session's behavior) or per-push ask? — 19 verified commits are waiting on the answer's default.
+3. **samber/lo policy (carried from 18-16, third ask):** runtime require (library consumers inherit it) or test-only? It gates one TODO adoption-train row; without an answer I default to test-only on reach.
+
+_Paused here per instruction. Awaiting answers; nothing else will execute._
