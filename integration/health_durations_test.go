@@ -39,6 +39,7 @@ func TestHealthDurationsThroughAppkitService(t *testing.T) {
 		},
 		"wedged": func(context.Context) error {
 			time.Sleep(2 * time.Second) // deliberately ignores its context
+
 			return nil
 		},
 	}, healthsdk.WithTimeout(250*time.Millisecond))
@@ -51,6 +52,7 @@ func TestHealthDurationsThroughAppkitService(t *testing.T) {
 	cfg := appkit.DefaultServiceConfig()
 	cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
 		mounted.Drain()
+
 		return nil
 	})
 	cfg.ShutdownHooks = append(cfg.ShutdownHooks, mounted.Shutdown)
@@ -60,17 +62,26 @@ func TestHealthDurationsThroughAppkitService(t *testing.T) {
 	mounted.RegisterRoutes(svc.Mux)
 
 	ctx := context.Background()
-	if err := mounted.Start(ctx); err != nil {
+	err = mounted.Start(ctx)
+	if err != nil {
 		t.Fatalf("mounted.Start: %v", err)
 	}
 
 	ts := testkit.Serve(t, svc)
 
-	resp, err := http.Get(ts.FullChainURL + "/readyz")
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, ts.FullChainURL+"/readyz", nil)
+	if err != nil {
+		t.Fatalf("build /readyz request: %v", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("GET /readyz: %v", err)
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -89,12 +100,14 @@ func TestHealthDurationsThroughAppkitService(t *testing.T) {
 	var payload struct {
 		Status string `json:"status"`
 		Checks map[string]struct {
-			Status       string `json:"status"`
-			Error        string `json:"error"`
-			DurationNanos int64 `json:"duration_ns"`
+			Status        string `json:"status"`
+			Error         string `json:"error"`
+			DurationNanos int64  `json:"duration_ns"` //nolint:tagliatelle // the wire contract is go-health's snake_case field, not this repo's camelCase
 		} `json:"checks"`
 	}
-	if err := json.Unmarshal(body, &payload); err != nil {
+
+	err = json.Unmarshal(body, &payload)
+	if err != nil {
 		t.Fatalf("unmarshal /readyz body: %v: %s", err, body)
 	}
 
@@ -121,7 +134,7 @@ func TestHealthDurationsThroughAppkitService(t *testing.T) {
 	if !strings.Contains(wedged.Error, "did not finish before the batch deadline") {
 		t.Errorf("wedged check error = %q, want fail-closed deadline report through the full stack", wedged.Error)
 	}
-	if payload.Status != string(healthsdk.StatusWarn) {
-		t.Errorf("roll-up status = %q, want warn (non-critical wedged check degrades, batch completes)", payload.Status)
+	if want := string(healthsdk.StatusWarn); payload.Status != want {
+		t.Errorf("roll-up status = %q, want %q (non-critical wedged check degrades, batch completes)", payload.Status, want)
 	}
 }
