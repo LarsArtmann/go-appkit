@@ -46,24 +46,24 @@
 
 | #  | What works                                                                                                                                                                                                                                                 | What remains                                                                                                                                                                                                                                   | Blocker                   | Effort |
 | -- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ------ |
-| B1 | 1.27.1 unification: root, go.work, health, integration, security (the last two joined via tidy this pass/episode-2).                                                                                                                                       | 7 satellites lag (cqrs/docs/realtime 1.26.7; errorpages/flightrecorder/otel 1.27; frh 1.26.5) → guard red. Direction is set by gravity (go-etag v0.6.0 + httputil v1.4.0 both demand ≥1.27.1); the deliberate one-train completion is TODO P2. | USER go-ahead             | S/M    |
-| B2 | Release trains: all four modules' `[Unreleased]` deltas are now accurately CHANGELOG'd (core, security, health, frh) and enumerated in TODO P2.                                                                                                            | The trains themselves (API-break checks, dating, tagging, proxy checks, AGENTS/pin updates). cqrs-htmx is waiting on core > v0.5.1 (their go-etag stub-replace drop).                                                                          | USER timing               | M      |
-| B3 | Consumer-claim accuracy: this pass fixed all known stale claims and added the ritual item.                                                                                                                                                                 | The standing ritual (re-verify claims ABOUT consumers after each cqrs-htmx release) is a TODO item, not yet a script — nothing mechanical guards claims about OTHER repos' state.                                                              | policy decision (see g-2) | M      |
-| B4 | LSP health: gopls produced live diagnostics throughout this session (hookcodes_test.go errors surfaced and resolved immediately) — the "workspace broken" state from 09-23/24 is empirically GONE under the go.work 1.27.1 + per-module GOWORK=off regime. | Not systematically verified across all modules/editors; the TODO item stays until the unification train lands.                                                                                                                                 | none                      | S      |
-| B5 | The two current reports (23-03, 00-05): their §f lists are fully harvested into TODO (episode-2 items are near-duplicates of episode-1 numbering; the pdg list is routed as one pointer row).                                                              | Their own annotation+archive pass (not mine to do — their sessions own those reports).                                                                                                                                                         | next docs-health pass     | S      |
-| B6 | Guard coverage: pin-drift now guards both sides of the cross-repo contracts.                                                                                                                                                                               | go-directives remains string-equality brittle (1.26 vs 1.26.7), has no `toolchain`-directive coverage, and is not wired into pre-commit — one TODO P2 item owns all three.                                                                     | none                      | S      |
+| ~~B1~~ | ~~1.27.1 unification: root, go.work, health, integration, security (the last two joined via tidy this pass/episode-2).~~ done — all 11 unified 2026-09-29 | ~~7 satellites lag (cqrs/docs/realtime 1.26.7; errorpages/flightrecorder/otel 1.27; frh 1.26.5) → guard red. Direction is set by gravity (go-etag v0.6.0 + httputil v1.4.0 both demand ≥1.27.1); the deliberate one-train completion is TODO P2.~~ | ~~USER go-ahead~~ | ~~S/M~~ |
+| ~~B2~~ | ~~Release trains: all four modules' `[Unreleased]` deltas are now accurately CHANGELOG'd (core, security, health, frh) and enumerated in TODO P2.~~ done — all four trains + cqrs v0.6.0 shipped 2026-09-29 | ~~The trains themselves (API-break checks, dating, tagging, proxy checks, AGENTS/pin updates). cqrs-htmx is waiting on core > v0.5.1 (their go-etag stub-replace drop).~~ | ~~USER timing~~ | ~~M~~ |
+| B3 | Consumer-claim accuracy: this pass fixed all known stale claims and added the ritual item. **→ the ritual is a TODO_LIST P2 row pending the policy answer (Open questions item 1)** | The standing ritual (re-verify claims ABOUT consumers after each cqrs-htmx release) is a TODO item, not yet a script — nothing mechanical guards claims about OTHER repos' state.                                                              | policy decision (see g-2) | M      |
+| ~~B4~~ | ~~LSP health: gopls produced live diagnostics throughout this session (hookcodes_test.go errors surfaced and resolved immediately) — the "workspace broken" state from 09-23/24 is empirically GONE under the go.work 1.27.1 + per-module GOWORK=off regime.~~ done — recovered — live gopls diagnostics through 2026-09-29; residual LSP-lint caveat documented in AGENTS 2026-10-07 | ~~Not systematically verified across all modules/editors; the TODO item stays until the unification train lands.~~ | ~~none~~ | ~~S~~ |
+| ~~B5~~ | ~~The two current reports (23-03, 00-05): their §f lists are fully harvested into TODO (episode-2 items are near-duplicates of episode-1 numbering; the pdg list is routed as one pointer row).~~ done — the 23-03 report annotated + archived and the 00-05/01-36 reports annotated by the 2026-10-12 docs-health pass | ~~Their own annotation+archive pass (not mine to do — their sessions own those reports).~~ | ~~next docs-health pass~~ | ~~S~~ |
+| ~~B6~~ | ~~Guard coverage: pin-drift now guards both sides of the cross-repo contracts.~~ done — guard rewritten (semver + toolchain coverage, 2026-09-29) and wired into .githooks/pre-commit (2026-10-07) | ~~go-directives remains string-equality brittle (1.26 vs 1.26.7), has no `toolchain`-directive coverage, and is not wired into pre-commit — one TODO P2 item owns all three.~~ | ~~none~~ | ~~S~~ |
 
 ## c) NOT STARTED (observed this session, deliberately untouched)
 
-- The 7-satellite unification train (USER-gated, see g-1) — every workspace command still needs `GOTOOLCHAIN=go1.27.1 GOWORK=off`.
-- Release trains (USER-gated, see g-2).
-- Upstream filings (go-sse ReplayFiltered, httputil Logging, NewServerListener, go-health pack ×3, samber/do note) — drafts ready in `doc/feedback/outgoing/`, filing USER-gated.
-- errorpages `statusRecorder` → `httputil.ResponseRecorder` (verified still hand-rolled at errorpages/errorpages.go:83,205).
-- Browser CSP pass over `DashboardHardenedPreset` (no browser in this env).
-- govulncheck on health + security (network-blocked env).
-- art-dupl suppression-heap audit (~431 groups never inspected across both dedup episodes — the "zero harmful duplication" claim is only proven for the shown set).
-- pdg's own backlog (header relabel, `(replace …)` rendering, doctor subcommand, `Graph.Consumers`-side severed-key fix) — routed, their repo.
-- CI remote state (dead SSH secret — P1, owner-only).
+- ~~The 7-satellite unification train (USER-gated, see g-1) — every workspace command still needs `GOTOOLCHAIN=go1.27.1 GOWORK=off`.~~ done — 2026-09-29
+- ~~Release trains (USER-gated, see g-2).~~ done — 2026-09-29
+- Upstream filings (go-sse ReplayFiltered, httputil Logging, NewServerListener, go-health pack ×3, samber/do note) — drafts ready in `doc/feedback/outgoing/`, filing USER-gated. ← still open (TODO_LIST P2)
+- errorpages `statusRecorder` → `httputil.ResponseRecorder` (verified still hand-rolled at errorpages/errorpages.go:83,205). ← still open (USER gate)
+- Browser CSP pass over `DashboardHardenedPreset` (no browser in this env). ← still open (TODO_LIST P2)
+- govulncheck on health + security (network-blocked env). ← still open (TODO_LIST P2)
+- ~~art-dupl suppression-heap audit (~431 groups never inspected across both dedup episodes — the "zero harmful duplication" claim is only proven for the shown set).~~ done — 477 groups audited 2026-09-29 (12-45 session)
+- pdg's own backlog (header relabel, `(replace …)` rendering, doctor subcommand, `Graph.Consumers`-side severed-key fix) — routed, their repo. ← TODO_LIST P3 pointer
+- CI remote state (dead SSH secret — P1, owner-only). ← still open (TODO_LIST P1)
 
 ## d) TOTALLY FUCKED UP
 
@@ -94,63 +94,63 @@
 
 **P0 — unblock (USER-gated, one answer each)**
 
-1. Green-light the 1.27.1 unification train: bump the 7 laggards (`go mod tidy` each), keep go.work/root/AGENTS/`documentedGoDirective` in sync, re-run the 11-module matrix + lint sweeps, drop the `GOTOOLCHAIN=go1.27.1 GOWORK=off` prefixes and stale GOEXPERIMENT notes from AGENTS.
-2. After (1): verify gopls/LSP across modules (this session's live diagnostics already suggest it recovers).
-3. Green-light the batched release trains: core v0.6.0 (testkit.Shutdown + hook-code tests + refactors), security v0.2.0 (example + THREAT_MODEL + example-only dep), health v0.1.3 (NonceFromContext fix + setStarted), frh v0.1.4 (Register + determinism + slices.Sort).
-4. After core ships: bump integration pins + `documentedPins` + doc.go in one change; simplify `security_realtime_test.go` to the now-published `ts.Shutdown`.
-5. CI: restore `SSH_PRIVATE_KEY` (owner-only) + gate the ssh-agent step off `pull_request`; then one fully green master run.
-6. Decide go.work tracked status (commit it — it now matches the train — or CI-generate); note it shapes pdg attributions (folds member modules).
-7. Wire `check-go-directives.sh` + `check-dependabot-parity.sh` into BuildFlow pre-commit; make the guard semver-aware; add `toolchain`-directive coverage.
-8. Answer the consumer-claim policy (g-2): published-tag-verified claims + the after-each-release ritual, or drop exact consumer pins from AGENTS.
-9. cqrs v0.6.0 train: remove the deprecated `SQLitePath` alias (announced breaking change; plan + API-break diff).
-10. Extend `documentedPins` to assert go-health/samber-do/go-flightrecorder too (episode-2 f-7; the fixture pins family + 4 cross-repo only).
+1. ~~Green-light the 1.27.1 unification train: bump the 7 laggards (`go mod tidy` each), keep go.work/root/AGENTS/`documentedGoDirective` in sync, re-run the 11-module matrix + lint sweeps, drop the `GOTOOLCHAIN=go1.27.1 GOWORK=off` prefixes and stale GOEXPERIMENT notes from AGENTS.~~ done — executed 2026-09-29 (SUPERB v5 T01-T04)
+2. ~~After (1): verify gopls/LSP across modules (this session's live diagnostics already suggest it recovers).~~ done — LSP recovered (live diagnostics 2026-09-29)
+3. ~~Green-light the batched release trains: core v0.6.0 (testkit.Shutdown + hook-code tests + refactors), security v0.2.0 (example + THREAT_MODEL + example-only dep), health v0.1.3 (NonceFromContext fix + setStarted), frh v0.1.4 (Register + determinism + slices.Sort).~~ done — all four trains + cqrs v0.6.0 shipped 2026-09-29
+4. ~~After core ships: bump integration pins + `documentedPins` + doc.go in one change; simplify `security_realtime_test.go` to the now-published `ts.Shutdown`.~~ done — T09 integration re-pin landed 2026-09-29
+5. CI: restore `SSH_PRIVATE_KEY` (owner-only) + gate the ssh-agent step off `pull_request`; then one fully green master run. **→ split — PR-gating shipped (1c4d9b9) + ci-preflight (67c2a61); the SSH secret itself remains TODO_LIST P1 (owner)**
+6. ~~Decide go.work tracked status (commit it — it now matches the train — or CI-generate); note it shapes pdg attributions (folds member modules).~~ done — go.work tracked 2026-09-29 + charter-guarded 2026-10-07
+7. ~~Wire `check-go-directives.sh` + `check-dependabot-parity.sh` into BuildFlow pre-commit; make the guard semver-aware; add `toolchain`-directive coverage.~~ done — .githooks/pre-commit runs the guards (2026-10-07); check-go-directives.sh is semver-aware with toolchain coverage
+8. Answer the consumer-claim policy (g-2): published-tag-verified claims + the after-each-release ritual, or drop exact consumer pins from AGENTS. **→ USER-gated — TODO_LIST Open questions item 1**
+9. ~~cqrs v0.6.0 train: remove the deprecated `SQLitePath` alias (announced breaking change; plan + API-break diff).~~ done — cqrs v0.6.0 shipped 2026-09-29 (BREAKING SQLitePath removal)
+10. ~~Extend `documentedPins` to assert go-health/samber-do/go-flightrecorder too (episode-2 f-7; the fixture pins family + 4 cross-repo only).~~ done — T14 landed 2026-09-29 (go-health/do/fr legs in documentedPins)
 
 **P1 — close this pass's residual gaps**
 
-11. errorpages: `statusRecorder` → `httputil.ResponseRecorder` (USER gate, ~10 lines; verified open this pass).
-12. File the upstream asks (USER gate): go-sse `ReplayFiltered`, httputil Logging context, `NewServerListener` go/no-go, go-health pack (sentinel + Evaluate-cache + restart/rearm), samber/do lazy-healthy note.
-13. Browser CSP pass over `DashboardHardenedPreset` (needs a browser-capable machine).
-14. Run govulncheck on health + security (networked machine).
-15. E2E gap: cqrs wrapper lifecycle through a live appkit Service (register/dispatch/query + in-flight drain).
-16. Fresh-consumer proxy smoke for core before its next tag (go.mod changed this pass via refactors? — verify at train time).
-17. Decide the consumer-claim ritual mechanics (script vs checklist) if (8) keeps pins.
-18. Post-unification otel benchmark re-baseline (toolchain jump invalidates 09-16 numbers on principle).
-19. Verify the example E2Es (`example/`, `health/example`) once on the unified toolchain.
+11. errorpages: `statusRecorder` → `httputil.ResponseRecorder` (USER gate, ~10 lines; verified open this pass). **→ USER gate — TODO_LIST P2 errorpages row**
+12. File the upstream asks (USER gate): go-sse `ReplayFiltered`, httputil Logging context, `NewServerListener` go/no-go, go-health pack (sentinel + Evaluate-cache + restart/rearm), samber/do lazy-healthy note. **→ USER gate — TODO_LIST P2 upstream-asks row**
+13. Browser CSP pass over `DashboardHardenedPreset` (needs a browser-capable machine). **→ TODO_LIST P2 browser-CSP row (needs browser env)**
+14. Run govulncheck on health + security (networked machine). **→ TODO_LIST P2 govulncheck (network-blocked env)**
+15. ~~E2E gap: cqrs wrapper lifecycle through a live appkit Service (register/dispatch/query + in-flight drain).~~ done — T17 cqrs lifecycle E2E shipped 2026-09-29
+16. ~~Fresh-consumer proxy smoke for core before its next tag (go.mod changed this pass via refactors? — verify at train time).~~ done — v0.6.0/v0.7.0/v0.8.0 all fresh-consumer proxy-PASS
+17. Decide the consumer-claim ritual mechanics (script vs checklist) if (8) keeps pins. **→ blocked on item 8 (consumer-claim policy answer)**
+18. Post-unification otel benchmark re-baseline (toolchain jump invalidates 09-16 numbers on principle). **→ TODO_LIST benchstat re-baseline candidate (allocs identical 2026-09-29)**
+19. ~~Verify the example E2Es (`example/`, `health/example`) once on the unified toolchain.~~ done — T19b 2026-09-29 — both examples live-probed
 
 **P2 — quality/polish (batch on touch)**
 
-20. art-dupl: ONE audit pass over the ~431 suppressed/non-actionable groups (both episodes skipped it; the zero-harmful claim is unproven).
-21. art-dupl standing policy: recurring ritual step vs ad-hoc + whether to baseline the 7 accepted groups; record the corrected invocation (drop `--type-aware` with `--suggest-generics`) somewhere durable (AGENTS is at cap — module README or recipes).
-22. `metrics.go` typed `seriesKey` (kill the `|`-join/SplitN pair).
-23. testkit drain-window assertion helper (drain tests hand-roll it).
-24. Named `type Hook func(context.Context) error` to shorten `runHooks`/config signatures.
-25. `errors.Join` multi-failure message-shape test.
-26. Hardened-dashboard test: assert `frame-ancestors 'none'` + sorted directive order.
-27. SSE+health combined lifecycle test (drain during an open stream).
-28. health/example `-hardened` mode wired like the T21 composition.
-29. AGENTS deep slim-down (extract a section to module READMEs; the cap has ZERO headroom at 376/377).
-30. Cross-project lesson → crush-config `references/lessons.md`: "check GOTOOLCHAIN/go.work parity before trusting AGENTS build commands" (carried since 09-24).
-31. pdg (their repo): header relabel, `(replace …)` rendering, `doctor` subcommand, `/v4`-matching regression test, extend the severed-key fix to `Graph.Consumers`/serve/renderer, benchmark `ConsumersFromModules`, triage `go-auto-upgrade [graph]` diff.go:121, review `7fde3823` churn, cut a pdg release. Full lists in the two current reports' §f.
-32. prompt-crusher-exec: resolve the go.mod merge conflict (needs the user's intent — carried across three reports now), then tidy + build + module-path reconciliation.
-33. errorpages/realtime/docs/otel/flightrecorder suites were NOT re-run this pass (untouched code) — fold into the post-train matrix.
-34. Confirm `sortedRoutes`/`sortedEngineNames` nil-vs-empty callers once more post-train (behavioral delta noted in episode-2 d-5).
-35. Verify errorpages example's local-dev `replace ../` never leaks into a tag (tag-hygiene spot check, episode-2 f-38).
+20. ~~art-dupl: ONE audit pass over the ~431 suppressed/non-actionable groups (both episodes skipped it; the zero-harmful claim is unproven).~~ done — audited 2026-09-29 (12-45 session) — 477 groups, one harmful clone fixed
+21. ~~art-dupl standing policy: recurring ritual step vs ad-hoc + whether to baseline the 7 accepted groups; record the corrected invocation (drop `--type-aware` with `--suggest-generics`) somewhere durable (AGENTS is at cap — module README or recipes).~~ done — DECIDED — event-driven; corrected invocation recorded in the Decision 13 amendment
+22. ~~`metrics.go` typed `seriesKey` (kill the `|`-join/SplitN pair).~~ done — typed seriesKey shipped core v0.7.0
+23. ~~testkit drain-window assertion helper (drain tests hand-roll it).~~ done — testkit.DrainWindowProbe shipped core v0.7.0
+24. ~~Named `type Hook func(context.Context) error` to shorten `runHooks`/config signatures.~~ done — appkit.Hook alias shipped core v0.7.0
+25. ~~`errors.Join` multi-failure message-shape test.~~ done — shipped core v0.7.0
+26. ~~Hardened-dashboard test: assert `frame-ancestors 'none'` + sorted directive order.~~ done — T25b shipped 2026-09-29 (also caught + fixed a real CSP comment bug)
+27. ~~SSE+health combined lifecycle test (drain during an open stream).~~ done — T25c sse_health_drain_test.go shipped 2026-09-29
+28. ~~health/example `-hardened` mode wired like the T21 composition.~~ done — T26b health example -hardened shipped v0.1.4
+29. AGENTS deep slim-down (extract a section to module READMEs; the cap has ZERO headroom at 376/377). **→ TODO_LIST P3 AGENTS slim-down (batch 1 done 2026-09-29: 377 to 342)**
+30. ~~Cross-project lesson → crush-config `references/lessons.md`: "check GOTOOLCHAIN/go.work parity before trusting AGENTS build commands" (carried since 09-24).~~ done — the caller-wins-toolchain lesson class lives in crush-config references/lessons.md (2026-09-22 entry)
+31. pdg (their repo): header relabel, `(replace …)` rendering, `doctor` subcommand, `/v4`-matching regression test, extend the severed-key fix to `Graph.Consumers`/serve/renderer, benchmark `ConsumersFromModules`, triage `go-auto-upgrade [graph]` diff.go:121, review `7fde3823` churn, cut a pdg release. Full lists in the two current reports' §f. **→ TODO_LIST P3 pdg pointer row (their repo)**
+32. prompt-crusher-exec: resolve the go.mod merge conflict (needs the user's intent — carried across three reports now), then tidy + build + module-path reconciliation. **→ still open — user intent required (prompt-crusher merge)**
+33. ~~errorpages/realtime/docs/otel/flightrecorder suites were NOT re-run this pass (untouched code) — fold into the post-train matrix.~~ done — 2026-10-12 fleet scan: all 12 modules build+vet+race+lint green
+34. ~~Confirm `sortedRoutes`/`sortedEngineNames` nil-vs-empty callers once more post-train (behavioral delta noted in episode-2 d-5).~~ done — confirmed green across the 2026-09-29 matrix and later trains
+35. ~~Verify errorpages example's local-dev `replace ../` never leaks into a tag (tag-hygiene spot check, episode-2 f-38).~~ done — pre-tag-checks.sh asserts no filesystem replace; errorpages v0.1.0/v0.1.1 shipped clean
 
 **P3 — watchlist/demand-gated (unchanged, restated for completeness)**
 
-36. cqrs-htmx v5-window revisit (their ADR-0052; master runs 191 commits past setup/v4.12.0); cut their setup release (doubly motivated — via-pins render `(unpinned)`).
-37. External consumers in the release ritual: rolls-royce-mtuGoHelpCenter-golang + papdashboard pin v0.5.1 — decide whether the ritual verifies THEIR integrations (the proxy check covers only OUR modules).
-38. Cordis bridge (2 of 3 triggers pending), PapDashboard reverse adoption, nixpkgs > 1.26.7 watch, dprint exit-14 upstream, samber-do-auditlog (demand), battery waves W3-W5 (demand), core v1.0.0 exit-criteria graduation, go-health v0.3.0 aggregate adoption (floor gate resolves with train (1)).
-39. Composition-gap watchlist (otel×realtime, otel×dashboard, security×errorpages, flightrecorder E2E, docs-module E2E — now +1: SSE×health from (27)).
-40. cqrs README cookbook re-verification on the next go-cqrs-lite release.
+36. cqrs-htmx v5-window revisit (their ADR-0052; master runs 191 commits past setup/v4.12.0); cut their setup release (doubly motivated — via-pins render `(unpinned)`). **→ routed — TODO_LIST watchlist cqrs-htmx v5 row**
+37. External consumers in the release ritual: rolls-royce-mtuGoHelpCenter-golang + papdashboard pin v0.5.1 — decide whether the ritual verifies THEIR integrations (the proxy check covers only OUR modules). **→ routed — Decision 14 (verify-on-touch + quarterly); TODO_LIST watchlist**
+38. Cordis bridge (2 of 3 triggers pending), PapDashboard reverse adoption, nixpkgs > 1.26.7 watch, dprint exit-14 upstream, samber-do-auditlog (demand), battery waves W3-W5 (demand), core v1.0.0 exit-criteria graduation, go-health v0.3.0 aggregate adoption (floor gate resolves with train (1)). **→ routed — TODO_LIST P3 watchlist rows (note: the go-health aggregate floor gate resolved — health swept to v0.5.0)**
+39. Composition-gap watchlist (otel×realtime, otel×dashboard, security×errorpages, flightrecorder E2E, docs-module E2E — now +1: SSE×health from (27)). **→ routed — TODO_LIST composition-gap watchlist (docs leg CLOSED 2026-10-12 via docs_composition_test.go)**
+40. cqrs README cookbook re-verification on the next go-cqrs-lite release. **→ routed — standing ritual; DUE 2026-10-12 (go-cqrs-lite system/v4 v4.13.0 published; TODO_LIST P2)**
 
 _(40 grounded items; the remaining 10 slots stay empty rather than padded — the two source reports' §f lists are already routed, and fabricating scope violates the no-research constraint.)_
 
 ## g) QUESTIONS I CANNOT ANSWER MYSELF (3)
 
-1. **Unification train — go for 1.27.1 across all 11 now?** The bump side has effectively won (go-etag v0.6.0 + httputil v1.4.0 require it; 5 of 11 already moved, 2 of those by tidy gravity). Say "unify" and the 7 laggards + matrix + AGENTS prefix cleanup land in one train — or say "hold" and I pin the guard expectation to the mixed state so CI isn't permanently red.
-2. **Release trains — now or batch?** Four modules carry `[Unreleased]` deltas (enumerated in TODO P2), and cqrs-htmx is BLOCKED on core > v0.5.1 (their go-etag stub-replace can't drop until we ship). "Train all four" / "core only (unblocks them)" / "batch" — your call; the ritual handles the mechanics either way.
-3. **doc/ vs docs/ — confirm the scope of the resolution.** I made `docs/status/` canonical (your standing instruction) and migrated ONLY the status tree; planning/feedback/recipes/research stay under `doc/` (singular). Is that the intended end state, or do you want the whole `doc/` tree consolidated under `docs/` (which would touch ~100 referenced paths across all living docs and module READMEs)?
+1. ~~**Unification train — go for 1.27.1 across all 11 now?** The bump side has effectively won (go-etag v0.6.0 + httputil v1.4.0 require it; 5 of 11 already moved, 2 of those by tidy gravity). Say "unify" and the 7 laggards + matrix + AGENTS prefix cleanup land in one train — or say "hold" and I pin the guard expectation to the mixed state so CI isn't permanently red.~~ done — answered by execution — the train ran 2026-09-29
+2. ~~**Release trains — now or batch?** Four modules carry `[Unreleased]` deltas (enumerated in TODO P2), and cqrs-htmx is BLOCKED on core > v0.5.1 (their go-etag stub-replace can't drop until we ship). "Train all four" / "core only (unblocks them)" / "batch" — your call; the ritual handles the mechanics either way.~~ done — answered — the four trains shipped 2026-09-29 (core first, unblocking cqrs-htmx)
+3. ~~**doc/ vs docs/ — confirm the scope of the resolution.** I made `docs/status/` canonical (your standing instruction) and migrated ONLY the status tree; planning/feedback/recipes/research stay under `doc/` (singular). Is that the intended end state, or do you want the whole `doc/` tree consolidated under `docs/` (which would touch ~100 referenced paths across all living docs and module READMEs)?~~ done — answered — status tree stays split by design: docs/status canonical, doc/ keeps planning/feedback/recipes/research (recorded in the index README)
 
 ---
 

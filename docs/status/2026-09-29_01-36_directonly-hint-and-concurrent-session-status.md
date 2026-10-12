@@ -27,28 +27,28 @@
 
 | #  | What works                                                                                                                                                                                                                                                             | What remains                                       | Effort                        |
 | -- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------- |
-| B1 | Hint covers the tree renderer. Machine-readable parity not checked — if who-uses has (or gains) `--format json                                                                                                                                                         | yaml`,`hiddenIndirect` should serialize there too. | Verify/extend output formats. |
-| B2 | Report #2's B-items stand: severed-member fix covers only the `ConsumersFromModules` fast path (graph/serve/suggestions/update-plan still severed); BuildFlow gate chronic red (nix-build, go-auto-upgrade 2×, nix-hash-fix, pnpm-audit, vulnix in history) untouched. | as before                                          | M                             |
-| B3 | Your 3 questions from both prior reports remain unanswered; Q3's scope shrank again (hint done; header-bracket semantics F2 and `(unpinned)`-vs-`(replace → path)` F3 still open).                                                                                     | see g)                                             | —                             |
+| B1 | Hint covers the tree renderer. Machine-readable parity not checked — if who-uses has (or gains) `--format json **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | yaml`,`hiddenIndirect` should serialize there too. | Verify/extend output formats. |
+| B2 | Report #2's B-items stand: severed-member fix covers only the `ConsumersFromModules` fast path (graph/serve/suggestions/update-plan still severed); BuildFlow gate chronic red (nix-build, go-auto-upgrade 2×, nix-hash-fix, pnpm-audit, vulnix in history) untouched. **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | as before                                          | M                             |
+| B3 | Your 3 questions from both prior reports remain unanswered; Q3's scope shrank again (hint done; header-bracket semantics F2 and `(unpinned)`-vs-`(replace → path)` F3 still open). **→ Q1 still open (user intent); Q2 routed to TODO_LIST Open questions; Q3 routed to pdg** | see g)                                             | —                             |
 
 ## c) NOT STARTED
 
 | #  | What                                                                                                                                                                                                                                                                       | Why                                       | Priority |
 | -- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | -------- |
 | C1 | prompt-crusher-exec merge (D1) — the WARN appeared in EVERY run tonight including yours at 00:37                                                                                                                                                                           | blocked on Question 1                     | Critical |
-| C2 | Review the concurrent session's landed work: `849adec1` + `174128e4` (+94 lines release_suggestions_test.go, +39 update_plan_logic_test.go with a new `mergeFirstByKey` generic, graph_test.go changes) — I deliberately did not audit another session's in-flight feature | out of my scope; you may want it reviewed | Medium   |
-| C3 | Benchmark `ConsumersFromModules` (carried twice; hot path now allocates owned map + memberEdges + per-run hiddenIndirect counts)                                                                                                                                           | not run                                   | Medium   |
-| C4 | F2/F3 display quirks (blocked on Question 3)                                                                                                                                                                                                                               | —                                         | High     |
-| C5 | HARVEST: three status reports of unharvested fuel now sit in docs/status/                                                                                                                                                                                                  | awaiting instructions                     | Medium   |
-| C6 | pdg AGENTS.md length governance — bullets keep growing; markdown-lint is skipped in dev mode so nothing checks it                                                                                                                                                          | unverified                                | Low      |
-| C7 | Carried: published-tag pin verification (Q2), setup re-tag, crm re-pin, doc/-vs-docs/, index added to go-appkit's consumer inventory (it is now a DIRECT consumer — A1), consumer-pin drift ritual, go.work decision                                                       | carried                                   | Medium   |
+| C2 | Review the concurrent session's landed work: `849adec1` + `174128e4` (+94 lines release_suggestions_test.go, +39 update_plan_logic_test.go with a new `mergeFirstByKey` generic, graph_test.go changes) — I deliberately did not audit another session's in-flight feature **→ their repo — the concurrent session kept ownership; verified green at 174128e4** | out of my scope; you may want it reviewed | Medium   |
+| C3 | Benchmark `ConsumersFromModules` (carried twice; hot path now allocates owned map + memberEdges + per-run hiddenIndirect counts) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | not run                                   | Medium   |
+| C4 | F2/F3 display quirks (blocked on Question 3) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | —                                         | High     |
+| ~~C5~~ | ~~HARVEST: three status reports of unharvested fuel now sit in docs/status/~~ done — 2026-09-29 docs-health harvest rebuilt TODO_LIST | ~~awaiting instructions~~ | ~~Medium~~ |
+| C6 | pdg AGENTS.md length governance — bullets keep growing; markdown-lint is skipped in dev mode so nothing checks it **→ their repo — pdg AGENTS governance** | unverified                                | Low      |
+| C7 | Carried: published-tag pin verification (Q2), setup re-tag, crm re-pin, doc/-vs-docs/, index added to go-appkit's consumer inventory (it is now a DIRECT consumer — A1), consumer-pin drift ritual, go.work decision **→ split — pin verification + go.work decision DONE; crm re-pin + index-inventory routing live in TODO_LIST (watchlist external-consumers row)** | carried                                   | Medium   |
 
 ## d) TOTALLY FUCKED UP
 
 | #  | What                                                                                                                                                                                                                                                                                                                                                                                                    | Severity                                 | Status                                                                             |
 | -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------- |
 | D1 | **prompt-crusher-exec/go.mod conflict** — STILL unresolved after ~3.5 hours and ≥4 scans; the corruption WARN is now a permanent fixture of every command output.                                                                                                                                                                                                                                       | Blocks builds; normalizing broken output | Carried; Question 1 unanswered                                                     |
-| D2 | **Two sessions + a heuristic daemon committing to one repo concurrently produced a BROKEN COMMIT on master** (`849adec1`: test files that don't compile, landed 00:37:27). Master's `go build ./...` was red for ~19 minutes (00:37→00:56). Anyone pulling in that window got a broken tree. Root cause: heuristic auto-commit + concurrent sessions + no pre-commit compile gate on test-only changes. | Master build broken (window)             | Self-healed by the other session at `174128e4`; the PROCESS hole remains (see F29) |
+| ~~D2~~ | ~~**Two sessions + a heuristic daemon committing to one repo concurrently produced a BROKEN COMMIT on master** (`849adec1`: test files that don't compile, landed 00:37:27). Master's `go build ./...` was red for ~19 minutes (00:37→00:56). Anyone pulling in that window got a broken tree. Root cause: heuristic auto-commit + concurrent sessions + no pre-commit compile gate on test-only changes.~~ done — root-caused 2026-10-07: the pma heuristic daemon (no compile gate); dossier docs/status/2026-10-07_11-00 + .githooks guards + CI net | ~~Master build broken (window)~~ | ~~Self-healed by the other session at `174128e4`; the PROCESS hole remains (see F29)~~ |
 | D3 | This segment's own work: no defects shipped. The golines finding in my test was auto-fixed pre-commit; the hint logic verified against live data twice (22 = 4+18 invariant).                                                                                                                                                                                                                           | —                                        | Clean                                                                              |
 
 ## e) WHAT WE SHOULD IMPROVE
@@ -68,51 +68,51 @@
 
 | #   | Task                                                                                                                                                                                    | Impact | Effort | Category |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | -------- |
-| F1  | Check who-uses machine-readable output; serialize `hiddenIndirect` if formats exist (B1)                                                                                                | Medium | S      | Feature  |
-| F2  | who-uses header bracket: relabel as consumer-derived max / show target's own tag (carried F2)                                                                                           | High   | S      | Feature  |
-| F3  | `(unpinned)` → `(replace => ../path)` rendering (carried F3)                                                                                                                            | High   | S      | Feature  |
-| F4  | Extend severed-member traversal to Graph.Consumers/serve/suggestions/update-plan (carried)                                                                                              | High   | M      | Feature  |
-| F5  | Benchmark ConsumersFromModules (carried twice)                                                                                                                                          | Medium | S      | Quality  |
-| F6  | Fuzz seed for member-key traversal (carried)                                                                                                                                            | Medium | S      | Quality  |
-| F7  | Triage go-auto-upgrade [graph] `diff.go:121` (carried)                                                                                                                                  | Medium | M      | Bug      |
-| F8  | `.buildflow.yml` skip_steps rationale for chronically red steps (carried)                                                                                                               | Medium | S      | Cleanup  |
-| F9  | `buildflow -s nix-hash-fix --fix` (carried)                                                                                                                                             | Medium | S      | Cleanup  |
-| F10 | F22 parse-WARN identity dir-vs-module (carried)                                                                                                                                         | Low    | S      | Quality  |
-| F11 | doctor/problems subcommand (carried)                                                                                                                                                    | Medium | M      | Feature  |
-| F12 | Parse-WARN one-line default + --verbose (carried)                                                                                                                                       | Low    | S      | Quality  |
-| F13 | Audit the concurrent session's landed work (`849adec1`, `174128e4`: mergeFirstByKey + release-suggestions tests) for correctness and intent                                             | Medium | M      | Quality  |
-| F14 | Document a multi-session protocol in pdg AGENTS.md: before committing broken test files, the daemon (or sessions) should gate on `go build ./...`; sessions should announce scope files | High   | S      | Process  |
-| F15 | Consider a pre-commit (or daemon) `go vet ./...` gate so master can't go red on test-only changes like `849adec1`                                                                       | High   | M      | Process  |
-| F16 | Cut a pdg release with the accumulated [Unreleased] (who-uses via fix, hint, other session's work once reviewed)                                                                        | Low    | M      | Release  |
-| F17 | pdg AGENTS.md length governance: run markdown-lint scoped (`buildflow -s markdown-lint`) on AGENTS/CHANGELOG edits                                                                      | Low    | S      | Quality  |
+| F1  | Check who-uses machine-readable output; serialize `hiddenIndirect` if formats exist (B1) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Medium | S      | Feature  |
+| F2  | who-uses header bracket: relabel as consumer-derived max / show target's own tag (carried F2) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | High   | S      | Feature  |
+| F3  | `(unpinned)` → `(replace => ../path)` rendering (carried F3) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | High   | S      | Feature  |
+| F4  | Extend severed-member traversal to Graph.Consumers/serve/suggestions/update-plan (carried) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | High   | M      | Feature  |
+| F5  | Benchmark ConsumersFromModules (carried twice) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Medium | S      | Quality  |
+| F6  | Fuzz seed for member-key traversal (carried) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Medium | S      | Quality  |
+| F7  | Triage go-auto-upgrade [graph] `diff.go:121` (carried) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Medium | M      | Bug      |
+| F8  | `.buildflow.yml` skip_steps rationale for chronically red steps (carried) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Medium | S      | Cleanup  |
+| F9  | `buildflow -s nix-hash-fix --fix` (carried) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Medium | S      | Cleanup  |
+| F10 | F22 parse-WARN identity dir-vs-module (carried) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Low    | S      | Quality  |
+| F11 | doctor/problems subcommand (carried) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Medium | M      | Feature  |
+| F12 | Parse-WARN one-line default + --verbose (carried) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Low    | S      | Quality  |
+| F13 | Audit the concurrent session's landed work (`849adec1`, `174128e4`: mergeFirstByKey + release-suggestions tests) for correctness and intent **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Medium | M      | Quality  |
+| F14 | Document a multi-session protocol in pdg AGENTS.md: before committing broken test files, the daemon (or sessions) should gate on `go build ./...`; sessions should announce scope files **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | High   | S      | Process  |
+| F15 | Consider a pre-commit (or daemon) `go vet ./...` gate so master can't go red on test-only changes like `849adec1` **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | High   | M      | Process  |
+| F16 | Cut a pdg release with the accumulated [Unreleased] (who-uses via fix, hint, other session's work once reviewed) **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Low    | M      | Release  |
+| F17 | pdg AGENTS.md length governance: run markdown-lint scoped (`buildflow -s markdown-lint`) on AGENTS/CHANGELOG edits **→ their repo — routed via the TODO_LIST P3 pdg pointer row** | Low    | S      | Quality  |
 
 ### index / consumer fleet
 
 | #   | Task                                                                                                                           | Impact | Effort | Category      |
 | --- | ------------------------------------------------------------------------------------------------------------------------------ | ------ | ------ | ------------- |
-| F18 | Add index to go-appkit's consumer inventory (it is now a real DIRECT consumer as of 00:07) + note in AGENTS.md consumer claims | Medium | S      | Documentation |
-| F19 | cqrs-htmx: cut setup release (carried; via still renders `(unpinned)`)                                                         | High   | M      | Feature       |
-| F20 | crm: re-pin released setup after F19 (carried)                                                                                 | High   | S      | Cleanup       |
-| F21 | Verify published setup/v4.12.0's appkit pin (carried; Question 2)                                                              | Medium | S      | Documentation |
+| F18 | Add index to go-appkit's consumer inventory (it is now a real DIRECT consumer as of 00:07) + note in AGENTS.md consumer claims **→ routed — TODO_LIST watchlist external-consumers row (Decision 14: verify-on-touch + quarterly)** | Medium | S      | Documentation |
+| ~~F19~~ | ~~cqrs-htmx: cut setup release (carried; via still renders `(unpinned)`)~~ done — setup/v4.13.2 published 2026-10-01 | ~~High~~ | ~~M~~ | ~~Feature~~ |
+| F20 | crm: re-pin released setup after F19 (carried) **→ their repo — crm re-pin after the release** | High   | S      | Cleanup       |
+| ~~F21~~ | ~~Verify published setup/v4.12.0's appkit pin (carried; Question 2)~~ done — published tag verified: core v0.7.0 (AGENTS Consumers section) | ~~Medium~~ | ~~S~~ | ~~Documentation~~ |
 
 ### go-appkit
 
 | #   | Task                                                                        | Impact | Effort | Category      |
 | --- | --------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| F22 | go-appkit untracked go.work: decide + document attribution effect (carried) | Medium | S      | Cleanup       |
-| F23 | Sweep docs for stale consumer-pin claims (carried)                          | Medium | S      | Documentation |
-| F24 | Consumer-pin drift ritual (carried)                                         | Medium | M      | Quality       |
-| F25 | doc/ vs docs/ consolidation (carried)                                       | Medium | S      | Cleanup       |
-| F26 | Rolls-Royce + papdashboard fresh-consumer coverage (carried)                | Low    | S      | Documentation |
-| F27 | go-structure-linter re-run (carried)                                        | Medium | S      | Quality       |
+| ~~F22~~ | ~~go-appkit untracked go.work: decide + document attribution effect (carried)~~ done — go.work tracked 2026-09-29 + charter-guarded 2026-10-07 | ~~Medium~~ | ~~S~~ | ~~Cleanup~~ |
+| ~~F23~~ | ~~Sweep docs for stale consumer-pin claims (carried)~~ done — consumer-pin claims re-verified 2026-09-29 and 2026-10-01 | ~~Medium~~ | ~~S~~ | ~~Documentation~~ |
+| F24 | Consumer-pin drift ritual (carried) **→ routed — TODO_LIST P2 consumer-claim drift ritual (USER-gated posture)** | Medium | M      | Quality       |
+| ~~F25~~ | ~~doc/ vs docs/ consolidation (carried)~~ done — docs/status/ canonical since 2026-09-28 | ~~Medium~~ | ~~S~~ | ~~Cleanup~~ |
+| F26 | Rolls-Royce + papdashboard fresh-consumer coverage (carried) **→ routed — Decision 14 (verify-on-touch + quarterly); TODO_LIST watchlist** | Low    | S      | Documentation |
+| ~~F27~~ | ~~go-structure-linter re-run (carried)~~ done — structure-linter 0 findings; committed yaml config honored | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
 
 ### Cross-repo / process
 
 | #   | Task                                                                                                                                                                             | Impact   | Effort | Category |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | -------- |
 | F28 | prompt-crusher-exec merge + tidy + module-path reconcile (carried; Question 1)                                                                                                   | Critical | S      | Bug      |
-| F29 | Root-cause the broken-master window: why did the daemon commit non-compiling test files (`849adec1`)? Check whether a build gate exists and why it didn't run on test-only diffs | High     | M      | Bug      |
-| F30 | HARVEST all three status reports into TODO_LIST/ROADMAP                                                                                                                          | Medium   | S      | Process  |
+| ~~F29~~ | ~~Root-cause the broken-master window: why did the daemon commit non-compiling test files (`849adec1`)? Check whether a build gate exists and why it didn't run on test-only diffs~~ done — root-caused 2026-10-07 (pma dossier); .githooks guards + CI net shipped against the class | ~~High~~ | ~~M~~ | ~~Bug~~ |
+| ~~F30~~ | ~~HARVEST all three status reports into TODO_LIST/ROADMAP~~ done — 2026-09-29 docs-health harvest | ~~Medium~~ | ~~S~~ | ~~Process~~ |
 
 ## g) Questions I cannot answer myself (carried — third time, still the real blockers)
 

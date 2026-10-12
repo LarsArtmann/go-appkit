@@ -34,9 +34,9 @@
 
 ## b) PARTIALLY DONE
 
-1. **T18 — cqrs v0.6.0 (`SQLitePath` removal)**: code + test + README-pending. `eventservice.go` field/branches removed, deprecated-alias test deleted, build+vet+`test -race` GREEN, lint pending re-run, **README line 49 edit not applied** (interrupted), **CHANGELOG Breaking section + v0.6.0 dating NOT written**, **API diff vs cqrs/v0.5.0 NOT run**, **NOT tagged**. All changes are committed (daemon swept) but the release train is ~60% done.
-2. **BuildFlow full-mode validation**: only `--build-mode fast` verified; full mode (~5-10 min, includes test-race) never run this session.
-3. **Consumer-side unblock verification**: core v0.6.0 unblocks cqrs-htmx's go-etag stub-replace drop — their move, not verified by us (their repo).
+1. ~~**T18 — cqrs v0.6.0 (`SQLitePath` removal)**: code + test + README-pending. `eventservice.go` field/branches removed, deprecated-alias test deleted, build+vet+`test -race` GREEN, lint pending re-run, **README line 49 edit not applied** (interrupted), **CHANGELOG Breaking section + v0.6.0 dating NOT written**, **API diff vs cqrs/v0.5.0 NOT run**, **NOT tagged**. All changes are committed (daemon swept) but the release train is ~60% done.~~ done — T18 finished 2026-09-29 — cqrs v0.6.0 shipped with the Breaking section + migration note
+2. **BuildFlow full-mode validation**: only `--build-mode fast` verified; full mode (~5-10 min, includes test-race) never run this session. **→ env-blocked — full mode deadlocks in this environment; fast mode green, constraint documented in AGENTS**
+3. ~~**Consumer-side unblock verification**: core v0.6.0 unblocks cqrs-htmx's go-etag stub-replace drop — their move, not verified by us (their repo).~~ done — their move happened — setup/v4.13.2 dropped the stub-replace (verified 2026-10-01)
 
 ## c) NOT STARTED (un-gated plan tail)
 
@@ -62,59 +62,59 @@ T17 (cqrs lifecycle E2E through a live Service — highest-value uncovered modul
 
 ## f) NEXT — up to 50 (impact-ordered)
 
-1. **Finish T18**: cqrs README line 49 edit → CHANGELOG `### Breaking` + `[0.6.0] - <date>` → API diff vs `cqrs/v0.5.0` (expect removals → breaking, migration note = rename `SQLitePath`→`DSN`) → lint+cqrs-lint → tag `cqrs/v0.6.0` → push → proxy check → AGENTS/TODO same-train.
-2. Add **pre-tag-checks.sh** + Release Ritual step (post-mortem action, e1).
-3. **T17** — cqrs lifecycle E2E through a live appkit Service (register/dispatch/query + in-flight drain) → 8/10 composition-proven.
-4. **T19** — otel benchmark re-run (n≥5) vs README table on the 1.27.1 floor.
-5. **T19b** — `example/` + `health/example` live E2E via Go prober.
-6. **T24a** — typed `seriesKey` in metrics.go (kill the `|`-join/SplitN pair).
-7. **T24b** — `type Hook func(context.Context) error` in config/service signatures.
-8. **T25a** — errors.Join message-shape test (multi-hook failure text).
-9. **T25b** — hardened-dashboard `frame-ancestors 'none'` + sorted-order asserts.
-10. **T25c** — SSE×health lifecycle E2E (drain during an open stream).
-11. **T26a** — testkit drain-window helper + migrate 2 hand-rolled tests.
-12. **T26b** — health example `-hardened` mode + README note.
-13. **realtime v0.1.2 train** (go-sse v0.6.1 + directive bump — [Unreleased] ready).
-14. **flightrecorder v0.1.1 train** (httputil v0.11.0→v1.2.0 + directive — [Unreleased] ready).
-15. **docs v0.3.1 train** (templ-components v1.19.4 + directive — [Unreleased] ready).
-16. **BuildFlow full-mode run** (one clean validation incl. test-race).
-17. **T29** — watchlist refresh sweep (cordis consumers, PapDashboard, nixpkgs toolchain, dprint exit-14, cqrs-htmx v5 window) with as-of dates.
-18. **T30** — external-consumer proxy ritual: write the decision + recipe paragraph.
-19. **T32** — rituals re-arm (cqrs cookbook re-verify trigger, core v1 exit-criteria graduation check, battery demand re-check).
-20. **T20** — AGENTS deep slim-down batch 1 (extract per-module build commands → module READMEs; restores cap headroom).
-21. **T20b/c** — slim batches 2–3 (gotcha groups).
-22. **T21** — art-dupl suppression audit (~431 groups) + standing policy + Decision 13 cross-link.
-23. **T31** — lessons.md entry in crush-config (commit there): "check GOTOOLCHAIN/go.work parity AND re-run guards between dependency-automation runs and tagging."
-24. **Upstream draft: BuildFlow go-licenses ≥1.27 runner** (from the new license-check skip rationale).
-25. **Upstream draft: go-structure-linter** — per-tool rule excludes / honor yaml config (from the new skip rationale).
-26. Watch **cqrs-htmx**: they can drop their go-etag stub-replace now (core v0.6.0) — their repo, their move; keep the claim fresh (D2 ritual).
-27. **T13** (G3-gated) — consumer-claim ritual script or strip pins from AGENTS.
-28. **T15** (USER-gated) — 6 upstream filings (go-health pack could be direct fixes in our repo).
-29. **T16** (USER-gated) — errorpages statusRecorder → httputil.ResponseRecorder swap.
-30. **T22** (their repo) — pdg backlog sweep.
-31. **T23** (user intent) — prompt-crusher merge resolution.
-32. **T27** — govulncheck on health + security (networked machine).
-33. **T28** — browser CSP pass over DashboardHardenedPreset (chromedp) + THREAT_MODEL link.
-34. **T10.1** — owner sets `SSH_PRIVATE_KEY` secret → then T10.3 watch one fully green master run (incl. the now-committed go.work feeding the directives job).
-35. Triage the **golangci-lint-config-verify warning** (`exhaustruct_v5.exclude` not allowed in one module's config — BuildFlow flagged; find which module, fix key or linter version).
-36. Triage the **5 go-auto-upgrade findings** (lo.FromPtr in frh adapter; lo.Map/lo.Filter in otel/realtime tests) — fix or policy-skip with rationale.
-37. **jscpd policy decision**: 13 findings — the cross-module `.golangci.yml` duplication (277-line clones) is by-design per-module configs; suppress in dprint/jscpd config with rationale or accept the noise.
-38. Fix the **5 broken doc links** lychee found (doc/planning references to sibling paths that moved: `go-plugin-mvp`, `forks/cordis`).
-39. Consider **dropping the go.work etag replace** once realtime/flightrecorder/docs/otel/security trains ship (their graphs then carry etag ≥ the split) — keep until then.
-40. **SECURITY go.mod**: example-only appkit dep still at v0.5.1 — bump to v0.6.0 on the next security-touching train (BuildFlow may auto-bump; verify CHANGELOG then).
-41. Verify **CI directives job** actually parses the committed go.work on the next push (guards+proxy-smoke should be visible even with the matrix owner-blocked).
-42. **DOMAIN_LANGUAGE.md**: add the DLQ poison contract terms (Rejection=quarantined, retryable=restarts) — the v4.5 semantic change deserves vocabulary.
-43. Clean **/tmp/core-old** + any scratch dirs from the release ritual.
-44. **AGENTS integration bullet**: the pins prose still says "LATEST published of every family module" — the T14 version-locked legs add a nuance worth one clause.
-45. Re-verify **dependabot config** picks up nothing weird from the 4 go.mod sweeps (grouped updates should reconcile cleanly).
-46. **README.md (root)**: still says nothing wrong, but the release-state claim "through core v0.5.1" appears in FEATURES/ROADMAP? — grep-and-sync all living docs for the old floor claim.
-47. **health module**: go-health v0.3.0 evaluation (tracked TODO) — the T14 lock note references it; schedule the eval or re-affirm the wait.
-48. Consider **retiring `GOTOOLCHAIN=go1.27.1` from .buildflow.yml** once the machine default moves (paired with #2's direnv decision).
-49. **post-release pkg.go.dev render check** for the 5 new tags (crawler lag ritual — NOT a failure if 404 today).
-50. **Retrospective fix in SUPERB v5 doc**: mark T01–T12/T14 executed with deltas (frh v0.1.5 correction, etag fixes) so the plan mirrors reality for the next session.
+1. ~~**Finish T18**: cqrs README line 49 edit → CHANGELOG `### Breaking` + `[0.6.0] - <date>` → API diff vs `cqrs/v0.5.0` (expect removals → breaking, migration note = rename `SQLitePath`→`DSN`) → lint+cqrs-lint → tag `cqrs/v0.6.0` → push → proxy check → AGENTS/TODO same-train.~~ done — T18 finished 2026-09-29 — cqrs v0.6.0 tagged/pushed/proxy-PASS
+2. ~~Add **pre-tag-checks.sh** + Release Ritual step (post-mortem action, e1).~~ done — scripts/pre-tag-checks.sh shipped 2026-09-29 (negative-tested on the frh v0.1.4 class); Release Ritual step 5
+3. ~~**T17** — cqrs lifecycle E2E through a live appkit Service (register/dispatch/query + in-flight drain) → 8/10 composition-proven.~~ done — T17 cqrs lifecycle E2E shipped 2026-09-29
+4. **T19** — otel benchmark re-run (n≥5) vs README table on the 1.27.1 floor. **→ allocs proven identical 2026-09-29; the ns/op re-baseline is the TODO_LIST benchstat candidate**
+5. ~~**T19b** — `example/` + `health/example` live E2E via Go prober.~~ done — T19b — both examples live-probed 2026-09-29
+6. ~~**T24a** — typed `seriesKey` in metrics.go (kill the `|`-join/SplitN pair).~~ done — typed seriesKey shipped core v0.7.0
+7. ~~**T24b** — `type Hook func(context.Context) error` in config/service signatures.~~ done — appkit.Hook alias shipped core v0.7.0
+8. ~~**T25a** — errors.Join message-shape test (multi-hook failure text).~~ done — errors.Join shape test shipped core v0.7.0
+9. ~~**T25b** — hardened-dashboard `frame-ancestors 'none'` + sorted-order asserts.~~ done — T25b shipped 2026-09-29 (frame-ancestors + alphabetical order pinned)
+10. ~~**T25c** — SSE×health lifecycle E2E (drain during an open stream).~~ done — T25c sse_health_drain_test.go shipped 2026-09-29
+11. ~~**T26a** — testkit drain-window helper + migrate 2 hand-rolled tests.~~ done — testkit.DrainWindowProbe shipped core v0.7.0
+12. ~~**T26b** — health example `-hardened` mode + README note.~~ done — T26b health example -hardened shipped v0.1.4
+13. ~~**realtime v0.1.2 train** (go-sse v0.6.1 + directive bump — [Unreleased] ready).~~ done — realtime v0.1.2 shipped 2026-09-29
+14. ~~**flightrecorder v0.1.1 train** (httputil v0.11.0→v1.2.0 + directive — [Unreleased] ready).~~ done — flightrecorder v0.1.1 shipped 2026-09-29
+15. ~~**docs v0.3.1 train** (templ-components v1.19.4 + directive — [Unreleased] ready).~~ done — docs v0.3.1 shipped 2026-09-29
+16. **BuildFlow full-mode run** (one clean validation incl. test-race). **→ env-blocked — BuildFlow full mode deadlocks here (lychee/shellcheck children); AGENTS gotcha documents the constraint**
+17. ~~**T29** — watchlist refresh sweep (cordis consumers, PapDashboard, nixpkgs toolchain, dprint exit-14, cqrs-htmx v5 window) with as-of dates.~~ done — watchlist refreshed with as-of dates (2026-09-29)
+18. **T30** — external-consumer proxy ritual: write the decision + recipe paragraph. **→ routed — Decision 14 (verify-on-touch + quarterly); TODO_LIST watchlist**
+19. **T32** — rituals re-arm (cqrs cookbook re-verify trigger, core v1 exit-criteria graduation check, battery demand re-check). **→ routed — rituals are standing rows (TODO_LIST P3 + AGENTS cqrs section)**
+20. **T20** — AGENTS deep slim-down batch 1 (extract per-module build commands → module READMEs; restores cap headroom). **→ routed — TODO_LIST P3 AGENTS slim-down (batch 1 done 2026-09-29)**
+21. **T20b/c** — slim batches 2–3 (gotcha groups). **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
+22. ~~**T21** — art-dupl suppression audit (~431 groups) + standing policy + Decision 13 cross-link.~~ done — audited 2026-09-29 — 477 groups, one harmful clone fixed
+23. ~~**T31** — lessons.md entry in crush-config (commit there): "check GOTOOLCHAIN/go.work parity AND re-run guards between dependency-automation runs and tagging."~~ done — the caller-wins-toolchain lesson class lives in crush-config references/lessons.md (2026-09-22 entry)
+24. ~~**Upstream draft: BuildFlow go-licenses ≥1.27 runner** (from the new license-check skip rationale).~~ **Won't implement — moot — the premise broke: license-check passes 13/13 since the 2026-10-07 probes (AGENTS BuildFlow gotcha).**
+25. ~~**Upstream draft: go-structure-linter** — per-tool rule excludes / honor yaml config (from the new skip rationale).~~ **NOT-DO — NOT-DO — CLOSED 2026-09-29: the installed binary (aaca8e20) honors the yaml config; no filing needed.**
+26. ~~Watch **cqrs-htmx**: they can drop their go-etag stub-replace now (core v0.6.0) — their repo, their move; keep the claim fresh (D2 ritual).~~ done — setup/v4.13.2 carries the split go-etag; their stub-replace is gone (verified 2026-10-01)
+27. **T13** (G3-gated) — consumer-claim ritual script or strip pins from AGENTS. **→ USER-gated — TODO_LIST Open questions item 1**
+28. **T15** (USER-gated) — 6 upstream filings (go-health pack could be direct fixes in our repo). **→ USER gate — TODO_LIST P2 upstream-asks row**
+29. **T16** (USER-gated) — errorpages statusRecorder → httputil.ResponseRecorder swap. **→ USER gate — TODO_LIST P2 errorpages row**
+30. **T22** (their repo) — pdg backlog sweep. **→ their repo — TODO_LIST P3 pdg pointer row**
+31. **T23** (user intent) — prompt-crusher merge resolution. **→ still open — user intent required (prompt-crusher merge)**
+32. **T27** — govulncheck on health + security (networked machine). **→ TODO_LIST P2 govulncheck (network-blocked env)**
+33. **T28** — browser CSP pass over DashboardHardenedPreset (chromedp) + THREAT_MODEL link. **→ TODO_LIST P2 browser-CSP row**
+34. **T10.1** — owner sets `SSH_PRIVATE_KEY` secret → then T10.3 watch one fully green master run (incl. the now-committed go.work feeding the directives job). **→ TODO_LIST P1 (owner SSH secret)**
+35. ~~Triage the **golangci-lint-config-verify warning** (`exhaustruct_v5.exclude` not allowed in one module's config — BuildFlow flagged; find which module, fix key or linter version).~~ done — not reproducing — 0 issues x12 at the 2026-10-12 fleet scan with the current configs
+36. ~~Triage the **5 go-auto-upgrade findings** (lo.FromPtr in frh adapter; lo.Map/lo.Filter in otel/realtime tests) — fix or policy-skip with rationale.~~ done — no lo.* usage remains in frh/otel/realtime (verified 2026-10-12)
+37. ~~**jscpd policy decision**: 13 findings — the cross-module `.golangci.yml` duplication (277-line clones) is by-design per-module configs; suppress in dprint/jscpd config with rationale or accept the noise.~~ done — decided — per-module .golangci.yml duplication accepted BY DESIGN (Decision 13 amendment, 2026-09-29)
+38. ~~Fix the **5 broken doc links** lychee found (doc/planning references to sibling paths that moved: `go-plugin-mvp`, `forks/cordis`).~~ done — fixed 2026-09-29 (11-47 session) — cordis path corrected, go-plugin-mvp relinked
+39. ~~Consider **dropping the go.work etag replace** once realtime/flightrecorder/docs/otel/security trains ship (their graphs then carry etag ≥ the split) — keep until then.~~ done — dropped 2026-09-29 via integration excludes spanning the extraction boundary
+40. ~~**SECURITY go.mod**: example-only appkit dep still at v0.5.1 — bump to v0.6.0 on the next security-touching train (BuildFlow may auto-bump; verify CHANGELOG then).~~ done — dep now at v0.8.0 with the CHANGELOG entry corrected (2026-10-12)
+41. ~~Verify **CI directives job** actually parses the committed go.work on the next push (guards+proxy-smoke should be visible even with the matrix owner-blocked).~~ done — CI go-directives green parsing the committed go.work (run 36542306033)
+42. ~~**DOMAIN_LANGUAGE.md**: add the DLQ poison contract terms (Rejection=quarantined, retryable=restarts) — the v4.5 semantic change deserves vocabulary.~~ done — DLQ poison-contract terms recorded in doc/DOMAIN_LANGUAGE.md (2026-09-29)
+43. ~~Clean **/tmp/core-old** + any scratch dirs from the release ritual.~~ **Won't implement — moot — /tmp is ephemeral; the 12-45 session trashed the session-residue files that existed.**
+44. ~~**AGENTS integration bullet**: the pins prose still says "LATEST published of every family module" — the T14 version-locked legs add a nuance worth one clause.~~ done — AGENTS integration bullet carries the T14 clause (2026-09-29)
+45. ~~Re-verify **dependabot config** picks up nothing weird from the 4 go.mod sweeps (grouped updates should reconcile cleanly).~~ done — parity guard green; in .githooks/pre-commit since 2026-10-07
+46. ~~**README.md (root)**: still says nothing wrong, but the release-state claim "through core v0.5.1" appears in FEATURES/ROADMAP? — grep-and-sync all living docs for the old floor claim.~~ done — floor claims synced (re-verified 2026-10-12 — zero stale release-state claims)
+47. ~~**health module**: go-health v0.3.0 evaluation (tracked TODO) — the T14 lock note references it; schedule the eval or re-affirm the wait.~~ done — OVERTAKEN — health swept to go-health v0.4.1 then v0.5.0 (2026-10-06)
+48. ~~Consider **retiring `GOTOOLCHAIN=go1.27.1` from .buildflow.yml** once the machine default moves (paired with #2's direnv decision).~~ done — the env pin was removed; BuildFlow auto-derives the toolchain (2026-10-07, AGENTS gotcha)
+49. **post-release pkg.go.dev render check** for the 5 new tags (crawler lag ritual — NOT a failure if 404 today). **→ docs v0.3.2 renders on pkg.go.dev (verified 2026-10-12); flightrecorder still 404 — escalated to TODO_LIST**
+50. ~~**Retrospective fix in SUPERB v5 doc**: mark T01–T12/T14 executed with deltas (frh v0.1.5 correction, etag fixes) so the plan mirrors reality for the next session.~~ done — SUPERB v5 banner completed + archived 2026-10-12 (docs/planning/archived/)
 
 ## g) Questions only you can answer
 
 1. **G3 (still open)**: consumer-pin claims in AGENTS/FEATURES — keep them and I build `scripts/check-consumer-claims.sh` (re-verifies claims after each cqrs-htmx release), or drop exact consumer pins from AGENTS entirely? T13 is blocked on this word.
-2. **Train cadence for the sweep-carrying modules**: realtime/flightrecorder/docs each carry small unreleased deltas (dep bumps + directive) — ship them as individual trains NOW (3 more tag+push cycles) or batch them into the next natural train (e.g., together with cqrs v0.6.0 / the next feature wave)? Either is executable; it's a release-noise preference.
+2. ~~**Train cadence for the sweep-carrying modules**: realtime/flightrecorder/docs each carry small unreleased deltas (dep bumps + directive) — ship them as individual trains NOW (3 more tag+push cycles) or batch them into the next natural train (e.g., together with cqrs v0.6.0 / the next feature wave)? Either is executable; it's a release-noise preference.~~ done — answered by execution — the three sweep-carrying trains shipped 2026-09-29 (realtime v0.1.2 / flightrecorder v0.1.1 / docs v0.3.1)
 3. **Machine toolchain**: the local default go is 1.26.7 with `GOTOOLCHAIN=local` (nix-managed, read-only to me) — is upgrading the machine's default go to ≥1.27.1 on your agenda? Yes → I retire the entire GOTOOLCHAIN-prefix discipline (AGENTS blocks, .buildflow.yml env, hook notes) in one follow-up train. No → the prefix stays and I keep documenting it.
