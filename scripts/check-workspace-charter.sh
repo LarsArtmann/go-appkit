@@ -12,11 +12,24 @@
 # the next leak fail CI and the pre-tag gate loudly instead of silently
 # shipping. When a NEW module joins the repo, go.work must gain it in the
 # same change (this guard enforces the unified-toolchain membership policy).
+#
+# --fix (2026-10-12): reconcile go.work to the charter membership using
+# `go work edit -dropuse=`/`-use=` (the toolchain's own rewriting — never
+# sed/awk on go.work; note `go work use` has NO -drop flag). Idempotent: a
+# green tree is left untouched.
 
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
+
+fix=0
+if [[ "${1:-}" == "--fix" ]]; then
+	fix=1
+elif [[ -n "${1:-}" ]]; then
+	echo "usage: $0 [--fix]" >&2
+	exit 2
+fi
 
 if [[ ! -f go.work ]]; then
 	echo "FAIL: go.work not found at repo root"
@@ -43,11 +56,32 @@ fi
 
 if [[ "$declared" == "$expected" ]]; then
 	echo "OK: go.work membership matches the charter (root + $(grep -vc '^\.$' <<<"$expected") modules, ./integration excluded)"
+elif [[ "$fix" == 1 ]]; then
+	toolchain="${GOTOOLCHAIN:-go1.27.2}"
+	while IFS= read -r stray; do
+		[[ -z "$stray" ]] && continue
+		echo "FIX: dropping '$stray' from go.work (not in the charter)"
+		GOTOOLCHAIN="$toolchain" go work edit -dropuse="$stray"
+	done < <(comm -23 <(printf '%s\n' "$declared") <(printf '%s\n' "$expected"))
+	while IFS= read -r missing; do
+		[[ -z "$missing" ]] && continue
+		echo "FIX: adding '$missing' to go.work (charter member)"
+		GOTOOLCHAIN="$toolchain" go work edit -use="$missing"
+	done < <(comm -13 <(printf '%s\n' "$declared") <(printf '%s\n' "$expected"))
+	declared="$(awk '/^use \(/{f=1;next} /^\)[[:space:]]*$/{f=0} f{gsub(/^[[:space:]]+|[[:space:]]+$/,""); if($0!="") print}' go.work | sort -u)"
+	if [[ "$declared" == "$expected" ]]; then
+		echo "FIXED: go.work reconciled to the charter"
+	else
+		echo "FAIL: --fix did not converge; inspect the remaining diff manually"
+		diff --label declared --label expected <(printf '%s\n' "$declared") <(printf '%s\n' "$expected") || true
+		exit 1
+	fi
 else
 	echo "FAIL: go.work membership deviates from the charter:"
 	diff --label declared --label expected <(printf '%s\n' "$declared") <(printf '%s\n' "$expected") || true
-	echo "fix: add/remove members in go.work (or, if a module legitimately leaves the"
-	echo "charter, update the exception list in scripts/check-workspace-charter.sh)"
+	echo "fix: run scripts/check-workspace-charter.sh --fix (or add/remove members"
+	echo "by hand; if a module legitimately leaves the charter, update the"
+	echo "exception list in scripts/check-workspace-charter.sh)"
 	status=1
 fi
 
