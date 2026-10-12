@@ -11,12 +11,13 @@ research, and library analysis. New reports land HERE.
 
 ## Current (unarchived)
 
-Index rebuilt 2026-10-12 (docs-health pass — it had rotted to 6 of 27 rows).
+Index rebuilt 2026-10-12 (docs-health pass — it had rotted to 6 of 27 rows;
+the pass then annotated every live report and archived the fully-resolved
+episode-2 dedup report + SUPERB v5 plan).
 
 | Report | One-line summary |
 | ------ | ---------------- |
-| `2026-09-24_16-52_dedup-session-and-toolchain-drift.md` | Dedup episode 1: 2 of 3 clone groups extracted, repo-unbuildable root cause (toolchain drift), partial 1.27.1 unification; annotated by the 2026-09-28 pass |
-| `2026-09-28_23-03_dedup-sweep-t1-and-unification-continuation.md` | Dedup episode 2 (`-t 1`): 7 accepted clone groups with rationale, sorted-keys stdlib swaps, testkit.Serve adoption in integration; its go-appkit items executed by the 09-28/29 passes |
+| `2026-09-24_16-52_dedup-session-and-toolchain-drift.md` | Dedup episode 1: 2 of 3 clone groups extracted, repo-unbuildable root cause (toolchain drift), partial 1.27.1 unification; annotated by the 2026-09-28 + 2026-10-12 passes |
 | `2026-09-29_00-05_whouses-member-key-via-fix-status.md` | pdg session: severed go.work member-key traversal fixed in who-uses; crm consumer path revealed; cross-repo follow-ups routed (their repo) |
 | `2026-09-29_00-38_docs-health-full-pass.md` | Prior full docs-health AUDIT: living-doc truthing, 380 inline verdicts, doc/-vs-docs/ resolution, guard extensions |
 | `2026-09-29_01-36_directonly-hint-and-concurrent-session-status.md` | pdg session: hidden-indirect consumer hint shipped + concurrent-session collision survived; go-appkit items (F22-F27) resolved or routed |
@@ -68,6 +69,7 @@ Recent additions (verdicts inline; the full list lives in `archived/`):
 | `archived/2026-09-20_11-37_samber-do-health-review-session.md` | samber/do × health review: DO-1..6 clean, F1–F8 all dispositioned (executed by the train) |
 | `archived/2026-09-17_19-13_docs-health-full-sweep-annotate-archive-and-living-doc-truth.md` | Prior full docs-health sweep: 12 archived, ~200 inline verdicts |
 | `archived/2026-09-28_22-47_whouses-decode-and-consumer-pin-drift-status.md` | who-uses output decode + consumer-pin fix; its go-appkit/verification items executed by the 2026-09-28 pass |
+| `archived/2026-09-28_23-03_dedup-sweep-t1-and-unification-continuation.md` | Dedup episode 2 (`-t 1`): every item resolved (unification, harvest, art-dupl audit + policy, satellite trains); annotated + archived by the 2026-10-12 docs-health pass |
 | `../planning/archived/2026-09-29_00-45_SUPERB-v5-unification-trains-and-gated-unlocks.md` | SUPERB v5: unification + release trains — executed same-day in trains; queue closed 09-29; archived 2026-10-12 with zero unrouted items |
 
 Archive gate — no unresolved items may survive the move:
