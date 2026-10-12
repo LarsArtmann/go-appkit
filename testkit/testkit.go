@@ -129,6 +129,10 @@ func NewService(tb testing.TB, cfg appkit.ServiceConfig) *appkit.Service {
 // service with [NewService] (test-safe defaults) or set DrainDelay to
 // [appkit.NoDrainDelay] yourself; drain-window tests keep an explicit
 // small DrainDelay on purpose and pair it with [DrainWindowProbe].
+// The teardown's own graceful-shutdown budget is a fixed 5s (stopTimeout):
+// an explicit DrainDelay close to or above 5s can exhaust it and fail the
+// cleanup — keep deliberate drain windows small (the suite convention is
+// 1ms) or stop the server explicitly via [TestServer.Shutdown] instead.
 func Serve(tb testing.TB, svc *appkit.Service) *TestServer {
 	tb.Helper()
 
