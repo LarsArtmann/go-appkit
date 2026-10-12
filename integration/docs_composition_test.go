@@ -44,7 +44,10 @@ func TestDocsCompositionThroughAppkitService(t *testing.T) {
 		catalog.Command[docsE2EStartCommand]("docs.start"),
 		catalog.Event[docsE2EStartedEvent]("docs.started", catalog.Sends),
 	)
-	appkitdocs.RegisterDocs(svc.Mux, cb, docserver.Config{})
+	appkitdocs.RegisterDocs(svc.Mux, cb, docserver.Config{
+		ServiceName: "SUPERB Docs E2E",
+		Version:     "v0.3.2-test",
+	})
 
 	ts := testkit.Serve(t, svc)
 	baseURL := ts.FullChainURL
