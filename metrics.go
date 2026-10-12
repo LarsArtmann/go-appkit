@@ -89,7 +89,7 @@ func (c *MetricsConfig) validate() error {
 }
 
 // errInvalidMetricsConfig rejects unsafe metrics configurations.
-var errInvalidMetricsConfig = errorfamily.NewRejection(
+var errInvalidMetricsConfig error = errorfamily.NewRejection(
 	"appkit.metrics_config_invalid", "invalid metrics configuration")
 
 // durationBuckets are the request-duration histogram buckets in seconds

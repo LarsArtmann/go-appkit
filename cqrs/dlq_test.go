@@ -157,11 +157,11 @@ func TestEventService_DLQ_MemoryStorePassthrough(t *testing.T) {
 	}
 }
 
-var errPoison = &poisonError{}
+var errPoison error = &poisonError{}
 
 // errPoisonRejection is the DLQ-test poison: a Rejection-family error, which
 // the projectionhost classifies as non-retryable poison and quarantines.
-var errPoisonRejection = errorfamily.NewRejection("test.poison", "poison")
+var errPoisonRejection error = errorfamily.NewRejection("test.poison", "poison")
 
 type poisonError struct{}
 

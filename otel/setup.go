@@ -142,9 +142,9 @@ func (p *Provider) AsMeterProvider() *sdkmetric.MeterProvider {
 // semantics instead of an unclassified error. Messages are pinned — tests
 // and grep-based ops runbooks match on them.
 var (
-	errShutdown    = errorfamily.NewInfrastructure("otel.shutdown_incomplete", "otel provider shutdown incomplete")
-	errBuildRes    = errorfamily.NewInfrastructure("otel.resource_build_failed", "failed to build OTel resource")
-	errStdoutSetup = errorfamily.NewInfrastructure("otel.stdout_exporter_failed", "failed to build stdout exporter")
+	errShutdown error    = errorfamily.NewInfrastructure("otel.shutdown_incomplete", "otel provider shutdown incomplete")
+	errBuildRes error    = errorfamily.NewInfrastructure("otel.resource_build_failed", "failed to build OTel resource")
+	errStdoutSetup error = errorfamily.NewInfrastructure("otel.stdout_exporter_failed", "failed to build stdout exporter")
 )
 
 // Shutdown flushes pending spans and metrics, then releases resources.

@@ -187,4 +187,4 @@ func otlpExporterOptions[O any](
 // errOTLPSetup classifies exporter construction failures: reaching the
 // configured collector is an environmental concern, so consumers get the
 // Infrastructure family (HTTP 503) and standard retry semantics.
-var errOTLPSetup = errorfamily.NewInfrastructure("otel.otlp_exporter_failed", "failed to build OTLP exporter")
+var errOTLPSetup error = errorfamily.NewInfrastructure("otel.otlp_exporter_failed", "failed to build OTLP exporter")
