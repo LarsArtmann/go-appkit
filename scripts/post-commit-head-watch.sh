@@ -45,20 +45,15 @@ if [[ -z "$prev" || "$prev" == "$new" ]]; then
 fi
 
 ok=0
-reason=""
 
 if git merge-base --is-ancestor "$prev" "$new" 2>/dev/null; then
-	ok=1
-	reason="ancestor (normal advance/merge)"
+	ok=1 # ancestor (normal advance/merge)
 elif [[ "$(git rev-parse "$new^" 2>/dev/null || true)" == "$prev" ]]; then
-	ok=1
-	reason="amend"
+	ok=1 # amend
 elif [[ "$prev" == "$(git rev-parse ORIG_HEAD 2>/dev/null || true)" ]]; then
-	ok=1
-	reason="ORIG_HEAD (deliberate reset/rebase)"
+	ok=1 # ORIG_HEAD (deliberate reset/rebase)
 elif git branch --all --contains "$prev" 2>/dev/null | grep -q .; then
-	ok=1
-	reason="still on a branch"
+	ok=1 # still on a branch
 fi
 
 if ((ok)); then

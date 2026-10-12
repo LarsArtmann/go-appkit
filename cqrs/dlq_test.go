@@ -39,7 +39,7 @@ func poisonProjection(broken *atomic.Bool) projection.Projection { //nolint:iret
 		"dlq-projection",
 		func(_ context.Context, evt event.Event) error {
 			if broken.Load() && evt.Type() == "test.poison" {
-				return errPoisonRejection
+				return errPoisonRejection //nolint:wrapcheck // the classified Rejection IS the fixture: projectionhost must see the family to quarantine
 			}
 
 			return nil

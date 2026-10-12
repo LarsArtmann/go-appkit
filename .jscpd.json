@@ -1,4 +1,4 @@
 {
   "$schema": "https://json.schemastore.org/jscpd",
-  "ignore": ["**/.golangci.yml"]
+  "ignore": ["**/.golangci.yml", "**/dashboards/**"]
 }
