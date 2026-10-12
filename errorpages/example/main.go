@@ -16,6 +16,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/larsartmann/go-appkit"
 	"github.com/larsartmann/go-appkit/errorpages"
@@ -25,6 +26,9 @@ import (
 func main() {
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = ":8080"
+	if port := os.Getenv("PORT"); port != "" {
+		cfg.Addr = ":" + port
+	}
 
 	svc, err := appkit.NewService(cfg)
 	if err != nil {
