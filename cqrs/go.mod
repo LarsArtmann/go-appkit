@@ -19,6 +19,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.1.0
 	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
+	github.com/samber/lo v1.53.0
 	go.opentelemetry.io/otel v1.47.0
 	go.opentelemetry.io/otel/metric v1.47.0
 	go.opentelemetry.io/otel/sdk/metric v1.47.0
@@ -75,7 +76,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.16.0 // indirect
-	github.com/samber/lo v1.53.0 // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect

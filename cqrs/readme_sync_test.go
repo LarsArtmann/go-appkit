@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/samber/lo"
 )
 
 var readmeQualifiedID = regexp.MustCompile(`\b([a-z][a-z0-9]*)\.([A-Z][A-Za-z0-9_]*)`)
@@ -69,10 +71,10 @@ func TestReadmeRecipeExamples_AreLinkedBothWays(t *testing.T) {
 		t.Fatalf("read example_test.go: %v", err)
 	}
 
-	exampleNames := map[string]bool{}
-	for _, match := range readmeExampleFunc.FindAllStringSubmatch(string(examples), -1) {
-		exampleNames[match[1]] = true
-	}
+	exampleNames := lo.SliceToMap(
+		readmeExampleFunc.FindAllStringSubmatch(string(examples), -1),
+		func(match []string) (string, bool) { return match[1], true },
+	)
 
 	mentioned := map[string]bool{}
 	for _, name := range readmeExampleRef.FindAllString(string(readme), -1) {

@@ -8,6 +8,8 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
+
+	"github.com/samber/lo"
 )
 
 // collect drains the manual reader into a flat metric list.
@@ -44,12 +46,7 @@ func findMetric(t *testing.T, metrics []metricdata.Metrics, name string) metricd
 }
 
 func metricNames(metrics []metricdata.Metrics) []string {
-	names := make([]string, 0, len(metrics))
-	for _, m := range metrics {
-		names = append(names, m.Name)
-	}
-
-	return names
+	return lo.Map(metrics, func(m metricdata.Metrics, _ int) string { return m.Name })
 }
 
 // attrsOf flattens a histogram's attribute sets for assertions.
