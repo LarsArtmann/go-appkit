@@ -32,6 +32,7 @@ require (
 	github.com/larsartmann/httputil v1.5.0
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/samber/do/v2 v2.1.0
+	github.com/samber/lo v1.53.0
 	go.opentelemetry.io/otel v1.47.0
 	go.opentelemetry.io/otel/sdk v1.47.0
 	go.opentelemetry.io/otel/sdk/metric v1.47.0

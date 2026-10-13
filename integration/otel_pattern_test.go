@@ -18,6 +18,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+
+	"github.com/samber/lo"
 )
 
 // TestSpanNameAndRouteThroughAppkitOuterMiddlewares pins the documented
@@ -227,10 +229,9 @@ func TestRecoveryExceptionEventThroughAppkitChain(t *testing.T) {
 		t.Errorf("event name = %q, want %q", events[0].Name, "exception")
 	}
 
-	attrs := map[string]string{}
-	for _, kv := range events[0].Attributes {
-		attrs[string(kv.Key)] = kv.Value.Emit()
-	}
+	attrs := lo.SliceToMap(events[0].Attributes, func(kv attribute.KeyValue) (string, string) {
+		return string(kv.Key), kv.Value.Emit()
+	})
 	if !strings.Contains(attrs["exception.message"], "integration boom") {
 		t.Errorf("exception.message = %q, want it to contain the panic value", attrs["exception.message"])
 	}
