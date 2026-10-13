@@ -1,4 +1,8 @@
-package cqrs //cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a post-command drain
+// cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a
+// read-time guard (CheckStaleness/CheckProjectionStaleness, see README),
+// not a post-command drain
+
+package cqrs
 
 import (
 	"context"
