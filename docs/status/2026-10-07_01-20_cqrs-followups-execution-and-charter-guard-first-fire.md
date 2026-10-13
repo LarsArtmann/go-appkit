@@ -60,7 +60,7 @@
 7. **File the go-cqrs-lite upstream ask (owner-gated)** — two verified findings + consumer tripwire; draft complete. **→ filing in flight 2026-10-12 (T22)**
 8. **/mnt/buildcache topology answer (owner)** — recurrence risk for the corruption class.
 9. **cqrs-htmx setup Domain adoption** — their next train, owner-gated cross-repo.
-10. **Flake hunt**: rerun the cqrs suite `-count=10` under load once; if the transient recurs, capture the name (this session lost it to d3).
+10. ~~**Flake hunt**: rerun the cqrs suite `-count=10` under load once; if the transient recurs, capture the name (this session lost it to d3).~~ done — RAN 2026-10-12 -race -count=10 — found a real captureHandler read race, fixed (94465cc), x10 re-run green
 11. **Standing upstream-flip watch** (system GracefulClose + timer-stop): the 4-file change is enumerated in the `cqrs/domain_test.go` tripwire comment. **→ timers half closed at cqrs v0.8.0; GracefulClose watch open (TODO_LIST)**
 12. ~~**FEATURES.md VERIFY pass** (cqrs v0.7.0 + otel/flightrecorder v0.2.0 rows).~~ done — (31526ce version-truth + de6d4f6 evidence cells)
 13. ~~**core v0.8.0 + systemd v0.1.0 train** (steps in TODO P3; demand-proven by bank-sync ADR-017).~~ done at `3870403 + b514928`
