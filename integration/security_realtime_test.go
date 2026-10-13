@@ -86,7 +86,7 @@ func TestRateLimitInFrontOfSSE(t *testing.T) {
 		t.Fatalf("build subscribe request: %v", err)
 	}
 
-	subResp, err := http.DefaultClient.Do(sub)
+	subResp, err := (&http.Client{Timeout: 15 * time.Second}).Do(sub)
 	if err != nil {
 		t.Fatalf("subscribe: %v", err)
 	}
@@ -98,6 +98,24 @@ func TestRateLimitInFrontOfSSE(t *testing.T) {
 
 	if ct := subResp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/event-stream") {
 		t.Errorf("first connect Content-Type = %q, want text/event-stream", ct)
+	}
+
+	// Broadcast only AFTER the handler's subscription is registered: the
+	// header flush precedes the subscribe step, so an earlier broadcast can
+	// race it (intermittently lost). SubscriberCount is the sync point.
+	subscribed := false
+	for range 50 {
+		if hub.SubscriberCount() == 1 {
+			subscribed = true
+
+			break
+		}
+
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if !subscribed {
+		t.Fatal("handler never subscribed to the hub")
 	}
 
 	// A live broadcast reaches the established subscriber: the limiter
