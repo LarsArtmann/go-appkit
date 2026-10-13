@@ -134,6 +134,13 @@ operator explicitly demanded `.md` at this path — override honored, flagged.)_
    around it (8093/8094/8095) and never identified the squatter. Also
    never diagnosed WHY two exact-match edits on AGENTS.md line 48 failed
    (suspect an invisible char — zero-width/nbsp — unfound).
+   _RESOLVED same day (close-out pass): port 8099 is ANOTHER USER's
+   listener on this shared box (socket inode owned by a process whose
+   /proc entries are unreadable to us; not a session zombie — examples
+   keep their alternate ports). AGENTS.md carries NO zero-width/nbsp/
+   BOM chars — only visible em-dashes (U+2014) and arrows (U+2192);
+   the failed edits were a text mismatch (typography or stale line
+   number), not invisible characters._
 
 ## e) WHAT WE SHOULD IMPROVE (session-derived, concrete)
 
