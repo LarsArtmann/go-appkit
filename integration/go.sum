@@ -170,8 +170,8 @@ github.com/larsartmann/go-appkit v0.9.0 h1:rOKVw+AWDJ5xR9H+ulveJ0cqln3HsZBdTD80t
 github.com/larsartmann/go-appkit v0.9.0/go.mod h1:Q+eQwk/zyQO0iXqlsaf55Q3hV+j/ieyvOPZNyPYwYns=
 github.com/larsartmann/go-appkit/cqrs v0.8.0 h1:P7bZxxZZ9wtYI8h21TPYFbPsNTkCV2svxrAwAakPU4w=
 github.com/larsartmann/go-appkit/cqrs v0.8.0/go.mod h1:IWmk93l/6GIsLNwJJBClx1TdcL4I5KziMyaKu/fFfrk=
-github.com/larsartmann/go-appkit/docs v0.3.2 h1:mirb9m28Wu0Z5ViGKLnlbkeuVN/IRnKsm7gynHjsLfs=
-github.com/larsartmann/go-appkit/docs v0.3.2/go.mod h1:IfdCsXZZrh4s3rgKGjif7YZrbYx1hJaaCwCKMdscWho=
+github.com/larsartmann/go-appkit/docs v0.3.3 h1:8GikRBbbRSOsL/a+rA+R2nF/J83TxVwuF2i7xrB/XuY=
+github.com/larsartmann/go-appkit/docs v0.3.3/go.mod h1:QthWqEq46bLTyzO0xl5jI35n/sEbDduh2XbM5sEAfuc=
 github.com/larsartmann/go-appkit/errorpages v0.1.2 h1:NNpBGnRmJ9HLXoMFk8KqrVYFEkkXjaDpjBQsAC47D/I=
 github.com/larsartmann/go-appkit/errorpages v0.1.2/go.mod h1:BHweDd75GuZftLAMk/bSUIcexLikBuHLiTzyltAmCW4=
 github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7 h1:xPoRgaySWyqYx16BFXTb8Fd9rXjyJ9QpEw319abChpQ=
