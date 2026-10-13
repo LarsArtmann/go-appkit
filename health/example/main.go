@@ -88,7 +88,10 @@ func main() {
 		// the dashboard to /health/health. Empty keeps it at /health, and the
 		// trend/metrics options append on top instead of being replaced.
 		nonceFn := func(r *http.Request) string { return appkitsecurity.NonceFromContext(r.Context()) }
-		dashboardOpts = append(appkithealth.DashboardHardenedPreset("", nonceFn), dashboard.WithTrend(dashboardTrendCount), dashboard.WithMetrics(true))
+		preset := appkithealth.DashboardHardenedPreset("", nonceFn)
+		dashboardOpts = append(preset,
+			dashboard.WithTrend(dashboardTrendCount),
+			dashboard.WithMetrics(true))
 		cfg.OuterMiddlewares = []func(http.Handler) http.Handler{hardenedCSP}
 	}
 

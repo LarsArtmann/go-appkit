@@ -58,11 +58,25 @@ more levels:
 
 - **Cross-module E2E:** `integration/hardened_dashboard_test.go` composes
   the health module's `DashboardHardenedPreset` with this module's nonce
-  machinery behind a strict CSP, against published tags.
+  machinery behind a strict CSP, against published tags (and pins the
+  preset's dashboard page itself at `/health/health` — basePath is a
+  PREFIX).
 - **Runnable example:** `example/` wires the full chain (canonical order,
   per-request nonces, per-route limiter instances) on an appkit service with
   a curl walkthrough in its doc comment; every documented status code was
   verified live against the running demo (2026-09-23).
+- **Browser-side proof (2026-10-13):** headless Chromium against the health
+  example's `-hardened` mode (strict production CSP, per-request nonce): the
+  dashboard page RENDERS (38.5 KB DOM, `Health Dashboard` title, nonce'd
+  self-hosted scripts execute) and the console carries no
+  frame-ancestors/connect-src violations. Two degradation classes surfaced,
+  both the policy doing its job against dashboard markup that was not built
+  for it: (1) Tailwind-CDN inline styles are blocked (`style-src 'self'`
+  carries no nonce/hash), (2) Datastar expression evaluation is blocked
+  (`unsafe-eval` is never an allowed source). Net: the dashboard is STATIC
+  under the strictest profile — live SSE updates need a strict-CSP dashboard
+  mode upstream (embedded styles + nonce'd `style-src` + eval-free
+  expressions; routed as a go-health-dashboard ask).
 
 ## Known limits
 
