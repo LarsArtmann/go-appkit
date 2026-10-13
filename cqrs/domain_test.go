@@ -19,8 +19,10 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/command/v4"
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
+	"github.com/larsartmann/go-cqrs-lite/metaengine/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
+	"github.com/samber/lo"
 )
 
 // ── Merge contract (pure unit) ──
@@ -473,12 +475,7 @@ func planQueryNames(t *testing.T, eventSvc *EventService) []string {
 		t.Fatal("nil projection plan")
 	}
 
-	names := make([]string, 0, len(plan.Queries))
-	for _, q := range plan.Queries {
-		names = append(names, q.Name)
-	}
-
-	return names
+	return lo.Map(plan.Queries, func(q metaengine.SerializableQuery, _ int) string { return q.Name })
 }
 
 func TestEventService_DomainEvolveLookup_GetPointRead(t *testing.T) {
