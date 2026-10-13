@@ -1,9 +1,11 @@
-# Core v1.0.0 Exit Criteria (draft)
+# Core v1.0.0 Exit Criteria
 
-**Status:** DRAFT — graduates to actionable when the consumer count grows
-beyond the current family (cqrs-htmx adoption in flight). AGENTS.md names
-v1.0.0 as the core target; this document defines what "done" means so the
-target stays honest.
+**Status:** ACTIONABLE (2026-10-13) — the draft's own graduation trigger
+fired: consumer #2 (PapDashboard v0.3.0, published 2026-10-13) exists
+beyond the family. This document is now the active v1.0.0 checklist;
+each future core release train re-assesses the latest table below.
+AGENTS.md names v1.0.0 as the core target; this document defines what
+"done" means so the target stays honest.
 
 ## Hard criteria (all must hold)
 
@@ -72,3 +74,27 @@ Assessed against master at core v0.7.0 (2026-09-29 satellite-train day), toolcha
 Soft: GOEXPERIMENT-free floor MET (retired 2026-09-29); benchmark baselines recorded (logging 2026-09-04, otel re-baselined 2026-09-16); health v0.1.4 and otel v0.1.1 both BELOW the ≥v0.2.0 soft bar (otel v0.2.0 queued, health's v0.2.0 unscoped).
 
 **Bottom line:** 4/7 hard criteria met, none regressed; criterion 5 (consumer proof) is the structural blocker; criterion 1 starts its freeze window at the NEXT core tag.
+
+## Graduation status — 2026-10-13 (vs core v0.9.0, consumer #2 arrived)
+
+Assessed against master at core v0.9.0 (2026-10-12), go floor 1.27.2,
+SUPERB v7 T11 (refreshing the 2026-09-29 table):
+
+| # | Criterion                                         | Status  | Evidence / gap                                                                                                                                                                      |
+| - | ------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1 | API frozen one minor cycle                        | NOT MET | Removal-free streak intact since v0.4.0, but additions kept moving the identifier SET (v0.8.0 `StartHooks`, v0.9.0 `testkit.NewService`). Freeze window now: v0.9.0 → next tag must be additions-EMPTY to start the cycle; v1.0.0 would be its second point. The check is mechanical (Release Ritual step 1, proven 2026-09-04). |
+| 2 | Zero data-loss shutdown paths                     | MET     | Unchanged since 2026-09-29; v0.8.0 added the startup mirror (hook failure closes the listener, pinned by starthooks_test).                                                            |
+| 3 | Lifecycle guarantees + named tests                | MET     | Unchanged; Addr()/Running() startup-mirror contract pinned (v0.8.0).                                                                                                                |
+| 4 | Error contract stable                             | MET     | Unchanged; errorpages parity re-verified at errorpages v0.1.2 (2026-10-13).                                                                                                          |
+| 5 | Two independent consumers, full cycle, no replace | NOT MET (closer) | Consumer #2 EXISTS: PapDashboard v0.3.0 requires core v0.4.0, zero `replace` directives (verified 2026-10-13), plain Service usage. Gaps: versions don't overlap (setup v0.8.0 / PapDashboard v0.4.0) and neither pair has run a full release cycle together. Their refresh is THEIR repo's call (do not nudge); the consumer-claims guard fires on their next tag. |
+| 6 | Telemetry seam v1-shaped                          | MET     | Unchanged; otel v0.2.0 (SigNoz OTLP + exception capture) composes without core changes.                                                                                              |
+| 7 | Docs tell the truth                               | MET     | The 2026-09-29 FEATURES otel split brain closed (v0.2.0 surface listed); FEATURES truth-swept 2026-10-13 (SUPERB v6 TODO cleanup).                                                   |
+
+Soft: GOEXPERIMENT-free floor MET; benchmarks recorded (logging 2026-09-04; otel re-baseline at the 1.27.2 floor in flight, SUPERB v7 T10); health v0.2.0 AND otel v0.2.0 both shipped — the soft bar is fully MET.
+
+**Bottom line (2026-10-13):** 5/7 hard criteria met. The doc graduated
+from DRAFT on its own trigger (second consumer exists). Remaining
+blockers, both external-clock: criterion 1 needs one additions-EMPTY
+core tag pair; criterion 5 needs a version overlap + one observed
+release cycle (PapDashboard's refresh cadence is theirs). Nothing in
+this repo blocks v1.0.0 except restraint.
