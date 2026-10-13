@@ -108,3 +108,16 @@ appkit never grows application-shaped code.
   Trigger: a real consumer needs single-endpoint multi-surface readiness →
   wrap aggregate in a Mounted-compatible handle (health module stays
   injector-free).
+
+- Fleet tooling patterns (harvested 2026-10-12 from the 15-53 §f45 extras):
+  workspace-exclusion convention (go.work member exclusions declared via
+  tool config, not folklore — the BuildFlow#46 class, fleet-wide);
+  per-tool config schema docs (`.buildflow.yml`, `.jscpd.json` — the
+  dead-exhaustruct-block class argues for documented schemas); charter
+  guard as a library (`check-workspace-charter.sh` is a per-repo copy —
+  extract once it drifts between repos).
+- Cross-repo follow-through (external, watch-only): quick fleet sweep for
+  go-work-sync re-adds in sibling repos (leak #8's mutator was fleet-wide
+  tooling, pre-#46); buildflow-skill PR documenting the `.jscpd.json`
+  convention + the go-work-sync/charter caveat + the 2026-10-12
+  verification-status rows.

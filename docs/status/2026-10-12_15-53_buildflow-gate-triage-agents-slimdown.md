@@ -87,22 +87,22 @@ All of these apply to many/all fleet projects, not just go-appkit. Per verify-be
 
 ## f) NEXT — up to 50, ranked by impact (brainstorm-grade; USER-gated marked)
 
-1. **File BuildFlow issues #1–#6 above** (after verify-before-filing source checks; mind the concurrent BuildFlow session).
-2. **Root `.golangci.yml` hygiene**: `run.go` 1.26.7 → align with floor; drop retired `goexperiment.*` build-tags (verify analysis behavior first).
-3. **1.27.2 floor train** (go.work + 12 go.mods + AGENTS + fixture in ONE train): unblocks cqrs-htmx v4.14.0 pin AND clears govulncheck GO-2026-6617 (stdlib HTTP/2 HPACK race) across every module. USER-gated.
-4. **Release trains #25/#26** (testkit.NewService + health NewProbe — code-complete): tag/push USER-gated per ritual.
+1. ~~**File BuildFlow issues #1–#6 above** (after verify-before-filing source checks; mind the concurrent BuildFlow session).~~ done — BuildFlow #46-49 + go-auto-upgrade #3 filed (17-27 session, source-verified)
+2. ~~**Root `.golangci.yml` hygiene**: `run.go` 1.26.7 → align with floor; drop retired `goexperiment.*` build-tags (verify analysis behavior first).~~ done — swept on the 1.27.2 floor train (run.go + dead blocks + retired tags gone)
+3. ~~**1.27.2 floor train** (go.work + 12 go.mods + AGENTS + fixture in ONE train): unblocks cqrs-htmx v4.14.0 pin AND clears govulncheck GO-2026-6617 (stdlib HTTP/2 HPACK race) across every module. USER-gated.~~ done — wave 1: 12 go.mods + go.work + fixture at 1.27.2; GO-2026-6617 cleared
+4. ~~**Release trains #25/#26** (testkit.NewService + health NewProbe — code-complete): tag/push USER-gated per ritual.~~ done — core v0.9.0 + health v0.2.0 tagged/pushed; issues closed
 5. **P1: restore `SSH_PRIVATE_KEY` Actions secret** (owner-only) + one fully green master run.
-6. **samber/lo adoption train** (~12 sites, 8 modules; ride the next dependency train).
-7. **go-cqrs-lite system/v4 v4.13.0**: cookbook re-verification ritual + pin-sweep decision (DUE since 2026-10-12).
-8. **Harvest this report's section f** via docs-health into TODO_LIST/ROADMAP.
-9. **Index this report** (+ today's concurrent-session reports) in `docs/status/README.md`.
+6. **samber/lo adoption train** (~12 sites, 8 modules; ride the next dependency train). **→ decided test-only 2026-10-12 (runtime sites stay hand-rolled); train pending go-auto-upgrade #3**
+7. ~~**go-cqrs-lite system/v4 v4.13.0**: cookbook re-verification ritual + pin-sweep decision (DUE since 2026-10-12).~~ done — cqrs v0.8.0 (cookbook re-verified + full consistent sweep)
+8. ~~**Harvest this report's section f** via docs-health into TODO_LIST/ROADMAP.~~ done — this pass (2026-10-12)
+9. ~~**Index this report** (+ today's concurrent-session reports) in `docs/status/README.md`.~~ done — this pass (five rows 15-12 through 20-36)
 10. **One `buildflow --verbose` run** to name the 9 unavailable tools + audit the 67 not-applicable list once.
-11. **Enumerate the truncated `+2` cqrs-lint findings** (`-s cqrs-lint --format finding` → file, read whole file).
+11. ~~**Enumerate the truncated `+2` cqrs-lint findings** (`-s cqrs-lint --format finding` → file, read whole file).~~ done — cqrs-lint exits 0 at cqrs v0.8.0 (E014 trailing form + C023 closed the tail)
 12. **Charter/directives guard for daemon commits** — post-buildflow step or watcher to close the pma bypass window.
 13. **Decide `.jscpd.json` ignore strategy**: path-scoped (current) vs format-scoped (drop json entirely, go-branded-id style).
 14. **Consider taming jscpd warning volume** (107 warnings, mostly test clones): minTokens/minLines tuning vs documenting the accepted class.
 15. **File exhaustruct_v5 schema issue at golangci-lint** (not BuildFlow).
-16. **Verify who authored the dead exhaustruct blocks** (auto-configure vs hand) — determines BuildFlow issue #7.
+16. ~~**Verify who authored the dead exhaustruct blocks** (auto-configure vs hand) — determines BuildFlow issue #7.~~ done — resolved — dead blocks removed in-session; no BuildFlow issue needed
 17. **Quick fleet sweep for go-work-sync re-adds in sibling repos** (leak #8's mutator was fleet-wide tooling).
 18. **pma dossier follow-up**: `journalctl -t pma` around leak windows; per-repo cooldown for train repos (pre-existing).
 19. **Browser CSP pass** over the hardened health dashboard (pre-existing P2).
@@ -110,16 +110,16 @@ All of these apply to many/all fleet projects, not just go-appkit. Per verify-be
 21. **go-health recorder-sentinel upstream ask** — filing USER-gated (pre-existing).
 22. **httputil `NewServerListener` ask** — unblocks Service composition + Core TLS (pre-existing, USER-gated).
 23. **fr cooldown-combinator ask** (pre-existing, USER-gated filing).
-24. **GracefulClose + timer-stop upstream flip watch** (pre-existing; four-file tripwire enumerated).
-25. **fr v0.2.1 sweep** on the frh/cqrs trains (pre-existing).
-26. **Example StartHooks migration** (trigger met 2026-10-07; pre-existing).
-27. **health follow-through after the #25 train** (bench re-check, fuzz session, godoc note; pre-existing).
+24. **GracefulClose + timer-stop upstream flip watch** (pre-existing; four-file tripwire enumerated). **→ TODO row — timers half closed at cqrs v0.8.0; GracefulClose watch open**
+25. ~~**fr v0.2.1 sweep** on the frh/cqrs trains (pre-existing).~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
+26. ~~**Example StartHooks migration** (trigger met 2026-10-07; pre-existing).~~ done — decc462
+27. ~~**health follow-through after the #25 train** (bench re-check, fuzz session, godoc note; pre-existing).~~ done — health v0.2.0 + fuzz/benchstat evidence in its CHANGELOG
 28. **pkg.go.dev flightrecorder 404** — >48h escalation rule met (pre-existing).
-29. **otel polish batch** (benchmarks, env-pin test, tail-sampling recipe; pre-existing P3).
+29. ~~**otel polish batch** (benchmarks, env-pin test, tail-sampling recipe; pre-existing P3).~~ done — 104f28c (TODO row struck)
 30. **Composition-gap E2E watchlist** (otel×realtime, security×errorpages, …; pre-existing).
 31. **Battery waves W3–W5** (canonical spec referenced, demand-gated; pre-existing).
 32. **Full cqrs-htmx setup suite hermetic run** (pre-existing).
-33. **Consumer-claim drift ritual posture** — stop citing exact consumer pins vs guard them (USER-gated, pre-existing).
+33. ~~**Consumer-claim drift ritual posture** — stop citing exact consumer pins vs guard them (USER-gated, pre-existing).~~ done — resolved — pins kept + guarded (check-consumer-claims.sh, T05)
 34. **i18n residue post-httputil v1.6.0** (pin-drift sweep + optional E2E leg; pre-existing).
 35. **BuildFlow dprint exit-14 on CHANGELOG-only commits** — upstream fix (pre-existing deferred register).
 36. **Lychee GITHUB_TOKEN-vs-exclude decision** (ties to BuildFlow issue #6).
@@ -128,21 +128,21 @@ All of these apply to many/all fleet projects, not just go-appkit. Per verify-be
 39. **Confirm the 220-line cap's source of truth** (BuildFlow preflight vs linter default) and note the fleet standard where repos can see it — the repo doc said 377 until today.
 40. **Daemon attribution test**: confirm whether gopls-class tools still mutate go.work now that go-work-sync is skipped (leaks #1–7's author is still unnamed).
 41. **Consider `golangci-lint config verify` as a CI job** (cheap; would have caught the exhaustruct class at authoring time).
-42. **Re-check `run.build-tags` necessity** in root .golangci.yml (arenas/runtimesecret/simd — analysis-only tags with no build counterpart since the GOEXPERIMENT retirement).
-43. **module-details.md decay watch**: the moved content is point-in-time verbatim — first module train should re-verify its section (pointer exists in AGENTS.md).
-44. **TODO_LIST "go.work re-add class" row**: close or rewrite after BuildFlow issue #1 is filed (the skip makes the inotify hunt moot for THIS mutator).
-45. **Roadmap fuel** (from section f extras): workspace-exclusion convention as a fleet pattern; per-tool config schema docs; charter-guard-as-library (charter scripts are per-repo copies).
-46. **junk-drawer check on `docs/agents/`**: one file today; decide the directory's charter (agent-only, never user docs) before it grows.
+42. ~~**Re-check `run.build-tags` necessity** in root .golangci.yml (arenas/runtimesecret/simd — analysis-only tags with no build counterpart since the GOEXPERIMENT retirement).~~ done — retired tags gone from root .golangci.yml (1.27.2 sweep)
+43. **module-details.md decay watch**: the moved content is point-in-time verbatim — first module train should re-verify its section (pointer exists in AGENTS.md). **→ cqrs section re-verified at the v0.8.0 train; watch continues**
+44. ~~**TODO_LIST "go.work re-add class" row**: close or rewrite after BuildFlow issue #1 is filed (the skip makes the inotify hunt moot for THIS mutator).~~ done — TODO row 30 rewritten (17-27 session)
+45. **Roadmap fuel** (from section f extras): workspace-exclusion convention as a fleet pattern; per-tool config schema docs; charter-guard-as-library (charter scripts are per-repo copies). **→ harvested into ROADMAP (this pass)**
+46. **junk-drawer check on `docs/agents/`**: one file today; decide the directory's charter (agent-only, never user docs) before it grows. **→ harvested into TODO (this pass)**
 47. ** benchstat re-baseline** when an optimization candidate exists (pre-existing P3 candidate).
-48. **Re-run `check-pin-drift.sh` post-trains** — the standing ritual; held cqrs-htmx leg flips with the 1.27.2 train.
-49. **Update the buildflow skill's Verification-status table** with this session's verified behaviors (go-work-sync semantics, cache-key gap, jscpd config respect).
-50. **Close the loop on the concurrent BuildFlow session** — before filing anything upstream, check whether 893de6b..HEAD already addresses any candidate (the binary jumped mid-session).
+48. ~~**Re-run `check-pin-drift.sh` post-trains** — the standing ritual; held cqrs-htmx leg flips with the 1.27.2 train.~~ done — 27 pin-drift legs green post-trains
+49. **Update the buildflow skill's Verification-status table** with this session's verified behaviors (go-work-sync semantics, cache-key gap, jscpd config respect). **→ harvested into ROADMAP (this pass)**
+50. ~~**Close the loop on the concurrent BuildFlow session** — before filing anything upstream, check whether 893de6b..HEAD already addresses any candidate (the binary jumped mid-session).~~ done — 17-27 session checked the concurrent range before filing
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **BuildFlow filings**: given the concurrent session in `/home/lars/projects/BuildFlow` (binary jumped 893de6b → 8a34928 mid-session), do you want me to verify + file the fleet-wide issues now, or wait until that session lands so I can check `893de6b..HEAD` for existing fixes first?
-2. **Root `.golangci.yml` staleness**: is `run.go: 1.26.7` + the retired `goexperiment.*` build-tags a deliberate analysis pin, or an oversight to fix now (vs riding the 1.27.2 floor train)? Lint is green either way; I can't tell policy from accident.
-3. **samber/lo as a library dependency**: for the adoption train — is `samber/lo` acceptable as a RUNTIME require your appkit consumers inherit (policy says the stack is required, but library-surface leakage is a call only you can make), or test/dev-only with runtime sites kept hand-rolled?
+1. ~~**BuildFlow filings**: given the concurrent session in `/home/lars/projects/BuildFlow` (binary jumped 893de6b → 8a34928 mid-session), do you want me to verify + file the fleet-wide issues now, or wait until that session lands so I can check `893de6b..HEAD` for existing fixes first?~~ done — resolved — verified + filed (BuildFlow #46-49, 17-27 session)
+2. ~~**Root `.golangci.yml` staleness**: is `run.go: 1.26.7` + the retired `goexperiment.*` build-tags a deliberate analysis pin, or an oversight to fix now (vs riding the 1.27.2 floor train)? Lint is green either way; I can't tell policy from accident.~~ done — resolved — oversight; fixed on the 1.27.2 floor train
+3. ~~**samber/lo as a library dependency**: for the adoption train — is `samber/lo` acceptable as a RUNTIME require your appkit consumers inherit (policy says the stack is required, but library-surface leakage is a call only you can make), or test/dev-only with runtime sites kept hand-rolled?~~ done — resolved 2026-10-12 — test-only; runtime sites stay hand-rolled
 
 ---
 

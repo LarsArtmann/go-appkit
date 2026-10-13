@@ -58,16 +58,16 @@ Nothing. One process catch worth naming: my "dead code" claim nearly became a wr
 1. ★ Verify + file the exhaustruct_v5 schema issue at golangci-lint (the one remaining candidate).
 2. ★ When BuildFlow#46 lands: drop the `go-work-sync` skip_steps, declare `./integration` via the new config mechanism, re-run charter guard.
 3. ★ When BuildFlow#48 lands: reconsider `.jscpd.json` (defaults may cover `.golangci.yml`).
-4. Root `.golangci.yml` hygiene: `run.go: 1.26.7` + retired `goexperiment.*` build-tags (still untouched).
-5. 1.27.2 floor train (unblocks cqrs-htmx v4.14.0 pin; clears govulncheck GO-2026-6617). USER-gated.
-6. Release trains #25/#26 (code-complete; tag/push USER-gated).
+4. ~~Root `.golangci.yml` hygiene: `run.go: 1.26.7` + retired `goexperiment.*` build-tags (still untouched).~~ done — swept on the 1.27.2 floor train
+5. ~~1.27.2 floor train (unblocks cqrs-htmx v4.14.0 pin; clears govulncheck GO-2026-6617). USER-gated.~~ done — wave 1 (12 go.mods + go.work + fixture)
+6. ~~Release trains #25/#26 (code-complete; tag/push USER-gated).~~ done — core v0.9.0 + health v0.2.0 tagged/pushed; issues closed
 7. P1: restore `SSH_PRIVATE_KEY` secret + one green master run. USER-gated.
-8. samber/lo adoption train (go-auto-upgrade#3 may silence the noise until then).
-9. go-cqrs-lite v4.13.0 cookbook ritual + pin sweep (DUE).
-10. Harvest 15-53 §f into TODO_LIST/ROADMAP (docs-health).
-11. Index both of today's reports in `docs/status/README.md`.
+8. samber/lo adoption train (go-auto-upgrade#3 may silence the noise until then). **→ decided test-only 2026-10-12; train pending go-auto-upgrade #3**
+9. ~~go-cqrs-lite v4.13.0 cookbook ritual + pin sweep (DUE).~~ done — cqrs v0.8.0 (cookbook re-verified + sweep)
+10. ~~Harvest 15-53 §f into TODO_LIST/ROADMAP (docs-health).~~ done — this pass (2026-10-12)
+11. ~~Index both of today's reports in `docs/status/README.md`.~~ done — this pass (five rows 15-12 through 20-36)
 12. One `buildflow --verbose` run: name the 9 unavailable tools, audit the 67 not-applicable.
-13. Enumerate the truncated `+2` cqrs-lint findings from a file, not a pipe.
+13. ~~Enumerate the truncated `+2` cqrs-lint findings from a file, not a pipe.~~ done — cqrs-lint exits 0 at cqrs v0.8.0
 14. Charter/directives guard coverage for daemon (pma) commits.
 15. `journalctl -t pma` around leak windows; name the leaks #1–7 mutator.
 16. Fleet sweep: did go-work-sync re-adds hit sibling repos before #46?
@@ -78,23 +78,23 @@ Nothing. One process catch worth naming: my "dead code" claim nearly became a wr
 21. go-health sentinel ask filing (USER-gated).
 22. `NewServerListener` ask (USER-gated).
 23. fr cooldown-combinator ask filing (USER-gated).
-24. GracefulClose + timers upstream flip watch.
-25. fr v0.2.1 sweep on next trains.
-26. Example StartHooks migration (trigger met).
-27. health follow-through after the #25 train.
+24. GracefulClose + timers upstream flip watch. **→ TODO row — timers half closed at cqrs v0.8.0; GracefulClose watch open**
+25. ~~fr v0.2.1 sweep on next trains.~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
+26. ~~Example StartHooks migration (trigger met).~~ done — decc462
+27. ~~health follow-through after the #25 train.~~ done — health v0.2.0 + evidence in its CHANGELOG
 28. pkg.go.dev flightrecorder 404 escalation.
-29. otel polish batch.
+29. ~~otel polish batch.~~ done — 104f28c (TODO row struck)
 30. Composition-gap E2E watchlist.
 31. Battery waves W3–W5 (demand-gated).
 32. Full cqrs-htmx setup hermetic run.
-33. Consumer-claim drift posture decision (USER-gated).
+33. ~~Consumer-claim drift posture decision (USER-gated).~~ done — resolved — pins kept + guarded (check-consumer-claims.sh, T05)
 34. i18n residue post-httputil v1.6.0.
 35. BuildFlow dprint exit-14 on CHANGELOG-only commits (upstream).
-36. module-details.md decay watch: re-verify a module's section on its next train.
+36. module-details.md decay watch: re-verify a module's section on its next train. **→ cqrs section re-verified at the v0.8.0 train; watch continues**
 37. Confirm the 220-line cap's source of truth and document it where repos can see.
 38. `docs/agents/` directory charter (agent-only, never user docs) before it grows.
 39. buildflow skill references: document `.jscpd.json` convention + the go-work-sync/charter caveat (PR to the skill repo).
-40. Re-run `check-pin-drift.sh` post-trains (held cqrs-htmx leg flips with the 1.27.2 train).
+40. ~~Re-run `check-pin-drift.sh` post-trains (held cqrs-htmx leg flips with the 1.27.2 train).~~ done — 27 pin-drift legs green post-trains
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
