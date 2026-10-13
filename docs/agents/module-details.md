@@ -210,7 +210,8 @@ context, NOT user documentation — each module's user-facing docs live in its o
 | `errorpages.go`   | `Config`, `Mount`, `Wrap`, `Handler`, `Write` bridging templ-components/errorpage to go-error-family classification + Accept negotiation. |
 | `example/main.go` | Demo service with pretty 404s and a classified error route.                                                                               |
 
-- Depends on `templ-components/errorpage v1.17.0`, `go-error-family v0.10.1`, `go-appkit v0.4.0` (example only; replace `../` for local dev).
+- Depends on `templ-components/errorpage v1.21.0`, `go-error-family v0.11.0`, `go-appkit v0.9.0` (example only, published-tag require; floor go 1.27.2 since v0.1.2). Re-verified on the v0.1.2 train (2026-10-13).
+- v0.1.2 decision record: the long-open `statusRecorder` → `httputil.ResponseRecorder` swap was DECLINED at source level — httputil's recorder is pass-through (every write delegates), `Wrap` needs body-discarding capture; the 12-line hand-roll stays (CHANGELOG carries the record).
 - Family → status identical to `appkit.HTTPStatus` (Rejection 400, Conflict 409, Transient 503, Corruption 500, Infrastructure 503).
 - `Wrap` mirrors net/http's `cleanPath` to preserve the mux's path-cleaning redirects (doubled slashes, dot segments); only the canonical request that follows gets the pretty 404.
 - Render failures fall back to a plain-text response with the correct status (inherited from errorpage's buffer-before-write rendering).

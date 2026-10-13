@@ -94,71 +94,71 @@ T27 (watchlist refresh).
 
 ## f) UP TO 50 NEXT THINGS (execution queue, priority order)
 
-1. T11 finish: register a command on the builder OR assert schema keys;
-   documentedPins entry; suite green; proper commit.
-2. T12: flightrecorder-middleware E2E via testkit.Serve (trigger → capture →
+1. ~~T11 finish: register a command on the builder OR assert schema keys;~~ done — superseded by SUPERB v6 wave 1 (integration re-pinned + hermetic TestMain; 18-16 report)
+   ~~documentedPins entry; suite green; proper commit.~~
+2. T12: flightrecorder-middleware E2E via testkit.Serve (trigger → capture → **→ composition-gap watchlist — fr-middleware E2E still unpinned (TODO row)**
    snapshot endpoint), suite green, commit.
-3. Observe origin CI for both trains (systemd proxy-smoke slot's first
-   run; matrix still SKIPPED pending the secret).
-4. T13: cqrs `-race -count=10` to FILE; analyze or close as unreproduced.
-5. T14: launch health example `-hardened`; chromedp probe or manual CSP
-   pass; link evidence in security/THREAT_MODEL.md.
-6. T16: errorpages statusRecorder → httputil.ResponseRecorder + suite +
-   lint + CHANGELOG [Unreleased].
-7. T19: flightrecorder + otel examples StartHooks migration; fr v0.2.1
-   bump in frh + cqrs (their next trains — NOT casual bumps).
-8. T18: FEATURES evidence cells (core/realtime/security/errorpages then
-   cqrs/otel/health/frh/docs/systemd), README claims, ROADMAP
-   graduations; fix drift on sight; re-run guards.
-9. T26: hardened-dashboard frame-ancestors+sorted-directives assertion,
-   testkit drain-window helper, Hook alias/seriesKey (already in core
-   v0.7.0? — verify against the polish list), errors.Join message-shape
-   test, health example -hardened mode note.
-10. T23: v1.0.0 exit-criteria review (keep draft vs graduate).
-11. T22: benchstat probe (`nix run nixpkgs#benchstat`); otel n=10
-    re-baseline if available.
-12. T20: govulncheck health + security (network permitting).
-13. T25: AGENTS deep slim-down (Release Ritual → doc/recipe; per-module
-    Gotchas → module READMEs), ≤377 loop.
-14. T27: watchlist refresh (cordis, PapDashboard, nixpkgs, art-dupl
-    audit-pass scoping, dep-graph/dprint/samber owner-notes).
+3. ~~Observe origin CI for both trains (systemd proxy-smoke slot's first~~ done — observed green across sessions; example-smoke passed its first origin run 2026-10-13
+   ~~run; matrix still SKIPPED pending the secret).~~
+4. ~~T13: cqrs `-race -count=10` to FILE; analyze or close as unreproduced.~~ done — RAN 2026-10-13 -race -count=10 — real captureHandler read race found AND fixed (94465cc), x10 green
+5. ~~T14: launch health example `-hardened`; chromedp probe or manual CSP~~ done — 2026-10-13 — headless Chromium pass; found + fixed the preset basePath defect; evidence in security/THREAT_MODEL.md
+   ~~pass; link evidence in security/THREAT_MODEL.md.~~
+6. ~~T16: errorpages statusRecorder → httputil.ResponseRecorder + suite +~~ **NOT-DO — declined at source level 2026-10-13 — httputil recorder is pass-through; decision record in the errorpages v0.1.2 CHANGELOG.**
+   ~~lint + CHANGELOG [Unreleased].~~
+7. ~~T19: flightrecorder + otel examples StartHooks migration; fr v0.2.1~~ done — StartHooks migration decc462 + fr v0.2.1 sweeps on both trains
+   ~~bump in frh + cqrs (their next trains — NOT casual bumps).~~
+8. ~~T18: FEATURES evidence cells (core/realtime/security/errorpages then~~ done — FEATURES evidence cells (de6d4f6)
+   ~~cqrs/otel/health/frh/docs/systemd), README claims, ROADMAP~~
+   ~~graduations; fix drift on sight; re-run guards.~~
+9. ~~T26: hardened-dashboard frame-ancestors+sorted-directives assertion,~~ done — largely shipped — frame-ancestors + sorted directives pinned in the integration test; DrainWindowProbe + Hook alias + seriesKey in core v0.7.0; hardened example fixed 2026-10-13
+   ~~testkit drain-window helper, Hook alias/seriesKey (already in core~~
+   ~~v0.7.0? — verify against the polish list), errors.Join message-shape~~
+   ~~test, health example -hardened mode note.~~
+10. T23: v1.0.0 exit-criteria review (keep draft vs graduate). **→ stays draft — consumer count grows slowly (setup + PapDashboard v0.4.0-era); TODO row**
+11. ~~T22: benchstat probe (`nix run nixpkgs#benchstat`); otel n=10~~ done — benchstat used in the v6 evidence pass; otel benchmarks landed (104f28c)
+    ~~re-baseline if available.~~
+12. ~~T20: govulncheck health + security (network permitting).~~ done — 2026-10-13 — govulncheck via nix: ALL 12 modules clean
+13. ~~T25: AGENTS deep slim-down (Release Ritual → doc/recipe; per-module~~ done — AGENTS 366 to 126 lines (2026-10-12 slim-down)
+    ~~Gotchas → module READMEs), ≤377 loop.~~
+14. ~~T27: watchlist refresh (cordis, PapDashboard, nixpkgs, art-dupl~~ done — watchlist swept 2026-10-13 (PapDashboard reverse-adoption trigger FIRED)
+    ~~audit-pass scoping, dep-graph/dprint/samber owner-notes).~~
 15. T24: cqrs-htmx setup suite hermetic run (their repo, bounded).
-16. T15/T17 (USER-GATE): file the drafted upstream asks (go-cqrs-lite
-    GracefulClose+timers, fr cooldown, go-sse ReplayFiltered, httputil
-    Logging+NewServerListener, go-health pack, samber/do note) — all
-    Lars's own repos.
-17. T21 (USER-GATE): consumer-claim posture decision + ritual wiring.
+16. ~~T15/T17 (USER-GATE): file the drafted upstream asks (go-cqrs-lite~~ done — 2026-10-13 — 4 family asks filed (go-cqrs-lite#67, go-health#7, fr#2, httputil#41); ReplayFiltered + LoggingFromContext premises dissolved at master; samber/do + exhaustruct stay gated
+    ~~GracefulClose+timers, fr cooldown, go-sse ReplayFiltered, httputil~~
+    ~~Logging+NewServerListener, go-health pack, samber/do note) — all~~
+    ~~Lars's own repos.~~
+17. ~~T21 (USER-GATE): consumer-claim posture decision + ritual wiring.~~ done — resolved — pins kept + guarded (check-consumer-claims.sh, T05)
 18. Upstream note candidate: docs module empty-title behavior (a titled
     builder with zero entries serving `"title": ""` is arguably a module
     bug — check catalog upstream semantics first).
-19. Update docs/status/README.md index for the two new reports (dossier +
-    this one).
-20. Delete the scratch /tmp files (headwatch tests, dumpdocs) — hygiene.
-21. Re-run the FULL guards battery once after T11 lands (pre-tag-checks
-    without a tag? no — run each guard script directly).
-22. FEATURES rows for core v0.8.0 StartHooks + systemd v0.1.0 (rides T18).
-23. Consider `journalctl -t pma` corroboration once the owner runs it (§6
-    item 4 of the dossier).
-24. Re-check AGENTS line budget after T25 slim-down (target ≤377
-    permanently, ideally ≤350).
-25. TODO_LIST pass at session end: strike completed T-items, re-date
-    header, route leftovers.
+19. ~~Update docs/status/README.md index for the two new reports (dossier +~~ done — the index carries both rows (verified 2026-10-13)
+    ~~this one).~~
+20. ~~Delete the scratch /tmp files (headwatch tests, dumpdocs) — hygiene.~~ **NOT-DO — moot — /tmp is ephemeral.**
+21. ~~Re-run the FULL guards battery once after T11 lands (pre-tag-checks~~ done — guards green in every pre-tag gate since
+    ~~without a tag? no — run each guard script directly).~~
+22. ~~FEATURES rows for core v0.8.0 StartHooks + systemd v0.1.0 (rides T18).~~ done — FEATURES cells (de6d4f6)
+23. ~~Consider `journalctl -t pma` corroboration once the owner runs it (§6~~ done — 2026-10-13 — journalctl ran; NO file names logged; recorded in the owner decision memo
+    ~~item 4 of the dossier).~~
+24. ~~Re-check AGENTS line budget after T25 slim-down (target ≤377~~ done — 126/220 lines; cap confirmed as the installed linter binary s agents rule
+    ~~permanently, ideally ≤350).~~
+25. ~~TODO_LIST pass at session end: strike completed T-items, re-date~~ done — final harvest pass 2026-10-13
+    ~~header, route leftovers.~~
 
 ## g) 3 QUESTIONS (unanswerable without the owner)
 
-1. **pma posture (dossier §6):** of the four decisions — hooks-respecting
-   mode, per-repo exclude/cooldown for train repos like go-appkit,
-   attribution preservation (respect staged messages), and the
-   `journalctl -t pma` lookup for the go.work mutator — which do you want
-   pursued (all four are asks to your own pma repo; I can draft them)?
+1. ~~**pma posture (dossier §6):** of the four decisions — hooks-respecting~~ done — recommendations drafted 2026-10-13 — doc/planning/2026-10-13_pma-owner-decision-memo.md (all four decisions)
+   ~~mode, per-repo exclude/cooldown for train repos like go-appkit,~~
+   ~~attribution preservation (respect staged messages), and the~~
+   ~~`journalctl -t pma` lookup for the go.work mutator — which do you want~~
+   ~~pursued (all four are asks to your own pma repo; I can draft them)?~~
 2. **The `SSH_PRIVATE_KEY` secret (T01):** still missing — restore ETA?
    The 12-module test matrix stays skipped (one designed-red preflight)
    until then; everything else on origin is green.
-3. **Upstream filing go-ahead (T15/T17):** your "GET SHIT DONE" read to me
-   as blanket approval, but every ask files an ISSUE in one of YOUR other
-   repos (go-cqrs-lite, go-sse, httputil, go-health, go-flightrecorder) in
-   your name — confirm filing now, or hold the drafts in
-   `doc/feedback/outgoing/` for review first?
+3. ~~**Upstream filing go-ahead (T15/T17):** your "GET SHIT DONE" read to me~~ done — resolved — full-execution re-issuance authorized family filings; 4 filed 2026-10-13
+   ~~as blanket approval, but every ask files an ISSUE in one of YOUR other~~
+   ~~repos (go-cqrs-lite, go-sse, httputil, go-health, go-flightrecorder) in~~
+   ~~your name — confirm filing now, or hold the drafts in~~
+   ~~`doc/feedback/outgoing/` for review first?~~
 
 ---
 
