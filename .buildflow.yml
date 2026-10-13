@@ -21,18 +21,14 @@ tool_options:
   go-auto-upgrade:
     migrators: "recommended,-lotidy"
 
-skip_steps:
-  # go-work-sync SKIPPED 2026-10-12 (leak #8): the step treats any on-disk
-  # module missing from go.work as drift and re-added ./integration — but
-  # integration is deliberately NOT a workspace member (pin charter: published
-  # tags only, integration/doc.go). BuildFlow#46 (closed 2026-10-12, ships in
-  # BuildFlow v0.8.0) fixed the leak class properly via go_mod_ignore_dirs
-  # honored on all four go.work surfaces — SWAP this skip for
-  # `go_mod_ignore_dirs: [integration]` once the system binary is >= v0.8.0
-  # (installed binary 764c23c predates the fix; until then this skip is the
-  # only leak guard). scripts/check-workspace-charter.sh stays the membership
-  # authority in BOTH directions either way.
-  - go-work-sync
+# ./integration is deliberately NOT a workspace member (pin charter: published
+# tags only, integration/doc.go). go_mod_ignore_dirs (BuildFlow#46, shipped in
+# v0.8.0) keeps go-work-sync from re-adding it as drift; this replaces the
+# skip_steps: [go-work-sync] workaround removed 2026-10-13 and requires the
+# system binary >= v0.8.0. scripts/check-workspace-charter.sh stays the
+# membership authority in BOTH directions either way.
+go_mod_ignore_dirs:
+  - integration
 # go-version-auto-configure UNSKIPPED 2026-10-07: gvac v0.2.5's
 # respect_patch_floor makes this repo's deliberate PATCH-level pins
 # (go 1.27.1, strict equality across all 11 go.mods + go.work,
