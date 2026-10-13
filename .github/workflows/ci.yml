@@ -214,6 +214,10 @@ jobs:
   # stay green while the 11 deliberate-layout findings return. The guard
   # script fails on any findings total > 0 or a missing config file.
   structure-linter:
+    # The linter binary is GOPRIVATE (github.com/LarsArtmann/*): installing it
+    # needs the SSH key, so this job rides ci-preflight like the test matrix —
+    # skipped (not broken) until the secret is restored.
+    needs: ci-preflight
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
