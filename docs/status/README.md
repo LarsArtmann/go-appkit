@@ -52,6 +52,7 @@ episode-2 dedup report + SUPERB v5 plan).
 | `2026-10-12_18-16_SUPERB-v6-wave1-floor-train-releases-guards.md`                   | SUPERB v6 wave 1: floor → go 1.27.2, core v0.9.0 + health v0.2.0 trains, guard quartet hardening, consumer-claims posture ruled                                                                                   |
 | `2026-10-12_20-36_SUPERB-v6-mid-train-status-report.md`                             | SUPERB v6 mid-train pause: cqrs v0.8.0 + frh v0.1.7 released, T05 consumer-claims guard born red, T11–T17 done; honesty ledger §d                                                                                 |
 | `2026-10-13_13-55_SUPERB-v6-full-execution-complete.md`                             | SUPERB v6 COMPLETE: errorpages v0.1.2 (swap declined at source), 4 family asks filed, flake hunt closed with a real race fix, browser CSP pass, govulncheck 12/12, pma memo, watchlist (PapDashboard consumer #2) |
+| `2026-10-13_15-33_SUPERB-v7-full-execution-complete.md`                             | SUPERB v7 COMPLETE: PapDashboard review + guard leg (born-red), lo test-only adoption (5 sites, 4 modules), config-verify guard + CI job, WithCSSPath embedded CSS (browser-verified), v1 exit criteria graduated 5/7, cqrs-htmx setup suite green, pkg.go.dev fr resolved, BuildFlow #46-49 handoff, 8/8 guards |
 
 Execution plans are indexed beside the reports they execute. Active plans:
 `docs/planning/2026-10-13_14-05_SUPERB-v7-consumer-signal-lo-adoption-and-hygiene.md`
