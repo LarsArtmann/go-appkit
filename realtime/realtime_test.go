@@ -14,6 +14,7 @@ import (
 	"github.com/larsartmann/go-appkit/realtime"
 	"github.com/larsartmann/go-sse"
 	"github.com/larsartmann/go-sse/ssetest"
+	"github.com/samber/lo"
 )
 
 // memStore is a minimal in-memory sse.EventStore for testing replay.
@@ -689,10 +690,7 @@ func TestHandler_ReplayLiveDedup(t *testing.T) {
 
 	events := ssetest.MustReadNEvents(t, resp.Body, 3)
 
-	ids := make([]string, 0, 3)
-	for _, evt := range events {
-		ids = append(ids, evt.ID)
-	}
+	ids := lo.Map(events, func(evt ssetest.Event, _ int) string { return evt.ID })
 
 	joined := strings.Join(ids, " ")
 	if got := strings.Count(joined, "2"); got != 1 {
