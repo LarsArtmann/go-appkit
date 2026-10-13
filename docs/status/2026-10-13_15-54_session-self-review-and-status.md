@@ -28,7 +28,7 @@ operator explicitly demanded `.md` at this path — override honored, flagged.)_
    all correct-by-design); jscpd verdict (115 measured; drafts/ ignored;
    volume documented not tuned); NEW guard
    `scripts/check-golangci-configs.sh` (12/12 verify, negative-tested)
-   + CI job; module-details README-link decision (AGENTS-pointer-only).
+   - CI job; module-details README-link decision (AGENTS-pointer-only).
 6. **T06 hygiene B** — `docs/agents/README.md` charter; otel doc.go
    completion-line limitation documented WITH fix status (+ killed the
    module-details/doc.go split brain about it); health example
@@ -170,6 +170,7 @@ operator explicitly demanded `.md` at this path — override honored, flagged.)_
 ## f) Next up to 50 (brainstorm-graded: P0 blocking, P1 high, P2 worth it, P3 parked)
 
 **P0 — do first:**
+
 1. Verify CI green on `0cfb610` (first live run of `golangci-config-verify`).
 2. If red: fix the job (install path/flags) and re-verify.
 3. Retry the otel ns/op bench in a quiet window (check `uptime` first;
@@ -181,53 +182,53 @@ operator explicitly demanded `.md` at this path — override honored, flagged.)_
 6. Diagnose the AGENTS.md invisible-char edit failures (hexdump line 48).
 7. Re-run the full 8-guard battery once on the final tree state (cheap).
 8. Edit the i18n-residue TODO row itself to "next httputil feature tag"
-   (kill the re-key split brain noted in d/e).
+(kill the re-key split brain noted in d/e).
 9. T25 properly: look up dprint exit-14 state in the BuildFlow repo.
 10. Watch cqrs-htmx v4.14.2/v4.14.3 proxy indexing; re-pin integration
-    when the guard fires.
+when the guard fires.
 11. PapDashboard next-tag watch (claims guard fires; refresh §7 drift
-    verdict then).
+verdict then).
 12. Draft the W2 security-module adoption signal into a
-    user-gated PapDashboard proposal (their hand-rolled middleware ≈
-    our battery set) — ONLY if the owner green-lights the nudge.
+user-gated PapDashboard proposal (their hand-rolled middleware ≈
+our battery set) — ONLY if the owner green-lights the nudge.
 13. Release-train trigger conditions for the lo-carrying `[Unreleased]`
-    entries (realtime/otel/cqrs natural trains — name the next feature
-    that carries them).
+entries (realtime/otel/cqrs natural trains — name the next feature
+that carries them).
 14. Consider a `WithCSSPath`-style datastar self-host option research
-    for the hardened example (kills the LAST external origin; upstream
-    `WithDatastarSrc` exists).
+for the hardened example (kills the LAST external origin; upstream
+`WithDatastarSrc` exists).
 15. Session-close ritual upgrade: add "CI green on final commit" +
-    "no unexecuted CI jobs" checks to the pre-push list.
+"no unexecuted CI jobs" checks to the pre-push list.
 
 **P2 — worth doing:**
 16. `docs-health` HARVEST this report's f-list into TODO/ROADMAP with
-    routing rigor (only the durable items).
+routing rigor (only the durable items).
 17. Bare-jscpd behavior probe post-#48 (does a bare run still need the
-    local ignore? expected yes — verify once).
+local ignore? expected yes — verify once).
 18. Upstream issue watch: set a cadence note for #67/#7/#2/#41 (weekly?).
 19. go-auto-upgrade#3 follow-up: the per-migrator opt-out shipped?
-    (`.buildflow.yml` references it as still-open).
+(`.buildflow.yml` references it as still-open).
 20. security-module THREAT_MODEL: add the WithCSSPath evidence to the
-    upstream strict-CSP ask (strengthens the case).
+upstream strict-CSP ask (strengthens the case).
 21. Exit-criteria criterion-1 prep: agree what "additions-EMPTY tag
-    pair" means mechanically (empty API diff? doc-only? define now so
-    the freeze window is unambiguous).
+pair" means mechanically (empty API diff? doc-only? define now so
+the freeze window is unambiguous).
 22. Consider testkit adoption in OUR examples where PapDashboard
-    hand-rolls (testDrainDelay pattern) — dogfood `testkit.NewService`.
+hand-rolls (testDrainDelay pattern) — dogfood `testkit.NewService`.
 23. health example: mount the CSS route unconditionally? (currently
-    hardened-only; deliberate — document the why in one line).
+hardened-only; deliberate — document the why in one line).
 24. Add `check-consumer-claims.sh` cross-leg: FEATURES consumer-#2
-    anchor existence is checked, but not its TAG-currency if AGENTS and
-    FEATURES rot together (they're cross-checked — ok; verify the
-    negative test covers synchronized rot... it does via tag-vs-ls-remote).
-    Skip if satisfied.
+anchor existence is checked, but not its TAG-currency if AGENTS and
+FEATURES rot together (they're cross-checked — ok; verify the
+negative test covers synchronized rot... it does via tag-vs-ls-remote).
+Skip if satisfied.
 25. Bench: record a CPU-pinned (taskset) protocol for quiet-window runs
-    so "quiet" is mechanical, not eyeballed.
+so "quiet" is mechanical, not eyeballed.
 
 **P3 — parked / gated (listed so they don't rot silently):**
 26. T12 SSH secret (owner) — everything CI-shaped rides behind it.
 27. BuildFlow binary ≥ v0.8.0 refresh (owner/nix) + then the
-    documented `go_mod_ignore_dirs` swap.
+documented `go_mod_ignore_dirs` swap.
 28. T14 pma rulings (memo pending).
 29. T13 land-adoptions ×4 (on issue close).
 30. T15 i18n sweep (next httputil feature tag).
@@ -241,26 +242,26 @@ operator explicitly demanded `.md` at this path — override honored, flagged.)_
 38. T26 encryption/signing/do-auditlog demand gates.
 39. W4/W5 batteries (demand-gated).
 40. Core TLS (Deferred Register trigger unchanged: PapDashboard
-    env-requirement class).
+env-requirement class).
 41. Cordis bridge (2 remaining triggers).
 42. cqrs-htmx v5 window (their ADR-0052).
 43. pkg.go.dev: core godoc stays hidden (permanent ruling — do not
-    reopen).
+reopen).
 44. PapDashboard version refresh (theirs; do not nudge per standing
-    instruction).
+instruction).
 45. Structure-linter: watch for path-scoped exclusions upstream (would
-    restore assets-directory coverage without the rule-wide off).
+restore assets-directory coverage without the rule-wide off).
 46. `.buildflow.yml`: after binary refresh, also re-evaluate
-    `respect_patch_floor` + the auto-derived GOTOOLCHAIN notes for
-    staleness.
+`respect_patch_floor` + the auto-derived GOTOOLCHAIN notes for
+staleness.
 47. otel completion-line wiring when httputil ships LoggingFromContext
-    (doc.go note is the tripwire).
+(doc.go note is the tripwire).
 48. v1.0.0: the additions-empty freeze window needs the NEXT core tag
-    to be feature-free — plan what rides v0.10.0 vs waits for v1.
+to be feature-free — plan what rides v0.10.0 vs waits for v1.
 49. Daemon countermeasure v2 (commit-before-test) — apply next session
-    and record whether attribution losses drop.
+and record whether attribution losses drop.
 50. This report's own HARVEST (see 16) — reports are point-in-time;
-    the durable f-items must land in TODO_LIST to matter.
+the durable f-items must land in TODO_LIST to matter.
 
 ## g) Questions I CANNOT answer myself
 

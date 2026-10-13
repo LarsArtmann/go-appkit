@@ -132,14 +132,14 @@ explicitly demanded `.md` at this path — override honored, flagged.)_
    assignment-then-overwrite on sight. Mitigation: same-session fix
    (`7edbeed`), CI re-green — but the miss is mine, not the tool's.
 2. **I verified a tree the daemon then rewrote under me.** The 8-guard battery
-   + config-verify ran at ~15:58; the daemon's 15:59:26 wave rewrote 11
-   `.golangci.yml` files AFTER the verdicts. Green guards now describe a
-   superseded tree. I caught the mutation by accident (linting cqrs later) —
-   had the daemon touched only files I didn't re-check, "8/8 green" would have
-   shipped describing stale state. Root cause: no "re-run guards after any
-   daemon commit wave" step in my loop. Severity: medium (mutation was
-   config-normalization, guards re-run green after) — but the PROCESS hole is
-   the same class as v7's unexecuted-CI-job sin: green-by-assumption.
+   - config-verify ran at ~15:58; the daemon's 15:59:26 wave rewrote 11
+     `.golangci.yml` files AFTER the verdicts. Green guards now describe a
+     superseded tree. I caught the mutation by accident (linting cqrs later) —
+     had the daemon touched only files I didn't re-check, "8/8 green" would have
+     shipped describing stale state. Root cause: no "re-run guards after any
+     daemon commit wave" step in my loop. Severity: medium (mutation was
+     config-normalization, guards re-run green after) — but the PROCESS hole is
+     the same class as v7's unexecuted-CI-job sin: green-by-assumption.
 3. **Daemon attribution races CONTINUED — countermeasure v2 documented at 15:54
    and not applied by me at 16:0x.** My CHANGELOG + plan edits were swept into
    daemon `07e8e67` before my commit landed; `492d860` then reported "3 files
@@ -190,6 +190,7 @@ explicitly demanded `.md` at this path — override honored, flagged.)_
 ## f) NEXT — 50 items (Impact / Effort / Category; ⭐ = already a TODO_LIST row)
 
 **P0 — do first:**
+
 1. ⭐ Re-check load; run the otel ns/op bench in a genuinely quiet window; write the CPU-pinned (taskset) "quiet = mechanical" protocol first — High/S/Quality
 2. ⭐ pkg.go.dev errorpages@v0.1.2 re-check on/after 2026-10-15; escalate per the standing rule if still unindexed — Medium/S/Quality
 3. Watch CI on tip `3a3539a` to completion (docs-only; confirm same designed state; closes §b2) — Medium/S/Quality
