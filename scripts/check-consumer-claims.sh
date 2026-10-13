@@ -14,11 +14,14 @@
 #   2. FEATURES.md Consumers block names the SAME consumer tag and pin.
 #   3. FEATURES.md security section "(pinned vX.Y.Z" == security/go.mod's
 #      example-only go-appkit require.
+#   4. (§6) Consumer #2 PapDashboard: AGENTS/FEATURES anchors, newest
+#      published v* tag, and the tagged go.mod's go-appkit require.
 #
 # Scope: dev machines and the release ritual (pre-tag-checks runs this).
-# CI does not run it — the content leg needs the sibling clone:
-#   ../cqrs-htmx   (override: CQRS_HTMX_DIR=/path/to/clone ./scripts/check-consumer-claims.sh)
-# The published-tag leg uses keyless https ls-remote (works everywhere).
+# CI does not run it — the content legs need the sibling clones:
+#   ../cqrs-htmx   (override: CQRS_HTMX_DIR=/path/to/clone)
+#   ../PapDashboard (override: PAPDASHBOARD_DIR=/path/to/clone)
+# The published-tag legs use keyless https ls-remote (works everywhere).
 #
 # Claim-anchor format drift is a FAILURE, never a silent skip: if the
 # prose moves, this guard breaks until the regex here is taught the new
@@ -115,6 +118,63 @@ if grep -qE "^[[:space:]]*github\.com/larsartmann/go-appkit ${security_pin//./\\
 else
 	actual="$(sed -n 's/^[[:space:]]*github\.com\/larsartmann\/go-appkit \(v[0-9][0-9.]*\)[[:space:]]*$/\1/p' security/go.mod | head -n1)"
 	fail "FEATURES security claim says pinned $security_pin but security/go.mod requires $actual"
+fi
+
+# --- 6) PapDashboard consumer-#2 claims (SUPERB v7 T07, 2026-10-13) -------------
+# Same three legs as the cqrs-htmx consumer: AGENTS anchor, FEATURES anchor,
+# newest-published-tag truth (keyless ls-remote), and tagged go.mod truth
+# (sibling clone; their tags are UN-namespaced v0.x.y on the repo root).
+pap_dir="${PAPDASHBOARD_DIR:-$root/../PapDashboard}"
+pap_url="https://github.com/LarsArtmann/PapDashboard.git"
+
+pap_pair="$(sed -n 's/.*Consumer #2 ([0-9-]*): PapDashboard \(v[0-9][0-9.]*\) requires go-appkit \(v[0-9][0-9.]*\).*/\1 \2/p' AGENTS.md | head -n1)"
+if [[ -z "$pap_pair" ]]; then
+	fail "AGENTS.md has no parseable 'Consumer #2 (date): PapDashboard vX.Y.Z requires go-appkit vX.Y.Z' anchor (format drift — teach the regex)"
+else
+	ok "AGENTS.md consumer-#2 line parsed: PapDashboard $pap_pair"
+fi
+
+pap_features="$(sed -n 's/.*`\(v[0-9][0-9.]*\)`\*\* — published.*`go-appkit \(v[0-9][0-9.]*\)`.*/\1 \2/p' FEATURES.md | head -n1)"
+if [[ -z "$pap_features" ]]; then
+	fail "FEATURES.md Consumers block has no parseable consumer-#2 'vX.Y.Z' + 'go-appkit vX.Y.Z' anchor"
+fi
+
+if ((status == 1)); then
+	exit "$status"
+fi
+
+pap_tag="${pap_pair%% *}"
+pap_pin="${pap_pair##* }"
+
+if [[ "$pap_pair" == "$pap_features" ]]; then
+	ok "AGENTS.md and FEATURES.md agree: PapDashboard $pap_tag pins go-appkit $pap_pin"
+else
+	fail "consumer-#2 claim split brain: AGENTS.md says PapDashboard $pap_pair but FEATURES.md says $pap_features"
+fi
+
+pap_published="$(git ls-remote "$pap_url" 'refs/tags/v*' 2>/dev/null | awk -F/ '{print $NF}' | grep -v '\^{}' | sort -Vu || true)"
+if [[ -z "$pap_published" ]]; then
+	fail "could not list published v* tags from $pap_url (network?)"
+else
+	pap_newest="$(printf '%s\n' "$pap_published" | tail -n1)"
+	if [[ "$pap_tag" == "$pap_newest" ]]; then
+		ok "claimed consumer-#2 tag $pap_tag is the newest published PapDashboard tag"
+	else
+		fail "claimed consumer-#2 tag $pap_tag but the newest published is $pap_newest (PapDashboard released; refresh the AGENTS/FEATURES claims)"
+	fi
+fi
+
+if [[ ! -d "$pap_dir/.git" ]]; then
+	fail "PapDashboard clone not found at $pap_dir (set PAPDASHBOARD_DIR or clone the sibling)"
+else
+	pap_tagged_pin="$(git -C "$pap_dir" show "$pap_tag:go.mod" 2>/dev/null | sed -n 's/^[[:space:]]*github\.com\/larsartmann\/go-appkit \(v[0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -n1)"
+	if [[ -z "$pap_tagged_pin" ]]; then
+		fail "$pap_tag:go.mod has no direct github.com/larsartmann/go-appkit require (did PapDashboard drop or rename the dep?)"
+	elif [[ "$pap_tagged_pin" == "$pap_pin" ]]; then
+		ok "$pap_tag really pins go-appkit $pap_tagged_pin"
+	else
+		fail "claim says PapDashboard $pap_tag pins go-appkit $pap_pin but the tag requires $pap_tagged_pin"
+	fi
 fi
 
 exit "$status"

@@ -249,6 +249,10 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
   (Metrics/Version are RunWithAppkit-only there), and the v5-window revisit
   (ADR-0052). Their `go.work` go-etag stub-replace is GONE — setup/v4.14.2
   carries the split go-etag/entitytag+server v0.6.1.
+- Consumer #2: **[PapDashboard](https://github.com/LarsArtmann/PapDashboard)
+  `v0.3.0`** — published 2026-10-13; `go.mod` requires **`go-appkit v0.4.0`**
+  (core only, plain Service usage, TLS envs removed with the adoption; their
+  repo owns version refresh; guard-checked by `scripts/check-consumer-claims.sh`).
 
 All released modules verified as fresh proxy consumers (blank-import smoke
 modules in clean dirs, `go build` green): the 2026-09-04 waves, cqrs v0.5.0
