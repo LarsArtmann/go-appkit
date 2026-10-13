@@ -276,3 +276,15 @@ each with a concrete countermeasure in §e. Nothing shipped is red.
 
 _Point-in-time snapshot. Living truth: `TODO_LIST.md` + `AGENTS.md`. The f-list
 above still needs its docs-health HARVEST pass (item 10/49)._
+
+---
+
+## Answers received (2026-10-13, owner, post-report)
+
+- **§g1 ANSWERED:** `noinlineerr` is being FORCE-DISABLED fleet-wide by the new
+  golangci-lint-auto-configure (`/home/lars/projects/golangci-lint-auto-configure`).
+  The `6f53db0` normalization was auto-configure acting on that direction —
+  intended policy, do not re-enable. Ruled into AGENTS.md's lint paragraph same
+  hour; f-item 9 is CLOSED by that ruling (remaining: the n=1 sampling-policy
+  decision in §e4/§f5, which this answer makes cheaper but does not decide).
+- §g2 (lo.Flatten attribution) and §g3 (SSH secret / sequencing) still open.
