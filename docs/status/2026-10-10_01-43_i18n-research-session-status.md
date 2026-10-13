@@ -192,7 +192,7 @@ consumer demand for gender/select.
 ~~(order-stable) survives the Matcher swap.~~
 
 **Cheap hygiene in THIS repo (noticed while working)**
-40. ~~`docs/status/README.md` — confirm the `.md`-at-explicit-demand~~ done — convention line added to docs/status/README.md (2026-10-12)
+40. ~~`docs/status/README.md` — confirm the `.md`-at-explicit-demand~~ done — convention line added to docs/status/README.md (2026-10-13)
 ~~convention is recorded there (this report is another data point).~~
 41. ~~`doc/planning/` has no index/README — 20+ dated docs, discoverability~~ done — doc/planning/README.md exists
 ~~by grep only (candidate one-liner index or leave as-is, decide once).~~

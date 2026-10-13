@@ -109,7 +109,7 @@ appkit never grows application-shaped code.
   wrap aggregate in a Mounted-compatible handle (health module stays
   injector-free).
 
-- Fleet tooling patterns (harvested 2026-10-12 from the 15-53 §f45 extras):
+- Fleet tooling patterns (harvested 2026-10-13 from the 15-53 §f45 extras):
   workspace-exclusion convention (go.work member exclusions declared via
   tool config, not folklore — the BuildFlow#46 class, fleet-wide);
   per-tool config schema docs (`.buildflow.yml`, `.jscpd.json` — the

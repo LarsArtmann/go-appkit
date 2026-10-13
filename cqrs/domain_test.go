@@ -706,7 +706,7 @@ func (h *captureHandler) WithGroup(string) slog.Handler { return h }
 
 // snapshot copies the captured records under the lock: the default logger is
 // process-global, so a parallel test's construction-time SCREAM log can land
-// in Handle while this test reads (caught by -count=10 -race, 2026-10-12).
+// in Handle while this test reads (caught by -count=10 -race, 2026-10-13).
 func (h *captureHandler) snapshot() []slog.Record {
 	h.mu.Lock()
 	defer h.mu.Unlock()

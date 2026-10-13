@@ -137,7 +137,7 @@
    first half of this session; I first ran the guards after the doc edits. A
    baseline run is cheaper and catches daemon interference before it mixes
    with my diffs.
-6. **Daemon heuristic commits erase attribution**: this session's work is in **→ owner decision memo drafted 2026-10-12 (T20 — attribution preservation is dossier section 6.3)**
+6. **Daemon heuristic commits erase attribution**: this session's work is in **→ owner decision memo drafted 2026-10-13 (T20 — attribution preservation is dossier section 6.3)**
    history as "chore: auto-commit N changed file(s)" with no what/why. This
    report doubles as the session manifest (the 01-22 report did the same —
    keep the pattern until the daemon learns commit messages).
@@ -152,7 +152,7 @@
    ~~class).~~
 4. ~~**Post-commit HEAD-advance sanity hook** (design first; the `bb47fbc`~~ done at `1c591aa`
    ~~rewind class).~~
-5. ~~**cqrs flake hunt**: `-count=10` under load once; capture the name if the~~ done — RAN 2026-10-12 -race -count=10 — found a real captureHandler read race, fixed (94465cc), x10 re-run green
+5. ~~**cqrs flake hunt**: `-count=10` under load once; capture the name if the~~ done — RAN 2026-10-13 -race -count=10 — found a real captureHandler read race, fixed (94465cc), x10 re-run green
    ~~transient recurs (01-22 d3).~~
 6. ~~**AGENTS pipe-rule one-liner** (+ a removal trade; 361/377).~~ done at `86b612d`
 7. ~~**Daemon triage (owner)**: unit/config/logs — explains the rewind, the~~ done — root-caused — pma dossier (bd9abba)

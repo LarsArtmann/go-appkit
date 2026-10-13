@@ -64,7 +64,7 @@ Nothing. One process catch worth naming: my "dead code" claim nearly became a wr
 7. P1: restore `SSH_PRIVATE_KEY` secret + one green master run. USER-gated.
 8. samber/lo adoption train (go-auto-upgrade#3 may silence the noise until then). **→ decided test-only 2026-10-12; train pending go-auto-upgrade #3**
 9. ~~go-cqrs-lite v4.13.0 cookbook ritual + pin sweep (DUE).~~ done — cqrs v0.8.0 (cookbook re-verified + sweep)
-10. ~~Harvest 15-53 §f into TODO_LIST/ROADMAP (docs-health).~~ done — this pass (2026-10-12)
+10. ~~Harvest 15-53 §f into TODO_LIST/ROADMAP (docs-health).~~ done — this pass (2026-10-13)
 11. ~~Index both of today's reports in `docs/status/README.md`.~~ done — this pass (five rows 15-12 through 20-36)
 12. One `buildflow --verbose` run: name the 9 unavailable tools, audit the 67 not-applicable.
 13. ~~Enumerate the truncated `+2` cqrs-lint findings from a file, not a pipe.~~ done — cqrs-lint exits 0 at cqrs v0.8.0

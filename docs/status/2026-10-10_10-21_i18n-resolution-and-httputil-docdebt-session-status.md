@@ -97,7 +97,7 @@ first this time (10:21) — last session's misdating lesson held.
 ## e) WHAT WE SHOULD IMPROVE
 
 1. **Cross-session staleness check is now a hard pre-step** (see §d rule).
-2. ~~**Annotate my own reports when their items resolve elsewhere** — I~~ done — this pass annotated both i18n reports (2026-10-12)
+2. ~~**Annotate my own reports when their items resolve elsewhere** — I~~ done — this pass annotated both i18n reports (2026-10-13)
    ~~applied docs-health annotation to two httputil reports and zero of mine.~~
 3. **Parallel-writer snapshot discipline worked and should stay** — the
    go-appkit side had three sessions touching my artifacts (03:00 sweep
@@ -160,7 +160,7 @@ entries.
 27. Nightly: corpus seeds review for the new target (6 curated entries).
 
 **go-appkit, no gate**
-28. ~~Annotate the 01:43 status report (its f-items resolved fleet-side).~~ done — annotated 2026-10-12 (this pass)
+28. ~~Annotate the 01:43 status report (its f-items resolved fleet-side).~~ done — annotated 2026-10-13 (this pass)
 29. ~~AGENTS.md cross-repo i18n pointer — only with a removal (361/377 cap).~~ **Won't implement — TODO row 55 is the tracker (2026-10-12 slim-down; AGENTS 126 lines).**
 30. Quarterly demand-gate re-check for the parked content lane **→ folded into the TODO i18n residue row (standing while P3)**
 (standing-ritual candidate).
@@ -178,7 +178,7 @@ parked).
 36. When the 04-07 report's three watchers fire or die, annotate them.
 37. ~~Keep the two LSP-stale warnings on the known-noise list (CLI is~~ done — AGENTS Gotchas (LSP lint is NOT ground truth)
 ~~authoritative).~~
-38. ~~`docs/status/README.md`: record that `.md`-at-explicit-demand reports~~ done — convention line added to docs/status/README.md (2026-10-12)
+38. ~~`docs/status/README.md`: record that `.md`-at-explicit-demand reports~~ done — convention line added to docs/status/README.md (2026-10-13)
 ~~are the standing dispatch shape (two more data points today).~~
 39. ~~`doc/planning/` index one-liner or explicit leave-as-is decision.~~ done — doc/planning/README.md exists
 40. Re-run the fleet sweep after T24 lands (does sperrmuell's adoption **→ gated on the T24 migration (TODO row 55)**
@@ -200,7 +200,7 @@ repros.
 comma-joined form) only after the g2 ruling.
 49. Post-v1.6.0: fresh-consumer proxy check note for httputil consumers in **→ gated on the v1.6.0 tag (TODO row 55)**
 go-appkit's integration legs.
-50. ~~Owner review + inline annotation of this report (docs-health~~ done — owner annotation pass 2026-10-12 (this pass)
+50. ~~Owner review + inline annotation of this report (docs-health~~ done — owner annotation pass 2026-10-13 (this pass)
 ~~convention).~~
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF

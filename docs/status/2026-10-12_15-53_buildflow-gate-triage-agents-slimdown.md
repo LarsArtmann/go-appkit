@@ -94,7 +94,7 @@ All of these apply to many/all fleet projects, not just go-appkit. Per verify-be
 5. **P1: restore `SSH_PRIVATE_KEY` Actions secret** (owner-only) + one fully green master run.
 6. **samber/lo adoption train** (~12 sites, 8 modules; ride the next dependency train). **→ decided test-only 2026-10-12 (runtime sites stay hand-rolled); train pending go-auto-upgrade #3**
 7. ~~**go-cqrs-lite system/v4 v4.13.0**: cookbook re-verification ritual + pin-sweep decision (DUE since 2026-10-12).~~ done — cqrs v0.8.0 (cookbook re-verified + full consistent sweep)
-8. ~~**Harvest this report's section f** via docs-health into TODO_LIST/ROADMAP.~~ done — this pass (2026-10-12)
+8. ~~**Harvest this report's section f** via docs-health into TODO_LIST/ROADMAP.~~ done — this pass (2026-10-13)
 9. ~~**Index this report** (+ today's concurrent-session reports) in `docs/status/README.md`.~~ done — this pass (five rows 15-12 through 20-36)
 10. **One `buildflow --verbose` run** to name the 9 unavailable tools + audit the 67 not-applicable list once.
 11. ~~**Enumerate the truncated `+2` cqrs-lint findings** (`-s cqrs-lint --format finding` → file, read whole file).~~ done — cqrs-lint exits 0 at cqrs v0.8.0 (E014 trailing form + C023 closed the tail)

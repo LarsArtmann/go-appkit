@@ -67,7 +67,7 @@
 7. **File the go-cqrs-lite upstream ask (owner-gated)**: two verified findings + consumer tripwire; draft complete under `doc/feedback/outgoing/`. **→ filing in flight 2026-10-12 (T22)**
 8. **/mnt/buildcache topology answer (owner)**: multi-writer or not; recurrence risk for the 2026-09-29 corruption class.
 9. **cqrs-htmx setup Domain adoption** (their repo, owner-gated, their next train).
-10. ~~**Flake hunt**: cqrs suite `-count=10` under load once; capture the name if the transient recurs (d3).~~ done — RAN 2026-10-12 -race -count=10 — found a real captureHandler read race, fixed (94465cc), x10 re-run green
+10. ~~**Flake hunt**: cqrs suite `-count=10` under load once; capture the name if the transient recurs (d3).~~ done — RAN 2026-10-13 -race -count=10 — found a real captureHandler read race, fixed (94465cc), x10 re-run green
 11. **Standing upstream-flip watch** (system GracefulClose + timer-stop): 4-file change enumerated in the `cqrs/domain_test.go` tripwire comment. **→ timers half closed at cqrs v0.8.0; GracefulClose watch open (TODO_LIST)**
 12. ~~**FEATURES.md VERIFY pass** (cqrs v0.7.0 + both v0.2.0 rows; add the TODO item).~~ done — (31526ce version-truth + de6d4f6 evidence cells)
 13. ~~**core v0.8.0 + systemd v0.1.0 train** (steps in TODO P3; demand-proven by bank-sync ADR-017).~~ done at `3870403 + b514928`
@@ -82,7 +82,7 @@
 ## g) Questions I can NOT figure out myself
 
 1. ~~**Where does the pma daemon live — unit name, config path, or log directory I may read?** Evidence trail this session: pushed fine until 22:47Z, stalled ~30 min, resumed; re-added `./integration` to go.work three times (latest bundled into `2d991a9` with my README); performed a reflog-silent rewind of my commit `bb47fbc` (content left staged, worktree reverted); currently 2 commits unpushed. From this shell: no process found mid-session, no `~/.config/pma`, `systemctl` blocked. Its config/logs are the only path to finishing the root-cause.~~ done — resolved — dossier bd9abba (unit path + journalctl -t pma); TODO_LIST q6 RESOLVED
-2. ~~**May I push?** `git push origin master` (never force) for the 2 unpushed commits — or leave push authority with the daemon exclusively? Related: do you want the push-lag watch (f5) as a repo guard script?~~ done — resolved 2026-10-12 — per-train push authorized (full-execution re-issuance); push-lag watch shipped (a7c2796)
+2. ~~**May I push?** `git push origin master` (never force) for the 2 unpushed commits — or leave push authority with the daemon exclusively? Related: do you want the push-lag watch (f5) as a repo guard script?~~ done — resolved 2026-10-13 — per-train push authorized (full-execution re-issuance); push-lag watch shipped (a7c2796)
 3. **SSH_PRIVATE_KEY (standing P1)**: still empty at repo level; the matrix has been dead since ~2026-10-01. ci-preflight now makes the failure one loud, self-explaning red job — restoring the secret (GitHub → Settings → Secrets → Actions) is the only remaining step to a fully green master run.
 
 ---
