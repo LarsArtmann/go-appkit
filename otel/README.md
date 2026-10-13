@@ -282,6 +282,15 @@ box was under an external nix-build storm (load average 150), which
 poisons wall-clock numbers ~2.3x; per the ±25% drift rule below, do not
 re-baseline ns/op under load.
 
+2026-10-13 re-run (n=10, go 1.27.2 floor, benchstat, SUPERB v7 T10):
+B/op and allocs/op UNCHANGED again (NoOp 7,762 B/90 ±0%; traced 10.84Ki
+B/90; traced+metered 10.85Ki/90; Recovery happy 4,631 B; panic 11.66Ki;
+RecordError-recording 3,969 B — all ±0%, load-independent). The ns/op
+re-baseline is deferred a second time: ambient load rose 9→26 mid-run
+(external test binary at 430% CPU); the middleware rows came out ±40-45%,
+far outside the ±25% honesty bar. ns/op rows stay at the 2026-09-16
+baseline until a genuinely quiet window appears.
+
 Full instrumentation costs ~~3.3us/req (~~+17%) and ~3.1KB over the no-op path,
 with zero additional allocations; export I/O is excluded by design (batching
 processor, no exporter wired). The no-op baseline is the cost of the

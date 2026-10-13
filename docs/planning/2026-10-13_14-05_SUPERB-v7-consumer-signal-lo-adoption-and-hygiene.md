@@ -283,6 +283,77 @@ library). Release-train decision (04.5): dependency-only patches ride
 NATURAL trains (no sweep wave forced for test-only polish) — recorded in
 the TODO header.
 
+**2026-10-13 — T05 done.** BuildFlow dry-run audit: the 9 unavailable
+tools (7 JS/TS + js-coverage + interrogate) and all 67 not-applicable
+rows are correct-by-design for a Go-only repo (language-scoped health
+warnings, not misconfiguration); recorded, no action. jscpd: 115 clones
+measured — 105/107 Go clones are the accepted both-test class, 2 are
+accepted example-mains, the 4 big markdown clones are the docs/drafts
+body-by-design archives → `docs/drafts/**` added to .jscpd.json ignores;
+volume documented, NOT tuned away. `golangci-lint config verify`: 12/12
+clean → new `scripts/check-golangci-configs.sh` guard (negative-tested)
++ public-install CI job `golangci-config-verify`. module-details
+README-link: ACCEPT AGENTS-pointer-only (audience separation — agent
+context never links from user-facing READMEs; decided with T06's
+charter).
+
+**2026-10-13 — T06 done.** `docs/agents/README.md` charter written
+(agent-only, AGENTS-points-these-remember, verbatim-grade extraction,
+module-details the exemplar). otel doc.go now documents the ONE
+uncorrelated line (completion-line) with the fix status — and fixed the
+split brain where module-details claimed doc.go documented it but it
+didn't. Health example `-hardened`: `dashboard.WithCSSPath` +
+embedded `app.css` kills the Tailwind-CDN origin; verified live with
+headless Chromium (link present, cdn.tailwindcss.com count 0, zero
+console violations, CSS serves as text/css). THREAT_MODEL updated.
+Realtime CHANGELOG header-order defect (0.1.3 block above `# Changelog`)
+fixed on sight.
+
+**2026-10-13 — T07 done.** Consumer-claims guard §6: PapDashboard leg
+(AGENTS + FEATURES anchors, newest published v* tag via keyless
+ls-remote, tagged go.mod require via sibling clone). Born-red proven:
+planted wrong claim failed on all three legs (split brain, stale tag,
+missing require). Already wired into pre-tag-checks via the guard loop.
+
+**2026-10-13 — T11 done.** Exit-criteria doc graduated DRAFT →
+ACTIONABLE (its own trigger fired: consumer #2 exists). 5/7 hard
+criteria met (criterion 7 closed since 2026-09-29). Remaining blockers
+both external-clock: criterion 1 (one additions-EMPTY core tag pair),
+criterion 5 (version overlap — setup v0.8.0 vs PapDashboard v0.4.0 —
+plus one observed release cycle).
+
+**2026-10-13 — T09 done.** pkg.go.dev: **go-flightrecorder page
+RESOLVED** (renders at v0.2.1, MIT, full godoc — the v6-filed index
+requests worked; no escalation needed). core@v0.9.0 renders (License:
+UNKNOWN, godoc hidden = the 2026-09-16 proprietary ruling, unchanged).
+errorpages still shows v0.1.1 — v0.1.2 tagged <48h ago, normal index
+lag; re-check next session, escalate only past 48h.
+
+**2026-10-13 — T10 done (honestly partial).** otel benchstat n=10 at
+the 1.27.2 floor: B/op and allocs/op UNCHANGED (±0%, load-independent —
+recorded in README). ns/op re-baseline DEFERRED a second time: ambient
+load rose 9→26 mid-run (external test binary at 430% CPU), middleware
+rows ±40-45% vs the ±25% honesty bar. Same verdict class as 2026-09-29.
+
+**2026-10-13 — T13/T21/T24 gated sweep.** T13: all four upstream issues
+STILL OPEN (go-cqrs-lite#67, go-health#7, go-flightrecorder#2,
+httputil#41) — no land-adoptions fire. **T21 UNGATED: BuildFlow
+#46/#47/#48/#49 ALL CLOSED 2026-10-12** (shipped in BuildFlow v0.8.0):
+#46 → the go-work-sync→`go_mod_ignore_dirs: [integration]` swap is
+DOCUMENTED in .buildflow.yml but blocked on the installed binary
+(764c23c predates v0.8.0 by 43 commits; the skip stays as the only leak
+guard until the system binary refreshes — owner/nix action); #48 →
+jscpd defaults now ship `**/.golangci.yml` ignores, but the LOCAL
+.jscpd.json ignore stays (bare jscpd runs bypass BuildFlow's merge);
+#47/#49 → no repo action; buildflow skill verified CURRENT (canonical
+key list already carries go_mod_ignore_dirs) — no skill PR needed.
+T24 watchlist: httputil **v1.5.0 TAGGED** (2026-10-09 — the MIT-license
+release; no Language()/LoggingFromContext, so the i18n-residue row
+stays gated and the otel doc note stands); integration's httputil pin
+was ALREADY v1.5.0 (pin-drift green); cqrs-htmx raw tags v4.14.3 exist
+but proxy @latest still resolves v4.14.1 (guards green); pin-drift
+guard re-run: 27 OK / 0 FAIL.
+
 ---
 
 _Point-in-time plan. Living truth: `TODO_LIST.md` (open items) +

@@ -13,14 +13,11 @@ env:
 tool_options:
   go-version-auto-configure:
     respect_patch_floor: true
-  # Defer github.com/samber/lo adoption by policy
-  # (LarsArtmann/go-auto-upgrade#3): lotidy coordinates BOTH lo directions,
-  # so excluding it silences every lo-dependency-missing / suggest-lo-*
-  # finding for this repo (verified 2026-10-12 via the CLI on this tree:
-  # 14 findings -> 0). The provider is compiled into the buildflow binary
-  # from the flake input, so this activates with the first go-auto-upgrade
-  # release > v0.8.0 + BuildFlow input bump; with the current binary it is
-  # inert (verified: no ErrUnknownOption, run succeeds unchanged).
+  # samber/lo boundary (2026-10-13, SUPERB v7 T02-T04): test-only
+  # adoption DONE by hand (lo v1.53.0 direct require in cqrs/otel/realtime
+  # + integration); runtime sites stay hand-rolled. lotidy stays excluded so
+  # BuildFlow never auto-applies lo anywhere — the boundary is hand-curated
+  # by design (LarsArtmann/go-auto-upgrade#3 still tracks the migrator gap).
   go-auto-upgrade:
     migrators: "recommended,-lotidy"
 
@@ -28,10 +25,13 @@ skip_steps:
   # go-work-sync SKIPPED 2026-10-12 (leak #8): the step treats any on-disk
   # module missing from go.work as drift and re-added ./integration — but
   # integration is deliberately NOT a workspace member (pin charter: published
-  # tags only, integration/doc.go). scripts/check-workspace-charter.sh is the
-  # dynamic membership authority in BOTH directions (a new module forces its
-  # entry; integration stays out), so charter-unaware auto-sync only fights
-  # that guard. Membership changes are made by hand when the guard demands.
+  # tags only, integration/doc.go). BuildFlow#46 (closed 2026-10-12, ships in
+  # BuildFlow v0.8.0) fixed the leak class properly via go_mod_ignore_dirs
+  # honored on all four go.work surfaces — SWAP this skip for
+  # `go_mod_ignore_dirs: [integration]` once the system binary is >= v0.8.0
+  # (installed binary 764c23c predates the fix; until then this skip is the
+  # only leak guard). scripts/check-workspace-charter.sh stays the membership
+  # authority in BOTH directions either way.
   - go-work-sync
 # go-version-auto-configure UNSKIPPED 2026-10-07: gvac v0.2.5's
 # respect_patch_floor makes this repo's deliberate PATCH-level pins
