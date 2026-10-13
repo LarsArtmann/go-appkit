@@ -43,39 +43,39 @@
 
 ## e) WHAT WE SHOULD IMPROVE
 
-1. **Never pipe verify commands** — redirect to a file, then grep/inspect the file (the final verification block did exactly this and it worked). `pipefail` is not enough; d3 failed WITH information loss even under pipefail semantics. Proposal: make it an AGENTS Build & Verify rule.
-2. **The daemon now has three proven damage modes**: (a) `./integration` re-add (3x — guard catches it, proven live); (b) bundling unrelated mutations into heuristic commits (`2d991a9`: my README + its go.work line); (c) rewinding a commit with staged-content preservation (`bb47fbc`). Nothing guards (b)/(c). Minimum: a push-lag/daemon-health watch (origin age > N hours → warn) + a post-commit HEAD-advance sanity hook candidate.
-3. **Release Ritual step 3 has no mechanical enforcement** — this session's six-module AGENTS drift (a7) is the same class the ritual step 3 text warns about. Extend `check-pin-drift.sh` with per-module "AGENTS says vX vs tag says vY" checks so the miss fails a guard, not a session.
+1. ~~**Never pipe verify commands** — redirect to a file, then grep/inspect the file (the final verification block did exactly this and it worked). `pipefail` is not enough; d3 failed WITH information loss even under pipefail semantics. Proposal: make it an AGENTS Build & Verify rule.~~ done at `86b612d`
+2. ~~**The daemon now has three proven damage modes**: (a) `./integration` re-add (3x — guard catches it, proven live); (b) bundling unrelated mutations into heuristic commits (`2d991a9`: my README + its go.work line); (c) rewinding a commit with staged-content preservation (`bb47fbc`). Nothing guards (b)/(c). Minimum: a push-lag/daemon-health watch (origin age > N hours → warn) + a post-commit HEAD-advance sanity hook candidate.~~ done — push-lag (a7c2796) + HEAD-advance hook (1c591aa) shipped; dossier bd9abba
+3. ~~**Release Ritual step 3 has no mechanical enforcement** — this session's six-module AGENTS drift (a7) is the same class the ritual step 3 text warns about. Extend `check-pin-drift.sh` with per-module "AGENTS says vX vs tag says vY" checks so the miss fails a guard, not a session.~~ done at `0c49125`
 4. **Concurrent-session coordination worked** (their modules/pins untouched; only shared docs corrected) — keep the TODO_LIST/AGENTS-only coordination pattern.
 5. **Good bones worth keeping**: the charter guard's first live fire caught a real leak within one push of its landing; the index-recovery of bb47fbc was clean; the sync guard's negative test proved both target defect classes fail loudly.
 
 ## f) Top things to get done next (ranked)
 
-1. **Push the last commit** (`67c2a61`, ci-preflight) — daemon was at it; verify it lands (origin was 1 behind at report time).
-2. **Observe the ci-preflight job's first run** on that push: ONE red job with the restore message, matrix skipped — the designed behavior.
-3. **pma daemon triage (owner)**: where it lives, why pushes stalled 22:47Z→01:1x, what rewound bb47fbc, which step runs the workspace heuristic (g1).
-4. **Extend check-pin-drift.sh per-module** AGENTS-vs-tag checks (mechanize ritual step 3; this session's drift class dies permanently).
-5. **Push-lag / daemon-health watch**: local guard or hook warning when origin/master age exceeds N hours (the stall went unnoticed ~30min mid-session; the 6-day CI blindness is the same class at larger scale).
+1. ~~**Push the last commit** (`67c2a61`, ci-preflight) — daemon was at it; verify it lands (origin was 1 behind at report time).~~ done — landed on origin 2026-10-07
+2. ~~**Observe the ci-preflight job's first run** on that push: ONE red job with the restore message, matrix skipped — the designed behavior.~~ done — observed — one loud red job, matrix skipped (the designed behavior)
+3. ~~**pma daemon triage (owner)**: where it lives, why pushes stalled 22:47Z→01:1x, what rewound bb47fbc, which step runs the workspace heuristic (g1).~~ done — root-caused — pma dossier (bd9abba)
+4. ~~**Extend check-pin-drift.sh per-module** AGENTS-vs-tag checks (mechanize ritual step 3; this session's drift class dies permanently).~~ done at `0c49125`
+5. ~~**Push-lag / daemon-health watch**: local guard or hook warning when origin/master age exceeds N hours (the stall went unnoticed ~30min mid-session; the 6-day CI blindness is the same class at larger scale).~~ done at `a7c2796`
 6. **SSH_PRIVATE_KEY restore (owner, P1)** — with ci-preflight shipped, the blind spot is at least loud now.
-7. **File the go-cqrs-lite upstream ask (owner-gated)** — two verified findings + consumer tripwire; draft complete.
+7. **File the go-cqrs-lite upstream ask (owner-gated)** — two verified findings + consumer tripwire; draft complete. **→ filing in flight 2026-10-12 (T22)**
 8. **/mnt/buildcache topology answer (owner)** — recurrence risk for the corruption class.
 9. **cqrs-htmx setup Domain adoption** — their next train, owner-gated cross-repo.
 10. **Flake hunt**: rerun the cqrs suite `-count=10` under load once; if the transient recurs, capture the name (this session lost it to d3).
-11. **Standing upstream-flip watch** (system GracefulClose + timer-stop): the 4-file change is enumerated in the `cqrs/domain_test.go` tripwire comment.
-12. **FEATURES.md VERIFY pass** (cqrs v0.7.0 + otel/flightrecorder v0.2.0 rows).
-13. **core v0.8.0 + systemd v0.1.0 train** (steps in TODO P3; demand-proven by bank-sync ADR-017).
-14. **Example StartHooks migration** post core v0.8.0 (flightrecorder + otel examples; TODO P3).
-15. **fr v0.2.1 sweep** on the frh + cqrs next trains (safe-but-don't-bump-casually; TODO P3).
-16. **AGENTS deep slim-down** — 361/377 again after this session's additions; every future addition needs a removal until the structural cut lands.
-17. **Composition-gap E2E watchlist** items (otel×realtime first; existing TODO entry).
-18. **BuildFlow dprint exit-14 upstream fix** (standing; escape hatch documented).
-19. **Health/polish backlog batch** (existing TODO P3 smalls — untouched, standing).
-20. **AGENTS rule addition from e1** (never pipe verify commands; redirect to file) — one line, next AGENTS touch.
+11. **Standing upstream-flip watch** (system GracefulClose + timer-stop): the 4-file change is enumerated in the `cqrs/domain_test.go` tripwire comment. **→ timers half closed at cqrs v0.8.0; GracefulClose watch open (TODO_LIST)**
+12. ~~**FEATURES.md VERIFY pass** (cqrs v0.7.0 + otel/flightrecorder v0.2.0 rows).~~ done — (31526ce version-truth + de6d4f6 evidence cells)
+13. ~~**core v0.8.0 + systemd v0.1.0 train** (steps in TODO P3; demand-proven by bank-sync ADR-017).~~ done at `3870403 + b514928`
+14. ~~**Example StartHooks migration** post core v0.8.0 (flightrecorder + otel examples; TODO P3).~~ done at `decc462`
+15. ~~**fr v0.2.1 sweep** on the frh + cqrs next trains (safe-but-don't-bump-casually; TODO P3).~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
+16. ~~**AGENTS deep slim-down** — 361/377 again after this session's additions; every future addition needs a removal until the structural cut lands.~~ done — slimmed 366 to 126 lines 2026-10-12 (docs-health full pass)
+17. **Composition-gap E2E watchlist** items (otel×realtime first; existing TODO entry). **→ composition-gap watchlist (TODO_LIST)**
+18. **BuildFlow dprint exit-14 upstream fix** (standing; escape hatch documented). **→ standing — Deferred Register row (upstream BuildFlow fix)**
+19. ~~**Health/polish backlog batch** (existing TODO P3 smalls — untouched, standing).~~ done — shipped — core v0.7.0 polish (DrainWindowProbe, seriesKey, Hook alias) + issues #25/#26 (2026-10-12)
+20. ~~**AGENTS rule addition from e1** (never pipe verify commands; redirect to file) — one line, next AGENTS touch.~~ done at `86b612d`
 
 ## g) Questions I can NOT figure out myself
 
-1. **Where does the pma daemon live, and may I read its config/logs?** It pushed for the prior session, stalled 22:47Z→01:1x, re-added `./integration` to go.work three times, bundled its mutations into my staged commits (`2d991a9`), and performed the unexplained `bb47fbc` rewind (reflog-silent .git surgery). From this shell: no process mid-session, no `~/.config/pma`, `systemctl` blocked. I need its unit name/path or a log directory to finish the root-cause.
-2. **May I push?** One commit (`67c2a61`, ci-preflight) was unpushed at report time and the daemon's push timing is unpredictable — say the word and I'll `git push origin master` (no force, ever). Related: do you want the push-lag watch (f5) as a guard script?
+1. ~~**Where does the pma daemon live, and may I read its config/logs?** It pushed for the prior session, stalled 22:47Z→01:1x, re-added `./integration` to go.work three times, bundled its mutations into my staged commits (`2d991a9`), and performed the unexplained `bb47fbc` rewind (reflog-silent .git surgery). From this shell: no process mid-session, no `~/.config/pma`, `systemctl` blocked. I need its unit name/path or a log directory to finish the root-cause.~~ done — resolved — dossier bd9abba (unit path + journalctl -t pma); TODO_LIST q6 RESOLVED
+2. ~~**May I push?** One commit (`67c2a61`, ci-preflight) was unpushed at report time and the daemon's push timing is unpredictable — say the word and I'll `git push origin master` (no force, ever). Related: do you want the push-lag watch (f5) as a guard script?~~ done — resolved 2026-10-12 — per-train push authorized (full-execution re-issuance); push-lag watch shipped (a7c2796)
 3. **SSH_PRIVATE_KEY (standing P1)**: still empty at repo level; the entire matrix has been dead since ~2026-10-01. With this session's ci-preflight, the failure is now ONE loud red job with instructions instead of 12 masked ones — restoring the secret is the only remaining step to a fully green master.
 
 ---
