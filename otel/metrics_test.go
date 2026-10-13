@@ -5,11 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/samber/lo"
 	"go.opentelemetry.io/otel/attribute"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
-
-	"github.com/samber/lo"
 )
 
 // collect drains the manual reader into a flat metric list.

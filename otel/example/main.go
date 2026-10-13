@@ -116,7 +116,8 @@ func run(cfg appkit.ServiceConfig) error {
 	// answers a request.
 	cfg.StartHooks = []func(context.Context) error{
 		func(context.Context) error {
-			if err := rec.Start(); err != nil {
+			err := rec.Start()
+			if err != nil {
 				return fmt.Errorf("start flight recorder: %w", err)
 			}
 

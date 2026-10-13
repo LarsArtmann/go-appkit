@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Test-only: adopted `samber/lo` (v1.53.0, direct require) at the
+  metric-name collect per fleet policy's required functional stack;
+  runtime code stays hand-rolled (dependency-lean boundary, 2026-10-12
+  standing decision).
+
 ## [0.2.0] - 2026-10-06
 
 
