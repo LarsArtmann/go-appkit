@@ -89,9 +89,10 @@ func main() {
 		// trend/metrics options append on top instead of being replaced.
 		nonceFn := func(r *http.Request) string { return appkitsecurity.NonceFromContext(r.Context()) }
 		preset := appkithealth.DashboardHardenedPreset("", nonceFn)
-		dashboardOpts = append(preset,
+		hardenedOpts := append(preset,
 			dashboard.WithTrend(dashboardTrendCount),
 			dashboard.WithMetrics(true))
+		dashboardOpts = hardenedOpts
 		cfg.OuterMiddlewares = []func(http.Handler) http.Handler{hardenedCSP}
 	}
 
