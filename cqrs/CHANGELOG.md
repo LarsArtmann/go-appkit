@@ -4,10 +4,12 @@
 
 ### Changed
 
-- Test-only: adopted `samber/lo` (v1.53.0, promoted from indirect to
-  direct require) at the plan-query-name and example-name collects per
-  fleet policy's required functional stack; runtime code stays
-  hand-rolled (dependency-lean boundary, 2026-10-12 standing decision).
+- Adopted `samber/lo` (v1.53.0, promoted from indirect to direct
+  require) at the plan-query-name and example-name collects per fleet
+  policy's required functional stack. Runtime: the owner exercised the
+  USER gate on the test-only boundary (2026-10-12 standing decision) —
+  `concatCommandMiddleware` now uses `lo.Flatten` (2026-10-13); the
+  remaining runtime sites stay hand-rolled by default.
 
 ## [0.8.0] - 2026-10-12
 

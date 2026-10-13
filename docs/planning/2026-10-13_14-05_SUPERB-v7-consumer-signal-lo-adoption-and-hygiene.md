@@ -355,6 +355,14 @@ was ALREADY v1.5.0 (pin-drift green); cqrs-htmx raw tags v4.14.3 exist
 but proxy @latest still resolves v4.14.1 (guards green); pin-drift
 guard re-run: 27 OK / 0 FAIL.
 
+**2026-10-13 — post-plan boundary override (owner edit, f6cb855).** The
+§6 boundary map's one `runtime | keep` row in cqrs
+(`domain.go concatCommandMiddleware`) was OVERRIDDEN by the owner via
+the USER gate: it now uses `lo.Flatten` (first runtime site). cqrs
+`-race` suite + guards re-run green; CHANGELOG [Unreleased] entry
+truth-synced same day. Boundary reading: test-only remains the DEFAULT;
+runtime sites land by explicit owner edit only.
+
 ---
 
 _Point-in-time plan. Living truth: `TODO_LIST.md` (open items) +
