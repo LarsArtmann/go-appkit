@@ -682,10 +682,9 @@ func (es *EventService) StartProjections(ctx context.Context) error {
 // leaks on a stuck command handler. Drain and close errors are joined.
 // Safe to call multiple times (idempotent via mutex guard).
 //
-// This is Drain+Close rather than a bare sys.GracefulClose delegation
-// because (as of system v4.10.2) GracefulClose returns without closing
-// when its drain phase fails — its godoc promises otherwise, but the
-// implementation would reintroduce the engine leak this method prevents.
+// Delegates to sys.GracefulClose (system ≥ v4.14.0): the drain-error
+// always-close contract — the reason this method previously hand-rolled
+// Drain + Close + errors.Join — is native there (go-cqrs-lite #67).
 func (es *EventService) Shutdown(ctx context.Context) error {
 	es.mu.Lock()
 
@@ -698,12 +697,7 @@ func (es *EventService) Shutdown(ctx context.Context) error {
 	es.closed = true
 	es.mu.Unlock()
 
-	drainErr := es.sys.Drain(ctx)
-	closeErr := es.sys.Close()
-
-	// Both sides carry their own classification (the drainer wraps
-	// context.DeadlineExceeded as Transient; Close joins engine errors).
-	return errors.Join(drainErr, closeErr)
+	return es.sys.GracefulClose(ctx) //nolint:wrapcheck // delegation
 }
 
 // host returns the projection host, tolerating deployments without one.
