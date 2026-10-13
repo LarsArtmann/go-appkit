@@ -6,4 +6,9 @@
 # for go:embed-based example assets, which MUST sit beside their package
 # (health/example/assets/app.css is embedded by health/example/main.go via
 # //go:embed; a root assets/ dir is unreachable from embed directives).
-exclude_patterns: [root-package-files, internal-directory, examples-directory, assets-directory]
+exclude_patterns: [
+  root-package-files,
+  internal-directory,
+  examples-directory,
+  assets-directory,
+]

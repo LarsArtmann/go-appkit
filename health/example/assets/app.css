@@ -10,38 +10,38 @@
  use the same stand-in approach.
 */
 :root {
-	color-scheme: dark;
+  color-scheme: dark;
 }
 
 html {
-	background: #0a0c10;
-	color: #e5e7eb;
-	font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: #0a0c10;
+  color: #e5e7eb;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 body {
-	margin: 0 auto;
-	max-width: 64rem;
-	padding: 1rem 1.5rem 3rem;
-	line-height: 1.5;
+  margin: 0 auto;
+  max-width: 64rem;
+  padding: 1rem 1.5rem 3rem;
+  line-height: 1.5;
 }
 
 a {
-	color: #00e5ff;
+  color: #00e5ff;
 }
 
 table {
-	border-collapse: collapse;
-	width: 100%;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 th,
 td {
-	border: 1px solid #263041;
-	padding: 0.35rem 0.6rem;
-	text-align: left;
+  border: 1px solid #263041;
+  padding: 0.35rem 0.6rem;
+  text-align: left;
 }
 
 th {
-	background: #131722;
+  background: #131722;
 }

@@ -113,7 +113,8 @@ func run(cfg appkit.ServiceConfig) error {
 	// recorder-less.)
 	cfg.StartHooks = []func(context.Context) error{
 		func(context.Context) error {
-			if err := rec.Start(); err != nil {
+			err := rec.Start()
+			if err != nil {
 				return errorfamily.Newf(errorfamily.Infrastructure,
 					"flightrecorder.start_failed",
 					"start flight recorder: %v", err)

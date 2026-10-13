@@ -6,6 +6,7 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/command/v4"
 	"github.com/larsartmann/go-cqrs-lite/projectionhost/v4"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
+	"github.com/samber/lo"
 )
 
 // hostBootstrapDeclaration names the zero-entry count projection that
@@ -98,9 +99,7 @@ func concatCommandMiddleware(groups ...[]command.Middleware) []command.Middlewar
 	}
 
 	merged := make([]command.Middleware, 0, total)
-	for _, group := range groups {
-		merged = append(merged, group...)
-	}
+	merged = lo.Flatten(groups)
 
 	return merged
 }

@@ -260,20 +260,20 @@ nothing to apply; recorded rather than force.
 
 **Boundary map (the T02 deliverable; ground rule 6 governs):**
 
-| Site                                     | Kind        | Verdict            | Reason                                                                                    |
-| ---------------------------------------- | ----------- | ------------------ | ----------------------------------------------------------------------------------------- |
-| cqrs/domain_test.go:477 (Map)            | test        | **ADOPT**          | plain collect → lo.Map                                                                     |
-| cqrs/readme_sync_test.go:73 (SliceToMap) | test        | **ADOPT**          | regex-match set build → lo.SliceToMap (first loop only; second carries assertion logic)   |
-| otel/metrics_test.go:48 (Map)            | test        | **ADOPT**          | metricNames collect → lo.Map                                                               |
-| realtime/realtime_test.go:693 (Map)      | test        | **ADOPT**          | ids collect → lo.Map                                                                       |
-| integration/otel_pattern_test.go:231     | test        | **ADOPT**          | attr-set build → lo.SliceToMap (lo already in integration's go.sum via cqrs-htmx)         |
-| cqrs/domain_test.go:86 (Reduce)          | test        | keep (false pos.) | `slices.Backward` fold — lo.Reduce iterates forward only; hand-rolled is correct           |
-| cqrs/domain.go:96,101                    | runtime     | keep               | test-only boundary (USER gate to override)                                                |
-| frh/adapter.go:75 (FromPtr)              | runtime     | keep               | same; migrator itself says "rewrite not proven safe"                                      |
-| health/probe.go:60 (SliceToMap)          | runtime     | keep               | same                                                                                       |
-| realtime/handler.go:273 (Filter)         | runtime     | keep               | same                                                                                       |
-| security/csrf.go:27 (Filter)             | runtime     | keep               | same                                                                                       |
-| security/origin_check.go:39 (SliceToMap) | runtime     | keep               | same                                                                                       |
+| Site                                     | Kind    | Verdict           | Reason                                                                                  |
+| ---------------------------------------- | ------- | ----------------- | --------------------------------------------------------------------------------------- |
+| cqrs/domain_test.go:477 (Map)            | test    | **ADOPT**         | plain collect → lo.Map                                                                  |
+| cqrs/readme_sync_test.go:73 (SliceToMap) | test    | **ADOPT**         | regex-match set build → lo.SliceToMap (first loop only; second carries assertion logic) |
+| otel/metrics_test.go:48 (Map)            | test    | **ADOPT**         | metricNames collect → lo.Map                                                            |
+| realtime/realtime_test.go:693 (Map)      | test    | **ADOPT**         | ids collect → lo.Map                                                                    |
+| integration/otel_pattern_test.go:231     | test    | **ADOPT**         | attr-set build → lo.SliceToMap (lo already in integration's go.sum via cqrs-htmx)       |
+| cqrs/domain_test.go:86 (Reduce)          | test    | keep (false pos.) | `slices.Backward` fold — lo.Reduce iterates forward only; hand-rolled is correct        |
+| cqrs/domain.go:96,101                    | runtime | keep              | test-only boundary (USER gate to override)                                              |
+| frh/adapter.go:75 (FromPtr)              | runtime | keep              | same; migrator itself says "rewrite not proven safe"                                    |
+| health/probe.go:60 (SliceToMap)          | runtime | keep              | same                                                                                    |
+| realtime/handler.go:273 (Filter)         | runtime | keep              | same                                                                                    |
+| security/csrf.go:27 (Filter)             | runtime | keep              | same                                                                                    |
+| security/origin_check.go:39 (SliceToMap) | runtime | keep              | same                                                                                    |
 
 Dep impact: samber/lo is the fleet-REQUIRED functional stack
 (required-libraries.md: lo + mo). It already rides cqrs's and
@@ -292,10 +292,11 @@ accepted example-mains, the 4 big markdown clones are the docs/drafts
 body-by-design archives → `docs/drafts/**` added to .jscpd.json ignores;
 volume documented, NOT tuned away. `golangci-lint config verify`: 12/12
 clean → new `scripts/check-golangci-configs.sh` guard (negative-tested)
-+ public-install CI job `golangci-config-verify`. module-details
-README-link: ACCEPT AGENTS-pointer-only (audience separation — agent
-context never links from user-facing READMEs; decided with T06's
-charter).
+
+- public-install CI job `golangci-config-verify`. module-details
+  README-link: ACCEPT AGENTS-pointer-only (audience separation — agent
+  context never links from user-facing READMEs; decided with T06's
+  charter).
 
 **2026-10-13 — T06 done.** `docs/agents/README.md` charter written
 (agent-only, AGENTS-points-these-remember, verbatim-grade extraction,

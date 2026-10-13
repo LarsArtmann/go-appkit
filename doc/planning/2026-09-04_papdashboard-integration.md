@@ -122,13 +122,13 @@ Two files touch appkit: `cmd/server/main.go`, `internal/config/config.go`
 with the adoption — the core-TLS trigger in §6 deliberately did NOT fire;
 they terminate TLS elsewhere or not at all).
 
-| Touched API                                              | How they use it                                                                                                                                                                        |
-| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `appkit.NewService(appkit.ServiceConfig{...})`           | One construction site (`buildService`), `//nolint:exhaustruct` — they lean on production defaults for every unset field                                                                |
-| `ServiceConfig` fields                                   | `Addr`, `LogLevel`, `ReadTimeout`, `WriteTimeout`, `IdleTimeout`, `ShutdownTimeout`, `DrainDelay`, `ExtraMiddlewares` — nothing else (no Metrics, no Version, no hooks, no ReadyCheck) |
-| `appkit.NoTimeout` / `appkit.NoDrainDelay`               | Both sentinels: NoTimeout for SSE (`/sse.js` client), NoDrainDelay in development; production passes `0` and RELIES on the 5s zero-value default                                       |
-| `appkit.LogLevel(cfg.LogLevel)`                          | String conversion from their own config                                                                                                                                                |
-| `svc.Mux` / `svc.Run(ctx)`                               | Route registration + blocking run; they keep their own signal-free start comment (appkit's `Run` handles SIGINT/SIGTERM)                                                               |
+| Touched API                                    | How they use it                                                                                                                                                                        |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `appkit.NewService(appkit.ServiceConfig{...})` | One construction site (`buildService`), `//nolint:exhaustruct` — they lean on production defaults for every unset field                                                                |
+| `ServiceConfig` fields                         | `Addr`, `LogLevel`, `ReadTimeout`, `WriteTimeout`, `IdleTimeout`, `ShutdownTimeout`, `DrainDelay`, `ExtraMiddlewares` — nothing else (no Metrics, no Version, no hooks, no ReadyCheck) |
+| `appkit.NoTimeout` / `appkit.NoDrainDelay`     | Both sentinels: NoTimeout for SSE (`/sse.js` client), NoDrainDelay in development; production passes `0` and RELIES on the 5s zero-value default                                       |
+| `appkit.LogLevel(cfg.LogLevel)`                | String conversion from their own config                                                                                                                                                |
+| `svc.Mux` / `svc.Run(ctx)`                     | Route registration + blocking run; they keep their own signal-free start comment (appkit's `Run` handles SIGINT/SIGTERM)                                                               |
 
 Notable negatives: they do NOT use `DrainHooks` (their DB/CQRS/worker
 shutdown ordering is hand-rolled around `Run` returning), and they do NOT
