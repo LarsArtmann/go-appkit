@@ -105,3 +105,73 @@ The opposite arrow: an appkit-based service (e.g. the example service or cqrs-ht
 | PapDashboard asks for app-level TLS                | First consumer-backed core TLS feature (ServiceConfig TLS option or `Listener` injection) — demand-driven, sized then                                                                                  |
 | PapDashboard ships an appkit-hosted release        | `integration/` gains an sdk-driven E2E smoke test pinning their published tag                                                                                                                          |
 | A larsartmann service wants outbound notifications | Use `papdashboard/sdk` on the consumer side; if channel fan-out (Slack/Discord/email/webhook) is needed _without_ PapDashboard, that is a future standalone `go-notify` library — not an appkit module |
+
+---
+
+## 7. Addendum — v0.3.0 consumer-#2 review (2026-10-13, SUPERB v7 T01)
+
+Option C landed in their repo: PapDashboard v0.3.0 hosts on go-appkit
+(`go-appkit v0.4.0`, core only). This section records what consumer #2
+actually uses — the scarcest signal core has from a non-setup consumer —
+and the drift verdict for a refresh to current core.
+
+### 7.1 Usage surface at v0.3.0 (exhaustive)
+
+Two files touch appkit: `cmd/server/main.go`, `internal/config/config.go`
+(the latter only a comment noting `PAP_TLS_CERT/PAP_TLS_KEY` were REMOVED
+with the adoption — the core-TLS trigger in §6 deliberately did NOT fire;
+they terminate TLS elsewhere or not at all).
+
+| Touched API                                              | How they use it                                                                                                                                                                        |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `appkit.NewService(appkit.ServiceConfig{...})`           | One construction site (`buildService`), `//nolint:exhaustruct` — they lean on production defaults for every unset field                                                                |
+| `ServiceConfig` fields                                   | `Addr`, `LogLevel`, `ReadTimeout`, `WriteTimeout`, `IdleTimeout`, `ShutdownTimeout`, `DrainDelay`, `ExtraMiddlewares` — nothing else (no Metrics, no Version, no hooks, no ReadyCheck) |
+| `appkit.NoTimeout` / `appkit.NoDrainDelay`               | Both sentinels: NoTimeout for SSE (`/sse.js` client), NoDrainDelay in development; production passes `0` and RELIES on the 5s zero-value default                                       |
+| `appkit.LogLevel(cfg.LogLevel)`                          | String conversion from their own config                                                                                                                                                |
+| `svc.Mux` / `svc.Run(ctx)`                               | Route registration + blocking run; they keep their own signal-free start comment (appkit's `Run` handles SIGINT/SIGTERM)                                                               |
+
+Notable negatives: they do NOT use `DrainHooks` (their DB/CQRS/worker
+shutdown ordering is hand-rolled around `Run` returning), and they do NOT
+use `testkit` (their integration tests use a hand-rolled `testDrainDelay =
+250ms` constant — exactly the trap `testkit.NewService` (core v0.9.0)
+neutralizes).
+
+### 7.2 Drift verdict, v0.4.0 → v0.9.0
+
+**Additions-only across the entire range** (v0.5.0 → v0.9.0 CHANGELOGs
+re-read 2026-10-13): zero removals or signature changes on any symbol they
+touch. A refresh compiles as-is. The behavioral notes that matter:
+
+1. **Go floor is the only hard constraint**: their `go.mod` says
+   `go 1.26.7`; core ≥ v0.6.0 requires 1.27.1, v0.9.0 requires 1.27.2.
+2. **httputil v0.12.0 → v1.4.1 rides free**: their direct `httputil`
+   (v0.12.0) is pre-pattern-propagation; the default stack they get from
+   current core fixes ServeMux-pattern telemetry silently.
+3. **What they would gain, mapped to their code**: `DrainHooks` for their
+   hand-rolled shutdown ordering; `testkit.NewService` deleting
+   `testDrainDelay`; opt-in `Metrics`/`Version` (they hand-roll a metrics
+   middleware on their own `deps.metrics` — core's surface may or may not
+   fit; their Prometheus export is custom).
+
+### 7.3 The security-module adoption signal (strongest finding)
+
+Their `internal/middleware` hand-rolls `BodyLimit`, `APIKeyAuth`,
+`RateLimit`, and a CSP middleware — a near-1:1 overlap with
+go-appkit/security v0.2.0's battery set (typed body limit, API-key auth
+incl. the GET/HEAD-only `?key=` form, keyed rate limits, CSP nonce +
+policy builder, origin check, CSRF). This is the first demand evidence
+that the W2 battery set matches what a real consumer builds by hand.
+Adoption is their call (per §5: their repo, do not nudge) — but it goes in
+the W2/W3 demand ledger.
+
+### 7.4 Consumer-claims guard: add the PapDashboard leg NOW
+
+v0.3.0 is on origin and proxy-visible (`go list -m
+github.com/larsartmann/papdashboard@latest` → v0.3.0, verified
+2026-10-13). Same viability as the cqrs-htmx leg: the guard anchors the
+AGENTS claim ("PapDashboard vX requires go-appkit vY") against the go.mod
+of their newest tag via `git ls-remote` + local clone; when their next tag
+moves the appkit pin, the guard fires and our claim refreshes deliberately
+instead of rotting. Their cadence is unknown — which is precisely the
+argument for guarding now rather than waiting for a "next tag" that may
+already be the one that moves. Executed as v7 T07.
