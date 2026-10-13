@@ -3,7 +3,6 @@ version: "2"
 # process-global flight-recorder singleton constraint).
 #
 # Deliberate divergences from go-flightrecorder's config:
-#   - noinlineerr additionally enabled (newer linter, catches inline err decls)
 #   - no gci formatter: goimports is sufficient here
 run:
   timeout: 3m
@@ -85,7 +84,6 @@ linters:
     - nilnil
     - nlreturn
     - noctx
-    - noinlineerr
     - nolintlint
     - nonamedreturns
     - nosprintfhostport
@@ -122,6 +120,8 @@ linters:
     - wrapcheck
     - wsl_v5
     - zerologlint
+  disable:
+    - noinlineerr
   settings:
     depguard:
       rules:
