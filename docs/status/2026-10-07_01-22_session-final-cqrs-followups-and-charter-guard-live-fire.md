@@ -49,40 +49,40 @@
 
 ## e) WHAT WE SHOULD IMPROVE
 
-1. **Never pipe verify commands — redirect to a file, inspect the file.** Three incidents this session (d1 correctness, d3 information, d4 observation) are all pipe semantics. `pipefail` is insufficient (d3 lost data even under pipefail rules). One-line AGENTS Build & Verify rule owed (f16); the session's final verification block already used the file-redirect pattern successfully.
-2. **The daemon has three proven damage modes and one gap**: (a) `./integration` re-add ×3 — CAUGHT by the charter guard (proven live); (b) bundling unrelated mutations into heuristic commits — unguarded; (c) reflog-silent commit rewind — unguarded; (d) push stalls go unnoticed (22:47Z→23:16Z gap + the 2-commit lag at report time). Minimum: push-lag watch + post-commit HEAD-advance sanity hook candidate.
-3. **Mechanize Release Ritual step 3** — the six-module AGENTS drift (a7) is precisely the class the ritual text warns about; this session's guard dual-pattern fixed the SYMPTOM class (phrasing), but per-module AGENTS-vs-tag checks would make the MISS itself fail a guard (f4).
+1. ~~**Never pipe verify commands — redirect to a file, inspect the file.** Three incidents this session (d1 correctness, d3 information, d4 observation) are all pipe semantics. `pipefail` is insufficient (d3 lost data even under pipefail rules). One-line AGENTS Build & Verify rule owed (f16); the session's final verification block already used the file-redirect pattern successfully.~~ done at `86b612d`
+2. ~~**The daemon has three proven damage modes and one gap**: (a) `./integration` re-add ×3 — CAUGHT by the charter guard (proven live); (b) bundling unrelated mutations into heuristic commits — unguarded; (c) reflog-silent commit rewind — unguarded; (d) push stalls go unnoticed (22:47Z→23:16Z gap + the 2-commit lag at report time). Minimum: push-lag watch + post-commit HEAD-advance sanity hook candidate.~~ done — push-lag (a7c2796) + HEAD-advance hook (1c591aa) shipped; dossier bd9abba
+3. ~~**Mechanize Release Ritual step 3** — the six-module AGENTS drift (a7) is precisely the class the ritual text warns about; this session's guard dual-pattern fixed the SYMPTOM class (phrasing), but per-module AGENTS-vs-tag checks would make the MISS itself fail a guard (f4).~~ done at `0c49125`
 4. **Guard-first observation**: the workspace-charter job's value was proven within one push of landing; the pin-drift per-module extension (f4) and push-lag watch (f5) deserve the same guards-as-code treatment instead of more prose.
 5. **Concurrent-session coordination held**: their modules/pins untouched; only shared docs corrected; coordination via TODO_LIST/AGENTS only. Keep the pattern.
 6. **Honest positive**: recovery paths worked — index-restore for bb47fbc, negative tests for the sync guard, module-cache API verification before the decision note, `ls-remote` before release-truth claims. The verify-then-claim discipline mostly held; where it slipped (d1), the damage was contained by the next verification.
 
 ## f) Top things to get done next (ranked)
 
-1. **Push the 2 unpushed commits** (`67c2a61` ci-preflight + `adb1985` report) — owner word or daemon resumption (g2).
-2. **Observe ci-preflight's first run**: ONE red job with the restore message, matrix skipped, guards green.
-3. **pma daemon triage (owner)**: unit/config/logs location; explain the push stall + the `bb47fbc` rewind + the workspace-heuristic step (g1).
-4. **Extend check-pin-drift.sh per-module**: AGENTS-says-vX vs tag-says-vY for every module — kills the ritual-step-3 miss class mechanically.
-5. **Push-lag / daemon-health watch**: warn when origin/master age exceeds N hours (session saw a 30-min stall unnoticed; the 6-day CI blindness is the same class).
+1. ~~**Push the 2 unpushed commits** (`67c2a61` ci-preflight + `adb1985` report) — owner word or daemon resumption (g2).~~ done — landed on origin 2026-10-07
+2. ~~**Observe ci-preflight's first run**: ONE red job with the restore message, matrix skipped, guards green.~~ done — observed — one loud red job, matrix skipped (the designed behavior)
+3. ~~**pma daemon triage (owner)**: unit/config/logs location; explain the push stall + the `bb47fbc` rewind + the workspace-heuristic step (g1).~~ done — root-caused — pma dossier (bd9abba)
+4. ~~**Extend check-pin-drift.sh per-module**: AGENTS-says-vX vs tag-says-vY for every module — kills the ritual-step-3 miss class mechanically.~~ done at `0c49125`
+5. ~~**Push-lag / daemon-health watch**: warn when origin/master age exceeds N hours (session saw a 30-min stall unnoticed; the 6-day CI blindness is the same class).~~ done at `a7c2796`
 6. **SSH_PRIVATE_KEY restore (owner, P1)** — with ci-preflight the dead matrix is at least LOUD now; secret restore is the only step left to a green master.
-7. **File the go-cqrs-lite upstream ask (owner-gated)**: two verified findings + consumer tripwire; draft complete under `doc/feedback/outgoing/`.
+7. **File the go-cqrs-lite upstream ask (owner-gated)**: two verified findings + consumer tripwire; draft complete under `doc/feedback/outgoing/`. **→ filing in flight 2026-10-12 (T22)**
 8. **/mnt/buildcache topology answer (owner)**: multi-writer or not; recurrence risk for the 2026-09-29 corruption class.
 9. **cqrs-htmx setup Domain adoption** (their repo, owner-gated, their next train).
 10. **Flake hunt**: cqrs suite `-count=10` under load once; capture the name if the transient recurs (d3).
-11. **Standing upstream-flip watch** (system GracefulClose + timer-stop): 4-file change enumerated in the `cqrs/domain_test.go` tripwire comment.
-12. **FEATURES.md VERIFY pass** (cqrs v0.7.0 + both v0.2.0 rows; add the TODO item).
-13. **core v0.8.0 + systemd v0.1.0 train** (steps in TODO P3; demand-proven by bank-sync ADR-017).
-14. **Example StartHooks migration** post core v0.8.0 (flightrecorder + otel examples).
-15. **fr v0.2.1 sweep** on the frh + cqrs next trains (safe combination-wise; trains only).
-16. **AGENTS rule from e1** (never pipe verify commands; redirect to file) — one line on the next AGENTS touch.
-17. **AGENTS deep slim-down** — 361/377 again; every addition needs a removal until the structural cut lands.
-18. **Post-commit HEAD-advance sanity hook** (design first; guards the bb47fbc rewind class).
-19. **Composition-gap E2E watchlist** items (otel×realtime first).
-20. **Health/polish + BuildFlow-dprint + art-dupl backlog** (standing TODO P3 items — untouched this session, remain valid).
+11. **Standing upstream-flip watch** (system GracefulClose + timer-stop): 4-file change enumerated in the `cqrs/domain_test.go` tripwire comment. **→ timers half closed at cqrs v0.8.0; GracefulClose watch open (TODO_LIST)**
+12. ~~**FEATURES.md VERIFY pass** (cqrs v0.7.0 + both v0.2.0 rows; add the TODO item).~~ done — (31526ce version-truth + de6d4f6 evidence cells)
+13. ~~**core v0.8.0 + systemd v0.1.0 train** (steps in TODO P3; demand-proven by bank-sync ADR-017).~~ done at `3870403 + b514928`
+14. ~~**Example StartHooks migration** post core v0.8.0 (flightrecorder + otel examples).~~ done at `decc462`
+15. ~~**fr v0.2.1 sweep** on the frh + cqrs next trains (safe combination-wise; trains only).~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
+16. ~~**AGENTS rule from e1** (never pipe verify commands; redirect to file) — one line on the next AGENTS touch.~~ done at `86b612d`
+17. ~~**AGENTS deep slim-down** — 361/377 again; every addition needs a removal until the structural cut lands.~~ done — slimmed 366 to 126 lines 2026-10-12 (docs-health full pass)
+18. ~~**Post-commit HEAD-advance sanity hook** (design first; guards the bb47fbc rewind class).~~ done at `1c591aa`
+19. **Composition-gap E2E watchlist** items (otel×realtime first). **→ composition-gap watchlist (TODO_LIST)**
+20. **Health/polish + BuildFlow-dprint + art-dupl backlog** (standing TODO P3 items — untouched this session, remain valid). **→ health/polish shipped (v0.7.0 polish + issues #25/#26); BuildFlow-dprint standing (Deferred Register); art-dupl sweep done 2026-09-28**
 
 ## g) Questions I can NOT figure out myself
 
-1. **Where does the pma daemon live — unit name, config path, or log directory I may read?** Evidence trail this session: pushed fine until 22:47Z, stalled ~30 min, resumed; re-added `./integration` to go.work three times (latest bundled into `2d991a9` with my README); performed a reflog-silent rewind of my commit `bb47fbc` (content left staged, worktree reverted); currently 2 commits unpushed. From this shell: no process found mid-session, no `~/.config/pma`, `systemctl` blocked. Its config/logs are the only path to finishing the root-cause.
-2. **May I push?** `git push origin master` (never force) for the 2 unpushed commits — or leave push authority with the daemon exclusively? Related: do you want the push-lag watch (f5) as a repo guard script?
+1. ~~**Where does the pma daemon live — unit name, config path, or log directory I may read?** Evidence trail this session: pushed fine until 22:47Z, stalled ~30 min, resumed; re-added `./integration` to go.work three times (latest bundled into `2d991a9` with my README); performed a reflog-silent rewind of my commit `bb47fbc` (content left staged, worktree reverted); currently 2 commits unpushed. From this shell: no process found mid-session, no `~/.config/pma`, `systemctl` blocked. Its config/logs are the only path to finishing the root-cause.~~ done — resolved — dossier bd9abba (unit path + journalctl -t pma); TODO_LIST q6 RESOLVED
+2. ~~**May I push?** `git push origin master` (never force) for the 2 unpushed commits — or leave push authority with the daemon exclusively? Related: do you want the push-lag watch (f5) as a repo guard script?~~ done — resolved 2026-10-12 — per-train push authorized (full-execution re-issuance); push-lag watch shipped (a7c2796)
 3. **SSH_PRIVATE_KEY (standing P1)**: still empty at repo level; the matrix has been dead since ~2026-10-01. ci-preflight now makes the failure one loud, self-explaning red job — restoring the secret (GitHub → Settings → Secrets → Actions) is the only remaining step to a fully green master run.
 
 ---

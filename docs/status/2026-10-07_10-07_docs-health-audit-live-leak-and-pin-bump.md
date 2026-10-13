@@ -123,21 +123,21 @@
 
 ## e) WHAT WE SHOULD IMPROVE
 
-1. **Guards-as-code over prose** (echoing 01-22 e4, now with a second proof):
-   the per-module pin-drift extension (AGENTS-says-vX vs tag-says-vY) would
-   have caught d2 mechanically. It is this harvest's top new item.
+1. ~~**Guards-as-code over prose** (echoing 01-22 e4, now with a second proof):~~ done at `0c49125`
+   ~~the per-module pin-drift extension (AGENTS-says-vX vs tag-says-vY) would~~
+   ~~have caught d2 mechanically. It is this harvest's top new item.~~
 2. **Edit discipline**: when replacing an anchor line and inserting before it,
    the anchor MUST appear in `new_string`; with the daemon live in the tree,
    re-View the exact region immediately before every edit.
-3. **Pipe discipline applies to ME**: file-redirect every `gh`/guard/grep
-   whose truncation could mislead — the rule I routed is the rule I broke.
+3. ~~**Pipe discipline applies to ME**: file-redirect every `gh`/guard/grep~~ done at `86b612d`
+   ~~whose truncation could mislead — the rule I routed is the rule I broke.~~
 4. **Claim discipline**: hashes and dates are claims. "Verified via X on DATE"
    is always writable; "X happened on DATE" needs a source.
 5. **Run the guard battery at SESSION START**: leak #4 sat in the tree for the
    first half of this session; I first ran the guards after the doc edits. A
    baseline run is cheaper and catches daemon interference before it mixes
    with my diffs.
-6. **Daemon heuristic commits erase attribution**: this session's work is in
+6. **Daemon heuristic commits erase attribution**: this session's work is in **→ owner decision memo drafted 2026-10-12 (T20 — attribution preservation is dossier section 6.3)**
    history as "chore: auto-commit N changed file(s)" with no what/why. This
    report doubles as the session manifest (the 01-22 report did the same —
    keep the pattern until the daemon learns commit messages).
@@ -146,48 +146,48 @@
 
 1. **P1 (owner): restore `SSH_PRIVATE_KEY`** — with ci-preflight live, it is
    the ONLY step left to a green master (matrix currently skipped).
-2. **Per-module pin-drift guard** — AGENTS-says vs tag-says for every module +
-   the cross-repo parenthetical; kills the d2 class mechanically.
-3. **Push-lag / origin-age watch** (guard script; the 6-day CI blindness
-   class).
-4. **Post-commit HEAD-advance sanity hook** (design first; the `bb47fbc`
-   rewind class).
+2. ~~**Per-module pin-drift guard** — AGENTS-says vs tag-says for every module +~~ done at `0c49125`
+   ~~the cross-repo parenthetical; kills the d2 class mechanically.~~
+3. ~~**Push-lag / origin-age watch** (guard script; the 6-day CI blindness~~ done at `a7c2796`
+   ~~class).~~
+4. ~~**Post-commit HEAD-advance sanity hook** (design first; the `bb47fbc`~~ done at `1c591aa`
+   ~~rewind class).~~
 5. **cqrs flake hunt**: `-count=10` under load once; capture the name if the
    transient recurs (01-22 d3).
-6. **AGENTS pipe-rule one-liner** (+ a removal trade; 361/377).
-7. **Daemon triage (owner)**: unit/config/logs — explains the rewind, the
-   workspace heuristic, and leak cadence (#4 landed mid-session).
-8. **`.buildflow.yml` license-check decision (owner)**: restore the skip or
-   confirm BuildFlow's runner got a ≥1.27 toolchain (g3).
-9. **Full FEATURES.md evidence-cell verify pass** (version-truth done;
-   per-row evidence not).
-10. **README.md verify pass** (untouched today).
-11. **ROADMAP.md verify pass** (untouched today).
+6. ~~**AGENTS pipe-rule one-liner** (+ a removal trade; 361/377).~~ done at `86b612d`
+7. ~~**Daemon triage (owner)**: unit/config/logs — explains the rewind, the~~ done — root-caused — pma dossier (bd9abba)
+   ~~workspace heuristic, and leak cadence (#4 landed mid-session).~~
+8. ~~**`.buildflow.yml` license-check decision (owner)**: restore the skip or~~ done — resolved 2026-10-07 — BuildFlow auto-derives the toolchain; license-check 13/13 green (AGENTS probes)
+   ~~confirm BuildFlow's runner got a ≥1.27 toolchain (g3).~~
+9. ~~**Full FEATURES.md evidence-cell verify pass** (version-truth done;~~ done — evidence cells (de6d4f6, 2026-10-12)
+   ~~per-row evidence not).~~
+10. ~~**README.md verify pass** (untouched today).~~ done — 2026-10-12 docs-health full pass
+11. ~~**ROADMAP.md verify pass** (untouched today).~~ done — 2026-10-12 docs-health full pass
 12. **Observe the matrix UNSKIPPED and green** once the secret is restored
     (closes P1's acceptance line).
-13. **core v0.8.0 + systemd v0.1.0 train** (steps enumerated in TODO P3;
-    demand-proven by bank-sync ADR-017).
-14. **Example StartHooks migration** (flightrecorder + otel examples) after
-    core v0.8.0.
-15. **fr v0.2.1 sweep** on the frh + cqrs next trains.
-16. **File the go-cqrs-lite upstream ask** (user-gated; draft complete).
-17. **File the go-health upstream-ask pack** (user-gated).
-18. **File the go-sse `ReplayFiltered` ask** (user-gated).
-19. **Compose `Service` on `httputil.Server`** — blocked on `NewServerListener`
+13. ~~**core v0.8.0 + systemd v0.1.0 train** (steps enumerated in TODO P3;~~ done at `3870403 + b514928`
+    ~~demand-proven by bank-sync ADR-017).~~
+14. ~~**Example StartHooks migration** (flightrecorder + otel examples) after~~ done at `decc462`
+    ~~core v0.8.0.~~
+15. ~~**fr v0.2.1 sweep** on the frh + cqrs next trains.~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
+16. **File the go-cqrs-lite upstream ask** (user-gated; draft complete). **→ filing in flight 2026-10-12 (T22)**
+17. **File the go-health upstream-ask pack** (user-gated). **→ filing in flight 2026-10-12 (T22)**
+18. **File the go-sse `ReplayFiltered` ask** (user-gated). **→ filing in flight 2026-10-12 (T22)**
+19. **Compose `Service` on `httputil.Server`** — blocked on `NewServerListener` **→ blocked upstream (NewServerListener) — TODO_LIST row**
     upstream API (standing; do not refactor today).
-20. **E2E gaps**: docs-module + flightrecorder-middleware composition legs
+20. **E2E gaps**: docs-module + flightrecorder-middleware composition legs **→ composition-gap watchlist (TODO_LIST)**
     through a live Service.
-21. **otel×realtime SSE-through-OuterMiddlewares E2E** (watchlist head).
+21. **otel×realtime SSE-through-OuterMiddlewares E2E** (watchlist head). **→ composition-gap watchlist (TODO_LIST)**
 22. **Browser CSP pass** on the hardened health dashboard (strict-CSP + nonce).
 23. **errorpages `statusRecorder` → `httputil.ResponseRecorder`** (USER GATE,
     ~10 lines).
-24. **Health/polish backlog batch** (hardened-dashboard assertions, testkit
-    drain-window helper, `seriesKey`, etc.).
-25. **BuildFlow dprint exit-14 upstream fix** (CHANGELOG-only commits).
-26. **AGENTS deep slim-down** (structural; every addition trades a removal
-    until then).
-27. **Consumer-claim drift ritual posture** (USER GATE: keep exact pins w/
-    ritual vs drop them).
+24. ~~**Health/polish backlog batch** (hardened-dashboard assertions, testkit~~ done — shipped — core v0.7.0 polish + issues #25/#26 (2026-10-12)
+    ~~drain-window helper, `seriesKey`, etc.).~~
+25. **BuildFlow dprint exit-14 upstream fix** (CHANGELOG-only commits). **→ standing — Deferred Register row (upstream BuildFlow fix)**
+26. ~~**AGENTS deep slim-down** (structural; every addition trades a removal~~ done — slimmed 366 to 126 lines 2026-10-12
+    ~~until then).~~
+27. ~~**Consumer-claim drift ritual posture** (USER GATE: keep exact pins w/~~ done — resolved 2026-10-12 — pins kept + guarded (scripts/check-consumer-claims.sh, T05)
+    ~~ritual vs drop them).~~
 28. **`/mnt/buildcache` topology answer** (owner; recurrence risk for the
     2026-09-29 corruption class).
 
@@ -196,16 +196,16 @@ authoritative open list lives there, not here.)
 
 ## g) Questions I can NOT figure out myself
 
-1. **Where does the pma auto-commit daemon live — unit name, config path, or a
-   readable log dir?** Leak #4 (`620a3b1`, 09:53:48) landed DURING this
-   session, minutes before I ran the guards; the rewind (`bb47fbc`) is still
-   unexplained. From agent shells: no process, no `~/.config/pma`,
-   `systemctl` blocked. Its config/logs are the only path to the root-cause.
-2. **The `.buildflow.yml` license-check skip removal (not authored by me) —
-   deliberate or artifact?** AGENTS documents license-check as skipped because
-   go-licenses embeds a pre-1.27 go and cannot load this repo. Did BuildFlow
-   upstream fix the toolchain (→ keep the removal), or should the skip be
-   restored? It shipped inside daemon heuristic commits `620a3b1`/`31526ce`.
+1. ~~**Where does the pma auto-commit daemon live — unit name, config path, or a~~ done — resolved — dossier bd9abba; TODO_LIST q6 RESOLVED
+   ~~readable log dir?** Leak #4 (`620a3b1`, 09:53:48) landed DURING this~~
+   ~~session, minutes before I ran the guards; the rewind (`bb47fbc`) is still~~
+   ~~unexplained. From agent shells: no process, no `~/.config/pma`,~~
+   ~~`systemctl` blocked. Its config/logs are the only path to the root-cause.~~
+2. ~~**The `.buildflow.yml` license-check skip removal (not authored by me) —~~ done — resolved — keep the removal; license-check green (AGENTS 2026-10-07 probes)
+   ~~deliberate or artifact?** AGENTS documents license-check as skipped because~~
+   ~~go-licenses embeds a pre-1.27 go and cannot load this repo. Did BuildFlow~~
+   ~~upstream fix the toolchain (→ keep the removal), or should the skip be~~
+   ~~restored? It shipped inside daemon heuristic commits `620a3b1`/`31526ce`.~~
 3. **Ratify ci-preflight's posture**: master runs now fail ONE loud job by
    design until the secret exists (matrix skipped, guards green). Acceptable,
    or should preflight warn instead of fail (with a separate alert)? And is
