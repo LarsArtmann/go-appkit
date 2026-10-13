@@ -54,6 +54,8 @@ episode-2 dedup report + SUPERB v5 plan).
 | `2026-10-13_13-55_SUPERB-v6-full-execution-complete.md`                             | SUPERB v6 COMPLETE: errorpages v0.1.2 (swap declined at source), 4 family asks filed, flake hunt closed with a real race fix, browser CSP pass, govulncheck 12/12, pma memo, watchlist (PapDashboard consumer #2) |
 
 Execution plans are indexed beside the reports they execute. Active plans:
+`docs/planning/2026-10-13_14-05_SUPERB-v7-consumer-signal-lo-adoption-and-hygiene.md`
+(over the post-v6 backlog; consumer-signal-first ordering) and
 `docs/planning/2026-10-07_10-11_SUPERB-pareto-execution-plan.md` (partially
 executed — see the 10-07/10-12 reports) and
 `docs/planning/2026-10-06_16-06_superb-flightrecorder-adoption-plan.md`

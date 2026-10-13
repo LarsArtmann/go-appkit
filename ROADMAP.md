@@ -34,12 +34,21 @@ the metrics/version/testkit surface (v0.5.0).
 Open questions on the way there (deliberate USER GATES, not tasks — full
 context: TODO_LIST footer and `docs/status/archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §g):
 
-- The httputil listener-injection API (`NewServerListener`) go/no-go — the
-  single unlock for BOTH the composition refactor and the Core TLS option.
-- Whether to file the two ready upstream asks (go-sse `ReplayFiltered`,
-  httputil Logging request-context).
-- Pin philosophy for `integration/` (LATEST-only vs mirroring setup),
-  cross-repo tracking posture, and where release-state pins live long-term.
+- ~~The httputil listener-injection API (`NewServerListener`) go/no-go~~
+  RESOLVED 2026-10-13: filed as
+  [httputil#41](https://github.com/LarsArtmann/httputil/issues/41) — the
+  go/no-go now sits upstream; both the composition refactor and Core TLS
+  unblock together when it lands.
+- ~~Whether to file the two ready upstream asks (go-sse `ReplayFiltered`,
+  httputil Logging request-context).~~ RESOLVED 2026-10-13: `ReplayFiltered`
+  already exists upstream (no ask); `LoggingFromContext` covers the
+  request-context completion line (appkit-side doc close rides the next
+  otel train).
+- ~~Pin philosophy for `integration/` (LATEST-only vs mirroring setup),
+  cross-repo tracking posture, and where release-state pins live
+  long-term.~~ RESOLVED: LATEST-only, enforced by the `documentedPins`
+  fixture + `check-pin-drift.sh` (cross-repo legs since 2026-09-28);
+  consumer claims guarded by `check-consumer-claims.sh` (2026-10-12).
 
 ## Ecosystem adoption (reverse direction)
 
