@@ -153,6 +153,22 @@ func TestHardenedDashboardBehindCSP(t *testing.T) {
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("/health/readyz = %d, want 200", resp.StatusCode)
 	}
+
+	// The preset's basePath parameter is a PREFIX: "/health" mounts the
+	// dashboard page itself at /health/health (and probes at /health/healthz,
+	// /health/readyz, as asserted above). The /health assertions earlier in
+	// this test exercise appkit's OWN default health handler (this test does
+	// not opt out via RegisterHealth), so the dashboard page under the preset
+	// needs its own request — pinned after the browser pass of 2026-10-13
+	// caught the health example serving its hardened dashboard at /health/health
+	// while logging /health.
+	dashCSP, dashBody := getWithHeaders(t, base+"/health/health")
+	if !strings.Contains(dashBody, "<html") {
+		t.Fatalf("preset dashboard page at /health/health is not HTML: %.80s", dashBody)
+	}
+	if dashCSP == "" {
+		t.Fatal("preset dashboard response carries no Content-Security-Policy header")
+	}
 }
 
 // hardenedCSP mints a per-request nonce, exposes it to the handlers through

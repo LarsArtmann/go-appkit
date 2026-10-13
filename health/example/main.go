@@ -82,9 +82,13 @@ func main() {
 	if *hardened {
 		// Bridge the security module's context-based nonce to the preset's
 		// request-based extractor contract (same one-liner as the integration
-		// module's hardened-dashboard test).
+		// module's hardened-dashboard test). Empty basePath: the preset's
+		// parameter is a PREFIX (WithBasePath("/ops") mounts everything under
+		// /ops/health, /ops/healthz, ...) — passing "/health" here would move
+		// the dashboard to /health/health. Empty keeps it at /health, and the
+		// trend/metrics options append on top instead of being replaced.
 		nonceFn := func(r *http.Request) string { return appkitsecurity.NonceFromContext(r.Context()) }
-		dashboardOpts = appkithealth.DashboardHardenedPreset("/health", nonceFn)
+		dashboardOpts = append(appkithealth.DashboardHardenedPreset("", nonceFn), dashboard.WithTrend(dashboardTrendCount), dashboard.WithMetrics(true))
 		cfg.OuterMiddlewares = []func(http.Handler) http.Handler{hardenedCSP}
 	}
 
