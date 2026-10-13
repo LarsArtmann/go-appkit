@@ -704,6 +704,16 @@ func (h *captureHandler) WithAttrs([]slog.Attr) slog.Handler { return h }
 
 func (h *captureHandler) WithGroup(string) slog.Handler { return h }
 
+// snapshot copies the captured records under the lock: the default logger is
+// process-global, so a parallel test's construction-time SCREAM log can land
+// in Handle while this test reads (caught by -count=10 -race, 2026-10-12).
+func (h *captureHandler) snapshot() []slog.Record {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	return slices.Clone(h.records)
+}
+
 // The Events gate is asymmetric by design: consuming an UNDECLARED type is a
 // hard error, while a DECLARED type nothing consumes is only an advisory on
 // the default logger (dead events are legitimate for audit-only journals).
@@ -732,7 +742,7 @@ func TestNewEventService_DomainCoeffectGate_UnconsumedEventIsAdvisory(t *testing
 
 	t.Cleanup(func() { _ = eventSvc.Shutdown(context.Background()) })
 
-	found := slices.ContainsFunc(captured.records, func(r slog.Record) bool {
+	found := slices.ContainsFunc(captured.snapshot(), func(r slog.Record) bool {
 		return r.Message == "system: unconsumed event type declared"
 	})
 	if !found {
