@@ -21,9 +21,7 @@ cd "$root"
 
 status=0
 while IFS= read -r gomod; do
-	dir="${gomod#./}"
-	dir="${dir%/go.mod}"
-	[[ -z "$dir" ]] && dir="."
+	dir="$(dirname "${gomod#./}")"
 	if out="$(cd "$dir" && golangci-lint config verify 2>&1)"; then
 		echo "OK:   ${dir} .golangci.yml verifies"
 	else
