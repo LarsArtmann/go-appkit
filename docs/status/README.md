@@ -9,6 +9,10 @@ line per report; verdicts are annotated inline in each file.
 `git mv`; the `doc/` singular directory keeps planning, feedback, recipes,
 research, and library analysis. New reports land HERE.
 
+Report format: `.md` at explicit user demand is the standing dispatch shape
+(the skill default is HTML; explicit instruction wins — multiple data points
+since 2026-10-07).
+
 ## Current (unarchived)
 
 Index rebuilt 2026-10-12 (docs-health pass — it had rotted to 6 of 27 rows;
@@ -42,6 +46,11 @@ episode-2 dedup report + SUPERB v5 plan).
 | `2026-10-10_10-21_i18n-resolution-and-httputil-docdebt-session-status.md`           | i18n RESOLVED (appkit module does NOT fire; appkit content lane parked) + httputil doc-debt session                                                                                        |
 | `2026-10-12_14-16_issue-25-26-testkit-drain-and-health-durations.md`                | Issues #25/#26 verified + fixed in tree (testkit.NewService; NewProbe→NewChecks), unreleased; release trains user-gated — harvested 2026-10-12                                             |
 | `2026-10-12_14-17_code-quality-scan-session-status.md`                              | Fleet 12-module quality scan: all green after fixes (charter leak #6, integration fixture + lint backlog, testkit flake cap 10s); HTML report in docs/reviews/ — harvested 2026-10-12      |
+| `2026-10-12_15-12_docs-health-full-pass-and-self-review.md`                         | Full docs-health pass: AGENTS slimmed 366→126 (detail → docs/agents/module-details.md), leaks attributed, drift fixed on sight                            |
+| `2026-10-12_15-53_buildflow-gate-triage-agents-slimdown.md`                        | BuildFlow gate triage (license-check green again, toolchain auto-derive) + the AGENTS slim-down session; §f harvested                                        |
+| `2026-10-12_17-27_fleet-issues-filed-buildflow-gau.md`                              | Fleet issue-filing session: BuildFlow #46–#49 + go-auto-upgrade #3 filed; §f harvested                                                                       |
+| `2026-10-12_18-16_SUPERB-v6-wave1-floor-train-releases-guards.md`                  | SUPERB v6 wave 1: floor → go 1.27.2, core v0.9.0 + health v0.2.0 trains, guard quartet hardening, consumer-claims posture ruled                              |
+| `2026-10-12_20-36_SUPERB-v6-mid-train-status-report.md`                             | SUPERB v6 mid-train pause: cqrs v0.8.0 + frh v0.1.7 released, T05 consumer-claims guard born red, T11–T17 done; honesty ledger §d                            |
 
 Execution plans are indexed beside the reports they execute. Active plans:
 `docs/planning/2026-10-07_10-11_SUPERB-pareto-execution-plan.md` (partially

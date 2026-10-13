@@ -97,8 +97,8 @@ first this time (10:21) — last session's misdating lesson held.
 ## e) WHAT WE SHOULD IMPROVE
 
 1. **Cross-session staleness check is now a hard pre-step** (see §d rule).
-2. **Annotate my own reports when their items resolve elsewhere** — I
-   applied docs-health annotation to two httputil reports and zero of mine.
+2. ~~**Annotate my own reports when their items resolve elsewhere** — I~~ done — this pass annotated both i18n reports (2026-10-12)
+   ~~applied docs-health annotation to two httputil reports and zero of mine.~~
 3. **Parallel-writer snapshot discipline worked and should stay** — the
    go-appkit side had three sessions touching my artifacts (03:00 sweep
    append, daemon, me); every edit verified `count == 1` before landing.
@@ -119,14 +119,14 @@ first this time (10:21) — last session's misdating lesson held.
    keep `domain.Locale` mapped at one edge; run `verify-gates.sh`.
 3. T70 trigger check (x/text Matcher swap — fires only on a third
    script-class locale).
-4. go-appkit: `./scripts/check-pin-drift.sh` after the tag (integration's
+4. go-appkit: `./scripts/check-pin-drift.sh` after the tag (integration's **→ gated on the v1.6.0 tag — TODO row 55**
    httputil leg sweeps to v1.6.0).
-5. go-appkit: decide + optionally build the `Language()`-through-appkit
+5. go-appkit: decide + optionally build the `Language()`-through-appkit **→ gated on the v1.6.0 tag — composition-gap watchlist row (TODO)**
    composition E2E leg (composition-gap watchlist).
 6. dnsblockd F96 i18n needs-check (15 min).
 7. docs-site lane: sell `Language()` + `LanguageSpecs()`.
 8. server_timing coordinated tag if versioned together.
-9. Post-tag: collapse ROADMAP §42 to point at CHANGELOG only; pkg.go.dev
+9. Post-tag: collapse ROADMAP §42 to point at CHANGELOG only; pkg.go.dev **→ gated on the v1.6.0 tag (TODO row 55)**
    render check of language.go's package comment.
 
 **Gate: owner rulings (2 answers, unblocks 10–12)**
@@ -160,28 +160,28 @@ entries.
 27. Nightly: corpus seeds review for the new target (6 curated entries).
 
 **go-appkit, no gate**
-28. Annotate the 01:43 status report (its f-items resolved fleet-side).
-29. AGENTS.md cross-repo i18n pointer — only with a removal (361/377 cap).
-30. Quarterly demand-gate re-check for the parked content lane
+28. ~~Annotate the 01:43 status report (its f-items resolved fleet-side).~~ done — annotated 2026-10-12 (this pass)
+29. ~~AGENTS.md cross-repo i18n pointer — only with a removal (361/377 cap).~~ **Won't implement — TODO row 55 is the tracker (2026-10-12 slim-down; AGENTS 126 lines).**
+30. Quarterly demand-gate re-check for the parked content lane **→ folded into the TODO i18n residue row (standing while P3)**
 (standing-ritual candidate).
-31. errorpages `Config.Locale` seam — fires with real demand (parked, keep
+31. errorpages `Config.Locale` seam — fires with real demand (parked, keep **→ parked pending real demand (TODO row 55)**
 parked).
-32. Confirm dprint/BuildFlow formatted the new planning docs without churn.
+32. ~~Confirm dprint/BuildFlow formatted the new planning docs without churn.~~ done — dprint 2026-10-12 recheck green
 
 **Process (cheap, this week)**
-33. Encode the §d staleness rule where future sessions trip over it
-(project AGENTS gotcha, cap tradeoff applies).
-34. Same for the annotator lesson: `--emit-keys` verbatim (theirs, but the
-class generalizes: never re-derive tool output from memory).
+33. ~~Encode the §d staleness rule where future sessions trip over it~~ **Won't implement — cross-repo process lesson — kept in this report §d rule; not AGENTS-encoded (cap discipline).**
+~~(project AGENTS gotcha, cap tradeoff applies).~~
+34. ~~Same for the annotator lesson: `--emit-keys` verbatim (theirs, but the~~ **Won't implement — their-repo lesson; the class generalizes but lives in the report.**
+~~class generalizes: never re-derive tool output from memory).~~
 35. Consider a fleet `docs/status/` cross-index or a session-start
 "sibling freshness" glance ritual.
 36. When the 04-07 report's three watchers fire or die, annotate them.
-37. Keep the two LSP-stale warnings on the known-noise list (CLI is
-authoritative).
-38. `docs/status/README.md`: record that `.md`-at-explicit-demand reports
-are the standing dispatch shape (two more data points today).
-39. `doc/planning/` index one-liner or explicit leave-as-is decision.
-40. Re-run the fleet sweep after T24 lands (does sperrmuell's adoption
+37. ~~Keep the two LSP-stale warnings on the known-noise list (CLI is~~ done — AGENTS Gotchas (LSP lint is NOT ground truth)
+~~authoritative).~~
+38. ~~`docs/status/README.md`: record that `.md`-at-explicit-demand reports~~ done — convention line added to docs/status/README.md (2026-10-12)
+~~are the standing dispatch shape (two more data points today).~~
+39. ~~`doc/planning/` index one-liner or explicit leave-as-is decision.~~ done — doc/planning/README.md exists
+40. Re-run the fleet sweep after T24 lands (does sperrmuell's adoption **→ gated on the T24 migration (TODO row 55)**
 change the appkit-lane N?).
 
 **Watchers (deliberately bare, no action)**
@@ -198,10 +198,10 @@ on failure (first red run is the test).
 repros.
 48. Consider `Vary` dedupe as an httpspec spec assertion upgrade (strict
 comma-joined form) only after the g2 ruling.
-49. Post-v1.6.0: fresh-consumer proxy check note for httputil consumers in
+49. Post-v1.6.0: fresh-consumer proxy check note for httputil consumers in **→ gated on the v1.6.0 tag (TODO row 55)**
 go-appkit's integration legs.
-50. Owner review + inline annotation of this report (docs-health
-convention).
+50. ~~Owner review + inline annotation of this report (docs-health~~ done — owner annotation pass 2026-10-12 (this pass)
+~~convention).~~
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
