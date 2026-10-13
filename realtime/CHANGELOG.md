@@ -1,10 +1,19 @@
+# Changelog
+
+## [Unreleased]
+
+### Changed
+
+- Test-only: adopted `samber/lo` (v1.53.0, direct require) at the
+  replay-dedup collect per fleet policy's required functional stack;
+  runtime code stays hand-rolled (dependency-lean boundary, 2026-10-12
+  standing decision).
+
 ## [0.1.3] - 2026-10-06
 
 ### Changed
 
 - Bumped indirect go-sse/sseparse v0.1.0 → v0.2.1 (2026-10-06 dependency sweep). Dependency-only.
-
-# Changelog
 
 ## [0.1.2] - 2026-09-29
 

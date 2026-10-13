@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Test-only: adopted `samber/lo` (v1.53.0, promoted from indirect to
+  direct require) at the plan-query-name and example-name collects per
+  fleet policy's required functional stack; runtime code stays
+  hand-rolled (dependency-lean boundary, 2026-10-12 standing decision).
+
 ## [0.8.0] - 2026-10-12
 
 ### Added
