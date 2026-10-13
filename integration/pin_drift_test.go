@@ -36,7 +36,7 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/security":             "v0.2.0",
 	"github.com/larsartmann/go-appkit/systemd":              "v0.1.0",
 
-	"github.com/larsartmann/cqrs-htmx/v4":   "v4.14.0",
+	"github.com/larsartmann/cqrs-htmx/v4":   "v4.14.1",
 	"github.com/larsartmann/go-sse":         "v0.6.2",
 	"github.com/larsartmann/go-sse/ssetest": "v0.5.0",
 	"github.com/larsartmann/httputil":       "v1.5.0",

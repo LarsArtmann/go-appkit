@@ -46,7 +46,7 @@ fail() {
 for guard in check-go-directives.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-consumer-claims.sh; do
 	echo "== $guard =="
 	if ! "./scripts/$guard"; then
-		fail "$guard failed — fix before pushing $tag"
+		fail "$guard failed — fix before pushing ${tags[*]}"
 	fi
 done
 
