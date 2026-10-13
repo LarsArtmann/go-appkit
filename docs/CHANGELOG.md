@@ -1,10 +1,20 @@
+# Changelog
+
+## [0.3.3] - 2026-10-13
+
+### Changed
+
+- Bumped `go-cqrs-lite/catalog/v4` v4.7.1 → v4.8.0 (upstream wave
+  pin-settle train; module diff is additive — new `SchemaDeclaration`
+  surface, no breaking changes). Dependency-only; hermetic battery
+  (build/vet/test -race/lint/govulncheck) green at the new pin.
+
 ## [0.3.2] - 2026-10-06
 
 ### Changed
 
 - Bumped templ-components family v1.19.4 → v1.20.1 (root/htmx/icons/utils — heals the v1.20.0 zero-pseudo go.mod) and catalog v4.6.1 → v4.7.1 (the templ-components v1.20.1 pin carrier; v4.6.1's generated code does not compile against v1.20.1). Dependency-only.
 
-# Changelog
 
 ## [0.3.1] - 2026-09-29
 

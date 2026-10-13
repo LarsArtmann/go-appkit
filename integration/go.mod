@@ -14,7 +14,7 @@ require (
 	github.com/larsartmann/go-appkit/realtime v0.1.3
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-appkit/systemd v0.1.0
-	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.7.1
+	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.8.0
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.13.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.8.0
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.14.0

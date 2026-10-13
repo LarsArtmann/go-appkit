@@ -6,6 +6,10 @@ surface. Package docs live in `doc.go`; the module CHANGELOG records the
 release history (including the v0.2.0 ghost-tag incident and the v0.3.0
 directory repath).
 
+End-to-end composition coverage for this module is mapped in the
+integration module (`../integration/README.md`); the docs seam itself is
+pinned end-to-end by `../integration/docs_composition_test.go`.
+
 ## Gotcha: spec titles come from `Config.ServiceName`
 
 The OpenAPI/AsyncAPI `info.title` that `docserver` emits reads

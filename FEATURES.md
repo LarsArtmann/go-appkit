@@ -239,15 +239,14 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
   bundle's domain chain. Verified equivalences live in their
   `setup/run_appkit_test.go` (SSE header flush through the full stack, drain
   readiness transitions, response parity, hardened adoption benchmark).
-- Consumed version: **`go-appkit v0.8.0`** — verified in the PUBLISHED `setup/v4.14.2` tag
-  (2026-10-12; `setup/go.mod:16`; guard-checked by `scripts/check-consumer-claims.sh`).
-  Their working tree already carries v0.9.0 (2026-10-12, untagged).
+- Consumed version: **`go-appkit v0.9.0`** — verified in the PUBLISHED `setup/v4.14.3` tag
+  (2026-10-13; `setup/go.mod`; guard-checked by `scripts/check-consumer-claims.sh`).
   **M4 is SHIPPED in that tag**:
   `Config.Metrics`/`Config.Version` thread into `appkit.ServiceConfig` on the
   `RunWithAppkit` path (`run_appkit.go:78-79`). Still theirs: the
   `Bundle.Run`/`Bundle.RunHandler` internals still serve via httputil
   (Metrics/Version are RunWithAppkit-only there), and the v5-window revisit
-  (ADR-0052). Their `go.work` go-etag stub-replace is GONE — setup/v4.14.2
+  (ADR-0052). Their `go.work` go-etag stub-replace is GONE — setup/v4.14.3
   carries the split go-etag/entitytag+server v0.6.1.
 - Consumer #2: **[PapDashboard](https://github.com/LarsArtmann/PapDashboard)
   `v0.3.0`** — published 2026-10-13; `go.mod` requires **`go-appkit v0.4.0`**
