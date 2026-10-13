@@ -72,11 +72,16 @@ more levels:
   frame-ancestors/connect-src violations. Two degradation classes surfaced,
   both the policy doing its job against dashboard markup that was not built
   for it: (1) Tailwind-CDN inline styles are blocked (`style-src 'self'`
-  carries no nonce/hash), (2) Datastar expression evaluation is blocked
-  (`unsafe-eval` is never an allowed source). Net: the dashboard is STATIC
-  under the strictest profile — live SSE updates need a strict-CSP dashboard
-  mode upstream (embedded styles + nonce'd `style-src` + eval-free
-  expressions; routed as a go-health-dashboard ask).
+  carries no nonce/hash) — RESOLVED in the example 2026-10-13 (SUPERB v7
+  T06): `dashboard.WithCSSPath("/health/app.css")` swaps the CDN
+  `<script>` for the example's embedded, self-served stylesheet, so the
+  origin is gone entirely and the CSS loads clean under the strict CSP
+  (headless-Chromium re-run: `<link>` present, zero console violations),
+  (2) Datastar expression evaluation is blocked (`unsafe-eval` is never
+  an allowed source). Net: the dashboard is STATIC under the strictest
+  profile — live SSE updates need a strict-CSP dashboard mode upstream
+  (embedded styles + nonce'd `style-src` + eval-free expressions; routed
+  as a go-health-dashboard ask).
 
 ## Known limits
 

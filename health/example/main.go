@@ -102,8 +102,8 @@ func main() {
 		// the dashboard to /health/health. Empty keeps it at /health, and the
 		// trend/metrics options append on top instead of being replaced.
 		nonceFn := func(r *http.Request) string { return appkitsecurity.NonceFromContext(r.Context()) }
-		preset := appkithealth.DashboardHardenedPreset("", nonceFn)
-		hardenedOpts := append(preset,
+		hardenedOpts := appkithealth.DashboardHardenedPreset("", nonceFn)
+		hardenedOpts = append(hardenedOpts,
 			dashboard.WithTrend(dashboardTrendCount),
 			dashboard.WithMetrics(true),
 			// Kills the Tailwind Play CDN origin: the dashboard renders
@@ -155,7 +155,7 @@ func main() {
 		// browser tests serve the same stand-in from their harness).
 		svc.Mux.HandleFunc("GET "+hardenedCSSPath, func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "text/css; charset=utf-8")
-			_, _ = w.Write(hardenedCSS) //nolint:errcheck // demo handler
+			_, _ = w.Write(hardenedCSS)
 		})
 	}
 
