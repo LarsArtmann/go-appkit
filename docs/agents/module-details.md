@@ -160,7 +160,7 @@ context, NOT user documentation — each module's user-facing docs live in its o
 - Span name carries the method prefix (`GET /users/{id}`); the `http.route` metric attribute does NOT (`/users/{id}`). Assert accordingly.
 - `tracetest.InMemoryExporter.Shutdown` RESETS its buffer — read spans after an explicit `ForceFlush`, BEFORE calling Shutdown.
 - Health endpoints (`/health`, `/health/live`, `/health/ready`) are unconditionally filtered from tracing and metrics.
-- `TraceHandler` correlates only handler-level logs; httputil's `Logging` middleware emits the request-completion line without request context, so that line stays uncorrelated (known limitation, documented in `doc.go`).
+- `TraceHandler` correlates only handler-level logs; httputil's `Logging` middleware emits the request-completion line without request context, so that line stays uncorrelated (known limitation, now documented in `doc.go` with the fix status: upstream `LoggingFromContext` exists on httputil master, UNRELEASED as of 2026-10-13 — v1.6.0 untagged; wiring through the context closes it when that ships).
 
 ## otel Module
 

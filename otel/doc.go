@@ -92,6 +92,13 @@
 // Handlers should log via logger.InfoContext(r.Context(), ...) — records
 // logged without a span in their context pass through unchanged.
 //
+// The one uncorrelated line: httputil's Logging middleware emits the
+// request-completion line without the request context, so that line
+// carries no trace_id/span_id. The upstream fix (LoggingFromContext)
+// exists on httputil master but is UNRELEASED as of 2026-10-13 (v1.6.0
+// untagged); wiring the completion line through the context and dropping
+// this note is the move when that tag ships.
+//
 // # Relationship to go-cqrs-lite's otel module
 //
 // Both modules expose a Setup with the same shape (WithService,
