@@ -101,20 +101,20 @@ All of these apply to many/all fleet projects, not just go-appkit. Per verify-be
 12. **Charter/directives guard for daemon commits** — post-buildflow step or watcher to close the pma bypass window.
 13. **Decide `.jscpd.json` ignore strategy**: path-scoped (current) vs format-scoped (drop json entirely, go-branded-id style).
 14. **Consider taming jscpd warning volume** (107 warnings, mostly test clones): minTokens/minLines tuning vs documenting the accepted class.
-15. **File exhaustruct_v5 schema issue at golangci-lint** (not BuildFlow).
+15. **File exhaustruct_v5 schema issue at golangci-lint** (not BuildFlow). **→ still gated — external repo (golangci-lint), needs its own verify pass**
 16. ~~**Verify who authored the dead exhaustruct blocks** (auto-configure vs hand) — determines BuildFlow issue #7.~~ done — resolved — dead blocks removed in-session; no BuildFlow issue needed
 17. **Quick fleet sweep for go-work-sync re-adds in sibling repos** (leak #8's mutator was fleet-wide tooling).
-18. **pma dossier follow-up**: `journalctl -t pma` around leak windows; per-repo cooldown for train repos (pre-existing).
-19. **Browser CSP pass** over the hardened health dashboard (pre-existing P2).
-20. **errorpages: swap hand-rolled `statusRecorder`** for httputil.ResponseRecorder (USER-gated, pre-existing).
-21. **go-health recorder-sentinel upstream ask** — filing USER-gated (pre-existing).
-22. **httputil `NewServerListener` ask** — unblocks Service composition + Core TLS (pre-existing, USER-gated).
-23. **fr cooldown-combinator ask** (pre-existing, USER-gated filing).
+18. ~~**pma dossier follow-up**: `journalctl -t pma` around leak windows; per-repo cooldown for train repos (pre-existing).~~ done — 2026-10-13 — journalctl ran; negative result (no file names); owner memo drafted
+19. ~~**Browser CSP pass** over the hardened health dashboard (pre-existing P2).~~ done — 2026-10-13 — browser pass; evidence in security/THREAT_MODEL.md
+20. ~~**errorpages: swap hand-rolled `statusRecorder`** for httputil.ResponseRecorder (USER-gated, pre-existing).~~ **NOT-DO — declined at source 2026-10-13 — decision record in the v0.1.2 CHANGELOG.**
+21. ~~**go-health recorder-sentinel upstream ask** — filing USER-gated (pre-existing).~~ done — FILED — go-health#7 (2026-10-13)
+22. ~~**httputil `NewServerListener` ask** — unblocks Service composition + Core TLS (pre-existing, USER-gated).~~ done — FILED — httputil#41 (2026-10-13)
+23. ~~**fr cooldown-combinator ask** (pre-existing, USER-gated filing).~~ done — FILED — go-flightrecorder#2 (2026-10-13)
 24. **GracefulClose + timer-stop upstream flip watch** (pre-existing; four-file tripwire enumerated). **→ TODO row — timers half closed at cqrs v0.8.0; GracefulClose watch open**
 25. ~~**fr v0.2.1 sweep** on the frh/cqrs trains (pre-existing).~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
 26. ~~**Example StartHooks migration** (trigger met 2026-10-07; pre-existing).~~ done — decc462
 27. ~~**health follow-through after the #25 train** (bench re-check, fuzz session, godoc note; pre-existing).~~ done — health v0.2.0 + fuzz/benchstat evidence in its CHANGELOG
-28. **pkg.go.dev flightrecorder 404** — >48h escalation rule met (pre-existing).
+28. ~~**pkg.go.dev flightrecorder 404** — >48h escalation rule met (pre-existing).~~ done — 2026-10-13 — index requests submitted; proxy resolves cleanly; cosmetic-only (godoc hidden by license choice)
 29. ~~**otel polish batch** (benchmarks, env-pin test, tail-sampling recipe; pre-existing P3).~~ done — 104f28c (TODO row struck)
 30. **Composition-gap E2E watchlist** (otel×realtime, security×errorpages, …; pre-existing).
 31. **Battery waves W3–W5** (canonical spec referenced, demand-gated; pre-existing).
@@ -123,10 +123,10 @@ All of these apply to many/all fleet projects, not just go-appkit. Per verify-be
 34. **i18n residue post-httputil v1.6.0** (pin-drift sweep + optional E2E leg; pre-existing).
 35. **BuildFlow dprint exit-14 on CHANGELOG-only commits** — upstream fix (pre-existing deferred register).
 36. **Lychee GITHUB_TOKEN-vs-exclude decision** (ties to BuildFlow issue #6).
-37. **BuildFlow skill references**: document `.jscpd.json` convention + gomod-check/go-work-sync charter caveat (skill-repo PR).
+37. ~~**BuildFlow skill references**: document `.jscpd.json` convention + gomod-check/go-work-sync charter caveat (skill-repo PR).~~ done — confirmed 2026-10-13 — the installed go-structure-linter binary carries the agents rule; AGENTS at 126/220
 38. **Link `docs/agents/module-details.md`** from the modules' READMEs (discoverability) or accept AGENTS-pointer-only.
 39. **Confirm the 220-line cap's source of truth** (BuildFlow preflight vs linter default) and note the fleet standard where repos can see it — the repo doc said 377 until today.
-40. **Daemon attribution test**: confirm whether gopls-class tools still mutate go.work now that go-work-sync is skipped (leaks #1–7's author is still unnamed).
+40. **Daemon attribution test**: confirm whether gopls-class tools still mutate go.work now that go-work-sync is skipped (leaks #1–7's author is still unnamed). **→ routed to the owner memo recommendation 4 (accept the cadence pending BuildFlow#46)**
 41. **Consider `golangci-lint config verify` as a CI job** (cheap; would have caught the exhaustruct class at authoring time).
 42. ~~**Re-check `run.build-tags` necessity** in root .golangci.yml (arenas/runtimesecret/simd — analysis-only tags with no build counterpart since the GOEXPERIMENT retirement).~~ done — retired tags gone from root .golangci.yml (1.27.2 sweep)
 43. **module-details.md decay watch**: the moved content is point-in-time verbatim — first module train should re-verify its section (pointer exists in AGENTS.md). **→ cqrs section re-verified at the v0.8.0 train; watch continues**

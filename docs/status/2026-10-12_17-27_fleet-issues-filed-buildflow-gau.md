@@ -68,21 +68,21 @@ Nothing. One process catch worth naming: my "dead code" claim nearly became a wr
 11. ~~Index both of today's reports in `docs/status/README.md`.~~ done — this pass (five rows 15-12 through 20-36)
 12. One `buildflow --verbose` run: name the 9 unavailable tools, audit the 67 not-applicable.
 13. ~~Enumerate the truncated `+2` cqrs-lint findings from a file, not a pipe.~~ done — cqrs-lint exits 0 at cqrs v0.8.0
-14. Charter/directives guard coverage for daemon (pma) commits.
-15. `journalctl -t pma` around leak windows; name the leaks #1–7 mutator.
+14. Charter/directives guard coverage for daemon (pma) commits. **→ routed to the owner memo recommendation 1 (keep bypass; CI-side net)**
+15. ~~`journalctl -t pma` around leak windows; name the leaks #1–7 mutator.~~ done — 2026-10-13 — journalctl negative result; memo drafted
 16. Fleet sweep: did go-work-sync re-adds hit sibling repos before #46?
 17. Decide `.jscpd.json` ignore strategy (path- vs format-scoped) independent of #48's outcome.
 18. Consider `golangci-lint config verify` as a CI job.
-19. Browser CSP pass over hardened health dashboard (pre-existing P2).
-20. errorpages `statusRecorder` → `httputil.ResponseRecorder` (USER-gated).
-21. go-health sentinel ask filing (USER-gated).
-22. `NewServerListener` ask (USER-gated).
-23. fr cooldown-combinator ask filing (USER-gated).
+19. ~~Browser CSP pass over hardened health dashboard (pre-existing P2).~~ done — 2026-10-13 — browser pass; evidence in security/THREAT_MODEL.md
+20. ~~errorpages `statusRecorder` → `httputil.ResponseRecorder` (USER-gated).~~ **NOT-DO — declined at source 2026-10-13 — decision record in the v0.1.2 CHANGELOG.**
+21. ~~go-health sentinel ask filing (USER-gated).~~ done — FILED — go-health#7 (2026-10-13)
+22. ~~`NewServerListener` ask (USER-gated).~~ done — FILED — httputil#41 (2026-10-13)
+23. ~~fr cooldown-combinator ask filing (USER-gated).~~ done — FILED — go-flightrecorder#2 (2026-10-13)
 24. GracefulClose + timers upstream flip watch. **→ TODO row — timers half closed at cqrs v0.8.0; GracefulClose watch open**
 25. ~~fr v0.2.1 sweep on next trains.~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
 26. ~~Example StartHooks migration (trigger met).~~ done — decc462
 27. ~~health follow-through after the #25 train.~~ done — health v0.2.0 + evidence in its CHANGELOG
-28. pkg.go.dev flightrecorder 404 escalation.
+28. ~~pkg.go.dev flightrecorder 404 escalation.~~ done — 2026-10-13 — index requests submitted; cosmetic-only
 29. ~~otel polish batch.~~ done — 104f28c (TODO row struck)
 30. Composition-gap E2E watchlist.
 31. Battery waves W3–W5 (demand-gated).
@@ -91,7 +91,7 @@ Nothing. One process catch worth naming: my "dead code" claim nearly became a wr
 34. i18n residue post-httputil v1.6.0.
 35. BuildFlow dprint exit-14 on CHANGELOG-only commits (upstream).
 36. module-details.md decay watch: re-verify a module's section on its next train. **→ cqrs section re-verified at the v0.8.0 train; watch continues**
-37. Confirm the 220-line cap's source of truth and document it where repos can see.
+37. ~~Confirm the 220-line cap's source of truth and document it where repos can see.~~ done — confirmed 2026-10-13 — linter binary agents rule; 126/220
 38. `docs/agents/` directory charter (agent-only, never user docs) before it grows.
 39. buildflow skill references: document `.jscpd.json` convention + the go-work-sync/charter caveat (PR to the skill repo).
 40. ~~Re-run `check-pin-drift.sh` post-trains (held cqrs-htmx leg flips with the 1.27.2 train).~~ done — 27 pin-drift legs green post-trains

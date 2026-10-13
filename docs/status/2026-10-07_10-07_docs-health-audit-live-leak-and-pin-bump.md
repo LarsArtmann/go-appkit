@@ -178,9 +178,9 @@
 20. **E2E gaps**: docs-module + flightrecorder-middleware composition legs **→ composition-gap watchlist (TODO_LIST)**
     through a live Service.
 21. **otel×realtime SSE-through-OuterMiddlewares E2E** (watchlist head). **→ composition-gap watchlist (TODO_LIST)**
-22. **Browser CSP pass** on the hardened health dashboard (strict-CSP + nonce).
-23. **errorpages `statusRecorder` → `httputil.ResponseRecorder`** (USER GATE,
-    ~10 lines).
+22. ~~**Browser CSP pass** on the hardened health dashboard (strict-CSP + nonce).~~ done — 2026-10-13 — headless Chromium pass over the hardened example; renders under strict CSP; evidence in security/THREAT_MODEL.md
+23. ~~**errorpages `statusRecorder` → `httputil.ResponseRecorder`** (USER GATE,~~ **NOT-DO — declined at source level 2026-10-13 — httputil recorder is pass-through; decision record in the v0.1.2 CHANGELOG.**
+    ~~~10 lines).~~
 24. ~~**Health/polish backlog batch** (hardened-dashboard assertions, testkit~~ done — shipped — core v0.7.0 polish + issues #25/#26 (2026-10-12)
     ~~drain-window helper, `seriesKey`, etc.).~~
 25. **BuildFlow dprint exit-14 upstream fix** (CHANGELOG-only commits). **→ standing — Deferred Register row (upstream BuildFlow fix)**

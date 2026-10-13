@@ -2,8 +2,9 @@
 
 **2026-10-13 · Executor: Crush (full-execution session) · Input:**
 [`docs/status/2026-10-07_11-00_pma-daemon-root-cause-and-dossier.md`](../status/2026-10-07_11-00_pma-daemon-root-cause-and-dossier.md) §6
-+ one new day of live evidence (2026-10-12/13: three attribution-erasing
-interleaves, one commit-failed race, one pma restart).
+
+- one new day of live evidence (2026-10-12/13: three attribution-erasing
+  interleaves, one commit-failed race, one pma restart).
 
 ---
 
@@ -29,12 +30,12 @@ interleaves, one commit-failed race, one pma restart).
 
 ## The four decisions (dossier §6), with recommendations
 
-| # | Decision | Recommendation | Why |
-| - | -------- | -------------- | --- |
-| 1 | Hook bypass: keep `core.hooksPath=/var/empty` (hermetic committer) vs opt-in per-repo hooks mode | **Keep bypass; do NOT enable hooks for pma.** | pma commits intermediates that the offline guards (directive drift, pin parity) would reject — a hooked daemon fails to commit at all (worse than lost attribution: lost work-in-progress batches, the 12:51 ERROR class). CI-side guards already catch every leak class within one push; keep the net there. |
-| 2 | Per-repo exclude/cooldown for train repos like go-appkit | **YES — cooldown, not exclude.** | Trains (tag, gate, push, same-train docs) are exactly when interleaving costs most: staged batches get bundled, tag-vs-tree ordering can race. A per-repo cooldown (e.g. 10 min quiet-window, or skip-while-clean-tree-locked marker file) preserves the safety net for ordinary sessions. Full exclude loses the net for the 95% case. |
-| 3 | Attribution: respect staged messages / skip repos with staged changes | **Respect staged messages (minimum), prefer skip-when-staged.** | Today's race-fix is the worst case: a verified, evidence-carrying commit message existed and was replaced by a heuristic one. Minimum: if a batch is STAGED (index non-empty), commit it AS-IS (no message rewrite). Skip-when-staged also kills the batch-eating class (4 staged batches raced on 2026-10-12 alone). |
-| 4 | go.work mutator hunt | **Accept the cadence; inotify hunt only if leaks recur post-#46.** | The journal path is dead (evidence 1). BuildFlow#46 closes the go-work-sync mutator (leak #8 class); if gopls-class leaks still recur after it lands, a time-boxed inotify audit is justified — not before. |
+| # | Decision                                                                                         | Recommendation                                                     | Why                                                                                                                                                                                                                                                                                                                                     |
+| - | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | Hook bypass: keep `core.hooksPath=/var/empty` (hermetic committer) vs opt-in per-repo hooks mode | **Keep bypass; do NOT enable hooks for pma.**                      | pma commits intermediates that the offline guards (directive drift, pin parity) would reject — a hooked daemon fails to commit at all (worse than lost attribution: lost work-in-progress batches, the 12:51 ERROR class). CI-side guards already catch every leak class within one push; keep the net there.                           |
+| 2 | Per-repo exclude/cooldown for train repos like go-appkit                                         | **YES — cooldown, not exclude.**                                   | Trains (tag, gate, push, same-train docs) are exactly when interleaving costs most: staged batches get bundled, tag-vs-tree ordering can race. A per-repo cooldown (e.g. 10 min quiet-window, or skip-while-clean-tree-locked marker file) preserves the safety net for ordinary sessions. Full exclude loses the net for the 95% case. |
+| 3 | Attribution: respect staged messages / skip repos with staged changes                            | **Respect staged messages (minimum), prefer skip-when-staged.**    | Today's race-fix is the worst case: a verified, evidence-carrying commit message existed and was replaced by a heuristic one. Minimum: if a batch is STAGED (index non-empty), commit it AS-IS (no message rewrite). Skip-when-staged also kills the batch-eating class (4 staged batches raced on 2026-10-12 alone).                   |
+| 4 | go.work mutator hunt                                                                             | **Accept the cadence; inotify hunt only if leaks recur post-#46.** | The journal path is dead (evidence 1). BuildFlow#46 closes the go-work-sync mutator (leak #8 class); if gopls-class leaks still recur after it lands, a time-boxed inotify audit is justified — not before.                                                                                                                             |
 
 Also carried from the fleet session (17-27 §g3): daemon-committed guard
 coverage is CI-only today — consistent with recommendation 1; the
