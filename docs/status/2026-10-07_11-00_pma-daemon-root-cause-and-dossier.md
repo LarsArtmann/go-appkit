@@ -103,9 +103,9 @@ and overwrites intended commit messages.
 3. **Attribution:** the AI/fallback messages overwrite intent. An opt-in
    "respect staged message" or "skip repos with staged changes" mode would
    have prevented damage mode 4 entirely.
-4. **go.work mutator:** the leak AUTHOR is still unknown (editor/gopls-class
-   tool). `journalctl -t pma` around 09:53 / 10:12 will show pma's file-change
-   event stream and may name the process that touched go.work first.
+4. ~~**go.work mutator:** the leak AUTHOR is still unknown (editor/gopls-class~~ done — journalctl ran 2026-10-13 — pma logs NO file names (0 go.work mentions in 28.5k lines); the mutator stays unnamed, cadence accepted pending BuildFlow #46
+   ~~tool). `journalctl -t pma` around 09:53 / 10:12 will show pma's file-change~~
+   ~~event stream and may name the process that touched go.work first.~~
 
 ## 7) Follow-ups wired today (context for the decisions above)
 
