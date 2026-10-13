@@ -241,6 +241,50 @@ executes only on its triggers.
 
 ---
 
+## 6) Execution notes (verdicts, dated)
+
+**2026-10-13 — T01 done** (§7 addendum in
+`doc/planning/2026-09-04_papdashboard-integration.md`): usage surface
+exhaustive (core only, 8 ServiceConfig fields + 2 sentinels + Mux/Run),
+drift v0.4.0→v0.9.0 additions-only (go floor 1.27.2 the only refresh
+constraint), security-module adoption signal recorded, guard leg DECIDED
+for T07 (v0.3.0 is proxy-visible).
+
+**2026-10-13 — T02 done, T03 NO-OP (evidence).** go-auto-upgrade
+`stdlib2lo` dry-run across all 12 modules → **13 deduplicated findings,
+all `suggest-lo-*` (zero auto-rewritable — the migrator cannot prove any
+rewrite safe here; application is hand-written per site)**. The ROOT
+module has zero findings (the `./...` output seen from the repo root
+belongs to satellite modules) — T03's "root+example batch" therefore has
+nothing to apply; recorded rather than force.
+
+**Boundary map (the T02 deliverable; ground rule 6 governs):**
+
+| Site                                     | Kind        | Verdict            | Reason                                                                                    |
+| ---------------------------------------- | ----------- | ------------------ | ----------------------------------------------------------------------------------------- |
+| cqrs/domain_test.go:477 (Map)            | test        | **ADOPT**          | plain collect → lo.Map                                                                     |
+| cqrs/readme_sync_test.go:73 (SliceToMap) | test        | **ADOPT**          | regex-match set build → lo.SliceToMap (first loop only; second carries assertion logic)   |
+| otel/metrics_test.go:48 (Map)            | test        | **ADOPT**          | metricNames collect → lo.Map                                                               |
+| realtime/realtime_test.go:693 (Map)      | test        | **ADOPT**          | ids collect → lo.Map                                                                       |
+| integration/otel_pattern_test.go:231     | test        | **ADOPT**          | attr-set build → lo.SliceToMap (lo already in integration's go.sum via cqrs-htmx)         |
+| cqrs/domain_test.go:86 (Reduce)          | test        | keep (false pos.) | `slices.Backward` fold — lo.Reduce iterates forward only; hand-rolled is correct           |
+| cqrs/domain.go:96,101                    | runtime     | keep               | test-only boundary (USER gate to override)                                                |
+| frh/adapter.go:75 (FromPtr)              | runtime     | keep               | same; migrator itself says "rewrite not proven safe"                                      |
+| health/probe.go:60 (SliceToMap)          | runtime     | keep               | same                                                                                       |
+| realtime/handler.go:273 (Filter)         | runtime     | keep               | same                                                                                       |
+| security/csrf.go:27 (Filter)             | runtime     | keep               | same                                                                                       |
+| security/origin_check.go:39 (SliceToMap) | runtime     | keep               | same                                                                                       |
+
+Dep impact: samber/lo is the fleet-REQUIRED functional stack
+(required-libraries.md: lo + mo). It already rides cqrs's and
+integration's go.sum transitively (go-cqrs-lite family); otel + realtime
+gain the module as a test-only direct require (lo is a zero-runtime-dep
+library). Release-train decision (04.5): dependency-only patches ride
+NATURAL trains (no sweep wave forced for test-only polish) — recorded in
+the TODO header.
+
+---
+
 _Point-in-time plan. Living truth: `TODO_LIST.md` (open items) +
 `AGENTS.md` (release state). When tasks complete, annotate THIS file's
 tables with verdicts per docs-health ANNOTATE; never rewrite history._
