@@ -1,0 +1,47 @@
+/*
+ Minimal baseline stylesheet for the -hardened dashboard demo.
+
+ WithCSSPath swaps the Tailwind Play CDN <script> for this self-served
+ <link>, so the strict CSP (style-src 'self') carries the whole page and
+ no third-party origin is contacted. This stand-in covers the readable
+ dark baseline only — a real deployment compiles Tailwind scoped to the
+ dashboard templates (e.g. `npx tailwindcss -i input.css -o app.css`) and
+ embeds the result exactly like this file. Upstream's own browser tests
+ use the same stand-in approach.
+*/
+:root {
+	color-scheme: dark;
+}
+
+html {
+	background: #0a0c10;
+	color: #e5e7eb;
+	font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+body {
+	margin: 0 auto;
+	max-width: 64rem;
+	padding: 1rem 1.5rem 3rem;
+	line-height: 1.5;
+}
+
+a {
+	color: #00e5ff;
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+th,
+td {
+	border: 1px solid #263041;
+	padding: 0.35rem 0.6rem;
+	text-align: left;
+}
+
+th {
+	background: #131722;
+}

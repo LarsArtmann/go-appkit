@@ -16,13 +16,19 @@
 // DashboardHardenedPreset (base path + per-request nonce extraction) behind
 // a strict-CSP middleware built with the security module's BuildCSP — the
 // middleware a real operator runs OUTSIDE the health module, in front of
-// the mux. Verify the header with:
+// the mux. WithCSSPath swaps the Tailwind Play CDN <script> for the
+// embedded, self-served /health/app.css, so the strict style-src 'self'
+// carries the whole page and no third-party origin is contacted (the
+// embedded file is a readable baseline — real deployments compile Tailwind
+// scoped to the dashboard templates and embed that instead). Verify the
+// header with:
 //
 //	curl -si localhost:8081/health | grep -i content-security-policy
 package main
 
 import (
 	"context"
+	_ "embed"
 	"flag"
 	"fmt"
 	"log"
@@ -43,7 +49,15 @@ const (
 	flapWindowSeconds   = 3
 	flapPeriodSeconds   = 15
 	dashboardTrendCount = 300
+	hardenedCSSPath     = "/health/app.css"
 )
+
+// hardenedCSS is the self-served stylesheet WithCSSPath points at in
+// -hardened mode: a minimal readable baseline (see the file header for the
+// compile-real-Tailwind note).
+//
+//go:embed app.css
+var hardenedCSS []byte
 
 func main() {
 	hardened := flag.Bool("hardened", false,
@@ -91,7 +105,11 @@ func main() {
 		preset := appkithealth.DashboardHardenedPreset("", nonceFn)
 		hardenedOpts := append(preset,
 			dashboard.WithTrend(dashboardTrendCount),
-			dashboard.WithMetrics(true))
+			dashboard.WithMetrics(true),
+			// Kills the Tailwind Play CDN origin: the dashboard renders
+			// <link href=/health/app.css> instead of the CDN <script>, and
+			// style-src 'self' in the strict CSP admits exactly that.
+			dashboard.WithCSSPath(hardenedCSSPath))
 		dashboardOpts = hardenedOpts
 		cfg.OuterMiddlewares = []func(http.Handler) http.Handler{hardenedCSP}
 	}
@@ -130,6 +148,16 @@ func main() {
 	svc.Mux.HandleFunc("GET /health/ready", appkit.ReadyHandlerWithProbe(mounted.Ready))
 
 	mounted.RegisterRoutes(svc.Mux)
+
+	if *hardened {
+		// The stylesheet half of the WithCSSPath swap: the dashboard renders
+		// the <link>, the host application serves the bytes (upstream's own
+		// browser tests serve the same stand-in from their harness).
+		svc.Mux.HandleFunc("GET "+hardenedCSSPath, func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+			_, _ = w.Write(hardenedCSS) //nolint:errcheck // demo handler
+		})
+	}
 
 	ctx := context.Background()
 
