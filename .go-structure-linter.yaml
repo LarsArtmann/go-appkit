@@ -1,4 +1,9 @@
 # The root package IS the public `appkit` package (AGENTS.md "Structure
 # linting"): these three layout rules reject a deliberately-flat library.
 # Verified 2026-09-29: bare run 11 findings -> 0 with these excludes.
-exclude_patterns: [root-package-files, internal-directory, examples-directory]
+# assets-directory excluded 2026-10-13 (SUPERB v7 T06): the rule flags ANY
+# .css/.js anywhere and wants them at the REPO ROOT — architecturally wrong
+# for go:embed-based example assets, which MUST sit beside their package
+# (health/example/assets/app.css is embedded by health/example/main.go via
+# //go:embed; a root assets/ dir is unreachable from embed directives).
+exclude_patterns: [root-package-files, internal-directory, examples-directory, assets-directory]

@@ -56,7 +56,7 @@ const (
 // -hardened mode: a minimal readable baseline (see the file header for the
 // compile-real-Tailwind note).
 //
-//go:embed app.css
+//go:embed assets/app.css
 var hardenedCSS []byte
 
 func main() {
