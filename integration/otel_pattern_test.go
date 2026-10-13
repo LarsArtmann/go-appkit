@@ -12,14 +12,13 @@ import (
 	appkit "github.com/larsartmann/go-appkit"
 	appkitotel "github.com/larsartmann/go-appkit/otel"
 	"github.com/larsartmann/httputil"
+	"github.com/samber/lo"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
-
-	"github.com/samber/lo"
 )
 
 // TestSpanNameAndRouteThroughAppkitOuterMiddlewares pins the documented
@@ -152,7 +151,7 @@ func TestRecoveryExceptionEventThroughAppkitChain(t *testing.T) {
 		appkitotel.Middleware(appkitotel.WithTracerProvider(tp)),
 	}
 	cfg.ExtraMiddlewares = []httputil.Middleware{
-		appkitotel.Recovery(slog.New(slog.NewTextHandler(io.Discard, nil))),
+		appkitotel.Recovery(slog.New(slog.DiscardHandler)),
 	}
 
 	svc, err := appkit.NewService(cfg)
@@ -230,7 +229,7 @@ func TestRecoveryExceptionEventThroughAppkitChain(t *testing.T) {
 	}
 
 	attrs := lo.SliceToMap(events[0].Attributes, func(kv attribute.KeyValue) (string, string) {
-		return string(kv.Key), kv.Value.Emit()
+		return string(kv.Key), kv.Value.String()
 	})
 	if !strings.Contains(attrs["exception.message"], "integration boom") {
 		t.Errorf("exception.message = %q, want it to contain the panic value", attrs["exception.message"])
