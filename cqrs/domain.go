@@ -91,15 +91,7 @@ func mergeDomain(
 
 // concatCommandMiddleware concatenates middleware groups into a fresh slice,
 // so no caller-owned backing array is ever written through (mirrors the core
-// module's concatMiddlewares invariant).
+// module's concatMiddlewares invariant; lo.Flatten allocates a fresh slice).
 func concatCommandMiddleware(groups ...[]command.Middleware) []command.Middleware {
-	var total int
-	for _, group := range groups {
-		total += len(group)
-	}
-
-	merged := make([]command.Middleware, 0, total)
-	merged = lo.Flatten(groups)
-
-	return merged
+	return lo.Flatten(groups)
 }
