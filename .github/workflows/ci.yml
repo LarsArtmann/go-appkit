@@ -27,10 +27,15 @@ env:
   GOPRIVATE: "github.com/larsartmann/*,github.com/LarsArtmann/*"
 
 jobs:
-  # Single loud failure when the private-repo secret is missing, instead of
-  # twelve identical ssh-agent errors across the matrix. This class of blind
-  # spot ran red-and-unnoticed for 6 days (2026-10-01..07): every guard and
-  # proxy-smoke job was green while the actual test matrix was dead.
+  # Single loud failure when the private-repo secret is missing. Since the
+  # 2026-10-14 split nothing NEEDS this job for coverage: every go-appkit
+  # dependency is a public repo, so the test matrix runs unauthenticated over
+  # HTTPS and the matrix can no longer go dark on a missing secret (that
+  # class of blind spot ran red-and-unnoticed for 6 days, 2026-10-01..07:
+  # every guard and proxy-smoke job was green while the matrix was dead).
+  # The secret now gates only the PRIVATE go-structure-linter binary (the
+  # structure-linter job rides this job) and the optional SSH fallback steps
+  # in the test matrix.
   ci-preflight:
     runs-on: ubuntu-latest
     steps:
@@ -40,7 +45,7 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           if [[ -z "$SSH_KEY" ]]; then
-            echo "::error::SSH_PRIVATE_KEY resolves empty - restore the repo secret (Settings -> Secrets -> Actions). The test matrix is skipped until then; guard jobs and proxy-smoke still run independently."
+            echo "::error::SSH_PRIVATE_KEY resolves empty - restore the repo secret (Settings -> Secrets -> Actions). The test matrix runs unauthenticated (all deps public); only the structure-linter job (private binary) and the SSH fallback steps wait on this secret."
             exit 1
           fi
 
@@ -48,9 +53,16 @@ jobs:
   # commands in AGENTS.md ("Sub-module Build Commands"). The root core module
   # has no go.work-safe standalone build issue; each module builds standalone
   # so published-tag drift is caught before tagging.
+  #
+  # Runs UNAUTHENTICATED: every larsartmann/* dependency is a public repo
+  # (proven on every push by proxy-smoke resolving the same trees over
+  # anonymous HTTPS), so a missing SSH secret can no longer dark-skip the
+  # matrix. The SSH steps below are an optional fallback: they activate only
+  # when the secret exists, so a future private dependency keeps working.
   test:
-    needs: ci-preflight
     runs-on: ubuntu-latest
+    env:
+      SSH_KEY_PRESENT: ${{ secrets.SSH_PRIVATE_KEY != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -71,10 +83,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Configure Git for private repos
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.SSH_KEY_PRESENT == 'true'
         run: git config --global url."ssh://git@github.com/LarsArtmann/".insteadOf "https://github.com/LarsArtmann/"
       - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.SSH_KEY_PRESENT == 'true'
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -232,9 +244,11 @@ jobs:
   # stay green while the 11 deliberate-layout findings return. The guard
   # script fails on any findings total > 0 or a missing config file.
   structure-linter:
-    # The linter binary is GOPRIVATE (github.com/LarsArtmann/*): installing it
-    # needs the SSH key, so this job rides ci-preflight like the test matrix —
-    # skipped (not broken) until the secret is restored.
+    # The linter binary is PRIVATE (github.com/LarsArtmann/go-structure-linter
+    # is the one family repo not public), so installing it needs the SSH key:
+    # this job alone still rides ci-preflight — skipped (not broken, and not
+    # vacuously green) until the secret is restored. The equivalent check runs
+    # locally via scripts/check-structure-linter.sh on every session.
     needs: ci-preflight
     runs-on: ubuntu-latest
     steps:
