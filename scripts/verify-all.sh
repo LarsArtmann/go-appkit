@@ -22,22 +22,22 @@ SKIP_TESTS=false
 SKIP_LINT=false
 MODULES=()
 for arg in "$@"; do
-  case "$arg" in
-    --skip-tests) SKIP_TESTS=true ;;
-    --skip-lint) SKIP_LINT=true ;;
-    *) MODULES+=("$arg") ;;
-  esac
+	case "$arg" in
+	--skip-tests) SKIP_TESTS=true ;;
+	--skip-lint) SKIP_LINT=true ;;
+	*) MODULES+=("$arg") ;;
+	esac
 done
 
 if [[ ${#MODULES[@]} -eq 0 ]]; then
-  MODULES=(".")
-  for d in */go.mod; do MODULES+=("${d%/go.mod}"); done
+	MODULES=(".")
+	for d in */go.mod; do MODULES+=("${d%/go.mod}"); done
 fi
 
 GO_DIRECTIVE=$(awk '/^go /{print $2; exit}' go.mod)
 if [[ -z "$GO_DIRECTIVE" ]]; then
-  echo "FATAL: could not read the go directive from go.mod" >&2
-  exit 2
+	echo "FATAL: could not read the go directive from go.mod" >&2
+	exit 2
 fi
 export GOTOOLCHAIN="go$GO_DIRECTIVE"
 export GOWORK=off
@@ -50,49 +50,49 @@ STARTED=$SECONDS
 echo "verify-all: modules=${MODULES[*]}"
 echo "verify-all: GOTOOLCHAIN=$GOTOOLCHAIN logs=$LOG_DIR"
 verdict() {
-  local name="$1" code="$2" log="$3"
-  if [[ $code -eq 0 ]]; then
-    echo "PASS  $name  EXIT=0  ($(wc -l <"$log") lines)"
-  else
-    echo "FAIL  $name  EXIT=$code  log=$log"
-    tail -30 "$log"
-    FAILED+=("$name")
-  fi
+	local name="$1" code="$2" log="$3"
+	if [[ $code -eq 0 ]]; then
+		echo "PASS  $name  EXIT=0  ($(wc -l <"$log") lines)"
+	else
+		echo "FAIL  $name  EXIT=$code  log=$log"
+		tail -30 "$log"
+		FAILED+=("$name")
+	fi
 }
 
 if [[ $SKIP_TESTS == false ]]; then
-  for mod in "${MODULES[@]}"; do
-    log="$LOG_DIR/$(echo "$mod" | tr '/' '_')_test.log"
-    echo "--- test $mod ---"
-    if (cd "$mod" && go build ./... && go vet ./... && go test ./... -race -count=1) >"$log" 2>&1; then
-      verdict "$mod test" 0 "$log"
-    else
-      verdict "$mod test" $? "$log"
-    fi
-  done
+	for mod in "${MODULES[@]}"; do
+		log="$LOG_DIR/$(echo "$mod" | tr '/' '_')_test.log"
+		echo "--- test $mod ---"
+		if (cd "$mod" && go build ./... && go vet ./... && go test ./... -race -count=1) >"$log" 2>&1; then
+			verdict "$mod test" 0 "$log"
+		else
+			verdict "$mod test" $? "$log"
+		fi
+	done
 fi
 
 if [[ $SKIP_LINT == false ]]; then
-  if ! command -v golangci-lint >/dev/null 2>&1; then
-    echo "FAIL  golangci-lint not on PATH - install it or pass --skip-lint" >&2
-    exit 2
-  fi
-  for mod in "${MODULES[@]}"; do
-    log="$LOG_DIR/$(echo "$mod" | tr '/' '_')_lint.log"
-    echo "--- lint $mod ---"
-    if [[ "$mod" == "integration" ]]; then
-      (cd "$mod" && GOWORK=off golangci-lint run ./...) >"$log" 2>&1
-    else
-      (cd "$mod" && golangci-lint run ./...) >"$log" 2>&1
-    fi
-    verdict "$mod lint" $? "$log"
-  done
+	if ! command -v golangci-lint >/dev/null 2>&1; then
+		echo "FAIL  golangci-lint not on PATH - install it or pass --skip-lint" >&2
+		exit 2
+	fi
+	for mod in "${MODULES[@]}"; do
+		log="$LOG_DIR/$(echo "$mod" | tr '/' '_')_lint.log"
+		echo "--- lint $mod ---"
+		if [[ "$mod" == "integration" ]]; then
+			(cd "$mod" && GOWORK=off golangci-lint run ./...) >"$log" 2>&1
+		else
+			(cd "$mod" && golangci-lint run ./...) >"$log" 2>&1
+		fi
+		verdict "$mod lint" $? "$log"
+	done
 fi
 
 ELAPSED=$((SECONDS - STARTED))
 echo "verify-all: ${ELAPSED}s elapsed, logs in $LOG_DIR"
 if [[ ${#FAILED[@]} -gt 0 ]]; then
-  echo "verify-all: FAILED modules: ${FAILED[*]}"
-  exit 1
+	echo "verify-all: FAILED modules: ${FAILED[*]}"
+	exit 1
 fi
 echo "verify-all: ALL GREEN"
