@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	github.com/larsartmann/go-sse v0.6.2
-	github.com/larsartmann/go-sse/ssetest v0.4.0
+	github.com/larsartmann/go-sse/ssetest v0.5.0
 	github.com/samber/lo v1.53.0
 )
 
