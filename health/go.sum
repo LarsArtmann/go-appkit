@@ -60,10 +60,10 @@ github.com/larsartmann/go-etag/entitytag v0.6.1 h1:tBr+hR4dqks75SY+pqmUNHUajzOG6
 github.com/larsartmann/go-etag/entitytag v0.6.1/go.mod h1:e09zrSYF6RS8c0IzxZnI1HZQw15gIgwlyp3zerGv+bI=
 github.com/larsartmann/go-etag/server v0.6.1 h1:JVguufBCoLSj83bHM1FqgfSEYc2x1E31kL/Gt1pESHY=
 github.com/larsartmann/go-etag/server v0.6.1/go.mod h1:o3VNBhO58/5rIm0qaU3jLsgRPyjTcaMBtfbHm0lphJk=
-github.com/larsartmann/go-health v0.5.1 h1:5ApwBcpcFQSNu1U/1n1pj6GI9I1I+DC3ogwAQ4zXEXM=
-github.com/larsartmann/go-health v0.5.1/go.mod h1:r0Lh5t786Za1uh/7XqdDIZH+b3GiJU4c9e5SVfxUYAo=
-github.com/larsartmann/go-health-dashboard v0.10.2 h1:Q83IYHXZlrQINrc07NXi00Xwtr4ePp/rykqHOxQgMU8=
-github.com/larsartmann/go-health-dashboard v0.10.2/go.mod h1:kpPQ6IaQMM18tvOFDvAsdG07aY0QJKEXEG6swuWucug=
+github.com/larsartmann/go-health v0.7.0 h1:PVljP6xo7iLFY+uDpXijpaj12vHL9aLLuwf96cOSh/U=
+github.com/larsartmann/go-health v0.7.0/go.mod h1:r0Lh5t786Za1uh/7XqdDIZH+b3GiJU4c9e5SVfxUYAo=
+github.com/larsartmann/go-health-dashboard v0.11.0 h1:yJ69eBs7fkkP9hFSW4WmyM+MkJUpIk+XxJoFd/W7dwE=
+github.com/larsartmann/go-health-dashboard v0.11.0/go.mod h1:8DSeh8+R9kcZURWu+VSdLlExpIouk00C7Us4OmLUCbQ=
 github.com/larsartmann/go-sse v0.6.2 h1:a1f/EnjhWlsNnxo0U1DygpYMy2XbUfyGBuKMWhwQg0U=
 github.com/larsartmann/go-sse v0.6.2/go.mod h1:PVVDLkzjkTR2MvqcqL3/XmWY8cdSUpEe8YWaouHVVz4=
 github.com/larsartmann/go-sse/sseparse v0.1.0 h1:GwMNf9cKhO1ST77LR3CYYrLluNRuiEwhqm7x3HVIf20=
