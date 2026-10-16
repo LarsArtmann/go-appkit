@@ -66,73 +66,73 @@ Owner decisions executed from the 17-49 report: (f2) push — found ALREADY sati
 
 **Tier 1 — signal integrity (small, high impact)**
 
-| # | Task | Impact | Effort | Source |
-|---|------|--------|--------|--------|
-| f1 | Owner: restore `SSH_PRIVATE_KEY` secret — acceptance: `structure-linter` job RUNS (not skipped) and green | Critical | S (owner) | CARRY P1 |
-| f2 | `[NEW]` Build `verify-all.sh --fresh-cache`: isolated GOMODCACHE + `GOPRIVATE=` + proxy replication of CI's go.sum verification (would have caught the incident pre-push) | High | S | NEW |
-| f3 | `[NEW]` CI: go.sum-canonical guard job (or fold into an existing guard job) so the class never depends on matrix luck again | High | S | NEW |
-| f4 | `[NEW]` Owner ruling: force-moved tags — ban post-push re-tags (release `.1` instead) or codify the re-tag ritual (purge `cache/vcs` fleet-wide + re-record go.sums + CHANGELOG note) | High | S (owner) | NEW |
-| f5 | `[NEW]` Owner ruling: narrow/drop fleet GOPRIVATE now that every dep is public — sumdb verification everywhere makes canonical go.sums structural | High | S (owner) | NEW |
-| f6 | `[NEW]` Sweep this box's remaining `cache/vcs` entries against origin tags (cqrs-htmx, go-sse, …) — other silently-stale clones from the same force-move class | Medium | S | NEW |
-| f7 | `[CARRY]` Quiet-gate helper (CPU-pinned/taskset protocol) + quiet-window re-run of the sweep and cqrs `-count=10` | Medium | S | 17-49 f4 |
-| f8 | `[CARRY]` SSE-protocol guard for test-file broadcasts (SubscriberCount sync check) | Medium | S–M | 17-49 f7 |
-| f9 | `[CARRY]` `docs/agents/` directory charter before the directory grows a second file | Low | S | carried |
-| f10 | `[CARRY]` Fresh `art-dupl -t 1` over lo-adoption + SSE-test churn | Low | S | 17-49 f10 |
+| #   | Task                                                                                                                                                                                  | Impact   | Effort    | Source    |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------- | --------- |
+| f1  | Owner: restore `SSH_PRIVATE_KEY` secret — acceptance: `structure-linter` job RUNS (not skipped) and green                                                                             | Critical | S (owner) | CARRY P1  |
+| f2  | `[NEW]` Build `verify-all.sh --fresh-cache`: isolated GOMODCACHE + `GOPRIVATE=` + proxy replication of CI's go.sum verification (would have caught the incident pre-push)             | High     | S         | NEW       |
+| f3  | `[NEW]` CI: go.sum-canonical guard job (or fold into an existing guard job) so the class never depends on matrix luck again                                                           | High     | S         | NEW       |
+| f4  | `[NEW]` Owner ruling: force-moved tags — ban post-push re-tags (release `.1` instead) or codify the re-tag ritual (purge `cache/vcs` fleet-wide + re-record go.sums + CHANGELOG note) | High     | S (owner) | NEW       |
+| f5  | `[NEW]` Owner ruling: narrow/drop fleet GOPRIVATE now that every dep is public — sumdb verification everywhere makes canonical go.sums structural                                     | High     | S (owner) | NEW       |
+| f6  | `[NEW]` Sweep this box's remaining `cache/vcs` entries against origin tags (cqrs-htmx, go-sse, …) — other silently-stale clones from the same force-move class                        | Medium   | S         | NEW       |
+| f7  | `[CARRY]` Quiet-gate helper (CPU-pinned/taskset protocol) + quiet-window re-run of the sweep and cqrs `-count=10`                                                                     | Medium   | S         | 17-49 f4  |
+| f8  | `[CARRY]` SSE-protocol guard for test-file broadcasts (SubscriberCount sync check)                                                                                                    | Medium   | S–M       | 17-49 f7  |
+| f9  | `[CARRY]` `docs/agents/` directory charter before the directory grows a second file                                                                                                   | Low      | S         | carried   |
+| f10 | `[CARRY]` Fresh `art-dupl -t 1` over lo-adoption + SSE-test churn                                                                                                                     | Low      | S         | 17-49 f10 |
 
 **Tier 2 — releases, consumers, upstream (watch + act on triggers)**
 
-| # | Task | Impact | Effort | Source |
-|---|------|--------|--------|--------|
-| f11 | After the next cqrs feature/dep train: release cqrs with the pending `[Unreleased]` (lo runtime site + deps) via the release ritual | Medium | M | CARRY |
-| f12 | Same-train decision for otel v0.3.0 (LoggingFromContext wiring when httputil ships it) — the natural carrier | Medium | S | CARRY |
-| f13 | pkg.go.dev re-check (core@v0.9.0, errorpages@v0.1.2 render-checks were <36h old; fr page 48h window closes ~2026-10-15) — ghost re-tag ritual is last resort | Low | S | CARRY |
-| f14 | After each cqrs-htmx release: the consumer-claim drift ritual (guard now catches tag drift automatically — posture ruling still USER-GATED) | Low | S | CARRY |
-| f15 | go-cqrs-lite#67 lands → simplify `EventService.Shutdown` to bare `GracefulClose` | Medium | S | CARRY |
-| f16 | go-flightrecorder#2 lands → delete frh's hand-rolled cooldown | Low | S | CARRY |
-| f17 | httputil#41 (`NewServerListener`) lands → re-open the `Service` composition spike + Core TLS (G1) | High | L | CARRY |
-| f18 | go-health#7 lands → close the health recorder-cliff row | Low | S | CARRY |
-| f19 | BuildFlow#46 lands → drop the `.buildflow.yml` `go-work-sync` skip_steps entry | Low | S | CARRY |
-| f20 | go-structure-linter binary refresh lands upstream → re-verify the structure-linter guard + config-verify against the new binary | Low | S | CARRY |
+| #   | Task                                                                                                                                                         | Impact | Effort | Source |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ | ------ | ------ |
+| f11 | After the next cqrs feature/dep train: release cqrs with the pending `[Unreleased]` (lo runtime site + deps) via the release ritual                          | Medium | M      | CARRY  |
+| f12 | Same-train decision for otel v0.3.0 (LoggingFromContext wiring when httputil ships it) — the natural carrier                                                 | Medium | S      | CARRY  |
+| f13 | pkg.go.dev re-check (core@v0.9.0, errorpages@v0.1.2 render-checks were <36h old; fr page 48h window closes ~2026-10-15) — ghost re-tag ritual is last resort | Low    | S      | CARRY  |
+| f14 | After each cqrs-htmx release: the consumer-claim drift ritual (guard now catches tag drift automatically — posture ruling still USER-GATED)                  | Low    | S      | CARRY  |
+| f15 | go-cqrs-lite#67 lands → simplify `EventService.Shutdown` to bare `GracefulClose`                                                                             | Medium | S      | CARRY  |
+| f16 | go-flightrecorder#2 lands → delete frh's hand-rolled cooldown                                                                                                | Low    | S      | CARRY  |
+| f17 | httputil#41 (`NewServerListener`) lands → re-open the `Service` composition spike + Core TLS (G1)                                                            | High   | L      | CARRY  |
+| f18 | go-health#7 lands → close the health recorder-cliff row                                                                                                      | Low    | S      | CARRY  |
+| f19 | BuildFlow#46 lands → drop the `.buildflow.yml` `go-work-sync` skip_steps entry                                                                               | Low    | S      | CARRY  |
+| f20 | go-structure-linter binary refresh lands upstream → re-verify the structure-linter guard + config-verify against the new binary                              | Low    | S      | CARRY  |
 
 **Tier 3 — hardening born from the incident class**
 
-| # | Task | Impact | Effort | Source |
-|---|------|--------|--------|--------|
-| f21 | `[NEW]` AGENTS: add verify-all.sh to the Release Ritual §2 hermetic-verify step (the script now exists; the ritual still says "run the loop by hand") | Low | S | NEW |
-| f22 | `[NEW]` Consider a `.github/workflows` md-only-commit fast-path note: cab31f3-class tips legitimately skip CI — document beside paths-ignore so nobody re-investigates | Low | S | NEW |
-| f23 | `[NEW]` verify-all.sh: add `--fresh-cache` reuse of one shared fresh cache dir (toolchain downloads once) | Low | S | NEW |
-| f24 | `[NEW]` scripts/: shellcheck pass over all guard scripts (BuildFlow's shellcheck step deadlocks locally — hand-run once) | Low | S | NEW |
-| f25 | `[CARRY]` go.work leak #1-7 root-cause residual: inotify hunt or accept the cadence with `check-workspace-charter.sh --fix` (owner options) | Medium | M | CARRY |
-| f26 | `[CARRY]` pma dossier §6 four owner decisions (recommendations exist in the memo) | Medium | S (owner) | CARRY |
-| f27 | `[CARRY]` Consumer-claim posture ruling: keep citing exact consumer pins in AGENTS vs stop (guard now catches tag drift; claims-about-consumers remain manual) | Low | S (owner) | CARRY |
-| f28 | `[CARRY]` dprint exit-14: file upstream AFTER the buildflow binary refresh (verify-before-filing against the current binary) | Low | S | CARRY |
-| f29 | `[CARRY]` samber/do lazy-healthy note + exhaustruct_v5 schema ask at golangci-lint (external, each needs its own verify pass) | Low | S each | CARRY |
+| #   | Task                                                                                                                                                                   | Impact | Effort    | Source |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | ------ |
+| f21 | `[NEW]` AGENTS: add verify-all.sh to the Release Ritual §2 hermetic-verify step (the script now exists; the ritual still says "run the loop by hand")                  | Low    | S         | NEW    |
+| f22 | `[NEW]` Consider a `.github/workflows` md-only-commit fast-path note: cab31f3-class tips legitimately skip CI — document beside paths-ignore so nobody re-investigates | Low    | S         | NEW    |
+| f23 | `[NEW]` verify-all.sh: add `--fresh-cache` reuse of one shared fresh cache dir (toolchain downloads once)                                                              | Low    | S         | NEW    |
+| f24 | `[NEW]` scripts/: shellcheck pass over all guard scripts (BuildFlow's shellcheck step deadlocks locally — hand-run once)                                               | Low    | S         | NEW    |
+| f25 | `[CARRY]` go.work leak #1-7 root-cause residual: inotify hunt or accept the cadence with `check-workspace-charter.sh --fix` (owner options)                            | Medium | M         | CARRY  |
+| f26 | `[CARRY]` pma dossier §6 four owner decisions (recommendations exist in the memo)                                                                                      | Medium | S (owner) | CARRY  |
+| f27 | `[CARRY]` Consumer-claim posture ruling: keep citing exact consumer pins in AGENTS vs stop (guard now catches tag drift; claims-about-consumers remain manual)         | Low    | S (owner) | CARRY  |
+| f28 | `[CARRY]` dprint exit-14: file upstream AFTER the buildflow binary refresh (verify-before-filing against the current binary)                                           | Low    | S         | CARRY  |
+| f29 | `[CARRY]` samber/do lazy-healthy note + exhaustruct_v5 schema ask at golangci-lint (external, each needs its own verify pass)                                          | Low    | S each    | CARRY  |
 
 **Tier 4 — product/backlog (demand-gated, ROADMAP fuel)**
 
-| # | Task | Impact | Effort | Source |
-|---|------|--------|--------|--------|
-| f30 | Battery wave W3 `httpx` module (B1 ResultHandler family; error mapping MUST share errorpages' taxonomy, classification-parity test) | High | L | CARRY |
-| f31 | Battery W5-C2 projection→broadcast folded contract (must-have for every cqrs+realtime consumer) | High | L | CARRY |
-| f32 | Battery W5-C1 realtime drop/backpressure counters (borrow ssehub `Drops()` shape; dedupe with the convergence watch) | Medium | M | CARRY |
-| f33 | Battery W3 remainder: B2 bind+validation, B9 no-leak errors, B3 ResponseWriter contract, B4 conditional GET, B5 content negotiation, B7 write deadlines | Medium | L | CARRY |
-| f34 | Battery W4: `worker` supervisor+pool, `sqlite` ops kit, `polite` outbound client, `do` bridge, D6 webhook, F1/F4 config | Medium | L | CARRY |
-| f35 | D7 idempotency: adopt-wire go-idempotency vs CV port (audit says in-family coverage exists — decide) | Medium | S | CARRY |
-| f36 | B6/B7 route introspection + metadata feed — gated on a core `svc.Routes()` seam core has not agreed to | Medium | M | CARRY |
-| f37 | Core TLS option — gated on PapDashboard `PAP_TLS_CERT/KEY` becoming an appkit-hosting requirement (and on f17's seam) | Medium | M | CARRY |
-| f38 | PapDashboard reverse adoption (their repo hosts on appkit) — watchlist row, their move | Low | – | CARRY |
-| f39 | cordis bridge — remaining triggers: a consumer states the reactive-composition requirement AND core v1.0.0 criteria ship | Low | M | CARRY |
-| f40 | go-aichat/ssehub convergence watch (owner-level decision if both SSE wrappers keep growing) | Low | S | CARRY |
-| f41 | Composition-gap E2E watchlist (otel×realtime, security×errorpages, errorpages×otel, fr-through-Service, SSE+health drain) — pick up on module touch | Low | M | CARRY |
-| f42 | otel ns/op re-baseline in a genuinely quiet window (blocked on f7's quiet gate) | Low | S | CARRY |
-| f43 | Core v1.0.0 exit criteria — graduate from draft when the consumer count grows | Medium | M | CARRY |
-| f44 | health recorder-cliff: revisit only if consumers still hit it post-v0.1.2 (parked decision stands) | Low | S | CARRY |
-| f45 | i18n content lane stays parked (appkit consumers N=1); re-key fires on the next httputil feature tag | Low | S | CARRY |
-| f46 | integration: subscribe-before-flush handler change — ONLY on a no-drop-on-connect consumer demand | Medium | M | CARRY |
-| f47 | `[NEW]` Realtime README limitation note: cross-reference the new integration test sync pattern as the interim protocol for test authors | Low | S | NEW |
-| f48 | `[NEW]` TODO_LIST header slim-down (move rolling summaries to a history file; header keeps ~5 lines + pointer) | Low | S | NEW (e8) |
-| f49 | `[NEW]` Report-writing checklist addition: "every new report gets an index row at write time" (the f11 class died today — keep it dead) | Low | S | NEW (e7) |
-| f50 | `[NEW]` After f2 lands: negative-test the fresh-cache check (plant a poisoned hash in a scratch copy; guard must go red) | Medium | S | NEW |
+| #   | Task                                                                                                                                                    | Impact | Effort | Source   |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | -------- |
+| f30 | Battery wave W3 `httpx` module (B1 ResultHandler family; error mapping MUST share errorpages' taxonomy, classification-parity test)                     | High   | L      | CARRY    |
+| f31 | Battery W5-C2 projection→broadcast folded contract (must-have for every cqrs+realtime consumer)                                                         | High   | L      | CARRY    |
+| f32 | Battery W5-C1 realtime drop/backpressure counters (borrow ssehub `Drops()` shape; dedupe with the convergence watch)                                    | Medium | M      | CARRY    |
+| f33 | Battery W3 remainder: B2 bind+validation, B9 no-leak errors, B3 ResponseWriter contract, B4 conditional GET, B5 content negotiation, B7 write deadlines | Medium | L      | CARRY    |
+| f34 | Battery W4: `worker` supervisor+pool, `sqlite` ops kit, `polite` outbound client, `do` bridge, D6 webhook, F1/F4 config                                 | Medium | L      | CARRY    |
+| f35 | D7 idempotency: adopt-wire go-idempotency vs CV port (audit says in-family coverage exists — decide)                                                    | Medium | S      | CARRY    |
+| f36 | B6/B7 route introspection + metadata feed — gated on a core `svc.Routes()` seam core has not agreed to                                                  | Medium | M      | CARRY    |
+| f37 | Core TLS option — gated on PapDashboard `PAP_TLS_CERT/KEY` becoming an appkit-hosting requirement (and on f17's seam)                                   | Medium | M      | CARRY    |
+| f38 | PapDashboard reverse adoption (their repo hosts on appkit) — watchlist row, their move                                                                  | Low    | –      | CARRY    |
+| f39 | cordis bridge — remaining triggers: a consumer states the reactive-composition requirement AND core v1.0.0 criteria ship                                | Low    | M      | CARRY    |
+| f40 | go-aichat/ssehub convergence watch (owner-level decision if both SSE wrappers keep growing)                                                             | Low    | S      | CARRY    |
+| f41 | Composition-gap E2E watchlist (otel×realtime, security×errorpages, errorpages×otel, fr-through-Service, SSE+health drain) — pick up on module touch     | Low    | M      | CARRY    |
+| f42 | otel ns/op re-baseline in a genuinely quiet window (blocked on f7's quiet gate)                                                                         | Low    | S      | CARRY    |
+| f43 | Core v1.0.0 exit criteria — graduate from draft when the consumer count grows                                                                           | Medium | M      | CARRY    |
+| f44 | health recorder-cliff: revisit only if consumers still hit it post-v0.1.2 (parked decision stands)                                                      | Low    | S      | CARRY    |
+| f45 | i18n content lane stays parked (appkit consumers N=1); re-key fires on the next httputil feature tag                                                    | Low    | S      | CARRY    |
+| f46 | integration: subscribe-before-flush handler change — ONLY on a no-drop-on-connect consumer demand                                                       | Medium | M      | CARRY    |
+| f47 | `[NEW]` Realtime README limitation note: cross-reference the new integration test sync pattern as the interim protocol for test authors                 | Low    | S      | NEW      |
+| f48 | `[NEW]` TODO_LIST header slim-down (move rolling summaries to a history file; header keeps ~5 lines + pointer)                                          | Low    | S      | NEW (e8) |
+| f49 | `[NEW]` Report-writing checklist addition: "every new report gets an index row at write time" (the f11 class died today — keep it dead)                 | Low    | S      | NEW (e7) |
+| f50 | `[NEW]` After f2 lands: negative-test the fresh-cache check (plant a poisoned hash in a scratch copy; guard must go red)                                | Medium | S      | NEW      |
 
 Routing note: f1–f6 are the actionable core (two owner rulings + three small builds); most of Tier 4 is ROADMAP fuel, already correctly entombed in TODO_LIST P3 — do not double-track.
 

@@ -27,7 +27,7 @@ func main() {
 
 	url, want := os.Args[1], os.Args[2]
 
-	client := &http.Client{Timeout: probeTimeout} //nolint:exhaustruct_v5 // minimal probe client by design
+	client := &http.Client{Timeout: probeTimeout}
 
 	//nolint:gosec // one-shot CLI probe: operator-supplied URL
 	res, err := client.Get(url) //nolint:noctx // one-shot CLI probe, no cancellation needed

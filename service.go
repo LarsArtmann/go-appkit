@@ -88,7 +88,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 
 	wrapped := httputil.Chain(mux, mws...)
 
-	svc.server = &http.Server{ //nolint:exhaustruct_v5 // unset fields (TLS, HTTP2, ConnState...) are deliberate zero values; lifecycle is appkit's
+	svc.server = &http.Server{
 		Handler:           wrapped,
 		ReadTimeout:       serverTimeout(cfg.ReadTimeout),
 		ReadHeaderTimeout: cfg.ReadHeaderTimeout,
