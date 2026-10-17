@@ -45,31 +45,35 @@ Weight = impact × ease per task (from the deep-dive priority table; bundled tas
 sum of their findings). Total weight Σ = 230 across 27 tasks. Cumulative math is shown so
 the tiers are checkable, not vibes.
 
-### The 1% that delivers ~31% (the two keystones)
+### The 1% that delivers ~24% (the two keystones)
 
 **T03 — otel README truth & posture pass (Σ36)** and **T01 — SDK self-diagnostics wiring
 (Σ20)**. Rationale: the audit's entire credibility story is "the module's docs describe the
 world it pins" — and right now one sentence doesn't (the logs non-goal predates the v1.47.0
 logs-stabilization it pins). And the module's one real blind spot is silent exporter failure.
 Truth restored + failures visible = the foundation every later task reports against.
-56/230 = 24% for 2 of 27 tasks; with T02 (double-sourcing the headline claims, Σ15) the top
-three reach 31% — the cheapest possible insurance against building on a wrong fact.
+56/230 = **24%** for 2 of 27 tasks — flatter than the textbook 1%→51% curve, and that is
+correct: the audit already banked the cheap wins, so what remains is genuinely tail-weighted.
+The tiers below are priced by weight (Σ), not by task count; the exact cumulative column in
+the table makes every boundary checkable.
 
-### The 4% that delivers ~64%
+### The 4% that delivers the first 51%
 
-T03 + T01 + T02 + **T04 (`appkitotel.Transport()`, Σ16)** + **T05 (`resource.WithProcess()`,
-Σ15)** + **T09 (git/CI hygiene: audit the daemon's foreign hunks + CI-state check, Σ15)**.
-Seven of 27 tasks (26%) → cumulative 153/230 ≈ **67%**. These close three of the four missed
-opportunities, the cheapest partial, and the session's own accountability debt.
+The keystones plus **T04 (`appkitotel.Transport()`, Σ16)**, **T02 (double-sourcing the
+headline claims, Σ15)**, **T05 (`resource.WithProcess()`, Σ15)**, **T09 (git/CI hygiene:
+audit the daemon's foreign hunks + CI-state check, Σ15)**. Six of 27 tasks (22%) →
+cumulative 117/230 ≈ **51%**. These close three of the four missed opportunities, the
+cheapest partial, and the session's own accountability debt — the first half of the value
+sits in one release train's worth of work.
 
 ### The 20% that delivers ~80%
 
 The 4% set plus **T06 (logs design sketch, Σ15)**, **T08 (HARVEST into TODO_LIST/ROADMAP,
 Σ12)**, **T17 (research index, Σ10)**, **T07 (exporter-selector off-switch, Σ9)**, **T18
-(render check + checker decision, Σ7)**, **T10 (panic→exception E2E, Σ6)**. Thirteen of 27
-tasks (48%) → cumulative 185/230 ≈ **80%**. At this point: docs true, failures loud, client
-spans shipped, resource identity complete, the living backlog owns the queue, and the
-flagship composition contract is pinned by an E2E.
+(render check + checker decision, Σ7)**, **T10 (panic→exception E2E, Σ6)**, and **T14
+(baggage helpers, Σ6)**. Thirteen of 27 tasks (48%) → cumulative 182/230 ≈ **79%**. At this
+point: docs true, failures loud, client spans shipped, resource identity complete, the
+living backlog owns the queue, and the flagship composition contract is pinned by an E2E.
 
 ### The remaining 20% → 100%
 
@@ -85,33 +89,33 @@ several are owner-gated (Q1–Q3 below) and correctly wait.
 
 | #   | Task                                                                                                              | Source items                        | Min | I | E | Σ  | Cum % | Tier       |
 | --- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------- | --- | - | - | -- | ----- | ---------- |
-| T03 | otel README truth & posture pass (logs non-goal fix†, semconv trigger, exemplars/cardinality, MessageEvents note) | f3, f7, f8, f29 (+f32/f33 recorded) | 70  | — | — | 36 | 16%   | 1%         |
-| T01 | Wire `otel.SetErrorHandler` + `otel.SetLogger` into `Setup` (+ TELEMETRY.md line + pin tests)                     | f1                                  | 90  | 4 | 5 | 20 | 24%   | 1%         |
-| T02 | Double-source the deep dive's two headline claims; annotate report if anything shifts                             | f15                                 | 30  | 3 | 5 | 15 | 31%   | 1%         |
-| T04 | Export `appkitotel.Transport()` + "Outbound calls" README + example downstream leg                                | f2, f27                             | 90  | 4 | 4 | 16 | 38%   | 4%         |
-| T05 | `resource.WithProcess()` (or targeted Runtime\* options) + merged-resource test                                   | f4                                  | 45  | 3 | 5 | 15 | 44%   | 4%         |
-| T09 | Git/CI hygiene: audit `a584b6f` foreign hunks; verify `7f176f9` CI state                                          | f16, f17                            | 45  | — | — | 15 | 51%   | 4%         |
-| T06 | `WithOTLPLogs()` design sketch + dependency-cost + shutdown-order note (build stays gated)                        | f5                                  | 45  | 5 | 3 | 15 | 57%   | 20%        |
-| T08 | HARVEST §f + deep-dive table into TODO_LIST/ROADMAP (docs-health)                                                 | f13                                 | 60  | 3 | 4 | 12 | 63%   | 20%        |
-| T17 | Create `docs/research/README.md` index (4 reports)                                                                | f14                                 | 30  | 2 | 5 | 10 | 67%   | 20%        |
-| T07 | Honor `OTEL_*_EXPORTER=none` off-switch; document HTTP-only protocol divergence                                   | f6                                  | 60  | 3 | 3 | 9  | 70%   | 20%        |
-| T18 | Headless render-check of the deep dive; go/no-go on a scripts/ report checker                                     | f18, f20                            | 30  | — | — | 7  | 73%   | 20%        |
-| T10 | E2E #1: full-stack panic→exception through a real Service (integration module)                                    | f10                                 | 90  | 3 | 2 | 6  | 76%   | 20%        |
-| T14 | Baggage correlation-ID helpers (`WithCorrelationID`/`CorrelationID`)                                              | f9                                  | 60  | 3 | 2 | 6  | 79%   | tail       |
-| T15 | Upstream v1.48.0 train readiness (retry-bound note; confirm zero deprecated-surface impact)                       | f30                                 | 40  | 2 | 3 | 6  | 81%   | tail       |
-| T16 | Consumer-side OTel adoption audit (cqrs-htmx setup, PapDashboard)                                                 | f31                                 | 60  | 2 | 3 | 6  | 84%   | tail       |
-| T11 | E2E #2: otel×realtime (SSE spans/metrics on the NoTimeout path)                                                   | f21                                 | 75  | 2 | 2 | 4  | 86%   | tail       |
-| T12 | E2E #3: otel×health-dashboard (traced vs filtered routes)                                                         | f22                                 | 60  | 2 | 2 | 4  | 87%   | tail       |
-| T19 | Fold errorpages-`trace_id` + fr-snapshot→span-link into the inventory (annotate)                                  | f19                                 | 30  | 1 | 4 | 4  | 89%   | tail       |
-| T20 | `check-pin-drift.sh`: assert the dashboard JSON name/path                                                         | f28                                 | 30  | 1 | 4 | 4  | 91%   | tail       |
-| T26 | SigNoz live validation: dashboard import + Exceptions-view E2E (needs Q2)                                         | f11                                 | 60  | 2 | 2 | 4  | 93%   | tail/gated |
-| T21 | SigNoz alert example JSON (5xx error-rate) next to the dashboard                                                  | f24                                 | 45  | 1 | 3 | 3  | 94%   | tail       |
-| T22 | Multi-env deploy doc (k8s/Compose OTEL_\* snippet)                                                                | f25                                 | 40  | 1 | 3 | 3  | 95%   | tail       |
-| T23 | Exceptions-oriented dashboard panel (or record the builder blocker)                                               | f26                                 | 30  | 1 | 3 | 3  | 96%   | tail       |
-| T24 | Daemon working-file class: propose pma ignore pattern for `docs/**/.*-body.html`                                  | f34                                 | 30  | 1 | 3 | 3  | 98%   | tail       |
-| T13 | E2E #4: errorpages×otel (pretty 500s + exception events together)                                                 | f23                                 | 60  | 1 | 2 | 2  | 98%   | tail       |
-| T25 | Middleware ns/op re-baseline (needs the quiet-gate helper; CPU-pinned n=10 + benchstat)                           | f12                                 | 40  | 1 | 2 | 2  | 99%   | tail/gated |
-| T27 | Recorded watches: semconv-families flag (f32), PeriodicReader-timeout YAGNI (f33)                                 | f32, f33                            | 0   | — | — | 0  | 100%  | watch      |
+| T03  | otel README truth & posture pass (logs non-goal fix†, semconv trigger, exemplars/cardinality, MessageEvents note) | f3, f7, f8, f29 (+f32/f33 recorded) | 70  | —  | —  | 36  | 16%   | 1%          |
+| T01  | Wire `otel.SetErrorHandler` + `otel.SetLogger` into `Setup` (+ TELEMETRY.md line + pin tests)  | f1                      | 90  | 4  | 5  | 20  | 24%   | 1%          |
+| T04  | Export `appkitotel.Transport()` + "Outbound calls" README + example downstream leg             | f2, f27                 | 90  | 4  | 4  | 16  | 31%   | 4%          |
+| T02  | Double-source the deep dive's two headline claims; annotate report if anything shifts          | f15                     | 30  | 3  | 5  | 15  | 38%   | 4%          |
+| T05  | `resource.WithProcess()` (or targeted Runtime\* options) + merged-resource test                | f4                      | 45  | 3  | 5  | 15  | 44%   | 4%          |
+| T09  | Git/CI hygiene: audit `a584b6f` foreign hunks; verify `7f176f9` CI state                       | f16, f17                | 45  | —  | —  | 15  | 51%   | 4%          |
+| T06  | `WithOTLPLogs()` design sketch + dependency-cost + shutdown-order note (build stays gated)     | f5                      | 45  | 5  | 3  | 15  | 57%   | 20%         |
+| T08  | HARVEST §f + deep-dive table into TODO_LIST/ROADMAP (docs-health)                              | f13                     | 60  | 3  | 4  | 12  | 63%   | 20%         |
+| T17  | Create `docs/research/README.md` index (4 reports)                                             | f14                     | 30  | 2  | 5  | 10  | 67%   | 20%         |
+| T07  | Honor `OTEL_*_EXPORTER=none` off-switch; document HTTP-only protocol divergence                | f6                      | 60  | 3  | 3  | 9   | 71%   | 20%         |
+| T18  | Headless render-check of the deep dive; go/no-go on a scripts/ report checker                  | f18, f20                | 30  | —  | —  | 7   | 74%   | 20%         |
+| T10  | E2E #1: full-stack panic→exception through a real Service (integration module)                 | f10                     | 90  | 3  | 2  | 6   | 77%   | 20%         |
+| T14  | Baggage correlation-ID helpers (`WithCorrelationID`/`CorrelationID`)                           | f9                      | 60  | 3  | 2  | 6   | 79%   | 20%         |
+| T15  | Upstream v1.48.0 train readiness (retry-bound note; confirm zero deprecated-surface impact)    | f30                     | 40  | 2  | 3  | 6   | 82%   | tail        |
+| T16  | Consumer-side OTel adoption audit (cqrs-htmx setup, PapDashboard)                              | f31                     | 60  | 2  | 3  | 6   | 84%   | tail        |
+| T11  | E2E #2: otel×realtime (SSE spans/metrics on the NoTimeout path)                                | f21                     | 75  | 2  | 2  | 4   | 86%   | tail        |
+| T12  | E2E #3: otel×health-dashboard (traced vs filtered routes)                                      | f22                     | 60  | 2  | 2  | 4   | 88%   | tail        |
+| T19  | Fold errorpages-`trace_id` + fr-snapshot→span-link into the inventory (annotate)               | f19                     | 30  | 1  | 4  | 4   | 90%   | tail        |
+| T20  | `check-pin-drift.sh`: assert the dashboard JSON name/path                                      | f28                     | 30  | 1  | 4  | 4   | 91%   | tail        |
+| T26  | SigNoz live validation: dashboard import + Exceptions-view E2E (needs Q2)                      | f11                     | 60  | 2  | 2  | 4   | 93%   | tail/gated  |
+| T21  | SigNoz alert example JSON (5xx error-rate) next to the dashboard                               | f24                     | 45  | 1  | 3  | 3   | 94%   | tail        |
+| T22  | Multi-env deploy doc (k8s/Compose OTEL_\* snippet)                                             | f25                     | 40  | 1  | 3  | 3   | 96%   | tail        |
+| T23  | Exceptions-oriented dashboard panel (or record the builder blocker)                            | f26                     | 30  | 1  | 3  | 3   | 97%   | tail        |
+| T24  | Daemon working-file class: propose pma ignore pattern for `docs/**/.*-body.html`               | f34                     | 30  | 1  | 3  | 3   | 98%   | tail        |
+| T13  | E2E #4: errorpages×otel (pretty 500s + exception events together)                              | f23                     | 60  | 1  | 2  | 2   | 99%   | tail        |
+| T25  | Middleware ns/op re-baseline (needs the quiet-gate helper; CPU-pinned n=10 + benchstat)        | f12                     | 40  | 1  | 2  | 2   | 100%  | tail/gated  |
+| T27  | Recorded watches: semconv-families flag (f32), PeriodicReader-timeout YAGNI (f33)              | f32, f33                | 0   | —  | —  | 0   | 100%  | watch       |
 
 † T03's non-goal fix is **Q1-conditioned** (fix-on-sight vs report-first for released-module
 docs). If the owner rules report-first, T03 ships everything EXCEPT the non-goal edit and
@@ -387,7 +391,7 @@ v0.3.0 tag first — integration pins published tags only)._
 | 27.1 | semconv-families flag default flip (execute T03.3's trigger when it flips) | 0   |
 | 27.2 | PeriodicReader timeout env — YAGNI watch, build only on demand             | 0   |
 
-**Micro totals: 122 tasks, ≈1,614 min ≈ 27 h; 4 gates (Q1 ×1 edit, Q2, Q3, quiet-window), 5
+**Micro totals: 127 tasks, ≈1,182 min ≈ 20 h; 4 gates (Q1 ×1 edit, Q2, Q3, quiet-window), 5
 tag-sequenced tasks.**
 
 ---
@@ -415,9 +419,9 @@ flowchart TD
         T17["T17 Research index"]
         T18["T18 Render check"]
         T10["T10 E2E panic→exception"]
+        T14["T14 Baggage helpers"]
     end
     subgraph D["Tail — parallelizable / gated"]
-        T14["T14 Baggage helpers"]
         T11["T11 E2E otel×realtime"]
         T12["T12 E2E otel×dashboard"]
         T13["T13 E2E errorpages×otel"]
