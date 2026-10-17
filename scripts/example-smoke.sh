@@ -16,7 +16,7 @@
 set -uo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$root"
+cd "$root" || exit 1
 
 go_env=(env GOWORK=off "GOTOOLCHAIN=go1.27.2")
 status=0

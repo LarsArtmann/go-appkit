@@ -1,7 +1,7 @@
 # pma Owner Decision Memo — dossier §6, four decisions
 
 **2026-10-13 · Executor: Crush (full-execution session) · Input:**
-[`docs/status/2026-10-07_11-00_pma-daemon-root-cause-and-dossier.md`](../status/2026-10-07_11-00_pma-daemon-root-cause-and-dossier.md) §6
+[`docs/status/2026-10-07_11-00_pma-daemon-root-cause-and-dossier.md`](../../docs/status/2026-10-07_11-00_pma-daemon-root-cause-and-dossier.md) §6
 
 - one new day of live evidence (2026-10-12/13: three attribution-erasing
   interleaves, one commit-failed race, one pma restart).
