@@ -157,42 +157,42 @@ debts from THIS run; 21–34 are pre-existing items re-confirmed open in passing
 avoid double-tracking — TODO_LIST owns the wording). This section is the HARVEST feed; not
 harvested (awaiting instructions)._
 
-| #   | Task                                                                                                                                                                | Impact | Ease | Priority |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---- | -------- |
-| 1   | Wire `otel.SetErrorHandler` + `otel.SetLogger` into `Setup` (exporter failures become grep-able ERROR lines; add TELEMETRY.md §1 line + pin test; logr already in tree) | 4      | 5    | 20       |
-| 2   | Export `appkitotel.Transport()` client-span helper + "Outbound calls" README section (ROADMAP-tracked)                                                               | 4      | 4    | 16       |
-| 3   | Truth-fix the otel README OTLP-logs non-goal (stable-since-v1.47.0; demand-gate unchanged) — pending Q1 posture                                                       | 3      | 5    | 15       |
-| 4   | Add `resource.WithProcess()` (or targeted `WithProcessRuntime*`) to `buildResource` + test assertion (mind `process.command_args` sensitivity)                        | 3      | 5    | 15       |
-| 5   | Build `WithOTLPLogs()` + otelslog recipe when a consumer asks (pending Q3); prep the design sketch so the answer is hours, not days                                  | 5      | 3    | 15       |
-| 6   | Honor `OTEL_TRACES_EXPORTER`/`OTEL_METRICS_EXPORTER=none` as env off-switch in `applyOTLPWiring`; document HTTP-only protocol divergence                             | 3      | 3    | 9        |
-| 7   | Record the semconv v1.26→v1.43 migration trigger (SigNoz semconv-families flag watch; `deployment.environment` → `.name`)                                             | 2      | 4    | 8        |
-| 8   | Decide + document exemplars and cardinality posture in otel README (two sentences; bridge/cqrs `context.Background()` opt-out by design)                              | 2      | 4    | 8        |
-| 9   | Baggage correlation-ID helpers (ROADMAP; README propagation-row note in the meantime)                                                                                | 3      | 2    | 6        |
-| 10  | Composition-gap E2E #1: full-stack panic→exception through a real Service (integration module)                                                                       | 3      | 2    | 6        |
-| 11  | Validate dashboard JSON against a live SigNoz + Exceptions-view E2E (pending Q2; open since 2026-09-29 #4/#5)                                                        | 2      | 2    | 4        |
-| 12  | Re-baseline middleware ns/op bench rows in a CPU-pinned quiet window (twice deferred; B/op+allocs already ±0%)                                                       | 1      | 2    | 2        |
-| 13  | HARVEST this report §f + the deep-dive priority table into TODO_LIST/ROADMAP (docs-health) — closes the entombment created today                                     | 3      | 4    | 12       |
-| 14  | Create `docs/research/README.md` index (4 rows: 2026-10-06 ×2, 2026-10-11, 2026-10-18) — the series has no index; discoverability is word-of-mouth                   | 2      | 5    | 10       |
-| 15  | Double-source the deep-dive's two headline claims (fetch otel releases page directly; logs-stable + currency) and annotate the report if anything shifts              | 3      | 5    | 15       |
-| 16  | Audit daemon commit `a584b6f`'s foreign hunks: AGENTS.md +2, root go.sum −13, integration go.sum −76 — read, classify, confirm intentional                           | 2      | 5    | 10       |
-| 17  | Verify CI state of `7f176f9` (expected: not triggered, docs-path-ignored — confirm, don't assume)                                                                    | 1      | 5    | 5        |
-| 18  | Render-check the deep-dive HTML in a headless browser (parse-check ≠ render-check)                                                                                   | 1      | 4    | 4        |
-| 19  | Fold the two unscored ROADMAP telemetry items (errorpages `trace_id`, fr-snapshot→span link) into the inventory at next revision                                     | 1      | 4    | 4        |
-| 20  | Propose a scripts/ research-report checker (citations + denominator) only if the deep-dive series keeps growing — otherwise skip, hand-ran gates suffice              | 1      | 3    | 3        |
-| 21  | Composition-gap E2E #2: otel×realtime (SSE spans/metrics on the NoTimeout path)                                                                                      | 2      | 2    | 4        |
-| 22  | Composition-gap E2E #3: otel×health-dashboard (traced vs filtered routes)                                                                                            | 2      | 2    | 4        |
-| 23  | Composition-gap E2E #4: errorpages×otel (pretty 500s + exception events together)                                                                                    | 1      | 2    | 2        |
-| 24  | SigNoz alert example (5xx error-rate alert JSON) next to the dashboard                                                                                               | 1      | 3    | 3        |
-| 25  | Multi-env deploy doc (k8s/Compose snippet with the OTEL_* variables)                                                                                                 | 1      | 3    | 3        |
-| 26  | Exceptions-oriented dashboard panel once SigNoz builder supports error-index queries cleanly                                                                         | 1      | 3    | 3        |
-| 27  | Example: metrics-visible-in-SigNoz demo note (counter via Provider meter)                                                                                            | 1      | 4    | 4        |
-| 28  | `check-pin-drift.sh`: add the dashboard JSON to checked artifacts (name/path guard)                                                                                  | 1      | 4    | 4        |
-| 29  | Document `WithMessageEvents` non-adoption decision in otel README (evaluated+declined 2026-08-18; currently only in an archived report)                              | 1      | 5    | 5        |
-| 30  | When upstream v1.48.0 ships: ride the train; note the retry-bound-by-WithTimeout improvement for `WithOTLPTimeout` semantics in the CHANGELOG                        | 2      | 3    | 6        |
-| 31  | Consumer-side OTel adoption audit (cqrs-htmx `setup`, PapDashboard) — does the fleet's reference consumer actually use `appkitotel`, and how                        | 2      | 3    | 6        |
-| 32  | Watch SigNoz semconv-families flag default; when it flips, execute #7's rename                                                                                      | 1      | 2    | 2        |
-| 33  | `OTEL_METRIC_EXPORT_INTERVAL`-style env-native reader timeout note (PeriodicReader.WithTimeout) if ever needed — YAGNI watch only                                    | 1      | 2    | 2        |
-| 34  | Retire the temp-file-in-git class: teach the daemon's path filter (or pre-commit check) to ignore `docs/**/.*-body.html` working files                               | 1      | 3    | 3        |
+| #  | Task                                                                                                                                                                    | Impact | Ease | Priority |
+| -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---- | -------- |
+| 1  | Wire `otel.SetErrorHandler` + `otel.SetLogger` into `Setup` (exporter failures become grep-able ERROR lines; add TELEMETRY.md §1 line + pin test; logr already in tree) | 4      | 5    | 20       |
+| 2  | Export `appkitotel.Transport()` client-span helper + "Outbound calls" README section (ROADMAP-tracked)                                                                  | 4      | 4    | 16       |
+| 3  | Truth-fix the otel README OTLP-logs non-goal (stable-since-v1.47.0; demand-gate unchanged) — pending Q1 posture                                                         | 3      | 5    | 15       |
+| 4  | Add `resource.WithProcess()` (or targeted `WithProcessRuntime*`) to `buildResource` + test assertion (mind `process.command_args` sensitivity)                          | 3      | 5    | 15       |
+| 5  | Build `WithOTLPLogs()` + otelslog recipe when a consumer asks (pending Q3); prep the design sketch so the answer is hours, not days                                     | 5      | 3    | 15       |
+| 6  | Honor `OTEL_TRACES_EXPORTER`/`OTEL_METRICS_EXPORTER=none` as env off-switch in `applyOTLPWiring`; document HTTP-only protocol divergence                                | 3      | 3    | 9        |
+| 7  | Record the semconv v1.26→v1.43 migration trigger (SigNoz semconv-families flag watch; `deployment.environment` → `.name`)                                               | 2      | 4    | 8        |
+| 8  | Decide + document exemplars and cardinality posture in otel README (two sentences; bridge/cqrs `context.Background()` opt-out by design)                                | 2      | 4    | 8        |
+| 9  | Baggage correlation-ID helpers (ROADMAP; README propagation-row note in the meantime)                                                                                   | 3      | 2    | 6        |
+| 10 | Composition-gap E2E #1: full-stack panic→exception through a real Service (integration module)                                                                          | 3      | 2    | 6        |
+| 11 | Validate dashboard JSON against a live SigNoz + Exceptions-view E2E (pending Q2; open since 2026-09-29 #4/#5)                                                           | 2      | 2    | 4        |
+| 12 | Re-baseline middleware ns/op bench rows in a CPU-pinned quiet window (twice deferred; B/op+allocs already ±0%)                                                          | 1      | 2    | 2        |
+| 13 | HARVEST this report §f + the deep-dive priority table into TODO_LIST/ROADMAP (docs-health) — closes the entombment created today                                        | 3      | 4    | 12       |
+| 14 | Create `docs/research/README.md` index (4 rows: 2026-10-06 ×2, 2026-10-11, 2026-10-18) — the series has no index; discoverability is word-of-mouth                      | 2      | 5    | 10       |
+| 15 | Double-source the deep-dive's two headline claims (fetch otel releases page directly; logs-stable + currency) and annotate the report if anything shifts                | 3      | 5    | 15       |
+| 16 | Audit daemon commit `a584b6f`'s foreign hunks: AGENTS.md +2, root go.sum −13, integration go.sum −76 — read, classify, confirm intentional                              | 2      | 5    | 10       |
+| 17 | Verify CI state of `7f176f9` (expected: not triggered, docs-path-ignored — confirm, don't assume)                                                                       | 1      | 5    | 5        |
+| 18 | Render-check the deep-dive HTML in a headless browser (parse-check ≠ render-check)                                                                                      | 1      | 4    | 4        |
+| 19 | Fold the two unscored ROADMAP telemetry items (errorpages `trace_id`, fr-snapshot→span link) into the inventory at next revision                                        | 1      | 4    | 4        |
+| 20 | Propose a scripts/ research-report checker (citations + denominator) only if the deep-dive series keeps growing — otherwise skip, hand-ran gates suffice                | 1      | 3    | 3        |
+| 21 | Composition-gap E2E #2: otel×realtime (SSE spans/metrics on the NoTimeout path)                                                                                         | 2      | 2    | 4        |
+| 22 | Composition-gap E2E #3: otel×health-dashboard (traced vs filtered routes)                                                                                               | 2      | 2    | 4        |
+| 23 | Composition-gap E2E #4: errorpages×otel (pretty 500s + exception events together)                                                                                       | 1      | 2    | 2        |
+| 24 | SigNoz alert example (5xx error-rate alert JSON) next to the dashboard                                                                                                  | 1      | 3    | 3        |
+| 25 | Multi-env deploy doc (k8s/Compose snippet with the OTEL_* variables)                                                                                                    | 1      | 3    | 3        |
+| 26 | Exceptions-oriented dashboard panel once SigNoz builder supports error-index queries cleanly                                                                            | 1      | 3    | 3        |
+| 27 | Example: metrics-visible-in-SigNoz demo note (counter via Provider meter)                                                                                               | 1      | 4    | 4        |
+| 28 | `check-pin-drift.sh`: add the dashboard JSON to checked artifacts (name/path guard)                                                                                     | 1      | 4    | 4        |
+| 29 | Document `WithMessageEvents` non-adoption decision in otel README (evaluated+declined 2026-08-18; currently only in an archived report)                                 | 1      | 5    | 5        |
+| 30 | When upstream v1.48.0 ships: ride the train; note the retry-bound-by-WithTimeout improvement for `WithOTLPTimeout` semantics in the CHANGELOG                           | 2      | 3    | 6        |
+| 31 | Consumer-side OTel adoption audit (cqrs-htmx `setup`, PapDashboard) — does the fleet's reference consumer actually use `appkitotel`, and how                            | 2      | 3    | 6        |
+| 32 | Watch SigNoz semconv-families flag default; when it flips, execute #7's rename                                                                                          | 1      | 2    | 2        |
+| 33 | `OTEL_METRIC_EXPORT_INTERVAL`-style env-native reader timeout note (PeriodicReader.WithTimeout) if ever needed — YAGNI watch only                                       | 1      | 2    | 2        |
+| 34 | Retire the temp-file-in-git class: teach the daemon's path filter (or pre-commit check) to ignore `docs/**/.*-body.html` working files                                  | 1      | 3    | 3        |
 
 ## g) THREE QUESTIONS I CANNOT ANSWER MYSELF
 
