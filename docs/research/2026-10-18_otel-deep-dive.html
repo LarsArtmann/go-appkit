@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Report Title</title>
+    <title>OpenTelemetry (Go) — Adoption &amp; Utilization Audit · go-appkit · 2026-10-18</title>
     <style>
       /* =========================================================================
          BAUHAUS LIGHT — Editorial template
@@ -848,23 +848,23 @@
     </style>
   </head>
   <body>
-    <!-- Full-bleed top bar (optional — remove for quieter reports) -->
+    <!-- Full-bleed top bar -->
     <div class="top-bar">
-      <span>REPORT TYPE</span>
-      <span>YYYY-MM-DD</span>
-      <span>AUTHOR / TEAM</span>
+      <span>LIBRARY DEEP DIVE</span>
+      <span>2026-10-18</span>
+      <span>go-appkit &middot; otel / cqrs / integration</span>
     </div>
 
     <div class="layout">
-      <!-- Sidebar TOC (hidden below 1024px; use inline .toc if you prefer) -->
+      <!-- Sidebar TOC (hidden below 1024px) -->
       <aside class="sidebar" data-nav>
         <nav>
           <div class="label">Contents</div>
           <a href="#summary">Summary</a>
-          <a href="#scorecard">Scorecard</a>
-          <a href="#strengths">Strengths</a>
-          <a href="#findings">Findings</a>
-          <a href="#proposal">Proposal</a>
+          <a href="#strengths">What's already excellent</a>
+          <a href="#findings">Capability assessment</a>
+          <a href="#currency">Version currency</a>
+          <a href="#priorities">Top opportunities</a>
           <a href="#appendix">Appendix</a>
         </nav>
       </aside>
@@ -873,43 +873,50 @@
       <main class="main">
         <!-- Hero -->
         <header class="hero">
-          <!-- Optional Bauhaus signature: geometric shape cluster. Remove for quieter hero. -->
           <div class="hero-shapes">
             <div class="bar"></div>
             <div class="circle"></div>
             <div class="square"></div>
             <div class="tri"></div>
           </div>
-          <div class="eyebrow">REPORT TYPE &middot; YYYY-MM-DD</div>
-          <h1>Report Title</h1>
+          <div class="eyebrow">LIBRARY DEEP DIVE &middot; 2026-10-18</div>
+          <h1>OpenTelemetry (Go) &mdash; Adoption &amp; Utilization Audit</h1>
           <p class="subtitle">
-            One or two sentences that set the frame: who this is for, what was
-            reviewed, and what the reader will take away.
+            How well go-appkit leverages <code>go.opentelemetry.io/otel</code> v1.47.0 and
+            <code>otelhttp</code> v0.72.0 across the otel module, the cqrs metrics adapter, and the
+            integration pin tests. Verdict: the strongest-adopted dependency in the fleet &mdash;
+            current to the day, semconv-disciplined, benchmarked &mdash; with four real gaps, one of
+            which is a documented non-goal whose own trigger quietly fired on 2026-10-02.
           </p>
           <div class="meta">
-            <span class="tag amber">Scope: example</span>
-            <span class="tag">Version: 1.0.0</span>
-            <span class="tag teal">Status: draft</span>
+            <span class="tag amber">Pinned: otel v1.47.0</span>
+            <span class="tag teal">Latest: v1.47.0 (2026-10-02)</span>
+            <span class="tag teal">otelhttp: v0.72.0 = latest</span>
+            <span class="tag">Score: 78/100 &middot; high band</span>
           </div>
         </header>
 
         <!-- Scorecard -->
         <section id="scorecard" class="scorecard">
           <div class="score-card score-good">
-            <div class="score">8</div>
-            <div class="label">Items passing</div>
+            <div class="score">78</div>
+            <div class="label">Adoption score / 100</div>
+          </div>
+          <div class="score-card score-good">
+            <div class="score">25/37</div>
+            <div class="label">Capabilities fully leveraged</div>
           </div>
           <div class="score-card score-warn">
-            <div class="score">3</div>
-            <div class="label">Warnings</div>
+            <div class="score">8</div>
+            <div class="label">Partially used</div>
           </div>
-          <div class="score-card score-bad">
-            <div class="score">1</div>
-            <div class="label">Blockers</div>
+          <div class="score-card score-warn">
+            <div class="score">4</div>
+            <div class="label">Missed opportunities</div>
           </div>
-          <div class="score-card">
-            <div class="score">12</div>
-            <div class="label">Total reviewed</div>
+          <div class="score-card score-good">
+            <div class="score">0</div>
+            <div class="label">Anti-patterns &middot; version gap</div>
           </div>
         </section>
 
@@ -917,14 +924,35 @@
         <section id="summary">
           <h2><span class="num">00</span>Summary</h2>
           <p>
-            Replace this with the bottom-line verdict. A good summary tells the
-            reader whether the subject is ready, what the biggest risk is, and
-            what one action would unlock the most value.
+            go-appkit treats OpenTelemetry as a first-class product surface, not a checkbox: a
+            dedicated module (<code>appkitotel</code>, v0.2.0) with a tested provider lifecycle, an
+            otelhttp middleware bridge, SigNoz-grade exception capture, env-driven zero-code OTLP
+            setup, an importable dashboard, and an integration module that pins the whole composition
+            against published tags. Both pinned SDK versions are the latest available &mdash; the
+            version gap is zero, verified against upstream releases from 2026-10-02, sixteen days
+            before this audit. Nothing in the codebase is used against the SDK's documented
+            contracts.
+          </p>
+          <p>
+            The 78/100 comes from the gaps, and the gaps have a shape: the SDK surface the module
+            <em>chose</em> to build is deep and disciplined, while four adjacent capabilities sit at
+            zero &mdash; the logs signal, SDK self-diagnostics wiring, client-side spans, and
+            baggage correlation. Two of the four are already ROADMAP-tracked. One, the logs signal,
+            deserves immediate attention for a reason that is documentation, not code: the README's
+            non-goal says <em>"go.opentelemetry.io/otel/log is still experimental"</em> &mdash; and
+            on 2026-10-02, upstream shipped v1.47.0, the <strong>first stable release of the Logs
+            API and SDK</strong>. The module pins v1.47.0 today. The revisit trigger has half-fired;
+            the module's own documentation no longer describes the world it pins.
           </p>
           <div class="callout callout-amber">
             <strong>The bottom line</strong>
-            State the verdict plainly. If the report is blocking, say so. If
-            it's mostly positive, lead with that.
+            This is what serious OTel adoption looks like &mdash; 25 of 37 applicable capabilities
+            fully leveraged, zero misuse, zero version gap. The highest-leverage next moves are
+            small: (1) truth-fix the stale logs non-goal (minutes), (2) wire
+            <code>otel.SetErrorHandler</code>/<code>otel.SetLogger</code> so exporter failures show
+            up in the app's own grep-able log contract instead of dying on stderr (small), (3) ship
+            the ROADMAP-tracked <code>appkitotel.Transport()</code> client-span helper so
+            distributed traces don't terminate at the service edge.
           </div>
         </section>
 
@@ -932,139 +960,814 @@
         <section id="strengths">
           <h2><span class="num">&#9670;</span>What's already excellent</h2>
           <p>
-            Before the criticism: acknowledge what works. This builds trust and
-            keeps the report from reading like a pure complaint list.
+            The current usage baseline. Every item is code-verified in this audit; the scored
+            inventory behind them (45 capabilities) is in the appendix.
           </p>
 
           <div class="strengths">
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength one</strong>
-                <span>Explain why it matters and what it enables.</span>
+                <strong>Provider lifecycle that exceeds the typical wiring</strong>
+                <span>Setup builds Tracer+Meter providers with resource, views, and sampler; Shutdown
+                ForceFlushes <em>before</em> each provider Shutdown so batch-queued spans from the
+                final requests actually reach the exporter (otel/setup.go:164-192). Errors are
+                classified into go-error-family Infrastructure (503 semantics), not raw
+                fmt.Errorf (otel/setup.go:144-154).</span>
               </div>
             </div>
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength two</strong>
-                <span
-                  >Reference files, metrics, or patterns where possible.</span
-                >
+                <strong>Zero-code, env-driven setup with explicit-wins precedence</strong>
+                <span>A bare <code>Setup()</code> is fully deployment-configurable:
+                OTEL_EXPORTER_OTLP_ENDPOINT auto-enables OTLP per signal, and OTEL_SERVICE_NAME /
+                OTEL_RESOURCE_ATTRIBUTES / OTEL_TRACES_SAMPLER pass through natively &mdash; achieved
+                by deliberately <em>not</em> forcing a sampler. Explicit code options win per signal,
+                so partial migrations are safe (otel/setup.go:338-360). Pinned by a real
+                OTLP/HTTP round-trip test suite against an in-process protobuf collector stub
+                (otel/otlp_test.go, incl. the metric-interval env pin at :260).</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Semantic-convention discipline on spans, metrics, and exceptions</strong>
+                <span>Spans named by matched ServeMux pattern ("GET /users/{id}") to kill
+                route-cardinality blowups (otel/middleware.go:154-165); histogram boundaries pinned
+                to the semconv-recommended bucket set (otel/views.go:19-21); panics and handled
+                errors become exception events with type/message/stacktrace &mdash; exactly what
+                SigNoz's Exceptions view indexes (otel/exceptions.go:37-122).</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Contracts pinned where they can silently rot</strong>
+                <span>The integration module (published-tags charter) pins span-name + http.route
+                propagation through the real OuterMiddlewares chain
+                (integration/otel_pattern_test.go:35) and the events-survive-status-clobber behavior
+                (:139). The metric-name surface is a documented contract with a known exporter
+                <code>_ratio</code> trap (doc/TELEMETRY.md &sect;2).</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Security-aware middleware options</strong>
+                <span><code>WithPublicEndpoint()</code> turns untrusted incoming traceparent headers
+                into links instead of parents, so internet-facing callers cannot forge trace
+                continuity or skew sampling (otel/middleware.go:54-62). Health endpoints are
+                unconditionally filtered from spans/metrics (:167-174). These are options most
+                projects never learn exist.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>The whole OTel API used as interfaces, never forced on consumers</strong>
+                <span>The cqrs module implements projectionhost.MetricsRecorder on raw OTel
+                instruments (cqrs/otelmetrics.go:52) with a stable <code>cqrs.projection.*</code>
+                name contract; the flight-recorder bridge turns capture events into two documented
+                metrics (otel/frmetrics.go:31-63). No exporter is forced &mdash; the metric API is
+                interface-only, no-op without Setup.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Honest performance evidence</strong>
+                <span>Benchmarks for the middleware <em>and</em> Recovery/RecordError with a dated
+                methodology, a &plusmn;25% drift rule, and two re-runs proving B/op and allocs/op
+                unchanged across toolchain bumps (otel/README.md:266-312). The strictly-opt-in
+                no-op path is measured, not asserted.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Version currency: perfect</strong>
+                <span>otel v1.47.0 and otelhttp v0.72.0 are the latest stable releases (upstream,
+                2026-10-02); contrib v0.72.0 is the pairing release. Zero version gap on either
+                module (otel/go.mod:11-21).</span>
               </div>
             </div>
           </div>
+
+          <p>
+            Architecturally, the library owns its edges cleanly: <code>Setup</code> is the only
+            place the SDK is constructed; <code>Middleware</code> bridges otelhttp behind the
+            repo's own <code>httputil.Middleware</code> type; consumers get a
+            <code>Provider.Shutdown</code> that drops straight into
+            <code>ServiceConfig.ShutdownHooks</code>. The module works on plain net/http with no
+            appkit-core dependency, and the process-global registration is skippable
+            (<code>WithoutGlobalRegistration</code>) for tests and multi-service processes. Core
+            stays OTel-free by design &mdash; its <code>/metrics</code> endpoint is a
+            dependency-free Prometheus text path, with the divergence between the two metric
+            surfaces documented as a migration trap rather than discovered in production
+            (doc/TELEMETRY.md &sect;2).
+          </p>
         </section>
 
         <!-- Findings -->
         <section id="findings">
-          <h2><span class="num">01</span>Findings</h2>
-          <p>These are the issues that need attention, ordered by impact.</p>
-
-          <!-- Issue 1 -->
-          <div class="issue issue-critical" id="issue-1">
-            <span class="severity severity-critical"
-              >Blocking &middot; High impact</span
-            >
-            <h3>Critical issue title</h3>
-            <div class="where">
-              path/to/file.go:42-58 &middot; short context
-            </div>
-            <p>
-              Describe the problem, cite the code or behavior, and explain why
-              it matters to the reader's goals.
-            </p>
-            <pre><code>// Example of the problematic pattern
-func BadExample() {}</code></pre>
-            <div class="callout callout-teal">
-              <strong>Fix: recommended action</strong>
-              State the concrete fix, including file names, function names, or
-              configuration changes.
-            </div>
-          </div>
-
-          <!-- Issue 2 -->
-          <div class="issue issue-important" id="issue-2">
-            <span class="severity severity-important"
-              >Important &middot; Medium impact</span
-            >
-            <h3>Important issue title</h3>
-            <div class="where">path/to/another.go:12-19</div>
-            <p>
-              Explain the risk. Important issues are not blockers but would make
-              a careful reviewer hesitate before shipping.
-            </p>
-          </div>
-
-          <!-- Issue 3 -->
-          <div class="issue issue-nice" id="issue-3">
-            <span class="severity severity-nice"
-              >Nice to have &middot; Low impact</span
-            >
-            <h3>Nice-to-have improvement</h3>
-            <div class="where">docs/ or config</div>
-            <p>
-              Minor polish, documentation gaps, or future-proofing suggestions
-              go here.
-            </p>
-          </div>
-        </section>
-
-        <!-- Proposal -->
-        <section id="proposal">
-          <h2><span class="num">02</span>What the solution could look like</h2>
+          <h2><span class="num">01</span>Capability assessment</h2>
           <p>
-            If the findings were fixed, what would the new state be? Show the
-            target API, structure, or workflow.
+            Ordered by impact. 25 of 37 applicable capabilities are fully leveraged (the compact
+            list lives in the appendix); below are the 4 missed opportunities, the 8 partial
+            adoptions, and what each is worth. There are zero anti-pattern findings: nothing in
+            the codebase uses a deprecated-in-practice API or contradicts SDK guidance.
           </p>
-          <pre><code>// Target state after the recommended changes
-type BetterAPI struct {
-    Field string
-}</code></pre>
-          <div class="callout callout-teal">
-            <strong>This is the target</strong>
-            Summarize why this state is better and what it unlocks.
+
+          <!-- F1: logs -->
+          <div class="issue issue-critical" id="finding-logs">
+            <span class="severity severity-critical">Missed opportunity &middot; High impact</span>
+            <h3>The logs signal: the documented non-goal's own trigger fired on 2026-10-02</h3>
+            <div class="where">
+              otel/README.md:252-254 &middot; otel/go.mod:53 (otel/log v1.47.0 already in the tree,
+              indirect) &middot; not used anywhere
+            </div>
+            <p>
+              The README's design notes declare OTLP logs out of scope because
+              <em>"go.opentelemetry.io/otel/log is still experimental &hellip; revisit when it
+              stabilizes and a consumer asks."</em> That sentence is now factually stale: upstream
+              v1.47.0 (the exact version this repo pins) is the <strong>first stable release of the
+              Logs API and SDK</strong> &mdash; <code>go.opentelemetry.io/otel/log</code> and
+              <code>sdk/log</code> are covered by the stability guarantees (only the OTLP log
+              exporters remain v0.x). The stabilization half of the trigger has fired; only the
+              consumer-demand half holds. Meanwhile the fleet already built the other half of log
+              correlation: TraceHandler stamps trace_id/span_id onto slog records
+              (otel/logging.go:24), which stops at text correlation &mdash; the logs signal is what
+              makes those records first-class, queryable, trace-linked objects in SigNoz's logs tab.
+            </p>
+            <pre><code><span class="tok-comment">// The build path when the consumer-demand half fires (verified against v1.47.0 docs):</span>
+<span class="tok-keyword">import</span> (
+    <span class="tok-string">"go.opentelemetry.io/contrib/bridges/otelslog"</span> <span class="tok-comment">// v0.21.0</span>
+    <span class="tok-string">"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"</span> <span class="tok-comment">// v0.23.0</span>
+    sdklog <span class="tok-string">"go.opentelemetry.io/otel/sdk/log"</span>
+)
+
+exp, _ := otlploghttp.New(ctx)                          <span class="tok-comment">// same OTLP endpoint as traces</span>
+lp := sdklog.NewLoggerProvider(
+    sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)))
+<span class="tok-comment">// register alongside the tracer/meter providers; flush in Provider.Shutdown</span>
+otel.SetLoggerProvider(lp)
+
+<span class="tok-comment">// bridge the slog stack the fleet already uses:</span>
+logger := otelslog.NewLogger(<span class="tok-string">"myapp"</span>, otelslog.WithLoggerProvider(lp))</code></pre>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Two moves, different urgency. (a) <em>Now:</em> rewrite the README non-goal to state
+              the true current status &mdash; "Logs API+SDK stable since v1.47.0 (2026-10-02);
+              OTLP log exporters still v0.x; build on consumer demand" &mdash; and record the
+              fired trigger where the module tracks revisit conditions. (b) <em>On demand:</em> a
+              <code>WithOTLPLogs()</code> option mirroring the existing
+              <code>WithOTLP()</code> shape, plus an otelslog wiring recipe. The dependency cost is
+              real but small: sdk/log + otlploghttp (v0.x) + the bridge module.
+            </div>
+          </div>
+
+          <!-- F2: self-diagnostics -->
+          <div class="issue issue-critical" id="finding-diagnostics">
+            <span class="severity severity-critical">Missed opportunity &middot; High impact</span>
+            <h3>SDK self-diagnostics are unwired: exporter failures vanish to stderr</h3>
+            <div class="where">
+              not used anywhere (<code>rg "SetErrorHandler|SetLogger\(" --type go</code> is empty)
+              &middot; affected path: otel/setup.go:225-257
+            </div>
+            <p>
+              The OTel SDK reports its own failures &mdash; OTLP export errors, dropped batches,
+              sampler misconfigurations &mdash; through two process-global hooks:
+              <code>otel.SetErrorHandler(ErrorHandler)</code> for operational errors and
+              <code>otel.SetLogger(logr.Logger)</code> for SDK internal diagnostics. The module
+              wires neither. The default error handler writes to stderr, which means: the batch
+              span processor's documented LOSSY drop behavior (doc/TELEMETRY.md &sect;3 &mdash;
+              "queue-full spans/metrics are dropped silently") is silent by construction even
+              though a one-line hook would make it a first-class log line. This directly violates
+              the fleet's own observability doctrine, where every important event is a grep-able,
+              level-classified line in the charmbracelet/slog contract
+              (doc/TELEMETRY.md &sect;1).
+            </p>
+            <pre><code><span class="tok-comment">// Inside Setup, after the providers are built (logr v1.4.4 is already an indirect dep):</span>
+otel.SetErrorHandler(otel.ErrorHandlerFunc(<span class="tok-keyword">func</span>(err <span class="tok-type">error</span>) {
+    logger.Error(<span class="tok-string">"otel export failed"</span>, slog.Any(<span class="tok-string">"error"</span>, err)) <span class="tok-comment">// grep-able contract line</span>
+}))
+otel.SetLogger(logr.FromSlogHandler(logger.Handler())) <span class="tok-comment">// SDK internals flow into slog</span></code></pre>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Add both wirings to <code>Setup</code> (opt-out option for exotic embedders), extend
+              doc/TELEMETRY.md &sect;1 with the new line, and pin it in a test. Impact &times;
+              ease is the best in this report: a deploy where the collector is down currently
+              produces zero evidence in the app's own logs; after the fix it produces one ERROR
+              line per failed export attempt.
+            </div>
+          </div>
+
+          <!-- F3: client spans -->
+          <div class="issue issue-important" id="finding-client">
+            <span class="severity severity-important">Missed opportunity &middot; Medium-high impact</span>
+            <h3>Client-side spans: distributed traces terminate at the service edge</h3>
+            <div class="where">
+              otel/doc.go:68 (mentions otelhttp.Transport for consumers) &middot;
+              ROADMAP.md:90-91 (tracks <code>appkitotel.Transport()</code>) &middot;
+              no otelhttp.NewTransport / otelhttptrace usage anywhere
+            </div>
+            <p>
+              The middleware produces exemplary SERVER spans; nothing in the fleet produces CLIENT
+              spans. doc.go tells consumers that "outgoing client requests made with
+              otelhttp.Transport continue this service's trace" &mdash; true, but the module neither
+              wraps it in an appkit-shaped helper nor documents the pattern outside a doc-comment
+              aside. For an HTTP service framework whose whole pitch is "telemetry in one wiring
+              point," the outbound leg is where real distributed traces die: a call to a payment
+              gateway or downstream service is invisible in the SigNoz waterfall. Upstream also
+              ships <code>otelhttptrace</code> with <code>WithoutSubSpans()</code>, the recommended
+              mode for high-fanout services (DNS/connect/TLS as events, not spans).
+            </p>
+            <pre><code><span class="tok-comment">// Proposed (ROADMAP-tracked): one helper mirroring Middleware's shape</span>
+<span class="tok-keyword">func</span> <span class="tok-function">Transport</span>(opts ...MiddlewareOption) http.RoundTripper {
+    <span class="tok-keyword">return</span> otelhttp.NewTransport(http.DefaultTransport, toOtelOpts(opts)...)
+}
+
+<span class="tok-comment">// Consumer:</span>
+client := &amp;http.Client{Transport: appkitotel.Transport()} <span class="tok-comment">// CLIENT span per request</span></code></pre>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Export <code>Transport()</code> (the ROADMAP entry already names it), add an
+              "Outbound calls" README section with the otelhttptrace <code>WithoutSubSpans()</code>
+              note, and extend the example with one downstream call. Small API, completes the
+              trace story end to end.
+            </div>
+          </div>
+
+          <!-- F4: exporter selector -->
+          <div class="issue issue-important" id="finding-exporter-selector">
+            <span class="severity severity-important">Partially used &middot; Medium impact</span>
+            <h3>Spec's exporter-selector env vars are ignored: no env off-switch for OTLP</h3>
+            <div class="where">
+              otel/otlp.go:22-26, 96-107 &middot; otel/setup.go:338-360 &middot; upstream alternative:
+              contrib <code>exporters/autoexport</code> (v0.72.0)
+            </div>
+            <p>
+              The OpenTelemetry specification's exporter-selection variables &mdash;
+              <code>OTEL_TRACES_EXPORTER</code>, <code>OTEL_METRICS_EXPORTER</code>,
+              <code>OTEL_LOGS_EXPORTER</code> (values: otlp | none | console | prometheus) and
+              <code>OTEL_EXPORTER_OTLP_PROTOCOL</code> &mdash; are not consulted. The env path keys
+              strictly off endpoint variables: set
+              <code>OTEL_EXPORTER_OTLP_ENDPOINT</code> and OTLP turns on, with <strong>no
+              environment-based off-switch</strong> (an operator setting
+              <code>OTEL_TRACES_EXPORTER=none</code> per spec gets traces exported anyway).
+              HTTP-only is a deliberate, defensible posture (gRPC weight avoided) &mdash; but the
+              off-switch is a compliance gap, not a design choice. The contrib
+              <code>autoexport</code> package implements exactly this selection layer if full
+              spec coverage is ever wanted.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Minimal move: honor <code>OTEL_TRACES_EXPORTER=none</code> /
+              <code>OTEL_METRICS_EXPORTER=none</code> as per-signal vetoes in
+              <code>applyOTLPWiring</code> (a three-line change with a pin test), and state the
+              HTTP-only protocol divergence in the README's production-exporter section. Full
+              autoexport adoption is available if selector breadth (console/prometheus) is ever
+              demanded.
+            </div>
+          </div>
+
+          <!-- F5: resource detectors -->
+          <div class="issue issue-important" id="finding-resource">
+            <span class="severity severity-important">Partially used &middot; Medium impact</span>
+            <h3>Resource detection stops at FromEnv+SDK+Host: no process/runtime attributes</h3>
+            <div class="where">
+              otel/setup.go:376-382 &mdash; <code>WithFromEnv()</code>,
+              <code>WithTelemetrySDK()</code>, <code>WithHost()</code>, code attributes win on
+              conflict
+            </div>
+            <p>
+              The resource merge is correct (code-configured identity beats env, env beats
+              nothing), but the built-in detector set omits <code>resource.WithProcess()</code>,
+              which contributes <code>process.pid</code>, <code>process.executable.name</code>,
+              <code>process.runtime.name</code>, and <code>process.runtime.version</code>
+              (verified against sdk/resource in v1.47.0). Backends surface these in service views;
+              SigNoz's service pages show runtime name/version when present. Container/K8s
+              detectors live in contrib if pod identity ever matters.
+            </p>
+            <pre><code>res, err := resource.New(ctx,
+    resource.WithFromEnv(),
+    resource.WithTelemetrySDK(),
+    resource.WithHost(),
+    resource.WithProcess(),          <span class="tok-comment">// + process.* incl. process.runtime.version</span>
+    resource.WithAttributes(attrs...),
+)</code></pre>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              One line in <code>buildResource</code> (plus a test assertion on the merged
+              resource). Note the upstream caveat: <code>WithProcess()</code> includes
+              <code>process.command_args</code>, which can carry sensitive flags &mdash; prefer the
+              targeted <code>WithProcessRuntime*</code> options if the full set is too broad.
+            </div>
+          </div>
+
+          <!-- F6: semconv -->
+          <div class="issue issue-important" id="finding-semconv">
+            <span class="severity severity-important">Partially used &middot; Low-medium impact</span>
+            <h3>semconv pinned at v1.26.0 while the SDK ships v1.43.0 &mdash; correct today, plan the rename</h3>
+            <div class="where">
+              otel/setup.go:17 &middot; otel/attributes.go:6 &middot; otel/exceptions.go:13 &mdash;
+              all <code>semconv/v1.26.0</code>
+            </div>
+            <p>
+              The repo emits <code>deployment.environment</code> (via
+              <code>semconv.DeploymentEnvironment</code>), deprecated since semconv v1.27.0 in
+              favor of <code>deployment.environment.name</code> (stabilized v1.40.0 with enum
+              values); the SDK in this very go.mod ships packages up to v1.43.0. The nuance that
+              makes this "partially used" rather than "misused": SigNoz &mdash; the module's stated
+              primary backend &mdash; still reads the <strong>old</strong> key by default, with the
+              new key behind a disabled-by-default feature flag (signoz#6921, closed 2026-10-09).
+              The v1.26.0 pin is currently SigNoz-optimal. All other attributes this repo emits
+              (service.name/version/instance.id, exception.*, http.*) are unchanged between the
+              two versions.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              No code change now. Record the migration trigger: "move to
+              <code>semconv/v1.43.0</code> + <code>deployment.environment.name</code> when SigNoz
+              flips the semconv-families resolver to default-on" &mdash; and note that otelhttp
+              v0.72.0's own metric attributes already follow current semconv regardless of which
+              helper package the repo imports.
+            </div>
+          </div>
+
+          <!-- F7: baggage -->
+          <div class="issue issue-important" id="finding-baggage">
+            <span class="severity severity-important">Missed opportunity &middot; Low-medium impact</span>
+            <h3>Baggage propagates but nothing speaks it: no correlation-ID helpers</h3>
+            <div class="where">
+              otel/attributes.go:34-37 (Baggage in the propagator) &middot;
+              ROADMAP.md:90 (tracks helpers) &middot; <code>rg "baggage\." --type go</code> is empty
+            </div>
+            <p>
+              The W3C composite propagator carries baggage on every hop, but no code in the repo
+              ever reads or writes a baggage item. The planned helpers (the ROADMAP's
+              cqrs-parity <code>WithCorrelationID</code> shape) would give multi-service
+              deployments a standard, propagation-native correlation ID that shows up in
+              span attributes automatically &mdash; without inventing a custom header protocol.
+            </p>
+            <pre><code><span class="tok-comment">// Proposed shape (ROADMAP): set on ingress, read anywhere in the request scope</span>
+ctx = appkitotel.WithCorrelationID(ctx, req)   <span class="tok-comment">// baggage.SetMember</span>
+id := appkitotel.CorrelationID(ctx)            <span class="tok-comment">// baggage.Member("").Value()</span></code></pre>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Keep it ROADMAP-gated (no consumer asks yet), but note it in the README's
+              propagation row so consumers know baggage is carried and available.
+            </div>
+          </div>
+
+          <!-- F8: exemplars + cardinality -->
+          <div class="issue issue-nice" id="finding-exemplars">
+            <span class="severity severity-nice">Partially used &middot; Low impact</span>
+            <h3>Exemplars and cardinality limits: unconfigured, undocumented, mostly fine</h3>
+            <div class="where">
+              otel/frmetrics.go:60-61 &middot; cqrs/otelmetrics.go:108 (both record with
+              <code>context.Background()</code>) &middot; no <code>WithCardinalityLimit</code>
+              anywhere
+            </div>
+            <p>
+              The SDK attaches exemplars to histogram/counter data points from the active span in
+              the recording context &mdash; which means the middleware's HTTP metrics can carry
+              exemplars linking dashboard data points to trace IDs, but the fr-bridge and cqrs
+              recorders, which deliberately use <code>context.Background()</code>, structurally
+              never will. Cardinality is already handled the right way (route patterns, not raw
+              paths), and v1.47.0's default per-instrument limit of 2000 (stable since v1.44.0)
+              backstops any regression. Both topics simply deserve a decided, documented posture
+              rather than silence.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Two sentences in the README ("exemplars: available on middleware metrics when spans
+              are sampled; bridge/cqrs metrics opt out by design") and optionally a
+              <code>WithCardinalityLimit</code> view for belt-and-suspenders. No behavior change
+              required.
+            </div>
+          </div>
+
+          <!-- F9: composition gaps -->
+          <div class="issue issue-nice" id="finding-composition">
+            <span class="severity severity-nice">Partially used &middot; Low impact</span>
+            <h3>Composition-gap E2Es remain on the watchlist</h3>
+            <div class="where">
+              TODO_LIST.md:56 &mdash; otel&times;realtime (SSE spans on the NoTimeout path),
+              otel&times;health-dashboard (traced-vs-filtered routes), errorpages&times;otel
+              (pretty 500s + exception events), full-stack panic&rarr;exception through a Service
+            </div>
+            <p>
+              The integration module's two otel pins are excellent but narrow (span-name/route
+              propagation, exception events). The cross-module combinations above are the
+              repo's own watchlist, unchanged since 2026-09-23; every leg is a plausible
+              regression site (middleware ordering, filtering interactions) that only an E2E
+              through a real Service can pin.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Harvest one leg per release train into the integration module &mdash; the
+              panic&rarr;exception E2E is the highest-value single test (it pins the complete
+              exception story this module advertises).
+            </div>
+          </div>
+
+          <!-- F10: dashboard -->
+          <div class="issue issue-nice" id="finding-dashboard">
+            <span class="severity severity-nice">Partially used &middot; Low impact</span>
+            <h3>The SigNoz dashboard has never met a SigNoz</h3>
+            <div class="where">
+              otel/dashboards/README.md:22-26 &middot; FEATURES.md otel row (honestly marked
+              "unvalidated against live SigNoz")
+            </div>
+            <p>
+              The import-ready dashboard JSON (schemaVersion v6, template-derived from SigNoz's
+              official example) is parse-verified but has never been imported into a live
+              instance &mdash; a risk the repo itself documents. The docs-training habit that
+              produced it ("JSON parses &ne; SigNoz accepts") is exactly right; the residual risk
+              is a v6-schema import failure on older instances.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              User-gated (needs an instance): import once, screenshot, record the SigNoz version
+              in dashboards/README.md. Pairs naturally with an exceptions-view E2E (the 2026-09-29
+              report's items #4/#5, still open).
+            </div>
+          </div>
+
+          <!-- F11: bench -->
+          <div class="issue issue-nice" id="finding-bench">
+            <span class="severity severity-nice">Partially used &middot; Low impact</span>
+            <h3>Middleware ns/op rows are two load-deferrals old</h3>
+            <div class="where">
+              otel/README.md:285-292 &middot; TODO_LIST.md:63 (deferred 2026-09-29 and 2026-10-13
+              on ambient load)
+            </div>
+            <p>
+              B/op and allocs/op were re-verified &plusmn;0% twice (most recently 2026-10-13,
+              n=10 with benchstat), but the wall-clock rows still cite the 2026-09-16 baseline
+              because the box's ambient load twice violated the &plusmn;25% honesty bar. The
+              numbers are almost certainly fine; the protocol (CPU-pinned quiet window) is
+              already specified in TODO_LIST.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Recommendation</strong>
+              Run the deferred re-baseline in the quiet window the fleet's load-flake protocol
+              already prescribes (uptime check, taskset pinning). Documentation hygiene only.
+            </div>
+          </div>
+
+          <!-- fully leveraged summary -->
+          <div class="issue issue-nice" id="finding-leveraged">
+            <span class="severity severity-nice">Fully leveraged &middot; 25 capabilities</span>
+            <h3>What's already right &mdash; no action, just evidence</h3>
+            <div class="where">full scored inventory in the appendix (45 rows)</div>
+            <p>
+              Provider lifecycle with flush-before-shutdown; OTLP/HTTP for both signals with
+              base-URL path semantics; zero-code env setup with explicit-wins precedence; env-native
+              sampler; route-pattern span naming; semconv histogram views; unconditional health
+              filtering; public-endpoint link semantics; exception capture in both flavors;
+              trace-correlated slog; classified setup/shutdown errors; global-registration
+              isolation; the cqrs projection adapter; the flight-recorder bridge; documented batch
+              lossiness; the metric-interval env pin; and perfect version currency on both
+              modules. The appendix table carries the file:line evidence for each.
+            </p>
           </div>
         </section>
 
-        <!-- Appendix -->
-        <section id="appendix">
-          <h2><span class="num">03</span>Appendix</h2>
+        <!-- Version currency -->
+        <section id="currency">
+          <h2><span class="num">02</span>Version currency</h2>
+          <div class="callout callout-teal">
+            <strong>On the latest &mdash; verified, not assumed</strong>
+            otel v1.47.0 (2026-10-02) and contrib/otelhttp v0.72.0 are the current stable
+            releases; both are what otel/go.mod pins. The only newer work is v1.48.0-in-progress
+            upstream, and nothing in it touches this repo's usage.
+          </div>
           <p>
-            Methodology, links to related files, or a priority matrix can live
-            here.
+            Because the pin is current, the table below reads as "what this repo already has"
+            &mdash; and, for the unreleased row, what is coming. It doubles as the
+            features-in-the-gap assessment: the notable v1.47.0 features are either used, or
+            appear as findings above.
           </p>
           <table class="compare">
             <thead>
               <tr>
-                <th>Issue</th>
-                <th>Severity</th>
-                <th>Effort</th>
-                <th>Status</th>
+                <th>Upstream release</th>
+                <th>Date</th>
+                <th>Notable change</th>
+                <th>Relevance to go-appkit</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Issue one</td>
-                <td class="no">Critical</td>
-                <td>Low</td>
-                <td class="no">Open</td>
+                <td>v1.47.0 (pinned)</td>
+                <td>2026-10-02</td>
+                <td><strong>First stable Logs API + SDK</strong>; <code>WithMaxResponseSize</code>
+                    (OTLP/HTTP); <code>WithMaxExportBatchSize</code>;
+                    <code>WithAttributeValueDepthLimit</code>; semconv v1.43.0</td>
+                <td class="yes">High &mdash; the logs non-goal's trigger fired (finding 1)</td>
               </tr>
               <tr>
-                <td>Issue two</td>
-                <td class="no">Important</td>
-                <td>Medium</td>
-                <td class="yes">In progress</td>
+                <td>v1.46.0</td>
+                <td>2026-08-25</td>
+                <td>Last Go 1.25-supporting release; Resource.MarshalLog fix</td>
+                <td class="no">Superseded by the pin</td>
+              </tr>
+              <tr>
+                <td>v1.45.0</td>
+                <td>2026-08-03</td>
+                <td>semconv v1.42.0/v1.43.0 packages; exemplar reservoir fixes (time-unbiased
+                    sampling, off-by-one, memory leak)</td>
+                <td class="yes">Included in the pin; underpins the exemplar posture (finding 8)</td>
+              </tr>
+              <tr>
+                <td>v1.44.0</td>
+                <td>2026-05-27</td>
+                <td>Default cardinality limit 2000; OTLP max-request-size default 64 MiB</td>
+                <td class="yes">Included; backstops the route-cardinality design (finding 8)</td>
+              </tr>
+              <tr>
+                <td>otelhttp v0.72.0 (pinned)</td>
+                <td>2026-10-02</td>
+                <td>Client-side <code>Labeler</code>; message-event sizes moved to span attributes;
+                    client metrics no longer inherit server Labeler attrs</td>
+                <td class="yes">Relevant to the client-span story (finding 3)</td>
+              </tr>
+              <tr>
+                <td>v1.48.0 (unreleased)</td>
+                <td>&mdash;</td>
+                <td>opentracing/opencensus bridges deprecated (final release); 
+                    <code>OTEL_GO_X_CARDINALITY_LIMIT</code> env removed; OTLP retries bounded by
+                    <code>WithTimeout</code>; nil-option hardening</td>
+                <td class="no">None &mdash; the repo uses none of the deprecated/removed surface;
+                    the retry bound slightly <em>improves</em> WithOTLPTimeout semantics</td>
               </tr>
             </tbody>
           </table>
         </section>
 
+        <!-- Top opportunities -->
+        <section id="priorities">
+          <h2><span class="num">03</span>Top opportunities</h2>
+          <p>
+            Pareto-ranked by impact &times; ease. Items 1&ndash;3 are the actionable core; 4&ndash;5
+            are cheap adds; 6&ndash;12 are posture decisions, gated work, or hygiene.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Opportunity</th>
+                <th>Impact</th>
+                <th>Ease</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Wire <code>otel.SetErrorHandler</code> + <code>otel.SetLogger</code> into
+                    Setup (exporter failures become grep-able ERROR lines)</td>
+                <td class="yes">4</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">20</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Export <code>appkitotel.Transport()</code> client-span helper + "Outbound
+                    calls" docs (ROADMAP-tracked)</td>
+                <td class="yes">4</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">16</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Truth-fix the logs non-goal: record that the Logs API+SDK stabilized
+                    2026-10-02 (doc-only; the build stays demand-gated)</td>
+                <td class="yes">3</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">15</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Add <code>resource.WithProcess()</code> (or targeted Runtime* options) to
+                    buildResource</td>
+                <td class="yes">3</td>
+                <td class="yes">5</td>
+                <td><span class="highlight">15</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Build <code>WithOTLPLogs()</code> + otelslog recipe when a consumer asks
+                    (existing gate)</td>
+                <td class="yes">5</td>
+                <td>3</td>
+                <td><span class="highlight">15</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Honor <code>OTEL_*_EXPORTER=none</code> as an env off-switch; document the
+                    HTTP-only protocol divergence</td>
+                <td class="yes">3</td>
+                <td>3</td>
+                <td><span class="highlight">9</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>Record the semconv v1.26&rarr;v1.43 migration trigger (SigNoz flag-gated
+                    rename)</td>
+                <td>2</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">8</span></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>Decide + document exemplars and cardinality posture in the README</td>
+                <td>2</td>
+                <td class="yes">4</td>
+                <td><span class="highlight">8</span></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>Baggage correlation-ID helpers (ROADMAP)</td>
+                <td class="yes">3</td>
+                <td>2</td>
+                <td><span class="highlight">6</span></td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>Composition-gap E2Es, one per train (panic&rarr;exception first)</td>
+                <td class="yes">3</td>
+                <td>2</td>
+                <td><span class="highlight">6</span></td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>Validate the dashboard against a live SigNoz (user-gated; needs instance)</td>
+                <td>2</td>
+                <td>2</td>
+                <td><span class="highlight">4</span></td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>Re-baseline middleware ns/op in a quiet window (protocol already specified)</td>
+                <td>1</td>
+                <td>2</td>
+                <td><span class="highlight">2</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-teal">
+            <strong>If you only do one thing</strong>
+            Item 1. It is twenty lines, needs no new dependencies (logr is already in the tree),
+            and converts the module's one real blind spot &mdash; telemetry failing silently &mdash;
+            into a first-class line in the log contract the rest of the fleet already keeps.
+          </div>
+        </section>
+
+        <!-- Appendix -->
+        <section id="appendix">
+          <h2><span class="num">04</span>Appendix</h2>
+
+          <h3>Score derivation</h3>
+          <p>
+            45 capabilities inventoried (SDK surface &times; this repo's usage contexts). 8 graded
+            Not Applicable with reasons below &rarr; <strong>A = 37 applicable</strong>. Grading:
+            25 Fully Leveraged (&times;1), 8 Partially Used (&times;0.5), 4 Missed Opportunity
+            (&times;0), 0 Misused (&times;0).
+            <strong>score = round(100 &times; (25 + 8&times;0.5) / 37) = round(78.38) =
+            78/100</strong> &mdash; band <strong>high</strong> (70&ndash;84).
+          </p>
+
+          <h3>Scored inventory</h3>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Capability</th>
+                <th>Status</th>
+                <th>Evidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>TracerProvider lifecycle, flush-before-shutdown</td><td class="yes">Full</td><td>otel/setup.go:164-192, 287-305</td></tr>
+              <tr><td>2</td><td>MeterProvider + semconv histogram views</td><td class="yes">Full</td><td>otel/setup.go:309-320; otel/views.go:29-42</td></tr>
+              <tr><td>3</td><td>W3C tracecontext+baggage composite propagator</td><td class="yes">Full</td><td>otel/attributes.go:33-38</td></tr>
+              <tr><td>4</td><td>OTLP/HTTP both signals, base-URL + env knobs</td><td class="yes">Full</td><td>otel/otlp.go:82-154</td></tr>
+              <tr><td>5</td><td>Stdout exporter (dev path)</td><td class="yes">Full</td><td>otel/setup.go:102-106, 268-281</td></tr>
+              <tr><td>6</td><td>Sampler: code option + env-native, SDK default preserved</td><td class="yes">Full</td><td>otel/setup.go:68-79, 283-298</td></tr>
+              <tr><td>7</td><td>Global registration + WithoutGlobalRegistration isolation</td><td class="yes">Full</td><td>otel/setup.go:108-118, 250-254</td></tr>
+              <tr><td>8</td><td>Error-family classification of setup/shutdown failures</td><td class="yes">Full</td><td>otel/setup.go:144-154; otel/otlp.go:187-190</td></tr>
+              <tr><td>9</td><td>SERVER spans named by ServeMux pattern</td><td class="yes">Full</td><td>otel/middleware.go:154-165</td></tr>
+              <tr><td>10</td><td>http.server.request.duration + pinned boundaries</td><td class="yes">Full</td><td>otel/middleware.go:91-152; otel/views.go:19-21</td></tr>
+              <tr><td>11</td><td>Filters: unconditional health + user paths</td><td class="yes">Full</td><td>otel/middleware.go:64-89, 144-149, 167-174</td></tr>
+              <tr><td>12</td><td>PublicEndpointFn &rarr; links, not parents</td><td class="yes">Full</td><td>otel/middleware.go:54-62, 138-142</td></tr>
+              <tr><td>13</td><td>WithServerName virtual-server attribute</td><td class="yes">Full</td><td>otel/middleware.go:46-52</td></tr>
+              <tr><td>14</td><td>Exception capture: Recovery + RecordError</td><td class="yes">Full</td><td>otel/exceptions.go:37-122</td></tr>
+              <tr><td>15</td><td>Span-status contract pinned (events survive clobber)</td><td class="yes">Full</td><td>integration/otel_pattern_test.go:139</td></tr>
+              <tr><td>16</td><td>Instrument API: fr bridge + cqrs adapter</td><td class="yes">Full</td><td>otel/frmetrics.go:31-63; cqrs/otelmetrics.go:61-148</td></tr>
+              <tr><td>17</td><td>Periodic reader env interval (+ pin test)</td><td class="yes">Full</td><td>otel/otlp.go:125-138; otel/otlp_test.go:260</td></tr>
+              <tr><td>18</td><td>Batch processor defaults; lossiness documented</td><td class="yes">Full</td><td>doc/TELEMETRY.md &sect;3</td></tr>
+              <tr><td>19</td><td>Trace-log correlation (TraceHandler)</td><td class="yes">Full</td><td>otel/logging.go:24-105</td></tr>
+              <tr><td>20</td><td>Zero-code env setup, explicit-wins precedence</td><td class="yes">Full</td><td>otel/setup.go:338-360; otel/setup_test.go</td></tr>
+              <tr><td>21</td><td>Service identity attributes</td><td class="yes">Full</td><td>otel/attributes.go:12-26</td></tr>
+              <tr><td>22</td><td>Core-framework integration + pattern-propagation pin</td><td class="yes">Full</td><td>integration/otel_pattern_test.go:35</td></tr>
+              <tr><td>23</td><td>cqrs projection metrics adapter (MetricsRecorder)</td><td class="yes">Full</td><td>cqrs/otelmetrics.go:52</td></tr>
+              <tr><td>24</td><td>Version currency: otel core = latest</td><td class="yes">Full</td><td>otel/go.mod:12-19 vs upstream 2026-10-02</td></tr>
+              <tr><td>25</td><td>Version currency: otelhttp = latest pairing</td><td class="yes">Full</td><td>otel/go.mod:11</td></tr>
+              <tr><td>26</td><td>Resource detectors beyond FromEnv/SDK/Host</td><td class="no">Partial</td><td>otel/setup.go:376-382 (finding 5)</td></tr>
+              <tr><td>27</td><td>Exemplars posture</td><td class="no">Partial</td><td>otel/frmetrics.go:60; cqrs/otelmetrics.go:108 (finding 8)</td></tr>
+              <tr><td>28</td><td>Cardinality-limit views</td><td class="no">Partial</td><td>unused; default 2000 active (finding 8)</td></tr>
+              <tr><td>29</td><td>Exporter-selector env vars (none/console/prometheus)</td><td class="no">Partial</td><td>otel/otlp.go:22-26; setup.go:338-360 (finding 4)</td></tr>
+              <tr><td>30</td><td>semconv package currency (v1.26 vs v1.43)</td><td class="no">Partial</td><td>otel/setup.go:17; attributes.go:6 (finding 6)</td></tr>
+              <tr><td>31</td><td>Cross-module composition E2Es</td><td class="no">Partial</td><td>TODO_LIST.md:56 watchlist (finding 9)</td></tr>
+              <tr><td>32</td><td>Dashboard validated against live SigNoz</td><td class="no">Partial</td><td>otel/dashboards/README.md:22-26 (finding 10)</td></tr>
+              <tr><td>33</td><td>Middleware ns/op rows current</td><td class="no">Partial</td><td>otel/README.md:285-292; TODO_LIST.md:63 (finding 11)</td></tr>
+              <tr><td>34</td><td>OTLP logs signal (sdk/log + otelslog)</td><td class="no">Missed</td><td>otel/README.md:252-254; go.mod:53 (finding 1)</td></tr>
+              <tr><td>35</td><td>SDK self-diagnostics (SetErrorHandler/SetLogger)</td><td class="no">Missed</td><td>unused; stderr default (finding 2)</td></tr>
+              <tr><td>36</td><td>Client spans (Transport helper + otelhttptrace)</td><td class="no">Missed</td><td>otel/doc.go:68; ROADMAP.md:90-91 (finding 3)</td></tr>
+              <tr><td>37</td><td>Baggage correlation helpers</td><td class="no">Missed</td><td>otel/attributes.go:34-37; ROADMAP.md:90 (finding 7)</td></tr>
+              <tr><td>38</td><td>otelhttp WithMessageEvents (body byte events)</td><td class="muted">N/A</td><td>evaluated + declined 2026-08-18 (archived otel report &sect;f17)</td></tr>
+              <tr><td>39</td><td>Span limits / attribute-depth tuning</td><td class="muted">N/A</td><td>defaults correct for a server framework; no need evidence</td></tr>
+              <tr><td>40</td><td>Prometheus exporter (OTel-side)</td><td class="muted">N/A</td><td>deliberate: core ships dependency-free /metrics; divergence documented (TELEMETRY.md &sect;2)</td></tr>
+              <tr><td>41</td><td>OTel runtime/process metrics instrumentation</td><td class="muted">N/A</td><td>flightrecorder + fr bridge own the runtime-diagnosis niche by design</td></tr>
+              <tr><td>42</td><td>OTLP gRPC exporters</td><td class="muted">N/A</td><td>deliberate HTTP-only posture; gRPC tree weight avoided</td></tr>
+              <tr><td>43</td><td>opentracing/opencensus bridges</td><td class="muted">N/A</td><td>deprecated upstream (final in v1.48); no legacy tracers in fleet</td></tr>
+              <tr><td>44</td><td>otelhttp Labeler (per-handler metric attrs)</td><td class="muted">N/A</td><td>no consumer demand; option passthrough already covers configuration</td></tr>
+              <tr><td>45</td><td>zpages debug endpoints</td><td class="muted">N/A</td><td>no demand; health/dashboard modules own the debug surface</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Relation to prior reports</h3>
+          <ul>
+            <li>
+              <strong>2026-10-06 go-flightrecorder deep dive</strong> (<code>docs/research/</code>):
+              its finding "the OTel metrics bridge: built, tested &mdash; and wired to nothing" is
+              <strong>superseded</strong> &mdash; otel v0.2.0 shipped the same day with the example
+              wiring <code>fr.WithMetrics</code> end to end (otel/example/main.go:107), the
+              per-operation <code>type</code> attribute (otel/frmetrics.go:53-62), and README
+              signal-table rows (otel/CHANGELOG, v0.2.0). Newer and narrower wins.
+            </li>
+            <li>
+              <strong>2026-10-11 sibling-library utilization audit</strong>: contains no otel
+              coverage; this report fills that gap and does not contradict it.
+            </li>
+            <li>
+              <strong>2026-09-29 otel+SigNoz status report</strong> (&sect;f queue): of its open
+              otel items, #11 (metric-interval pin), #14 (gzip/retry docs), #16 (tail-sampling
+              recipe), and #34 (status-description pin) are verified DONE in this audit
+              (otel/otlp_test.go:260; otel/README.md:193-225; integration/otel_pattern_test.go:139);
+              #4/#5 (live-SigNoz validation) and #18/#19 (composition E2Es) remain open and are
+              re-ranked in the priority table above.
+            </li>
+          </ul>
+
+          <h3>How to verify</h3>
+          <pre><code><span class="tok-comment"># import surface (71 sites; otel module + cqrs + integration)</span>
+rg -n <span class="tok-string">"go.opentelemetry.io/otel</span> --type go
+
+<span class="tok-comment"># finding 2: no SDK self-diagnostics wiring</span>
+rg -n <span class="tok-string">"SetErrorHandler|SetLogger\("</span> --type go          <span class="tok-comment"># expect: empty</span>
+
+<span class="tok-comment"># finding 3: no client-side instrumentation</span>
+rg -n <span class="tok-string">"otelhttp.NewTransport|otelhttptrace"</span> --type go <span class="tok-comment"># expect: empty</span>
+
+<span class="tok-comment"># finding 7: no baggage API usage</span>
+rg -n <span class="tok-string">"baggage\."</span> --type go                             <span class="tok-comment"># expect: empty</span>
+
+<span class="tok-comment"># finding 1: the stale non-goal + the version that fired it</span>
+sed -n <span class="tok-string">"252,257p"</span> otel/README.md
+rg -n <span class="tok-string">"opentelemetry.io/otel"</span> otel/go.mod
+
+<span class="tok-comment"># score inputs: count the appendix rows above (45 total; 8 N/A)</span>
+<span class="tok-comment"># inventory statuses: 25 Full, 8 Partial, 4 Missed → 100*(25+8*0.5)/37 = 78</span>
+
+<span class="tok-comment"># currency: upstream latest at audit time</span>
+<span class="tok-comment">#   otel v1.47.0 + contrib v0.72.0, released 2026-10-02 (github.com/open-telemetry releases)</span></code></pre>
+
+          <h3>Sources</h3>
+          <ul>
+            <li>opentelemetry-go releases + CHANGELOG (v1.44.0&ndash;v1.47.0, unreleased v1.48.0) &mdash;
+              github.com/open-telemetry/opentelemetry-go</li>
+            <li>opentelemetry-go-contrib releases (v1.47.0/v0.72.0 bundle) + otelhttp + autoexport +
+              otelslog pkg.go.dev pages</li>
+            <li>pkg.go.dev: otel (SetErrorHandler/SetLogger/SetLoggerProvider), sdk/resource
+              (WithProcess*), sdk/log, otlploghttp, github.com/go-logr/logr v1.4.4
+              (FromSlogHandler/ToSlogHandler)</li>
+            <li>semantic-conventions releases: v1.27.0 (deployment.environment rename), v1.40.0
+              (stabilized)</li>
+            <li>SigNoz: issues #6143/#6921 (semconv-families flag, default off as of 2026-10)</li>
+          </ul>
+        </section>
+
         <!-- Footer -->
         <footer class="footer">
           <p>
-            Generated YYYY-MM-DD &middot; Reviewed against version X.Y.Z
-            &middot; All claims verified against source code where noted
+            Generated 2026-10-18 &middot; audited against otel v1.47.0 / otelhttp v0.72.0 as pinned
+            in otel/go.mod &middot; every code claim verified in-tree (rg + file reads); every
+            upstream claim verified against release notes / pkg.go.dev on 2026-10-18
           </p>
         </footer>
       </main>
