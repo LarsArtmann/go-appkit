@@ -374,14 +374,19 @@ the first same-day attempt pinned the 8 "least-busy" cores, which
 included two SMT sibling pairs (12/28, 9/25) — sibling contention made
 the same rows bimodal (±26-36% sd); the picker is SMT-aware now (primary
 threads only) and the middleware noise collapsed to ±5-16%. The Recovery
-happy/panic rows below remain cross-run UNSTABLE (16.35µs↔27.29µs happy,
-33.45µs↔40.65µs panic across two same-protocol runs — suspected
-frequency-scaling sensitivity of the deferred-recover path) and keep
-their 2026-10-12 values until a stable panic-path protocol exists;
-RecordError rows are confirmed (recording 4.71µs vs 5.96µs, -21%, within
-the bar; no-span 5.6ns).
+happy/panic rows below remain on their 2026-10-12 values, now with a
+QUANTIFIED cause instead of a shrug (evening probe, SUPERB v9:
+GOMAXPROCS=4 + 4 primary-thread pins gives within-run ±3-13% and
+back-to-back cross-run ±12-16% — meets the ±25% bar but not tight
+enough to re-baseline absolute means; GOMAXPROCS=1 single-core makes
+both WORSE, ±14-39%; the 8-core pins of the morning runs were the
+instability). Today's 4-core ranges: happy 16.4-18.7µs (the 2026-10-12
+value 17.1µs sits inside it — confirmed), panic 34.0-40.4µs vs 50.1µs
+recorded (consistently faster today; toolchain/box state), RecordError
+recording 4.55-5.32µs (recorded 5.96µs). Re-baseline when the 4-core
+protocol repeats at cross-run <±10%.
 
-Full instrumentation costs ~~5.7µs/req (~~+29% over the no-op path at the
+Full instrumentation costs ~5.7µs/req (~+29% over the no-op path at the
 2026-10-18 baseline — the no-op row got faster on go 1.27.2 while the
 metered row held, widening the relative gap from the +17% seen at
 2026-09-16) and ~3.0KiB over the no-op path, with zero additional

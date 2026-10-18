@@ -14,6 +14,11 @@
   bimodal (±26-36% sd); the gate helper's picker is SMT-aware now. The
   `Recovery_*` rows stay at their 2026-10-12 values — happy/panic proved
   cross-run unstable (16.35µs↔27.29µs) under the same protocol.
+- README: Recovery-bench instability quantified (SUPERB v9 evening probes):
+  the 8-core pin was the noise source — GOMAXPROCS=4 + 4 primary-thread
+  pins measures ±3-13% within-run and ±12-16% cross-run; GOMAXPROCS=1 is
+  worse (±14-39%). The 2026-10-12 table values stay until the 4-core
+  protocol repeats at cross-run <±10%.
 
 ## [0.3.0] - 2026-10-18
 
