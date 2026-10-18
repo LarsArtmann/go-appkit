@@ -60,9 +60,12 @@ test).
 
 ## Gate status (Q3)
 
-- 2026-10-18: UNANSWERED. No known consumer (cqrs-htmx setup, PapDashboard, KeyHolderAI,
-  InboxClean) has stated OTLP log-ingestion demand.
-- T16 (consumer-side audit) may answer it empirically: if any consumer greps for
-  log-export config or ships its own slog-to-OTLP bridge, the gate is MET.
-- If the answer is "no, and none planned": this sketch is the final artifact; the README
-  non-goal stays with a pointer here instead of a build date.
+- 2026-10-18: **CLOSED — NOT MET (empirically, T16 audit).** Both known
+  consumers grepped at their published tags: cqrs-htmx `setup` v4.15.0
+  carries ZERO `go-appkit/otel` imports; PapDashboard imports go-appkit core
+  only, no otel module. Nobody consumes `appkitotel`, so nobody demands
+  OTLP log ingestion. The gate re-opens only when a consumer adopts the
+  otel module AND asks for log export (T16 re-runs on consumer-claims
+  refreshes).
+- If the answer stays "no": this sketch is the final artifact; the README
+  non-goal keeps pointing here instead of a build date.
