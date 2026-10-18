@@ -18,6 +18,9 @@
 #   3. Root go.mod and go.work declare the same go directive (catches: the
 #      accidental go 1.27.1 directive bump that broke every local
 #      workspace command on 2026-09-17).
+#   4. The SigNoz dashboard artifact exists at its documented path and
+#      parses as JSON (catches: rename/delete while README/FEATURES still
+#      point at it).
 #
 # CI runs this from a fetch-depth: 0 checkout (check 1 and 2 need full tag
 # history). Locally it runs against the local clone in under a second:
@@ -186,6 +189,21 @@ elif [[ "$gomod_go" == "$gowork_go" ]]; then
 	ok "go.mod and go.work agree on go $gomod_go"
 else
 	fail "go.mod says go $gomod_go but go.work says go $gowork_go (workspace mismatch — every local workspace command fails)"
+fi
+
+# 4) The SigNoz dashboard artifact exists at its documented path and parses
+#    as JSON. The README, dashboards/README, FEATURES, and the deep-dive
+#    report all name otel/dashboards/appkit-http-dashboard.json — a rename
+#    or deletion must fail loudly here, not break a documented import
+#    instructions trail.
+dashboard="otel/dashboards/appkit-http-dashboard.json"
+if [[ ! -f "$dashboard" ]]; then
+	fail "SigNoz dashboard artifact missing at $dashboard (rename recorded in README/dashboards/README/FEATURES?)"
+elif ! jq -e '. != null' "$dashboard" >/dev/null 2>&1; then
+	fail "$dashboard does not parse as JSON"
+else
+	schema="$(jq -r '.schemaVersion // "missing"' "$dashboard" 2>/dev/null)"
+	ok "SigNoz dashboard artifact $dashboard present, JSON-valid (schemaVersion: $schema)"
 fi
 
 exit "$status"

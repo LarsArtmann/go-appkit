@@ -1747,6 +1747,30 @@ rg -n <span class="tok-string">"opentelemetry.io/otel"</span> otel/go.mod
 <span class="tok-comment"># currency: upstream latest at audit time</span>
 <span class="tok-comment">#   otel v1.47.0 + contrib v0.72.0, released 2026-10-02 (github.com/open-telemetry releases)</span></code></pre>
 
+          <h3>Errata &amp; execution record (annotated, never rewritten)</h3>
+          <ul>
+            <li><strong>2026-10-18, same-day double-source (T02):</strong> the otel-go and contrib
+              release pages were fetched directly &mdash; v1.47.0 is the latest stable core release
+              (2026-10-02, &ldquo;first stable release of the Logs API and SDK&rdquo;) and contrib
+              <code>v1.47.0/v2.6.0/v0.72.0/&hellip;</code> pairs with it. Both headline claims
+              CONFIRMED; no drift.</li>
+            <li><strong>2026-10-18, SUPERB v8 execution closed findings same-day:</strong> the
+              diagnostics wiring (finding 2), client-side <code>appkitotel.Transport()</code>
+              (finding 3), baggage helpers (finding 7), the process-resource partial, the exporter
+              off-switch, and the stale non-goal (finding 1) all landed in the otel module's
+              <code>[Unreleased]</code> (v0.3.0 train). The &ldquo;expect: empty&rdquo; verify
+              commands above are now stale for those greps &mdash; the module CHANGELOG is the
+              record of what changed.</li>
+            <li><strong>Out-of-module adjacent rows:</strong> errorpages rendering
+              <code>trace_id</code> and the flightrecorder snapshot&harr;span link remain
+              ROADMAP-tracked (they live in other modules; not counted in this inventory's score).</li>
+            <li><strong>Render check (T18):</strong> headless browser unavailable in the execution
+              environment (chromedriver present, no browser binary) &mdash; tool gap recorded; the
+              static gate-check (44/44 citations in range, denominator recompute) stands as the
+              report's verification. A <code>check-research-report.sh</code> checker: NO for now
+              (series of 4; revisit when the series grows).</li>
+          </ul>
+
           <h3>Sources</h3>
           <ul>
             <li>opentelemetry-go releases + CHANGELOG (v1.44.0&ndash;v1.47.0, unreleased v1.48.0) &mdash;
