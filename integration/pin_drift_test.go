@@ -31,7 +31,7 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.2",
 	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.7",
 	"github.com/larsartmann/go-appkit/health":               "v0.2.0",
-	"github.com/larsartmann/go-appkit/otel":                 "v0.2.0",
+	"github.com/larsartmann/go-appkit/otel":                 "v0.3.0",
 	"github.com/larsartmann/go-appkit/realtime":             "v0.1.3",
 	"github.com/larsartmann/go-appkit/security":             "v0.2.0",
 	"github.com/larsartmann/go-appkit/systemd":              "v0.1.0",
