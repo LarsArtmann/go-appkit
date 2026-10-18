@@ -38,6 +38,11 @@
 
 ### Documented
 
+- Deploy guide: `otel/deploy.md` — k8s Deployment + Compose snippets for
+  the zero-code setup (env names exact against `Setup`'s verified
+  contract), the off-switch usage, the tuning-knob table, and the
+  what-NOT-to-configure posture. README links it; the stale `go 1.27.1`
+  build-note line corrected to 1.27.2.
 - README truth pass (2026-10-18): the logs non-goal no longer claims
   `go.opentelemetry.io/otel/log` is experimental — the Logs API+SDK went
   stable in v1.47.0 (2026-10-02), the version this module pins; the

@@ -37,6 +37,19 @@ parse-verified but has NOT been imported into a live SigNoz (no instance in
 this environment); treat panel behavior as template-proven, not
 instance-proven.
 
+**Exceptions panel — builder blocker (recorded 2026-10-18, source-verified
+at SigNoz main):** the QueryBuilder v5 signal enum carries exactly
+`traces`/`logs`/`metrics` (`pkg/types/telemetrytypes/signal.go`) — there is
+NO `exceptions` signal and no version ever added one, so a builder panel
+cannot chart the exception events this module feeds (SigNoz's Exceptions
+view reads `signoz_error_index_v2` through its own dedicated API, not the
+builder). Workaround when wanted: a ClickHouse-SQL panel over
+`signoz_traces.distributed_signoz_error_index_v2` (the shape SigNoz's own
+exceptions-based ALERT defaults use) — not shipped here because the
+dashboard-panel JSON shape for ClickHouse queries is unverified in this
+environment; revisit alongside the live-instance validation (accepted-risk
+row in TODO_LIST).
+
 ## Wiring that feeds these dashboards
 
 The zero-code path — configure only the environment, no code changes:

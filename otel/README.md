@@ -380,6 +380,12 @@ A captured panic costs ~33µs over the happy path; a handled error costs
 ~6µs per `RecordError` call. The panic-path logger writes to `io.Discard`
 in the benchmark, so terminal I/O is excluded there too.
 
+## Deploying with telemetry
+
+The zero-code setup is deployment-config-only — k8s Deployment and
+Compose snippets, the off-switch, and the tuning-knob table live in
+[deploy.md](deploy.md).
+
 ## Build & verify
 
 ```bash
@@ -392,7 +398,7 @@ golangci-lint run ./...        # from this directory
 
 `GOTOOLCHAIN=go1.27.2` is required for every command below on
 machines whose default toolchain is older (this repo pins
-`go 1.27.1` in every go.mod). `GOWORK=off` makes the run
+`go 1.27.2` in every go.mod). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,
 via the module proxy — how consumers resolve it.
 
