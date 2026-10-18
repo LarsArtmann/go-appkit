@@ -82,13 +82,31 @@ done
 pin_prefix=()
 if [ "$pin_cores" -gt 0 ]; then
   sample_stat() { awk '/^cpu[0-9]+/ {idle=$5; busy=$2+$3+$4+$6+$7+$8; print $1, busy, idle}' /proc/stat; }
+  # SMT-aware: prefer PRIMARY threads only (first-listed sibling == the cpu
+  # itself). Pinning an SMT sibling pair halves throughput for both and makes
+  # benchmark timings bimodal — found live 2026-10-18: a busy-based pick of
+  # {12,28,9,25,...} included the sibling pairs 12/28 and 9/25 and blew the
+  # middleware-bench sd to ±26-36% while sibling-free paths sat at ±2%.
+  primary_cores() {
+    awk '/^cpu[0-9]+/ { sub(/^cpu/, "", $1); print $1 }' /proc/stat | while read -r c; do
+      f="/sys/devices/system/cpu/cpu$c/topology/thread_siblings_list"
+      if [ -r "$f" ]; then
+        first="$(cut -d, -f1 "$f" | cut -d- -f1)"
+        [ "$first" = "$c" ] && echo "$c"
+      else
+        echo "$c"
+      fi
+    done
+  }
   s1="$(sample_stat)"
   sleep 0.3
   s2="$(sample_stat)"
   cores="$(printf '%s\n%s\n' "$s1" "$s2" | awk '
     { key=$1; busy[key]+=$2; idle[key]+=$3 }
     END { for (c in busy) printf "%s %.6f\n", c, busy[c]/(busy[c]+idle[c]+1) }' \
-    | sort -k2,2n | head -n "$pin_cores" | awk '{gsub(/^cpu/, "", $1); printf "%s,",$1 }' | sed 's/,$//')"
+    | sort -k2,2n | awk '{gsub(/^cpu/, "", $1); print $1}' \
+    | grep -xF -f <(primary_cores) \
+    | head -n "$pin_cores" | paste -sd, -)"
   if [ -z "$cores" ]; then
     log "GATE ERROR: core sampling failed — not starting"
     exit 2
