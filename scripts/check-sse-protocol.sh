@@ -40,7 +40,7 @@ while IFS= read -r -d '' file; do
 	while IFS= read -r call_line; do
 		calls=$((calls + 1))
 		from=$((call_line - window))
-		(( from < 1 )) && from=1
+		((from < 1)) && from=1
 		ctx="$(sed -n "${from},$((call_line - 1))p" "$file" | sed 's|//.*||')"
 		if ! grep -qE 'SubscriberCount\(|waitForSubscriber\(|\.Subscribe\(' <<<"$ctx"; then
 			echo "FAIL: $file:$call_line broadcasts without a subscription sync in the preceding $window lines"

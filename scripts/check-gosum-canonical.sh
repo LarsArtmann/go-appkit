@@ -35,7 +35,7 @@ default_modules=(
 	"." cqrs realtime security systemd otel health
 	flightrecorder flightrecorderhealth errorpages docs integration
 )
-if (( $# > 0 )); then
+if (($# > 0)); then
 	modules=("$@")
 else
 	modules=("${default_modules[@]}")
@@ -65,13 +65,13 @@ for mod in "${modules[@]}"; do
 	modcopy="$work/${label//\//_}"
 	mkdir -p "$modcopy"
 	cp "$mod/go.mod" "$mod/go.sum" "$modcopy/"
-	if (cd "$modcopy" && \
+	if (cd "$modcopy" &&
 		GOWORK=off \
-		GOTOOLCHAIN="go$floor" \
-		GOPRIVATE= GOFLAGS= \
-		GOPROXY=https://proxy.golang.org \
-		GOMODCACHE="$cache" \
-		go mod download all); then
+			GOTOOLCHAIN="go$floor" \
+			GOPRIVATE='' GOFLAGS='' \
+			GOPROXY=https://proxy.golang.org \
+			GOMODCACHE="$cache" \
+			go mod download all); then
 		echo "OK: $label go.sum agrees with proxy + sumdb"
 	else
 		echo "FAIL: $label go.sum disagrees with the checksum database (pre-re-tag hash?)"
