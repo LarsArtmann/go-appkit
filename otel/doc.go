@@ -75,6 +75,16 @@
 //     defer — but the exception event and error status only appear when
 //     [Recovery] runs inside it.
 //
+// # Self-diagnostics
+//
+// Setup wires the OTel SDK's error handler and internal logger through slog:
+// exporter failures surface as grep-able `otel export failed` error lines and
+// SDK-internal records (deprecation warnings, env-parse problems) join the
+// normal log pipeline instead of dying on stderr. Pass
+// [WithDiagnosticsLogger] to use the service's logger; without it the
+// contract routes through slog.Default(). Under [WithoutGlobalRegistration]
+// the wiring is skipped with the other process globals.
+//
 // # Shutdown ordering
 //
 // ServiceConfig.ShutdownHooks run after the server released its connections,

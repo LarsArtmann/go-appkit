@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- **SDK self-diagnostics through slog**: `Setup` now wires
+  `otel.SetErrorHandler` + `otel.SetLogger` — exporter failures surface as
+  grep-able `otel export failed` ERROR lines (catalogued in
+  `doc/TELEMETRY.md` §1) and SDK-internal records join the normal log
+  pipeline, instead of both dying on stderr. `WithDiagnosticsLogger(logger)`
+  points the pipeline at the service's logger; without it, `slog.Default()`.
+  `WithoutGlobalRegistration()` skips the wiring with the other process
+  globals. Depends on `github.com/go-logr/logr` (already an indirect
+  require; now direct).
+
 ### Documented
 
 - README truth pass (2026-10-18): the logs non-goal no longer claims

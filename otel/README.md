@@ -167,6 +167,13 @@ See `example/main.go` for the full loop (the `/slow` route fires captures).
   resource attribute SigNoz filters by; `OTEL_RESOURCE_ATTRIBUTES` works too.
 - `Setup(WithoutGlobalRegistration())` — isolated providers for tests and
   multi-service processes.
+- `Setup(WithDiagnosticsLogger(logger))` — route the SDK's self-diagnostics
+  through YOUR logger: exporter failures surface as grep-able
+  `otel export failed` error lines (see `doc/TELEMETRY.md` §1) and
+  SDK-internal logs become regular slog records, instead of both dying on
+  stderr. Without it, the same contract routes through `slog.Default()`;
+  `WithoutGlobalRegistration()` skips the wiring with the rest of the
+  process globals.
 
 ## Production exporters
 

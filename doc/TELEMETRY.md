@@ -19,7 +19,8 @@ index, not a plan.
 | `realtime: replay store read failed…`   | ERROR | realtime                       | `last_event_id`, `err`                                            | Followed by the SSE `event: error` (see §3)                                                                                                |
 | `security.OriginCheck: origin rejected` | WARN  | security module                | `origin`, `path`                                                  |                                                                                                                                            |
 | `httputil: CSRF validation failed`      | WARN  | httputil (via security module) | `method`, `path`, `reason`                                        |                                                                                                                                            |
-| `security.CSRF: "*" in TrustedOrigins…` | WARN  | security module, construction  | —                                                                 | Misconfiguration warning, fires once                                                                                                       |
+| `security.CSRF: "*" in TrustedOrigins…` | WARN  | security module, construction  | —                                                                                                                                 | Misconfiguration warning, fires once                                                                                                       |
+| `otel export failed`                    | ERROR | otel `Setup` diagnostics       | `error`                                                           | OTel SDK's global error handler routed through the service logger (`WithDiagnosticsLogger`, default `slog.Default()`); exporter drops and reader failures surface here instead of dying on stderr |
 
 Default level is INFO (decided 2026-09-16, README "Log volume": emitting
 costs ~+30µs/req, suppression at WARN ~+0.8µs — flip `LogLevel` for
@@ -60,7 +61,7 @@ Diff on migration; never assume 1:1.
 
 | Sink                         | Behavior under pressure                                                                                                                |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| OTel batch processor         | LOSSY: queue-full spans/metrics are dropped silently; `Provider.Shutdown` ForceFlushes first, so only the mid-flight window is exposed |
+| OTel batch processor         | LOSSY: queue-full spans/metrics are dropped silently; `Provider.Shutdown` ForceFlushes first, so only the mid-flight window is exposed. Drop COUNTS surface through the SDK error handler — the `otel export failed` line in §1 (wired by `Setup`); without it they died on stderr |
 | charmbracelet log formatting | BLOCKING per line (~+30µs): a slow stdout slows the request goroutine — the real reason to raise `LogLevel`                            |
 | SSE subscriber buffer (64)   | LOSSY: bursts above the buffer drop live events; clients heal via Last-Event-ID replay (exactly-once, dedup-pinned)                    |
 | SSE store-failure            | ABORT with signal: named `event: error` + `retry: 30000` before the drop (no reconnect storm)                                          |
