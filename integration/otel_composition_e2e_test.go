@@ -193,9 +193,12 @@ func TestBothExceptionFlavorsThroughAppkitChain(t *testing.T) {
 // contract at the composition level: an SSE stream served through the otel
 // middleware (OuterMiddlewares) produces ONE server span whose lifetime is
 // the STREAM, not the response write — the span must not exist while the
-// stream is open and must exist (named GET /sse, route-attributed) after the
-// client disconnects. House protocol applies: subscriber-count sync before
-// the broadcast and a timeout client (the 2026-10-13 hang class).
+// stream is open and must exist (named "/sse", route-attributed) after the
+// client disconnects. The name carries no method prefix because
+// realtime.Mount registers a method-less Handle("/sse") — unlike mux
+// patterns such as "GET /users/{id}". House protocol applies:
+// subscriber-count sync before the broadcast and a timeout client (the
+// 2026-10-13 hang class).
 func TestSSEStreamSpanThroughAppkitOuterMiddlewares(t *testing.T) {
 	t.Parallel()
 
@@ -259,20 +262,20 @@ func TestSSEStreamSpanThroughAppkitOuterMiddlewares(t *testing.T) {
 	}
 
 	// The stream is still open — otelhttp must NOT have ended the span.
-	if spans := spanExporter.GetSpans().Snapshots(); spanNamed(spans, "GET /sse") != nil {
-		t.Fatal("GET /sse span ended while the stream was still open — the NoTimeout span-end contract broke")
+	if spans := spanExporter.GetSpans().Snapshots(); spanNamed(spans, "/sse") != nil {
+		t.Fatal("/sse span ended while the stream was still open — the NoTimeout span-end contract broke")
 	}
 
 	_ = resp.Body.Close()
 
 	deadline = time.Now().Add(2 * time.Second)
 	for {
-		if span := spanNamed(spanExporter.GetSpans().Snapshots(), "GET /sse"); span != nil {
+		if span := spanNamed(spanExporter.GetSpans().Snapshots(), "/sse"); span != nil {
 			break
 		}
 
 		if time.Now().After(deadline) {
-			t.Fatal("GET /sse span never ended after the stream closed")
+			t.Fatal("/sse span never ended after the stream closed")
 		}
 
 		time.Sleep(time.Millisecond)
@@ -313,17 +316,14 @@ func TestSSEStreamSpanThroughAppkitOuterMiddlewares(t *testing.T) {
 // matrix through PUBLISHED tags. The otel middleware filters /health and
 // /health/ UNCONDITIONALLY (probe volume, no distributed context) — and the
 // go-health-dashboard's DEFAULT routes live under /health (page /health, SSE
-// /health/sse, metrics /health/metrics, ...), so the default dashboard is
-// NOT traced, while the kubelet-convention routes (/healthz, /readyz,
-// /startupz) and /favicon.svg sit OUTSIDE the filter and ARE traced. The
-// full matrix this test pins (defaults):
+// /health/sse, metrics/trend/export/introspect below it — the latter group
+// option-gated), so the default dashboard is NOT traced, while the
+// kubelet-convention routes (/healthz, /readyz, /startupz) sit OUTSIDE the
+// filter and ARE traced. The matrix this test pins (defaults):
 //
 //	/health (dashboard page)  → filtered, no span
-//	/health/sse               → filtered, no span
-//	/health/metrics           → filtered, no span
 //	/healthz (kubelet live)   → traced
 //	/readyz (kubelet ready)   → traced
-//	/favicon.svg              → traced
 //
 // Consumers who WANT the dashboard traced must move it off /health via
 // dashboard.Routes — the filter is deliberately name-based, not
@@ -393,7 +393,6 @@ func TestDashboardRoutesTracedVsFiltered(t *testing.T) {
 
 	cases := []expectation{
 		{"/health", false, true},
-		{"/health/metrics", false, false},
 		{"/healthz", true, false},
 		{"/readyz", true, false},
 	}
