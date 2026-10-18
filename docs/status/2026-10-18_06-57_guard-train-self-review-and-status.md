@@ -11,15 +11,15 @@
 
 ## Verdict at a glance
 
-| Area | State |
-| --- | --- |
-| Deliverables shipped | 4 of 4 (2 guards born-red + fixed real violations; 1 stale row closed; 1 render-check resolved) |
-| Guards green locally | 8/8 standing guards + shellcheck 0 + shfmt clean (after in-review fixes) |
-| Integration suite | green hermetic `-race` (7.2s) with both test fixes |
-| CI proof | **NOT STARTED** — `sse-protocol` job has never run (no push; owner-gated) |
-| Shipped-then-fixed defects | 2 (SC1007 + 43 shfmt diffs — caught in THIS review, post-"done") |
-| Ghost systems found | 0 — everything wired (CI job, hook, pre-tag gate, README pointer) |
-| Split brains fed | 1 (sync-loop now in 5 hand-rolled copies — I added 2) |
+| Area                       | State                                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------- |
+| Deliverables shipped       | 4 of 4 (2 guards born-red + fixed real violations; 1 stale row closed; 1 render-check resolved) |
+| Guards green locally       | 8/8 standing guards + shellcheck 0 + shfmt clean (after in-review fixes)                        |
+| Integration suite          | green hermetic `-race` (7.2s) with both test fixes                                              |
+| CI proof                   | **NOT STARTED** — `sse-protocol` job has never run (no push; owner-gated)                       |
+| Shipped-then-fixed defects | 2 (SC1007 + 43 shfmt diffs — caught in THIS review, post-"done")                                |
+| Ghost systems found        | 0 — everything wired (CI job, hook, pre-tag gate, README pointer)                               |
+| Split brains fed           | 1 (sync-loop now in 5 hand-rolled copies — I added 2)                                           |
 
 ---
 
@@ -35,7 +35,7 @@
    rate-limit-E2E incident class (handler flushes headers BEFORE
    subscribing; `connect()` returning proves nothing about subscription).
 2. **Both violations fixed** with the standard SubscriberCount sync loop;
-   the header-flush test restructured so the event fires 400ms *after*
+   the header-flush test restructured so the event fires 400ms _after_
    sync (flush-before-event timing proof preserved, documented in-code);
    suite green hermetic `-race -count=1` (7.2s).
 3. **gosum-canonical guard** (`scripts/check-gosum-canonical.sh`): resolves
@@ -172,7 +172,7 @@ TODO row 36's "fleet-wide" /fetch claim rests on 2 probed modules, not 12.
 5. `[S]` Fold art-dupl -t 1 sweep (17-49 f10) over the sync-loop copies —
    judge with #4, not separately.
 6. `[S]` sse-guard header: document cross-function window false-negatives
-   + URL-in-string comment-strip caveat.
+   - URL-in-string comment-strip caveat.
 7. `[S]` Guard self-test harness: committed fixtures + the CI job
    meta-asserts guard(returns 1 on bad fixture, 0 on good).
 8. `[S]` Live-fire pre-commit hook (planted violation → blocked → revert).
@@ -201,7 +201,7 @@ TODO row 36's "fleet-wide" /fetch claim rests on 2 probed modules, not 12.
 21. `[B]` Composition-gap E2Es: security×errorpages, flightrecorder via
     appkit Service, SSE+health drain-during-stream.
 22. `[B]` i18n residue gate: next httputil feature tag → pin-drift sweep
-    + Language() E2E leg.
+    - Language() E2E leg.
 23. `[B]` Battery W3–W5 waves (demand-gated; zero cqrs+realtime consumers
     still).
 24. `[B]` go.work leak #1–7 attribution (owner: inotify hunt or accept).
@@ -235,6 +235,7 @@ TODO row 36's "fleet-wide" /fetch claim rests on 2 probed modules, not 12.
    go.sum / on-demand?
 
 ---
-*Snapshot per status-report skill: point-in-time, never rewritten;
+
+_Snapshot per status-report skill: point-in-time, never rewritten;
 corrections land via docs-health ANNOTATE. Auto-commit daemon will file
-this report.*
+this report._

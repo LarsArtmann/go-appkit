@@ -5,18 +5,18 @@
 
 ## a) FULLY DONE (verified)
 
-| Work | Evidence |
-|---|---|
-| `scripts/quiet-run.sh` — mechanical quiet gate (load gate + SMT-aware taskset pinning + `--wait` + evidence log) | 3 self-tests green; live-proven twice (bench runs); 4 offline guards + bash -n green |
-| Quiet-window full sweep: `verify-all.sh` EXIT=0, 12/12 modules build+vet+test+lint | gate log: load1 13.78 start / 13.58 after |
-| Quiet-window cqrs `-race -count=10` — ok 31.5s (**b1 load-starvation caveat CLOSED**) | gate log: load1 13.58 / 12.06 |
-| otel ns/op re-baseline (4th attempt, first gated): NoOp 19.67µs ±5%, traced 20.45µs ±13%, metered 25.33µs ±16% — within ±9% of 2026-09-16 | benchstat n=10, load1 11.7, 8 primary threads; README table + derived-costs + CHANGELOG `[Unreleased]` |
-| art-dupl `-t 1` max-sensitivity sweep (632 groups): 1 harmful extraction — `newTracedTestService(t)` ×3 sites → `integration/otel_testharness_test.go`; rest accepted per standing posture | integration suite green hermetic 7.7s; lint 0 issues; scoped re-run shows group gone; no non-test groups beyond accepted classes |
-| Upstream watch outcomes: go-cqrs-lite#67 CLOSED (row was stale — cqrs v0.8.0 already simplified); BuildFlow#46 CLOSED + binary ef32fa0 verified empirically; dprint exit-14 NON-REPRO → resolved, no filing | gh issue views + worktree repro + `go-work-sync` green with charter guard |
-| pkg.go.dev: otel@v0.3.0 now RENDERS; flightrecorder GET re-issued | page fetch 08:14 |
-| Open Q5 ANSWERED: buildcache = local ext4 `/dev/sdb1` (autofs), NOT machine-shared | findmnt evidence |
-| CI close-out on `dfa0303`: all real jobs green incl. sse-protocol first-origin run | `gh run view 39102243431` |
-| Docs truth-sync: TODO_LIST 8 rows closed + header; AGENTS 2 pointers (quiet-run, Deferred-Register strike); status index de-rotted (+5 rows) | file diffs, guards green |
+| Work                                                                                                                                                                                                        | Evidence                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `scripts/quiet-run.sh` — mechanical quiet gate (load gate + SMT-aware taskset pinning + `--wait` + evidence log)                                                                                            | 3 self-tests green; live-proven twice (bench runs); 4 offline guards + bash -n green                                             |
+| Quiet-window full sweep: `verify-all.sh` EXIT=0, 12/12 modules build+vet+test+lint                                                                                                                          | gate log: load1 13.78 start / 13.58 after                                                                                        |
+| Quiet-window cqrs `-race -count=10` — ok 31.5s (**b1 load-starvation caveat CLOSED**)                                                                                                                       | gate log: load1 13.58 / 12.06                                                                                                    |
+| otel ns/op re-baseline (4th attempt, first gated): NoOp 19.67µs ±5%, traced 20.45µs ±13%, metered 25.33µs ±16% — within ±9% of 2026-09-16                                                                   | benchstat n=10, load1 11.7, 8 primary threads; README table + derived-costs + CHANGELOG `[Unreleased]`                           |
+| art-dupl `-t 1` max-sensitivity sweep (632 groups): 1 harmful extraction — `newTracedTestService(t)` ×3 sites → `integration/otel_testharness_test.go`; rest accepted per standing posture                  | integration suite green hermetic 7.7s; lint 0 issues; scoped re-run shows group gone; no non-test groups beyond accepted classes |
+| Upstream watch outcomes: go-cqrs-lite#67 CLOSED (row was stale — cqrs v0.8.0 already simplified); BuildFlow#46 CLOSED + binary ef32fa0 verified empirically; dprint exit-14 NON-REPRO → resolved, no filing | gh issue views + worktree repro + `go-work-sync` green with charter guard                                                        |
+| pkg.go.dev: otel@v0.3.0 now RENDERS; flightrecorder GET re-issued                                                                                                                                           | page fetch 08:14                                                                                                                 |
+| Open Q5 ANSWERED: buildcache = local ext4 `/dev/sdb1` (autofs), NOT machine-shared                                                                                                                          | findmnt evidence                                                                                                                 |
+| CI close-out on `dfa0303`: all real jobs green incl. sse-protocol first-origin run                                                                                                                          | `gh run view 39102243431`                                                                                                        |
+| Docs truth-sync: TODO_LIST 8 rows closed + header; AGENTS 2 pointers (quiet-run, Deferred-Register strike); status index de-rotted (+5 rows)                                                                | file diffs, guards green                                                                                                         |
 
 Inlined evidence (survives /tmp):
 
@@ -65,6 +65,7 @@ P1 SSH secret (owner); pma §6 decisions + `.*-body.html` ignore edit (owner); Q
 ## f) NEXT (ranked; ~top 30 of the open queue)
 
 **P1 (correctness/trust):**
+
 1. Verify first-origin CI run on the daemon-pushed session tip (session-close ritual) — next session start.
 2. Owner: restore `SSH_PRIVATE_KEY` secret → structure-linter leg runs (the live P1).
 3. Re-run `scripts/example-smoke.sh` locally on the session tree (the one CI job with no local equivalent run today).

@@ -34,26 +34,42 @@ wait_secs=0
 cmd=()
 
 while [ $# -gt 0 ]; do
-  case "$1" in
-    --load-max) load_max="${2:?--load-max needs a value}"; shift 2 ;;
-    --pin-cores) pin_cores="${2:?--pin-cores needs a value}"; shift 2 ;;
-    --wait) wait_secs="${2:?--wait needs a value}"; shift 2 ;;
-    --) shift; cmd=("$@"); break ;;
-    *) echo "quiet-run: unknown arg: $1" >&2; exit 2 ;;
-  esac
+	case "$1" in
+	--load-max)
+		load_max="${2:?--load-max needs a value}"
+		shift 2
+		;;
+	--pin-cores)
+		pin_cores="${2:?--pin-cores needs a value}"
+		shift 2
+		;;
+	--wait)
+		wait_secs="${2:?--wait needs a value}"
+		shift 2
+		;;
+	--)
+		shift
+		cmd=("$@")
+		break
+		;;
+	*)
+		echo "quiet-run: unknown arg: $1" >&2
+		exit 2
+		;;
+	esac
 done
 
 if [ ${#cmd[@]} -eq 0 ]; then
-  sed -n '2,30p' "$0" >&2
-  echo "quiet-run: no command given (put it after --)" >&2
-  exit 2
+	sed -n '2,30p' "$0" >&2
+	echo "quiet-run: no command given (put it after --)" >&2
+	exit 2
 fi
 
 log() {
-  echo "quiet-run: $*" >&2
-  if [ -n "${QUIET_RUN_LOG:-}" ]; then
-    printf '%s quiet-run: %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$*" >>"$QUIET_RUN_LOG"
-  fi
+	echo "quiet-run: $*" >&2
+	if [ -n "${QUIET_RUN_LOG:-}" ]; then
+		printf '%s quiet-run: %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$*" >>"$QUIET_RUN_LOG"
+	fi
 }
 
 # Float-safe comparison: load1 <= ref?
@@ -61,60 +77,60 @@ load1() { awk '{print $1}' /proc/loadavg; }
 gate_open() { awk -v a="$1" -v b="$2" 'BEGIN { exit !(a <= b) }'; }
 
 if [ -z "$load_max" ]; then
-  load_max=$(( $(nproc) / 2 ))
+	load_max=$(($(nproc) / 2))
 fi
 
 # --- Gate loop ---------------------------------------------------------------
-deadline=$(( $(date +%s) + wait_secs ))
+deadline=$(($(date +%s) + wait_secs))
 while :; do
-  l1="$(load1)"
-  if gate_open "$l1" "$load_max"; then
-    break
-  fi
-  if [ "$(date +%s)" -ge "$deadline" ]; then
-    log "GATE CLOSED: load1=$l1 > load-max=$load_max (waited ${wait_secs}s) — not starting: ${cmd[*]}"
-    exit 2
-  fi
-  sleep 15
+	l1="$(load1)"
+	if gate_open "$l1" "$load_max"; then
+		break
+	fi
+	if [ "$(date +%s)" -ge "$deadline" ]; then
+		log "GATE CLOSED: load1=$l1 > load-max=$load_max (waited ${wait_secs}s) — not starting: ${cmd[*]}"
+		exit 2
+	fi
+	sleep 15
 done
 
 # --- Core picker: K least-busy cores over a 0.3s /proc/stat sample -----------
 pin_prefix=()
 if [ "$pin_cores" -gt 0 ]; then
-  sample_stat() { awk '/^cpu[0-9]+/ {idle=$5; busy=$2+$3+$4+$6+$7+$8; print $1, busy, idle}' /proc/stat; }
-  # SMT-aware: prefer PRIMARY threads only (first-listed sibling == the cpu
-  # itself). Pinning an SMT sibling pair halves throughput for both and makes
-  # benchmark timings bimodal — found live 2026-10-18: a busy-based pick of
-  # {12,28,9,25,...} included the sibling pairs 12/28 and 9/25 and blew the
-  # middleware-bench sd to ±26-36% while sibling-free paths sat at ±2%.
-  primary_cores() {
-    awk '/^cpu[0-9]+/ { sub(/^cpu/, "", $1); print $1 }' /proc/stat | while read -r c; do
-      f="/sys/devices/system/cpu/cpu$c/topology/thread_siblings_list"
-      if [ -r "$f" ]; then
-        first="$(cut -d, -f1 "$f" | cut -d- -f1)"
-        [ "$first" = "$c" ] && echo "$c"
-      else
-        echo "$c"
-      fi
-    done
-  }
-  s1="$(sample_stat)"
-  sleep 0.3
-  s2="$(sample_stat)"
-  cores="$(printf '%s\n%s\n' "$s1" "$s2" | awk '
+	sample_stat() { awk '/^cpu[0-9]+/ {idle=$5; busy=$2+$3+$4+$6+$7+$8; print $1, busy, idle}' /proc/stat; }
+	# SMT-aware: prefer PRIMARY threads only (first-listed sibling == the cpu
+	# itself). Pinning an SMT sibling pair halves throughput for both and makes
+	# benchmark timings bimodal — found live 2026-10-18: a busy-based pick of
+	# {12,28,9,25,...} included the sibling pairs 12/28 and 9/25 and blew the
+	# middleware-bench sd to ±26-36% while sibling-free paths sat at ±2%.
+	primary_cores() {
+		awk '/^cpu[0-9]+/ { sub(/^cpu/, "", $1); print $1 }' /proc/stat | while read -r c; do
+			f="/sys/devices/system/cpu/cpu$c/topology/thread_siblings_list"
+			if [ -r "$f" ]; then
+				first="$(cut -d, -f1 "$f" | cut -d- -f1)"
+				[ "$first" = "$c" ] && echo "$c"
+			else
+				echo "$c"
+			fi
+		done
+	}
+	s1="$(sample_stat)"
+	sleep 0.3
+	s2="$(sample_stat)"
+	cores="$(printf '%s\n%s\n' "$s1" "$s2" | awk '
     { key=$1; busy[key]+=$2; idle[key]+=$3 }
-    END { for (c in busy) printf "%s %.6f\n", c, busy[c]/(busy[c]+idle[c]+1) }' \
-    | sort -k2,2n | awk '{gsub(/^cpu/, "", $1); print $1}' \
-    | grep -xF -f <(primary_cores) \
-    | head -n "$pin_cores" | paste -sd, -)"
-  if [ -z "$cores" ]; then
-    log "GATE ERROR: core sampling failed — not starting"
-    exit 2
-  fi
-  pin_prefix=(taskset -c "$cores")
-  log "GATE OPEN: load1=$(load1) load-max=$load_max pin=$cores cmd=${cmd[*]}"
+    END { for (c in busy) printf "%s %.6f\n", c, busy[c]/(busy[c]+idle[c]+1) }' |
+		sort -k2,2n | awk '{gsub(/^cpu/, "", $1); print $1}' |
+		grep -xF -f <(primary_cores) |
+		head -n "$pin_cores" | paste -sd, -)"
+	if [ -z "$cores" ]; then
+		log "GATE ERROR: core sampling failed — not starting"
+		exit 2
+	fi
+	pin_prefix=(taskset -c "$cores")
+	log "GATE OPEN: load1=$(load1) load-max=$load_max pin=$cores cmd=${cmd[*]}"
 else
-  log "GATE OPEN: load1=$(load1) load-max=$load_max (no pinning) cmd=${cmd[*]}"
+	log "GATE OPEN: load1=$(load1) load-max=$load_max (no pinning) cmd=${cmd[*]}"
 fi
 
 # --- Run ---------------------------------------------------------------------

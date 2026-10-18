@@ -381,7 +381,7 @@ their 2026-10-12 values until a stable panic-path protocol exists;
 RecordError rows are confirmed (recording 4.71µs vs 5.96µs, -21%, within
 the bar; no-span 5.6ns).
 
-Full instrumentation costs ~5.7µs/req (~+29% over the no-op path at the
+Full instrumentation costs ~~5.7µs/req (~~+29% over the no-op path at the
 2026-10-18 baseline — the no-op row got faster on go 1.27.2 while the
 metered row held, widening the relative gap from the +17% seen at
 2026-09-16) and ~3.0KiB over the no-op path, with zero additional
