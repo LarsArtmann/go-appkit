@@ -359,12 +359,10 @@ func propagatorOrDefault(p propagation.TextMapPropagator) propagation.TextMapPro
 // failures surface to Setup's caller: a misconfigured exporter must fail
 // the process at startup, not silently drop telemetry.
 func applyOTLPWiring(ctx context.Context, cfg *setupConfig) error {
-	explicit := cfg.otlp != nil
+	tracesWanted := cfg.otlp != nil ||
+		(otlpTracesEnvConfigured() && !envExporterOff(envTracesExporter))
 
-	tracesVetoed := !explicit && envExporterOff(envTracesExporter)
-
-	if cfg.spanExporter == nil && cfg.stdoutWriter == nil &&
-		(explicit || otlpTracesEnvConfigured()) && !tracesVetoed {
+	if cfg.spanExporter == nil && cfg.stdoutWriter == nil && tracesWanted {
 		exp, err := newOTLPSpanExporter(ctx, cfg.otlp)
 		if err != nil {
 			return err
@@ -373,9 +371,10 @@ func applyOTLPWiring(ctx context.Context, cfg *setupConfig) error {
 		cfg.spanExporter = exp
 	}
 
-	metricsVetoed := !explicit && envExporterOff(envMetricsExporter)
+	metricsWanted := cfg.otlp != nil ||
+		(otlpMetricsEnvConfigured() && !envExporterOff(envMetricsExporter))
 
-	if cfg.metricReader == nil && (explicit || otlpMetricsEnvConfigured()) && !metricsVetoed {
+	if cfg.metricReader == nil && metricsWanted {
 		reader, err := newOTLPMetricReader(ctx, cfg.otlp)
 		if err != nil {
 			return err

@@ -626,7 +626,7 @@ func TestApplyOTLPWiring_ExporterNoneVetoesSignals(t *testing.T) {
 			t.Setenv("OTEL_TRACES_EXPORTER", tt.tracesExporter)
 			t.Setenv("OTEL_METRICS_EXPORTER", tt.metricsExporter)
 
-			cfg := &setupConfig{} //nolint:exhaustruct_v5 // env-driven path
+			cfg := &setupConfig{}
 
 			if err := applyOTLPWiring(t.Context(), cfg); err != nil {
 				t.Fatalf("apply wiring: %v", err)
@@ -648,7 +648,7 @@ func TestApplyOTLPWiring_ExplicitOTLPBeatsNoneVeto(t *testing.T) {
 	t.Setenv("OTEL_TRACES_EXPORTER", "none")
 	t.Setenv("OTEL_METRICS_EXPORTER", "none")
 
-	cfg := &setupConfig{otlp: &otlpConfig{}} //nolint:exhaustruct_v5 // explicit-code path
+	cfg := &setupConfig{otlp: &otlpConfig{}}
 
 	if err := applyOTLPWiring(t.Context(), cfg); err != nil {
 		t.Fatalf("apply wiring: %v", err)
@@ -664,7 +664,7 @@ func TestApplyOTLPWiring_UnsupportedExporterNamesAreNoOps(t *testing.T) {
 	t.Setenv("OTEL_TRACES_EXPORTER", "console")
 	t.Setenv("OTEL_METRICS_EXPORTER", "prometheus")
 
-	cfg := &setupConfig{} //nolint:exhaustruct_v5 // env-driven path
+	cfg := &setupConfig{}
 
 	if err := applyOTLPWiring(t.Context(), cfg); err != nil {
 		t.Fatalf("apply wiring: %v", err)

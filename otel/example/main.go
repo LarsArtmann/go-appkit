@@ -149,18 +149,20 @@ func run(cfg appkit.ServiceConfig) error {
 
 	// Outbound calls continue the inbound trace through the instrumented
 	// transport: one CLIENT span per downstream call, W3C context injected.
-	downstream := &http.Client{Transport: appkitotel.Transport()}
+	downstream := &http.Client{Transport: appkitotel.Transport()} //nolint:exhaustruct_v5 // demo
 
 	svc.Mux.HandleFunc("GET /users/{id}", func(w http.ResponseWriter, r *http.Request) {
 		logger.InfoContext(r.Context(), "user fetched", "user_id", r.PathValue("id"))
 
 		// Pretend this handler enriches the profile from a downstream API —
-		// the CLIENT span joins the request's trace (curl shows both spans
-		// named `GET /users/{id}` (server) and `HTTP GET` (client)).
-		resp, err := downstream.Get("http://example.invalid/enrich")
+		// the CLIENT span joins the request's trace (curl shows both spans:
+		// `GET /users/{id}` (server) and `HTTP GET` (client)).
+		req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, "http://example.invalid/enrich", nil)
 		if err == nil {
-			_, _ = io.Copy(io.Discard, resp.Body)
-			_ = resp.Body.Close()
+			if resp, reqErr := downstream.Do(req); reqErr == nil {
+				_, _ = io.Copy(io.Discard, resp.Body)
+				_ = resp.Body.Close()
+			}
 		}
 
 		w.WriteHeader(http.StatusOK)

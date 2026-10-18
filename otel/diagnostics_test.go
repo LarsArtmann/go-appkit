@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"slices"
 	"sync"
 	"testing"
 
@@ -47,13 +48,7 @@ func (h *captureHandler) messages() []string {
 }
 
 func (h *captureHandler) contains(msg string) bool {
-	for _, m := range h.messages() {
-		if m == msg {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(h.messages(), msg)
 }
 
 func TestSetup_DiagnosticsRoutesThroughSlog(t *testing.T) {
@@ -178,6 +173,6 @@ func TestSetup_WithoutGlobalRegistrationSkipsDiagnostics(t *testing.T) {
 	}
 
 	if msgs := capture.messages(); len(msgs) != 0 {
-		t.Errorf("capture got %v, want none — diagnostics must not route through the passed logger when global registration is skipped", msgs)
+		t.Errorf("capture got %v, want none — diagnostics must stay off without global registration", msgs)
 	}
 }

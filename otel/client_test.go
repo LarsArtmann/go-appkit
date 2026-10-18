@@ -49,15 +49,7 @@ func TestTransport_ClientSpanAndTraceparentInjection(t *testing.T) {
 
 	client := &http.Client{Transport: Transport(WithTracerProvider(provider))}
 
-	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.URL+"/downstream", nil)
-	if err != nil {
-		t.Fatalf("new request: %v", err)
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		t.Fatalf("get: %v", err)
-	}
+	resp := mustDo(t, client, server.URL+"/downstream")
 
 	_, _ = io.Copy(io.Discard, resp.Body)
 
@@ -105,10 +97,7 @@ func TestTransport_SpanEndsOnBodyClose(t *testing.T) {
 
 	client := &http.Client{Transport: Transport(WithTracerProvider(provider))}
 
-	resp, err := mustDo(t, client, server.URL)
-	if err != nil {
-		t.Fatalf("get: %v", err)
-	}
+	resp := mustDo(t, client, server.URL)
 
 	if spans := flushedSpans(t, provider, exporter); len(spans) != 0 {
 		t.Fatalf("client span exported before body close, want it held open (got %d spans)", len(spans))
@@ -137,10 +126,7 @@ func TestTransport_BaseTransportReceivesRequest(t *testing.T) {
 
 	client := &http.Client{Transport: Transport(WithBaseTransport(base))}
 
-	resp, err := mustDo(t, client, "http://example.invalid/downstream")
-	if err != nil {
-		t.Fatalf("get: %v", err)
-	}
+	resp := mustDo(t, client, "http://example.invalid/downstream")
 
 	defer func() { _ = resp.Body.Close() }()
 
@@ -163,10 +149,7 @@ func TestTransport_NoOpWithoutProvider(t *testing.T) {
 
 	client := &http.Client{Transport: Transport()}
 
-	resp, err := mustDo(t, client, server.URL)
-	if err != nil {
-		t.Fatalf("get through the unconfigured transport: %v", err)
-	}
+	resp := mustDo(t, client, server.URL)
 
 	_, _ = io.Copy(io.Discard, resp.Body)
 
@@ -186,8 +169,8 @@ func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) {
 }
 
 // mustDo issues GET via client.Do with the test context — the noctx-safe
-// shape this suite's clients use.
-func mustDo(t *testing.T, client *http.Client, url string) (*http.Response, error) {
+// shape this suite's clients use. Fails the test on error.
+func mustDo(t *testing.T, client *http.Client, url string) *http.Response {
 	t.Helper()
 
 	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, nil)
@@ -195,5 +178,10 @@ func mustDo(t *testing.T, client *http.Client, url string) (*http.Response, erro
 		t.Fatalf("new request: %v", err)
 	}
 
-	return client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("do %s: %v", url, err)
+	}
+
+	return resp
 }
