@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Exporter off-switch**: `OTEL_TRACES_EXPORTER=none` /
+  `OTEL_METRICS_EXPORTER=none` now veto the environment-driven signal in
+  `Setup` (case/whitespace tolerant; explicit code still wins). Other
+  exporter names stay documented no-ops — the HTTP-only OTLP posture
+  stands, this adds a VETO, not an exporter zoo.
+- **Process identity in the resource**: `Setup`'s merged resource now
+  includes the non-sensitive process detectors — `process.pid`,
+  `process.runtime.name`/`version`, `process.executable.name`.
+  `process.command_args` is deliberately excluded (secrets ride flags).
 - `Transport(opts ...MiddlewareOption)`: instrumented outbound
   `http.RoundTripper` over otelhttp's client path — one CLIENT span per
   downstream call, W3C traceparent/baggage injection continuing the inbound

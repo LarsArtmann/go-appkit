@@ -351,14 +351,20 @@ func propagatorOrDefault(p propagation.TextMapPropagator) propagation.TextMapPro
 
 // applyOTLPWiring fills the unset exporter slots from OTLP: an explicit
 // [WithOTLP] always wires both signals (unless the signal has its own
-// explicit option); otherwise the environment decides per signal. This is
-// the zero-code path — the deployment env turns telemetry on and off.
-// Construction failures surface to Setup's caller: a misconfigured exporter
-// must fail the process at startup, not silently drop telemetry.
+// explicit option); otherwise the environment decides per signal — with the
+// spec's off-switch honored: OTEL_TRACES_EXPORTER=none (or the metrics
+// counterpart) vetoes the env-driven signal. Explicit code wins over the
+// veto, as over every other environment variable. This is the zero-code
+// path — the deployment env turns telemetry on and off. Construction
+// failures surface to Setup's caller: a misconfigured exporter must fail
+// the process at startup, not silently drop telemetry.
 func applyOTLPWiring(ctx context.Context, cfg *setupConfig) error {
 	explicit := cfg.otlp != nil
 
-	if cfg.spanExporter == nil && cfg.stdoutWriter == nil && (explicit || otlpTracesEnvConfigured()) {
+	tracesVetoed := !explicit && envExporterOff(envTracesExporter)
+
+	if cfg.spanExporter == nil && cfg.stdoutWriter == nil &&
+		(explicit || otlpTracesEnvConfigured()) && !tracesVetoed {
 		exp, err := newOTLPSpanExporter(ctx, cfg.otlp)
 		if err != nil {
 			return err
@@ -367,7 +373,9 @@ func applyOTLPWiring(ctx context.Context, cfg *setupConfig) error {
 		cfg.spanExporter = exp
 	}
 
-	if cfg.metricReader == nil && (explicit || otlpMetricsEnvConfigured()) {
+	metricsVetoed := !explicit && envExporterOff(envMetricsExporter)
+
+	if cfg.metricReader == nil && (explicit || otlpMetricsEnvConfigured()) && !metricsVetoed {
 		reader, err := newOTLPMetricReader(ctx, cfg.otlp)
 		if err != nil {
 			return err
@@ -381,7 +389,10 @@ func applyOTLPWiring(ctx context.Context, cfg *setupConfig) error {
 
 // buildResource assembles the OTel resource: the SDK standard detectors
 // (environment variables incl. OTEL_SERVICE_NAME, telemetry SDK, host) fill
-// the base, and the code-configured service identity wins on conflict.
+// the base, the process identity adds the non-sensitive subset (pid,
+// runtime name/version, executable name — command args are deliberately
+// EXCLUDED because secrets get passed through flags), and the code-configured
+// service identity wins on conflict.
 func buildResource(cfg *setupConfig) (*resource.Resource, error) {
 	var attrs []attribute.KeyValue
 

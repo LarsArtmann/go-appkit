@@ -44,6 +44,31 @@ func withRestoredGlobals(t *testing.T) {
 	})
 }
 
+func TestSetup_ResourceCarriesProcessIdentity(t *testing.T) {
+	t.Setenv("OTEL_SERVICE_NAME", "") // keep the env detector from injecting a service name
+
+	res, err := buildResource(&setupConfig{}) //nolint:exhaustruct_v5 // no options needed for the detector check
+	if err != nil {
+		t.Fatalf("build resource: %v", err)
+	}
+
+	attrs := map[string]string{}
+	for _, v := range res.Attributes() {
+		attrs[string(v.Key)] = v.Value.Emit()
+	}
+
+	for _, key := range []string{"process.pid", "process.runtime.name", "process.runtime.version", "process.executable.name"} {
+		value, ok := attrs[key]
+		if !ok || value == "" {
+			t.Errorf("merged resource missing %s (have %v)", key, attrs)
+		}
+	}
+
+	if _, leaked := attrs["process.command_args"]; leaked {
+		t.Error("command args must stay out of the resource — secrets ride flags")
+	}
+}
+
 func TestSetup_SpansCarryServiceResource(t *testing.T) {
 	withRestoredGlobals(t)
 

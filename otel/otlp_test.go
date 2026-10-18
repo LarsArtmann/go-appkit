@@ -603,3 +603,74 @@ func TestOTLPSentinelsClassified(t *testing.T) {
 	errorfamilytest.AssertCode(t, errOTLPSetup, "otel.otlp_exporter_failed")
 	errorfamilytest.AssertHTTPStatus(t, errOTLPSetup, 503)
 }
+
+func TestApplyOTLPWiring_ExporterNoneVetoesSignals(t *testing.T) {
+	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318")
+
+	tests := []struct {
+		name            string
+		tracesExporter  string
+		metricsExporter string
+		wantTraces      bool
+		wantMetrics     bool
+	}{
+		{"no veto", "", "", true, true},
+		{"traces off", "none", "", false, true},
+		{"metrics off", "", "none", true, false},
+		{"both off", "none", "none", false, false},
+		{"case and space", " None ", "NONE", false, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("OTEL_TRACES_EXPORTER", tt.tracesExporter)
+			t.Setenv("OTEL_METRICS_EXPORTER", tt.metricsExporter)
+
+			cfg := &setupConfig{} //nolint:exhaustruct_v5 // env-driven path
+
+			if err := applyOTLPWiring(t.Context(), cfg); err != nil {
+				t.Fatalf("apply wiring: %v", err)
+			}
+
+			if got := cfg.spanExporter != nil; got != tt.wantTraces {
+				t.Errorf("span exporter wired = %v, want %v", got, tt.wantTraces)
+			}
+
+			if got := cfg.metricReader != nil; got != tt.wantMetrics {
+				t.Errorf("metric reader wired = %v, want %v", got, tt.wantMetrics)
+			}
+		})
+	}
+}
+
+func TestApplyOTLPWiring_ExplicitOTLPBeatsNoneVeto(t *testing.T) {
+	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318")
+	t.Setenv("OTEL_TRACES_EXPORTER", "none")
+	t.Setenv("OTEL_METRICS_EXPORTER", "none")
+
+	cfg := &setupConfig{otlp: &otlpConfig{}} //nolint:exhaustruct_v5 // explicit-code path
+
+	if err := applyOTLPWiring(t.Context(), cfg); err != nil {
+		t.Fatalf("apply wiring: %v", err)
+	}
+
+	if cfg.spanExporter == nil || cfg.metricReader == nil {
+		t.Fatal("explicit WithOTLP must win over the env exporter veto — code beats env")
+	}
+}
+
+func TestApplyOTLPWiring_UnsupportedExporterNamesAreNoOps(t *testing.T) {
+	t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318")
+	t.Setenv("OTEL_TRACES_EXPORTER", "console")
+	t.Setenv("OTEL_METRICS_EXPORTER", "prometheus")
+
+	cfg := &setupConfig{} //nolint:exhaustruct_v5 // env-driven path
+
+	if err := applyOTLPWiring(t.Context(), cfg); err != nil {
+		t.Fatalf("apply wiring: %v", err)
+	}
+
+	if cfg.spanExporter == nil || cfg.metricReader == nil {
+		t.Fatal("unsupported exporter names must be documented no-ops — only `none` vetoes")
+	}
+}

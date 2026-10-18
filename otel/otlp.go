@@ -23,6 +23,8 @@ const (
 	envOTLPEndpoint        = "OTEL_EXPORTER_OTLP_ENDPOINT"
 	envOTLPTracesEndpoint  = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
 	envOTLPMetricsEndpoint = "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"
+	envTracesExporter      = "OTEL_TRACES_EXPORTER"
+	envMetricsExporter     = "OTEL_METRICS_EXPORTER"
 )
 
 // OTLPOption configures the OTLP/HTTP exporters built by [WithOTLP].
@@ -101,6 +103,16 @@ func otlpTracesEnvConfigured() bool {
 // [otlpTracesEnvConfigured].
 func otlpMetricsEnvConfigured() bool {
 	return envSet(envOTLPEndpoint) || envSet(envOTLPMetricsEndpoint)
+}
+
+// envExporterOff reports whether the spec's OTEL_<signal>_EXPORTER variable
+// vetoes the signal with `none` (case-insensitive, whitespace-tolerant).
+// It only gates the ENVIRONMENT-driven wiring — explicit code options still
+// win per signal. Other exporter names (console, prometheus, ...) are NOT
+// supported by this module's HTTP-only OTLP posture and change nothing:
+// the documented divergence from the spec's exporter zoo.
+func envExporterOff(key string) bool {
+	return strings.TrimSpace(strings.ToLower(os.Getenv(key))) == "none"
 }
 
 func envSet(key string) bool {

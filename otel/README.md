@@ -219,6 +219,15 @@ compression, retries). Any custom `sdktrace.SpanExporter` /
 `sdkmetric.Reader` still fits via `WithSpanExporter` / `WithMetricReader` —
 and takes precedence over OTLP for its signal.
 
+**Off-switch and protocol divergence (deliberate):** `Setup` honors the
+spec's `OTEL_TRACES_EXPORTER=none` / `OTEL_METRICS_EXPORTER=none` as a veto
+on the ENVIRONMENT-driven signal (case/whitespace tolerant) — the
+deployment can kill one signal without a code change, e.g. during an
+incident. Explicit code options win over the veto, as over every other
+environment variable. Other exporter names (`console`, `prometheus`,
+`zipkin`, ...) are documented NO-OPS: this module exports OTLP/HTTP only —
+the spec's exporter zoo is out of scope, so the variables change nothing.
+
 Wire-level knobs worth knowing (source-verified against
 `otlp{trace,metric}http` v1.47.0):
 
@@ -296,6 +305,12 @@ README's observability section.
   and projection cycles to request traces.
 - **`otelhttp.WithMessageEvents` declined** (evaluated 2026-08-18): byte-count
   message events add span-event noise with no consumer; NOT-DO stands.
+- **Resource identity**: the merged resource carries the env/SDK/host
+  detectors plus the NON-SENSITIVE process subset — `process.pid`,
+  `process.runtime.name`/`version`, `process.executable.name`.
+  `process.command_args` is deliberately EXCLUDED (secrets get passed
+  through flags and would leak into telemetry); add targeted
+  `resource.WithProcess*` detectors yourself if you need more.
 - **Non-goals (deliberate)**: no OTLP **logs** signal — the Logs API+SDK went
   STABLE in otel v1.47.0 (2026-10-02, the exact version this module pins), so
   the old "still experimental" blocker is gone; what remains is the consumer
