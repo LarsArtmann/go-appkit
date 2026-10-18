@@ -332,16 +332,17 @@ prefixes were retired 2026-09-29; `encoding/json/v2` is default-on).
 
 ## Performance
 
-`BenchmarkMiddleware_*` (see `benchmark_test.go`; go 1.26.7, linux/amd64,
-mean of 10 runs, 2026-09-16; `httptest` round-trip against
-`w.WriteHeader(200)`; run-to-run drift on this box is ±25%, see the
-2026-09-15 re-run in `TODO_LIST.md`):
+`BenchmarkMiddleware_*` (see `benchmark_test.go`; go 1.27.2, linux/amd64,
+benchstat n=10, re-baselined 2026-10-18 in a quiet-run-gated window —
+load1 11.7, 8 primary threads pinned via `scripts/quiet-run.sh`;
+`httptest` round-trip against `w.WriteHeader(200)`; run-to-run drift on
+this box is ±25%):
 
-| Variant                 | ns/op  | B/op   | allocs/op |
-| ----------------------- | ------ | ------ | --------- |
-| NoOp (no providers)     | 20,000 | 7,918  | 90        |
-| Traced (spans)          | 21,800 | 11,051 | 90        |
-| Traced + metered (full) | 23,300 | 11,055 | 90        |
+| Variant                 | ns/op (mean ± sd) | B/op    | allocs/op |
+| ----------------------- | ----------------- | ------- | --------- |
+| NoOp (no providers)     | 19.67µs ± 5%      | 7.66Ki  | 90        |
+| Traced (spans)          | 20.45µs ± 13%     | 10.67Ki | 90        |
+| Traced + metered (full) | 25.33µs ± 16%     | 10.67Ki | 90        |
 
 2026-09-29 re-run (n=5, go 1.27.1 floor, httputil v1.4.0): B/op and
 allocs/op are UNCHANGED against the table (NoOp 7,973 B/90 allocs; traced
@@ -360,11 +361,32 @@ re-baseline is deferred a second time: ambient load rose 9→26 mid-run
 far outside the ±25% honesty bar. ns/op rows stay at the 2026-09-16
 baseline until a genuinely quiet window appears.
 
-Full instrumentation costs ~~3.3us/req (~~+17%) and ~3.1KB over the no-op path,
-with zero additional allocations; export I/O is excluded by design (batching
-processor, no exporter wired). The no-op baseline is the cost of the
-middleware existing in the chain with the module imported but no providers —
-the strictly-opt-in guarantee in numbers.
+2026-10-18 RE-BASELINE (n=10, go 1.27.2, benchstat, quiet-gate protocol —
+`scripts/quiet-run.sh`: load1 11.7 at start, taskset-pinned to 8 PRIMARY
+threads): the middleware table above is the fresh baseline — all three
+rows within ±9% of 2026-09-16 (NoOp 19.67µs ± 5%; traced 20.45µs ± 13%;
+traced+metered 25.33µs ± 16%), so the 1.26.7→1.27.2 toolchain jump costs
+nothing measurable. B/op and allocs/op UNCHANGED again (NoOp 7.66Ki/90;
+traced 10.67Ki/90; traced+metered 10.67Ki/90 — ±0%). PROTOCOL FINDING:
+the first same-day attempt pinned the 8 "least-busy" cores, which
+included two SMT sibling pairs (12/28, 9/25) — sibling contention made
+the same rows bimodal (±26-36% sd); the picker is SMT-aware now (primary
+threads only) and the middleware noise collapsed to ±5-16%. The Recovery
+happy/panic rows below remain cross-run UNSTABLE (16.35µs↔27.29µs happy,
+33.45µs↔40.65µs panic across two same-protocol runs — suspected
+frequency-scaling sensitivity of the deferred-recover path) and keep
+their 2026-10-12 values until a stable panic-path protocol exists;
+RecordError rows are confirmed (recording 4.71µs vs 5.96µs, -21%, within
+the bar; no-span 5.6ns).
+
+Full instrumentation costs ~5.7µs/req (~+29% over the no-op path at the
+2026-10-18 baseline — the no-op row got faster on go 1.27.2 while the
+metered row held, widening the relative gap from the +17% seen at
+2026-09-16) and ~3.0KiB over the no-op path, with zero additional
+allocations; export I/O is excluded by design (batching processor, no
+exporter wired). The no-op baseline is the cost of the middleware
+existing in the chain with the module imported but no providers — the
+strictly-opt-in guarantee in numbers.
 
 `BenchmarkRecovery_*` + `BenchmarkRecordError_*` (added 2026-10-12, same
 harness, go 1.27.2):

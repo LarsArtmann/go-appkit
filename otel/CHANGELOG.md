@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- README: `BenchmarkMiddleware_*` ns/op re-baselined 2026-10-18 (benchstat
+  n=10, go 1.27.2, quiet-gate protocol — `scripts/quiet-run.sh`, 8 primary
+  threads pinned, load1 11.7): NoOp 19.67µs ± 5%, traced 20.45µs ± 13%,
+  traced+metered 25.33µs ± 16% (all within ±9% of the 2026-09-16 numbers —
+  the 1.27.2 toolchain jump costs nothing measurable; B/op + allocs/op
+  unchanged ±0%). Protocol finding recorded in the README: a busy-based
+  "least-idle cores" pin that includes SMT sibling pairs makes these rows
+  bimodal (±26-36% sd); the gate helper's picker is SMT-aware now. The
+  `Recovery_*` rows stay at their 2026-10-12 values — happy/panic proved
+  cross-run unstable (16.35µs↔27.29µs) under the same protocol.
+
 ## [0.3.0] - 2026-10-18
 
 ### Added
