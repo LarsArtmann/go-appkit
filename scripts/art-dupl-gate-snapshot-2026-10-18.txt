@@ -1,0 +1,39 @@
+    📖 Parsing files and building analysis tree...
+    163 files discovered
+🔍 Type-aware mode: loading type information for 163 Go files...
+ ✅
+found 5 clones: [low] [type-2] call (9 tokens, 22 lines) suggestion: Consider extracting to shared test utility
+  cqrs/staleness_test.go:40-61  | t.Parallel()
+  cqrs/staleness_test.go:71-92  | t.Parallel()
+  cqrs/staleness_test.go:111-132  | t.Parallel()
+  cqrs/staleness_test.go:141-162  | t.Parallel()
+  cqrs/staleness_test.go:215-236  | t.Parallel()
+found 2 clones: [low] [type-1] assignment (5 tokens, 11 lines) suggestion: Extract shared assignment or initialization pattern
+  flightrecorder/example/main.go:47-57  | cfg := appkit.DefaultServiceConfig()
+  otel/example/main.go:53-63  | cfg := appkit.DefaultServiceConfig()
+found 3 clones: [low] [type-1] assignment (3 tokens, 6 lines) suggestion: Extract shared assignment or initialization pattern
+  errorpages/example/main.go:27-32  | cfg := appkit.DefaultServiceConfig()
+  example/main.go:31-36  | cfg := appkit.DefaultServiceConfig()
+  systemd/example/main.go:28-33  | cfg := appkit.DefaultServiceConfig()
+found 2 clones: [low] [type-1] assignment (2 tokens, 4 lines) suggestion: Extract shared assignment or initialization pattern
+  otel/exceptions.go:92-95  | span := trace.SpanFromContext(ctx)
+  otel/exceptions.go:106-109  | span := trace.SpanFromContext(ctx)
+found 2 clones: [low] [type-1] assignment (2 tokens, 2 lines) suggestion: Extract shared assignment or initialization pattern
+  flightrecorder/example/main.go:40-41  | demoMaxSnapshots   = 5
+  otel/example/main.go:46-47  | demoMaxSnapshots   = 5
+found 2 clones: [low] [type-1] unknown (1 token, 1 line) suggestion: Review and extract common logic
+  flightrecorder/middleware.go:19-19  | MiddlewareOption func(*middlewareConfig)
+  otel/middleware.go:19-19  | MiddlewareOption func(*middlewareConfig)
+found 2 clones: [low] [type-1] unknown (1 token, 1 line) suggestion: Review and extract common logic
+  health/mount.go:14-14  | MountOption func(*mountConfig)
+  realtime/handler.go:29-29  | MountOption func(*mountConfig)
+found 4 clones: [medium] [type-2] conditional (1 token, 3 lines) suggestion: Consider strategy pattern or early returns
+  otel/setup.go:187-189  | if err != nil {
+  otel/setup.go:192-194  | if err != nil {
+  otel/setup.go:197-199  | if err != nil {
+  otel/setup.go:202-204  | if err != nil {
+found 2 clones: [medium] [type-1] conditional (1 token, 3 lines) suggestion: Consider strategy pattern or early returns
+  otel/diagnostics.go:19-21  | if logger == nil {
+  otel/exceptions.go:38-40  | if logger == nil {
+
+Detected 640 clone groups, 9 shown (435 non-actionable, 196 filtered suppressed). [art-dupl 0.9.0-4198011]

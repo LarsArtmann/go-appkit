@@ -7,8 +7,12 @@
 # test-threshold): each remaining group is an ACCEPTED class (see AGENTS.md
 # "Clone posture") or an accepted test-class variant. This gate makes that
 # acceptance STANDING instead of prose: `art-dupl check` reports only clone
-# groups whose hash is NOT in docs/reports/dupl/art-dupl-baseline.json, so
+# groups whose hash is NOT in scripts/art-dupl-baseline.json, so
 # NEW duplication fails the tag gate while the accepted classes stay green.
+# (The baseline lives in scripts/ — NOT docs/reports/ — because .gitignore's
+# any-depth `reports/` pattern silently eats that path; caught 2026-10-19
+# when the pushed tree's guard referenced an untrackable file. Human-context
+# snapshot: scripts/art-dupl-gate-snapshot-2026-10-18.txt.)
 #
 # Scope note: at default test-threshold (30 tokens) small test-file clones
 # are below the gate — the periodic manual audit (`art-dupl . --type-aware
@@ -27,7 +31,7 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 
-baseline="docs/reports/dupl/art-dupl-baseline.json"
+baseline="scripts/art-dupl-baseline.json"
 
 if ! command -v art-dupl >/dev/null 2>&1; then
 	echo "FAIL: art-dupl binary not found in PATH."
@@ -51,4 +55,4 @@ if ! art-dupl check . --type-aware -t 1 --baseline-path "$baseline" >"$out" 2>&1
 	exit 1
 fi
 
-echo "OK: no new clone groups vs docs/reports/dupl/art-dupl-baseline.json (gate: --type-aware -t 1)"
+echo "OK: no new clone groups vs scripts/art-dupl-baseline.json (gate: --type-aware -t 1)"

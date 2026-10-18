@@ -1,0 +1,85 @@
+{
+  "version": "1.0",
+  "threshold": 1,
+  "recordedAt": "2026-10-18T20:38:54.957238188Z",
+  "entries": [
+    {
+      "hash": "046e9eb31c880db3",
+      "files": [
+        "otel/example/main.go",
+        "flightrecorder/example/main.go"
+      ],
+      "tokens": 10
+    },
+    {
+      "hash": "049ba67e5ed2c585",
+      "files": [
+        "flightrecorder/example/main.go",
+        "otel/example/main.go"
+      ],
+      "tokens": 4
+    },
+    {
+      "hash": "083a44ada03d7e20",
+      "files": [
+        "otel/exceptions.go",
+        "otel/exceptions.go"
+      ],
+      "tokens": 4
+    },
+    {
+      "hash": "350332641a1c2cfc",
+      "files": [
+        "realtime/handler.go",
+        "health/mount.go"
+      ],
+      "tokens": 2
+    },
+    {
+      "hash": "5ccca1191e9c3242",
+      "files": [
+        "otel/middleware.go",
+        "flightrecorder/middleware.go"
+      ],
+      "tokens": 2
+    },
+    {
+      "hash": "93a9b09aaa101148",
+      "files": [
+        "cqrs/staleness_test.go",
+        "cqrs/staleness_test.go",
+        "cqrs/staleness_test.go",
+        "cqrs/staleness_test.go",
+        "cqrs/staleness_test.go"
+      ],
+      "tokens": 45
+    },
+    {
+      "hash": "b55107c4e5cd74f8",
+      "files": [
+        "otel/setup.go",
+        "otel/setup.go",
+        "otel/setup.go",
+        "otel/setup.go"
+      ],
+      "tokens": 4
+    },
+    {
+      "hash": "d334264ebba8df9e",
+      "files": [
+        "otel/exceptions.go",
+        "otel/diagnostics.go"
+      ],
+      "tokens": 2
+    },
+    {
+      "hash": "f80309c9400bd042",
+      "files": [
+        "errorpages/example/main.go",
+        "systemd/example/main.go",
+        "example/main.go"
+      ],
+      "tokens": 9
+    }
+  ]
+}
