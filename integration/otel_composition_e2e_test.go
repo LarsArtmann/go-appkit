@@ -29,7 +29,25 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
-// exceptionEvent returns the span's exception event, or nil.
+// e2eGet issues a GET against the service under test with a request
+// context — the noctx-safe shape for these E2Es. Fails the test on error.
+func e2eGet(t *testing.T, url string) *http.Response {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
+	if err != nil {
+		t.Fatalf("build request %s: %v", url, err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("do %s: %v", url, err)
+	}
+
+	return resp
+}
+
+// exceptionEvent returns the span's exception event, or nil.'s exception event, or nil.
 func exceptionEvent(span sdktrace.ReadOnlySpan) *sdktrace.Event {
 	for i, event := range span.Events() {
 		if event.Name == "exception" {
@@ -41,6 +59,8 @@ func exceptionEvent(span sdktrace.ReadOnlySpan) *sdktrace.Event {
 }
 
 // spanNamed returns the last span with the given name, or nil.
+//
+//nolint:ireturn // ReadOnlySpan is the only shape a traced span has
 func spanNamed(spans []sdktrace.ReadOnlySpan, name string) sdktrace.ReadOnlySpan {
 	var found sdktrace.ReadOnlySpan
 
@@ -134,7 +154,7 @@ func TestBothExceptionFlavorsThroughAppkitChain(t *testing.T) {
 
 	base := "http://" + svc.Addr().String()
 
-	resp, err := http.Get(base + "/panic") //nolint:noctx // integration E2E: the service IS the test subject
+	resp := e2eGet(t, base+"/panic")
 	if err != nil {
 		t.Fatalf("panic request: %v", err)
 	}
@@ -146,7 +166,7 @@ func TestBothExceptionFlavorsThroughAppkitChain(t *testing.T) {
 		t.Fatalf("panic status = %d, want 500", resp.StatusCode)
 	}
 
-	resp, err = http.Get(base + "/handled") //nolint:noctx // integration E2E: the service IS the test subject
+	resp = e2eGet(t, base+"/handled")
 	if err != nil {
 		t.Fatalf("handled request: %v", err)
 	}
@@ -187,6 +207,31 @@ func TestBothExceptionFlavorsThroughAppkitChain(t *testing.T) {
 	if handledSpan.Status().Code != codes.Error {
 		t.Errorf("handled span status code = %v, want Error", handledSpan.Status().Code)
 	}
+}
+
+// sseRouteDatapoint reports whether the collected metrics carry an
+// http.server.request.duration datapoint attributed to the given route.
+func sseRouteDatapoint(rm *metricdata.ResourceMetrics, route string) bool {
+	for _, sm := range rm.ScopeMetrics {
+		for _, m := range sm.Metrics {
+			if m.Name != "http.server.request.duration" {
+				continue
+			}
+
+			hist, ok := m.Data.(metricdata.Histogram[float64])
+			if !ok {
+				continue
+			}
+
+			for _, dp := range hist.DataPoints {
+				if v, ok := dp.Attributes.Value(attribute.Key("http.route")); ok && v.AsString() == route {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
 }
 
 // TestSSEStreamSpanThroughAppkitOuterMiddlewares pins the NoTimeout span-end
@@ -286,29 +331,10 @@ func TestSSEStreamSpanThroughAppkitOuterMiddlewares(t *testing.T) {
 		t.Fatalf("collect metrics: %v", err)
 	}
 
-	routeFound := false
-
-	for _, sm := range rm.ScopeMetrics {
-		for _, m := range sm.Metrics {
-			if m.Name != "http.server.request.duration" {
-				continue
-			}
-
-			hist, ok := m.Data.(metricdata.Histogram[float64])
-			if !ok {
-				continue
-			}
-
-			for _, dp := range hist.DataPoints {
-				if v, ok := dp.Attributes.Value(attribute.Key("http.route")); ok && v.AsString() == "/sse" {
-					routeFound = true
-				}
-			}
-		}
-	}
-
-	if !routeFound {
-		t.Error("no http.server.request.duration datapoint with http.route=/sse — route attribution lost on the SSE path")
+	if !sseRouteDatapoint(&rm, "/sse") {
+		t.Error(
+			"no http.server.request.duration datapoint with http.route=/sse — route attribution lost on the SSE path",
+		)
 	}
 }
 
@@ -386,19 +412,20 @@ func TestDashboardRoutesTracedVsFiltered(t *testing.T) {
 	base := "http://" + svc.Addr().String()
 
 	type expectation struct {
-		path      string
-		wantSpan  bool
-		wantHTML  bool
+		path     string
+		spanName string
+		wantSpan bool
+		wantHTML bool
 	}
 
 	cases := []expectation{
-		{"/health", false, true},
-		{"/healthz", true, false},
-		{"/readyz", true, false},
+		{"/health", "/health", false, true},
+		{"/healthz", "/healthz", true, false},
+		{"/readyz", "/readyz", true, false},
 	}
 
 	for _, tc := range cases {
-		resp, err := http.Get(base + tc.path) //nolint:noctx // integration E2E: the service IS the test subject
+		resp := e2eGet(t, base+tc.path)
 		if err != nil {
 			t.Fatalf("GET %s: %v", tc.path, err)
 		}
@@ -418,7 +445,7 @@ func TestDashboardRoutesTracedVsFiltered(t *testing.T) {
 	spans := spanExporter.GetSpans().Snapshots()
 
 	for _, tc := range cases {
-		span := spanNamed(spans, "GET "+tc.path)
+		span := spanNamed(spans, tc.spanName)
 
 		if tc.wantSpan && span == nil {
 			t.Errorf("GET %s: expected a server span (outside the /health filter), none recorded", tc.path)
@@ -438,12 +465,19 @@ func truncate(s string, n int) string {
 	return s[:n] + "..."
 }
 
-// TestErrorpagesBehindOtelMiddleware pins the pretty-500 + exception
-// composition: errorpages.Wrap renders classified failures as HTML while the
-// otel middleware records the error span and BOTH exception flavors (the
-// Recovery-recorded panic event AND the handler-recorded handled error)
-// land on their spans — the support-handoff story (pretty page for the user,
-// indexed exception for SigNoz) wired exactly as documented.
+// TestErrorpagesBehindOtelMiddleware pins the errorpages×otel composition
+// contract as it ACTUALLY composes (source-verified against errorpages.Wrap:
+// it replaces only the mux's bare 404/405 — it never renders panics or
+// handler errors). The honest matrix through PUBLISHED tags:
+//
+//   - PANIC → recovered by the stack, plain 500 text/plain, exception event
+//     on the error span (Recovery's recording is what feeds SigNoz).
+//   - HANDLED error → the handler records the exception (RecordError) AND
+//     renders the pretty classified page via errorpages.Handler — pretty
+//     page for the user, indexed exception for SigNoz, status from the
+//     error-family classification (Infrastructure → 503 here).
+//   - 404 → pretty HTML from Wrap (no span unless unfiltered — /health-style
+//     filtering does not apply here).
 func TestErrorpagesBehindOtelMiddleware(t *testing.T) {
 	t.Parallel()
 
@@ -470,6 +504,7 @@ func TestErrorpagesBehindOtelMiddleware(t *testing.T) {
 	errorpages.Wrap(svc.Mux, errorpages.Config{})
 
 	unclassified := errorfamily.NewInfrastructure("itest.unhandled", "unhandled infrastructure failure")
+	wantHandledStatus := appkit.HTTPStatus(unclassified)
 
 	svc.Mux.HandleFunc("GET /panic", func(http.ResponseWriter, *http.Request) {
 		panic("integration errorpages boom")
@@ -506,34 +541,73 @@ func TestErrorpagesBehindOtelMiddleware(t *testing.T) {
 
 	base := "http://" + svc.Addr().String()
 
-	for _, path := range []string{"/panic", "/handled"} {
-		resp, err := http.Get(base + path) //nolint:noctx // integration E2E: the service IS the test subject
-		if err != nil {
-			t.Fatalf("GET %s: %v", path, err)
-		}
+	resp := e2eGet(t, base+"/panic")
+	if err != nil {
+		t.Fatalf("GET /panic: %v", err)
+	}
 
-		body, _ := io.ReadAll(resp.Body)
-		_ = resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	_ = resp.Body.Close()
 
-		if resp.StatusCode != http.StatusInternalServerError {
-			t.Fatalf("GET %s: status = %d, want 500", path, resp.StatusCode)
-		}
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("GET /panic: status = %d, want 500", resp.StatusCode)
+	}
 
-		if ct := resp.Header.Get("Content-Type"); !strings.Contains(ct, "text/html") {
-			t.Errorf("GET %s: content-type = %q, want a pretty HTML page", path, ct)
-		}
+	if strings.Contains(string(body), "<html") {
+		t.Error(
+			"GET /panic: body is an HTML page — Wrap must NOT render panics (it owns 404/405 only); contract drifted",
+		)
+	}
 
-		if !strings.Contains(string(body), "<") {
-			t.Errorf("GET %s: body is not HTML: %q", path, truncate(string(body), 80))
-		}
+	panicSpan := spanNamed(spanExporter.GetSpans().Snapshots(), "GET /panic")
+	if panicSpan == nil {
+		t.Fatal("GET /panic: no server span recorded")
+	}
 
-		span := spanNamed(spanExporter.GetSpans().Snapshots(), "GET "+path)
-		if span == nil {
-			t.Fatalf("GET %s: no server span recorded", path)
-		}
+	if exceptionEvent(panicSpan) == nil {
+		t.Error("GET /panic: span carries no exception event")
+	}
 
-		if exceptionEvent(span) == nil {
-			t.Errorf("GET %s: span carries no exception event — the Exceptions view would be empty while users saw the pretty page", path)
-		}
+	resp = e2eGet(t, base+"/handled")
+	if err != nil {
+		t.Fatalf("GET /handled: %v", err)
+	}
+
+	body, _ = io.ReadAll(resp.Body)
+	_ = resp.Body.Close()
+
+	if resp.StatusCode != wantHandledStatus {
+		t.Fatalf("GET /handled: status = %d, want the family classification %d", resp.StatusCode, wantHandledStatus)
+	}
+
+	if ct := resp.Header.Get("Content-Type"); !strings.Contains(ct, "text/html") {
+		t.Errorf("GET /handled: content-type = %q, want a pretty HTML page", ct)
+	}
+
+	if !strings.Contains(string(body), "<") {
+		t.Errorf("GET /handled: body is not HTML: %q", truncate(string(body), 80))
+	}
+
+	handledSpan := spanNamed(spanExporter.GetSpans().Snapshots(), "GET /handled")
+	if handledSpan == nil {
+		t.Fatal("GET /handled: no server span recorded")
+	}
+
+	if exceptionEvent(handledSpan) == nil {
+		t.Error(
+			"GET /handled: span carries no exception event — the Exceptions view would be empty while users saw the pretty page",
+		)
+	}
+
+	resp = e2eGet(t, base+"/definitely-not-a-route")
+	if err != nil {
+		t.Fatalf("GET /definitely-not-a-route: %v", err)
+	}
+
+	_, _ = io.Copy(io.Discard, resp.Body)
+	_ = resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("GET /definitely-not-a-route: status = %d, want 404", resp.StatusCode)
 	}
 }
