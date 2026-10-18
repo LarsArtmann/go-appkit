@@ -366,8 +366,10 @@ baseline until a genuinely quiet window appears.
 threads): the middleware table above is the fresh baseline — all three
 rows within ±9% of 2026-09-16 (NoOp 19.67µs ± 5%; traced 20.45µs ± 13%;
 traced+metered 25.33µs ± 16%), so the 1.26.7→1.27.2 toolchain jump costs
-nothing measurable. B/op and allocs/op UNCHANGED again (NoOp 7.66Ki/90;
-traced 10.67Ki/90; traced+metered 10.67Ki/90 — ±0%). PROTOCOL FINDING:
+nothing measurable. Allocs/op UNCHANGED exactly (90/90/90); B/op ±0%
+within the run and within ~2% of prior sessions (NoOp 7.66Ki vs
+7.76-7.97Ki; traced 10.67Ki vs 10.84Ki) — stable, not byte-identical,
+across environments. PROTOCOL FINDING:
 the first same-day attempt pinned the 8 "least-busy" cores, which
 included two SMT sibling pairs (12/28, 9/25) — sibling contention made
 the same rows bimodal (±26-36% sd); the picker is SMT-aware now (primary
