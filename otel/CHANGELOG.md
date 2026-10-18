@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Documented
+
+- README truth pass (2026-10-18): the logs non-goal no longer claims
+  `go.opentelemetry.io/otel/log` is experimental — the Logs API+SDK went
+  stable in v1.47.0 (2026-10-02), the version this module pins; the
+  wait-for-consumer gate is what remains. Added: semconv v1.26.0 pin
+  rationale (SigNoz default = old `deployment.environment` key; rename
+  trigger), exemplar/cardinality SDK defaults (`TraceBasedFilter`, 2000
+  series cap, both env-tunable), the `WithMessageEvents` NOT-DO record
+  (evaluated + declined 2026-08-18), and the retired-`GOEXPERIMENT` build
+  note refresh.
+
 ### Changed
 
 - Test-only: adopted `samber/lo` (v1.53.0, direct require) at the

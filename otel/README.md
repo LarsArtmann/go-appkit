@@ -249,17 +249,38 @@ README's observability section.
   and answers 500; the outer placement of `Middleware` (`OuterMiddlewares`)
   means both sit inside the span. The `http.ErrAbortHandler` sentinel
   re-panics untouched, matching httputil.Recovery.
-- **Non-goals (deliberate)**: no OTLP **logs** signal — `go.opentelemetry.io/otel/log`
-  is still experimental and this module is stable; revisit when it stabilizes
-  and a consumer asks for trace-correlated log ingestion. And a handler that
-  writes 5xx WITHOUT panicking produces an error span but NO exception event
-  (SigNoz's Exceptions view only indexes `Recovery`/`RecordError` output) —
-  an opt-in auto-exception-on-5xx is plausible but unbuilt.
+- **Semantic conventions pin**: semconv **v1.26.0**, imported explicitly
+  (`setup.go`) — one version behind upstream (v1.43.0 shipped) ON PURPOSE:
+  SigNoz's default filter key is still the old `deployment.environment` this
+  module emits; the new `deployment.environment.name` key would break the
+  dashboard filter until SigNoz flips its default. Re-pin + rename together
+  when it does (watch tracked in TODO_LIST).
+- **Exemplars + cardinality** (SDK defaults, called out here so they are
+  discoverable): the metric provider ships `exemplar.TraceBasedFilter` —
+  spans in the measurement context become exemplars on
+  `http.server.request.duration` — plus a 2000-series cardinality limit per
+  instrument. Both are env-tunable without code:
+  `OTEL_METRICS_EXEMPLAR_FILTER` (always_on/always_off/trace_based) and
+  `OTEL_GO_X_CARDINALITY_LIMIT`. The flight-recorder bridge (`frmetrics.go`)
+  and the cqrs projection metrics report against `context.Background()`
+  deliberately — no span context, so no exemplar coupling of async captures
+  and projection cycles to request traces.
+- **`otelhttp.WithMessageEvents` declined** (evaluated 2026-08-18): byte-count
+  message events add span-event noise with no consumer; NOT-DO stands.
+- **Non-goals (deliberate)**: no OTLP **logs** signal — the Logs API+SDK went
+  STABLE in otel v1.47.0 (2026-10-02, the exact version this module pins), so
+  the old "still experimental" blocker is gone; what remains is the consumer
+  gate — build when a consumer asks for trace-correlated log ingestion. The
+  design sketch (`WithOTLPLogs()` shape, dependency cost, shutdown order)
+  lives in `docs/planning/2026-10-18_otel-otlp-logs-design.md`. And a handler
+  that writes 5xx WITHOUT panicking produces an error span but NO exception
+  event (SigNoz's Exceptions view only indexes `Recovery`/`RecordError` output)
+  — an opt-in auto-exception-on-5xx is plausible but unbuilt.
 
 ## Go build notes
 
-Builds with plain `go build` — unlike six of the seven sibling modules, this
-one does not need `GOEXPERIMENT=jsonv2`.
+Builds with plain `go build` (the repo's `GOEXPERIMENT=jsonv2` build-command
+prefixes were retired 2026-09-29; `encoding/json/v2` is default-on).
 
 ## Performance
 
