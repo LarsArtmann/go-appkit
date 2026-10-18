@@ -13,10 +13,22 @@ Import), then pick the file.
 | File                         | What it shows                                                                                                 |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `appkit-http-dashboard.json` | Request rate, 5xx error rate, p50/p90/p99 latency and status-code distribution per route, top-endpoints table |
+| `appkit-5xx-alert.example.json` | SigNoz alert (v2alpha1 schema): fires when the 5xx share of server spans per service+route exceeds 5% — same trace grammar as the dashboard's 5xx panel |
 
 The `service.name` variable filters everything (multi-select + "all"); the
 filters expect HTTP **server** spans (`spanKind = 'Server'`), which is what
 `appkitotel.Middleware` produces.
+
+Alert import (the example file): there is no UI "Import JSON" for alerts
+([SigNoz#9266](https://github.com/SigNoz/signoz/issues/9266) open) — create
+it via the API: `curl -X POST $SIGNOZ/api/v2/rules -d @appkit-5xx-alert.example.json`
+(set your channel ID in `condition.thresholds.spec[0].channels` first; empty
+means notification settings only). Grammar is field-name-verified against
+SigNoz's OpenAPI spec (v2alpha1 `PostableRule`: `alert` (not `name`),
+`condition.compositeQuery.queries[]` builder_query/builder_formula envelopes,
+`evaluation`, `notificationSettings`) — but, like the dashboard, it has NOT
+been applied to a live SigNoz; treat it as spec-proven, not
+instance-proven.
 
 Version note: the dashboard uses schemaVersion **v6** (template-derived from
 SigNoz's own `apm/http-api-monitoring.json` of the ~v0.135 era) — older

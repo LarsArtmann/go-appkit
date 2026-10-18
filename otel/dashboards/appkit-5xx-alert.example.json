@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "v2alpha1",
+  "version": "v5",
+  "alert": "appkit 5xx error rate above 5%",
+  "alertType": "TRACES_BASED_ALERT",
+  "ruleType": "threshold_rule",
+  "description": "More than 5% of server spans answer 5xx (evaluated per service+route). Feed: appkitotel.Middleware server spans — the same signal as appkit-http-dashboard.json's 5xx Error Rate panel.",
+  "disabled": false,
+  "labels": {
+    "severity": "warning"
+  },
+  "annotations": {
+    "summary": "{{ $labels.serviceName }} {{ $labels.httpRoute }} 5xx rate is high"
+  },
+  "condition": {
+    "compositeQuery": {
+      "queryType": "builder",
+      "panelType": "graph",
+      "unit": "none",
+      "queries": [
+        {
+          "type": "builder_query",
+          "spec": {
+            "name": "A",
+            "signal": "traces",
+            "stepInterval": 60,
+            "aggregations": [{ "expression": "rate()" }],
+            "filter": {
+              "expression": "spanKind = 'Server' AND httpRoute EXISTS AND responseStatusCode LIKE '5%'"
+            },
+            "groupBy": [
+              { "name": "serviceName", "fieldContext": "resource", "fieldDataType": "string" },
+              { "name": "httpRoute", "fieldContext": "attribute", "fieldDataType": "string" }
+            ],
+            "legend": "5xx {{serviceName}} {{httpRoute}}",
+            "disabled": true
+          }
+        },
+        {
+          "type": "builder_query",
+          "spec": {
+            "name": "B",
+            "signal": "traces",
+            "stepInterval": 60,
+            "aggregations": [{ "expression": "rate()" }],
+            "filter": {
+              "expression": "spanKind = 'Server' AND httpRoute EXISTS"
+            },
+            "groupBy": [
+              { "name": "serviceName", "fieldContext": "resource", "fieldDataType": "string" },
+              { "name": "httpRoute", "fieldContext": "attribute", "fieldDataType": "string" }
+            ],
+            "legend": "all {{serviceName}} {{httpRoute}}",
+            "disabled": true
+          }
+        },
+        {
+          "type": "builder_formula",
+          "spec": {
+            "name": "F1",
+            "expression": "(A / B) * 100",
+            "legend": "5xx % {{serviceName}} {{httpRoute}}"
+          }
+        }
+      ]
+    },
+    "selectedQueryName": "F1",
+    "thresholds": {
+      "kind": "basic",
+      "spec": [
+        {
+          "name": "warning",
+          "target": 5,
+          "targetUnit": "percent",
+          "op": "above",
+          "matchType": "at_least_once",
+          "channels": []
+        }
+      ]
+    },
+    "alertOnAbsent": false,
+    "absentFor": 0,
+    "requireMinPoints": false,
+    "requiredNumPoints": 0
+  },
+  "evaluation": {
+    "kind": "rolling",
+    "spec": {
+      "evalWindow": "5m",
+      "frequency": "1m"
+    }
+  },
+  "notificationSettings": {
+    "groupBy": ["serviceName", "httpRoute"],
+    "renotify": {
+      "enabled": true,
+      "interval": "30m",
+      "alertStates": ["firing"]
+    },
+    "usePolicy": false
+  }
+}
