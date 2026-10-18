@@ -92,7 +92,8 @@ Wire `hub.Shutdown` into `ServiceConfig.DrainHooks` or call it ahead of
   `StartHook` (post-listen) or sequence sends after connection
   establishment; TESTS should sync on `hub.SubscriberCount()` before
   broadcasting (the integration suite's SSE E2Es do exactly this — two
-  flake instances before the sync point, zero after).
+  flake instances before the sync point, zero after). Enforced across the
+  repo by `scripts/check-sse-protocol.sh` (CI `sse-protocol` job).
 - Single-process broadcaster only — no cross-instance fan-out (put a real bus
   in front if you scale horizontally).
 - Store-failure replay aborts now send a named `event: error` with a
