@@ -24,6 +24,7 @@ type middlewareConfig struct {
 	serverName     string
 	publicEndpoint bool
 	filters        []func(*http.Request) bool
+	baseTransport  http.RoundTripper
 }
 
 // WithTracerProvider overrides the tracer provider used by the middleware.
@@ -58,6 +59,15 @@ func WithServerName(name string) MiddlewareOption {
 func WithPublicEndpoint() MiddlewareOption {
 	return func(c *middlewareConfig) {
 		c.publicEndpoint = true
+	}
+}
+
+// WithBaseTransport sets the RoundTripper [Transport] wraps — connection
+// tuning (dial timeouts, proxy, TLS config) belongs there, not on the
+// instrumented wrapper. Default: http.DefaultTransport.
+func WithBaseTransport(rt http.RoundTripper) MiddlewareOption {
+	return func(c *middlewareConfig) {
+		c.baseTransport = rt
 	}
 }
 
