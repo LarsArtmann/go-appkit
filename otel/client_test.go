@@ -20,7 +20,11 @@ func newClientTestProvider(t *testing.T) (*sdktrace.TracerProvider, *tracetest.I
 	return sdktrace.NewTracerProvider(sdktrace.WithBatcher(exporter)), exporter
 }
 
-func flushedSpans(t *testing.T, provider *sdktrace.TracerProvider, exporter *tracetest.InMemoryExporter) []tracetest.SpanStub {
+func flushedSpans(
+	t *testing.T,
+	provider *sdktrace.TracerProvider,
+	exporter *tracetest.InMemoryExporter,
+) []tracetest.SpanStub {
 	t.Helper()
 
 	if err := provider.ForceFlush(t.Context()); err != nil {
@@ -38,14 +42,19 @@ func TestTransport_ClientSpanAndTraceparentInjection(t *testing.T) {
 	var traceparent string
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		traceparent = r.Header.Get("traceparent")
+		traceparent = r.Header.Get("Traceparent")
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
 
 	client := &http.Client{Transport: Transport(WithTracerProvider(provider))}
 
-	resp, err := client.Get(server.URL + "/downstream")
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.URL+"/downstream", nil)
+	if err != nil {
+		t.Fatalf("new request: %v", err)
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatalf("get: %v", err)
 	}
@@ -96,7 +105,7 @@ func TestTransport_SpanEndsOnBodyClose(t *testing.T) {
 
 	client := &http.Client{Transport: Transport(WithTracerProvider(provider))}
 
-	resp, err := client.Get(server.URL)
+	resp, err := mustDo(t, client, server.URL)
 	if err != nil {
 		t.Fatalf("get: %v", err)
 	}
@@ -128,12 +137,12 @@ func TestTransport_BaseTransportReceivesRequest(t *testing.T) {
 
 	client := &http.Client{Transport: Transport(WithBaseTransport(base))}
 
-	resp, err := client.Get("http://example.invalid/downstream")
+	resp, err := mustDo(t, client, "http://example.invalid/downstream")
 	if err != nil {
 		t.Fatalf("get: %v", err)
 	}
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if !baseCalled {
 		t.Fatal("WithBaseTransport round-tripper never saw the request")
@@ -154,7 +163,7 @@ func TestTransport_NoOpWithoutProvider(t *testing.T) {
 
 	client := &http.Client{Transport: Transport()}
 
-	resp, err := client.Get(server.URL)
+	resp, err := mustDo(t, client, server.URL)
 	if err != nil {
 		t.Fatalf("get through the unconfigured transport: %v", err)
 	}
@@ -174,4 +183,17 @@ type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) {
 	return f(r)
+}
+
+// mustDo issues GET via client.Do with the test context — the noctx-safe
+// shape this suite's clients use.
+func mustDo(t *testing.T, client *http.Client, url string) (*http.Response, error) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, nil)
+	if err != nil {
+		t.Fatalf("new request: %v", err)
+	}
+
+	return client.Do(req)
 }

@@ -87,10 +87,11 @@ appkit never grows application-shaped code.
 - `worker` supervisor + typed pool, `sqlite` ops kit, `polite` outbound
   client, `do` bridge — W4; each is a standalone-module candidate with a
   port-from source in the battery spec.
-- Baggage correlation-ID helpers and an outbound-client span transport in the
-  otel module (`appkitotel.Transport()`).
 - errorpages rendering `trace_id` when a span is active; flightrecorder
-  linking the snapshot file to the active span (support-handoff UX).
+  linking the snapshot file to the active span (support-handoff UX). The
+  baggage correlation-ID helpers and the outbound-client span transport
+  (`appkitotel.Transport()`) SHIPPED in otel v0.3.0 (2026-10-18) — rows
+  retired from this roadmap.
 - Multi-instance realtime: external-bus driver story (NATS/Redis) behind the
   Hub, if a consumer actually scales out.
 - Multi-recorder coordination ADR: one `fr.Recorder` serving the HTTP

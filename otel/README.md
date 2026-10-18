@@ -305,6 +305,10 @@ README's observability section.
   and projection cycles to request traces.
 - **`otelhttp.WithMessageEvents` declined** (evaluated 2026-08-18): byte-count
   message events add span-event noise with no consumer; NOT-DO stands.
+- **Baggage correlation helpers**: baggage propagates in and out (W3C
+  carrier); `CorrelationID(ctx)` / `WithCorrelationID(ctx, id)` read and set
+  the `correlation_id` member (read-or-empty, set-never-invent — invalid or
+  empty values leave the context untouched).
 - **Resource identity**: the merged resource carries the env/SDK/host
   detectors plus the NON-SENSITIVE process subset — `process.pid`,
   `process.runtime.name`/`version`, `process.executable.name`.

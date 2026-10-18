@@ -4,6 +4,10 @@
 
 ### Added
 
+- `CorrelationID(ctx)` / `WithCorrelationID(ctx, id)` + `CorrelationIDKey`:
+  baggage correlation helpers over the W3C baggage the middleware already
+  propagates. Read-or-empty, set-never-invent: empty or W3C-invalid values
+  leave the context untouched.
 - **Exporter off-switch**: `OTEL_TRACES_EXPORTER=none` /
   `OTEL_METRICS_EXPORTER=none` now veto the environment-driven signal in
   `Setup` (case/whitespace tolerant; explicit code still wins). Other
