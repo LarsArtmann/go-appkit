@@ -32,10 +32,15 @@ func withRestoredGlobals(t *testing.T) {
 
 	prevMP := otel.GetMeterProvider()
 
+	prevEH := otel.GetErrorHandler()
+	prevLogger := otel.GetLogger()
+
 	t.Cleanup(func() {
 		otel.SetTracerProvider(prevTP)
 		otel.SetMeterProvider(prevMP)
 		otel.SetTextMapPropagator(prevProp)
+		otel.SetErrorHandler(prevEH)
+		otel.SetLogger(prevLogger)
 	})
 }
 

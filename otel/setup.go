@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 
 	errorfamily "github.com/larsartmann/go-error-family"
 	"go.opentelemetry.io/otel"
@@ -31,6 +32,7 @@ type setupConfig struct {
 	propagator             propagation.TextMapPropagator
 	stdoutWriter           io.Writer
 	otlp                   *otlpConfig
+	diagnosticsLogger      *slog.Logger
 	skipGlobalRegistration bool
 }
 
@@ -110,10 +112,27 @@ func WithStdoutExporter(w io.Writer) SetupOption {
 // Use this when you need an isolated Provider — e.g. in tests, or when
 // running multiple services in one process where each owns its providers.
 // The returned Provider is fully functional; only the otel.Set* globals are
-// skipped, so otel.GetTracerProvider() is left unchanged.
+// skipped, so otel.GetTracerProvider() is left unchanged. The SDK
+// self-diagnostics wiring ([WithDiagnosticsLogger]) is skipped with it —
+// both touch the same process globals.
 func WithoutGlobalRegistration() SetupOption {
 	return func(c *setupConfig) {
 		c.skipGlobalRegistration = true
+	}
+}
+
+// WithDiagnosticsLogger routes the OTel SDK's self-diagnostics through the
+// given logger instead of the stderr fallback: exporter failures become
+// `otel export failed` error lines, and SDK-internal logs (deprecation
+// warnings, env-parse errors) become regular slog records. Pass the
+// service's logger so telemetry problems appear in the same pipeline
+// operators already grep. Without it, Setup wires the same contract through
+// slog.Default(). The wiring is part of global registration: it applies
+// when Setup registers the providers (last write wins, like every
+// otel.Set* global) and is skipped under [WithoutGlobalRegistration].
+func WithDiagnosticsLogger(logger *slog.Logger) SetupOption {
+	return func(c *setupConfig) {
+		c.diagnosticsLogger = logger
 	}
 }
 
@@ -251,6 +270,7 @@ func Setup(opts ...SetupOption) (*Provider, error) {
 		otel.SetTextMapPropagator(propagatorOrDefault(cfg.propagator))
 		otel.SetTracerProvider(tracerProvider)
 		otel.SetMeterProvider(meterProvider)
+		installTelemetryDiagnostics(cfg.diagnosticsLogger)
 	}
 
 	return &Provider{tracerProvider: tracerProvider, meterProvider: meterProvider}, nil
