@@ -3,7 +3,6 @@ package integration_test
 import (
 	"context"
 	"io"
-	"log/slog"
 	"net/http"
 	"strings"
 	"testing"
@@ -139,25 +138,7 @@ func TestSpanNameAndRouteThroughAppkitOuterMiddlewares(t *testing.T) {
 func TestRecoveryExceptionEventThroughAppkitChain(t *testing.T) {
 	t.Parallel()
 
-	spanExporter := tracetest.NewInMemoryExporter()
-	tp := sdktrace.NewTracerProvider(sdktrace.WithSyncer(spanExporter))
-
-	registerHealthOff := false
-	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
-	cfg.RegisterHealth = &registerHealthOff
-	cfg.DrainDelay = appkit.NoDrainDelay
-	cfg.OuterMiddlewares = []httputil.Middleware{
-		appkitotel.Middleware(appkitotel.WithTracerProvider(tp)),
-	}
-	cfg.ExtraMiddlewares = []httputil.Middleware{
-		appkitotel.Recovery(slog.New(slog.DiscardHandler)),
-	}
-
-	svc, err := appkit.NewService(cfg)
-	if err != nil {
-		t.Fatalf("new service: %v", err)
-	}
+	svc, spanExporter := newTracedTestService(t)
 	svc.Mux.HandleFunc("GET /panic", func(http.ResponseWriter, *http.Request) {
 		panic("integration boom")
 	})
