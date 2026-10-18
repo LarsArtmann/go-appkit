@@ -218,3 +218,29 @@ harvested (awaiting instructions)._
 _Point-in-time snapshot. Section (f) is the HARVEST feed for TODO_LIST/ROADMAP — NOT harvested;
 awaiting your go. Nothing pushed; `7f176f9` is local on master (the daemon's `11b925e` landed
 after it and is not this session's work)._
+
+---
+
+## Appendix: T09/T02 verdicts (SUPERB v8 execution, 2026-10-18)
+
+- **`a584b6f` AGENTS.md +2:** legitimate — the two Gotchas entries (shared-cache contention
+  masquerading as dependency-bump compile errors; module-inventory `stale-dependabot-module`
+  deliberate non-fix) are dated, sourced memory updates authored by the concurrent BuildFlow
+  triage session. Kept; no action.
+- **`a584b6f` go.sum −13 / integration go.sum −76:** deleted lines are `/go.mod`-suffix
+  metadata hashes only, for modules outside the require graphs — the hermetic-`go mod tidy`
+  CLEANUP leg that the 2026-10-18 AGENTS Gotcha prescribes after fossilized junk additions.
+  Legitimate; no action.
+- **CI state of `7f176f9`:** no workflow run exists (expected: CI ignores md/docs paths —
+  confirmed via `gh run list --commit 7f176f9` empty).
+- **Latest master runs red by design:** all build/test/proxy/lint jobs green; the only X is
+  `ci-preflight` (SSH-secret watchdog, designed red) and `structure-linter` skip (rides
+  preflight until the secret exists). Standing documented state, not a regression.
+- **go.work.sum residue:** stayed as committed (additive tooling-hash lines, harmless — plan
+  §0 tree note stands; no action).
+- **Foreign untracked status file** `docs/status/2026-10-18_01-45_buildflow-full-run-triage-and-remediation.md`:
+  belongs to the concurrent triage session; left untouched (its own session owns it).
+- **T02 headline double-source (executed same day):** fetched the otel-go and contrib release
+  pages directly — **v1.47.0 is the latest stable core release (2026-10-02, "first stable
+  release of the Logs API and SDK")** and contrib `v1.47.0/v2.6.0/v0.72.0/…` pairs with it.
+  Both report headlines CONFIRMED against primary sources; no report drift found.
