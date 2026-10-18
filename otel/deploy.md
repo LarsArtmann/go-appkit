@@ -43,19 +43,19 @@ Kill one signal without touching the image (e.g. during a collector
 incident):
 
 ```yaml
-            - name: OTEL_TRACES_EXPORTER
-              value: none            # traces off; metrics keep flowing
+- name: OTEL_TRACES_EXPORTER
+  value: none # traces off; metrics keep flowing
 ```
 
 Tuning knobs (all optional):
 
-| Variable | Effect |
-| --- | --- |
-| `OTEL_METRIC_EXPORT_INTERVAL` | Metric reader cadence in ms (SDK default 60000) |
-| `OTEL_METRICS_EXEMPLAR_FILTER` | `always_on` / `always_off` / `trace_based` (default) |
-| `OTEL_GO_X_CARDINALITY_LIMIT` | Per-instrument series cap (default 2000) |
-| `OTEL_EXPORTER_OTLP_TIMEOUT` | Per-export request deadline (default 10s) |
-| `OTEL_EXPORTER_OTLP_COMPRESSION` | `gzip` (value must be exactly `gzip`) |
+| Variable                         | Effect                                               |
+| -------------------------------- | ---------------------------------------------------- |
+| `OTEL_METRIC_EXPORT_INTERVAL`    | Metric reader cadence in ms (SDK default 60000)      |
+| `OTEL_METRICS_EXEMPLAR_FILTER`   | `always_on` / `always_off` / `trace_based` (default) |
+| `OTEL_GO_X_CARDINALITY_LIMIT`    | Per-instrument series cap (default 2000)             |
+| `OTEL_EXPORTER_OTLP_TIMEOUT`     | Per-export request deadline (default 10s)            |
+| `OTEL_EXPORTER_OTLP_COMPRESSION` | `gzip` (value must be exactly `gzip`)                |
 
 ## docker-compose
 
@@ -70,10 +70,10 @@ services:
     ports:
       - "8080:8080"
 
-  signoz-otel-collector:   # standalone collector for local testing
+  signoz-otel-collector: # standalone collector for local testing
     image: signoz/signoz-otel-collector:latest
     ports:
-      - "4318:4318"        # OTLP/HTTP — the protocol appkit speaks
+      - "4318:4318" # OTLP/HTTP — the protocol appkit speaks
 ```
 
 ## What NOT to configure

@@ -10,9 +10,9 @@ spans reach SigNoz, no metric configuration required.
 SigNoz UI: **Dashboards → New Dashboard → Import JSON** (or the folder "+" →
 Import), then pick the file.
 
-| File                         | What it shows                                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `appkit-http-dashboard.json` | Request rate, 5xx error rate, p50/p90/p99 latency and status-code distribution per route, top-endpoints table |
+| File                            | What it shows                                                                                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `appkit-http-dashboard.json`    | Request rate, 5xx error rate, p50/p90/p99 latency and status-code distribution per route, top-endpoints table                                           |
 | `appkit-5xx-alert.example.json` | SigNoz alert (v2alpha1 schema): fires when the 5xx share of server spans per service+route exceeds 5% — same trace grammar as the dashboard's 5xx panel |
 
 The `service.name` variable filters everything (multi-select + "all"); the

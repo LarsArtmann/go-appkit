@@ -37,12 +37,12 @@ func WithOTLPLogs(opts ...OTLPOption) SetupOption   // reuses WithOTLPEndpoint/H
 
 ## Dependency cost (the reason the gate exists)
 
-| Package | Version at sketch time | Stability |
-| --- | --- | --- |
-| `go.opentelemetry.io/otel/log` | v1.47.0 | STABLE (API) |
-| `go.opentelemetry.io/otel/sdk/log` | v1.47.0-adjacent (module `otel/sdk/log`, own version line) | STABLE (SDK) |
-| `go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp` | v0.23.0 | PRE-1.0 exporter |
-| `go.opentelemetry.io/contrib/bridges/otelslog` | v0.21.0 | PRE-1.0 bridge |
+| Package                                                       | Version at sketch time                                     | Stability        |
+| ------------------------------------------------------------- | ---------------------------------------------------------- | ---------------- |
+| `go.opentelemetry.io/otel/log`                                | v1.47.0                                                    | STABLE (API)     |
+| `go.opentelemetry.io/otel/sdk/log`                            | v1.47.0-adjacent (module `otel/sdk/log`, own version line) | STABLE (SDK)     |
+| `go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp` | v0.23.0                                                    | PRE-1.0 exporter |
+| `go.opentelemetry.io/contrib/bridges/otelslog`                | v0.21.0                                                    | PRE-1.0 bridge   |
 
 Net: three new require lines, all otel-family, two pre-1.0. Fleet policy takes new deps
 only on consumer demand — hence the gate.
