@@ -105,23 +105,46 @@ func connect(
 
 // TestSSEHeadersFlushThroughAppkitDefaultStack mirrors the cqrs-htmx
 // ADR-001 spike's flush test (M18.3): realtime.Handler flushes headers
-// immediately after subscribing, and that flush must survive appkit's default
-// middleware stack (Recovery → RequestID → Logging → SecurityHeaders) so
-// clients and reverse proxies see 200 OK well before the first event.
+// before subscribing (so the 200 OK is never held hostage by the first
+// event), and that flush must survive appkit's default middleware stack
+// (Recovery → RequestID → Logging → SecurityHeaders) so clients and reverse
+// proxies see 200 OK well before the first event.
 func TestSSEHeadersFlushThroughAppkitDefaultStack(t *testing.T) {
 	hub := realtime.NewHub()
 	svc := newSSEService(t, hub)
 
 	const eventDelay = 400 * time.Millisecond
 
-	time.AfterFunc(eventDelay, func() {
-		hub.Broadcast(sse.Event{Event: "ping", Data: "{}", ID: sse.NewEventID("evt-1")})
-	})
-
 	start := time.Now()
 
 	body, header := connect(t, svc, "", 10*time.Second)
 	headerElapsed := time.Since(start)
+
+	// Broadcast only after the handler's subscription is registered: the
+	// header flush precedes the subscribe step, so a timer armed from test
+	// start can race it under load and drop the only event this test
+	// reads. SubscriberCount is the sync point (realtime README protocol).
+	subscribed := false
+	for range 50 {
+		if hub.SubscriberCount() == 1 {
+			subscribed = true
+
+			break
+		}
+
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if !subscribed {
+		t.Fatal("handler never subscribed to the hub")
+	}
+
+	// The event fires eventDelay after the sync, keeping the flush-before-
+	// event timing proof: a handler that waited for the first event before
+	// flushing would show headerElapsed >= eventDelay.
+	time.AfterFunc(eventDelay, func() {
+		hub.Broadcast(sse.Event{Event: "ping", Data: "{}", ID: sse.NewEventID("evt-1")})
+	})
 
 	if ct := header.Get("Content-Type"); ct != "text/event-stream" {
 		t.Fatalf("content-type = %q, want text/event-stream", ct)
@@ -178,7 +201,25 @@ func TestJournalBackedReplayThroughAppkitService(t *testing.T) {
 	ssetest.RequireEventID(t, after, events[1].ID().String())
 	ssetest.RequireEventType(t, after, "event")
 
-	// Live broadcasts interleave on the reconnected stream.
+	// Live broadcasts interleave on the reconnected stream. The replayed
+	// event already proves the handler passed its subscribe step, but the
+	// explicit SubscriberCount sync keeps the house protocol (and the
+	// sse-protocol guard) satisfied even if handler internals reorder.
+	subscribed := false
+	for range 50 {
+		if hub.SubscriberCount() == 1 {
+			subscribed = true
+
+			break
+		}
+
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if !subscribed {
+		t.Fatal("handler never subscribed to the hub")
+	}
+
 	hub.Broadcast(sse.Event{Event: "live", Data: "{}", ID: sse.NewEventID("live-1")})
 
 	live := ssetest.MustReadNEvents(t, reconnected, 1)[0]
