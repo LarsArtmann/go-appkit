@@ -18,8 +18,13 @@
 #   git push origin master v0.9.0 health/v0.2.0 ...
 #
 # Checks:
-#   1. The five standing guards (directives, pin-drift, dependabot parity,
-#      workspace charter, consumer claims).
+#   1. The seven standing guards (directives, pin-drift, dependabot parity,
+#      workspace charter, consumer claims, SSE-protocol, gosum-canonical).
+#      The last two landed 2026-10-18: sse-protocol is an offline grep
+#      (test broadcasts must sync on SubscriberCount); gosum-canonical
+#      resolves every module's deps through an ISOLATED cache against
+#      proxy+sumdb (the 2026-10-14 pre-re-tag-hash incident class — slow
+#      by design, needs network like pin-drift).
 #   2. Each TAGGED ARTIFACT's go.mod (git show <tag>:…, not the working tree):
 #      go directive == the go.work floor, no `toolchain` directive, and no
 #      filesystem `replace` (tag hygiene: working-tree replaces used for
@@ -43,7 +48,7 @@ fail() {
 }
 
 # --- 1) Standing guards -----------------------------------------------------
-for guard in check-go-directives.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-consumer-claims.sh; do
+for guard in check-go-directives.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh; do
 	echo "== $guard =="
 	if ! "./scripts/$guard"; then
 		fail "$guard failed — fix before pushing ${tags[*]}"

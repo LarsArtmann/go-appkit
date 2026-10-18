@@ -4,7 +4,7 @@
 # previous .git/hooks/pre-commit INERT: no guard has run at commit time
 # since that override landed (found 2026-10-07, SUPERB T06/T07).
 #
-# Fatal: the three OFFLINE standing guards (fast, read-only, no network).
+# Fatal: the four OFFLINE standing guards (fast, read-only, no network).
 # Warning-only: push-lag watch.
 #
 # Deliberately NOT the full BuildFlow pre-commit block: its dprint step
@@ -18,16 +18,17 @@ set -u
 
 GUARD_FAIL=0
 
-for guard in check-go-directives.sh check-dependabot-parity.sh check-workspace-charter.sh; do
+for guard in check-go-directives.sh check-dependabot-parity.sh check-workspace-charter.sh check-sse-protocol.sh; do
 	if ! ./scripts/"$guard" >/dev/null 2>&1; then
 		echo "pre-commit: $guard FAILED (see scripts/$guard output)"
 		GUARD_FAIL=1
 	fi
 done
 
-# check-pin-drift.sh is deliberately NOT in the fatal set: its cross-repo
-# legs need the module proxy (network); an offline commit must not be
-# blocked. CI and pre-tag-checks.sh run it where network exists.
+# check-pin-drift.sh and check-gosum-canonical.sh are deliberately NOT in
+# the fatal set: their legs need the module proxy (network + downloads); an
+# offline commit must not be blocked. CI and pre-tag-checks.sh run them
+# where network exists.
 
 # Hermetic reminder for integration/ changes (warn-only): the module must be
 # verified with GOWORK=off — its suite self-enforces via TestMain (fails any

@@ -199,6 +199,19 @@ jobs:
       - name: Check go.mod directive parity
         run: ./scripts/check-go-directives.sh
 
+  # SSE-test protocol guard (17-49 f7, 2026-10-18): realtime.Handler
+  # flushes headers BEFORE subscribing, so a test broadcasting right after
+  # connect() races the subscribe step — a dropped broadcast then hangs
+  # MustReadNEvents until the 10m panic (the 2026-10-13 rate-limit SSE E2E
+  # incident class). Requires a SubscriberCount sync near every test-file
+  # broadcast. Offline grep guard, no Go toolchain needed.
+  sse-protocol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check SSE broadcast sync protocol
+        run: ./scripts/check-sse-protocol.sh
+
   # Config parity: every Go module directory must have a dependabot gomod
   # entry AND a CI test-matrix slot, and no dependabot entry may name a
   # directory without a go.mod. Makes the hand-verified 2026-09-17 /security
