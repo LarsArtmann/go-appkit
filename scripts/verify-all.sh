@@ -12,22 +12,38 @@
 # verdict is printed to stdout — never swallow this script's output through
 # head/tail (the exit-code-swallowing incident class, AGENTS.md Gotchas).
 #
-# Usage: scripts/verify-all.sh [--skip-tests] [--skip-lint] [module ...]
+# Usage: scripts/verify-all.sh [--quiet[=LOADMAX]] [--skip-tests] [--skip-lint] [module ...]
 #        modules are given as directory names (use "." for the root module)
+#        --quiet re-execs the whole loop through scripts/quiet-run.sh (the
+#        mechanical quiet gate, default load1 max 64 = the 17-49 §e2 sweep
+#        threshold; waits up to 1h for a quiet window, evidence to stderr +
+#        $QUIET_RUN_LOG). Exit 2 = the window never opened.
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel 2>/dev/null || echo .)"
 
 SKIP_TESTS=false
 SKIP_LINT=false
+QUIET=false
+QUIET_LOAD=64
 MODULES=()
 for arg in "$@"; do
 	case "$arg" in
 	--skip-tests) SKIP_TESTS=true ;;
 	--skip-lint) SKIP_LINT=true ;;
+	--quiet) QUIET=true ;;
+	--quiet=*) QUIET=true; QUIET_LOAD="${arg#--quiet=}" ;;
 	*) MODULES+=("$arg") ;;
 	esac
 done
+
+if [[ $QUIET == true ]]; then
+	args=()
+	for a in "$@"; do
+		case "$a" in --quiet|--quiet=*) ;; *) args+=("$a") ;; esac
+	done
+	exec scripts/quiet-run.sh --load-max "$QUIET_LOAD" --wait 3600 -- scripts/verify-all.sh "${args[@]}"
+fi
 
 if [[ ${#MODULES[@]} -eq 0 ]]; then
 	MODULES=(".")
