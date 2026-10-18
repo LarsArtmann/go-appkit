@@ -4,6 +4,15 @@
 
 ### Added
 
+- `Transport(opts ...MiddlewareOption)`: instrumented outbound
+  `http.RoundTripper` over otelhttp's client path — one CLIENT span per
+  downstream call, W3C traceparent/baggage injection continuing the inbound
+  trace, client-side semconv metrics. Defaults to the process globals from
+  `Setup`; pass-through without one. `WithBaseTransport` takes a tuned base
+  RoundTripper; server-side middleware options are documented as not
+  applying. README gained an "Outbound calls" section (incl. the
+  otelhttptrace `WithoutSubSpans()` high-fanout guidance); the example makes
+  one downstream call through it.
 - **SDK self-diagnostics through slog**: `Setup` now wires
   `otel.SetErrorHandler` + `otel.SetLogger` — exporter failures surface as
   grep-able `otel export failed` ERROR lines (catalogued in

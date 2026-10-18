@@ -398,6 +398,10 @@ func buildResource(cfg *setupConfig) (*resource.Resource, error) {
 		resource.WithFromEnv(),
 		resource.WithTelemetrySDK(),
 		resource.WithHost(),
+		resource.WithProcessPID(),
+		resource.WithProcessRuntimeName(),
+		resource.WithProcessRuntimeVersion(),
+		resource.WithProcessExecutableName(),
 		resource.WithAttributes(attrs...),
 	)
 	if err != nil {

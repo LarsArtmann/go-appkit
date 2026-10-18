@@ -1,13 +1,14 @@
 // Command otel-demo shows the appkit otel module in action: a service with
 // a span on every request, semantic-convention metrics, W3C trace-context
-// propagation, trace-correlated handler logs, exceptions in both flavors
-// (panics and handled errors), flight-recorder captures reported as OTel
-// metrics, and a telemetry flush wired into graceful shutdown.
+// propagation, trace-correlated handler logs, a trace-continuing downstream
+// call, exceptions in both flavors (panics and handled errors),
+// flight-recorder captures reported as OTel metrics, and a telemetry flush
+// wired into graceful shutdown.
 //
 // Run and try:
 //
 //	go run ./example
-//	curl -i http://localhost:8080/users/alice   # span + correlated log
+//	curl -i http://localhost:8080/users/alice   # span + correlated log + downstream client span
 //	curl -i http://localhost:8080/boom          # handled error -> exception event
 //	curl -i http://localhost:8080/panic         # panic -> exception event + stack trace
 //	curl -i http://localhost:8080/slow          # 150ms route -> fr capture -> appkit_flightrecorder_snapshots_total{type="GET /slow"}
@@ -26,6 +27,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -145,8 +147,21 @@ func run(cfg appkit.ServiceConfig) error {
 
 	defer func() { _ = svc.Close() }()
 
+	// Outbound calls continue the inbound trace through the instrumented
+	// transport: one CLIENT span per downstream call, W3C context injected.
+	downstream := &http.Client{Transport: appkitotel.Transport()}
+
 	svc.Mux.HandleFunc("GET /users/{id}", func(w http.ResponseWriter, r *http.Request) {
 		logger.InfoContext(r.Context(), "user fetched", "user_id", r.PathValue("id"))
+
+		// Pretend this handler enriches the profile from a downstream API —
+		// the CLIENT span joins the request's trace (curl shows both spans
+		// named `GET /users/{id}` (server) and `HTTP GET` (client)).
+		resp, err := downstream.Get("http://example.invalid/enrich")
+		if err == nil {
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
+		}
 
 		w.WriteHeader(http.StatusOK)
 

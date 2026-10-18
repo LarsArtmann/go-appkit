@@ -65,7 +65,8 @@
 //     the response stream ends.
 //   - W3C trace-context + baggage propagation in both directions: incoming
 //     traceparent continues the caller's trace, and outgoing client requests
-//     made with otelhttp.Transport continue this service's trace.
+//     made with [Transport] continue this service's trace (one CLIENT span
+//     per call, W3C injection, client-side metrics).
 //   - Semantic-convention metrics (http.server.request.duration and friends)
 //     when a meter provider is registered, with http.route from the matched
 //     pattern — cardinality-safe for parametrized routes.

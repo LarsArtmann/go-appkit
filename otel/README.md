@@ -133,6 +133,28 @@ exceptions view indexes.
 | Export    | OTLP/HTTP for traces + metrics, env-driven or in code     | `WithOTLP`; `OTEL_EXPORTER_OTLP_*` natively honored        |
 | Lifecycle | provider `Shutdown` in `ServiceConfig.ShutdownHooks`      | flush after drain — spans cover the final requests         |
 
+## Outbound calls
+
+Wrap your client's transport and every downstream request continues the
+inbound trace — one CLIENT span (`HTTP <method>`) per call, W3C
+`traceparent`/`baggage` injected, client-side semconv metrics recorded:
+
+```go
+client := &http.Client{Transport: appkitotel.Transport()}
+```
+
+Providers default to the process globals from `Setup`; without one the
+transport is a pass-through (same strictly-opt-in contract as the server
+middleware). `Transport(WithBaseTransport(rt))` takes a tuned base
+RoundTripper — connection timeouts and proxies belong there, request
+timeouts stay on the `http.Client`.
+
+For low-level sub-spans (DNS, dial, TLS handshakes as span events) opt into
+`go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace`
+on top of this transport — and on high-fanout call paths prefer
+`otelhttptrace.WithoutSubSpans()`: one client span per call is usually the
+right granularity, sub-spans multiply span volume per request.
+
 ## Flight-recorder metric bridge
 
 `NewFlightRecorderMetricsHook` turns every go-flightrecorder capture (manual,
