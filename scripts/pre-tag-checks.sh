@@ -26,7 +26,7 @@
 #      through an ISOLATED cache against proxy+sumdb (the 2026-10-14
 #      pre-re-tag-hash incident class — slow by design, needs network like
 #      pin-drift); art-dupl (SUPERB v9, evening) fails on clone groups not
-#      in docs/reports/dupl/art-dupl-baseline.json.
+#      in scripts/art-dupl-baseline.json.
 #   2. Each TAGGED ARTIFACT's go.mod (git show <tag>:…, not the working tree):
 #      go directive == the go.work floor, no `toolchain` directive, and no
 #      filesystem `replace` (tag hygiene: working-tree replaces used for
