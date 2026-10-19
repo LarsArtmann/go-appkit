@@ -255,9 +255,14 @@ jobs:
   # Clone-regression gate (SUPERB v9 follow-up, 2026-10-19): the standing
   # art-dupl gate (scripts/check-art-dupl.sh + committed baseline) also runs
   # on every push — NEW clone groups fail CI while the adjudicated accepted
-  # classes stay green. art-dupl is a PUBLIC module (proxy-served, tagged
-  # v0.9.0 — pinned for hash determinism), so installing it needs no SSH key
-  # and this job does NOT ride ci-preflight.
+  # classes stay green. art-dupl is a PUBLIC module (proxy-served), so
+  # installing it needs no SSH key and this job does NOT ride ci-preflight.
+  # PIN = the commit the baseline was generated and clean-runner-verified
+  # with (v0.9.0-0.20261017225421-93432fd910fb) — the v0.9.0 TAG build lags
+  # two commits behind and false-flags all 9 baseline groups as new
+  # (verified 2026-10-19 against a proxy install). Keep this pin in lockstep
+  # with the local nix-installed binary whenever the gate is re-baselined;
+  # move to the next stable tag after a tag build reproduces a green check.
   art-dupl-gate:
     runs-on: ubuntu-latest
     steps:
@@ -265,8 +270,8 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
-      - name: Install art-dupl (pinned)
-        run: go install github.com/LarsArtmann/art-dupl/cmd/art-dupl@v0.9.0
+      - name: Install art-dupl (pinned to the baseline-verified commit)
+        run: go install github.com/LarsArtmann/art-dupl@v0.9.1-0.20261017225421-93432fd910fb
       - name: Check clone groups against the committed baseline
         run: ./scripts/check-art-dupl.sh
 

@@ -2,6 +2,37 @@
 
 ## [Unreleased]
 
+### Added
+
+- CI: `art-dupl-gate` job — the standing clone-regression gate
+  (`scripts/check-art-dupl.sh` + committed baseline) now also runs on
+  every push. art-dupl is a public module, so the job needs no SSH key
+  and does not ride ci-preflight. The install is pinned to the
+  baseline-verified commit
+  (`v0.9.1-0.20261017225421-93432fd910fb`): the `v0.9.0` tag build lags
+  two commits and false-flags all nine baseline groups as new
+  (clean-runner-verified before wiring). Re-baselining must keep that
+  pin in lockstep with the local binary.
+
+### Fixed
+
+- `scripts/check-gosum-canonical.sh` no longer leaks its throwaway
+  module-cache scratch dirs into /tmp on green runs: the EXIT trap now
+  removes them (with `chmod -R u+w` first — go extracts cache entries
+  0444/0555, so plain `rm -rf` fails) and only KEEPS them, with a
+  pointer, when a run failed so the disagreeing hash stays inspectable.
+- `README.md` Development section: the toolchain paragraph said go.mod
+  pins `go 1.27.1` — stale since the 2026-10-12 floor train; now states
+  the real 1.27.2 floor, and documents `scripts/verify-all.sh` with its
+  `--quiet[=LOADMAX]` gate for shared machines.
+- `AGENTS.md` claimed go-structure-linter is "public + tagged" — the
+  repo is PRIVATE (gh visibility + proxy 404, calibrated against a
+  public family module). The private repo is exactly why the CI
+  structure-linter leg rides ci-preflight; the text now says so.
+- `scripts/check-art-dupl.sh` header still pointed re-baselining at the
+  `.gitignore`-eaten `docs/reports/dupl/` path; now points at `scripts/`
+  (the move itself landed 2026-10-19 — this closes the leftover).
+
 ## [0.9.0] - 2026-10-12
 
 ### Added
