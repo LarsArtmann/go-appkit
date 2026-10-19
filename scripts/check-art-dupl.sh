@@ -22,10 +22,11 @@
 #
 # Re-baselining (extract-or-accept): if a new group is INTENTIONAL, rerun
 #   art-dupl baseline . --type-aware -t 1 \
-#     --baseline-path docs/reports/dupl/art-dupl-baseline.json
-# and refresh docs/reports/dupl/*-gate-settings-snapshot.txt — and say why
-# in the commit message. A baseline bump without a justification will be
-# flagged in review.
+#     --baseline-path scripts/art-dupl-baseline.json
+# and refresh scripts/art-dupl-gate-snapshot-*.txt — and say why in the
+# commit message. A baseline bump without a justification will be flagged in
+# review. (scripts/ is deliberate: .gitignore's any-depth `reports/` pattern
+# eats docs/reports/ — see the scope note above.)
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"

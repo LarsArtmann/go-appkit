@@ -252,6 +252,24 @@ jobs:
       - name: Verify all module configs
         run: ./scripts/check-golangci-configs.sh
 
+  # Clone-regression gate (SUPERB v9 follow-up, 2026-10-19): the standing
+  # art-dupl gate (scripts/check-art-dupl.sh + committed baseline) also runs
+  # on every push — NEW clone groups fail CI while the adjudicated accepted
+  # classes stay green. art-dupl is a PUBLIC module (proxy-served, tagged
+  # v0.9.0 — pinned for hash determinism), so installing it needs no SSH key
+  # and this job does NOT ride ci-preflight.
+  art-dupl-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Install art-dupl (pinned)
+        run: go install github.com/LarsArtmann/art-dupl/cmd/art-dupl@v0.9.0
+      - name: Check clone groups against the committed baseline
+        run: ./scripts/check-art-dupl.sh
+
   # Structure-linter config guard (2026-10-12): the binary exits 0 even when
   # it REPORTS findings, so a silently lost .go-structure-linter.yaml would
   # stay green while the 11 deliberate-layout findings return. The guard
