@@ -386,7 +386,7 @@ recorded (consistently faster today; toolchain/box state), RecordError
 recording 4.55-5.32µs (recorded 5.96µs). Re-baseline when the 4-core
 protocol repeats at cross-run <±10%.
 
-Full instrumentation costs ~5.7µs/req (~+29% over the no-op path at the
+Full instrumentation costs ~~5.7µs/req (~~+29% over the no-op path at the
 2026-10-18 baseline — the no-op row got faster on go 1.27.2 while the
 metered row held, widening the relative gap from the +17% seen at
 2026-09-16) and ~3.0KiB over the no-op path, with zero additional

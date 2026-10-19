@@ -32,7 +32,10 @@ for arg in "$@"; do
 	--skip-tests) SKIP_TESTS=true ;;
 	--skip-lint) SKIP_LINT=true ;;
 	--quiet) QUIET=true ;;
-	--quiet=*) QUIET=true; QUIET_LOAD="${arg#--quiet=}" ;;
+	--quiet=*)
+		QUIET=true
+		QUIET_LOAD="${arg#--quiet=}"
+		;;
 	*) MODULES+=("$arg") ;;
 	esac
 done
@@ -40,7 +43,7 @@ done
 if [[ $QUIET == true ]]; then
 	args=()
 	for a in "$@"; do
-		case "$a" in --quiet|--quiet=*) ;; *) args+=("$a") ;; esac
+		case "$a" in --quiet | --quiet=*) ;; *) args+=("$a") ;; esac
 	done
 	exec scripts/quiet-run.sh --load-max "$QUIET_LOAD" --wait 3600 -- scripts/verify-all.sh "${args[@]}"
 fi
