@@ -49,7 +49,21 @@ fi
 
 cache="$(mktemp -d /tmp/go-appkit-gosum-XXXXXX)"
 work="$(mktemp -d /tmp/go-appkit-gosum-mod-XXXXXX)"
-trap 'echo "gosum-canonical: scratch dirs left behind: $cache $work" >&2' EXIT
+# Green runs remove their scratch dirs; failed runs keep them (and say so)
+# so the disagreeing hash can be inspected in the throwaway cache. An
+# unexpected set -e abort keeps them too (run_status is still 1).
+run_status=1
+cleanup() {
+	if ((run_status == 0)); then
+		# go extracts module-cache entries 0444/0555; rm needs the dirs
+		# writable again first (AGENTS Gotchas, "Stale go VCS cache").
+		chmod -R u+w "$cache" "$work" 2>/dev/null || true
+		rm -rf "$cache" "$work"
+	else
+		echo "gosum-canonical: failed run kept its scratch dirs for inspection: $cache $work" >&2
+	fi
+}
+trap cleanup EXIT
 
 status=0
 for mod in "${modules[@]}"; do
@@ -83,4 +97,5 @@ done
 if ((status == 0)); then
 	echo "GOSUM CANONICAL: ${#modules[@]} module(s) green against proxy + sumdb"
 fi
+run_status=$status
 exit "$status"
