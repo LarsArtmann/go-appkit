@@ -309,7 +309,7 @@ middleware, health, logging, and shutdown wired in one import.
 
 ## Development
 
-Go >= 1.27.1 (every module's go.mod pins `go 1.27.1`; on older default
+Go >= 1.27.2 (every module's go.mod declares `go 1.27.2`; on older default
 toolchains prefix commands with `GOTOOLCHAIN=go1.27.2`):
 
 ```bash
@@ -324,6 +324,14 @@ directory: `cd integration && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./...`.
 Per-module verify (hermetic, resolves like a consumer via the proxy) and
 per-module lint commands live in each module README under
 **Build & verify**.
+
+The whole loop as one command — hermetic build + vet + `go test -race`
+plus sequential per-module lint across all twelve modules, with per-module
+log files and explicit PASS/FAIL EXIT verdict lines — is
+`scripts/verify-all.sh` (toolchain derived from the root go.mod). On
+shared machines, `--quiet[=LOADMAX]` re-execs the loop through
+`scripts/quiet-run.sh`: it waits (up to 1h) for a quiet window before
+starting, because deadline-bearing tests fail under load spikes.
 
 ## License
 
