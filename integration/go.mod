@@ -18,12 +18,12 @@ require (
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.14.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.8.0
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.1
-	github.com/larsartmann/go-cqrs-lite/id/v4 v4.7.2
+	github.com/larsartmann/go-cqrs-lite/id/v4 v4.7.3
 	github.com/larsartmann/go-cqrs-lite/metaengine/v4 v4.19.0
 	github.com/larsartmann/go-cqrs-lite/query/v4 v4.10.1
 	github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2
-	github.com/larsartmann/go-cqrs-lite/system/v4 v4.15.1
-	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.2.0
+	github.com/larsartmann/go-cqrs-lite/system/v4 v4.15.2
+	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.2.1
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
 	github.com/larsartmann/go-health v0.5.1
