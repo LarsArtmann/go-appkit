@@ -2,7 +2,7 @@ module github.com/larsartmann/go-appkit/docs
 
 go 1.27.2
 
-require github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.8.0
+require github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.9.0
 
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
@@ -20,10 +20,10 @@ require (
 	github.com/larsartmann/go-cqrs-lite/record/v4 v4.6.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/schema/v4 v4.7.0 // indirect
 	github.com/larsartmann/go-error-family v0.11.0 // indirect
-	github.com/larsartmann/templ-components v1.21.0 // indirect
-	github.com/larsartmann/templ-components/htmx v1.21.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.21.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.21.0 // indirect
+	github.com/larsartmann/templ-components v1.22.0 // indirect
+	github.com/larsartmann/templ-components/htmx v1.22.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.22.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.22.0 // indirect
 	github.com/oklog/ulid/v2 v2.1.2 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
