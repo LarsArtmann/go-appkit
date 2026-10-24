@@ -5,7 +5,7 @@ go 1.27.2
 require (
 	github.com/go-logr/logr v1.4.4
 	github.com/larsartmann/go-appkit v0.9.0
-	github.com/larsartmann/go-error-family v0.11.0
+	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
 	github.com/larsartmann/httputil v1.5.0
 	github.com/samber/lo v1.53.0
@@ -51,7 +51,7 @@ require (
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.47.0 // indirect
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
-	golang.org/x/exp v0.0.0-20261009195045-ca0d7ba23607 // indirect
+	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
 	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
