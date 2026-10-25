@@ -3,7 +3,7 @@
 Per-battery threat → design → test mapping for the opt-in HTTP security
 batteries. Each battery is a port of the CV production stack's middleware
 (`platform/middleware/`, `internal/sanitization/`); the full battery spec
-lives in `doc/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
+lives in `docs/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
 (W2). Every file's doc comment carries its threat in place; this page is the
 cross-battery view.
 

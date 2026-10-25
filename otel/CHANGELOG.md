@@ -14,7 +14,7 @@
   filesystem `replace` (server_timing → ./server_timing) — harmless to
   consumers (go build/tidy verified clean) but a violation of the family's
   own no-replace release rule; upstream ask drafted in
-  `doc/feedback/outgoing/2026-10-25_upstream-ask-httputil-v160-replace.md`.
+  `docs/feedback/outgoing/2026-10-25_upstream-ask-httputil-v160-replace.md`.
 - README: `BenchmarkMiddleware_*` ns/op re-baselined 2026-10-18 (benchstat
   n=10, go 1.27.2, quiet-gate protocol — `scripts/quiet-run.sh`, 8 primary
   threads pinned, load1 11.7): NoOp 19.67µs ± 5%, traced 20.45µs ± 13%,
@@ -60,7 +60,7 @@
 - **SDK self-diagnostics through slog**: `Setup` now wires
   `otel.SetErrorHandler` + `otel.SetLogger` — exporter failures surface as
   grep-able `otel export failed` ERROR lines (catalogued in
-  `doc/TELEMETRY.md` §1) and SDK-internal records join the normal log
+  `docs/TELEMETRY.md` §1) and SDK-internal records join the normal log
   pipeline, instead of both dying on stderr. `WithDiagnosticsLogger(logger)`
   points the pipeline at the service's logger; without it, `slog.Default()`.
   `WithoutGlobalRegistration()` skips the wiring with the other process

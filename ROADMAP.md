@@ -18,7 +18,7 @@ independently versioned satellite modules.
 The module bay is built (cqrs, realtime, otel, health, flightrecorder,
 flightrecorderhealth, errorpages, docs, security). Filling it is
 demand-driven — the canonical demand analysis and per-battery specs live in
-`doc/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
+`docs/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
 (waves W1–W2 shipped; W3–W5 are routed into TODO_LIST; this file holds the
 direction, not the tasks).
 
@@ -72,7 +72,7 @@ appkit never grows application-shaped code.
 
 - Per-route sampling/verbosity override for logs+traces (Stalwart
   `EventTracingLevel` analog). (The observability umbrella itself SHIPPED
-  2026-09-16 as `doc/TELEMETRY.md`.)
+  2026-09-16 as `docs/TELEMETRY.md`.)
 - Route-cardinality fuzz guard: 10k distinct request paths must produce a
   bounded metric series (double-relevant after the pattern-propagation
   regression).

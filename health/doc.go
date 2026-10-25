@@ -98,7 +98,7 @@
 // serves routes but reports 503. To test or redeploy a healthy surface,
 // construct a fresh probe and Mounted. (Verified 2026-09-20; rearm
 // semantics are the subject of the go-health draft in
-// doc/feedback/outgoing/.)
+// docs/feedback/outgoing/.)
 //
 // # Classification
 //

@@ -46,7 +46,7 @@ service with a curl walkthrough; the security×realtime composition
 
 Ports of the CV family stack's production middleware
 (`platform/middleware/`, `internal/sanitization/`), specified in
-`doc/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
+`docs/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
 (W2). Every doc comment carries the threat model that motivated it; the
 regression tests port CV's acceptance pins (429-not-overwritten,
 query-key-rejected-on-POST, the `&not=` trap, eval-never, HSTS-off-outside-production).
