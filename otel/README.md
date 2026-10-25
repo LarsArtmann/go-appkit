@@ -60,6 +60,35 @@ Explicit code wins per signal when you want it —
 `WithStdoutExporter(os.Stdout)` prints spans instead, `WithMetricReader`
 swaps the metric pipeline.
 
+### Correlating the request-completion line
+
+`TraceHandler` correlates every log that carries the request context — except
+one: the `Logging` middleware inside core's default stack emits its
+completion line without the request context. Since httputil v1.6.0,
+`LoggingFromContext` fixes it. `cfg.Middlewares` replaces the default stack
+wholesale, so the recipe mirrors that stack (Recovery → RequestID → Logging
+→ Timeout → SecurityHeaders) with exactly one swap:
+
+```go
+logger := slog.New(appkitotel.TraceHandler(slog.NewJSONHandler(os.Stdout, nil)))
+
+cfg := appkit.DefaultServiceConfig()
+cfg.Middlewares = []httputil.Middleware{
+	httputil.Recovery(logger),
+	httputil.RequestID(httputil.DefaultRequestIDConfig()),
+	httputil.LoggingFromContext(logger, func(ctx context.Context) *slog.Logger {
+		return appkitotel.ContextLogger(logger, ctx)
+	}),
+	httputil.Timeout(cfg.WriteTimeout), // omit when WriteTimeout is NoTimeout (SSE)
+	httputil.SecurityHeaders(httputil.DefaultSecurityHeadersConfig()),
+}
+```
+
+The `ContextLogger` adapter stamps every completion line (untraced requests
+get `trace_id="none"`); a `fromContext` that returns nil for span-less
+requests keeps untraced lines attribute-free instead. Requires
+httputil v1.6.0+.
+
 ## SigNoz in 3 steps
 
 1. **Run SigNoz** (OTLP on `:4318`, UI on `:3301`):
