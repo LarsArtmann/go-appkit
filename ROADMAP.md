@@ -2,7 +2,7 @@
 
 > Long-term direction and raw ideas not yet refined into actionable tasks.
 > Bounded, short-to-mid-term work lives in [TODO_LIST.md](TODO_LIST.md).
-> Point-in-time plans and research live in `doc/planning/`.
+> Point-in-time plans and research live in `docs/planning/`.
 
 **Updated:** 2026-10-12
 
@@ -25,7 +25,7 @@ direction, not the tasks).
 ## v1.0.0 (core)
 
 Core's stability contract. The working exit-criteria draft lives at
-`doc/planning/core-v1-exit-criteria.md` (hard criteria: mechanical API-break
+`docs/planning/core-v1-exit-criteria.md` (hard criteria: mechanical API-break
 check wired into the release ritual, consumer count, docs and telemetry
 posture). v1-shaped additions already shipped: `OuterMiddlewares`,
 `ShutdownHooks`, `DrainHooks`, the sentinel registry (`NoTimeout`, `NoDrainDelay`),
@@ -63,7 +63,7 @@ appkit never grows application-shaped code.
   2026-09-04, door held open in TODO_LIST P3. First concrete core-TLS feature
   request if they keep app-level TLS.
 - **go-plugin-mvp (Kernovia)** — same pattern recommended; pre-1.0, gated on
-  their license/rename decisions (`doc/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md`).
+  their license/rename decisions (`docs/planning/2026-09-04_cordis-and-go-plugin-mvp-integration.md`).
 - **cordis bridge module** — trigger-gated NOT NOW (`go/v0.1.0` tagged
   2026-09-16 = trigger 1 of 3 met; zero consumer demand, core v1 criteria
   pending).

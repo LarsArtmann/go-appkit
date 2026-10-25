@@ -74,8 +74,8 @@ executed — see the 10-07/10-12 reports) and
 `docs/planning/2026-10-06_16-06_superb-flightrecorder-adoption-plan.md`
 (EXECUTED; its closeout report is indexed above). SUPERB v5 was completed and
 archived 2026-10-12 (`docs/planning/archived/`). The standing verdict docs in
-`doc/planning/` (composition-spike, cordis, papdashboard) stay live as
-watchlist references; executed/superseded plans live in `doc/planning/archived/`
+`docs/planning/` (composition-spike, cordis, papdashboard) stay live as
+watchlist references; executed/superseded plans live in `docs/planning/archived/`
 and `docs/planning/archived/` with verdict banners.
 
 Everything else is resolved and lives in `archived/` (44 files as of
