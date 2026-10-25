@@ -8,7 +8,7 @@ Companion artifacts: HTML review at `docs/reviews/2026-10-25_16-05_brutal-self-r
 
 ## The headline
 
-Master CI was red on REAL jobs since 2026-10-19/24 while every local sweep read green. Four failures hid behind one *designed* red (ci-preflight) that had normalized dismissing failure conclusions:
+Master CI was red on REAL jobs since 2026-10-19/24 while every local sweep read green. Four failures hid behind one _designed_ red (ci-preflight) that had normalized dismissing failure conclusions:
 
 1. `art-dupl-gate` **born broken** — install used the bare module path (`github.com/LarsArtmann/art-dupl`), but the binary lives in `cmd/art-dupl`; the module root has no Go package, so every runner run died ~19s in at install. **The clone check never executed once on origin.** The "clean-runner-proven" claim in the 10-19 TODO header was false.
 2. `test (./integration)` red — `freeAddr` port-pick race: the OS reused a just-closed probe port across parallel tests → `listen_failed EADDRINUSE` in `TestVersionAndMetricsComposeWithDefaultHealth`.
@@ -22,6 +22,7 @@ Plus split brains found and (mostly) killed: `doc/` vs `docs/` planning+research
 ## Honest self-critique (asked directly)
 
 **What did I forget?**
+
 - The final verify-all ran under load 15-25, NOT through the house `quiet-run.sh` gate — green, but below the fleet's own gold standard for verification runs.
 - No stress re-run of the touched suites (`integration -count=10`, `cqrs -count=10`) — only `-count=1` hermetic; the freeAddr hardening is proven by one pass + design, not by repetition.
 - The standing "Watchlist refresh" row in TODO_LIST still carries the now-stale httputil sentence ("i18n row stays gated") next to the dedicated i18n row I updated to FIRED — a fresh mini split brain I created and did not reconcile.
@@ -30,35 +31,37 @@ Plus split brains found and (mostly) killed: `doc/` vs `docs/` planning+research
 - Runner-truth for everything: local verdicts cannot prove CI jobs; the acceptance rows are written but unfulfillable without a push.
 
 **What could I have done better?**
+
 - I re-ran the cqrs lint fix through four iterations (gci → golines → gosec → unqueryvet) — should have checked the module's nolint/max-len constraints BEFORE the first edit.
 - The consumer-proof of httputil v1.6.0 initially produced a bogus `BUILD_EXIT=0` (pipe swallowed the exit code — the exact AGENTS pipe-gotcha, violated once, self-caught, redone properly).
 - The APIKeyMatches ghost sweep stopped at in-repo evidence; PapDashboard (the known security-adopting consumer) was not grepped for usage before routing.
 - The freeAddr fix deliberately stayed in-place per module; a testkit-shared version is the real end state and needs a core tag — I could have pre-staged the testkit API + in-tree root usage so the train only flips the satellites.
 
 **What could I still improve?**
+
 - Everything under (e) below; the top systemic item: a designed red inside the required workflow is a noise generator and should be relocated.
 
 ---
 
 ## a) FULLY DONE (evidence inline)
 
-| # | Work | Evidence |
-|---|------|----------|
-| 1 | Root-caused all four CI reds from live `gh run` logs (job IDs, exit codes, timestamps) | `art-dupl-gate` install error quoted; EADDRINUSE assertion line; pin-drift FAIL line |
-| 2 | art-dupl CI install path fixed to `cmd/art-dupl@v0.9.1-0.20261017225421-93432fd910fb` | fresh-GOMODCACHE proxy build: BUILD_OK + working binary; `check-art-dupl.sh` exit 0 |
-| 3 | New `fleet-lint` CI job = `verify-all.sh --skip-tests`, golangci-lint pinned v2.14.0, public (no ci-preflight ride) | actionlint OK; reuses the fleet's own sequential loop |
-| 4 | 7 cqrs lint findings fixed (Close errors checked, scan loop extracted → complexity under cap, QueryContext, justified nolints) | `cd cqrs && golangci-lint run ./...` → 0 issues; `-race -count=1` ok 5.0s |
-| 5 | `freeAddr` hardened: process-wide issued-registry (kills the OS-reuse class) + instant rebind probe (kills steal-between-pick-and-bind) | integration vet/lint 0; suite green hermetic 7.2s; AGENTS stale `freePort()` claim corrected |
-| 6 | integration re-pinned to httputil v1.6.0 (go.mod + `documentedPins` fixture together) | `check-pin-drift.sh` exit 0 ("pinned at latest published version v1.6.0"); suite green |
-| 7 | otel rode httputil v1.5.0→v1.6.0 (error-family v0.12.0 via MVS); LoggingFromContext completion-line recipe in doc.go + README | recipe compile-verified against PUBLISHED otel v0.3.0 + httputil v1.6.0; otel build/test `-race`/lint all green; CHANGELOG `[Unreleased]` entry |
-| 8 | i18n gate (FIRED) cheap half executed: re-pin + recipe | see 6+7; dedicated TODO row updated to `[~]` FIRED |
-| 9 | Upstream ask drafted: httputil v1.6.0 replace-directive (source-verified: proxy `.mod` line 15; `go doc` refusal quoted; consumer tidy+build pass) | `doc/feedback/outgoing/2026-10-25_upstream-ask-httputil-v160-replace.md` (filing USER-gated) |
-| 10 | Doc trees consolidated: `doc/planning/` (17 files + archived) and `doc/research/` (3 files) → `docs/` via `git mv`; zero name collisions; empty dirs removed | git status shows renames; `doc/` now holds only charter-compliant standing docs (DOMAIN_LANGUAGE, TELEMETRY, feedback, recipes, library-analysis) |
-| 11 | Charter rewritten to the single-tree rule + explicit "pre-2026-10-25 reports keep old citations (snapshots)"; living docs migrated | docs/status/README.md; 19 living-doc citations + 3 moved-file cross-refs rewritten; residue grep = 0 |
-| 12 | TODO_LIST header de-rotted (two multi-KB changelog paragraphs → summary + pointer); 4 new routed rows (P1 tip-verify; P2 httputil ask, testkit dedup, guard symmetry, dependabot wave); P3 ghost-API row | TODO_LIST.md (93 lines) |
-| 13 | Small truths: six stale `go 1.27.1` README spots → 1.27.2; `.githooks/pre-commit` false gosum-canonical CI claim fixed; AGENTS CI bullet + art-dupl bullet corrected (incl. the false "clean-runner-proven") | grep residue = 0; AGENTS.md stays 133 lines (cap 220) |
-| 14 | Full verification: `verify-all.sh` ALL GREEN (12/12 build+vet+test-race+lint, 119s) + 8/8 local guards (directives, dependabot-parity, charter, sse-protocol, golangci-configs, structure-linter, art-dupl, consumer-claims) | `/tmp` logs; guard exit codes 0 |
-| 15 | HTML brutal self-review written from the kit template (tag-balance validated) + indexed in docs/status | `docs/reviews/2026-10-25_16-05_brutal-self-review.html` |
+| #  | Work                                                                                                                                                                                                                         | Evidence                                                                                                                                          |
+| -- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | Root-caused all four CI reds from live `gh run` logs (job IDs, exit codes, timestamps)                                                                                                                                       | `art-dupl-gate` install error quoted; EADDRINUSE assertion line; pin-drift FAIL line                                                              |
+| 2  | art-dupl CI install path fixed to `cmd/art-dupl@v0.9.1-0.20261017225421-93432fd910fb`                                                                                                                                        | fresh-GOMODCACHE proxy build: BUILD_OK + working binary; `check-art-dupl.sh` exit 0                                                               |
+| 3  | New `fleet-lint` CI job = `verify-all.sh --skip-tests`, golangci-lint pinned v2.14.0, public (no ci-preflight ride)                                                                                                          | actionlint OK; reuses the fleet's own sequential loop                                                                                             |
+| 4  | 7 cqrs lint findings fixed (Close errors checked, scan loop extracted → complexity under cap, QueryContext, justified nolints)                                                                                               | `cd cqrs && golangci-lint run ./...` → 0 issues; `-race -count=1` ok 5.0s                                                                         |
+| 5  | `freeAddr` hardened: process-wide issued-registry (kills the OS-reuse class) + instant rebind probe (kills steal-between-pick-and-bind)                                                                                      | integration vet/lint 0; suite green hermetic 7.2s; AGENTS stale `freePort()` claim corrected                                                      |
+| 6  | integration re-pinned to httputil v1.6.0 (go.mod + `documentedPins` fixture together)                                                                                                                                        | `check-pin-drift.sh` exit 0 ("pinned at latest published version v1.6.0"); suite green                                                            |
+| 7  | otel rode httputil v1.5.0→v1.6.0 (error-family v0.12.0 via MVS); LoggingFromContext completion-line recipe in doc.go + README                                                                                                | recipe compile-verified against PUBLISHED otel v0.3.0 + httputil v1.6.0; otel build/test `-race`/lint all green; CHANGELOG `[Unreleased]` entry   |
+| 8  | i18n gate (FIRED) cheap half executed: re-pin + recipe                                                                                                                                                                       | see 6+7; dedicated TODO row updated to `[~]` FIRED                                                                                                |
+| 9  | Upstream ask drafted: httputil v1.6.0 replace-directive (source-verified: proxy `.mod` line 15; `go doc` refusal quoted; consumer tidy+build pass)                                                                           | `doc/feedback/outgoing/2026-10-25_upstream-ask-httputil-v160-replace.md` (filing USER-gated)                                                      |
+| 10 | Doc trees consolidated: `doc/planning/` (17 files + archived) and `doc/research/` (3 files) → `docs/` via `git mv`; zero name collisions; empty dirs removed                                                                 | git status shows renames; `doc/` now holds only charter-compliant standing docs (DOMAIN_LANGUAGE, TELEMETRY, feedback, recipes, library-analysis) |
+| 11 | Charter rewritten to the single-tree rule + explicit "pre-2026-10-25 reports keep old citations (snapshots)"; living docs migrated                                                                                           | docs/status/README.md; 19 living-doc citations + 3 moved-file cross-refs rewritten; residue grep = 0                                              |
+| 12 | TODO_LIST header de-rotted (two multi-KB changelog paragraphs → summary + pointer); 4 new routed rows (P1 tip-verify; P2 httputil ask, testkit dedup, guard symmetry, dependabot wave); P3 ghost-API row                     | TODO_LIST.md (93 lines)                                                                                                                           |
+| 13 | Small truths: six stale `go 1.27.1` README spots → 1.27.2; `.githooks/pre-commit` false gosum-canonical CI claim fixed; AGENTS CI bullet + art-dupl bullet corrected (incl. the false "clean-runner-proven")                 | grep residue = 0; AGENTS.md stays 133 lines (cap 220)                                                                                             |
+| 14 | Full verification: `verify-all.sh` ALL GREEN (12/12 build+vet+test-race+lint, 119s) + 8/8 local guards (directives, dependabot-parity, charter, sse-protocol, golangci-configs, structure-linter, art-dupl, consumer-claims) | `/tmp` logs; guard exit codes 0                                                                                                                   |
+| 15 | HTML brutal self-review written from the kit template (tag-balance validated) + indexed in docs/status                                                                                                                       | `docs/reviews/2026-10-25_16-05_brutal-self-review.html`                                                                                           |
 
 ## b) PARTIALLY DONE
 
@@ -76,7 +79,7 @@ Push + tip-CI verify (P1, owner) · SSH secret restore (P1, owner, standing) · 
 
 ## d) TOTALLY FUCKED UP
 
-- **The pre-session CI state** (now fixed in tree): a guard wired but never executed for 6 days, a false "clean-runner-proven" claim in the release-adjacent docs, and a master that was red on real jobs while the standing docs said "everything green". The code wasn't the disaster — the *verification narrative* was.
+- **The pre-session CI state** (now fixed in tree): a guard wired but never executed for 6 days, a false "clean-runner-proven" claim in the release-adjacent docs, and a master that was red on real jobs while the standing docs said "everything green". The code wasn't the disaster — the _verification narrative_ was.
 - **httputil v1.6.0's tag** (upstream, still standing): filesystem `replace` in the tagged go.mod. Consumers build (verified); `go doc` and any main-module-context tooling refuse it. Needs v1.6.1.
 - **Nothing is currently fucked in-tree**: all local gates green; the residual fucked-up-ness is exactly one item — unverified-on-a-runner.
 
@@ -157,4 +160,4 @@ Sorted by impact; (owner) = only you can do it; (train) = rides a release train.
 
 ---
 
-*Waiting for instructions.*
+_Waiting for instructions._
