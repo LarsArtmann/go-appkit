@@ -252,6 +252,25 @@ jobs:
       - name: Verify all module configs
         run: ./scripts/check-golangci-configs.sh
 
+  # Per-module golangci-lint over the whole fleet (2026-10-25): lint was
+  # LOCAL-ONLY before this job (verify-all.sh), so daemon/dependabot commits
+  # landed unlinted — proven by 7 latent findings in a cqrs test file that
+  # shipped through multiple green CI runs. Reuses the fleet's own verify
+  # loop in lint-only mode (--skip-tests leaves build/vet/test to the test
+  # matrix), one module at a time, sequential (the shared-cache race rule).
+  # golangci-lint is a PUBLIC module — this job does NOT ride ci-preflight.
+  fleet-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Install golangci-lint (pinned to the fleet version)
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0
+      - name: Lint all 12 modules (verify-all, lint-only)
+        run: ./scripts/verify-all.sh --skip-tests
+
   # Clone-regression gate (SUPERB v9 follow-up, 2026-10-19): the standing
   # art-dupl gate (scripts/check-art-dupl.sh + committed baseline) also runs
   # on every push — NEW clone groups fail CI while the adjudicated accepted
@@ -271,7 +290,12 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install art-dupl (pinned to the baseline-verified commit)
-        run: go install github.com/LarsArtmann/art-dupl@v0.9.1-0.20261017225421-93432fd910fb
+        # The binary lives in cmd/art-dupl — the module ROOT carries no Go
+        # package, so this bare-module install failed on every runner since
+        # the job shipped (2026-10-19): "found, but does not contain package
+        # github.com/LarsArtmann/art-dupl". Path proven against the pinned
+        # pseudo-version via a fresh-GOMODCACHE proxy build (2026-10-25).
+        run: go install github.com/LarsArtmann/art-dupl/cmd/art-dupl@v0.9.1-0.20261017225421-93432fd910fb
       - name: Check clone groups against the committed baseline
         run: ./scripts/check-art-dupl.sh
 
