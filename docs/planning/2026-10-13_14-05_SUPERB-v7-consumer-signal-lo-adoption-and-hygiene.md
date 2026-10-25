@@ -244,7 +244,7 @@ executes only on its triggers.
 ## 6) Execution notes (verdicts, dated)
 
 **2026-10-13 — T01 done** (§7 addendum in
-`doc/planning/2026-09-04_papdashboard-integration.md`): usage surface
+`docs/planning/2026-09-04_papdashboard-integration.md`): usage surface
 exhaustive (core only, 8 ServiceConfig fields + 2 sentinels + Mux/Run),
 drift v0.4.0→v0.9.0 additions-only (go floor 1.27.2 the only refresh
 constraint), security-module adoption signal recorded, guard leg DECIDED

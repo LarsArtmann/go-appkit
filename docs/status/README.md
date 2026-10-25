@@ -6,8 +6,17 @@ line per report; verdicts are annotated inline in each file.
 
 **This is the CANONICAL status tree** (decided 2026-09-28): the historical
 `doc/status/` tree (reports + `archived/` + this index) migrated here with
-`git mv`; the `doc/` singular directory keeps planning, feedback, recipes,
-research, and library analysis. New reports land HERE.
+`git mv`. New reports land HERE.
+
+**Doc-tree rule (consolidated 2026-10-25):** `docs/` owns ALL planning,
+research, status, reviews, and agent docs; the `doc/` singular directory
+keeps ONLY the standing project docs that predate the `docs` module path
+(DOMAIN_LANGUAGE, TELEMETRY, feedback, recipes, library-analysis). The
+former `doc/planning/` and `doc/research/` trees were `git mv`-ed into
+`docs/planning/` and `docs/research/` — point-in-time reports written
+before 2026-10-25 still cite the old `doc/planning|research` paths and are
+NOT rewritten (snapshots stay true to their day); every LIVING doc cites
+the new paths.
 
 Report format: `.md` at explicit user demand is the standing dispatch shape
 (the skill default is HTML; explicit instruction wins — multiple data points
@@ -76,7 +85,7 @@ executed — see the 10-07/10-12 reports) and
 archived 2026-10-12 (`docs/planning/archived/`). The standing verdict docs in
 `docs/planning/` (composition-spike, cordis, papdashboard) stay live as
 watchlist references; executed/superseded plans live in `docs/planning/archived/`
-and `docs/planning/archived/` with verdict banners.
+with verdict banners.
 
 Everything else is resolved and lives in `archived/` (44 files as of
 2026-10-12). New reports land here and migrate to `archived/` after a

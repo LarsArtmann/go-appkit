@@ -73,7 +73,7 @@ Moved verbatim to `docs/agents/module-details.md` §core (file-by-file table: se
 ## Testing
 
 - Standard `testing` package, no external frameworks; `t.Parallel()` throughout; everything green under `-race -count=1`.
-- Server tests use `freePort()` and `waitForRunning()` helpers (no `time.Sleep`).
+- Server tests never `time.Sleep`: root tests bind `localhost:0` directly; integration picks ports via the rebind-verified `freeAddr` (issued-registry + rebind probe — the 2026-10-24 runner EADDRINUSE class) and waits via `waitForRunning`/`testkit`.
 - Default `DrainDelay` (5s) makes tests slow; use `DrainDelay: NoDrainDelay` in non-drain tests — `DrainDelay: 0` applies the 5s default (zero-value production safety), it does NOT disable the wait. Converting the suite dropped wall time ~30s → ~6s.
 
 ## Gotchas

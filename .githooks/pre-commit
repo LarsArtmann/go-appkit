@@ -27,8 +27,9 @@ done
 
 # check-pin-drift.sh and check-gosum-canonical.sh are deliberately NOT in
 # the fatal set: their legs need the module proxy (network + downloads); an
-# offline commit must not be blocked. CI and pre-tag-checks.sh run them
-# where network exists.
+# offline commit must not be blocked. pre-tag-checks.sh runs both where
+# network exists; pin-drift also runs as a CI job (the fresh-runner matrix
+# covers gosum-canonical's class).
 
 # Hermetic reminder for integration/ changes (warn-only): the module must be
 # verified with GOWORK=off — its suite self-enforces via TestMain (fails any

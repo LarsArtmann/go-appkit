@@ -23,7 +23,7 @@ sets so the owner rules ONCE instead of across two repos.
 - httputil session report:
   `~/projects/httputil/docs/status/2026-10-09_22-32_i18n-research-language-negotiation-session-status.md`
   (seeded httputil ROADMAP §Post-v1.0: `Language()` middleware)
-- go-appkit research: `doc/planning/2026-10-09_i18n-module-research.md`
+- go-appkit research: `docs/planning/2026-10-09_i18n-module-research.md`
   (appendix: split-brain annotation; TODO_LIST P3 row)
 
 ## THE fork (their g1/f1 = go-appkit Q1)

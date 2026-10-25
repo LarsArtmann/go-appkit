@@ -8,7 +8,7 @@ layer (metaengine + `projectionhost`) behind a lifecycle-managed `EventService`.
 > preset (removed at go-cqrs-lite v5) onto `system.New`. Operators can swap engines at
 > deployment time; see the Configuration table and the C/Q facade section below.
 
-> **Build note:** Go 1.27.1 (the module's `go` floor). `encoding/json/v2` is
+> **Build note:** Go 1.27.2 (the module's `go` floor). `encoding/json/v2` is
 > default-on at that version — no `GOEXPERIMENT` needed (retired 2026-09-29).
 
 ## Usage
@@ -712,7 +712,7 @@ golangci-lint run ./...        # from this directory; the module .golangci.yml i
 
 `GOTOOLCHAIN=go1.27.2` is required for every command below on
 machines whose default toolchain is older (this repo pins
-`go 1.27.1` in every go.mod). `GOWORK=off` makes the run
+`go 1.27.2` in every go.mod). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,
 via the module proxy — how consumers resolve it.
 

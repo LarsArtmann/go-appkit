@@ -66,7 +66,7 @@ golangci-lint run ./...        # from this directory
 
 `GOTOOLCHAIN=go1.27.2` is required for every command below on
 machines whose default toolchain is older (this repo pins
-`go 1.27.1` in every go.mod). `GOWORK=off` makes the run
+`go 1.27.2` in every go.mod). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,
 via the module proxy — how consumers resolve it.
 
