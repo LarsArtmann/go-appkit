@@ -1,0 +1,1 @@
+can confirm from the consumer side: `go doc github.com/larsartmann/httputil@v1.7.0` resolves clean through the proxy (the v1.6.0 "contains one or more replace directives" refusal is gone), and go-appkit swept integration + otel onto v1.7.0 same day — suites, lint, pin-drift all green.
