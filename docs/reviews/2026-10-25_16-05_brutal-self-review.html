@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brutal Self-Review - go-appkit - 2026-10-25</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS DARK — Dashboard template
+         Design language: form follows function. Primary colors on graphite.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         Token architecture: see references/bauhaus-tokens.md
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Dark) --- */
+        --color-graphite: #0e0e10;
+        --color-graphite-2: #18181d;
+        --color-graphite-3: #16161a;
+        --color-bone: #f4f4f0;
+        --color-red: #ff6b6b;
+        --color-blue: #6eb5ff;
+        --color-yellow: #f4d35e;
+        --color-amber: #ffb347;
+        --color-hairline: rgba(244, 244, 240, 0.12);
+        --color-hairline-strong: rgba(244, 244, 240, 0.25);
+
+        /* --- Semantic layer (shared vocabulary with editorial template) --- */
+        --surface: var(--color-graphite);
+        --surface-raised: var(--color-graphite-2);
+        --surface-sunken: var(--color-graphite-3);
+        --text: var(--color-bone);
+        --text-muted: rgba(244, 244, 240, 0.72);
+        --text-faint: rgba(244, 244, 240, 0.45);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-amber);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Backward-compatible aliases (do not break consumer skills) --- */
+        --bg: var(--surface);
+        --bg-elevated: var(--surface-raised);
+        --bg-sunken: var(--surface-sunken);
+        --bg-card: var(--surface-raised);
+        --bg-code: var(--surface-sunken);
+        --ink: var(--text);
+        --ink-secondary: var(--text-muted);
+        --ink-muted: var(--text-faint);
+        --rose: var(--problem);
+        --rose-glow: color-mix(in srgb, var(--problem) 15%, transparent);
+        --emerald: var(--solution);
+        --emerald-glow: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-glow: color-mix(in srgb, var(--warning) 15%, transparent);
+        --coral: var(--problem);
+        --coral-light: color-mix(in srgb, var(--problem) 15%, transparent);
+        --teal: var(--solution);
+        --teal-light: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-light: color-mix(in srgb, var(--warning) 20%, transparent);
+
+        /* --- Shape --- */
+        --radius: 0px; /* Bauhaus default: sharp corners */
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      /* Sticky-header offset for anchor jumps */
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Accessibility: keyboard focus --- */
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      a:focus-visible {
+        outline-offset: -1px;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout: optional sticky sidebar TOC --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .sidebar a {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.45rem 0.75rem;
+        border-left: 2px solid transparent;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.1;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      h3 {
+        font-size: 1.1rem;
+        margin: 0 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 0.98rem;
+        margin: 0 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .hero-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--surface);
+        background: var(--accent);
+        padding: 0.3rem 0.7rem;
+        margin-bottom: 0.9rem;
+      }
+      .hero-subtitle {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        max-width: 70ch;
+        margin: 0;
+      }
+
+      /* Bauhaus signature: geometric shape cluster (optional) */
+      .hero-shapes {
+        position: relative;
+        height: 80px;
+        margin-bottom: 1rem;
+      }
+      .hero-shapes .circle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 56px;
+        height: 56px;
+        background: var(--problem);
+        border-radius: 50%;
+      }
+      .hero-shapes .square {
+        position: absolute;
+        top: 24px;
+        left: 72px;
+        width: 48px;
+        height: 48px;
+        background: var(--solution);
+      }
+      .hero-shapes .tri {
+        position: absolute;
+        top: 8px;
+        left: 140px;
+        width: 0;
+        height: 0;
+        border-left: 28px solid transparent;
+        border-right: 28px solid transparent;
+        border-bottom: 48px solid var(--warning);
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges (used inside issue cards) --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Inline badges (used in tables) --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.18rem 0.5rem;
+        border: 1px solid var(--border-strong);
+        color: var(--text-muted);
+      }
+      .badge-critical {
+        color: var(--problem);
+        border-color: var(--problem);
+      }
+      .badge-high {
+        color: var(--warning);
+        border-color: var(--warning);
+      }
+      .badge-medium {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .badge-low {
+        color: var(--text-muted);
+      }
+      .badge-fixed {
+        color: var(--solution);
+        border-color: var(--solution);
+      }
+
+      /* --- Callouts (used inside issues or standalone) --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.7rem 0.9rem;
+        border-left: 3px solid var(--border-strong);
+        background: color-mix(in srgb, var(--text) 5%, transparent);
+        font-size: 0.9rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 10%, transparent);
+      }
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 10%, transparent);
+      }
+
+      /* --- Stat cards / scorecards (aliased vocabulary) --- */
+      .stat-grid,
+      .scorecard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .stat-card,
+      .score-card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1rem;
+        position: relative;
+      }
+      .stat-card::before,
+      .score-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-strong);
+      }
+      .stat-bad,
+      .score-bad {
+        /* default top bar already set */
+      }
+      .stat-bad::before,
+      .score-bad::before {
+        background: var(--problem);
+      }
+      .stat-good::before,
+      .score-good::before {
+        background: var(--solution);
+      }
+      .stat-warn::before,
+      .score-warn::before {
+        background: var(--warning);
+      }
+      .stat-value,
+      .score {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: var(--text);
+      }
+      .stat-bad .stat-value,
+      .score-bad .score {
+        color: var(--problem);
+      }
+      .stat-good .stat-value,
+      .score-good .score {
+        color: var(--solution);
+      }
+      .stat-warn .stat-value,
+      .score-warn .score {
+        color: var(--warning);
+      }
+      .stat-label,
+      .score-card .label {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-faint);
+        margin-top: 0.5rem;
+      }
+
+      /* --- Strengths list --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--solution);
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* --- Tables --- */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.9rem;
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--surface-raised);
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-strong);
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+      }
+      tr:hover td {
+        background: var(--surface-raised);
+      }
+
+      /* --- Before/After comparison --- */
+      .compare-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+      .compare-before,
+      .compare-after {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 0.7rem;
+        color: var(--surface);
+      }
+      .compare-before {
+        background: var(--problem);
+      }
+      .compare-after {
+        background: var(--solution);
+      }
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .compare-row pre {
+        margin: 0;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+      }
+      code {
+        font-family: var(--font-mono);
+      }
+      p code,
+      li code,
+      td code {
+        font-size: 0.88em;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+      }
+      .tok-keyword {
+        color: var(--accent);
+      } /* func, type, struct, if, return */
+      .tok-type {
+        color: var(--warning);
+      } /* int, string, bool, error */
+      .tok-string {
+        color: var(--solution);
+      } /* "quoted strings" */
+      .tok-comment {
+        color: var(--text-faint);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #74a9ff;
+      } /* function names */
+      .tok-number {
+        color: var(--accent);
+      } /* 42, 3.14 */
+      .tok-generic {
+        color: var(--problem);
+      } /* T, ID in generics */
+      .tok-builtin {
+        color: #4dd9ff;
+      } /* make, len, append */
+      .tok-punct {
+        color: var(--text-muted);
+      } /* { } ( ) ; = : */
+      .tok-attr {
+        color: var(--accent);
+      } /* Nix attribute names */
+
+      /* --- Dependency tree / ASCII diagrams --- */
+      .dep-tree {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .dep-tree .root {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .dep-tree .ok {
+        color: var(--solution);
+      }
+      .dep-tree .unwanted {
+        color: var(--problem);
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.35rem 0.7rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: var(--surface-sunken);
+        border: 1px solid var(--border-strong);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+        border-color: var(--accent);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+        border-color: var(--problem);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+        border-color: var(--solution);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Grids (responsive) --- */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* --- Inline TOC (alternative to sidebar) --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Migration / numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-header,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .stat-grid,
+        .scorecard {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Full-bleed top bar -->
+    <div class="top-bar">
+      <span>BRUTAL SELF-REVIEW</span>
+      <span>2026-10-25</span>
+      <span>go-appkit fleet &middot; 12 modules</span>
+    </div>
+
+    <div class="layout">
+      <!-- Sidebar TOC -->
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#summary">Summary</a>
+          <a href="#findings">Findings</a>
+          <a href="#splitbrains">Split Brains</a>
+          <a href="#eleven">The 11 Answers</a>
+          <a href="#strengths">Strengths</a>
+          <a href="#table">Ledger</a>
+          <a href="#plan">Plan</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <!-- Hero -->
+        <div class="hero">
+          <div class="hero-shapes">
+            <div class="circle"></div>
+            <div class="square"></div>
+            <div class="tri"></div>
+          </div>
+          <div class="hero-badge">Brutal Self-Review</div>
+          <h1>Everything Read Green. Master Was Red For Six Days.</h1>
+          <p class="hero-subtitle">
+            A point-in-time honest audit of the go-appkit fleet: four real CI
+            failures hidden behind one designed red, a guard that never once
+            ran its check, a doc tree at war with its own charter — and the
+            fix wave that closed every in-tree finding the same day.
+          </p>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <h2 id="summary"><span class="num">00</span>Summary</h2>
+        <div class="stat-grid">
+          <div class="stat-card stat-bad">
+            <div class="stat-value">4</div>
+            <div class="stat-label">Real CI reds on master</div>
+          </div>
+          <div class="stat-card stat-bad">
+            <div class="stat-value">6 days</div>
+            <div class="stat-label">Red unnoticed (10-19 &rarr; 10-25)</div>
+          </div>
+          <div class="stat-card stat-warn">
+            <div class="stat-value">7</div>
+            <div class="stat-label">Latent lint findings shipped green</div>
+          </div>
+          <div class="stat-card stat-good">
+            <div class="stat-value">12/12</div>
+            <div class="stat-label">Modules green after the fix wave</div>
+          </div>
+        </div>
+
+        <div class="card card-problem">
+          <h4>The uncomfortable headline</h4>
+          <p>
+            The 2026-10-19 TODO header claimed "everything green" while that
+            same day's origin run already had <code>art-dupl-gate</code> RED.
+            The designed ci-preflight failure had normalized red conclusions:
+            one intentional failure in every run trained the eye to stop
+            reading job lists. Green-by-assumption is how a guard can be
+            born broken and stay broken for six days. The verification
+            culture here is local-first; the session-close ritual was only
+            ever applied when a human-driven wave pushed — daemon and
+            dependabot commits landed on master with nobody looking.
+          </p>
+        </div>
+
+        <div class="card card-solution">
+          <h4>What this session did about it</h4>
+          <p>
+            Every in-tree finding below is FIXED and re-verified in-session:
+            12/12 modules hermetic build+vet+test <code>-race</code>, 12/12
+            lint 0 issues, 8/8 guards green, pin-drift green on the new
+            httputil v1.6.0 pin, actionlint green, the CI install path proven
+            against a fresh module cache. The wave awaits the owner push and
+            the tip-CI verify ritual — no local verdict can prove a runner.
+          </p>
+        </div>
+
+        <!-- Findings -->
+        <h2 id="findings"><span class="num">01</span>Findings</h2>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">Fixed in tree</span>
+          <h3>art-dupl-gate was born broken and never ran its check once</h3>
+          <div class="where">.github/workflows/ci.yml &middot; art-dupl-gate job</div>
+          <p>
+            The install used the bare module path
+            <code>go install github.com/LarsArtmann/art-dupl@&lt;pseudo-version&gt;</code>.
+            The module root carries no Go package — the binary lives in
+            <code>cmd/art-dupl</code> — so every runner run died at install
+            with "found, but does not contain package" ~19 seconds in. The
+            job shipped 2026-10-19 with a "clean-runner-proven" claim that
+            was false: any real clean-runner install would have shown the
+            error. Six days red on origin; every dependabot PR blocked by it.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix</strong>
+            Install path re-pointed to
+            <code>cmd/art-dupl@v0.9.1-0.20261017225421-93432fd910fb</code>,
+            proven by a fresh-GOMODCACHE proxy build (BUILD_OK + working
+            binary). Local guard green against the committed baseline. The
+            false "clean-runner-proven" claim is corrected in AGENTS.md.
+          </div>
+        </div>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">Fixed in tree</span>
+          <h3>Master CI red on real jobs since 10-19/24 — nobody noticed</h3>
+          <div class="where">gh run list &middot; master workflow runs</div>
+          <p>
+            Four jobs failed on the 10-24 run: <code>art-dupl-gate</code>,
+            <code>test (./integration)</code>, <code>pin-drift</code> (+ the
+            designed ci-preflight red). The 10-19 run already carried the
+            art-dupl red. Cause chain: daemon auto-commits and the
+            Dependabot-Updates workflow land dependency bumps on master
+            without a session close-out, and the only red anyone expected
+            was ci-preflight.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix</strong>
+            The three real reds are fixed in tree (below). A P1 row now pins
+            the acceptance: push, then verify CI on the FINAL pushed commit
+            with <code>fleet-lint</code> and <code>art-dupl-gate</code>
+            getting their first real green runs.
+          </div>
+        </div>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">Fixed in tree</span>
+          <h3>CI had no lint job — lint was local-only folklore</h3>
+          <div class="where">.github/workflows/ci.yml &middot; cqrs/scenario_store_pin_test.go</div>
+          <p>
+            The matrix builds/vets/tests per module; <code>cqrs-lint</code>
+            is the go-cqrs-lite scorecard, and config-verify only validates
+            schemas. Actual golangci-lint ran ONLY via local verify-all. The
+            proof it mattered: 7 latent findings (errcheck &times;2, gocognit,
+            gosec, makezero &times;2, noctx) in a cqrs test file that shipped
+            through multiple green CI runs and two daemon dependency trains.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix</strong>
+            New <code>fleet-lint</code> job: reuses
+            <code>verify-all.sh --skip-tests</code> (the fleet's own loop,
+            sequential per-module), golangci-lint pinned v2.14.0, public
+            binary so it does not ride ci-preflight. actionlint-validated.
+            The 7 findings fixed: Close errors checked, the scan loop
+            extracted into a helper (complexity 33 &rarr; under the cap),
+            QueryContext, justified nolints. cqrs: lint 0, race suite green.
+          </div>
+        </div>
+
+        <div class="issue issue-important">
+          <span class="severity severity-important">Fixed in tree</span>
+          <h3>Integration flake: OS port reuse beat the freeAddr probe</h3>
+          <div class="where">integration/integration_test.go:54 &middot; composition_contract_test.go:85</div>
+          <p>
+            On the 10-24 runner, <code>TestVersionAndMetricsComposeWithDefaultHealth</code>
+            failed with <code>listen_failed EADDRINUSE</code>: two parallel
+            tests each picked a port via listen(:0) &rarr; close, and the OS
+            handed the same just-closed ephemeral port to both before either
+            Service bound. The classic TOCTOU — the rebind-after-close probe
+            alone cannot catch it because both picks complete before any
+            bind.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix</strong>
+            freeAddr now keeps a process-wide issued-registry (a repeat addr
+            is redrawn) AND probes an instant rebind (external steals
+            redraw). Suite green hermetic <code>-race -count=1</code>.
+            Documented in AGENTS (the stale "freePort()" claim is corrected —
+            root tests bind <code>localhost:0</code> directly and never had
+            this race).
+          </div>
+        </div>
+
+        <div class="issue issue-important">
+          <span class="severity severity-important">Fixed in tree + upstream ask</span>
+          <h3>pin-drift red — and the tag it demands is itself poisoned</h3>
+          <div class="where">integration/go.mod &middot; integration/pin_drift_test.go:42 &middot; httputil v1.6.0</div>
+          <p>
+            The guard's first live red on a NEW tag class: httputil v1.6.0
+            published (carrying <code>Language()</code> +
+            <code>LoggingFromContext</code>). Verified consumer-side:
+            tidy + build against v1.6.0 pass. But the tag's go.mod carries a
+            filesystem <code>replace ... server_timing =&gt; ./server_timing</code>
+            — a violation of the family's own no-replace tag rule, and
+            <code>go doc @v1.6.0</code> refuses to load the module. The
+            i18n-residue row's trigger FIRED on this same tag.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix</strong>
+            integration re-pinned to v1.6.0 (go.mod + documentedPins
+            together), pin-drift green, suite green. Upstream ask drafted
+            (doc/feedback/outgoing/, filing USER-gated): tag v1.6.1 without
+            the directive. The fired i18n gate's cheap half also shipped:
+            otel rode v1.6.0 in-tree and the LoggingFromContext
+            completion-line recipe is in otel README + doc.go,
+            compile-verified against published tags.
+          </div>
+        </div>
+
+        <div class="issue issue-important">
+          <span class="severity severity-important">Fixed in tree</span>
+          <h3>Doc-tree split brain: doc/ vs docs/ with a self-contradicting charter</h3>
+          <div class="where">doc/planning + doc/research &rarr; docs/planning + docs/research</div>
+          <p>
+            Same-named planning and research trees existed in BOTH <code>doc/</code>
+            and <code>docs/</code>; newest files landed on both sides; the
+            charter text in docs/status/README.md described a rule the tree
+            itself no longer followed; ROADMAP pointed at the wrong tree;
+            the split already caused one real dead-link incident (pma memo,
+            2026-10-18). 19 citations in living docs pointed into the moved
+            paths.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix</strong>
+            git mv of both trees into docs/ (history preserved, zero name
+            collisions), charter rewritten to the single-tree rule with an
+            explicit "reports before 2026-10-25 keep their old citations"
+          &#8212; snapshots stay true to their day; all LIVING docs now cite the new paths (zero residue verified).
+          </div>
+        </div>
+
+        <div class="issue issue-important">
+          <span class="severity severity-important">Fixed in tree</span>
+          <h3>TODO_LIST header had become a changelog</h3>
+          <div class="where">TODO_LIST.md header</div>
+          <p>
+            Two multi-kilobyte "Updated:/Prior:" paragraphs duplicated the
+            status reports the file's own charter says own history
+            ("completed work lives in CHANGELOG + reports, never here").
+            Every wave made it worse; readers stopped parsing it.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix</strong>
+            Header slimmed to the 10-25 summary + a pointer to the
+            docs/status index; the P2/P3 sections gained four new rows
+            (httputil replace ask, test-helper dedup, guard-coverage
+            symmetry, dependabot wave) and the i18n row updated to FIRED.
+          </div>
+        </div>
+
+        <div class="issue issue-nice">
+          <span class="severity severity-nice">Open (routed)</span>
+          <h3>Smaller honest findings</h3>
+          <div class="where">various</div>
+          <ul>
+            <li><strong>Ghost API:</strong> <code>security.APIKeyMatches</code> has zero
+              callers outside its own test and zero doc references — P3 row
+              for a consumer-sweep-then-deprecate on the next security train.</li>
+            <li><strong>Test-helper quartet duplicated</strong> across module test files
+              (httpGetURL signatures already diverged; waitRunning/waitReady/waitForRunning
+              spellings) — belongs in testkit, BLOCKED on a core tag because
+              integration pins published cores. P2 row.</li>
+            <li><strong>Guard wiring asymmetry:</strong> consumer-claims is pre-tag-only,
+              golangci-configs + structure-linter are CI-only — P2 row to
+              decide the intended symmetry (the stale pre-commit comment
+              claiming CI runs gosum-canonical is fixed).</li>
+            <li><strong>Stale floors:</strong> six README spots still said go 1.27.1
+              against a 1.27.2 fleet — fixed.</li>
+          </ul>
+        </div>
+
+        <!-- Split Brains -->
+        <h2 id="splitbrains"><span class="num">02</span>Split brains found</h2>
+        <div class="card card-warning">
+          <h4>Same concept, two homes &mdash; the recurring pattern</h4>
+          <p>
+            <strong>Doc trees</strong> (doc/ vs docs/, fixed); <strong>lint truth</strong>
+            (local 0-issues vs CI never-checks, fixed with fleet-lint);
+            <strong>port-picking</strong> (root binds :0 directly, integration
+            hand-rolled freeAddr — now hardened in place, full dedup parked
+            on a core train); <strong>history</strong> (TODO header vs status
+            index, fixed); <strong>release truth vs tag reality</strong>
+            (httputil v1.6.0's replace vs the family rule — ask drafted).
+            None of these were exotic: each was two honest artifacts growing
+            apart because nothing compared them. The standing lesson for the
+            fleet: every time a concept gets a second home, wire a guard or
+            name an owner — otherwise the next review finds it the expensive
+            way.
+          </p>
+        </div>
+
+        <!-- The 11 answers -->
+        <h2 id="eleven"><span class="num">03</span>The 11 questions, answered straight</h2>
+        <table>
+          <thead>
+            <tr><th>Question</th><th>Answer</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Did you lie to me?</td><td>Earlier sessions did, by implication: "everything green" (10-19) was false at push time; "clean-runner-proven" was false. This report does not repeat either.</td></tr>
+            <tr><td>What was forgotten?</td><td>To apply the session-close ritual to machine-driven pushes; to give CI a lint leg; to ever read a job list past the first expected red.</td></tr>
+            <tr><td>What is stupid that we do anyway?</td><td>A permanently-red designed job inside the required workflow — it trains humans to dismiss failure conclusions. Consider a separate scheduled workflow for ci-preflight's watchdog role.</td></tr>
+            <tr><td>Ghost systems?</td><td>art-dupl-gate itself was a ghost: a guard that existed but never executed. Also security.APIKeyMatches (library API, likely harmless, routed).</td></tr>
+            <tr><td>Scope creep?</td><td>Checked: the wave stayed inside verification, doc truth, and routed rows — no new modules, no speculative API (the LoggingFromContext helper idea was consciously NOT added; the recipe is enough until a consumer asks).</td></tr>
+            <tr><td>Removed something useful?</td><td>No. TODO header text was duplicated history, not unique truth; it remains in the indexed reports it summarized.</td></tr>
+            <tr><td>Split brains?</td><td>Five found, four fixed, one parked on a train (see section 02).</td></tr>
+            <tr><td>Tests?</td><td>12/12 modules green under <code>-race</code>; the new flake hardening is tested by the suite it fixed. Gaps: no test pins the CI install paths (a runner is the only true oracle — hence the tip-verify acceptance); helper dedup waits for a core tag.</td></tr>
+            <tr><td>What could be better?</td><td>Failure conclusions should be loud and SINGLE: one designed red maximum, everything else must be impossible to skim past (fleet-lint and the fixed art-dupl path get there for lint/clones).</td></tr>
+            <tr><td>Less stupid how?</td><td>Every guard claim now carries its proof obligation: installed-and-ran beats wired-but-never-executed. The acceptance rows demand first-real-green evidence, not existence of a job.</td></tr>
+            <tr><td>Integrated or ghosts?</td><td>Everything shipped this session is wired: CI job in the workflow, guards in the scripts, docs in the living set with zero stale citations.</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Strengths -->
+        <h2 id="strengths"><span class="num">04</span>Strengths worth keeping</h2>
+        <div class="strengths">
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>The guards actually catch things</strong>
+              <span>pin-drift's live red on httputil v1.6.0 was the fleet working as designed — it surfaced a new upstream tag within a day and forced the honest look at that tag's replace directive.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Born-red discipline</strong>
+              <span>Nearly every guard in this repo was proven against a real failure before shipping; this review adds the missing half: prove the guard RAN, not just that it exists.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Evidence-first docs</strong>
+              <span>Because AGENTS/TODO cite file:line and commands, this entire audit was executable — every "false" verdict above was proven in minutes, not argued.</span>
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>verify-all as one command</strong>
+              <span>The 2026-10-14 script made the full 12-module sweep a single exit code; this session's fix wave leaned on it for every verdict.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ledger table -->
+        <h2 id="table"><span class="num">05</span>Finding ledger</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Severity</th>
+              <th>Finding</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><span class="badge badge-critical">Critical</span></td><td>art-dupl-gate install path broken since birth (check never executed)</td><td><span class="badge badge-fixed">Fixed</span></td></tr>
+            <tr><td>2</td><td><span class="badge badge-critical">Critical</span></td><td>Master CI red on real jobs 6 days, unnoticed behind the designed red</td><td><span class="badge badge-fixed">Fixed</span></td></tr>
+            <tr><td>3</td><td><span class="badge badge-high">High</span></td><td>No CI lint leg; 7 latent findings shipped green</td><td><span class="badge badge-fixed">Fixed</span></td></tr>
+            <tr><td>4</td><td><span class="badge badge-high">High</span></td><td>Integration freeAddr port-reuse flake (runner EADDRINUSE)</td><td><span class="badge badge-fixed">Fixed</span></td></tr>
+            <tr><td>5</td><td><span class="badge badge-high">High</span></td><td>pin-drift red: httputil v1.6.0 published (and carries a replace)</td><td><span class="badge badge-fixed">Pinned</span></td></tr>
+            <tr><td>6</td><td><span class="badge badge-high">High</span></td><td>doc/ vs docs/ split brain with self-contradicting charter</td><td><span class="badge badge-fixed">Fixed</span></td></tr>
+            <tr><td>7</td><td><span class="badge badge-high">High</span></td><td>TODO header rotted into a changelog</td><td><span class="badge badge-fixed">Fixed</span></td></tr>
+            <tr><td>8</td><td><span class="badge badge-low">Low</span></td><td>Stale 1.27.1 floors, freePort ghost claim, githooks comment</td><td><span class="badge badge-fixed">Fixed</span></td></tr>
+            <tr><td>9</td><td><span class="badge badge-low">Low</span></td><td>Test-helper quartet duplication (needs a core tag)</td><td><span class="badge badge-low">Open</span></td></tr>
+            <tr><td>10</td><td><span class="badge badge-low">Low</span></td><td>Guard-coverage symmetry (consumer-claims / configs / structure-linter)</td><td><span class="badge badge-low">Open</span></td></tr>
+            <tr><td>11</td><td><span class="badge badge-low">Low</span></td><td>security.APIKeyMatches ghost-API review</td><td><span class="badge badge-low">Open</span></td></tr>
+            <tr><td>12</td><td><span class="badge badge-critical">Critical</span></td><td>Push the wave + verify CI on the final tip (owner)</td><td><span class="badge badge-low">Open</span></td></tr>
+          </tbody>
+        </table>
+
+        <!-- Plan -->
+        <h2 id="plan"><span class="num">06</span>Plan, sorted by work vs impact</h2>
+        <div class="migration-step">
+          <div class="migration-num">1</div>
+          <div class="migration-content">
+            <h4>Push the wave and verify CI on the final pushed commit (owner, minutes)</h4>
+            <p>Every fix is local-verified; only a runner proves the art-dupl path and the fleet-lint job. Acceptance rows are already written in TODO_LIST P1.</p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">2</div>
+          <div class="migration-content">
+            <h4>Restore the SSH secret (owner, minutes) &mdash; still the only designed red</h4>
+            <p>Unblocks the structure-linter leg and retires the noise source that trained everyone to ignore failure conclusions.</p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">3</div>
+          <div class="migration-content">
+            <h4>Rebase + merge the ten open dependabot PRs (after step 1)</h4>
+            <p>Their reds were the repo-level guards; green master unblocks the whole wave: error-family v0.12.0, catalog v4.9.0, go-health v0.7.0, ssetest v0.5.0 (open since 10-16).</p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">4</div>
+          <div class="migration-content">
+            <h4>File the httputil replace-directive ask + tag v1.6.1 upstream (owner-gated)</h4>
+            <p>Draft is verified and written (doc/feedback/outgoing/). Then integration + otel sweep to v1.6.1 on their natural trains.</p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">5</div>
+          <div class="migration-content">
+            <h4>Dedup the test-helper quartet into testkit (next core train)</h4>
+            <p>Blocked on a published core tag (integration pins published only). Four helpers, one home; the freeAddr hardening becomes shared instead of copied.</p>
+          </div>
+        </div>
+        <div class="migration-step">
+          <div class="migration-num">6</div>
+          <div class="migration-content">
+            <h4>Guard-symmetry review + APIKeyMatches consumer sweep (small)</h4>
+            <p>Decide which guards belong in which gate and wire or document each; sweep PapDashboard's security adoption for the ghost API verdict.</p>
+          </div>
+        </div>
+
+        <footer class="footer">
+          Generated 2026-10-25 &middot; every claim verified in-session (commands + exit codes in the wave's git history) &middot; local verdicts only: runner truth owed by the tip-CI verify ritual
+        </footer>
+      </main>
+    </div>
+
+    <!-- Progressive-enhancement scrollspy. Nav still works without JS via anchor links. -->
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>
