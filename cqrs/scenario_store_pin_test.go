@@ -111,8 +111,8 @@ func quoteSQLiteIdent(ident string) string {
 func scanTableForDisplayForm(t *testing.T, db *sql.DB, table, marker string) {
 	t.Helper()
 
-	rows, err := db.QueryContext(context.Background(), "SELECT * FROM "+quoteSQLiteIdent(table))
-	//nolint:gosec // identifier comes from sqlite_master, quoted + escaped
+	q := "SELECT * FROM " + quoteSQLiteIdent(table) //nolint:gosec,unqueryvet // ident from sqlite_master, quoted
+	rows, err := db.QueryContext(context.Background(), q)
 	if err != nil {
 		t.Fatalf("scan %s: %v", table, err)
 	}
