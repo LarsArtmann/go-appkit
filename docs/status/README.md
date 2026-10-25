@@ -8,15 +8,14 @@ line per report; verdicts are annotated inline in each file.
 `doc/status/` tree (reports + `archived/` + this index) migrated here with
 `git mv`. New reports land HERE.
 
-**Doc-tree rule (consolidated 2026-10-25):** `docs/` owns ALL planning,
-research, status, reviews, and agent docs; the `doc/` singular directory
-keeps ONLY the standing project docs that predate the `docs` module path
-(DOMAIN_LANGUAGE, TELEMETRY, feedback, recipes, library-analysis). The
-former `doc/planning/` and `doc/research/` trees were `git mv`-ed into
-`docs/planning/` and `docs/research/` — point-in-time reports written
-before 2026-10-25 still cite the old `doc/planning|research` paths and are
-NOT rewritten (snapshots stay true to their day); every LIVING doc cites
-the new paths.
+**Doc-tree rule (FULLY consolidated 2026-10-25):** `docs/` owns EVERYTHING —
+planning, research, status, reviews, agent docs, AND the former `doc/`
+standing docs (DOMAIN_LANGUAGE, TELEMETRY, feedback, recipes,
+library-analysis). The `doc/` singular directory NO LONGER EXISTS; the
+afternoon pass moved the remaining trees with `git mv` and fixed the
+living-doc citations. Point-in-time reports written earlier on 2026-10-25
+still cite `doc/planning|research|feedback` paths and are NOT rewritten
+(snapshots stay true to their day); every LIVING doc cites the new paths.
 
 Report format: `.md` at explicit user demand is the standing dispatch shape
 (the skill default is HTML; explicit instruction wins — multiple data points
@@ -134,5 +133,5 @@ update them afterward.
 ## Rituals
 
 Release and verification rituals live in the recipes dir — start at
-`doc/recipes/fresh-consumer-proxy-check.md` (the post-push step of every
+`docs/recipes/fresh-consumer-proxy-check.md` (the post-push step of every
 release ritual).
