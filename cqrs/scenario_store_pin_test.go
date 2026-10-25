@@ -43,7 +43,7 @@ func TestScenarioPilot_StoreRowsCarryBareStreamIDs(t *testing.T) {
 		t.Fatalf("open store: %v", err)
 	}
 
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	tables, err := queryStringColumn(t, db,
 		"SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
@@ -58,50 +58,7 @@ func TestScenarioPilot_StoreRowsCarryBareStreamIDs(t *testing.T) {
 	const marker = "StreamMarker:"
 
 	for _, table := range tables {
-		rows, err := db.Query("SELECT * FROM " + quoteSQLiteIdent(table))
-		if err != nil {
-			t.Fatalf("scan %s: %v", table, err)
-		}
-
-		cols, _ := rows.Columns()
-
-		for rows.Next() {
-			raws := make([]any, len(cols))
-			ptrs := make([]any, len(cols))
-
-			for i := range raws {
-				ptrs[i] = &raws[i]
-			}
-
-			if err := rows.Scan(ptrs...); err != nil {
-				t.Fatalf("scan row in %s: %v", table, err)
-			}
-
-			for i, raw := range raws {
-				var text string
-
-				switch v := raw.(type) {
-				case string:
-					text = v
-				case []byte:
-					text = string(v)
-				default:
-					continue
-				}
-
-				if strings.Contains(text, marker) {
-					t.Fatalf(
-						"%s.%s carries the %q display form — stream IDs must persist bare "+
-							"(a write path reintroduced the branded String() form)",
-						table, cols[i], marker,
-					)
-				}
-			}
-		}
-
-		if err := rows.Err(); err != nil {
-			t.Fatalf("iterate %s: %v", table, err)
-		}
+		scanTableForDisplayForm(t, db, table, marker)
 	}
 
 	// The sanity half: the journal must actually carry the stream's events
@@ -122,12 +79,12 @@ func TestScenarioPilot_StoreRowsCarryBareStreamIDs(t *testing.T) {
 func queryStringColumn(t *testing.T, db *sql.DB, query string) ([]string, error) {
 	t.Helper()
 
-	rows, err := db.Query(query)
+	rows, err := db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err //nolint:wrapcheck // caller wraps
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var out []string
 
@@ -147,4 +104,67 @@ func queryStringColumn(t *testing.T, db *sql.DB, query string) ([]string, error)
 // quoteSQLiteIdent wraps an identifier in double quotes for the scan query.
 func quoteSQLiteIdent(ident string) string {
 	return `"` + strings.ReplaceAll(ident, `"`, `""`) + `"`
+}
+
+// scanTableForDisplayForm fails the test when any TEXT column of the table
+// carries the display-form marker.
+func scanTableForDisplayForm(t *testing.T, db *sql.DB, table, marker string) {
+	t.Helper()
+
+	rows, err := db.QueryContext(context.Background(), "SELECT * FROM "+quoteSQLiteIdent(table))
+	//nolint:gosec // identifier comes from sqlite_master, quoted + escaped
+	if err != nil {
+		t.Fatalf("scan %s: %v", table, err)
+	}
+
+	defer func() { _ = rows.Close() }()
+
+	cols, err := rows.Columns()
+	if err != nil {
+		t.Fatalf("columns of %s: %v", table, err)
+	}
+
+	for rows.Next() {
+		raws := make([]any, len(cols)) //nolint:makezero // pre-sized scan targets, populated via ptrs
+		ptrs := make([]any, len(cols)) //nolint:makezero // pointers into the pre-sized targets
+
+		for i := range raws {
+			ptrs[i] = &raws[i]
+		}
+
+		if err := rows.Scan(ptrs...); err != nil {
+			t.Fatalf("scan row in %s: %v", table, err)
+		}
+
+		for i, raw := range raws {
+			text, ok := cellText(raw)
+			if !ok {
+				continue
+			}
+
+			if strings.Contains(text, marker) {
+				t.Fatalf(
+					"%s.%s carries the %q display form — stream IDs must persist bare "+
+						"(a write path reintroduced the branded String() form)",
+					table, cols[i], marker,
+				)
+			}
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		t.Fatalf("iterate %s: %v", table, err)
+	}
+}
+
+// cellText renders a scanned SQLite cell as text when it is text-shaped.
+func cellText(raw any) (string, bool) {
+	switch v := raw.(type) {
+	case string:
+		return v, true
+	case []byte:
+		return string(v), true
+	default:
+		return "", false
+	}
 }
