@@ -4,17 +4,18 @@
 
 ### Changed
 
-- httputil v1.5.0 → v1.6.0; go-error-family v0.11.0 → v0.12.0 (MVS). The
-  v1.6.0 tag carries `LoggingFromContext`, which CLOSES the documented
-  completion-line limitation: doc.go's log-correlation note now points at
-  the fix, and the README gains a "Correlating the request-completion line"
-  recipe (mirrors the core default stack with the Logging →
-  LoggingFromContext swap; compile-verified against published otel v0.3.0 +
-  httputil v1.6.0). NOTE: the tagged httputil v1.6.0 go.mod carries a
+- httputil v1.5.0 → v1.7.0 (via v1.6.0); go-error-family v0.11.0 → v0.12.0
+  (MVS). The v1.6.0 tag carries `LoggingFromContext`, which CLOSES the
+  documented completion-line limitation: doc.go's log-correlation note now
+  points at the fix, and the README gains a "Correlating the
+  request-completion line" recipe (mirrors the core default stack with the
+  Logging → LoggingFromContext swap; compile-verified against published
+  otel v0.3.0 + httputil tags). The tagged v1.6.0 go.mod carried a
   filesystem `replace` (server_timing → ./server_timing) — harmless to
-  consumers (go build/tidy verified clean) but a violation of the family's
-  own no-replace release rule; upstream ask drafted in
-  `docs/feedback/outgoing/2026-10-25_upstream-ask-httputil-v160-replace.md`.
+  consumers but a violation of the family's own no-replace release rule;
+  the upstream ask (filed as httputil#43) was FIXED SAME-DAY: v1.7.0 ships
+  a replace-free go.mod (consumer-side `go doc github.com/larsartmann/
+  httputil@v1.7.0` verified) and this module pins the replace-free tag.
 - README: `BenchmarkMiddleware_*` ns/op re-baselined 2026-10-18 (benchstat
   n=10, go 1.27.2, quiet-gate protocol — `scripts/quiet-run.sh`, 8 primary
   threads pinned, load1 11.7): NoOp 19.67µs ± 5%, traced 20.45µs ± 13%,

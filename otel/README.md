@@ -87,7 +87,7 @@ cfg.Middlewares = []httputil.Middleware{
 The `ContextLogger` adapter stamps every completion line (untraced requests
 get `trace_id="none"`); a `fromContext` that returns nil for span-less
 requests keeps untraced lines attribute-free instead. Requires
-httputil v1.6.0+.
+httputil v1.7.0+ (this module's floor; the API itself shipped in v1.6.0).
 
 ## SigNoz in 3 steps
 
