@@ -1,5 +1,15 @@
 ## [Unreleased]
 
+### Added
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.3.0] - 2026-10-27
+
 ### Changed
 
 - go-health v0.8.0. Two upstream behavior changes reach this bridge, both
