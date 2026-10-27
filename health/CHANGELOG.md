@@ -12,8 +12,9 @@
 
 ### Changed
 
-- go-health v0.8.0. Two upstream behavior changes reach this bridge, both
-  now pinned here:
+- go-health v0.8.1 (v0.8.0's CI run was red on an unrelated tooling
+  breakage; v0.8.1 is the same library content with the gate fixed). Two
+  upstream behavior changes reach this bridge, both now pinned here:
   - **A recovered panic fails closed.** A non-critical check that panics
     rolls the probe up to `fail` (readiness 503) instead of `warn` (200).
     Panic isolation itself is unchanged: the panicking check reports its own
