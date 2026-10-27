@@ -6,7 +6,7 @@ require (
 	github.com/larsartmann/go-appkit v0.9.0
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-error-family v0.11.0
-	github.com/larsartmann/go-health v0.5.1
+	github.com/larsartmann/go-health v0.8.0
 	github.com/larsartmann/go-health-dashboard v0.10.2
 	github.com/samber/do/v2 v2.1.0
 )
