@@ -1,5 +1,22 @@
 ## [Unreleased]
 
+### Changed
+
+- go-health v0.8.0. Two upstream behavior changes reach this bridge, both
+  now pinned here:
+  - **A recovered panic fails closed.** A non-critical check that panics
+    rolls the probe up to `fail` (readiness 503) instead of `warn` (200).
+    Panic isolation itself is unchanged: the panicking check reports its own
+    `fail` and sibling checks still report. `TestNewProbe_PanicIsolatedPerCheck`
+    and `ExampleNewProbe_panickingCheck` asserted the old warn verdict and
+    stayed green only because v0.5.1 graded it that way; both are updated.
+  - **`WithHealthRecorder` on the function path now fails at boot** with
+    `health.ErrRecorderNotApplicable` instead of being silently dropped.
+    A `flightrecorderhealth.Trigger` passed to `NewProbe` used to capture
+    zero traces with no error; it now refuses to start. The `NewProbe`
+    godoc and the package doc's trace-capture section say which constructor
+    to use instead, and `TestNewProbe_RecorderOptionFailsAtBoot` pins it.
+
 ### Verified
 
 - Post-v0.2.0 evidence pass (2026-10-12): `FuzzNewProbe_PanicIsolation`

@@ -52,12 +52,14 @@
 //
 // # Trace capture on health batches (injector path)
 //
-// NewProbe cannot drive trace capture: go-health nils the recorder on the
-// function path, so a WithHealthRecorder option passed to NewProbe is
-// silently ignored (see the NewProbe godoc). To record every health batch —
-// for example through [go-flightrecorderhealth] — build the probe with
-// health.New over a samber/do injector instead and hand the same
-// go-flightrecorder Recorder to both sides:
+// NewProbe cannot drive trace capture: the checks own batch execution on the
+// function path, so a WithHealthRecorder option has nothing to contribute.
+// Since go-health v0.8.0 that mis-wiring is loud — Start returns
+// health.ErrRecorderNotApplicable instead of the option vanishing (see the
+// NewProbe godoc). To record every health batch — for example through
+// [go-flightrecorderhealth] — build the probe with health.New over a
+// samber/do injector instead and hand the same go-flightrecorder Recorder to
+// both sides:
 //
 //	injector := do.New()
 //	frhealth.Register(injector, recorder, "flight-recorder")

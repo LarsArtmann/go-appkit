@@ -22,21 +22,26 @@ type CheckFunc func(ctx context.Context) error
 // check map produces a probe that always reports pass — useful as a
 // placeholder, pointless as a health surface.
 //
-// # WithHealthRecorder is silently dropped on this path
+// # WithHealthRecorder is rejected on this path
 //
-// NewProbe forwards opts to go-health's NewChecks, which ignores
-// WithHealthRecorder (its godoc: "the given checks own batch execution").
-// A [health.WithHealthRecorder] option passed to NewProbe is therefore
-// silently ignored: no HealthRecorder callbacks fire, and a
-// flightrecorderhealth.Trigger wired this way captures zero traces — with no
-// error and no warning. This mirrors the upstream contract, not a defect in
-// NewProbe, but it is a trap.
+// NewProbe forwards opts to go-health's NewChecks, where the given checks own
+// batch execution and a recorder has nothing to contribute. Through go-health
+// v0.7.0 that option was silently dropped: no HealthRecorder callbacks fired,
+// a flightrecorderhealth.Trigger wired this way captured zero traces, and
+// nothing said so.
 //
-// To drive trace capture from health batches, use the injector path
-// instead: register the checks in a samber/do injector, build the probe
-// with health.New (that path honors WithHealthRecorder), and pass the same
-// Trigger to the recorder side. See the package doc's quick start and the
-// runnable ExampleNewProbe_recorderViaInjector in this package.
+// Since go-health v0.8.0 the mis-wiring fails at boot: `Start` returns
+// [health.ErrRecorderNotApplicable] naming the constructor, so a silent
+// zero-trace deployment is no longer possible. Prefer the construct that says
+// what you mean:
+//
+//   - recorder callbacks (traces, audit logs): register the checks in a
+//     samber/do injector and build the probe with health.New, which honors the
+//     recorder. See the package doc's quick start and the runnable
+//     ExampleNewProbe_recorderViaInjector.
+//   - no injector but a recorder that owns its checks: go-health's
+//     NewWithRecorder.
+//   - plain functions or a named-check map: NewProbe, as here.
 //
 // Failure modes, all owned by go-health's per-check runner: a panicking
 // check is recovered into that check's error (wrapping go-health's

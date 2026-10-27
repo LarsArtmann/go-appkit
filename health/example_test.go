@@ -48,10 +48,11 @@ func ExampleNewProbe() {
 	// ready: true
 }
 
-// ExampleNewProbe_panickingCheck shows the panic isolation: a check that
-// panics is converted into that check's classified error instead of
-// poisoning the batch — the other checks still report and the probe stays
-// ready.
+// ExampleNewProbe_panickingCheck shows the panic contract: a check that panics
+// is converted into that check's classified error instead of poisoning the
+// batch — the other checks still report — but the roll-up fails closed. A
+// recovered panic is untrustworthy evidence, so the probe leaves rotation
+// rather than staying ready on a degraded verdict.
 func ExampleNewProbe_panickingCheck() {
 	probe := appkithealth.NewProbe(
 		map[string]appkithealth.CheckFunc{
@@ -73,16 +74,17 @@ func ExampleNewProbe_panickingCheck() {
 
 	defer probe.Shutdown()
 
-	readyErr := probe.AwaitReady(ctx)
-	if readyErr != nil {
-		panic(readyErr)
-	}
+	resp := probe.CachedResponse()
 
 	fmt.Println("status:", probe.Status())
 	fmt.Println("ready:", probe.Ready())
+	fmt.Println("stable:", resp.Checks["stable"].Status)
+	fmt.Println("boom:", resp.Checks["boom"].Status)
 	// Output:
-	// status: warn
-	// ready: true
+	// status: fail
+	// ready: false
+	// stable: pass
+	// boom: fail
 }
 
 // ExampleMount_multiProbeAggregate mounts TWO probes on one mux: a

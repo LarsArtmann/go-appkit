@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/larsartmann/go-health"
+	"github.com/samber/do/v2"
 )
 
 func TestNewProbe_AllHealthyReportsPass(t *testing.T) {
@@ -108,8 +109,15 @@ func TestNewProbe_PanicIsolatedPerCheck(t *testing.T) {
 		t.Errorf("check error = %q, want panic report", cache.Error)
 	}
 
-	if got := resp.Status; got != health.StatusWarn {
-		t.Errorf("status = %v, want warn (non-critical panic degrades, not fails)", got)
+	// go-health v0.8.0 (ADR-008): a recovered panic fails closed regardless of
+	// criticality. Before it, this pin asserted warn and readiness stayed 200 —
+	// a check whose executor crashed kept the instance in rotation.
+	if got := resp.Status; got != health.StatusFail {
+		t.Errorf("status = %v, want fail (a recovered panic fails closed)", got)
+	}
+
+	if got := resp.Checks["database"]; got.Status != health.StatusPass {
+		t.Errorf("sibling check = %v, want pass (the panic must not poison the batch)", got.Status)
 	}
 }
 
@@ -289,4 +297,37 @@ func TestNewProbe_WedgedCheckFailsClosedAtDeadline(t *testing.T) {
 	if !ok || healthy.Error != "" {
 		t.Errorf("healthy check must still pass: ok=%v check=%+v", ok, healthy)
 	}
+}
+
+// TestNewProbe_RecorderOptionFailsAtBoot pins the go-health v0.8.0 contract
+// this bridge documents: NewProbe forwards to NewChecks, so a recorder option
+// has nothing to contribute and Start refuses it instead of dropping it
+// silently. Before v0.8.0 the option vanished with no callback and no warning —
+// a flight-recorder deployment that looked wired captured nothing.
+func TestNewProbe_RecorderOptionFailsAtBoot(t *testing.T) {
+	t.Parallel()
+
+	probe := NewProbe(
+		map[string]CheckFunc{"database": func(context.Context) error { return nil }},
+		health.WithHealthRecorder(recordingRecorder{}),
+	)
+
+	if err := probe.Validate(); !errors.Is(err, health.ErrRecorderNotApplicable) {
+		t.Errorf("Validate = %v, want ErrRecorderNotApplicable", err)
+	}
+
+	if err := probe.Start(t.Context()); !errors.Is(err, health.ErrRecorderNotApplicable) {
+		t.Errorf("Start = %v, want ErrRecorderNotApplicable", err)
+	}
+}
+
+// recordingRecorder satisfies go-health's HealthRecorder and records nothing;
+// it exists only to be rejected.
+type recordingRecorder struct{}
+
+func (recordingRecorder) RecordHealthCheckWithContext(
+	context.Context,
+	do.Injector,
+) map[string]error {
+	return nil
 }
