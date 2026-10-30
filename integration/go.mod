@@ -9,24 +9,24 @@ require (
 	github.com/larsartmann/go-appkit/docs v0.3.3
 	github.com/larsartmann/go-appkit/errorpages v0.1.2
 	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7
-	github.com/larsartmann/go-appkit/health v0.2.0
+	github.com/larsartmann/go-appkit/health v0.3.0
 	github.com/larsartmann/go-appkit/otel v0.3.0
 	github.com/larsartmann/go-appkit/realtime v0.1.3
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-appkit/systemd v0.1.0
-	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.9.0
+	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.11.0
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.14.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.8.0
-	github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.1
+	github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.2
 	github.com/larsartmann/go-cqrs-lite/id/v4 v4.7.3
 	github.com/larsartmann/go-cqrs-lite/metaengine/v4 v4.20.0
 	github.com/larsartmann/go-cqrs-lite/query/v4 v4.10.1
 	github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2
-	github.com/larsartmann/go-cqrs-lite/system/v4 v4.15.4
+	github.com/larsartmann/go-cqrs-lite/system/v4 v4.16.0
 	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.2.1
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
-	github.com/larsartmann/go-health v0.5.1
+	github.com/larsartmann/go-health v0.8.1
 	github.com/larsartmann/go-sse v0.6.2
 	github.com/larsartmann/go-sse/ssetest v0.5.0
 	github.com/larsartmann/httputil v1.7.0
@@ -93,7 +93,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/metaengine/projectionadapter/v4 v4.6.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4 v4.6.0 // indirect
 	github.com/larsartmann/go-cqrs-lite/middleware/v4 v4.7.2 // indirect
-	github.com/larsartmann/go-cqrs-lite/otel/v4 v4.5.2 // indirect
+	github.com/larsartmann/go-cqrs-lite/otel/v4 v4.5.3 // indirect
 	github.com/larsartmann/go-cqrs-lite/projection/v4 v4.4.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/projectionhost/v4 v4.7.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/record/v4 v4.6.2 // indirect
