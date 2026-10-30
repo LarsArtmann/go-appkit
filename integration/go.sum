@@ -176,8 +176,8 @@ github.com/larsartmann/go-appkit/errorpages v0.1.2 h1:NNpBGnRmJ9HLXoMFk8KqrVYFEk
 github.com/larsartmann/go-appkit/errorpages v0.1.2/go.mod h1:BHweDd75GuZftLAMk/bSUIcexLikBuHLiTzyltAmCW4=
 github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7 h1:xPoRgaySWyqYx16BFXTb8Fd9rXjyJ9QpEw319abChpQ=
 github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7/go.mod h1:YzLpoGDGTVXOrZeNhqpYyIdpwjJUWwVRknivcAbBWZ0=
-github.com/larsartmann/go-appkit/health v0.2.0 h1:zuEqOadX559Dxzmd3So/D04QXPh+kpxiskvCVmRpLg4=
-github.com/larsartmann/go-appkit/health v0.2.0/go.mod h1:tbwE2mDCrw9P/ah6KCYc4Cge7KHiiavvyhAylH2ZRvg=
+github.com/larsartmann/go-appkit/health v0.3.0 h1:uZsMAaWgbOf45RmCd5ioZFMXwkcUFceAuJPrC/EBvjE=
+github.com/larsartmann/go-appkit/health v0.3.0/go.mod h1:hrZC1dv6OsUJuPyjPruNe0TuTrpOJn58BIdEtYk3gJE=
 github.com/larsartmann/go-appkit/otel v0.3.0 h1:DIqyT3NkgYFJrkek3RzLw9bU4OxrjgUXo7XF0kE3Vbw=
 github.com/larsartmann/go-appkit/otel v0.3.0/go.mod h1:h7hvMTCIevQB9rFmmx/8Pbmtn1Z+ZgK84I+MIzQSYF8=
 github.com/larsartmann/go-appkit/realtime v0.1.3 h1:UEWK2dBvbhPwK86xHtcfF8/3Z0dwUssXmZN10mODsvo=
@@ -190,8 +190,8 @@ github.com/larsartmann/go-branded-id v0.7.0 h1:k5KT50Kh0WmeniH0rQ3Gvm2RdSAQFZtuR
 github.com/larsartmann/go-branded-id v0.7.0/go.mod h1:gM5FhB6d23qZO8hIU/rHpUnm/6dwKy9UGMhgvXDqNsc=
 github.com/larsartmann/go-codec v0.3.2 h1:6josVkKRls+9CrXkH8AyCS4uOgJ0oIOvPMl4XFrPpk0=
 github.com/larsartmann/go-codec v0.3.2/go.mod h1:nDkfIZOg49OrpIbZE1fXpQZ6Mmyho35NprMMB3Cq+a8=
-github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.9.0 h1:rsf/71lKUUIiNEhVZicbAkjdxKlXLL6a7cdb7G9B93s=
-github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.9.0/go.mod h1:mR760B+Y1sRklembPAo0F6nzDpL7nch3XG//IGty/y0=
+github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.11.0 h1:vi6Pr/KfrJqTmSTHz91lsWHZfR35p9exfBTScrJsok8=
+github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.11.0/go.mod h1:kVr9EMYJOTyjMIJFJRdvkT2zT2VfhGtO6yBWCW8Zyuk=
 github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2 h1:yakAjC4K02sVvudipDP/fhLfSXDuo5rnNBY+hDou34Y=
 github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2/go.mod h1:7TQ7fSd6bRqd7lYSTDMPIDCDZtzU/r3KqivP9m1M7gk=
 github.com/larsartmann/go-cqrs-lite/command/v4 v4.14.1 h1:H/3KnPHJvPDeDHsbwaJFKVNmrFRlibVr20mA26d74VI=
@@ -208,8 +208,8 @@ github.com/larsartmann/go-cqrs-lite/deriver/v4 v4.5.0 h1:TQ7GRW+RhaDMuLtRbQ7fwYD
 github.com/larsartmann/go-cqrs-lite/deriver/v4 v4.5.0/go.mod h1:xrV+ovffWnoW/05tv1XfOEXygRBuh0nrFQ91wQaQiXA=
 github.com/larsartmann/go-cqrs-lite/dispatcher/v4 v4.5.2 h1:19mLTKKDCLrwUDWYVBQptOAai+AOs9/2HzzuO/Gchy0=
 github.com/larsartmann/go-cqrs-lite/dispatcher/v4 v4.5.2/go.mod h1:YMXWKgNJdM3bNOrgwoER/C2XYUDpXVZpFqJYco34K6U=
-github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.1 h1:zibVC2qEmJNS0Csj8zD1FLe0jpW2Mh+5RaeRKUqv9fA=
-github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.1/go.mod h1:Yryp/hRjrY2kADS6s3ouBF5NldOYcEmNZEuS5Oqtf3Y=
+github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.2 h1:9f8JzC0Ud+O1hILNKLsXQgWreDtHcCki/xczl4YGVT0=
+github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.2/go.mod h1:BbipSAKx998DAgHyuvao1uxosCiovgJ3+vi80ZmVkzk=
 github.com/larsartmann/go-cqrs-lite/event/v4/eventtest v0.4.0 h1:PjI4Y+CPkg2mBG7InAi9y3+czCQsXyIdcjZiGQduq6M=
 github.com/larsartmann/go-cqrs-lite/event/v4/eventtest v0.4.0/go.mod h1:/Je8mL9pj1BtlAU8XtpBqtrLGHob1TeZpvlobrUmIy8=
 github.com/larsartmann/go-cqrs-lite/id/v4 v4.7.3 h1:MJBJNsp9UEbYvrb1HBvc6Ui94qf56GJzk76XDFbxyLY=
@@ -228,8 +228,8 @@ github.com/larsartmann/go-cqrs-lite/metaengine/v4 v4.20.0 h1:ipQhE84VKWnFRLo25TQ
 github.com/larsartmann/go-cqrs-lite/metaengine/v4 v4.20.0/go.mod h1:AUHJC62M1ttvuiO/qhLUlsYskjnRzY1hOeInqPJ73Os=
 github.com/larsartmann/go-cqrs-lite/middleware/v4 v4.7.2 h1:Vzel6eXmS9dum1Pi7tdViiOlSzcH02ajCUXYK6LL5HQ=
 github.com/larsartmann/go-cqrs-lite/middleware/v4 v4.7.2/go.mod h1:2ecijvSEDd4Tz0vCermNDRktU5+UARhuYFyc5rOYZxU=
-github.com/larsartmann/go-cqrs-lite/otel/v4 v4.5.2 h1:q91s4+q6eoKZDXzil/WV5kTGRFUNbDXiebkMlxiJpcg=
-github.com/larsartmann/go-cqrs-lite/otel/v4 v4.5.2/go.mod h1:2tux4v9UUi/ADv6Eb3DH7xaEM58PiBreE1JPHXPC6aw=
+github.com/larsartmann/go-cqrs-lite/otel/v4 v4.5.3 h1:LBqGdzokDoygcf97o26XPDz1RJFhV1rLh42yAS1lkQE=
+github.com/larsartmann/go-cqrs-lite/otel/v4 v4.5.3/go.mod h1:U38OXil5fqsfaKA0TyLB55+n0u2k7eJt44m8Oa5zXxI=
 github.com/larsartmann/go-cqrs-lite/projection/v4 v4.4.2 h1:G8gewUt+OA5ElZpG8nBy3HLx8KHuh9JZjwz8I+OiXL4=
 github.com/larsartmann/go-cqrs-lite/projection/v4 v4.4.2/go.mod h1:DH8T81EISKuU57IsXuZhV/e2wwK52VlwfH0X2SePSEE=
 github.com/larsartmann/go-cqrs-lite/projectionhost/v4 v4.7.1 h1:RP1qdfYqPUafs4aRNrIWswtMhCPFozX1zGlH4qDrn8g=
@@ -250,8 +250,8 @@ github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2 h1:h7624nwPbDVqIpCX
 github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2/go.mod h1:yl5xmDZ2IbDv6WkBMzbeJ8mNenfWRpXpImfj1gTTTus=
 github.com/larsartmann/go-cqrs-lite/storage/v4 v4.11.0 h1:wZjyN4rV3nmCNUldc3ENP2Hl0Ni9SMzZjcdtiwLINz0=
 github.com/larsartmann/go-cqrs-lite/storage/v4 v4.11.0/go.mod h1:zwmMFEdfkmBox2yXVWDIwv6VkA3wH0NjKh2xy4NfYFw=
-github.com/larsartmann/go-cqrs-lite/system/v4 v4.15.4 h1:LAClHpCOlEbLCCq4V+cyig2YT0ThaaH8F6whV4ZvWis=
-github.com/larsartmann/go-cqrs-lite/system/v4 v4.15.4/go.mod h1:iLMGOLtrPqAMM5j1hoOV70Kui6BxEjVj9QpTvKfwzlA=
+github.com/larsartmann/go-cqrs-lite/system/v4 v4.16.0 h1:MyYuAhCLO068t08/gW6ojibh+SS15nX+GfBdlCDBzUw=
+github.com/larsartmann/go-cqrs-lite/system/v4 v4.16.0/go.mod h1:pokX49+Eh4xK+T5SJ7axTChh2DNlbNU1HX3zz6+s1HU=
 github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.2.1 h1:QVNFRR8KN/CxETwOJr4l9SRiYiIoMPF/YPgqlG1Z2us=
 github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.2.1/go.mod h1:44QfZ1erWZcSwIyIErkcRx5ltSkV/JLULqRYhh4r1lI=
 github.com/larsartmann/go-cqrs-lite/testutil/pgtestcontainer/v4 v4.2.3 h1:6MvhIwZpxMUf9bLN2qBcL4oNtk/s09se2hc4gWJCEgM=
@@ -272,8 +272,8 @@ github.com/larsartmann/go-etag/server v0.6.1 h1:JVguufBCoLSj83bHM1FqgfSEYc2x1E31
 github.com/larsartmann/go-etag/server v0.6.1/go.mod h1:o3VNBhO58/5rIm0qaU3jLsgRPyjTcaMBtfbHm0lphJk=
 github.com/larsartmann/go-flightrecorder v0.2.1 h1:46haKa+T3R8HmtEfVIvF4j6ri8N8qn6H94AFKFMdkE8=
 github.com/larsartmann/go-flightrecorder v0.2.1/go.mod h1:fZZpp2eR4SkhI31DTCGheg4QqKE2o9R/22jk3/084tE=
-github.com/larsartmann/go-health v0.5.1 h1:5ApwBcpcFQSNu1U/1n1pj6GI9I1I+DC3ogwAQ4zXEXM=
-github.com/larsartmann/go-health v0.5.1/go.mod h1:r0Lh5t786Za1uh/7XqdDIZH+b3GiJU4c9e5SVfxUYAo=
+github.com/larsartmann/go-health v0.8.1 h1:xQRjfmlh5dcbgm8RUphDpCIVKrNh7CV5zJOYR9zTLw8=
+github.com/larsartmann/go-health v0.8.1/go.mod h1:m+W6ASIdwRAwaVN7nG5yP7XAdBYf6cMePzxbp5ZRZ2E=
 github.com/larsartmann/go-health-dashboard v0.10.2 h1:Q83IYHXZlrQINrc07NXi00Xwtr4ePp/rykqHOxQgMU8=
 github.com/larsartmann/go-health-dashboard v0.10.2/go.mod h1:kpPQ6IaQMM18tvOFDvAsdG07aY0QJKEXEG6swuWucug=
 github.com/larsartmann/go-idempotency v0.3.1 h1:LzCg+4DI/RrqPJvR6bmmxMUE/jfUK2quREj0/2exSXI=
