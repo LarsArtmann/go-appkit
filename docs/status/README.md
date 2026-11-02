@@ -72,6 +72,9 @@ reports.
 | `2026-10-25_20-10_httputil-v170-sweep-and-review-wave-status.md`                    | Same-day close-out: upstream httputil v1.7.0 fixed the #43 replace (tag CLOSED COMPLETED) and shipped the #41 `NewServerListener` seam; both consumers swept to v1.7.0 (suites/lint/pin-drift green, README recipe re-compile-verified), TODO_LIST + AGENTS truth-synced (composition row UNBLOCKED), #43 consumer comment posted; honest §d: origin still red — wave + sweep remain unpushed                                                                                                                           |
 
 Execution plans are indexed beside the reports they execute. Active plans:
+`docs/planning/2026-11-02_07-24_SUPERB-v10-docs-truth-automation-and-fleet-hygiene-plan.md`
+(the 2026-11-02 pareto plan over the whole open TODO surface — awaiting
+owner approval),
 `docs/planning/2026-10-13_14-05_SUPERB-v7-consumer-signal-lo-adoption-and-hygiene.md`
 (over the post-v6 backlog; consumer-signal-first ordering) and
 `docs/planning/2026-10-07_10-11_SUPERB-pareto-execution-plan.md` (partially
