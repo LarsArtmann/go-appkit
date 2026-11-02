@@ -53,8 +53,8 @@ That gives you:
 go get github.com/larsartmann/go-appkit
 ```
 
-Requires Go 1.27.1 or later (the unified toolchain floor this framework
-is verified on; `encoding/json/v2` is default-on there, see below).
+Requires Go 1.27.2 or later (the unified toolchain floor every module's
+go.mod declares; `encoding/json/v2` is default-on there, see below).
 
 ## Modules in this repository
 
@@ -79,17 +79,10 @@ Each module is independently versioned and usable on its own:
 > `ServiceConfig.OuterMiddlewares`/`ExtraMiddlewares` when you want them.
 
 > **JSON v2 requirement:** the dependency stack (go-cqrs-lite,
-> templ-components, go-health, go-sse) uses `encoding/json/v2`. Go 1.26.7
-> enables it **by default** — no configuration needed. On older 1.26.x
-> toolchains where it is still gated, prefix builds and tests with
-> `GOEXPERIMENT=jsonv2`. Each module's README documents its own history
-> with the experiment; the per-module notes in `AGENTS.md` track the
-> gory details.
->
-> Editor note: gopls running under a toolchain/environment without the
-> experiment reports FALSE `string literal not terminated` diagnostics on
-> files importing `encoding/json/v2` — set `GOEXPERIMENT=jsonv2` in your
-> editor's Go environment before suspecting the source.
+> templ-components, go-health, go-sse) uses `encoding/json/v2`, which the
+> 1.27.2 floor enables **by default** — no configuration, no experiment
+> prefix (the per-module `GOEXPERIMENT=jsonv2` notes were retired
+> 2026-09-29).
 
 ## Configuration
 

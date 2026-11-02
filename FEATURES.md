@@ -168,6 +168,12 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | `NewProbe` batch benchmark (N=1/5/20) + panic-isolation fuzz                             | FULLY_FUNCTIONAL | `benchmark_test.go`, `FuzzNewProbe_*` (shipped in v0.1.2)                                                               |
 | Runnable godoc examples (criticality grading, panic isolation, F113 two-probe aggregate) | FULLY_FUNCTIONAL | `example_test.go` (shipped in v0.1.2)                                                                                   |
 | Per-check durations + deadline-bound batches (`NewProbe` → go-health `NewChecks`, #25)   | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go` (v0.2.0, 2026-10-12; serves `duration_ns`, wedged check fails closed at the batch deadline) |
+| Recovered panic fails closed (probe `fail`/readiness 503, not `warn`/200)                | FULLY_FUNCTIONAL | `TestNewProbe_PanicIsolatedPerCheck`, `ExampleNewProbe_panickingCheck` (v0.3.0, 2026-10-27 — go-health v0.8.1 semantic change pinned) |
+| `WithHealthRecorder` on the function path fails at boot (`ErrRecorderNotApplicable`)     | FULLY_FUNCTIONAL | `TestNewProbe_RecorderOptionFailsAtBoot` (v0.3.0, 2026-10-27 — the silent zero-trace cliff is gone upstream)            |
+
+Shipped through health **v0.3.0** (2026-10-27; go-health v0.8.1 adoption —
+the upstream recorder-sentinel ask go-health#7 SHIPPED — plus the
+panic-fails-closed flip; additions-only API diff).
 
 ## otel (`github.com/larsartmann/go-appkit/otel`)
 

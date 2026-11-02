@@ -42,7 +42,7 @@
 
 T17 (cqrs lifecycle E2E through a live Service — highest-value uncovered module), T19 (otel bench re-baseline + `example/`/`health/example` live E2Es), T24 (typed `seriesKey` + named `Hook` type), T25 (errors.Join shape test + frame-ancestors asserts + SSE×health E2E), T26 (testkit drain-window helper + health-example `-hardened` mode), T29 (watchlist sweep), T30 (external-consumer ritual decision), T32 (rituals re-arm), T20 (AGENTS deep slim-down), T21 (art-dupl suppression audit), T31 (lessons.md entry in crush-config — needs a commit in that repo).
 
-**STILL GATED (untouched, by design):** T13 (G3 consumer-pin policy), T15 (6 upstream filings), T16 (errorpages statusRecorder swap), T22 (pdg, their repo), T23 (prompt-crusher intent), T27 (govulncheck, networked machine), T28 (browser CSP, Chrome), T10.1 (owner SSH secret), battery waves (demand).
+**STILL GATED (untouched, by design):** T13 (G3 consumer-pin policy), T15 (6 upstream filings), T16 (errorpages statusRecorder swap), T22 (pdg, their repo), T23 (prompt-crusher intent), T27 (govulncheck, networked machine), T28 (browser CSP, Chrome), T10.1 (owner SSH secret), battery waves (demand). **[2026-11-02 update: ALL resolved or dissolved — T13 answered by execution (consumer-claims guard, 2026-10-12); T15 filed 2026-10-13 (4 family asks); T16 DECLINED at source (errorpages v0.1.2); T23 resolved in their repo (conflict fixed, renamed `prompt-crusher`, verified 2026-11-02); T27 done (govulncheck 12/12, 2026-10-13); T28 done (browser CSP pass, 2026-10-13); T10.1 dissolved by the 2026-10-14 CI split (secret now gates only structure-linter); T22 + battery waves stay routed/demand-gated.]**
 
 ## d) TOTALLY FUCKED UP (honest list)
 
@@ -65,7 +65,7 @@ T17 (cqrs lifecycle E2E through a live Service — highest-value uncovered modul
 1. ~~**Finish T18**: cqrs README line 49 edit → CHANGELOG `### Breaking` + `[0.6.0] - <date>` → API diff vs `cqrs/v0.5.0` (expect removals → breaking, migration note = rename `SQLitePath`→`DSN`) → lint+cqrs-lint → tag `cqrs/v0.6.0` → push → proxy check → AGENTS/TODO same-train.~~ done — T18 finished 2026-09-29 — cqrs v0.6.0 tagged/pushed/proxy-PASS
 2. ~~Add **pre-tag-checks.sh** + Release Ritual step (post-mortem action, e1).~~ done — scripts/pre-tag-checks.sh shipped 2026-09-29 (negative-tested on the frh v0.1.4 class); Release Ritual step 5
 3. ~~**T17** — cqrs lifecycle E2E through a live appkit Service (register/dispatch/query + in-flight drain) → 8/10 composition-proven.~~ done — T17 cqrs lifecycle E2E shipped 2026-09-29
-4. **T19** — otel benchmark re-run (n≥5) vs README table on the 1.27.1 floor. **→ allocs proven identical 2026-09-29; the ns/op re-baseline is the TODO_LIST benchstat candidate**
+4. **T19** — otel benchmark re-run (n≥5) vs README table on the 1.27.1 floor. **→ done 2026-10-18 — otel README ns/op re-baseline through the quiet gate (n=10, 8 primary threads; allocs were proven identical 2026-09-29)**
 5. ~~**T19b** — `example/` + `health/example` live E2E via Go prober.~~ done — T19b — both examples live-probed 2026-09-29
 6. ~~**T24a** — typed `seriesKey` in metrics.go (kill the `|`-join/SplitN pair).~~ done — typed seriesKey shipped core v0.7.0
 7. ~~**T24b** — `type Hook func(context.Context) error` in config/service signatures.~~ done — appkit.Hook alias shipped core v0.7.0
@@ -81,21 +81,21 @@ T17 (cqrs lifecycle E2E through a live Service — highest-value uncovered modul
 17. ~~**T29** — watchlist refresh sweep (cordis consumers, PapDashboard, nixpkgs toolchain, dprint exit-14, cqrs-htmx v5 window) with as-of dates.~~ done — watchlist refreshed with as-of dates (2026-09-29)
 18. **T30** — external-consumer proxy ritual: write the decision + recipe paragraph. **→ routed — Decision 14 (verify-on-touch + quarterly); TODO_LIST watchlist**
 19. **T32** — rituals re-arm (cqrs cookbook re-verify trigger, core v1 exit-criteria graduation check, battery demand re-check). **→ routed — rituals are standing rows (TODO_LIST P3 + AGENTS cqrs section)**
-20. **T20** — AGENTS deep slim-down batch 1 (extract per-module build commands → module READMEs; restores cap headroom). **→ routed — TODO_LIST P3 AGENTS slim-down (batch 1 done 2026-09-29)**
-21. **T20b/c** — slim batches 2–3 (gotcha groups). **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
+20. **T20** — AGENTS deep slim-down batch 1 (extract per-module build commands → module READMEs; restores cap headroom). **→ overtaken — AGENTS slimmed 366→126 on 2026-10-12 (module details extracted to docs/agents/module-details.md)**
+21. **T20b/c** — slim batches 2–3 (gotcha groups). **→ overtaken — the 2026-10-12 extraction covered the deep content; cap now ≤220 with headroom**
 22. ~~**T21** — art-dupl suppression audit (~431 groups) + standing policy + Decision 13 cross-link.~~ done — audited 2026-09-29 — 477 groups, one harmful clone fixed
 23. ~~**T31** — lessons.md entry in crush-config (commit there): "check GOTOOLCHAIN/go.work parity AND re-run guards between dependency-automation runs and tagging."~~ done — the caller-wins-toolchain lesson class lives in crush-config references/lessons.md (2026-09-22 entry)
 24. ~~**Upstream draft: BuildFlow go-licenses ≥1.27 runner** (from the new license-check skip rationale).~~ **Won't implement — moot — the premise broke: license-check passes 13/13 since the 2026-10-07 probes (AGENTS BuildFlow gotcha).**
 25. ~~**Upstream draft: go-structure-linter** — per-tool rule excludes / honor yaml config (from the new skip rationale).~~ **NOT-DO — NOT-DO — CLOSED 2026-09-29: the installed binary (aaca8e20) honors the yaml config; no filing needed.**
 26. ~~Watch **cqrs-htmx**: they can drop their go-etag stub-replace now (core v0.6.0) — their repo, their move; keep the claim fresh (D2 ritual).~~ done — setup/v4.13.2 carries the split go-etag; their stub-replace is gone (verified 2026-10-01)
-27. **T13** (G3-gated) — consumer-claim ritual script or strip pins from AGENTS. **→ USER-gated — TODO_LIST Open questions item 1**
-28. **T15** (USER-gated) — 6 upstream filings (go-health pack could be direct fixes in our repo). **→ USER gate — TODO_LIST P2 upstream-asks row**
-29. **T16** (USER-gated) — errorpages statusRecorder → httputil.ResponseRecorder swap. **→ USER gate — TODO_LIST P2 errorpages row**
+27. **T13** (G3-gated) — consumer-claim ritual script or strip pins from AGENTS. **→ resolved — answered by execution: pins kept + `scripts/check-consumer-claims.sh` (2026-10-12; born-red on both consumer legs 2026-10-13)**
+28. **T15** (USER-gated) — 6 upstream filings (go-health pack could be direct fixes in our repo). **→ resolved — 4 family asks FILED 2026-10-13 (go-cqrs-lite#67, go-health#7, go-flightrecorder#2, httputil#41); two resolved without filing**
+29. **T16** (USER-gated) — errorpages statusRecorder → httputil.ResponseRecorder swap. **→ resolved — DECLINED at source level 2026-10-13 (errorpages v0.1.2 CHANGELOG decision record)**
 30. **T22** (their repo) — pdg backlog sweep. **→ their repo — TODO_LIST P3 pdg pointer row**
-31. **T23** (user intent) — prompt-crusher merge resolution. **→ still open — user intent required (prompt-crusher merge)**
-32. **T27** — govulncheck on health + security (networked machine). **→ TODO_LIST P2 govulncheck (network-blocked env)**
-33. **T28** — browser CSP pass over DashboardHardenedPreset (chromedp) + THREAT_MODEL link. **→ TODO_LIST P2 browser-CSP row**
-34. **T10.1** — owner sets `SSH_PRIVATE_KEY` secret → then T10.3 watch one fully green master run (incl. the now-committed go.work feeding the directives job). **→ TODO_LIST P1 (owner SSH secret)**
+31. **T23** (user intent) — prompt-crusher merge resolution. **→ resolved in THEIR repo — conflict fixed + repo renamed `prompt-crusher` (go.mod verified clean 2026-11-02)**
+32. **T27** — govulncheck on health + security (networked machine). **→ done 2026-10-13 — govulncheck 12/12 clean via `nix shell nixpkgs#govulncheck`**
+33. **T28** — browser CSP pass over DashboardHardenedPreset (chromedp) + THREAT_MODEL link. **→ done 2026-10-13 — headless-Chromium CSP pass + `WithCSSPath` embedded CSS (SUPERB v7 T06)**
+34. **T10.1** — owner sets `SSH_PRIVATE_KEY` secret → then T10.3 watch one fully green master run (incl. the now-committed go.work feeding the directives job). **→ dissolved 2026-10-14 — the CI split made the matrix unauthenticated (family repos public); the secret now gates ONLY the structure-linter job (TODO_LIST P1; ci-preflight stays the designed red)**
 35. ~~Triage the **golangci-lint-config-verify warning** (`exhaustruct_v5.exclude` not allowed in one module's config — BuildFlow flagged; find which module, fix key or linter version).~~ done — not reproducing — 0 issues x12 at the 2026-10-12 fleet scan with the current configs
 36. ~~Triage the **5 go-auto-upgrade findings** (lo.FromPtr in frh adapter; lo.Map/lo.Filter in otel/realtime tests) — fix or policy-skip with rationale.~~ done — no lo.* usage remains in frh/otel/realtime (verified 2026-10-12)
 37. ~~**jscpd policy decision**: 13 findings — the cross-module `.golangci.yml` duplication (277-line clones) is by-design per-module configs; suppress in dprint/jscpd config with rationale or accept the noise.~~ done — decided — per-module .golangci.yml duplication accepted BY DESIGN (Decision 13 amendment, 2026-09-29)
@@ -115,6 +115,6 @@ T17 (cqrs lifecycle E2E through a live Service — highest-value uncovered modul
 
 ## g) Questions only you can answer
 
-1. **G3 (still open)**: consumer-pin claims in AGENTS/FEATURES — keep them and I build `scripts/check-consumer-claims.sh` (re-verifies claims after each cqrs-htmx release), or drop exact consumer pins from AGENTS entirely? T13 is blocked on this word.
+~~1. **G3 (still open)**: consumer-pin claims in AGENTS/FEATURES — keep them and I build `scripts/check-consumer-claims.sh` (re-verifies claims after each cqrs-htmx release), or drop exact consumer pins from AGENTS entirely? T13 is blocked on this word.~~ done — answered by execution — pins kept + scripts/check-consumer-claims.sh (2026-10-12; born-red on both consumer legs 2026-10-13)
 2. ~~**Train cadence for the sweep-carrying modules**: realtime/flightrecorder/docs each carry small unreleased deltas (dep bumps + directive) — ship them as individual trains NOW (3 more tag+push cycles) or batch them into the next natural train (e.g., together with cqrs v0.6.0 / the next feature wave)? Either is executable; it's a release-noise preference.~~ done — answered by execution — the three sweep-carrying trains shipped 2026-09-29 (realtime v0.1.2 / flightrecorder v0.1.1 / docs v0.3.1)
-3. **Machine toolchain**: the local default go is 1.26.7 with `GOTOOLCHAIN=local` (nix-managed, read-only to me) — is upgrading the machine's default go to ≥1.27.1 on your agenda? Yes → I retire the entire GOTOOLCHAIN-prefix discipline (AGENTS blocks, .buildflow.yml env, hook notes) in one follow-up train. No → the prefix stays and I keep documenting it.
+3. **Machine toolchain**: the local default go is 1.26.7 with `GOTOOLCHAIN=local` (nix-managed, read-only to me) — is upgrading the machine's default go to ≥1.27.1 on your agenda? Yes → I retire the entire GOTOOLCHAIN-prefix discipline (AGENTS blocks, .buildflow.yml env, hook notes) in one follow-up train. No → the prefix stays and I keep documenting it. **→ TODO_LIST Open questions item 1 (machine go default — standing since 2026-09-29)**

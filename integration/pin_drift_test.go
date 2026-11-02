@@ -30,7 +30,7 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/docs":                 "v0.3.3",
 	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.2",
 	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.7",
-	"github.com/larsartmann/go-appkit/health":               "v0.2.0",
+	"github.com/larsartmann/go-appkit/health":               "v0.3.0",
 	"github.com/larsartmann/go-appkit/otel":                 "v0.3.0",
 	"github.com/larsartmann/go-appkit/realtime":             "v0.1.3",
 	"github.com/larsartmann/go-appkit/security":             "v0.2.0",
@@ -43,17 +43,17 @@ var documentedPins = map[string]string{
 
 	// Composition-contract legs (T14, 2026-09-29): the third-party surfaces
 	// the composition tests exercise. These are VERSION-LOCKED to the pins
-	// the published family modules carry (go-health v0.5.0 = the health
-	// module's pin since the 2026-10-06 dependency sweep — the earlier
-	// "v0.3.0 evaluation pending" lock is OVERTAKEN, the suite is green on
-	// v0.5.0; go-flightrecorder v0.2.1 = otel v0.2.0's floor (the upstream
-	// async-capture race fix) — frh/cqrs still pin v0.2.0 on their trains,
-	// safe: they never combine Reset with async captures;
+	// the published family modules carry (go-health v0.8.1 = the health
+	// module's pin since health v0.3.0 (2026-10-27) adopted go-health v0.8.1;
+	// MVS builds the suite against v0.8.1 even though frh still pins v0.5.1
+	// on its own train; go-flightrecorder v0.2.1 = otel v0.2.0's floor (the
+	// upstream async-capture race fix) — frh/cqrs still pin v0.2.0 on their
+	// trains, safe: they never combine Reset with async captures;
 	// samber/do v2.1.0 = frh's pin) — deliberately NOT asserted against the
 	// proxy LATEST by scripts/check-pin-drift.sh; re-align by hand when the
 	// owning family module bumps them.
 	"github.com/larsartmann/go-flightrecorder": "v0.2.1",
-	"github.com/larsartmann/go-health":         "v0.5.1",
+	"github.com/larsartmann/go-health":         "v0.8.1",
 	"github.com/samber/do/v2":                  "v2.1.0",
 }
 

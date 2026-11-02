@@ -100,10 +100,10 @@ root/testkit); tree clean at `7ff0b36`.
 1. ~~**otel v0.2.0 release train** — code-complete by the concurrent~~ done — otel v0.2.0 shipped 2026-10-06
    ~~SigNoz session; its ritual step 1 (API-break diff) unrun; push is~~
    ~~user-gated and the owning session is waiting. NOT mine to start.~~
-2. **T20 batches 2–3** (AGENTS gotcha-group extraction) — batch 1 **→ TODO_LIST P3 AGENTS slim-down batches 2-3**
+2. **T20 batches 2–3** (AGENTS gotcha-group extraction) — batch 1 **→ overtaken — AGENTS slimmed 366→126 on 2026-10-12 (docs/agents/module-details.md); batches moot**
    already brought the file to 342/377; the remaining groups are
    higher-risk to move (module gotchas reference each other).
-3. **Gated set unchanged:** T13 (G3), T15 (upstream filings — the two **→ the gated set lives in TODO_LIST rows (upstream asks, errorpages, pdg, prompt-crusher, govulncheck, browser CSP, SSH secret, battery waves, SigNoz instance)**
+3. **Gated set unchanged:** T13 (G3), T15 (upstream filings — the two **→ resolved — T15 filed 2026-10-13; T16 declined 2026-10-13; T23 resolved in their repo (verified 2026-11-02); T27/T28 done 2026-10-13; T10.1 dissolved 2026-10-14 (CI split); T22 + battery waves stay routed/demand-gated; SigNoz ACCEPTED-RISK (2026-10-18, TODO row)**
    drafts wait), T16, T22, T23, T27, T28, T10.1, battery waves W3–W5,
    SigNoz validation (needs the user's instance).
 
@@ -146,17 +146,17 @@ root/testkit); tree clean at `7ff0b36`.
 3. ~~**Fix FEATURES/docs-health ritual gap** (SigNoz session's f3): add~~ done — 2026-10-12 — Release Ritual step 3 now names FEATURES.md
    ~~FEATURES.md to the same-train release-state update list in the~~
    ~~release ritual (AGENTS step 3).~~
-4. **Answer the 3+3 user questions** (mine: machine toolchain ≥1.27.1?, **→ cordis promotion + otel release + OTLP logs all answered (watchlist row; v0.2.0 shipped; non-goal documented in README); machine toolchain + G3 remain TODO_LIST Open questions**
+4. **Answer the 3+3 user questions** (mine: machine toolchain ≥1.27.1?, **→ resolved — cordis promotion + otel release + OTLP logs all answered (watchlist row; v0.2.0 shipped; non-goal documented in README); G3 answered by execution (consumer-claims guard, 2026-10-12); machine toolchain remains the one open question (TODO_LIST Open questions)**
    G3 posture?, cordis promotion?; SigNoz session's: live SigNoz?,
    release now or batch?, OTLP logs now or wait?).
-5. **T20 batches 2–3** when the next train needs AGENTS headroom. **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
+5. **T20 batches 2–3** when the next train needs AGENTS headroom. **→ overtaken — AGENTS slimmed 366→126 on 2026-10-12 (docs/agents/module-details.md)**
 
 ## f) THE QUESTIONS I CANNOT ANSWER MYSELF (blockers)
 
-1. **Machine toolchain:** upgrade the default `go` to ≥1.27.1? Every
+1. **Machine toolchain:** upgrade the default `go` to ≥1.27.1? Every **→ TODO_LIST Open questions item 1 (machine go default — standing since 2026-09-29)**
    command currently needs the `GOTOOLCHAIN=go1.27.1` prefix; the
    unification is done, the prefix tax is per-command forever otherwise.
-2. **G3 (consumer-claims guard):** keep consumer pins + build
+~~2. **G3 (consumer-claims guard):** keep consumer pins + build~~ done — answered by execution — pins kept + scripts/check-consumer-claims.sh shipped 2026-10-12 (born-red on both consumer legs 2026-10-13); T13 unblocked
    `scripts/check-consumer-claims.sh`, or strip them? Blocks T13.
 3. ~~**cordis bridge:** promote to a tracked TODO now that trigger 1/3 is~~ done — answered — promoted to the TODO_LIST P3 cordis WATCHLIST row (2026-09-29)
    ~~lit, or keep cold? (Watchlist wording updated today either way.)~~

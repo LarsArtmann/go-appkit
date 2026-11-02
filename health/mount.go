@@ -136,7 +136,11 @@ type Mounted struct {
 	started bool
 }
 
-// setStarted stores the Mounted lifecycle flag under the mutex.
+// setStarted stores the Mounted lifecycle flag under the mutex. A false
+// write unwedges a failed [Mounted.Start] (the surface stays restartable);
+// it does NOT clear the probe's drain latch — after [Mounted.Shutdown],
+// readiness stays 503 even across a restart, and only a fresh probe and
+// Mounted heal it (see the drain-latch note on [Mounted.Shutdown]).
 func (m *Mounted) setStarted(started bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

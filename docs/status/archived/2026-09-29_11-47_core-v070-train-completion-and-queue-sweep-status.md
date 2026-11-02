@@ -42,7 +42,7 @@
 - **T31** — lessons.md entry in the crush-config repo (commit there): "re-run guards between dependency-automation runs and tagging; check GOTOOLCHAIN/go.work parity before trusting build commands."
 - **#35/#36/#37** — BuildFlow-finding triage (exhaustruct_v5.exclude config warning; 5 go-auto-upgrade findings; jscpd 13-findings policy) — all waiting on the full run's output.
 - **Upstream drafts** — go-licenses ≥1.27 runner; go-structure-linter per-tool excludes.
-- **Gated (untouched, as ordered):** T13 (G3), T15 (upstream filings), T16 (errorpages swap), T22 (pdg), T23 (prompt-crusher), T27 (govulncheck), T28 (browser CSP), T10.1 (owner SSH secret), battery waves W3–W5.
+- **Gated (untouched, as ordered):** T13 (G3), T15 (upstream filings), T16 (errorpages swap), T22 (pdg), T23 (prompt-crusher), T27 (govulncheck), T28 (browser CSP), T10.1 (owner SSH secret), battery waves W3–W5. **[2026-11-02: all resolved/dissolved — itemized verdicts in the 06-40 report §c update; T22 + battery waves stay routed/demand-gated.]**
 
 ## d) TOTALLY FUCKED UP (own mistakes, no varnish)
 
@@ -79,8 +79,8 @@
 10. ~~**T31:** lessons.md entry in crush-config (commit THERE): "re-run guards between dependency-automation runs and tagging."~~ done — the lesson class lives in crush-config references/lessons.md (2026-09-22 entry)
 11. ~~**Upstream draft:** BuildFlow go-licenses ≥1.27 runner ask (from the license-check skip rationale).~~ **Won't implement — moot — license-check passes 13/13 since the 2026-10-07 probes.**
 12. ~~**Upstream draft:** go-structure-linter per-tool excludes / inert yaml `exclude_patterns` ask.~~ **NOT-DO — NOT-DO — CLOSED 2026-09-29: the installed binary honors the yaml config.**
-13. **T20 batch 1:** extract AGENTS per-module build commands into module READMEs (AGENTS links them); restores ≥10 lines of cap headroom. **→ routed — TODO_LIST P3 AGENTS slim-down**
-14. **T20 batches 2–3:** gotcha-group extractions (otel pattern-propagation block → otel README; health NewProbe recorder-cliff → health README; …). **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
+13. **T20 batch 1:** extract AGENTS per-module build commands into module READMEs (AGENTS links them); restores ≥10 lines of cap headroom. **→ overtaken — AGENTS slimmed 366→126 on 2026-10-12 (docs/agents/module-details.md); cap now ≤220 with headroom**
+14. **T20 batches 2–3:** gotcha-group extractions (otel pattern-propagation block → otel README; health NewProbe recorder-cliff → health README; …). **→ overtaken — the 2026-10-12 extraction covered the deep content**
 15. ~~**T21:** art-dupl suppression audit (~431 groups, both episodes), standing policy, Decision 13 cross-link.~~ done — audited 2026-09-29 — 477 groups, one harmful clone fixed
 16. ~~**#37:** jscpd policy — the per-module `.golangci.yml` duplication (277-line clones) is by-design; suppress with rationale or accept noise; record either way.~~ done — decided — Decision 13 amendment
 17. ~~**#43:** broader /tmp sweep (trash, never rm).~~ **Won't implement — moot — /tmp is ephemeral; the 12-45 session trashed what existed.**
@@ -90,10 +90,10 @@
 21. ~~**Modernization-policy decision** (from b1): are BuildFlow's test-file modernizations wanted per-module, or noise to revert? One sentence in AGENTS or a buildflow skip.~~ done — AGENTS carries the verdict-loop treatment (full-mode diffs are judged, never daemon-swept)
 22. **pkg.go.dev re-check next session** for flightrecorder v0.1.1 + docs v0.3.1 (crawler lag items from #49). **→ docs v0.3.2 renders (verified 2026-10-12); flightrecorder still 404 — escalated to TODO_LIST**
 23. ~~**After the next cqrs-htmx release:** re-verify their go-etag stub-replace drop (their move; D2 ritual; core v0.6.0+ unblocked them).~~ done — setup/v4.13.2 published 2026-10-01 — stub-replace gone, claims re-verified
-24. **otel ns/op re-baseline when machine load < 2** (T19 delta; allocs already identical, table annotated). **→ TODO_LIST benchstat re-baseline candidate**
+24. **otel ns/op re-baseline when machine load < 2** (T19 delta; allocs already identical, table annotated). **→ done 2026-10-18 — otel README ns/op re-baseline through the quiet gate (n=10 benchstat; otel CHANGELOG [Unreleased])**
 25. ~~**AGENTS cap re-baseline after T20** (structure-linter budget).~~ done — AGENTS at ~364/377 — headroom restored (batch 1, 2026-09-29)
 26. ~~** Satellite-train policy:** security + otel now carry small unreleased deltas — batch them into the next natural train; no dedicated tag for doc-level drift.~~ done — settled — dependency-only satellite trains are the norm (2026-10-06 wave)
-27. **T13** the moment G3 is answered (g1): script or strip. **→ all routed — T15/T16/T22/T23/T27/T28/T10.1/battery/cordis live in TODO_LIST rows**
+27. **T13** the moment G3 is answered (g1): script or strip. **→ resolved — answered by execution (consumer-claims guard shipped 2026-10-12, born-red on both consumer legs 2026-10-13); T15 filed + T16 declined + T27/T28 done (2026-10-13); T10.1 dissolved by the 2026-10-14 CI split; T23 resolved in their repo (2026-11-02); T22/battery/cordis stay routed/demand-gated**
     28–36. **Gated, do NOT start without the word:** T15 six upstream filings (go-health pack could be direct fixes in our repo); T16 errorpages `httputil.ResponseRecorder` swap; T22 pdg backlog sweep; T23 prompt-crusher merge resolution; T27 govulncheck (health + security); T28 browser CSP pass + THREAT_MODEL link; T10.1 SSH secret → T10.3 watch one green master run; battery waves W3–W5 (demand-gated); cordis bridge (trigger 1/3 now lit — see g3).
 28. ~~**Next docs-health pass:** archive/annotate this report per convention; the status tree is growing.~~ done — THIS docs-health pass (2026-10-12) annotated + archived where fully resolved
 29. ~~**Repeat the guards trio** (pin-drift, directives, parity) as the closing sweep once f1–f16 land.~~ done — guards trio green through every train since

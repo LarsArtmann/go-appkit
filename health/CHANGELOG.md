@@ -4,6 +4,13 @@
 
 - Nothing yet.
 
+### Changed
+
+- `Mounted.setStarted` godoc now cross-links the drain-latch note on
+  `Shutdown`: a `false` write unwedges a failed `Start` (the surface stays
+  restartable) but does NOT clear the probe's 503 drain latch — only a fresh
+  probe and `Mounted` heal it.
+
 ### Fixed
 
 - Nothing yet.

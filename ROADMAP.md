@@ -4,7 +4,7 @@
 > Bounded, short-to-mid-term work lives in [TODO_LIST.md](TODO_LIST.md).
 > Point-in-time plans and research live in `docs/planning/`.
 
-**Updated:** 2026-10-12
+**Updated:** 2026-11-02 (httputil#41 `NewServerListener` SHIPPED upstream — composition + Core TLS unblocked; see the v1.0.0 section)
 
 ## North star
 
@@ -35,15 +35,16 @@ Open questions on the way there (deliberate USER GATES, not tasks — full
 context: TODO_LIST footer and `docs/status/archived/2026-09-17_14-22_setup-usage-verification-and-agentsmd-drift-fix.md` §g):
 
 - ~~The httputil listener-injection API (`NewServerListener`) go/no-go~~
-  RESOLVED 2026-10-13: filed as
-  [httputil#41](https://github.com/LarsArtmann/httputil/issues/41) — the
-  go/no-go now sits upstream; both the composition refactor and Core TLS
-  unblock together when it lands.
+  RESOLVED — SHIPPED upstream 2026-10-25: httputil v1.7.0 carries
+  `NewServerListener(ln, cfg, handler)` (closes
+  [httputil#41](https://github.com/LarsArtmann/httputil/issues/41)). Both the
+  composition refactor and Core TLS are UNBLOCKED; the spike verdict doc
+  carries the 2026-10-25 update banner and the work is the TODO_LIST P2
+  composition row.
 - ~~Whether to file the two ready upstream asks (go-sse `ReplayFiltered`,
   httputil Logging request-context).~~ RESOLVED 2026-10-13: `ReplayFiltered`
   already exists upstream (no ask); `LoggingFromContext` covers the
-  request-context completion line (appkit-side doc close rides the next
-  otel train).
+  request-context completion line (wired appkit-side in otel v0.3.0).
 - ~~Pin philosophy for `integration/` (LATEST-only vs mirroring setup),
   cross-repo tracking posture, and where release-state pins live
   long-term.~~ RESOLVED: LATEST-only, enforced by the `documentedPins`

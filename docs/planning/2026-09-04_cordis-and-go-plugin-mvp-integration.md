@@ -121,6 +121,8 @@ What a bridge would actually do (sketch, ~300-500 LOC): create the cordis root c
 
 **Trigger to revisit (all three):** (1) cordis tags `go/v0.1.0` with a CHANGELOG; (2) a real consumer (cqrs-htmx, Kernovia, or a new app) states the reactive-composition requirement; (3) core's v1.0.0 exit criteria are written and shipped.
 
+**[2026-11-02 state: trigger 1 of 3 MET — `go/v0.1.0` is tagged (re-verified on the local fork 2026-09-29; AGENTS Deferred Register row carries it). Triggers 2-3 open; tracked in the TODO_LIST P3 cordis watchlist row.]**
+
 ### Option C — go-plugin-mvp marketplace as an appkit dependency
 
 **PRO**

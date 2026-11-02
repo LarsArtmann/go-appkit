@@ -1,6 +1,6 @@
 # Outgoing upstream feedback — drafts ready to file (FILING IS USER-GATED)
 
-**Created:** 2026-09-16 · **Status:** drafted, verified against pinned sources, NOT filed.
+**Created:** 2026-09-16 · **Status:** drafted, verified against pinned sources, NOT filed. **RESOLVED 2026-10-13/25 without filing:** Draft 1 moot (go-sse `ReplayFiltered` EXISTS upstream — the dedup composition stays pinned appkit-side in realtime); Draft 2 SHIPPED upstream (`LoggingFromContext`, published in httputil v1.6.0 — appkit otel v0.3.0 wired the completion-line recipe); Draft 3 stays appkit-side (F2 timing battery, demand-sequenced).
 **Rule:** verify-before-filing + github-voice apply; each draft cites the verified source it is built on.
 
 ---
@@ -33,6 +33,8 @@ exactly once; filtered-out events don't count as delivered.
 ---
 
 ## Draft 2 — httputil: `Logging` completion line with request context (F122)
+
+**→ SHIPPED UPSTREAM — `LoggingFromContext` (published in httputil v1.6.0, 2026-10-25); wired appkit-side in otel v0.3.0 (README/doc.go completion-line recipe). No filing needed.**
 
 **Repo:** github.com/larsartmann/httputil (v1.2.0) · **Where:** feature request
 

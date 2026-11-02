@@ -2,6 +2,10 @@
 
 **Status:** DRAFT — filing is USER-gated (plan Gate Q3, 2026-09-20). Do not
 file without explicit approval.
+**→ RESOLVED: FILED 2026-10-13 as [go-health#7](https://github.com/LarsArtmann/go-health/issues/7);
+CLOSED COMPLETED upstream — shipped in go-health v0.8.x
+(`ErrRecorderNotApplicable` fails at boot on the function path), adopted + pinned by
+appkit health v0.3.0 (2026-10-27; `TestNewProbe_RecorderOptionFailsAtBoot`).**
 **Target repo:** github.com/larsartmann/go-health (own repo — treat as a
 decision note, not an external ask)
 **Evidence versions:** v0.1.3, v0.2.0, v0.3.0 (all verified identical)

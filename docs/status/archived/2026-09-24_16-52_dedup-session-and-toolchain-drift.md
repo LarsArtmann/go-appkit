@@ -104,12 +104,12 @@
 30. ~~Design-decision entry for "accepted duplication" in `doc/planning/design-decisions.md` (one paragraph, so the accept survives personnel changes).~~ done — Decision 13 added to doc/planning/design-decisions.md (2026-09-28)
 31. ~~Decide whether art-dupl becomes a recurring BuildFlow/ritual step or stays ad-hoc.~~ done — DECIDED 2026-09-29 — art-dupl runs event-driven (Decision 13 amendment)
 32. ~~Dry-run the `go work use` fix in a scratch work file before touching the real one.~~ **NOT-DO — moot — go.work was already regenerated at 1.27.1.**
-33. Decide machine-level `GOTOOLCHAIN` policy (Question 2) — upgrade default toolchain to go1.27.1 or keep the pin.
+33. Decide machine-level `GOTOOLCHAIN` policy (Question 2) — upgrade default toolchain to go1.27.1 or keep the pin. **→ TODO_LIST Open questions item 1 (machine go default — standing since 2026-09-29; nixpkgs already carries 1.27.2)**
 34. ~~Confirm health module's `go-health v0.3.0` evaluation note in AGENTS is still accurate post-drift (untouched this session, listed for the next docs pass).~~ done — ROADMAP entry verified accurate incl. the 1.27.1 floor gate (2026-09-28)
 
 **P3 — roadmap fuel (from this session only)**
 35. ~~Testkit (`testkit.Serve`) could grow a drain-window assertion helper — the drain contract tests hand-roll it today.~~ done — testkit.DrainWindowProbe shipped in core v0.7.0
-36. `Mounted.setStarted` godoc could cross-link the drain-latch note in `Shutdown` (docs polish).
+~~36. `Mounted.setStarted` godoc could cross-link the drain-latch note in `Shutdown` (docs polish).~~ done — health/mount.go setStarted godoc now cross-links the drain-latch note on Shutdown (2026-11-02 docs-health pass)
 37. ~~Errorpages/realtime/otel modules: untouched; schedule their go1.27.1 verification with the P0 matrix run (subsumed by item 4 — keep as checklist reminder).~~ done — covered by the 2026-09-29 matrix and every later train; 2026-10-12 fleet scan all green
 38. ~~Consider vendoring-toolchain pinning (`go.mod` `toolchain` directive) so the floor survives `GOTOOLCHAIN=local` machines.~~ **NOT-DO — NOT-DO — pre-tag-checks.sh rejects toolchain lines; the repo mechanism is the GOTOOLCHAIN prefix (guard since 2026-09-29).**
 39. ~~`metrics.go` sortedRoutes: keys embed `|` separators with `SplitN` — a small typed seriesKey would kill the stringly-typed join/split pair (data-model polish noticed in passing).~~ done — typed seriesKey shipped in core v0.7.0
@@ -123,12 +123,12 @@
 47. ~~Add the accepted-duplication rationale as a one-line `// intentional:` marker decision — pending policy from item 18.~~ done — Decision 13 records the no-exclude-config suppression policy
 48. ~~Sweep for other `var errs []error` + `errors.Join` patterns that could reuse the new `runHooks` shape (none found this session; confirm).~~ done — swept 2026-09-24 (none found); re-confirmed no new sites 2026-09-28
 49. ~~Go error-family: consider asking upstream for doc clarification on `WrapInfrastructuref` printf semantics (vet interaction surprised us).~~ **Won't implement — never drafted — the vet gotcha is documented here (d-4) and avoided by the runHooks helper; no ask planned.**
-50. Post-unification: re-run the otel benchmark baseline once (module untouched, but toolchain jump 1.26.7 → 1.27.1 invalidates the 2026-09-16 numbers on principle). **→ routed — TODO_LIST benchstat re-baseline candidate (allocs proven identical 2026-09-29; ns/op waits for a quiet machine)**
+50. Post-unification: re-run the otel benchmark baseline once (module untouched, but toolchain jump 1.26.7 → 1.27.1 invalidates the 2026-09-16 numbers on principle). **→ done 2026-10-18 — otel README ns/op re-baseline through the quiet gate (n=10 benchstat, 8 primary threads pinned; the 2026-09-16 table superseded — otel README + module CHANGELOG carry it)**
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
 1. ~~**Go-directive floor policy:** unify all 11 modules + `go.work` at **go 1.27.1** (accept what go-etag v0.6.0 forces, and expect dependabot to keep pushing), or downgrade/pin go-etag to keep a 1.26.7 floor? This decides items 1–5 and whether today's tidy direction was correct.~~ done — superseded — the bump side won (partial unification); completing the train is the TODO P2 item
-2. **`GOTOOLCHAIN=local`:** is the machine pin deliberate (reproducibility) — in which case repo commands should carry explicit overrides — or may it flip to `auto` so go.mod-driven toolchain selection just works? It changes what item 11 and 33 should look like.
+2. **`GOTOOLCHAIN=local`:** is the machine pin deliberate (reproducibility) — in which case repo commands should carry explicit overrides — or may it flip to `auto` so go.mod-driven toolchain selection just works? It changes what item 11 and 33 should look like. **→ TODO_LIST Open questions item 1 (machine go default — standing; nixpkgs already carries 1.27.2)**
 3. ~~**`doc/` vs `docs/`:** repo history keeps status/planning/feedback under `doc/` (singular; `docs/` is the catalog Go module), while you and the status-report skill both say `docs/status/`. Which path is canonical going forward? (I followed your explicit instruction this time — this file lives in `docs/status/` — but the split is now real.)~~ done — RESOLVED 2026-09-28 — docs/status is canonical; the doc/status tree (reports + archive + index) migrated there
 
 ---

@@ -2,6 +2,16 @@
 
 **Created:** 2026-09-16 · **Type:** spike result (C19 of the SUPERB plan v2) · **Verdict: DO NOT refactor today.**
 
+> **2026-10-25 UPDATE — the blocker is GONE.** httputil v1.7.0 shipped exactly
+> the §3 ask (`NewServerListener(ln, cfg, handler)`, closes
+> [httputil#41](https://github.com/LarsArtmann/httputil/issues/41)): synchronous
+> bind-failure classification, readiness observable before serving,
+> `ListenerAddr()` from construction. The verdict below is HISTORICAL; the live
+> state is UNBLOCKED — the remaining work is the refactor itself (re-run this
+> spike against v1.7.0's single-serve ownership semantics, re-pin the
+> `Addr()`/`Running()` + shutdown phase-log contract, then swap — tracked in
+> the TODO_LIST P2 composition row). Core TLS (G1) unblocks with the same seam.
+
 The architecture-lever TODO proposed composing `Service` on `httputil.Server`
 (its v1.1.x `ListenerAddr`/`StartTLS`/double-start guard removed the original
 "no listener access" justification). This spike executed the read-and-prove
