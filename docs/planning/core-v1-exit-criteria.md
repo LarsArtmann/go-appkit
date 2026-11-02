@@ -98,3 +98,22 @@ blockers, both external-clock: criterion 1 needs one additions-EMPTY
 core tag pair; criterion 5 needs a version overlap + one observed
 release cycle (PapDashboard's refresh cadence is theirs). Nothing in
 this repo blocks v1.0.0 except restraint.
+
+## Graduation status — 2026-11-02 (SUPERB v10 M23 re-verify of the 2 blockers)
+
+Assessed against master at 4eb7cf0 (2026-11-02), both blockers re-checked
+mechanically:
+
+| #     | Criterion                                         | Status            | Evidence / gap                                                                                                                                                                                                                                                     |
+| ----- | ------------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1     | API frozen one minor cycle                        | NOT MET, ARMED    | Release-ritual API diff v0.9.0 → working tree = ZERO lines (exported set identical, 23 days additions-free). The NEXT core tag cut from this tree IS the additions-empty anchor; v1.0.0 remains its second point. Clock starts at the next tag, whenever that train fires. |
+| 5     | Two independent consumers, full cycle, no replace | NOT MET, UNCHANGED | Consumer-claims guard green 2026-11-02: setup/v4.15.0 still the newest setup tag (pins core v0.9.0 = latest — overlap holds on that leg); PapDashboard v0.3.0 still their newest (pins core v0.4.0 — overlap still absent, refresh is their repo's call, guard fires on their next tag). No observed joint release cycle yet. |
+
+All other criteria unchanged from the 2026-10-13 table (5/7 met; soft bar
+fully met).
+
+**Bottom line (2026-11-02):** blocker state unchanged but sharpened —
+criterion 1 is now ARMED (tree verified additions-empty vs v0.9.0; one
+quiet doc-only-or-no-op core tag starts the cycle); criterion 5 waits on
+PapDashboard's version refresh (external clock, guarded). This repo still
+needs nothing except restraint.

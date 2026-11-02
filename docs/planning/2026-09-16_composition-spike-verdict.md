@@ -85,3 +85,37 @@ Spike source evidence: httputil `server.go` (`Start` at :200, `StartTLS` at
 :249, `NewServer` at :162); appkit `service.go` (`Start` at :105,
 `Shutdown` at :166, `Addr` at :284, `Running` at :296);
 `shutdownlog_test.go` (the phase-log pin).
+
+## 5. Update 2026-11-02 — the seam shipped; pin mapping re-run against v1.7.0
+
+The §3 ask was delivered VERBATIM in httputil v1.7.0 (2026-10-25, closes
+httputil#41): `NewServerListener(ln net.Listener, cfg ServerConfig,
+handler http.Handler)`, `ListenerAddr()` observable from construction, and
+the classified `server.listener_consumed` single-serve semantics. The §2
+three pins re-run against the shipped godoc (source: httputil@v1.7.0
+`server.go:233` + godoc):
+
+1. **Bind contract (was BLOCKER): SOLVED.** appkit keeps the bind — it
+   listens, classifies `listen_failed` synchronously exactly as today, and
+   hands the BOUND listener to `NewServerListener`. Construction errors are
+   synchronous and leave the listener untouched (caller's to close), which
+   matches appkit's hook-failure-closes-listener pin.
+2. **`Addr()`/`Running()`: SOLVED.** appkit keeps owning `s.ln` and its
+   mutex-guarded lifecycle view; httputil's `ListenerAddr()`/`Addr()` derive
+   from the SAME injected listener — one listener, two views, no split
+   brain. Ephemeral `:0` resolution stays with appkit's bind.
+3. **Phase logs + classification: APPKIT-OWNED, one discipline.** The six
+   `shutdown phase complete` lines stay appkit-side; appkit calls
+   `httputilSrv.Shutdown(ctx)` inside the `listener_close` phase and
+   re-wraps failures as `server.shutdown_failed` (Infrastructure). Timeout
+   discipline: set `ServerConfig.ShutdownTimeout` from the SAME appkit
+   config field as the ctx deadline (equal values make the double-apply
+   question moot — the effective deadline is that one value either way).
+
+NEW SEMANTICS the swap must respect: single-serve ownership — a serve that
+has ended consumes the listener (`server.listener_consumed` rejection on a
+second serve), so `Service.Start` must construct a FRESH httputil.Server
+per serve and never cache one on the Service. With all three pins answered,
+the refactor is now positive-value (deletes ~30 lines of server plumbing,
+gains the TLS seam). The swap itself remains a separately planned core
+train; see the TODO_LIST composition row for the plan-of-record.

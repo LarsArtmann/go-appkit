@@ -4,6 +4,18 @@
 
 ### Added
 
+- testkit: `HTTPGetURL`/`HTTPGetContext` (noctx-compliant GET helpers that
+  fatal with the URL in the message), `WaitForRunning`/`WaitForRunningWithin`
+  (listener-up poll), and `FreeAddr` (the rebind-verified ephemeral-port
+  reserve: issued-registry + second-moment rebind probe, migrated from the
+  integration module where it closed the 2026-10-24 runner EADDRINUSE
+  class). Folded the five near-identical per-module context-GET helpers the
+  2026-11-02 inventory found. Root `appkit_test` tests migrated this train;
+  the in-package (`package appkit`) whitebox helpers stay local — an
+  in-package test file cannot import testkit (import cycle), and satellite
+  + integration migrations ride their next core trains (hermetic proxy
+  resolution cannot see unreleased API; the integration pin charter forbids
+  unreleased pins by design).
 - CI: `art-dupl-gate` job — the standing clone-regression gate
   (`scripts/check-art-dupl.sh` + committed baseline) now also runs on
   every push. art-dupl is a public module, so the job needs no SSH key

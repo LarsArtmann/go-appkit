@@ -156,6 +156,13 @@ func TestReady(t *testing.T) {
 }
 ```
 
+The kit also carries the shared HTTP/lifecycle helpers — `HTTPGetURL` /
+`HTTPGetContext` (noctx-compliant GETs that fatal with the URL in the
+message), `WaitForRunning`, and `FreeAddr` (an ephemeral-port reserve that
+re-verifies bindability) — so per-module test files stop re-implementing
+them. One in-package caveat: a test file INSIDE `package appkit` cannot
+import `testkit` (import cycle); whitebox helpers stay local there.
+
 Route labels carry the ServeMux pattern (`GET /users/{id}`), never raw
 paths — cardinality stays bounded; unmatched paths collapse to
 `unmatched`. Authentication is mandatory by default: set

@@ -8,6 +8,7 @@ require (
 	github.com/larsartmann/go-appkit/cqrs v0.8.0
 	github.com/larsartmann/go-appkit/docs v0.3.3
 	github.com/larsartmann/go-appkit/errorpages v0.1.2
+	github.com/larsartmann/go-appkit/flightrecorder v0.2.0
 	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7
 	github.com/larsartmann/go-appkit/health v0.3.0
 	github.com/larsartmann/go-appkit/otel v0.3.0

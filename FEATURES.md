@@ -31,6 +31,9 @@ aspirations.
 | `Version` + `GET /version` build info             | FULLY_FUNCTIONAL | `version.go`, `metrics_test.go`                  |
 | `testkit.Serve` full-chain test harness           | FULLY_FUNCTIONAL | `testkit/testkit.go`, `testkit/testkit_test.go`  |
 | `testkit.NewService` test-safe defaults           | FULLY_FUNCTIONAL | `testkit/testkit.go`, `testkit_test.go` (v0.9.0) |
+| `testkit.HTTPGetURL`/`HTTPGetContext` GET helpers | FULLY_FUNCTIONAL (UNRELEASED — staged for the next core train) | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| `testkit.WaitForRunning`/`WaitForRunningWithin`   | FULLY_FUNCTIONAL (UNRELEASED — staged for the next core train) | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| `testkit.FreeAddr` rebind-verified port reserve   | FULLY_FUNCTIONAL (UNRELEASED — staged for the next core train) | `testkit/httptest.go`, `testkit/httptest_test.go` |
 
 Shipped through core **v0.9.0** (2026-10-12; lifecycle hooks in v0.4.0,
 metrics/version/testkit in v0.5.0, `appkit.Hook` alias +

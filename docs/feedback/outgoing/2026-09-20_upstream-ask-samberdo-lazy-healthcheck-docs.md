@@ -1,9 +1,18 @@
 # Upstream draft: samber/do — document that UNBUILT lazy services report healthy
 
-**Status:** DRAFT — filing is USER-gated (plan Gate Q3, 2026-09-20). Do not
-file without explicit approval.
-**Target repo:** github.com/samber/do v2.1.0 (EXTERNAL repo — full
-verify-before-filing gates applied, see self-review below)
+**Status:** DRAFT, ruled FILE-WORTHY 2026-11-02 (SUPERB v10 M20) — filing
+remains USER-gated. Premise RE-VERIFIED at samber/do master (2026-11-02):
+`service_lazy.go` `healthcheck()` still returns `nil` for `!s.built`, and
+the master README still documents no lazy-healthcheck interaction (the
+"Health check" feature bullet carries no semantics). NEW EVIDENCE found on
+re-verification, strengthens the ask: `isHealthchecker()` also returns
+`false` while `!s.built`, so an unbuilt lazy service is not even counted as
+healthcheckable — the green-page mechanism may be EXCLUSION rather than a
+nil-error pass, depending on how the injector enumerates; sharpen the filed
+text to cover both readings. Do not file without explicit approval.
+**Target repo:** github.com/samber/do v2.1.0 at draft time (EXTERNAL repo —
+full verify-before-filing gates applied, see self-review below; premise
+re-verified against master 2026-11-02)
 **Where:** documentation gap (README / `Healthchecker*` doc comments); the
 behavior itself is presumably intended lazy semantics and is NOT challenged.
 

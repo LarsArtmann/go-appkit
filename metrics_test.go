@@ -9,23 +9,15 @@ import (
 	"time"
 
 	"github.com/larsartmann/go-appkit"
+	"github.com/larsartmann/go-appkit/testkit"
 )
 
-// getURL issues a ctx-aware GET (noctx-compliant helper).
+// getURL issues a ctx-aware GET (delegates to testkit; the request uses
+// the test's own context).
 func getURL(t *testing.T, url string) *http.Response {
 	t.Helper()
 
-	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, nil)
-	if err != nil {
-		t.Fatalf("build GET %s: %v", url, err)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		t.Fatalf("GET %s: %v", url, err)
-	}
-
-	return resp
+	return testkit.HTTPGetContext(t, t.Context(), url)
 }
 
 func newMetricsService(t *testing.T, mutate func(*appkit.ServiceConfig)) *appkit.Service {

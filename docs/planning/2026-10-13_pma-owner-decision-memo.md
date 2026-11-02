@@ -45,3 +45,42 @@ to CI policy (a red CI job), not the hook.
 **Nothing here is implemented by the agent — all four are pma-repo changes
 owned by you.** This memo is the decision input; the dossier remains the
 evidence base.
+
+## Owner execution checklist (added 2026-11-02, SUPERB v10 M21)
+
+Concrete steps in the pma repo (`/etc/projects-management-automation/` +
+their source repo), one line each — execute top to bottom:
+
+1. **Decision 1 (hook bypass) — no action.** Keep `core.hooksPath=/var/empty`.
+   Verify once: `git config --global core.hooksPath` is unset-or-empty on the
+   pma service account so repos' `.githooks` never fire for daemon commits.
+2. **Decision 2 (train-repo cooldown) — implement.** Add a per-repo cooldown
+   to pma's config: a 10-minute quiet-window after the last commit in repos
+   carrying a `.train-lock` marker file (go-appkit creates/removes it around
+   tag+push trains), or the equivalent skip-while-clean option pma's config
+   dialect offers. go-appkit side is ready to add the marker when you pick
+   the mechanism — say the word in the pma repo and this repo wires it.
+3. **Decision 3 (staged-message respect) — implement.** pma rule: if the
+   index is non-empty when the daemon fires, SKIP the repo (preferred) or at
+   minimum commit the staged batch as-is without a heuristic message. This
+   kills both the batch-eating race and the heuristic-message-overwrite class
+   (2026-10-12/13 evidence: 4 staged batches raced, 1cqrs race-fix lost its
+   verified message).
+4. **Decision 4 (go.work mutator) — CLOSED, no action.** Accept the cadence:
+   zero gopls-class leaks in the three weeks post-BuildFlow#46 (evidence pass
+   2026-11-02, TODO go.work row); the inotify hunt stays unconditionally
+   justified unless leaks recur. `check-workspace-charter.sh --fix` + CI are
+   the net.
+5. **Working-file ghost class — the final ignore_patterns ask.** Edit
+   `/etc/projects-management-automation/service.yaml` `ignore_patterns`
+   (current list: `.git, node_modules, vendor, .cache, dist, build, .direnv,
+   result, result-*`) — append ONE of:
+   - `.*-body.html` (basename glob — matches the committed
+     `docs/research/.otel-deep-dive-body.html` ghost class if pma's matcher
+     is fnmatch-on-basename), or
+   - `docs/**/.*-body.html` (doublestar path glob — if pma matches on
+     relative paths).
+   Pick per pma's matcher dialect; the ghost class is `docs/**/.*-body.html`
+   mid-edit working files the daemon snapshots mid-write. One line, then
+   `systemctl restart projects-management-automation` (or pma's reload path)
+   and confirm the next session's working files stay uncommitted.
