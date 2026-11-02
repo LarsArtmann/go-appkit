@@ -94,13 +94,13 @@ and overwrites intended commit messages.
 
 ## 6) Owner triage checklist (decisions only pma's owner can make)
 
-1. **Hook bypass:** keep `core.hooksPath=/var/empty` (hermetic committer) or
+1. **Hook bypass:** keep `core.hooksPath=/var/empty` (hermetic committer) or **→ routed to the owner memo recommendations 1-3 — docs/planning/2026-10-13_pma-owner-decision-memo.md carries all four decisions with recommendations (TODO P2 pma row points there)**
    allow an opt-in per-repo hooks mode? Today the repo's commit-time guards
    cannot see daemon commits at all.
-2. **Repo scoping:** should go-appkit (a repo with release trains + tags +
+2. **Repo scoping:** should go-appkit (a repo with release trains + tags + **→ routed to the owner memo recommendations 1-3 — docs/planning/2026-10-13_pma-owner-decision-memo.md carries all four decisions with recommendations (TODO P2 pma row points there)**
    guards) get a per-repo exclude/cooldown (`exclude_paths` covers only
    `forks/`+`archived/` today), or is CI-side-only coverage accepted?
-3. **Attribution:** the AI/fallback messages overwrite intent. An opt-in
+3. **Attribution:** the AI/fallback messages overwrite intent. An opt-in **→ routed to the owner memo recommendations 1-3 — docs/planning/2026-10-13_pma-owner-decision-memo.md carries all four decisions with recommendations (TODO P2 pma row points there)**
    "respect staged message" or "skip repos with staged changes" mode would
    have prevented damage mode 4 entirely.
 4. ~~**go.work mutator:** the leak AUTHOR is still unknown (editor/gopls-class~~ done — journalctl ran 2026-10-13 — pma logs NO file names (0 go.work mentions in 28.5k lines); the mutator stays unnamed, cadence accepted pending BuildFlow #46

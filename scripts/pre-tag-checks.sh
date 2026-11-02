@@ -18,15 +18,26 @@
 #   git push origin master v0.9.0 health/v0.2.0 ...
 #
 # Checks:
-#   1. The eight standing guards (directives, pin-drift, dependabot parity,
-#      workspace charter, consumer claims, SSE-protocol, gosum-canonical,
-#      art-dupl clone-regression vs the committed baseline). The 2026-10-18
-#      additions: sse-protocol is an offline grep (test broadcasts must sync
-#      on SubscriberCount); gosum-canonical resolves every module's deps
-#      through an ISOLATED cache against proxy+sumdb (the 2026-10-14
-#      pre-re-tag-hash incident class — slow by design, needs network like
-#      pin-drift); art-dupl (SUPERB v9, evening) fails on clone groups not
-#      in scripts/art-dupl-baseline.json.
+#   1. The TEN standing guards (directives, pin-drift, dependabot parity,
+#      workspace charter, routed-destinations, golangci-configs,
+#      consumer-claims, SSE-protocol, gosum-canonical,
+#      art-dupl clone-regression vs the committed baseline).
+#      Venue matrix (SUPERB v10 M14): FAST+OFFLINE guards run in all three
+#      venues (pre-commit where wired, this gate, CI); SLOW/NETWORK guards
+#      (consumer-claims needs the sibling clone, gosum-canonical an isolated
+#      proxy cache) run HERE ONLY; TOOL-BINARY guards run in CI only
+#      (golangci-config-verify + structure-linter [private binary, rides
+#      ci-preflight]); art-dupl runs here + CI (fast once installed).
+#      2026-10-18 additions: sse-protocol is an offline grep (test
+#      broadcasts must sync on SubscriberCount); gosum-canonical resolves
+#      every module's deps through an ISOLATED cache against proxy+sumdb (the
+#      2026-10-14 pre-re-tag-hash incident class — slow by design, needs
+#      network like pin-drift); art-dupl (SUPERB v9) fails on clone groups
+#      not in scripts/art-dupl-baseline.json. 2026-11-02 additions
+#      (SUPERB v10): routed-destinations — every "→ routed …" marker in the
+#      living docs must resolve (the dead-pointer class the docs-health pass
+#      hand-fixed eight instances of); golangci-configs joined so schema
+#      drift cannot ship in a tag either (it was CI-only since SUPERB v7).
 #   2. Each TAGGED ARTIFACT's go.mod (git show <tag>:…, not the working tree):
 #      go directive == the go.work floor, no `toolchain` directive, and no
 #      filesystem `replace` (tag hygiene: working-tree replaces used for
@@ -50,7 +61,7 @@ fail() {
 }
 
 # --- 1) Standing guards -----------------------------------------------------
-for guard in check-go-directives.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh check-art-dupl.sh; do
+for guard in check-go-directives.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-routed-destinations.sh check-golangci-configs.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh check-art-dupl.sh; do
 	echo "== $guard =="
 	if ! "./scripts/$guard"; then
 		fail "$guard failed — fix before pushing ${tags[*]}"

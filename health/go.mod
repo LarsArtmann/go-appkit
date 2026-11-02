@@ -5,9 +5,9 @@ go 1.27.2
 require (
 	github.com/larsartmann/go-appkit v0.9.0
 	github.com/larsartmann/go-appkit/security v0.2.0
-	github.com/larsartmann/go-error-family v0.11.0
+	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-health v0.8.1
-	github.com/larsartmann/go-health-dashboard v0.10.2
+	github.com/larsartmann/go-health-dashboard v0.12.2
 	github.com/samber/do/v2 v2.1.0
 )
 
@@ -24,6 +24,7 @@ require (
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
@@ -34,11 +35,11 @@ require (
 	github.com/larsartmann/go-etag/server v0.6.1 // indirect
 	github.com/larsartmann/go-sse v0.6.2 // indirect
 	github.com/larsartmann/httputil v1.5.0 // indirect
-	github.com/larsartmann/templ-components v1.21.0 // indirect
-	github.com/larsartmann/templ-components/datastar v1.21.0 // indirect
-	github.com/larsartmann/templ-components/htmx v1.21.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.21.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.21.0 // indirect
+	github.com/larsartmann/templ-components v1.24.0 // indirect
+	github.com/larsartmann/templ-components/datastar v1.24.0 // indirect
+	github.com/larsartmann/templ-components/htmx v1.24.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.24.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.24.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect

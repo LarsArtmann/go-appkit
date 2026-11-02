@@ -57,8 +57,9 @@ The growth pattern that works: OTHER repos adopt appkit as their host layer —
 appkit never grows application-shaped code.
 
 - **cqrs-htmx `setup`** — reference consumer; ADR-001 decided, `RunWithAppkit`
-  SHIPPED (drives an appkit Service; the Metrics/Version threading shipped in
-  setup/v4.12.0, 2026-09-22); the `Bundle.Run`/`RunHandler` internals flip and
+  SHIPPED (drives an appkit Service; the Metrics/Version threading (M4)
+  shipped in setup/v4.14.2 and rides every newer tag — AGENTS Release State
+  owns the version truth); the `Bundle.Run`/`RunHandler` internals flip and
   the v5-window revisit remain on their side.
 - **PapDashboard** — recommended reverse adoption (their repo); researched
   2026-09-04, door held open in TODO_LIST P3. First concrete core-TLS feature
@@ -106,9 +107,9 @@ appkit never grows application-shaped code.
   and dead-letter-age alerting recipes; SnapshotStore/ReadModels accessor
   examples (Bundle-reachable, undocumented).
 - go-health aggregate/federation adoption (evaluated 2026-09-20, plan T25;
-  re-checked 2026-10-12: the health module itself has swept to go-health
-  v0.5.0, so the old "v0.3.0 floor gate" is resolved — the idea remains
-  demand-gated, unchanged): `aggregate` merges N in-process probes into one
+  re-checked 2026-10-12 and re-baselined 2026-11-02: the health module now
+  pins go-health v0.8.1 (health v0.3.0), so the old "v0.3.0 floor gate" is
+  long resolved — the idea remains demand-gated, unchanged): `aggregate` merges N in-process probes into one
   go-health-compatible surface (passive, zero goroutines, "name/check"
   namespacing) — natural appkit composition is a `MountAggregate`-style
   handle next to `appkithealth.New` so a service running several surfaces

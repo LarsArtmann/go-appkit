@@ -1,5 +1,7 @@
 # SUPERB Plan: go-flightrecorder Adoption — 73 → 90+
 
+> **EXECUTED end-to-end 2026-10-06** (banner added 2026-11-02 — the closeout's §f50 ask): releases `flightrecorder/v0.2.0` + `otel/v0.2.0` (same train, D1=yes) + upstream `go-flightrecorder v0.2.1` race fix; proxy checks PASS. Closeout: `docs/status/2026-10-06_23-23_superb-flightrecorder-execution-closeout.md`; re-audit scored 87/100 on 2026-10-07.
+
 **Date:** 2026-10-06 16:06 CEST &middot; **Source audit:** [`docs/research/2026-10-06_go-flightrecorder-deep-dive.html`](../research/2026-10-06_go-flightrecorder-deep-dive.html) (73/100, 7 findings, all source-verified)
 **Goal:** close the audit's punch list and ship it as release trains, taking go-appkit's go-flightrecorder adoption from 73 to ~90 without regressing anything.
 **Scope rule:** plan-only artifact. Execution starts after approval (pareto-planning → Full Execution Mode).

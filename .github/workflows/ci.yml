@@ -212,6 +212,18 @@ jobs:
       - name: Check SSE broadcast sync protocol
         run: ./scripts/check-sse-protocol.sh
 
+  # Routed-destination guard (SUPERB v10 M14): every "→ routed …" marker in
+  # the living docs must resolve (TODO section exists, file exists, memo
+  # recommendation exists). Offline + seconds-fast, so per the venue matrix
+  # it runs in ALL three venues: pre-tag (guard #9), and here. Daemon commits
+  # edit docs too — CI is the net that sees them.
+  routed-destinations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check routed-marker destinations resolve
+        run: ./scripts/check-routed-destinations.sh
+
   # Config parity: every Go module directory must have a dependabot gomod
   # entry AND a CI test-matrix slot, and no dependabot entry may name a
   # directory without a go.mod. Makes the hand-verified 2026-09-17 /security
@@ -259,6 +271,10 @@ jobs:
   # loop in lint-only mode (--skip-tests leaves build/vet/test to the test
   # matrix), one module at a time, sequential (the shared-cache race rule).
   # golangci-lint is a PUBLIC module — this job does NOT ride ci-preflight.
+  # Venue note (SUPERB v10 M14): the build/vet overlap with the test matrix
+  # is INTENTIONAL redundancy — the matrix proves tests on the matrix's Go
+  # setup; this job proves lint (and its build/vet prefix) with the PINNED
+  # golangci-lint binary the fleet standardizes on. Do not dedupe them.
   fleet-lint:
     runs-on: ubuntu-latest
     steps:
