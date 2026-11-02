@@ -4,15 +4,17 @@
 **Scope of this report:** the single session that (1) repaired master-tip's red CI (release-state + pin-contract doc drift behind the health v0.3.0 train and a dependabot integration bump), (2) executed the docs-health AUDIT over ALL open `**/2026-0*` files (annotate → check-rows → archive 9 reports → index manifest), (3) rebuilt TODO_LIST per its own charter, (4) truth-synced README/AGENTS/FEATURES/ROADMAP for the health v0.3.0 train and the httputil#41 ship. No other research.
 
 **Scope discipline — what this report VERIFIED (command/artifact):**
+
 - Master-tip CI job breakdown: `gh run view 41326012420` (push of 23fa8ca: `test (./integration)` X at Test(race), `pin-drift` X, `ci-preflight` X by design, 20+ jobs ✓).
 - Root causes reproduced + fixed LOCALLY: `./scripts/check-pin-drift.sh` FAIL(exit 1, "health: AGENTS claims v0.2.0 but the newest tag is health/v0.3.0") → **28 OK, exit 0** after the AGENTS fix; `cd integration && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1` → **ok 7.2s** after the `documentedPins` fixture fix.
-- Tag/remote truth: `git ls-remote --tags origin` (health/v0.3.0^{}` = a28523d, matching local), `git rev-list --count origin/master..HEAD` = 0 at session start.
+- Tag/remote truth: `git ls-remote --tags origin` (health/v0.3.0^{}`= a28523d, matching local),`git rev-list --count origin/master..HEAD` = 0 at session start.
 - health module after the godoc edit: build + vet + `go test -race` green, `golangci-lint` **0 issues**.
 - Annotation gates: `annotate.go check-rows docs/status/2026-0*.md` → **9/9 COMPLETE**; completeness `grep -L '~~'` over the 9 MOVED files → empty; whole-archive gate `grep -rLn '~~' docs/status/archived/ --include='*.md'` → empty; `emit-keys` round-trips read IN FULL before every spec.
 - Living-doc hygiene: TODO `^- \[x\]` count = **0**; AGENTS **133/220** lines; `check-go-directives.sh` + `check-workspace-charter.sh` exit 0; all 9 cited doc paths exist on disk.
 - prompt-crusher (their repo): `/home/lars/projects/prompt-crusher/go.mod` read directly — 0 conflict markers, `module github.com/larsartmann/prompt-crusher`, last go.mod touch `a082213` (2026-10-25).
 
 **What this report did NOT verify (and why):**
+
 - **CI on the new tip** — nothing was pushed this session (owner-gated push per standing practice; P1 row carries the acceptance ritual). All greens are local.
 - **FEATURES sections other than health/Consumers/core** — spot-checked only, not row-by-row re-verified (owned by earlier passes + guards).
 - **ROADMAP raw-ideas rows** — not fact-checked one-by-one.
@@ -26,14 +28,14 @@
 
 ## Headline numbers
 
-| Metric | Value |
-| --- | --- |
-| Master-tip CI reds diagnosed | 2 real (`test (./integration)`, `pin-drift`) + 1 designed (`ci-preflight`) — both real reds fixed in-tree, verified green locally |
-| Reports annotated | 9 (every open `docs/status/2026-06..09` report) — 33 tool-applied verdicts + ~60 exact-match marker refreshes |
-| Reports archived | 9 via `git mv` (`archived/` 44 → **53 files**) + bulk-archive manifest in the index |
-| TODO_LIST | 16 done `[x]` rows purged, 3 stale rows removed, 3 trimmed, 2 live USER questions consolidated — **0 `[x]` remain** |
-| Split brains closed | README floor (1.27.1 vs 1.27.2), AGENTS release state (health v0.2.0 vs v0.3.0), documentedPins fixture, TODO watchlist (go-health#7 "still OPEN" vs CLOSED COMPLETED), ROADMAP #41 line, 2 feedback drafts ("DRAFT, NOT filed"), spike-verdict "BLOCKED" banner, cordis trigger line, TODO row 65 SSE+health leg (found in self-review post-rebuild) |
-| Commits | `561a476` (22 files, +212/−183) — push REMAINS OWNER-GATED |
+| Metric                       | Value                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Master-tip CI reds diagnosed | 2 real (`test (./integration)`, `pin-drift`) + 1 designed (`ci-preflight`) — both real reds fixed in-tree, verified green locally                                                                                                                                                                                                                     |
+| Reports annotated            | 9 (every open `docs/status/2026-06..09` report) — 33 tool-applied verdicts + ~60 exact-match marker refreshes                                                                                                                                                                                                                                         |
+| Reports archived             | 9 via `git mv` (`archived/` 44 → **53 files**) + bulk-archive manifest in the index                                                                                                                                                                                                                                                                   |
+| TODO_LIST                    | 16 done `[x]` rows purged, 3 stale rows removed, 3 trimmed, 2 live USER questions consolidated — **0 `[x]` remain**                                                                                                                                                                                                                                   |
+| Split brains closed          | README floor (1.27.1 vs 1.27.2), AGENTS release state (health v0.2.0 vs v0.3.0), documentedPins fixture, TODO watchlist (go-health#7 "still OPEN" vs CLOSED COMPLETED), ROADMAP #41 line, 2 feedback drafts ("DRAFT, NOT filed"), spike-verdict "BLOCKED" banner, cordis trigger line, TODO row 65 SSE+health leg (found in self-review post-rebuild) |
+| Commits                      | `561a476` (22 files, +212/−183) — push REMAINS OWNER-GATED                                                                                                                                                                                                                                                                                            |
 
 ---
 

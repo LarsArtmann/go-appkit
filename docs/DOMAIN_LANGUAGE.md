@@ -58,11 +58,11 @@ Objects with identity and lifecycle.
 
 Immutable values with meaning.
 
-| Term                   | Definition                                                                     | Context                      |
-| ---------------------- | ------------------------------------------------------------------------------ | ---------------------------- |
-| `EventID`              | Phantom-typed SSE event identifier used for replay deduplication               | go-sse / go-branded-id       |
-| `TriggerContext`       | Immutable snapshot of why a capture fired (Kind, Type, Duration, Err)          | flightrecorder               |
-| `LogLevel`/`LogFormat` | Typed strings; invalid values are construction errors, not panics              | logger                       |
+| Term                   | Definition                                                                        | Context                      |
+| ---------------------- | --------------------------------------------------------------------------------- | ---------------------------- |
+| `EventID`              | Phantom-typed SSE event identifier used for replay deduplication                  | go-sse / go-branded-id       |
+| `TriggerContext`       | Immutable snapshot of why a capture fired (Kind, Type, Duration, Err)             | flightrecorder               |
+| `LogLevel`/`LogFormat` | Typed strings; invalid values are construction errors, not panics                 | logger                       |
 | Error code             | Namespaced string (`server.drain_hook_failed`, `flightrecorder.recorder_missing`) | go-error-family constructors |
 
 ## Events

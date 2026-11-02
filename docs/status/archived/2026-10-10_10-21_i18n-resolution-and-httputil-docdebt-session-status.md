@@ -19,36 +19,36 @@ only this session's run.**
 ## a) FULLY DONE
 
 ~~1. **22-32 report assessed with verification** — ROADMAP §42 seed confirmed~~ done — point-in-time resolution record verified — the memo, RESOLVED appendix, and TODO residue row all landed; the negotiation lane shipped in httputil v1.6.0 and the family has since moved to v1.7.0
-   real and dated before opining; assessment delivered (their Vary/
-   Content-Language cache-bug find, claim-verification discipline, my
-   complementary content lane, the split-brain named).
+real and dated before opining; assessment delivered (their Vary/
+Content-Language cache-bug find, claim-verification discipline, my
+complementary content lane, the split-brain named).
 ~~2. **Split-brain annotated non-destructively** (go-appkit): planning doc~~ done — point-in-time resolution record verified — the memo, RESOLVED appendix, and TODO residue row all landed; the negotiation lane shipped in httputil v1.6.0 and the family has since moved to v1.7.0
-   appendix + TODO row pointer, both landed and daemon-committed.
+appendix + TODO row pointer, both landed and daemon-committed.
 ~~3. **Decision memo written** (`doc/planning/2026-10-10_i18n-fleet-decision-memo.md`)~~ done — point-in-time resolution record verified — the memo, RESOLVED appendix, and TODO residue row all landed; the negotiation lane shipped in httputil v1.6.0 and the family has since moved to v1.7.0
-   merging both sessions' open questions into one rule-once checklist —
-   content correct, timing wrong (see §d).
+merging both sessions' open questions into one rule-once checklist —
+content correct, timing wrong (see §d).
 ~~4. **08-11 train report assessed** — ROADMAP §42 GRADUATED/RULED verified;~~ done — point-in-time resolution record verified — the memo, RESOLVED appendix, and TODO residue row all landed; the negotiation lane shipped in httputil v1.6.0 and the family has since moved to v1.7.0
-   the `F07/F08` cross-reference chased to its source (their fleet sweep
-   appended the verdict section to MY doc at 03:00 — provenance resolved,
-   not assumed); all three go-appkit artifacts updated to RESOLVED
-   (planning doc appendix, memo block, TODO row rewritten to residue-only).
+the `F07/F08` cross-reference chased to its source (their fleet sweep
+appended the verdict section to MY doc at 03:00 — provenance resolved,
+not assumed); all three go-appkit artifacts updated to RESOLVED
+(planning doc appendix, memo block, TODO row rewritten to residue-only).
 ~~5. **httputil doc-debt executed (their f2–f5):** FEATURES recount with~~ done — point-in-time resolution record verified — the memo, RESOLVED appendix, and TODO residue row all landed; the negotiation lane shipped in httputil v1.6.0 and the family has since moved to v1.7.0
-   methodology stated inline (58 examples 43/10/5 · 52 benchmarks / 62
-   result rows · 30 fuzz 28/2 — independently counted, matched b1's
-   quick-greps exactly); stale fuzz bullet "27 (25+2)" + CSRF enumeration
-   fixed; README `LanguageSpecs()` sentence; CHANGELOG Documented bullet
-   (RFC §5.2/§12.5.5 correction of record, CDN narrowing, 2 Non-goals,
-   D-gates RULED, annotations, recount, nightly); x-text.md concrete
-   pt/zh motivation pair.
+methodology stated inline (58 examples 43/10/5 · 52 benchmarks / 62
+result rows · 30 fuzz 28/2 — independently counted, matched b1's
+quick-greps exactly); stale fuzz bullet "27 (25+2)" + CSRF enumeration
+fixed; README `LanguageSpecs()` sentence; CHANGELOG Documented bullet
+(RFC §5.2/§12.5.5 correction of record, CDN narrowing, 2 Non-goals,
+D-gates RULED, annotations, recount, nightly); x-text.md concrete
+pt/zh motivation pair.
 ~~6. **f6 (their "confirm or add"):** nightly-fuzz census — 25 steps, 30~~ done — point-in-time resolution record verified — the memo, RESOLVED appendix, and TODO residue row all landed; the negotiation lane shipped in httputil v1.6.0 and the family has since moved to v1.7.0
-   targets, `FuzzParseAcceptLanguage` **absent** → added (26/30); the 4
-   still-unrotated targets enumerated; their TODO leftover (3) ticked;
-   resolution addendum appended to their 08-11 report so no session re-does
-   the batch.
+targets, `FuzzParseAcceptLanguage` **absent** → added (26/30); the 4
+still-unrotated targets enumerated; their TODO leftover (3) ticked;
+resolution addendum appended to their 08-11 report so no session re-does
+the batch.
 ~~7. **Verification:** `nix fmt` 0 changed · `doc-snippet-refs` all resolve ·~~ done — point-in-time resolution record verified — the memo, RESOLVED appendix, and TODO residue row all landed; the negotiation lane shipped in httputil v1.6.0 and the family has since moved to v1.7.0
-   workflow YAML parsed · tree snapshot before every edit (one parallel
-   session landed mid-pass — zero collisions) · daemon committed all 7
-   files (`0d90d5a`).
+workflow YAML parsed · tree snapshot before every edit (one parallel
+session landed mid-pass — zero collisions) · daemon committed all 7
+files (`0d90d5a`).
 
 ## b) PARTIALLY DONE
 
@@ -66,13 +66,13 @@ only this session's run.**
 
 ~~1. **v1.6.0 tag/push** — owner-gated, not mine; everything downstream queues.~~ done — v1.6.0 shipped; v1.7.0 (2026-10-25) supersedes it
 ~~2. **Post-tag cascade** — T24 sperrmuell migration, go-appkit pin-drift +~~ done — mostly landed — the v1.6.0 re-pin + LoggingFromContext recipe shipped 2026-10-25; the Language() composition E2E leg remains (TODO i18n residue row; SUPERB v10 M25)
-   `Language()`-through-appkit composition E2E decision, dnsblockd F96,
-   docs-site lane.
+`Language()`-through-appkit composition E2E decision, dnsblockd F96,
+docs-site lane.
 3. **Their g2/g3 rulings** (Vary end state; evidence bar) — owner-only. **→ their repo (httputil g2/g3 owner rulings)**
 ~~4. **Annotation of my own 01:43 status report** — its f-list items were~~ done — the 01:43 report is annotated (this sweep + the 2026-10-13 pass)
-   resolved by the fleet's rulings, but the report itself was never
-   annotated (docs-health harvest discipline applied to everyone else's
-   reports this session, not mine).
+resolved by the fleet's rulings, but the report itself was never
+annotated (docs-health harvest discipline applied to everyone else's
+reports this session, not mine).
 
 ## d) TOTALLY FUCKED UP
 
@@ -114,20 +114,20 @@ first this time (10:21) — last session's misdating lesson held.
 **Gate: owner tag/push (1 decision, unblocks 2–9)**
 
 ~~1. Cut + push httputil v1.6.0 (coordinated per RELEASE.md; their g1 still~~ done — v1.6.0 shipped; v1.7.0 (2026-10-25) is the current family pin
-   unanswered — I will not touch tags without explicit words).
+unanswered — I will not touch tags without explicit words).
 2. T24: sperrmuell migration onto `httputil.Language()` + extractor chain, **→ sperrmuell-direct repo (T24 migration — outside this repo's TODO)**
-   keep `domain.Locale` mapped at one edge; run `verify-gates.sh`.
+keep `domain.Locale` mapped at one edge; run `verify-gates.sh`.
 ~~3. T70 trigger check (x/text Matcher swap — fires only on a third~~ **Won't implement — never fired — no third script-class locale appeared.**
-   script-class locale).
+script-class locale).
 4. go-appkit: `./scripts/check-pin-drift.sh` after the tag (integration's **→ gated on the v1.6.0 tag — TODO row 55**
-   httputil leg sweeps to v1.6.0).
+httputil leg sweeps to v1.6.0).
 5. go-appkit: decide + optionally build the `Language()`-through-appkit **→ gated on the v1.6.0 tag — composition-gap watchlist row (TODO)**
-   composition E2E leg (composition-gap watchlist).
+composition E2E leg (composition-gap watchlist).
 6. dnsblockd F96 i18n needs-check (15 min). **→ dnsblockd repo**
 7. docs-site lane: sell `Language()` + `LanguageSpecs()`. **→ their repos (docs-site lane; server_timing coordination)**
 8. server_timing coordinated tag if versioned together. **→ their repos (docs-site lane; server_timing coordination)**
 9. Post-tag: collapse ROADMAP §42 to point at CHANGELOG only; pkg.go.dev **→ gated on the v1.6.0 tag (TODO row 55)**
-   render check of language.go's package comment.
+render check of language.go's package comment.
 
 **Gate: owner rulings (2 answers, unblocks 10–12)**
 10. Vary end state: two-line documented vs Compression dedupe migration **→ their repo (httputil g2/g3/fuzz owner rulings)**
@@ -206,13 +206,13 @@ go-appkit's integration legs.
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
 ~~1. **Tag:** shall I cut + push v1.6.0 now (coordinated per RELEASE.md), or~~ done — v1.6.0 shipped, then v1.7.0 (2026-10-25)
-   are you running the tag yourself? Everything in §f 2–9 waits on this.
+are you running the tag yourself? Everything in §f 2–9 waits on this.
 2. **Evidence bar (their g3):** for the middleware-survey re-verification — **→ their repo (httputil g2/g3 owner rulings)**
-   is fetch-and-grep of upstream HEADs sufficient, or do you want pinned
-   scratch-module builds before the claim is cited anywhere?
+is fetch-and-grep of upstream HEADs sufficient, or do you want pinned
+scratch-module builds before the claim is cited anywhere?
 3. **Vary end state (their g2):** two `Vary` lines as the documented end **→ their repo (httputil g2/g3 owner rulings)**
-   state, or migrate Compression to the dedupe-aware single-line write in a
-   follow-up (touches v1.0-shipped behavior)?
+state, or migrate Compression to the dedupe-aware single-line write in a
+follow-up (touches v1.0-shipped behavior)?
 
 ---
 

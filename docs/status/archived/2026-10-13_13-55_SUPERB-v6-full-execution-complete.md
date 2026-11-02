@@ -16,94 +16,94 @@
 ## a) FULLY DONE
 
 ~~1. **Push tail** — ~20 verified commits pushed (a2cf750); both train tags~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-   (cqrs/v0.8.0, flightrecorderhealth/v0.1.7) were already on origin.
+(cqrs/v0.8.0, flightrecorderhealth/v0.1.7) were already on origin.
 ~~2. **T18 annotations complete** — 2026-10-07 ×6, 2026-10-10 ×2,~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-   2026-10-12 ×2: every §f/§g item resolved inline with evidence or left
-   honestly bare (owner-gated: SSH secret, buildcache topology,
-   cqrs-htmx Domain adoption). check-rows green (one pre-existing partial
-   table from the morning pass, informational only). Five missing report
-   rows indexed in `docs/status/README.md` + the `.md`-at-explicit-demand
-   convention line. Harvest: 2 TODO rows + ROADMAP fuel; 4 completed rows
-   dropped (evidence in CHANGELOGs).
+2026-10-12 ×2: every §f/§g item resolved inline with evidence or left
+honestly bare (owner-gated: SSH secret, buildcache topology,
+cqrs-htmx Domain adoption). check-rows green (one pre-existing partial
+table from the morning pass, informational only). Five missing report
+rows indexed in `docs/status/README.md` + the `.md`-at-explicit-demand
+convention line. Harvest: 2 TODO rows + ROADMAP fuel; 4 completed rows
+dropped (evidence in CHANGELOGs).
 ~~3. **cqrs flake hunt CLOSED with a real find** — `-race -count=10`~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-   reproduced a genuine test race: `captureHandler` reads unsynchronized
-   while parallel tests' construction-time SCREAM logs append via the
-   process-global default logger. Fixed with a mutex-guarded `snapshot()`;
-   ×10 re-run green (35s, zero races); lint 0. Three reports' flake items
-   closed on this evidence.
+reproduced a genuine test race: `captureHandler` reads unsynchronized
+while parallel tests' construction-time SCREAM logs append via the
+process-global default logger. Fixed with a mutex-guarded `snapshot()`;
+×10 re-run green (35s, zero races); lint 0. Three reports' flake items
+closed on this evidence.
 ~~4. **T23 — errorpages v0.1.2 RELEASED** — floor 1.27.2 + dependency sweep~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-   (templ-components v1.21.0, error-family v0.11.0, httputil v1.5.0) +
-   example PORT. **The swap was DECLINED at source level**: httputil's
-   `ResponseRecorder` is pass-through (every Write/WriteHeader delegates,
-   recorder.go:109-132); `Wrap` needs body-DISCARDING capture — wrapping a
-   discard writer inside it would rename the hand-roll, not remove it.
-   Decision record in the CHANGELOG; zero API delta (patch); pre-tag gate
-   green (70 OK); pushed; proxy PASS.
+(templ-components v1.21.0, error-family v0.11.0, httputil v1.5.0) +
+example PORT. **The swap was DECLINED at source level**: httputil's
+`ResponseRecorder` is pass-through (every Write/WriteHeader delegates,
+recorder.go:109-132); `Wrap` needs body-DISCARDING capture — wrapping a
+discard writer inside it would rename the hand-roll, not remove it.
+Decision record in the CHANGELOG; zero API delta (patch); pre-tag gate
+green (70 OK); pushed; proxy PASS.
 ~~5. **Gate bug fixed + mid-train guard catch** — the pin-drift guard caught~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-   **cqrs-htmx v4.14.1** published mid-train; integration swept to it
-   (suite green). The catch exposed `pre-tag-checks.sh`'s unbound `$tag`
-   in the guards' fail path (`set -u` turned a FAIL into a crash) — fixed.
+**cqrs-htmx v4.14.1** published mid-train; integration swept to it
+(suite green). The catch exposed `pre-tag-checks.sh`'s unbound `$tag`
+in the guards' fail path (`set -u` turned a FAIL into a crash) — fixed.
 ~~6. **T19 pkg.go.dev** — cqrs@v0.8.0, frh@v0.1.7, health@v0.2.0 RENDER;~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-   flightrecorder was NEVER indexed (even v0.1.1 404s) — index requests
-   submitted (page GETs are the documented trigger); proxy resolves
-   v0.2.0 cleanly so consumers are unaffected; cosmetic-only (godoc hidden
-   by license choice). core@v0.9.0 + errorpages@v0.1.2 404 at <36h/<1h —
-   normal crawler lag, re-check next session.
+flightrecorder was NEVER indexed (even v0.1.1 404s) — index requests
+submitted (page GETs are the documented trigger); proxy resolves
+v0.2.0 cleanly so consumers are unaffected; cosmetic-only (godoc hidden
+by license choice). core@v0.9.0 + errorpages@v0.1.2 404 at <36h/<1h —
+normal crawler lag, re-check next session.
 ~~7. **T25 govulncheck — 12/12 modules CLEAN** via `nix shell~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
    nixpkgs#govulncheck` (the "needs a networked machine" belief was wrong;
-   the vuln-DB fetch works here). Noted in AGENTS Build & Verify.
+the vuln-DB fetch works here). Noted in AGENTS Build & Verify.
 ~~8. **T24 browser CSP pass — real defect found AND fixed** — headless~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-   Chromium against the health `-hardened` example: the dashboard 404'd
-   because `DashboardHardenedPreset("/health", …)`'s basePath is a PREFIX
-   (dashboard actually at /health/health) and trend/metrics options were
-   silently replaced. Example fixed (empty basePath + appended options);
-   integration test gained the missing dashboard-page leg (`/health/health`
-   — the earlier `/health` assertions exercise appkit's own default health
-   handler). Browser verdict recorded in `security/THREAT_MODEL.md`:
-   renders under the strict CSP (nonce'd scripts execute), Tailwind-CDN
-   inline styles + Datastar eval blocked — the policy working as designed;
-   upstream already documents unsafe-eval as Datastar-required.
+Chromium against the health `-hardened` example: the dashboard 404'd
+because `DashboardHardenedPreset("/health", …)`'s basePath is a PREFIX
+(dashboard actually at /health/health) and trend/metrics options were
+silently replaced. Example fixed (empty basePath + appended options);
+integration test gained the missing dashboard-page leg (`/health/health`
+— the earlier `/health` assertions exercise appkit's own default health
+handler). Browser verdict recorded in `security/THREAT_MODEL.md`:
+renders under the strict CSP (nonce'd scripts execute), Tailwind-CDN
+inline styles + Datastar eval blocked — the policy working as designed;
+upstream already documents unsafe-eval as Datastar-required.
 ~~9. **T20 pma** — `journalctl -t pma` ran clean: pma logs NO file names~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-   (0 go.work mentions in 28.5k lines) — the dossier's §6.4 lookup hope is
-   dead, recorded as the closing evidence. Owner decision memo written
-   (`doc/planning/2026-10-13_pma-owner-decision-memo.md`): keep hook
-   bypass, cooldown (not exclude) for train repos, respect/skip staged
-   messages, accept the mutator cadence pending BuildFlow#46 — plus this
-   session's live race evidence (3 attribution-erasing interleaves, 1
-   commit-failed race, 1 pma restart).
+(0 go.work mentions in 28.5k lines) — the dossier's §6.4 lookup hope is
+dead, recorded as the closing evidence. Owner decision memo written
+(`doc/planning/2026-10-13_pma-owner-decision-memo.md`): keep hook
+bypass, cooldown (not exclude) for train repos, respect/skip staged
+messages, accept the mutator cadence pending BuildFlow#46 — plus this
+session's live race evidence (3 attribution-erasing interleaves, 1
+commit-failed race, 1 pma restart).
 ~~10. **T22 — 4 family asks FILED after premise re-verification at master**:~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-    go-cqrs-lite **#67** (GracefulClose drain-error early return — the
-    timers corollary was FIXED upstream and struck from the ask);
-    go-health **#7** (the panic-comment stance UPGRADED to a real
-    classification bug — `grades` matches the batch-level sentinel only,
-    per-check panics WARN on non-critical; + recorder-sentinel decision,
-    `Evaluate` cache godoc, restart latch); go-flightrecorder **#2**
-    (cooldown combinator); httputil **#41** (`NewServerListener` —
-    unblocks Service composition + Core TLS). **Two premises dissolved
-    during verification**: go-sse `ReplayFiltered` and httputil
-    `LoggingFromContext` already exist at master (no filing; appkit-side
-    follow-ups recorded). The dashboard strict-CSP ask was NOT filed —
-    upstream's `RecommendedCSP` documents unsafe-eval as
-    Datastar-required; filing would relitigate a documented decision.
-    samber/do + exhaustruct stay gated (external repos).
+go-cqrs-lite **#67** (GracefulClose drain-error early return — the
+timers corollary was FIXED upstream and struck from the ask);
+go-health **#7** (the panic-comment stance UPGRADED to a real
+classification bug — `grades` matches the batch-level sentinel only,
+per-check panics WARN on non-critical; + recorder-sentinel decision,
+`Evaluate` cache godoc, restart latch); go-flightrecorder **#2**
+(cooldown combinator); httputil **#41** (`NewServerListener` —
+unblocks Service composition + Core TLS). **Two premises dissolved
+during verification**: go-sse `ReplayFiltered` and httputil
+`LoggingFromContext` already exist at master (no filing; appkit-side
+follow-ups recorded). The dashboard strict-CSP ask was NOT filed —
+upstream's `RecommendedCSP` documents unsafe-eval as
+Datastar-required; filing would relitigate a documented decision.
+samber/do + exhaustruct stay gated (external repos).
 ~~11. **T26/T04 residue + structure guard red→green** — CI on the tail:~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-    **example-smoke PASSED its first origin run**; all 11 proxy-smokes,
-    go-directives, cqrs-lint, pin-drift, config-parity, workspace-charter
-    green. structure-linter failed at GOPRIVATE install since the job
-    landed (invisible red) — now rides ci-preflight like the test matrix.
-    Behind that fix a second real find: the v0.8.0 trailing E014 directive
-    tripped `package-naming` — moved to a comment block above the clause
-    (cqrs-lint still suppresses; structure guard 0 findings; suite green).
-    module-details errorpages section re-verified on its train (was 3
-    versions stale). 220-cap source confirmed: the installed linter
-    binary's agents rule; AGENTS at 126/220.
+**example-smoke PASSED its first origin run**; all 11 proxy-smokes,
+go-directives, cqrs-lint, pin-drift, config-parity, workspace-charter
+green. structure-linter failed at GOPRIVATE install since the job
+landed (invisible red) — now rides ci-preflight like the test matrix.
+Behind that fix a second real find: the v0.8.0 trailing E014 directive
+tripped `package-naming` — moved to a comment block above the clause
+(cqrs-lint still suppresses; structure guard 0 findings; suite green).
+module-details errorpages section re-verified on its train (was 3
+versions stale). 220-cap source confirmed: the installed linter
+binary's agents rule; AGENTS at 126/220.
 ~~12. **T27 watchlist swept (as-of 2026-10-13)** — **PapDashboard v0.3.0:~~ done — point-in-time completion record verified — the trains, filings (#67/#7/#2/#41), browser pass, memo, and example-smoke first run all shipped as described; the re-checks they queued were re-run by later passes
-    the reverse-adoption trigger FIRED** — their go.mod requires
-    `go-appkit v0.4.0` (core only; their PAP TLS envs were REMOVED with
-    the adoption, so the Core-TLS trigger did not fire). Consumer #2
-    exists. nixpkgs go = 1.27.2 (matches our floor); httputil v1.6.0 still
-    untagged; cqrs-htmx master daemon-active, no v5 signal; batteries
-    demand unchanged (zero composition consumers).
+the reverse-adoption trigger FIRED** — their go.mod requires
+`go-appkit v0.4.0` (core only; their PAP TLS envs were REMOVED with
+the adoption, so the Core-TLS trigger did not fire). Consumer #2
+exists. nixpkgs go = 1.27.2 (matches our floor); httputil v1.6.0 still
+untagged; cqrs-htmx master daemon-active, no v5 signal; batteries
+demand unchanged (zero composition consumers).
 
 ## b) PARTIALLY DONE (gated, honestly)
 

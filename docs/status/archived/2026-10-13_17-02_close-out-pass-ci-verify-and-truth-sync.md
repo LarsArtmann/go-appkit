@@ -13,112 +13,112 @@ explicitly demanded `.md` at this path — override honored, flagged.)_
 ## a) FULLY DONE (verified, evidence-cited)
 
 ~~1. **P0.1-2 — CI verified on the v7 final commit `0cfb610`:** run 38406051424.~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   `golangci-config-verify` — the job that shipped NEVER EXECUTED (v7 report §d1,
-   the session's biggest process hole) — **PASSED its first live run** (1m08s).
-   `example-smoke` also first-origin-run GREEN (1m20s). cqrs-lint, all four guard
-   jobs, and all 11 proxy-smokes green. ONLY red: `ci-preflight` (SSH_PRIVATE_KEY
-   empty = owner-gated T12, by design); `structure-linter` + `test` matrix skipped
-   riding preflight, as designed. No job fix was needed (P0.2 void).
+`golangci-config-verify` — the job that shipped NEVER EXECUTED (v7 report §d1,
+the session's biggest process hole) — **PASSED its first live run** (1m08s).
+`example-smoke` also first-origin-run GREEN (1m20s). cqrs-lint, all four guard
+jobs, and all 11 proxy-smokes green. ONLY red: `ci-preflight` (SSH_PRIVATE_KEY
+empty = owner-gated T12, by design); `structure-linter` + `test` matrix skipped
+riding preflight, as designed. No job fix was needed (P0.2 void).
 ~~2. **Runtime lo adoption verified + truth-synced (4 places):** the daemon commit~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   `f6cb855` carried an owner edit — `lo.Flatten` in `cqrs/domain.go`
-   `concatCommandMiddleware`, the FIRST runtime site over the "test-only" lo
-   boundary (USER gate exercise). cqrs `-race` suite green (4.19s); boundary
-   truth-synced in AGENTS.md (bullet now reads "runtime by owner edit"),
-   TODO_LIST lo row (+ natural-train carriers NAMED: otel v0.3.0 =
-   LoggingFromContext wiring, cqrs = next wrapper feature/dep sweep, realtime =
-   next SSE feature), cqrs CHANGELOG `[Unreleased]`, and the v7 plan §6
-   (post-plan override addendum, `492d860` + daemon `07e8e67`).
+`f6cb855` carried an owner edit — `lo.Flatten` in `cqrs/domain.go`
+`concatCommandMiddleware`, the FIRST runtime site over the "test-only" lo
+boundary (USER gate exercise). cqrs `-race` suite green (4.19s); boundary
+truth-synced in AGENTS.md (bullet now reads "runtime by owner edit"),
+TODO_LIST lo row (+ natural-train carriers NAMED: otel v0.3.0 =
+LoggingFromContext wiring, cqrs = next wrapper feature/dep sweep, realtime =
+next SSE feature), cqrs CHANGELOG `[Unreleased]`, and the v7 plan §6
+(post-plan override addendum, `492d860` + daemon `07e8e67`).
 ~~3. **Dead-allocation lint red FOUND AND FIXED:** the `lo.Flatten` edit had left~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   `merged := make(...)` immediately overwritten — ineffassign, cqrs lint 1 issue.
-   Root-fixed in `7edbeed` (dead `make()` + total loop removed; fresh-allocation
-   guarantee moved into the doc comment); lint back to 0, `-race` green (5.18s).
+`merged := make(...)` immediately overwritten — ineffassign, cqrs lint 1 issue.
+Root-fixed in `7edbeed` (dead `make()` + total loop removed; fresh-allocation
+guarantee moved into the doc comment); lint back to 0, `-race` green (5.18s).
 ~~4. **CI watched to completion on the FIXED tip `7edbeed`** (the new session-close~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   ritual applied live, not just documented): run 38410947270 — 18 jobs ✓
-   including `golangci-config-verify` (1m18s), `example-smoke` (1m25s),
-   `cqrs-lint` (1m29s, running the fixed code), guards + all proxy-smokes; ONLY
-   red = ci-preflight (designed). Ritual now proven, not aspirational.
+ritual applied live, not just documented): run 38410947270 — 18 jobs ✓
+including `golangci-config-verify` (1m18s), `example-smoke` (1m25s),
+`cqrs-lint` (1m29s, running the fixed code), guards + all proxy-smokes; ONLY
+red = ci-preflight (designed). Ritual now proven, not aspirational.
 ~~5. **8/8 guard battery re-EXECUTED green on the close-out tree** (15:54 report §b4~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   flagged "verdicts by argument, not re-execution" — closed): directives,
-   dependabot-parity, workspace-charter, golangci-configs, structure-linter,
-   pin-drift (27 OK / 0 FAIL), consumer-claims (both legs), push-lag — all EXIT=0.
+flagged "verdicts by argument, not re-execution" — closed): directives,
+dependabot-parity, workspace-charter, golangci-configs, structure-linter,
+pin-drift (27 OK / 0 FAIL), consumer-claims (both legs), push-lag — all EXIT=0.
 ~~6. **P0.4 — errorpages@v0.1.2 packaging verified:** proxy `@v/list` CONTAINS~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   v0.1.2 (consumers can `go get` it); pkg.go.dev page still renders v0.1.1 —
-   normal crawler lag ~3h post-tag. Escalation date 2026-10-15 recorded in the
-   watchlist row.
+v0.1.2 (consumers can `go get` it); pkg.go.dev page still renders v0.1.1 —
+normal crawler lag ~3h post-tag. Escalation date 2026-10-15 recorded in the
+watchlist row.
 ~~7. **P1.5 — port-8099 mystery RESOLVED:** socket-inode walk (`/proc/net/tcp` →~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   fd match) shows the listener is ANOTHER USER's process on this shared box
-   (inode 361751909, /proc entries unreadable to us). Not a session zombie;
-   examples keep their alternate ports. Resolution appended to the 15:54 report
-   §d7.
+fd match) shows the listener is ANOTHER USER's process on this shared box
+(inode 361751909, /proc entries unreadable to us). Not a session zombie;
+examples keep their alternate ports. Resolution appended to the 15:54 report
+§d7.
 ~~8. **P1.6 — AGENTS.md "invisible characters" RESOLVED:** full-file scan found~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   ZERO zero-width/nbsp/BOM chars — only visible em-dashes (U+2014) and arrows
-   (U+2192). The 15:54 failed exact-match edits were text mismatches
-   (typography/stale line number), not hidden bytes. Appended to §d7.
+ZERO zero-width/nbsp/BOM chars — only visible em-dashes (U+2014) and arrows
+(U+2192). The 15:54 failed exact-match edits were text mismatches
+(typography/stale line number), not hidden bytes. Appended to §d7.
 ~~9. **P1.8 — i18n gate split brain KILLED:** TODO row re-keyed from the stale~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-   hard-coded "httputil v1.6.0" to "NEXT httputil feature tag carrying
-   Language()/LoggingFromContext" (v1.5.0 shipped without them) — title AND body,
-   one consistent key (`492d860`).
+hard-coded "httputil v1.6.0" to "NEXT httputil feature tag carrying
+Language()/LoggingFromContext" (v1.5.0 shipped without them) — title AND body,
+one consistent key (`492d860`).
 ~~10. **P1.9 — dprint exit-14 upstream state CHECKED:** NO issue exists in~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-    LarsArtmann/buildflow (issue search empty). Sequencing recorded in the TODO
-    row: file AFTER the system binary refresh (764c23c is pre-v0.8.0) so the
-    diagnosis is re-verified against the current binary per verify-before-filing.
+LarsArtmann/buildflow (issue search empty). Sequencing recorded in the TODO
+row: file AFTER the system binary refresh (764c23c is pre-v0.8.0) so the
+diagnosis is re-verified against the current binary per verify-before-filing.
 ~~11. **P1.15 — session-close ritual UPGRADED from report-note to standing rule:**~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-    AGENTS.md Gotchas now carries it ("verify CI green on the FINAL pushed
-    commit + every new workflow job had a live run") — and it was exercised
-    twice this session (item 4).
+AGENTS.md Gotchas now carries it ("verify CI green on the FINAL pushed
+commit + every new workflow job had a live run") — and it was exercised
+twice this session (item 4).
 ~~12. **Stale TODO row closed on sight:** "Full cqrs-htmx setup suite hermetic run"~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-    was still `- [ ]` although T08 completed it this morning — flipped to
-    `[x] DONE` with evidence.
+was still `- [ ]` although T08 completed it this morning — flipped to
+`[x] DONE` with evidence.
 ~~13. **P1.11 — PapDashboard watch:** `ls-remote` shows latest tag still v0.3.0;~~ done — point-in-time close-out record verified — the config-verify job's first live run, the ritual upgrade, the i18n re-key, and the two resolutions all landed and still hold
-    consumer-claims guard green. No action owed.
+consumer-claims guard green. No action owed.
 
 ## b) PARTIALLY DONE
 
 ~~1. **Fleet lint behavior after the daemon's `noinlineerr` normalization — 1/12~~ done — closed — noinlineerr is force-disabled fleet policy (the owner ruling below); every subsequent fleet lint sweep ran CLI-verified
-   CLI-verified.** At 15:59 the daemon moved `noinlineerr` from the enable list
-   to a `disable:` block in 11 module `.golangci.yml` files (commit `6f53db0`).
-   I re-ran `check-golangci-configs.sh` (schema, GREEN) + cqrs CLI lint (GREEN,
-   and it caught the ineffassign — so behavior demonstrably still fires). The
-   other 10 modules are covered ONLY by the by-construction argument
-   (enable-list removal ≡ disable-block addition; same net linter set) — which
-   is exactly the "verdict by argument" class the 15:54 report condemns.
-   Remaining: 10 CLI lint runs, ~10 min sequential. No blocker.
+CLI-verified.** At 15:59 the daemon moved `noinlineerr` from the enable list
+to a `disable:` block in 11 module `.golangci.yml` files (commit `6f53db0`).
+I re-ran `check-golangci-configs.sh` (schema, GREEN) + cqrs CLI lint (GREEN,
+and it caught the ineffassign — so behavior demonstrably still fires). The
+other 10 modules are covered ONLY by the by-construction argument
+(enable-list removal ≡ disable-block addition; same net linter set) — which
+is exactly the "verdict by argument" class the 15:54 report condemns.
+Remaining: 10 CLI lint runs, ~10 min sequential. No blocker.
 ~~2. **CI on the docs-only tip `3a3539a` — argued, not watched.** Latest COMPLETED~~ done — later passes watch the docs-only tips; the 2026-11-02 tip was runner-verified
-   run at session end was `7edbeed`'s. The header-edit push is docs-only so job
-   outcomes cannot differ, but per the new ritual the tip's run should be
-   watched next session (one `gh run view`). Effort S.
+run at session end was `7edbeed`'s. The header-edit push is docs-only so job
+outcomes cannot differ, but per the new ritual the tip's run should be
+watched next session (one `gh run view`). Effort S.
 ~~3. **f-list HARVEST — selective, not formal.** Durable items from THIS session~~ done — the 2026-11-02 rebuild + this sweep harvested both f-lists (testkit dogfood done via the art-dupl standard; criterion-1 mechanics owned by M23; the rest declined or gated)
-   landed as TODO rows (bench retry, pkg.go.dev watch, dprint upstream state,
-   release-train carriers, ritual). But the 15:54 report's 50-item f-list did
-   NOT get a docs-health HARVEST pass — testkit dogfood (f-22), criterion-1
-   mechanical definition (f-21), datastar self-host research (f-14), bare-jscpd
-   probe (f-17), upstream-ask cadence (f-18) remain report-only. Effort M.
+landed as TODO rows (bench retry, pkg.go.dev watch, dprint upstream state,
+release-train carriers, ritual). But the 15:54 report's 50-item f-list did
+NOT get a docs-health HARVEST pass — testkit dogfood (f-22), criterion-1
+mechanical definition (f-21), datastar self-host research (f-14), bare-jscpd
+probe (f-17), upstream-ask cadence (f-18) remain report-only. Effort M.
 ~~4. **P0.3 — otel ns/op bench: deferred WITHOUT a late re-check.** Load was~~ done — ns/op re-baselined 2026-10-18 (quiet window, ±9%)
-   37.86 at 15:57; I never re-ran `uptime` before session end (a 30s check
-   could have caught a quiet window). B/op + allocs/op stand re-verified ±0%
-   from the morning; ns/op rows still stale. Effort S when quiet.
+37.86 at 15:57; I never re-ran `uptime` before session end (a 30s check
+could have caught a quiet window). B/op + allocs/op stand re-verified ±0%
+from the morning; ns/op rows still stale. Effort S when quiet.
 
 ## c) NOT STARTED (gated/parked BY DESIGN — inherited, not violated)
 
 1. **SSH_PRIVATE_KEY restore** (OWNER) — gates the CI test matrix + **→ TODO P1 row — owner-only SSH secret (narrowed 2026-10-14; still owner-open)**
    structure-linter job; the only surfaces still unexercised in CI.
-~~2. **BuildFlow binary refresh ≥ v0.8.0** (owner/nix) — then the documented~~ done — binary refreshed (ef32fa0) and verified 2026-10-18; the go_mod_ignore_dirs swap shipped 2026-10-13; dprint RESOLVED 2026-10-18 (no issue needed); respect_patch_floor unskipped
+   ~~2. **BuildFlow binary refresh ≥ v0.8.0** (owner/nix) — then the documented~~ done — binary refreshed (ef32fa0) and verified 2026-10-18; the go_mod_ignore_dirs swap shipped 2026-10-13; dprint RESOLVED 2026-10-18 (no issue needed); respect_patch_floor unskipped
    `go_mod_ignore_dirs` swap in `.buildflow.yml`, then the dprint upstream
    filing, then `respect_patch_floor` re-evaluation.
-~~3. **otel ns/op retry** — needs a quiet window (machine load, external).~~ done — re-baselined 2026-10-18
-~~4. **pkg.go.dev errorpages escalation** — date-gated (2026-10-15).~~ done — errorpages renders (watchlist 2026-10-18)
-5. **T12-T26 tail** — land-adoptions ×4 (on upstream issue close), pma rulings **→ TODO rows — land-adoptions (3 of 4 CLOSED COMPLETED upstream; fr#2 open), composition-gap (M18/M19), demand gates live in the 2026-11-02 rebuild**
+   ~~3. **otel ns/op retry** — needs a quiet window (machine load, external).~~ done — re-baselined 2026-10-18
+   ~~4. **pkg.go.dev errorpages escalation** — date-gated (2026-10-15).~~ done — errorpages renders (watchlist 2026-10-18)
+2. **T12-T26 tail** — land-adoptions ×4 (on upstream issue close), pma rulings **→ TODO rows — land-adoptions (3 of 4 CLOSED COMPLETED upstream; fr#2 open), composition-gap (M18/M19), demand gates live in the 2026-11-02 rebuild**
    (memo pending), i18n sweep (next httputil feature tag — now correctly
    keyed), composition-gap E2E legs (on-touch), W3 httpx demand gate, SSE-hub
    `Drops()` shape, straggler rows, pdg polish (their repo), exhaustruct_v5 +
    samber/do upstream notes (USER-gated), encryption/signing demand gates.
-~~6. **P2 ideas** — datastar self-host research, bare-jscpd probe, testkit~~ **Won't implement — the P2/P3 ideas stay declined or gated as listed (2026-11-02 rebuild is the live ledger).**
+   ~~6. **P2 ideas** — datastar self-host research, bare-jscpd probe, testkit~~ **Won't implement — the P2/P3 ideas stay declined or gated as listed (2026-11-02 rebuild is the live ledger).**
    dogfood in examples, taskset bench protocol, criterion-1 definition.
-~~7. **P3 parked** — W4/W5 batteries, Core TLS trigger, cordis bridge triggers,~~ **Won't implement — the P2/P3 ideas stay declined or gated as listed (2026-11-02 rebuild is the live ledger).**
+   ~~7. **P3 parked** — W4/W5 batteries, Core TLS trigger, cordis bridge triggers,~~ **Won't implement — the P2/P3 ideas stay declined or gated as listed (2026-11-02 rebuild is the live ledger).**
    cqrs-htmx v5 window (their ADR-0052), core godoc hidden (permanent ruling),
    PapDashboard refresh (theirs, standing no-nudge), structure-linter
    path-scoped exclusions upstream.
-~~8. **W2 security-module adoption signal to PapDashboard** — USER gate not yet~~ **Won't implement — hands-off stands (Open question 2).**
+   ~~8. **W2 security-module adoption signal to PapDashboard** — USER gate not yet~~ **Won't implement — hands-off stands (Open question 2).**
    given (15:54 §g3 unanswered).
 
 ## d) TOTALLY FUCKED UP (self-inflicted, all recovered — but real)
@@ -249,21 +249,21 @@ explicitly demanded `.md` at this path — override honored, flagged.)_
 ## g) Questions I CANNOT answer myself
 
 ~~1. **The daemon's `noinlineerr` normalization (15:59, `6f53db0`, 11 configs):**~~ done — answered in the appendix — auto-configure acting on the fleet-wide direction; intended
-   was that BuildFlow `golangci-lint-auto-configure` acting on its canonical
-   shape, or your hand edit? I can't attribute daemon commits, and the answer
-   decides item 9: document the disable as fleet policy, or consciously revert
-   it. (Evidence so far: all 11 moved identically, schema-valid — consistent
-   with auto-configure; but so is a careful hand pass.)
+was that BuildFlow `golangci-lint-auto-configure` acting on its canonical
+shape, or your hand edit? I can't attribute daemon commits, and the answer
+decides item 9: document the disable as fleet policy, or consciously revert
+it. (Evidence so far: all 11 moved identically, schema-valid — consistent
+with auto-configure; but so is a careful hand pass.)
 2. **The `lo.Flatten` runtime edit in `cqrs/domain.go` (`f6cb855`):** I recorded
-   it as YOU exercising the USER gate on the test-only lo boundary (it postdates
-   the v7 plan, it is exactly the gated pattern, and `.buildflow.yml` excludes
-   lotidy so BuildFlow cannot have done it). Confirm — or tell me it was another
-   agent/session, in which case the boundary docs need re-framing.
+it as YOU exercising the USER gate on the test-only lo boundary (it postdates
+the v7 plan, it is exactly the gated pattern, and `.buildflow.yml` excludes
+lotidy so BuildFlow cannot have done it). Confirm — or tell me it was another
+agent/session, in which case the boundary docs need re-framing.
 3. **Owner-action sequencing:** are the SSH secret restore and the BuildFlow **→ TODO P1 row + the resolved BuildFlow chain (binary refreshed, dprint resolved)**
-   binary refresh still planned this week? Both gate chains I cannot execute
-   (CI test matrix + structure-linter; dprint upstream filing +
-   `go_mod_ignore_dirs` swap) — a date would let me stop re-listing them as
-   P0/P1 and park them with triggers instead.
+binary refresh still planned this week? Both gate chains I cannot execute
+(CI test matrix + structure-linter; dprint upstream filing +
+`go_mod_ignore_dirs` swap) — a date would let me stop re-listing them as
+P0/P1 and park them with triggers instead.
 
 ---
 

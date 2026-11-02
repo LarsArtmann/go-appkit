@@ -33,9 +33,9 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 ## b) PARTIALLY DONE (by design — user-gated or other-train)
 
 1. **Filing the upstream cooldown ask** — drafted + verified, but filing is user-gated per house rule; sits in TODO_LIST P3. **→ TODO P3 go-flightrecorder#2 row — still user-gated, still unfiled**
-~~2. **frh + cqrs fr v0.2.1 sweep** — deliberately deferred to their own trains (TODO_LIST P3): both are SAFE on v0.2.0 (they never combine Reset with async captures); member go.mod bumps ride release trains only.~~ done — frh v0.1.7 + cqrs v0.8.0 confirmed at fr v0.2.1 (2026-10-12 trains)
-~~3. **Example StartHooks migration** — both examples start the recorder before `Run` (pinned core v0.7.0 has no StartHooks); TODO_LIST P3 gates the migration on the core v0.8.0 train (approved ship-now with documented placement).~~ done — both examples migrated to StartHooks, smoke-green 2026-10-12
-~~4. **Score re-audit** — the plan projects 73→~90 but the audit report was not re-run against the post-fix tree; the score claim remains a projection until a re-audit.~~ done — re-audit ran 2026-10-07, scored 87/100
+   ~~2. **frh + cqrs fr v0.2.1 sweep** — deliberately deferred to their own trains (TODO_LIST P3): both are SAFE on v0.2.0 (they never combine Reset with async captures); member go.mod bumps ride release trains only.~~ done — frh v0.1.7 + cqrs v0.8.0 confirmed at fr v0.2.1 (2026-10-12 trains)
+   ~~3. **Example StartHooks migration** — both examples start the recorder before `Run` (pinned core v0.7.0 has no StartHooks); TODO_LIST P3 gates the migration on the core v0.8.0 train (approved ship-now with documented placement).~~ done — both examples migrated to StartHooks, smoke-green 2026-10-12
+   ~~4. **Score re-audit** — the plan projects 73→~90 but the audit report was not re-run against the post-fix tree; the score claim remains a projection until a re-audit.~~ done — re-audit ran 2026-10-07, scored 87/100
 
 ## c) NOT STARTED (correctly out of scope)
 
@@ -73,11 +73,11 @@ The whole 11-task / 53-micro-task plan is DONE and PUSHED. Releases on origin: *
 
 1. ~~Re-run the audit (`library-deep-dive` Phase 1-7) against the post-train tree to convert the 73→~90 projection into a measured score (P; the audit's own recommendations are now all closed except F8→upstream-ask, which is drafted).~~ done — rubric re-run 2026-10-07 scored 87/100 (DoD met; research report Rubric section)
 2. ~~Add the working golangci-lint invocation + LSP cache-race caveat to AGENTS.md Build/Lint section (D).~~ done — AGENTS Build & Verify + lint section carries invocation + cache-race caveat
-~~3. Extend `scripts/check-pin-drift.sh` with a fixture-vs-go.mod comparison so guard jobs catch fixture drift without running the test suite (D6).~~ done — covered — the guard's check-2 failure message pairs the fixture with the pin bump (check-pin-drift.sh:179); the residual fixture-vs-gomod leg is the M14 guard-symmetry decision
-~~4. Add a `doc/recipes/localhost-e2e-check.md` recipe (fetch tool + scratch Go client + port hygiene) (D4).~~ **Won't implement — Won't implement — the pattern lives in §d/e + the AGENTS curl-ban note; a recipe file was never needed.**
-~~5. `-count=20` quiet-machine stress of the flightrecorder suite to retire the flake question; if it reproduces, instrument `waitForTraceCount` (D7).~~ done — superseded — quiet-run.sh (2026-10-18) + the AGENTS load-flake protocol manage the class
-6. pkg.go.dev render check for flightrecorder/v0.2.0 + otel/v0.2.0 (separate slow ritual; proxy contract already passed) (P). **→ TODO P2 pkg.go.dev row (fr still unrendered)**
-~~7. Announce/link the two releases from the repo READMEs if release notes are surfaced there (P).~~ **Won't implement — Won't implement — module CHANGELOGs are the release-notes channel; READMEs do not surface per-tag notes.**
+   ~~3. Extend `scripts/check-pin-drift.sh` with a fixture-vs-go.mod comparison so guard jobs catch fixture drift without running the test suite (D6).~~ done — covered — the guard's check-2 failure message pairs the fixture with the pin bump (check-pin-drift.sh:179); the residual fixture-vs-gomod leg is the M14 guard-symmetry decision
+   ~~4. Add a `doc/recipes/localhost-e2e-check.md` recipe (fetch tool + scratch Go client + port hygiene) (D4).~~ **Won't implement — Won't implement — the pattern lives in §d/e + the AGENTS curl-ban note; a recipe file was never needed.**
+   ~~5. `-count=20` quiet-machine stress of the flightrecorder suite to retire the flake question; if it reproduces, instrument `waitForTraceCount` (D7).~~ done — superseded — quiet-run.sh (2026-10-18) + the AGENTS load-flake protocol manage the class
+3. pkg.go.dev render check for flightrecorder/v0.2.0 + otel/v0.2.0 (separate slow ritual; proxy contract already passed) (P). **→ TODO P2 pkg.go.dev row (fr still unrendered)**
+   ~~7. Announce/link the two releases from the repo READMEs if release notes are surfaced there (P).~~ **Won't implement — Won't implement — module CHANGELOGs are the release-notes channel; READMEs do not surface per-tag notes.**
 
 **Filed-ask follow-through (user-gated):**
 8. File the cooldown ask (the drafted doc; needs Lars's go) (P/T11). **→ TODO P3 go-flightrecorder#2 row (user-gated)**

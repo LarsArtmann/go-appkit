@@ -21,58 +21,58 @@ first labeled; corrected mid-report, see §d).
 ## a) FULLY DONE
 
 ~~1. **READ — sperrmuell-direct T49 pattern inventory** (complete): `internal/i18n/i18n.go`~~ done — point-in-time research record verified — the inventory, verdicts, and sketch all landed in the planning doc; the module itself was ruled NOT-FIRE and the negotiation lane shipped in httputil Language() instead
-   (go-i18n v2 bundle, embedded JSON, init load, T/S/TData/SData/TPlural,
-   visible fallback chain locale → default → key + slog), `internal/domain/locale.go`
-   (closed `Locale uint8` enum, parse/Prefix/Other/JSON wire), `cmd/server/locale.go`
-   (`withLocale` middleware: prefix > Accept-Language > default, slug→mux rewrite,
-   308 wrong-locale, publicPath ctx for switcher), hreflang/x-default/sitemap
-   (`routes.go`, `ui.go`), guard suite + `scripts/gen-i18n-keys.py`
-   (idempotent keys.go generator, fails loudly on drift), pins (go-i18n
-   v2.6.1, x/text v0.42.0).
+(go-i18n v2 bundle, embedded JSON, init load, T/S/TData/SData/TPlural,
+visible fallback chain locale → default → key + slog), `internal/domain/locale.go`
+(closed `Locale uint8` enum, parse/Prefix/Other/JSON wire), `cmd/server/locale.go`
+(`withLocale` middleware: prefix > Accept-Language > default, slug→mux rewrite,
+308 wrong-locale, publicPath ctx for switcher), hreflang/x-default/sitemap
+(`routes.go`, `ui.go`), guard suite + `scripts/gen-i18n-keys.py`
+(idempotent keys.go generator, fails loudly on drift), pins (go-i18n
+v2.6.1, x/text v0.42.0).
 ~~2. **UNDERSTOOD — go-appkit family surfaces**: `errorpages.Config.Lang` is a~~ done — point-in-time research record verified — the inventory, verdicts, and sketch all landed in the planning doc; the module itself was ruled NOT-FIRE and the negotiation lane shipped in httputil Language() instead
-   static-string seam (no per-request locale); templ-components already has
-   `Base.Locale` prop + `SEOAlternate` hreflang type + locale-aware
-   relative-time (`documentElement.lang` → `Intl.RelativeTimeFormat`);
-   batteries spec + TODO_LIST had ZERO i18n entries (greenfield confirmed).
+static-string seam (no per-request locale); templ-components already has
+`Base.Locale` prop + `SEOAlternate` hreflang type + locale-aware
+relative-time (`documentElement.lang` → `Intl.RelativeTimeFormat`);
+batteries spec + TODO_LIST had ZERO i18n entries (greenfield confirmed).
 ~~3. **RESEARCHED — ecosystem** (web, cited): go-i18n v2.6.1 active/MIT,~~ done — point-in-time research record verified — the inventory, verdicts, and sketch all landed in the planning doc; the module itself was ruled NOT-FIRE and the negotiation lane shipped in httputil Language() instead
-   CLDR plurals; `x/text/language.Matcher` canonical for Accept-Language
-   (CLDR mutual-intelligibility: pt-BR/pt-PT, zh-Hans/zh-Hant, sr scripts —
-   exactly what T49's hand-rolled parser gets wrong); x/text
-   message/currency for numbers; **no `x/text/date` exists**; alternatives
-   (gotext/spreak = gettext, kaptinlin = ICU — watcher only); SEO: path
-   prefix + reciprocal hreflang + x-default + 308s + never
-   Accept-Language-redirect (Googlebot is en-US).
+CLDR plurals; `x/text/language.Matcher` canonical for Accept-Language
+(CLDR mutual-intelligibility: pt-BR/pt-PT, zh-Hans/zh-Hant, sr scripts —
+exactly what T49's hand-rolled parser gets wrong); x/text
+message/currency for numbers; **no `x/text/date` exists**; alternatives
+(gotext/spreak = gettext, kaptinlin = ICU — watcher only); SEO: path
+prefix + reciprocal hreflang + x-default + 308s + never
+Accept-Language-redirect (Googlebot is en-US).
 ~~4. **REFLECTED/DESIGNED — module sketch**: 13th opt-in module `/i18n`~~ done — point-in-time research record verified — the inventory, verdicts, and sketch all landed in the planning doc; the module itself was ruled NOT-FIRE and the negotiation lane shipped in httputil Language() instead
-   (`Server` matcher middleware, `Negotiate` one-shot, `Translator` over
-   go-i18n, `MissingIn` guard helpers, `Prefix`/`Alternates`), API speaks
-   `language.Tag` (no closed enum), no core dep, no slug router, no
-   auto-redirect; anti-recommendations + trigger conditions written down.
+(`Server` matcher middleware, `Negotiate` one-shot, `Translator` over
+go-i18n, `MissingIn` guard helpers, `Prefix`/`Alternates`), API speaks
+`language.Tag` (no closed enum), no core dep, no slug router, no
+auto-redirect; anti-recommendations + trigger conditions written down.
 ~~5. **WRITTEN — `doc/planning/2026-10-09_i18n-module-research.md`** (138~~ done — point-in-time research record verified — the inventory, verdicts, and sketch all landed in the planning doc; the module itself was ruled NOT-FIRE and the negotiation lane shipped in httputil Language() instead
-   lines): pattern inventory table, ecosystem verdict, API sketch, routed
-   adjacent surfaces ("and co"), recommendation.
+lines): pattern inventory table, ecosystem verdict, API sketch, routed
+adjacent surfaces ("and co"), recommendation.
 ~~6. **WRITTEN — TODO_LIST P3 demand-gated row** (line 58) with TRIGGER,~~ done — point-in-time research record verified — the inventory, verdicts, and sketch all landed in the planning doc; the module itself was ruled NOT-FIRE and the negotiation lane shipped in httputil Language() instead
-   sizing (S/M, one session), and the sibling `errorpages.Config.Locale`
-   train.
+sizing (S/M, one session), and the sibling `errorpages.Config.Locale`
+train.
 
 ## b) PARTIALLY DONE
 
 ~~1. **Demand analysis ("N=1 consumer")** — claimed but NOT verified: I never~~ done — settled — the 03:00 fleet sweep found N=4 (§f1; the TODO i18n row carries the verdict trail)
-   grepped cv, cqrs-htmx, PapDashboard, go-aichat, or templ-components'
-   website for existing i18n/locale usage. The demand-gate framing in the
-   planning doc + TODO row rests on an unchecked count.
+grepped cv, cqrs-htmx, PapDashboard, go-aichat, or templ-components'
+website for existing i18n/locale usage. The demand-gate framing in the
+planning doc + TODO row rests on an unchecked count.
 ~~2. **sperrmuell `routes.go` reading** — `RouteID`/`RoutePath`/route registry~~ done — completed via the 08-11/22-32 sibling sessions (§f3)
-   read only via grep hits; the "slug translation stays app-owned, port as
-   cookbook" claim leans on `locale.go` (read fully) + partial `routes.go`.
+read only via grep hits; the "slug translation stays app-owned, port as
+cookbook" claim leans on `locale.go` (read fully) + partial `routes.go`.
 
 ## c) NOT STARTED
 
 ~~1. **The `i18n` module itself** — deliberately: P3 demand gate (N=1 today).~~ done — ruled NOT-FIRE 2026-10-10 (Q1 verdict; decision memo)
 ~~2. **`errorpages.Config.Locale` seam** — routed as additive sibling train,~~ done — parked — the TODO i18n residue row carries it (§f26)
-   not started.
+not started.
 ~~3. **sperrmuell-direct Matcher upgrade** — the research's most directly~~ done — superseded — the T24 sperrmuell migration carries the Matcher swap (§f6)
-   actionable payoff (replace their hand-rolled `ParseAcceptLanguage` with
-   `x/text` matcher for pt/zh/script classes) is recorded nowhere but this
-   report — needs routing to THEIR TODO_LIST.
+actionable payoff (replace their hand-rolled `ParseAcceptLanguage` with
+`x/text` matcher for pt/zh/script classes) is recorded nowhere but this
+report — needs routing to THEIR TODO_LIST.
 
 ## d) TOTALLY FUCKED UP
 

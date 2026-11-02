@@ -10,137 +10,138 @@ operator explicitly demanded `.md` at this path — override honored, flagged.)_
 ## a) FULLY DONE (verified green, on origin)
 
 ~~1. **T01 PapDashboard consumer-#2 review** — exhaustive usage-surface read~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-   at v0.3.0 (core only, 2 files, 8 `ServiceConfig` fields + both
-   sentinels + `Mux`/`Run`; no DrainHooks/testkit; hand-rolled 250ms
-   testDrainDelay); drift verdict v0.4.0→v0.9.0 additions-only (go floor
-   their only constraint); the security-module adoption signal (their
-   internal/middleware hand-rolls ≈ go-appkit/security's battery set).
-   Addendum: `doc/planning/2026-09-04_papdashboard-integration.md` §7.
+at v0.3.0 (core only, 2 files, 8 `ServiceConfig` fields + both
+sentinels + `Mux`/`Run`; no DrainHooks/testkit; hand-rolled 250ms
+testDrainDelay); drift verdict v0.4.0→v0.9.0 additions-only (go floor
+their only constraint); the security-module adoption signal (their
+internal/middleware hand-rolls ≈ go-appkit/security's battery set).
+Addendum: `doc/planning/2026-09-04_papdashboard-integration.md` §7.
 ~~2. **T02 lo triage + boundary map** — 13 deduplicated findings, 5~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-   adopt / 7 keep / 1 false-positive-declined, table written into the
-   v7 plan §6 with reasons.
+adopt / 7 keep / 1 false-positive-declined, table written into the
+v7 plan §6 with reasons.
 ~~3. **T03 root lo batch — NO-OP with evidence** (zero root-module sites).~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
 ~~4. **T04 lo adoption** — lo v1.53.0 direct in cqrs (promoted from~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-   indirect), otel, realtime, integration; 5 sites hand-applied; full
-   `-race` suites + lints green in all four; `[Unreleased]` CHANGELOG
-   entries; realtime CHANGELOG header-order defect fixed on sight.
+indirect), otel, realtime, integration; 5 sites hand-applied; full
+`-race` suites + lints green in all four; `[Unreleased]` CHANGELOG
+entries; realtime CHANGELOG header-order defect fixed on sight.
 ~~5. **T05 hygiene A** — BuildFlow dry-run audit (9 unavailable + 67 N/A~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-   all correct-by-design); jscpd verdict (115 measured; drafts/ ignored;
-   volume documented not tuned); NEW guard
-   `scripts/check-golangci-configs.sh` (12/12 verify, negative-tested)
-   - CI job; module-details README-link decision (AGENTS-pointer-only).
-~~6. **T06 hygiene B** — `docs/agents/README.md` charter; otel doc.go~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-   completion-line limitation documented WITH fix status (+ killed the
-   module-details/doc.go split brain about it); health example
-   `-hardened` WithCSSPath + embedded CSS, headless-Chromium-verified
-   (link present, CDN count 0, zero console violations); THREAT_MODEL
-   updated; gocritic appendAssign + nolintlint fallout fixed.
-~~7. **T07 claims guard PapDashboard leg** — 3 legs (anchors, ls-remote~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-   newest tag, tagged go.mod), born-red proven on all three.
-~~8. **T08 cqrs-htmx setup suite** — FULL GREEN hermetic (`-race -count=1`,~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-   ~165 tests, 15.1s). Consumer #1 surface extended smoke→suite.
-~~9. **T11 v1 exit criteria** — graduated DRAFT→ACTIONABLE; 5/7 met; both~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-   blockers dated and external-clock.
-~~10. **T21 BuildFlow follow-through** — #46-49 read at source; the~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-    go-work-sync→`go_mod_ignore_dirs` swap documented in `.buildflow.yml`
-    (blocked on binary pre-v0.8.0 — correct call, the skip remains the
-    only leak guard); jscpd #48 defaults noted (local ignore kept);
-    buildflow skill verified current (no PR needed).
-~~11. **T24/T13 sweep** — 4 upstream asks still OPEN; httputil v1.5.0~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-    discovery (MIT release, no LoggingFromContext — i18n gate re-keyed
-    in the watchlist row); pin-drift 27 OK / 0 FAIL.
-~~12. **T27 session close** — guards battery, AGENTS/TODO/FEATURES truth~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-    sync, final v7 report + README index, pushed.
-~~13. **v6 leftover** — CI verified green-except-designed ci-preflight on~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
-    `c285dc1`.
+all correct-by-design); jscpd verdict (115 measured; drafts/ ignored;
+volume documented not tuned); NEW guard
+`scripts/check-golangci-configs.sh` (12/12 verify, negative-tested)
+
+- CI job; module-details README-link decision (AGENTS-pointer-only).
+  ~~6. **T06 hygiene B** — `docs/agents/README.md` charter; otel doc.go~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
+  completion-line limitation documented WITH fix status (+ killed the
+  module-details/doc.go split brain about it); health example
+  `-hardened` WithCSSPath + embedded CSS, headless-Chromium-verified
+  (link present, CDN count 0, zero console violations); THREAT_MODEL
+  updated; gocritic appendAssign + nolintlint fallout fixed.
+  ~~7. **T07 claims guard PapDashboard leg** — 3 legs (anchors, ls-remote~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
+  newest tag, tagged go.mod), born-red proven on all three.
+  ~~8. **T08 cqrs-htmx setup suite** — FULL GREEN hermetic (`-race -count=1`,~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
+  ~165 tests, 15.1s). Consumer #1 surface extended smoke→suite.
+  ~~9. **T11 v1 exit criteria** — graduated DRAFT→ACTIONABLE; 5/7 met; both~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
+  blockers dated and external-clock.
+  ~~10. **T21 BuildFlow follow-through** — #46-49 read at source; the~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
+  go-work-sync→`go_mod_ignore_dirs` swap documented in `.buildflow.yml`
+  (blocked on binary pre-v0.8.0 — correct call, the skip remains the
+  only leak guard); jscpd #48 defaults noted (local ignore kept);
+  buildflow skill verified current (no PR needed).
+  ~~11. **T24/T13 sweep** — 4 upstream asks still OPEN; httputil v1.5.0~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
+  discovery (MIT release, no LoggingFromContext — i18n gate re-keyed
+  in the watchlist row); pin-drift 27 OK / 0 FAIL.
+  ~~12. **T27 session close** — guards battery, AGENTS/TODO/FEATURES truth~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
+  sync, final v7 report + README index, pushed.
+  ~~13. **v6 leftover** — CI verified green-except-designed ci-preflight on~~ done — point-in-time session record verified — the v7 deliverables (lo sites, guards, CSS fix, claims leg, v1 graduation) all shipped and still hold
+  `c285dc1`.
 
 ## b) PARTIALLY DONE
 
 ~~1. **T09 pkg.go.dev** — go-flightrecorder page **RESOLVED** (v0.2.1~~ done — then WRONG later — the fr page 404s again per the 2026-10-18 render-check (TODO P2 pkg.go.dev row, owner-gated); core + errorpages render
-   renders); core@v0.9.0 renders (license-hidden = standing ruling);
-   **errorpages@v0.1.2 still unindexed** (<48h normal lag — re-check
-   next session; escalation rule documented).
+renders); core@v0.9.0 renders (license-hidden = standing ruling);
+**errorpages@v0.1.2 still unindexed** (<48h normal lag — re-check
+next session; escalation rule documented).
 ~~2. **T10 otel benchstat** — B/op + allocs/op re-verified ±0% and~~ done — ns/op re-baselined 2026-10-18 in the quiet window (middleware rows ±9%)
-   recorded; **ns/op deferred a second time** (load 9→26 mid-run,
-   ±40-45% rows vs ±25% bar). No retry attempted after the external
-   test binary finished — should have been.
+recorded; **ns/op deferred a second time** (load 9→26 mid-run,
+±40-45% rows vs ±25% bar). No retry attempted after the external
+test binary finished — should have been.
 ~~3. **T05.2 jscpd strategy** — decided and applied, but the deeper~~ **Won't implement — the keep stands (bare-run coverage); the probe never became necessary.**
-   possibility (drop the local `**/.golangci.yml` ignore and rely on
-   BuildFlow v0.8.0 defaults) was rejected for bare-run coverage without
-   testing what a bare jscpd sees post-#48 — #48 only affects
-   BuildFlow's merged path, so the keep is right; documenting it as
-   "verified reasoning, not verified behavior".
+possibility (drop the local `**/.golangci.yml` ignore and rely on
+BuildFlow v0.8.0 defaults) was rejected for bare-run coverage without
+testing what a bare jscpd sees post-#48 — #48 only affects
+BuildFlow's merged path, so the keep is right; documenting it as
+"verified reasoning, not verified behavior".
 ~~4. **Guards battery on the FINAL tree** — 7 guards green before the~~ done — moot — later passes re-run the full battery on final trees (the upgraded session-close ritual)
-   assets/ move, structure-linter + health lint + example-smoke re-run
-   after it; the other 5 were not re-run post-final-commit (no go.mod/
-   pin surface touched by the move — verdicts stand by argument, not by
-   re-execution).
+assets/ move, structure-linter + health lint + example-smoke re-run
+after it; the other 5 were not re-run post-final-commit (no go.mod/
+pin surface touched by the move — verdicts stand by argument, not by
+re-execution).
 
 ## c) NOT STARTED (all gated/parked BY DESIGN — not executed, not violated)
 
 1. **T12** SSH secret restore (OWNER P1; unblocks 14 CI jobs). **→ TODO P1 row — owner-only SSH secret (narrowed 2026-10-14; still owner-open)**
-~~2. **T13 land-adoptions** — all four issues (#67/#7/#2/#41) OPEN.~~ done — #67 + #7 + #41 CLOSED COMPLETED upstream; go-flightrecorder#2 still OPEN (TODO P3 row)
-~~3. **T14 pma owner decisions** (memo pending rulings).~~ done — owner memo drafted 2026-10-13 (rulings stay owner-open)
-~~4. **T15 i18n residue** — gated on the next httputil FEATURE tag (v1.5.0~~ done — trigger FIRED 2026-10-25 — httputil v1.6.0 shipped Language(); the cheap half done; the split brain dissolved in the same wave
+   ~~2. **T13 land-adoptions** — all four issues (#67/#7/#2/#41) OPEN.~~ done — #67 + #7 + #41 CLOSED COMPLETED upstream; go-flightrecorder#2 still OPEN (TODO P3 row)
+   ~~3. **T14 pma owner decisions** (memo pending rulings).~~ done — owner memo drafted 2026-10-13 (rulings stay owner-open)
+   ~~4. **T15 i18n residue** — gated on the next httputil FEATURE tag (v1.5.0~~ done — trigger FIRED 2026-10-25 — httputil v1.6.0 shipped Language(); the cheap half done; the split brain dissolved in the same wave
    shipped without Language()/LoggingFromContext). Note: the gate was
    re-keyed inside the watchlist row text, but the ORIGINAL i18n row
    (if it names v1.6.0 elsewhere) was not edited — potential doc split
    brain left in place.
-5. **T16** composition-gap E2E legs (on-touch). **T17** W3 httpx demand **→ TODO P3 rows — composition-gap (M18/M19 legs), demand gates, and straggler rows all live in the 2026-11-02 rebuild**
+2. **T16** composition-gap E2E legs (on-touch). **T17** W3 httpx demand **→ TODO P3 rows — composition-gap (M18/M19 legs), demand gates, and straggler rows all live in the 2026-11-02 rebuild**
    gate (the "zero composition consumers" status was CARRIED from v6,
    not freshly re-derived). **T18** SSE-hub drop-counter shape. **T19**
    straggler rows. **T20** pdg polish (their repo). **T22** exhaustruct_v5
    upstream note (USER gate). **T23** samber/do note (USER gate).
-~~6. **T25 dprint exit-14 re-check — MISSED**: the BuildFlow sweep checked~~ done — dprint exit-14 RESOLVED on the refreshed binary 2026-10-18 (no issue needed)
+   ~~6. **T25 dprint exit-14 re-check — MISSED**: the BuildFlow sweep checked~~ done — dprint exit-14 RESOLVED on the refreshed binary 2026-10-18 (no issue needed)
    #46-49 only; the dprint exit-14 upstream state was NOT looked at
    despite being a 5-minute check in the same repo.
-7. **T26** encryption/signing/do-auditlog demand re-check — carried, not **→ TODO P3 demand-gate rows (encryption/signing/do-auditlog)**
+3. **T26** encryption/signing/do-auditlog demand re-check — carried, not **→ TODO P3 demand-gate rows (encryption/signing/do-auditlog)**
    fresh.
 
 ## d) TOTALLY FUCKED UP (self-inflicted, all recovered — but real)
 
 ~~1. **Shipped a CI job that has never executed anywhere.**~~ done — resolved same day — the close-out pass caught it and golangci-config-verify's first live run PASSED (2026-10-13)
-   `golangci-config-verify` (in the `0cfb610` push) is YAML-plausible
-   and its script is locally proven, but the JOB — including the
-   `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0`
-   path — has never run on a runner. Born-red risk unverified; CI on
-   `0cfb610` itself is UNCONFIRMED (last verified green was `c285dc1`).
-   This is the session's biggest process hole.
+`golangci-config-verify` (in the `0cfb610` push) is YAML-plausible
+and its script is locally proven, but the JOB — including the
+`go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0`
+path — has never run on a runner. Born-red risk unverified; CI on
+`0cfb610` itself is UNCONFIRMED (last verified green was `c285dc1`).
+This is the session's biggest process hole.
 2. **Read `.buildflow.yml` an hour too late.** The lo train (T02-T04)
-   executed against the plan's characterization of the standing decision
-   without reading the ON-DISK 2026-10-12 artifact
-   ("Defer lo adoption by policy") that sat in `.buildflow.yml` the
-   whole time. The plan did supersede it and the outcome is correct, but
-   ground rule 1 (premise re-check at source) was violated; the
-   contradiction was found by accident during T21. Stale comment fixed
-   in the same session.
+executed against the plan's characterization of the standing decision
+without reading the ON-DISK 2026-10-12 artifact
+("Defer lo adoption by policy") that sat in `.buildflow.yml` the
+whole time. The plan did supersede it and the outcome is correct, but
+ground rule 1 (premise re-check at source) was violated; the
+contradiction was found by accident during T21. Stale comment fixed
+in the same session.
 3. **The otel import dance**: 4 edit roundtrips on
-   `metrics_test.go` (wrong group shape → deleted a needed newline →
-   still wrong → `golangci-lint fmt` as the canonical fixer). The
-   formatter should have been the FIRST move — the module config is the
-   source of truth for gci shape.
+`metrics_test.go` (wrong group shape → deleted a needed newline →
+still wrong → `golangci-lint fmt` as the canonical fixer). The
+formatter should have been the FIRST move — the module config is the
+source of truth for gci shape.
 4. **The `io` import break**: removed `io` after grepping only the
-   import line (`grep '"io"'`), missing `io.Copy` at :102/:204. Compile
-   caught it; a usage-grep before removal was the discipline I skipped.
+import line (`grep '"io"'`), missing `io.Copy` at :102/:204. Compile
+caught it; a usage-grep before removal was the discipline I skipped.
 5. **T08 first invocation wrong** (`./setup/...` from the cqrs-htmx root
-   — setup is a nested module; the claims guard itself fetches
-   `setup/go.mod`, so I should have known without the failure).
+— setup is a nested module; the claims guard itself fetches
+`setup/go.mod`, so I should have known without the failure).
 6. **Daemon races lost 4-5 attribution batches** — my edit→test→commit
-   pattern loses to the 30s daemon; "commit immediately" was applied to
-   only some batches. Content verified correct every time, but the
-   losses were avoidable (commit-then-test, or amend).
+pattern loses to the 30s daemon; "commit immediately" was applied to
+only some batches. Content verified correct every time, but the
+losses were avoidable (commit-then-test, or amend).
 7. **Unresolved mystery left behind**: something holds port 8099
-   (first health-example boot failed "address already in use"); I worked
-   around it (8093/8094/8095) and never identified the squatter. Also
-   never diagnosed WHY two exact-match edits on AGENTS.md line 48 failed
-   (suspect an invisible char — zero-width/nbsp — unfound).
-   _RESOLVED same day (close-out pass): port 8099 is ANOTHER USER's
-   listener on this shared box (socket inode owned by a process whose
-   /proc entries are unreadable to us; not a session zombie — examples
-   keep their alternate ports). AGENTS.md carries NO zero-width/nbsp/
-   BOM chars — only visible em-dashes (U+2014) and arrows (U+2192);
-   the failed edits were a text mismatch (typography or stale line
-   number), not invisible characters._
+(first health-example boot failed "address already in use"); I worked
+around it (8093/8094/8095) and never identified the squatter. Also
+never diagnosed WHY two exact-match edits on AGENTS.md line 48 failed
+(suspect an invisible char — zero-width/nbsp — unfound).
+_RESOLVED same day (close-out pass): port 8099 is ANOTHER USER's
+listener on this shared box (socket inode owned by a process whose
+/proc entries are unreadable to us; not a session zombie — examples
+keep their alternate ports). AGENTS.md carries NO zero-width/nbsp/
+BOM chars — only visible em-dashes (U+2014) and arrows (U+2192);
+the failed edits were a text mismatch (typography or stale line
+number), not invisible characters._
 
 ## e) WHAT WE SHOULD IMPROVE (session-derived, concrete)
 
@@ -174,7 +175,7 @@ operator explicitly demanded `.md` at this path — override honored, flagged.)_
 ~~1. Verify CI green on `0cfb610` (first live run of `golangci-config-verify`).~~ done — the job's first live run PASSED (2026-10-13)
 ~~2. If red: fix the job (install path/flags) and re-verify.~~ done — moot — the job ran green first try
 ~~3. Retry the otel ns/op bench in a quiet window (check `uptime` first;~~ done — re-baselined 2026-10-18 (quiet window, ±9%)
-   the external `web.test` at 430% may be gone).
+the external `web.test` at 430% may be gone).
 ~~4. Re-check errorpages@v0.1.2 on pkg.go.dev (>48h rule).~~ done — errorpages renders (watchlist 2026-10-18); fr regressed to 404 (owner-gated row)
 
 **P1 — high value:**
@@ -270,12 +271,12 @@ the durable f-items must land in TODO_LIST to matter.
    of the new `golangci-config-verify` job (P0 item 1-2 can still be
    read from the run attempt, but matrix/structure-linter stay dark
    until the secret exists).
-~~2. **BuildFlow binary refresh**: the system binary (764c23c, nix-deployed)~~ done — binary refreshed (ef32fa0) and verified 2026-10-18
+   ~~2. **BuildFlow binary refresh**: the system binary (764c23c, nix-deployed)~~ done — binary refreshed (ef32fa0) and verified 2026-10-18
    predates BuildFlow v0.8.0. Is refreshing it (nixos-rebuild/home-manager)
    an owner action, or should I attempt it in-session? It unblocks the
    documented `go_mod_ignore_dirs` swap — and it is your machine state,
    not this repo's.
-~~3. **PapDashboard nudge policy**: the review found their hand-rolled~~ **Won't implement — hands-off stands; Open question 2 carries the posture.**
+   ~~3. **PapDashboard nudge policy**: the review found their hand-rolled~~ **Won't implement — hands-off stands; Open question 2 carries the posture.**
    middleware is a near-1:1 match for go-appkit/security. The standing
    instruction is "their repo, do not nudge" — for VERSION refresh. Is a
    one-time, evidence-backed security-module adoption SIGNAL (e.g. a

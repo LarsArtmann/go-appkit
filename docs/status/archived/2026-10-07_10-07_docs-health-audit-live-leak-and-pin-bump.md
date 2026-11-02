@@ -11,80 +11,81 @@
 ## a) FULLY DONE
 
 ~~1. **docs-health AUDIT executed** (skill loaded first): TODO_LIST + FEATURES~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   verified against code, git history, and LIVE origin CI state (`gh`).
+verified against code, git history, and LIVE origin CI state (`gh`).
 ~~2. **Harvested the 01-22 session-final report** (it postdated the last harvest):~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   2 completed TODO items deleted on origin-verified evidence —
-   - _CI resilience_: SHIPPED as `ci-preflight` (`67c2a61`) and **observed
-     live** on origin run `37546484597` (`5b00c7c`): preflight = the ONE
-     designed-red job, `test` matrix = SKIPPED (not 12 reds), all guards +
-     11 proxy-smoke jobs green.
-   - _workspace-charter observation_: job green on `ae3b2d4` AND `5b00c7c`
-     (and it caught real leak #3 before going green).
-~~3. **P1 narrowed + stale companion dropped**: the ssh-agent/git-config steps~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   were already gated `github.event_name != 'pull_request'` since `1c4d9b9`
-   (verified in `.github/workflows/ci.yml:77`) — the "gate off PR events"
-   companion was done work listed as open.
-~~4. **Daemon item updated** with the 01-22 facts (BuildFlow gomod-check~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   exonerated; `go work use -r .` sorted-insert signature; reflog-silent
-   rewind; push stall) and the leak count corrected to FOUR with verified
-   hashes: #4 added in `620a3b1` (09:53:48, DURING this session), removed in
-   `19100c5`.
-~~5. **5 new P2 items routed** from the 01-22 (f) list: per-module pin-drift~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   guard, push-lag watch, post-commit HEAD-advance hook, cqrs flake hunt,
-   AGENTS pipe rule. Open question (6) daemon-location added.
-~~6. **FEATURES.md version-truth fixed**: 7 stale "UNRELEASED at v0.1.x"~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   annotations de-staled (otel 5, flightrecorder 2 — both v0.2.0 shipped
-   2026-10-06); cqrs v0.7.0 rows ADDED (`EventConfig.Domain`, health/SCREAM
-   accessors, engine-backed checkpoints, always-close Shutdown, README sync
-   guard); flightrecorder v0.2.0 rows added (async capture, `?download=1`,
-   `OpsRecorderLoggerPreset`, example); systemd `Counters()` row added. Every
-   cited test name grep-verified to exist.
-~~7. **Guards caught TWO live issues mid-audit** (this is the guards-as-code~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   pattern paying off inside the session that documented it):
-   - **go.work leak #4** (`./integration` re-added by daemon commit `620a3b1`)
-     — removed; charter guard green.
-   - **integration cqrs-htmx pin drift** v4.13.1 → v4.13.2 — bumped in
-     `integration/go.mod` + `documentedPins` fixture; hermetic
-     `GOWORK=off GOTOOLCHAIN=go1.27.1` build + vet + **full suite
-     `-race -count=1` GREEN (2.3s)**.
-~~8. **AGENTS same-train fix**: the cross-repo pin parenthetical (still saying~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   cqrs-htmx v4.13.0 / go-sse v0.6.1 / httputil v1.4.0) updated to
-   v4.13.2 / v0.6.2 / v1.4.1 — the same-train release-state rule applied to my
-   own bump (initially missed; see d2).
-~~9. **Claim-wording fix**: "root v4.13.2 published 2026-10-07" → "first seen by~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-   the pin-drift guard 2026-10-07" (inference ≠ verification).
-~~10. **Formatting via BuildFlow** (`buildflow -s dprint-format --fix`, skill~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-    loaded first; initial `-s dprint` corrected to the real provider name) +
-    structure linter **0 findings** bare (the daemon-committed
-    `.go-structure-linter.yaml` is honored).
-~~11. **Final state: all four guards green** (pin-drift, go-directives,~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-    workspace-charter, structure linter); working tree picked up by the daemon
-    (`19100c5`, `31526ce`).
-~~12. **Documentation Health Report delivered inline**: Accuracy 10.00 /~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
-    Fitness 10.00 — scoped to the audited docs with explicit caveats (though
-    see d2 for the overclaim inside that report).
+2 completed TODO items deleted on origin-verified evidence —
+
+- _CI resilience_: SHIPPED as `ci-preflight` (`67c2a61`) and **observed
+  live** on origin run `37546484597` (`5b00c7c`): preflight = the ONE
+  designed-red job, `test` matrix = SKIPPED (not 12 reds), all guards +
+  11 proxy-smoke jobs green.
+- _workspace-charter observation_: job green on `ae3b2d4` AND `5b00c7c`
+  (and it caught real leak #3 before going green).
+  ~~3. **P1 narrowed + stale companion dropped**: the ssh-agent/git-config steps~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  were already gated `github.event_name != 'pull_request'` since `1c4d9b9`
+  (verified in `.github/workflows/ci.yml:77`) — the "gate off PR events"
+  companion was done work listed as open.
+  ~~4. **Daemon item updated** with the 01-22 facts (BuildFlow gomod-check~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  exonerated; `go work use -r .` sorted-insert signature; reflog-silent
+  rewind; push stall) and the leak count corrected to FOUR with verified
+  hashes: #4 added in `620a3b1` (09:53:48, DURING this session), removed in
+  `19100c5`.
+  ~~5. **5 new P2 items routed** from the 01-22 (f) list: per-module pin-drift~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  guard, push-lag watch, post-commit HEAD-advance hook, cqrs flake hunt,
+  AGENTS pipe rule. Open question (6) daemon-location added.
+  ~~6. **FEATURES.md version-truth fixed**: 7 stale "UNRELEASED at v0.1.x"~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  annotations de-staled (otel 5, flightrecorder 2 — both v0.2.0 shipped
+  2026-10-06); cqrs v0.7.0 rows ADDED (`EventConfig.Domain`, health/SCREAM
+  accessors, engine-backed checkpoints, always-close Shutdown, README sync
+  guard); flightrecorder v0.2.0 rows added (async capture, `?download=1`,
+  `OpsRecorderLoggerPreset`, example); systemd `Counters()` row added. Every
+  cited test name grep-verified to exist.
+  ~~7. **Guards caught TWO live issues mid-audit** (this is the guards-as-code~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  pattern paying off inside the session that documented it):
+- **go.work leak #4** (`./integration` re-added by daemon commit `620a3b1`)
+  — removed; charter guard green.
+- **integration cqrs-htmx pin drift** v4.13.1 → v4.13.2 — bumped in
+  `integration/go.mod` + `documentedPins` fixture; hermetic
+  `GOWORK=off GOTOOLCHAIN=go1.27.1` build + vet + **full suite
+  `-race -count=1` GREEN (2.3s)**.
+  ~~8. **AGENTS same-train fix**: the cross-repo pin parenthetical (still saying~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  cqrs-htmx v4.13.0 / go-sse v0.6.1 / httputil v1.4.0) updated to
+  v4.13.2 / v0.6.2 / v1.4.1 — the same-train release-state rule applied to my
+  own bump (initially missed; see d2).
+  ~~9. **Claim-wording fix**: "root v4.13.2 published 2026-10-07" → "first seen by~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  the pin-drift guard 2026-10-07" (inference ≠ verification).
+  ~~10. **Formatting via BuildFlow** (`buildflow -s dprint-format --fix`, skill~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  loaded first; initial `-s dprint` corrected to the real provider name) +
+  structure linter **0 findings** bare (the daemon-committed
+  `.go-structure-linter.yaml` is honored).
+  ~~11. **Final state: all four guards green** (pin-drift, go-directives,~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  workspace-charter, structure linter); working tree picked up by the daemon
+  (`19100c5`, `31526ce`).
+  ~~12. **Documentation Health Report delivered inline**: Accuracy 10.00 /~~ done — point-in-time audit record verified — the harvest, FEATURES version-truth, leak-#4 fix, and guard catches all landed as described; the guards it shipped still run
+  Fitness 10.00 — scoped to the audited docs with explicit caveats (though
+  see d2 for the overclaim inside that report).
 
 ## b) PARTIALLY DONE
 
 ~~1. **FEATURES.md VERIFY**: version-truth + newly cited test names verified;~~ done — evidence cells de6d4f6 (§f9)
-   every historical evidence cell was NOT re-verified.
+every historical evidence cell was NOT re-verified.
 2. **AGENTS verify**: release claims guard-checked + one stale parenthetical
-   fixed; no full AGENTS pass (still 361/377 counted lines — lean).
+fixed; no full AGENTS pass (still 361/377 counted lines — lean).
 ~~3. **README.md / ROADMAP.md / per-module CHANGELOG bodies**: untouched,~~ done — README + ROADMAP verify passes 2026-10-12 and 2026-11-02 (§f10/f11)
-   not re-verified this session.
+not re-verified this session.
 ~~4. **`.buildflow.yml` license-check skip REMOVAL** (daemon commits `620a3b1` +~~ done — resolved 2026-10-07 — both daemon modernizations proven correct (§f8)
-   `31526ce`, NOT authored by this session): flagged to the owner, provenance
-   unknown, not investigated further (AGENTS documents that step as unable to
-   load this repo — pre-1.27 go in the nix-run sandbox).
+`31526ce`, NOT authored by this session): flagged to the owner, provenance
+unknown, not investigated further (AGENTS documents that step as unable to
+load this repo — pre-1.27 go in the nix-run sandbox).
 
 ## c) NOT STARTED
 
 ~~1. The 5 newly routed P2 items themselves (routing ≠ execution).~~ done — all five shipped (§f2-f6)
 2. P1 secret restore (owner-only). **→ TODO P1 row — owner-only SSH secret (narrowed 2026-10-14; still owner-open)**
 ~~3. core v0.8.0 + systemd v0.1.0 train; Example StartHooks migration; fr v0.2.1~~ done — train shipped 2026-10-07; StartHooks migration decc462; fr sweep on the 2026-10-12 trains
-   sweep; all other standing TODO_LIST items (untouched, remain valid).
+sweep; all other standing TODO_LIST items (untouched, remain valid).
 4. otel×realtime / docs-module / flightrecorder-middleware E2E legs **→ composition-gap watchlist row (TODO P3 — the otel legs closed 2026-10-18)**
-   (watchlist, not picked up).
+(watchlist, not picked up).
 
 ## d) TOTALLY FUCKED UP
 
@@ -189,7 +190,7 @@
     ~~until then).~~
 27. ~~**Consumer-claim drift ritual posture** (USER GATE: keep exact pins w/~~ done — resolved 2026-10-12 — pins kept + guarded (scripts/check-consumer-claims.sh, T05)
     ~~ritual vs drop them).~~
-~~28. **`/mnt/buildcache` topology answer** (owner; recurrence risk for the~~ done — answered — local ext4 (TODO Open questions, resolved 2026-11-02)
+    ~~28. **`/mnt/buildcache` topology answer** (owner; recurrence risk for the~~ done — answered — local ext4 (TODO Open questions, resolved 2026-11-02)
     2026-09-29 corruption class).
 
 (Items 13–28 are standing TODO_LIST entries restated for completeness — the

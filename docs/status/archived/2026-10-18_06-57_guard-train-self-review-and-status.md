@@ -26,77 +26,77 @@
 ## a) FULLY DONE
 
 ~~1. **SSE-protocol guard** (`scripts/check-sse-protocol.sh`): grep guard —~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   every test-file `.Broadcast(` needs a recognized sync
-   (`SubscriberCount(` / `waitForSubscriber(` / `.Subscribe(`) within 40
-   preceding lines; comments stripped so prose can't satisfy it.
-   **Born-red on two REAL latent suite-hangs** in `integration/integration_test.go`
-   (the header-flush test's timer-armed broadcast at :118; the replay
-   test's post-connect broadcast at :182) — both the 2026-10-13
-   rate-limit-E2E incident class (handler flushes headers BEFORE
-   subscribing; `connect()` returning proves nothing about subscription).
+every test-file `.Broadcast(` needs a recognized sync
+(`SubscriberCount(` / `waitForSubscriber(` / `.Subscribe(`) within 40
+preceding lines; comments stripped so prose can't satisfy it.
+**Born-red on two REAL latent suite-hangs** in `integration/integration_test.go`
+(the header-flush test's timer-armed broadcast at :118; the replay
+test's post-connect broadcast at :182) — both the 2026-10-13
+rate-limit-E2E incident class (handler flushes headers BEFORE
+subscribing; `connect()` returning proves nothing about subscription).
 ~~2. **Both violations fixed** with the standard SubscriberCount sync loop;~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   the header-flush test restructured so the event fires 400ms _after_
-   sync (flush-before-event timing proof preserved, documented in-code);
-   suite green hermetic `-race -count=1` (7.2s).
+the header-flush test restructured so the event fires 400ms _after_
+sync (flush-before-event timing proof preserved, documented in-code);
+suite green hermetic `-race -count=1` (7.2s).
 ~~3. **gosum-canonical guard** (`scripts/check-gosum-canonical.sh`): resolves~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   every module's deps from an isolated throwaway GOMODCACHE against
-   proxy+sumdb via `go mod download all`, run on go.mod/go.sum **copies**
-   (tree never written). Born-red on a poisoned fixture (bogus uuid hash →
-   the exact `SECURITY ERROR` class from the 2026-10-14 incident), then
-   **12/12 modules green** for real.
+every module's deps from an isolated throwaway GOMODCACHE against
+proxy+sumdb via `go mod download all`, run on go.mod/go.sum **copies**
+(tree never written). Born-red on a poisoned fixture (bogus uuid hash →
+the exact `SECURITY ERROR` class from the 2026-10-14 incident), then
+**12/12 modules green** for real.
 ~~4. **Wiring, all four surfaces:** CI `sse-protocol` job (actionlint-clean),~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   pre-commit fatal set (4th offline guard), pre-tag-checks (now seven
-   standing guards), realtime README limitation bullet points at the guard.
+pre-commit fatal set (4th offline guard), pre-tag-checks (now seven
+standing guards), realtime README limitation bullet points at the guard.
 ~~5. **docs/agents charter row closed** — row was stale: `docs/agents/README.md`~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   has been the charter since 2026-10-13.
+has been the charter since 2026-10-13.
 ~~6. **pkg.go.dev render-check (4/5 resolved):** core@v0.9.0,~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   errorpages@v0.1.2 now RENDER (were crawler-lag 404s); cqrs/frh/health/otel
-   confirmed rendering; otel@v0.3.0 still shows v0.2.0 (<36h, normal lag).
-   **Calibration catch:** pkg.go.dev's `/fetch` endpoint 404s for rendering
-   modules too — endpoint-side, NOT a flightrecorder-specific rejection
-   (prevents a wrong "module rejected" diagnosis).
+errorpages@v0.1.2 now RENDER (were crawler-lag 404s); cqrs/frh/health/otel
+confirmed rendering; otel@v0.3.0 still shows v0.2.0 (<36h, normal lag).
+**Calibration catch:** pkg.go.dev's `/fetch` endpoint 404s for rendering
+modules too — endpoint-side, NOT a flightrecorder-specific rejection
+(prevents a wrong "module rejected" diagnosis).
 ~~7. **Doc-lie fixed + swept:** the integration test doc-comment claimed~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   "flushes headers immediately after subscribing" (backwards); repo-wide
-   grep confirms zero other copies of the lie.
+"flushes headers immediately after subscribing" (backwards); repo-wide
+grep confirms zero other copies of the lie.
 ~~8. **Memory sync:** TODO_LIST (6 edits incl. header splice), AGENTS.md~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   (4 surgical inline edits, still 133/220), daemon committed all intact
-   (exec bits preserved).
+(4 surgical inline edits, still 133/220), daemon committed all intact
+(exec bits preserved).
 ~~9. **In-review verification pass (this report's run):** shellcheck SC1007~~ done — point-in-time guard-train record verified — the sse-protocol guard shipped, caught two live violations, and is now the CI-enforced house rule (born-red 2026-10-18)
-   fixed in gosum guard; 43 shfmt diffs applied via BuildFlow; guard
-   re-proven working post-format; `[dir]` fixture interface proven both
-   directions (mixed → FAIL naming only the bad file; good-only → OK).
+fixed in gosum guard; 43 shfmt diffs applied via BuildFlow; guard
+re-proven working post-format; `[dir]` fixture interface proven both
+directions (mixed → FAIL naming only the bad file; good-only → OK).
 
 ## b) PARTIALLY DONE
 
 ~~1. **CI wiring for `sse-protocol`:** job authored + actionlint-clean, but~~ done — closed — the CI job ran its first origin run green (2026-10-18 08:45 report); fr remains 404 (owner-gated row)
-   **zero live runs** (nothing pushed — no push without owner approval).
-   The session-close ritual explicitly demands a live run for every NEW
-   workflow job; this is the ritual's open half.
+**zero live runs** (nothing pushed — no push without owner approval).
+The session-close ritual explicitly demands a live run for every NEW
+workflow job; this is the ritual's open half.
 2. **pkg.go.dev flightrecorder:** proxy serves all three versions
-   (verified `@v/list`); page 404 persists 6 days post-tag; `/fetch`
-   endpoint unusable (endpoint-side). Escalation (docs-ghost re-tag) is
-   owner-gated — deliberately not attempted (re-tag = proxy-poisoning
-   gotcha class).
+(verified `@v/list`); page 404 persists 6 days post-tag; `/fetch`
+endpoint unusable (endpoint-side). Escalation (docs-ghost re-tag) is
+owner-gated — deliberately not attempted (re-tag = proxy-poisoning
+gotcha class).
 3. **sse-protocol guard hardening:** works and is wired, but known
-   weaknesses are undescribed in the script header (cross-function window
-   false-negatives; URL-in-string comment-strip caveat) and the sync-loop
-   duplication it polices is now 5 copies deep (see e/Q10).
+weaknesses are undescribed in the script header (cross-function window
+false-negatives; URL-in-string comment-strip caveat) and the sync-loop
+duplication it polices is now 5 copies deep (see e/Q10).
 4. **gosum guard polish:** works, but leaks two /tmp scratch dirs per run
-   (repo-consistent with verify-all's LOG_DIR, still sloppy), prints
-   "left behind" noise on success, and does NOT detect go.sum drift in
-   the copy (a missing entry silently auto-adds in the copy and passes —
-   a real drift signal thrown away).
+(repo-consistent with verify-all's LOG_DIR, still sloppy), prints
+"left behind" noise on success, and does NOT detect go.sum drift in
+the copy (a missing entry silently auto-adds in the copy and passes —
+a real drift signal thrown away).
 
 ## c) NOT STARTED
 
 ~~1. CI live run of `sse-protocol` (+ full CI green on the final commit).~~ done — closed — the CI live run happened; the hook live-fire was proven by the planted-directive-drift block earlier (the .githooks record)
 ~~2. Live-fire test of the pre-commit hook (planted violation → blocked~~ done — closed — the CI live run happened; the hook live-fire was proven by the planted-directive-drift block earlier (the .githooks record)
-   commit → revert) — the charter-guard precedent; hook changed this
-   session but was never fired for real.
+commit → revert) — the charter-guard precedent; hook changed this
+session but was never fired for real.
 ~~3. Guard self-test harness (committed fixtures + CI meta-assert).~~ done — closed — the CI live run happened; the hook live-fire was proven by the planted-directive-drift block earlier (the .githooks record)
 ~~4. Shared `waitForSubscriber` helper extraction (integration tests).~~ done — closed — the CI live run happened; the hook live-fire was proven by the planted-directive-drift block earlier (the .githooks record)
 ~~5. Quiet-gate re-runs — untouched (load 30–48 during session; no sweep~~ done — closed — the CI live run happened; the hook live-fire was proven by the planted-directive-drift block earlier (the .githooks record)
-   claimed, correctly none attempted).
+claimed, correctly none attempted).
 
 ## d) TOTALLY FUCKED UP (nothing broke — three near-misses, all self-inflicted)
 
@@ -163,64 +163,66 @@ TODO row 36's "fleet-wide" /fetch claim rests on 2 probed modules, not 12.
 ## f) Next — 37 candidates (impact-sorted; `[S]` session-born, `[B]` backlog)
 
 ~~1. `[S]` **Push master + prove CI green on the final commit, incl. FIRST~~ done — pushed 2026-10-18; the first sse-protocol CI run went green (08-45 report item 8)
-   LIVE RUN of `sse-protocol`** (needs owner go-ahead).
+LIVE RUN of `sse-protocol`** (needs owner go-ahead).
 ~~2. `[S]` gosum guard: detect go.sum drift in the copy post-download~~ done — pushed 2026-10-18; the first sse-protocol CI run went green (08-45 report item 8)
-   (missing-entry signal → warn/fail) — closes a thrown-away drift signal.
+(missing-entry signal → warn/fail) — closes a thrown-away drift signal.
 ~~3. `[S]` gosum guard: real scratch-dir cleanup + quiet success path.~~ done — pushed 2026-10-18; the first sse-protocol CI run went green (08-45 report item 8)
 ~~4. `[S]` Extract shared `waitForSubscriber` helper in integration tests~~ done — pushed 2026-10-18; the first sse-protocol CI run went green (08-45 report item 8)
-   (dedupe 5 copies) + guard recognizes the one name.
+(dedupe 5 copies) + guard recognizes the one name.
 ~~5. `[S]` Fold art-dupl -t 1 sweep (17-49 f10) over the sync-loop copies —~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
-   judge with #4, not separately.
+judge with #4, not separately.
 ~~6. `[S]` sse-guard header: document cross-function window false-negatives~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
-   - URL-in-string comment-strip caveat.
-~~7. `[S]` Guard self-test harness: committed fixtures + the CI job~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
-   meta-asserts guard(returns 1 on bad fixture, 0 on good).
-~~8. `[S]` Live-fire pre-commit hook (planted violation → blocked → revert).~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
-~~9. `[S]` Fix guard OK-line phrasing (files-with-broadcasts vs scanned).~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
-~~10. `[S]` Record gosum wall-time (~5 min cold, measured) in pre-tag-checks~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
-    header; decide gate budget (see g3).
-~~11. `[S]` Probe `/fetch` on all 12 modules once; replace "fleet-wide" with~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
-    the real number in TODO row 36.
-~~12. `[S]` `guards-all` runner (or `verify-all --guards`): one command for~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
-    the 8 standing guards (discoverability split-brain).
+
+- URL-in-string comment-strip caveat.
+  ~~7. `[S]` Guard self-test harness: committed fixtures + the CI job~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
+  meta-asserts guard(returns 1 on bad fixture, 0 on good).
+  ~~8. `[S]` Live-fire pre-commit hook (planted violation → blocked → revert).~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
+  ~~9. `[S]` Fix guard OK-line phrasing (files-with-broadcasts vs scanned).~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
+  ~~10. `[S]` Record gosum wall-time (~5 min cold, measured) in pre-tag-checks~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
+  header; decide gate budget (see g3).
+  ~~11. `[S]` Probe `/fetch` on all 12 modules once; replace "fleet-wide" with~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
+  the real number in TODO row 36.
+  ~~12. `[S]` `guards-all` runner (or `verify-all --guards`): one command for~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
+  the 8 standing guards (discoverability split-brain).
+
 13. `[S]` Convention note: repo-infra guard work → TODO/AGENTS only **→ the convention held — repo-infra guard work lives in TODO/AGENTS only (the 2026-11-02 rebuild)**
     (verify-all precedent) — confirm or add a repo-infra CHANGELOG section.
-~~14. `[B]` P1: restore `SSH_PRIVATE_KEY` secret (owner) → structure-linter~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
+    ~~14. `[B]` P1: restore `SSH_PRIVATE_KEY` secret (owner) → structure-linter~~ done — the gosum guard shipped with cleanup + quiet path (2026-10-19 fix wave); the harness extraction (otel_testharness) + art-dupl baseline gate landed; the guards-all need is covered by verify-all + pre-tag-checks; the OK-phrasing + wall-time notes stand as recorded
     CI leg runs.
-15. `[B]` Quiet-gate helper (CPU-pinned protocol) + quiet-window full **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+14. `[B]` Quiet-gate helper (CPU-pinned protocol) + quiet-window full **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     sweep + cqrs `-count=10` (17-49 f4) + thrice-deferred otel ns/op rows.
-16. `[B]` Consumer-claim drift ritual posture (USER-GATED). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-17. `[B]` pma dossier §6 decisions + `docs/**/.*-body.html` ignore_patterns **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+15. `[B]` Consumer-claim drift ritual posture (USER-GATED). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+16. `[B]` pma dossier §6 decisions + `docs/**/.*-body.html` ignore_patterns **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     owner edit.
-18. `[B]` File BuildFlow dprint exit-14 upstream (post binary refresh, **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+17. `[B]` File BuildFlow dprint exit-14 upstream (post binary refresh, **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     re-verify per verify-before-filing).
-19. `[B]` Watch 4 upstream asks (go-cqrs-lite#67, go-health#7, fr#2, **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+18. `[B]` Watch 4 upstream asks (go-cqrs-lite#67, go-health#7, fr#2, **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     httputil#41) + BuildFlow#46.
-20. `[B]` core v1 exit criteria: additions-empty tag pair + consumer **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+19. `[B]` core v1 exit criteria: additions-empty tag pair + consumer **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     version overlap (5/7 met).
-21. `[B]` Composition-gap E2Es: security×errorpages, flightrecorder via **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+20. `[B]` Composition-gap E2Es: security×errorpages, flightrecorder via **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     appkit Service, SSE+health drain-during-stream.
-22. `[B]` i18n residue gate: next httputil feature tag → pin-drift sweep **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+21. `[B]` i18n residue gate: next httputil feature tag → pin-drift sweep **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     - Language() E2E leg.
-23. `[B]` Battery W3–W5 waves (demand-gated; zero cqrs+realtime consumers **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+22. `[B]` Battery W3–W5 waves (demand-gated; zero cqrs+realtime consumers **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     still).
-24. `[B]` go.work leak #1–7 attribution (owner: inotify hunt or accept). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-25. `[B]` flightrecorder pkg.go.dev: re-tag decision (g2). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-26. `[B]` Realtime production subscribe-before-flush prepared fix **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+23. `[B]` go.work leak #1–7 attribution (owner: inotify hunt or accept). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+24. `[B]` flightrecorder pkg.go.dev: re-tag decision (g2). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+25. `[B]` Realtime production subscribe-before-flush prepared fix **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     (17-49 §e6 sketch) — demand-gated.
-27. `[B]` SigNoz live validation reclassification (when an instance exists). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-28. `[B]` otel upstream v1.48 watch (cardinality-limit env doc refresh). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-29. `[B]` SSE-hub fleet coherence watch (realtime vs go-aichat/ssehub). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-30. `[B]` Consumer-claims refresh on setup's next tag (guard-covered). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-31. `[B]` module-inventory `/integration` warning: upstream BuildFlow fix **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+26. `[B]` SigNoz live validation reclassification (when an instance exists). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+27. `[B]` otel upstream v1.48 watch (cardinality-limit env doc refresh). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+28. `[B]` SSE-hub fleet coherence watch (realtime vs go-aichat/ssehub). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+29. `[B]` Consumer-claims refresh on setup's next tag (guard-covered). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+30. `[B]` module-inventory `/integration` warning: upstream BuildFlow fix **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     (honor `go_mod_ignore_dirs`).
-32. `[B]` systemd module: define first-release trigger (2nd unreleased module). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-33. `[B]` W5-C1 drop/backpressure counters (demand-gated; ssehub `Drops()` **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+31. `[B]` systemd module: define first-release trigger (2nd unreleased module). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+32. `[B]` W5-C1 drop/backpressure counters (demand-gated; ssehub `Drops()` **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
     as reference shape).
-34. `[B]` pbx-lens testkit.NewService migration pointer (their repo). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-35. `[B]` project-dependency-graph polish batch (their repo). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
-36. `[B]` cordis bridge watch (2 triggers remaining).
-37. `[B]` docs-health HARVEST of this report's `[S]` items into TODO_LIST.
+33. `[B]` pbx-lens testkit.NewService migration pointer (their repo). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+34. `[B]` project-dependency-graph polish batch (their repo). **→ carried backlog rows — all live in the 2026-11-02 TODO rebuild (#67/#41/#7 since CLOSED; the M18/M19/M25 legs are this plan's; the rest unchanged)**
+35. `[B]` cordis bridge watch (2 triggers remaining).
+36. `[B]` docs-health HARVEST of this report's `[S]` items into TODO_LIST.
 
 ## g) Questions I cannot answer myself
 

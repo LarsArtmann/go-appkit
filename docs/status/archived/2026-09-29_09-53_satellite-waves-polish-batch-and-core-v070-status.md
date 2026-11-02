@@ -63,55 +63,55 @@ BuildFlow full-mode validation (#16), T29 watchlist (#17), T30 consumer ritual (
 2. ~~**Integration migration**: `TestDrainWindowContract` → `DrainWindowProbe`; switch new E2Es' hook slices to `[]appkit.Hook`; suite + lint + guards + push.~~ done — integration migrated — DrainWindowProbe at composition_contract_test.go:176 + []appkit.Hook slices; suite green
 3. ~~Same-train docs for core v0.7.0 (AGENTS core bullet + release state through v0.7.0 + TODO header unreleased line emptied).~~ done — same-train docs landed (AGENTS through core v0.7.0)
 4. ~~Realtime README gotcha: flush-precedes-subscribe window + `SubscriberCount()` as the producer sync point.~~ done — added 2026-10-12 (docs-health pass) — realtime README Known limitations now documents the flush-precedes-subscribe window + SubscriberCount sync
-~~5. Root `drainhooks_test.go` route decision: external test package (import cycle) vs pointer-comment to the helper — pick one, execute.~~ done — kept hand-rolled + pointer comment (drainhooks_test.go:15); the integration TestDrainWindowContract migration shipped (11-47 session)
-6. ~~cqrs-lint scorecard re-run + CHANGELOG delta (adoption ritual).~~ done — scorecard re-run recorded in cqrs CHANGELOG ("unchanged at 5/28" after the adoption-closure train)
-7. **BuildFlow full-mode validation** (`env -u GOTOOLCHAIN buildflow --build-mode full`). **→ env-blocked — BuildFlow full mode deadlocks here; constraint documented in AGENTS**
-8. ~~T29 watchlist sweep (cordis, PapDashboard, nixpkgs toolchain, dprint exit-14, cqrs-htmx v5 window) with as-of dates.~~ done — watchlist refreshed with as-of dates (2026-09-29)
-9. T30 external-consumer proxy ritual decision + recipe paragraph. **→ routed — Decision 14 (verify-on-touch + quarterly)**
-10. T32 rituals re-arm (cqrs cookbook re-verify trigger, core v1 exit-criteria graduation, battery demand re-check). **→ routed — rituals are standing rows (TODO_LIST P3 + AGENTS cqrs section)**
-11. T20 AGENTS slim batch 1 (per-module build commands → module READMEs; cap headroom). **→ routed — TODO_LIST P3 AGENTS slim-down**
-12. T20b/c gotcha-group slim batches 2-3. **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
-13. ~~T21 art-dupl suppression audit (~431 groups) + standing policy + Decision 13 cross-link.~~ done — audited 2026-09-29 — 477 groups, one harmful clone fixed
-14. ~~T31 lessons.md entry (crush-config repo, committed): verify-distinguishing-output / topology-before-tooling / sync-on-observability / mechanical delta enumeration.~~ done — the caller-wins-toolchain lesson class lives in crush-config references/lessons.md (2026-09-22 entry)
-15. ~~Upstream draft: BuildFlow go-licenses ≥1.27 runner.~~ **Won't implement — moot — the premise broke: license-check passes 13/13 since the 2026-10-07 probes.**
-16. ~~Upstream draft: go-structure-linter per-tool excludes / yaml config honor.~~ **NOT-DO — NOT-DO — CLOSED 2026-09-29: the installed binary honors the yaml config; no filing needed.**
-17. ~~Triage BuildFlow's `golangci-lint-config-verify` warning (`exhaustruct_v5.exclude` key not allowed in one module's config — find which, fix key or version).~~ done — not reproducing — 0 issues x12 at the 2026-10-12 fleet scan
-18. ~~Triage the 5 go-auto-upgrade findings (lo.FromPtr frh; lo.Map/lo.Filter otel/realtime tests) — fix or policy-skip with rationale.~~ done — no lo.* usage remains in frh/otel/realtime (verified 2026-10-12)
-19. ~~jscpd policy decision (13 findings; cross-module `.golangci.yml` 277-line clones are by-design).~~ done — decided — per-module .golangci.yml duplication accepted BY DESIGN (Decision 13 amendment)
-20. ~~Fix the 5 broken doc links (lychee: go-plugin-mvp, forks/cordis moved).~~ done — fixed 2026-09-29 (11-47 session)
-21. ~~Check whether the go.work etag replace can drop NOW (realtime/flightrecorder/docs/security/otel graphs re-resolved via the new tags) — if yes, drop + fresh-worktree guard test.~~ done — dropped 2026-09-29 via integration excludes
-22. ~~SECURITY go.mod: example-only appkit dep v0.5.1 → current (next security-touching train).~~ done — dep now at v0.8.0; CHANGELOG entry corrected 2026-10-12
-23. ~~Verify CI directives job parses the committed go.work on the next push (guards + proxy-smoke visible even with the matrix owner-blocked).~~ done — CI go-directives green parsing the committed go.work
-24. ~~DOMAIN_LANGUAGE.md: DLQ poison contract terms (Rejection/Corruption = quarantined; retryable = restarts worker).~~ done — DLQ terms recorded in doc/DOMAIN_LANGUAGE.md
-25. ~~Clean /tmp scratch (core-old, cqrs-old, per-module -old, appkit-probe, example binaries, cspcheck).~~ **Won't implement — moot — /tmp is ephemeral; the 12-45 session trashed what existed.**
-26. ~~AGENTS integration bullet: one clause noting the T14 version-locked legs are hand-realigned to family pins (go-health now v0.4.1).~~ done — AGENTS integration bullet carries the T14 clause
-27. ~~Re-verify dependabot grouped updates reconcile after the 4 go.mod sweeps.~~ done — parity guard green; in pre-commit since 2026-10-07
-28. ~~Grep-and-sync living docs for the old "through core v0.5.1" floor claim (README/FEATURES/ROADMAP).~~ done — floor claims synced (re-verified 2026-10-12)
-29. pkg.go.dev render check for the 9 new tags (crawler lag — not a failure if 404 today). **→ docs v0.3.2 renders on pkg.go.dev (verified 2026-10-12); flightrecorder still 404 — escalated to TODO_LIST**
-30. ~~Mark SUPERB v5 plan doc executed with deltas (T01-T12, T14, T17-T19, T24-T26 + this session's trains).~~ done — SUPERB v5 banner completed + archived 2026-10-12
-31. otel ns/op re-baseline when load < 2 (n=10, mean-of-10 convention, update README table). **→ done 2026-10-18 — otel README ns/op re-baseline through the quiet gate (n=10 benchstat; otel CHANGELOG [Unreleased] carries it)**
-32. ~~Core v0.7.0 fresh-consumer BEHAVIORAL check (full recipe path, not just proxycheck) — the Hook alias/DrainWindowProbe consumer view.~~ **Won't implement — moot — superseded by v0.8.0; the release ritual owns per-tag proxy checks.**
-33. ~~Consider a tiny `testkit` follow-up: a two-path drain observation helper only if a second consumer appears (current two-hook pattern stands).~~ **NOT-DO — NOT-DO — the condition (a second drain-observing consumer) never fired; DrainWindowProbe + the two-hook pattern stand.**
-34. ~~art-dupl pass over the session's new test files (two new E2Es share probe-helper shapes — audit before it grows).~~ done — covered — the 2026-10-12 fleet scan re-ran duplication analysis (7 low clones, all accepted)
-35. Document the tag→pin dance in the Release Ritual (step 4 addendum) if multi-module trains stay the norm. **→ done 2026-10-12 — pre-tag-checks.sh accepts multiple tags (AGENTS Release Ritual step 5: gate-all-then-push-all; multi-tag waves proven 2026-10-12)**
-36. ~~Health module: confirm no NEW deltas accumulated post-v0.1.4 (daemon sweeps) before closing the day.~~ done — health deltas enumerated mechanically by the 2026-10-06 sweep (v0.1.5 shipped)
-37. ~~Go back through the realtime gotcha list for the same race class documented anywhere else (handler.go comments).~~ done — covered — realtime README gotcha (2026-10-12) + sse_health_drain_test.go comments document the race class
-38. ~~Verify the integration module's `documentedGoDirective` fixture + `check-go-directives.sh` still agree after all trains (they should — ran green).~~ done — fixture + guard agree (green through every train since)
-39. ~~Check whether cqrs-htmx picked up core v0.6.0 yet (their etag stub-replace drop — D2 ritual freshness).~~ done — setup/v4.13.2 pins core v0.7.0 (verified 2026-10-01)
-40. Consider making `pre-tag-checks.sh` accept multiple tags for wave pushes (gate-all-then-push-all). **→ done 2026-10-12 — pre-tag-checks.sh accepts multiple tags (AGENTS Release Ritual step 5: gate-all-then-push-all; multi-tag waves proven 2026-10-12)**
-41. T13 (G3-gated, USER). **→ resolved — answered by execution: pins kept + `scripts/check-consumer-claims.sh` (2026-10-12; born-red on both consumer legs 2026-10-13)**
-42. T15 (USER-gated): 6 upstream filings. **→ resolved — 4 family asks FILED 2026-10-13 (go-cqrs-lite#67, go-health#7, go-flightrecorder#2, httputil#41); the go-sse and httputil asks resolved without filing**
-43. T16 (USER-gated): errorpages statusRecorder → httputil.ResponseRecorder swap. **→ resolved — DECLINED at source level 2026-10-13 (errorpages v0.1.2 CHANGELOG decision record)**
-44. T22 (their repo): pdg backlog. **→ their repo — TODO_LIST P3 pdg pointer row**
-45. T23 (user intent): prompt-crusher merge resolution. **→ resolved in THEIR repo — conflict fixed + repo renamed `prompt-crusher` (go.mod verified clean 2026-11-02)**
-46. T27: govulncheck on health + security (networked machine). **→ done 2026-10-13 — govulncheck 12/12 clean via `nix shell nixpkgs#govulncheck`**
-47. T28: browser CSP pass over DashboardHardenedPreset (chromedp) + THREAT_MODEL link. **→ done 2026-10-13 — headless-Chromium CSP pass + `WithCSSPath` embedded CSS (SUPERB v7 T06)**
-48. T10.1: owner sets `SSH_PRIVATE_KEY` → then watch a fully green master run. **→ dissolved 2026-10-14 — the CI split made the matrix unauthenticated (family repos public); the secret now gates ONLY the structure-linter job (TODO_LIST P1)**
-49. Battery waves (demand-gated). **→ demand-gated — battery waves watchlist (TODO_LIST P3)**
-50. ~~Write the next session's handoff with the MECHANICAL unreleased-delta enumeration (see e4).~~ **Won't implement — moot — superseded by the 11-47 handoff, which shipped exactly this (mechanical delta enumeration).**
+   ~~5. Root `drainhooks_test.go` route decision: external test package (import cycle) vs pointer-comment to the helper — pick one, execute.~~ done — kept hand-rolled + pointer comment (drainhooks_test.go:15); the integration TestDrainWindowContract migration shipped (11-47 session)
+5. ~~cqrs-lint scorecard re-run + CHANGELOG delta (adoption ritual).~~ done — scorecard re-run recorded in cqrs CHANGELOG ("unchanged at 5/28" after the adoption-closure train)
+6. **BuildFlow full-mode validation** (`env -u GOTOOLCHAIN buildflow --build-mode full`). **→ env-blocked — BuildFlow full mode deadlocks here; constraint documented in AGENTS**
+7. ~~T29 watchlist sweep (cordis, PapDashboard, nixpkgs toolchain, dprint exit-14, cqrs-htmx v5 window) with as-of dates.~~ done — watchlist refreshed with as-of dates (2026-09-29)
+8. T30 external-consumer proxy ritual decision + recipe paragraph. **→ routed — Decision 14 (verify-on-touch + quarterly)**
+9. T32 rituals re-arm (cqrs cookbook re-verify trigger, core v1 exit-criteria graduation, battery demand re-check). **→ routed — rituals are standing rows (TODO_LIST P3 + AGENTS cqrs section)**
+10. T20 AGENTS slim batch 1 (per-module build commands → module READMEs; cap headroom). **→ routed — TODO_LIST P3 AGENTS slim-down**
+11. T20b/c gotcha-group slim batches 2-3. **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
+12. ~~T21 art-dupl suppression audit (~431 groups) + standing policy + Decision 13 cross-link.~~ done — audited 2026-09-29 — 477 groups, one harmful clone fixed
+13. ~~T31 lessons.md entry (crush-config repo, committed): verify-distinguishing-output / topology-before-tooling / sync-on-observability / mechanical delta enumeration.~~ done — the caller-wins-toolchain lesson class lives in crush-config references/lessons.md (2026-09-22 entry)
+14. ~~Upstream draft: BuildFlow go-licenses ≥1.27 runner.~~ **Won't implement — moot — the premise broke: license-check passes 13/13 since the 2026-10-07 probes.**
+15. ~~Upstream draft: go-structure-linter per-tool excludes / yaml config honor.~~ **NOT-DO — NOT-DO — CLOSED 2026-09-29: the installed binary honors the yaml config; no filing needed.**
+16. ~~Triage BuildFlow's `golangci-lint-config-verify` warning (`exhaustruct_v5.exclude` key not allowed in one module's config — find which, fix key or version).~~ done — not reproducing — 0 issues x12 at the 2026-10-12 fleet scan
+17. ~~Triage the 5 go-auto-upgrade findings (lo.FromPtr frh; lo.Map/lo.Filter otel/realtime tests) — fix or policy-skip with rationale.~~ done — no lo.* usage remains in frh/otel/realtime (verified 2026-10-12)
+18. ~~jscpd policy decision (13 findings; cross-module `.golangci.yml` 277-line clones are by-design).~~ done — decided — per-module .golangci.yml duplication accepted BY DESIGN (Decision 13 amendment)
+19. ~~Fix the 5 broken doc links (lychee: go-plugin-mvp, forks/cordis moved).~~ done — fixed 2026-09-29 (11-47 session)
+20. ~~Check whether the go.work etag replace can drop NOW (realtime/flightrecorder/docs/security/otel graphs re-resolved via the new tags) — if yes, drop + fresh-worktree guard test.~~ done — dropped 2026-09-29 via integration excludes
+21. ~~SECURITY go.mod: example-only appkit dep v0.5.1 → current (next security-touching train).~~ done — dep now at v0.8.0; CHANGELOG entry corrected 2026-10-12
+22. ~~Verify CI directives job parses the committed go.work on the next push (guards + proxy-smoke visible even with the matrix owner-blocked).~~ done — CI go-directives green parsing the committed go.work
+23. ~~DOMAIN_LANGUAGE.md: DLQ poison contract terms (Rejection/Corruption = quarantined; retryable = restarts worker).~~ done — DLQ terms recorded in doc/DOMAIN_LANGUAGE.md
+24. ~~Clean /tmp scratch (core-old, cqrs-old, per-module -old, appkit-probe, example binaries, cspcheck).~~ **Won't implement — moot — /tmp is ephemeral; the 12-45 session trashed what existed.**
+25. ~~AGENTS integration bullet: one clause noting the T14 version-locked legs are hand-realigned to family pins (go-health now v0.4.1).~~ done — AGENTS integration bullet carries the T14 clause
+26. ~~Re-verify dependabot grouped updates reconcile after the 4 go.mod sweeps.~~ done — parity guard green; in pre-commit since 2026-10-07
+27. ~~Grep-and-sync living docs for the old "through core v0.5.1" floor claim (README/FEATURES/ROADMAP).~~ done — floor claims synced (re-verified 2026-10-12)
+28. pkg.go.dev render check for the 9 new tags (crawler lag — not a failure if 404 today). **→ docs v0.3.2 renders on pkg.go.dev (verified 2026-10-12); flightrecorder still 404 — escalated to TODO_LIST**
+29. ~~Mark SUPERB v5 plan doc executed with deltas (T01-T12, T14, T17-T19, T24-T26 + this session's trains).~~ done — SUPERB v5 banner completed + archived 2026-10-12
+30. otel ns/op re-baseline when load < 2 (n=10, mean-of-10 convention, update README table). **→ done 2026-10-18 — otel README ns/op re-baseline through the quiet gate (n=10 benchstat; otel CHANGELOG [Unreleased] carries it)**
+31. ~~Core v0.7.0 fresh-consumer BEHAVIORAL check (full recipe path, not just proxycheck) — the Hook alias/DrainWindowProbe consumer view.~~ **Won't implement — moot — superseded by v0.8.0; the release ritual owns per-tag proxy checks.**
+32. ~~Consider a tiny `testkit` follow-up: a two-path drain observation helper only if a second consumer appears (current two-hook pattern stands).~~ **NOT-DO — NOT-DO — the condition (a second drain-observing consumer) never fired; DrainWindowProbe + the two-hook pattern stand.**
+33. ~~art-dupl pass over the session's new test files (two new E2Es share probe-helper shapes — audit before it grows).~~ done — covered — the 2026-10-12 fleet scan re-ran duplication analysis (7 low clones, all accepted)
+34. Document the tag→pin dance in the Release Ritual (step 4 addendum) if multi-module trains stay the norm. **→ done 2026-10-12 — pre-tag-checks.sh accepts multiple tags (AGENTS Release Ritual step 5: gate-all-then-push-all; multi-tag waves proven 2026-10-12)**
+35. ~~Health module: confirm no NEW deltas accumulated post-v0.1.4 (daemon sweeps) before closing the day.~~ done — health deltas enumerated mechanically by the 2026-10-06 sweep (v0.1.5 shipped)
+36. ~~Go back through the realtime gotcha list for the same race class documented anywhere else (handler.go comments).~~ done — covered — realtime README gotcha (2026-10-12) + sse_health_drain_test.go comments document the race class
+37. ~~Verify the integration module's `documentedGoDirective` fixture + `check-go-directives.sh` still agree after all trains (they should — ran green).~~ done — fixture + guard agree (green through every train since)
+38. ~~Check whether cqrs-htmx picked up core v0.6.0 yet (their etag stub-replace drop — D2 ritual freshness).~~ done — setup/v4.13.2 pins core v0.7.0 (verified 2026-10-01)
+39. Consider making `pre-tag-checks.sh` accept multiple tags for wave pushes (gate-all-then-push-all). **→ done 2026-10-12 — pre-tag-checks.sh accepts multiple tags (AGENTS Release Ritual step 5: gate-all-then-push-all; multi-tag waves proven 2026-10-12)**
+40. T13 (G3-gated, USER). **→ resolved — answered by execution: pins kept + `scripts/check-consumer-claims.sh` (2026-10-12; born-red on both consumer legs 2026-10-13)**
+41. T15 (USER-gated): 6 upstream filings. **→ resolved — 4 family asks FILED 2026-10-13 (go-cqrs-lite#67, go-health#7, go-flightrecorder#2, httputil#41); the go-sse and httputil asks resolved without filing**
+42. T16 (USER-gated): errorpages statusRecorder → httputil.ResponseRecorder swap. **→ resolved — DECLINED at source level 2026-10-13 (errorpages v0.1.2 CHANGELOG decision record)**
+43. T22 (their repo): pdg backlog. **→ their repo — TODO_LIST P3 pdg pointer row**
+44. T23 (user intent): prompt-crusher merge resolution. **→ resolved in THEIR repo — conflict fixed + repo renamed `prompt-crusher` (go.mod verified clean 2026-11-02)**
+45. T27: govulncheck on health + security (networked machine). **→ done 2026-10-13 — govulncheck 12/12 clean via `nix shell nixpkgs#govulncheck`**
+46. T28: browser CSP pass over DashboardHardenedPreset (chromedp) + THREAT_MODEL link. **→ done 2026-10-13 — headless-Chromium CSP pass + `WithCSSPath` embedded CSS (SUPERB v7 T06)**
+47. T10.1: owner sets `SSH_PRIVATE_KEY` → then watch a fully green master run. **→ dissolved 2026-10-14 — the CI split made the matrix unauthenticated (family repos public); the secret now gates ONLY the structure-linter job (TODO_LIST P1)**
+48. Battery waves (demand-gated). **→ demand-gated — battery waves watchlist (TODO_LIST P3)**
+49. ~~Write the next session's handoff with the MECHANICAL unreleased-delta enumeration (see e4).~~ **Won't implement — moot — superseded by the 11-47 handoff, which shipped exactly this (mechanical delta enumeration).**
 
 ## g) Questions only you can answer
 
 1. **Machine toolchain (carry-over, now 2 sessions old)**: will the nix go default move to ≥1.27.1? Yes → I retire the whole GOTOOLCHAIN-prefix discipline (AGENTS blocks, .buildflow.yml env, hook notes) in one train. No → the prefix stays; I stop asking and keep documenting it. **→ TODO_LIST Open questions item 1 (machine go default — standing since 2026-09-29)**
 2. **Core release cadence**: are addition-only core trains (v0.7.0 today; Hook/DrainWindowProbe/seriesKey) welcome per-session, or should additions batch into feature waves so consumers see fewer versions? Today's v0.7.0 unblocks the integration migration immediately — but I can hold additions for waves if you prefer. **→ settled by practice — addition-only core trains shipped per-session (v0.6.0 → v0.8.0) with no batching complaint**
-~~3. **G3 (carry-over)**: consumer-pin claims in AGENTS/FEATURES — keep them and I build `scripts/check-consumer-claims.sh` (re-verifies claims after each cqrs-htmx release), or drop exact consumer pins from AGENTS entirely?~~ done — answered by execution — pins kept + scripts/check-consumer-claims.sh (2026-10-12; born-red on both legs 2026-10-13)
+   ~~3. **G3 (carry-over)**: consumer-pin claims in AGENTS/FEATURES — keep them and I build `scripts/check-consumer-claims.sh` (re-verifies claims after each cqrs-htmx release), or drop exact consumer pins from AGENTS entirely?~~ done — answered by execution — pins kept + scripts/check-consumer-claims.sh (2026-10-12; born-red on both legs 2026-10-13)

@@ -156,11 +156,11 @@ root/testkit); tree clean at `7ff0b36`.
 1. **Machine toolchain:** upgrade the default `go` to ≥1.27.1? Every **→ TODO_LIST Open questions item 1 (machine go default — standing since 2026-09-29)**
    command currently needs the `GOTOOLCHAIN=go1.27.1` prefix; the
    unification is done, the prefix tax is per-command forever otherwise.
-~~2. **G3 (consumer-claims guard):** keep consumer pins + build~~ done — answered by execution — pins kept + scripts/check-consumer-claims.sh shipped 2026-10-12 (born-red on both consumer legs 2026-10-13); T13 unblocked
+   ~~2. **G3 (consumer-claims guard):** keep consumer pins + build~~ done — answered by execution — pins kept + scripts/check-consumer-claims.sh shipped 2026-10-12 (born-red on both consumer legs 2026-10-13); T13 unblocked
    `scripts/check-consumer-claims.sh`, or strip them? Blocks T13.
-3. ~~**cordis bridge:** promote to a tracked TODO now that trigger 1/3 is~~ done — answered — promoted to the TODO_LIST P3 cordis WATCHLIST row (2026-09-29)
+2. ~~**cordis bridge:** promote to a tracked TODO now that trigger 1/3 is~~ done — answered — promoted to the TODO_LIST P3 cordis WATCHLIST row (2026-09-29)
    ~~lit, or keep cold? (Watchlist wording updated today either way.)~~
-4. ~~**otel v0.2.0 push authorization** (the SigNoz session's g2, still~~ done — answered — the v0.2.0 train ran 2026-10-06
+3. ~~**otel v0.2.0 push authorization** (the SigNoz session's g2, still~~ done — answered — the v0.2.0 train ran 2026-10-06
    ~~open): release train now or batch?~~
 
 ---

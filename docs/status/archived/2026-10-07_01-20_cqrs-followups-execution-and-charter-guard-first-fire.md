@@ -30,9 +30,9 @@
 ## c) NOT STARTED
 
 1. otel×realtime SSE-through-OuterMiddlewares E2E leg (optional; already on the composition-gap watchlist). **→ composition-gap watchlist row (the otel legs closed 2026-10-18)**
-~~2. FEATURES.md VERIFY pass (cqrs v0.7.0 rows, the two v0.2.0 module rows) — out of this session's scope; the TODO carries no explicit item, worth adding on the next docs pass.~~ done — 31526ce + de6d4f6 (§f12); the 2026-11-02 pass added the health v0.3.0 rows
-~~3. cqrs-lint scorecard re-run — deliberately skipped: no wrapper API changed this session (test/doc-only); the ritual triggers on the next cqrs feature train.~~ done — correctly skipped — no wrapper API changed; the ritual triggered on the v0.8.0 feature train
-~~4. core v0.8.0 + systemd v0.1.0 release train (unchanged; steps live in TODO P3).~~ done — core v0.8.0 + systemd v0.1.0 train shipped 2026-10-07 (§f13)
+   ~~2. FEATURES.md VERIFY pass (cqrs v0.7.0 rows, the two v0.2.0 module rows) — out of this session's scope; the TODO carries no explicit item, worth adding on the next docs pass.~~ done — 31526ce + de6d4f6 (§f12); the 2026-11-02 pass added the health v0.3.0 rows
+   ~~3. cqrs-lint scorecard re-run — deliberately skipped: no wrapper API changed this session (test/doc-only); the ritual triggers on the next cqrs feature train.~~ done — correctly skipped — no wrapper API changed; the ritual triggered on the v0.8.0 feature train
+   ~~4. core v0.8.0 + systemd v0.1.0 release train (unchanged; steps live in TODO P3).~~ done — core v0.8.0 + systemd v0.1.0 train shipped 2026-10-07 (§f13)
 
 ## d) TOTALLY FUCKED UP
 
@@ -58,19 +58,19 @@
 5. ~~**Push-lag / daemon-health watch**: local guard or hook warning when origin/master age exceeds N hours (the stall went unnoticed ~30min mid-session; the 6-day CI blindness is the same class at larger scale).~~ done at `a7c2796`
 6. **SSH_PRIVATE_KEY restore (owner, P1)** — with ci-preflight shipped, the blind spot is at least loud now. **→ TODO P1 row — owner-only SSH secret (narrowed 2026-10-14; still owner-open)**
 7. **File the go-cqrs-lite upstream ask (owner-gated)** — two verified findings + consumer tripwire; draft complete. **→ CLOSED — filed as go-cqrs-lite#67, CLOSED COMPLETED 2026-10-13 (watchlist)**
-~~8. **/mnt/buildcache topology answer (owner)** — recurrence risk for the corruption class.~~ done — answered — local ext4 (TODO Open questions, resolved 2026-11-02)
-9. **cqrs-htmx setup Domain adoption** — their next train, owner-gated cross-repo. **→ their repo — consumer-side adoption (watchlist cqrs-htmx leg)**
-10. ~~**Flake hunt**: rerun the cqrs suite `-count=10` under load once; if the transient recurs, capture the name (this session lost it to d3).~~ done — RAN 2026-10-13 -race -count=10 — found a real captureHandler read race, fixed (94465cc), x10 re-run green
-11. **Standing upstream-flip watch** (system GracefulClose + timer-stop): the 4-file change is enumerated in the `cqrs/domain_test.go` tripwire comment. **→ CLOSED — #67 CLOSED COMPLETED (cqrs rides bare GracefulClose; watch row closed — watchlist)**
-12. ~~**FEATURES.md VERIFY pass** (cqrs v0.7.0 + otel/flightrecorder v0.2.0 rows).~~ done — (31526ce version-truth + de6d4f6 evidence cells)
-13. ~~**core v0.8.0 + systemd v0.1.0 train** (steps in TODO P3; demand-proven by bank-sync ADR-017).~~ done at `3870403 + b514928`
-14. ~~**Example StartHooks migration** post core v0.8.0 (flightrecorder + otel examples; TODO P3).~~ done at `decc462`
-15. ~~**fr v0.2.1 sweep** on the frh + cqrs next trains (safe-but-don't-bump-casually; TODO P3).~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
-16. ~~**AGENTS deep slim-down** — 361/377 again after this session's additions; every future addition needs a removal until the structural cut lands.~~ done — slimmed 366 to 126 lines 2026-10-12 (docs-health full pass)
-17. **Composition-gap E2E watchlist** items (otel×realtime first; existing TODO entry). **→ composition-gap watchlist (TODO_LIST)**
-18. **BuildFlow dprint exit-14 upstream fix** (standing; escape hatch documented). **→ RESOLVED 2026-10-18 on the refreshed binary — no issue needed (Deferred Register row kept for history)**
-19. ~~**Health/polish backlog batch** (existing TODO P3 smalls — untouched, standing).~~ done — shipped — core v0.7.0 polish (DrainWindowProbe, seriesKey, Hook alias) + issues #25/#26 (2026-10-12)
-20. ~~**AGENTS rule addition from e1** (never pipe verify commands; redirect to file) — one line, next AGENTS touch.~~ done at `86b612d`
+   ~~8. **/mnt/buildcache topology answer (owner)** — recurrence risk for the corruption class.~~ done — answered — local ext4 (TODO Open questions, resolved 2026-11-02)
+8. **cqrs-htmx setup Domain adoption** — their next train, owner-gated cross-repo. **→ their repo — consumer-side adoption (watchlist cqrs-htmx leg)**
+9. ~~**Flake hunt**: rerun the cqrs suite `-count=10` under load once; if the transient recurs, capture the name (this session lost it to d3).~~ done — RAN 2026-10-13 -race -count=10 — found a real captureHandler read race, fixed (94465cc), x10 re-run green
+10. **Standing upstream-flip watch** (system GracefulClose + timer-stop): the 4-file change is enumerated in the `cqrs/domain_test.go` tripwire comment. **→ CLOSED — #67 CLOSED COMPLETED (cqrs rides bare GracefulClose; watch row closed — watchlist)**
+11. ~~**FEATURES.md VERIFY pass** (cqrs v0.7.0 + otel/flightrecorder v0.2.0 rows).~~ done — (31526ce version-truth + de6d4f6 evidence cells)
+12. ~~**core v0.8.0 + systemd v0.1.0 train** (steps in TODO P3; demand-proven by bank-sync ADR-017).~~ done at `3870403 + b514928`
+13. ~~**Example StartHooks migration** post core v0.8.0 (flightrecorder + otel examples; TODO P3).~~ done at `decc462`
+14. ~~**fr v0.2.1 sweep** on the frh + cqrs next trains (safe-but-don't-bump-casually; TODO P3).~~ done — fr v0.2.1 in cqrs/frh/otel go.mods (2026-10-12 trains)
+15. ~~**AGENTS deep slim-down** — 361/377 again after this session's additions; every future addition needs a removal until the structural cut lands.~~ done — slimmed 366 to 126 lines 2026-10-12 (docs-health full pass)
+16. **Composition-gap E2E watchlist** items (otel×realtime first; existing TODO entry). **→ composition-gap watchlist (TODO_LIST)**
+17. **BuildFlow dprint exit-14 upstream fix** (standing; escape hatch documented). **→ RESOLVED 2026-10-18 on the refreshed binary — no issue needed (Deferred Register row kept for history)**
+18. ~~**Health/polish backlog batch** (existing TODO P3 smalls — untouched, standing).~~ done — shipped — core v0.7.0 polish (DrainWindowProbe, seriesKey, Hook alias) + issues #25/#26 (2026-10-12)
+19. ~~**AGENTS rule addition from e1** (never pipe verify commands; redirect to file) — one line, next AGENTS touch.~~ done at `86b612d`
 
 ## g) Questions I can NOT figure out myself
 
