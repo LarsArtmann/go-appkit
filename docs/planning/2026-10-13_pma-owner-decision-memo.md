@@ -80,7 +80,7 @@ their source repo), one line each — execute top to bottom:
      is fnmatch-on-basename), or
    - `docs/**/.*-body.html` (doublestar path glob — if pma matches on
      relative paths).
-   Pick per pma's matcher dialect; the ghost class is `docs/**/.*-body.html`
-   mid-edit working files the daemon snapshots mid-write. One line, then
-   `systemctl restart projects-management-automation` (or pma's reload path)
-   and confirm the next session's working files stay uncommitted.
+     Pick per pma's matcher dialect; the ghost class is `docs/**/.*-body.html`
+     mid-edit working files the daemon snapshots mid-write. One line, then
+     `systemctl restart projects-management-automation` (or pma's reload path)
+     and confirm the next session's working files stay uncommitted.
