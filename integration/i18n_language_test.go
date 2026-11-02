@@ -12,10 +12,12 @@
 //   - Content-Language and Vary: Accept-Language ride every negotiated
 //     response THROUGH the default stack (no middleware strips them).
 //   - LanguageFromContext is populated for downstream handlers.
+
 package integration_test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -59,13 +61,17 @@ func newLanguageService(t *testing.T) *testkit.TestServer {
 	return ts
 }
 
-func negotiate(t *testing.T, base, acceptLanguage string) (*http.Response, string) {
+// negotiate GETs /greet with the given Accept-Language, closes the response
+// body, and returns the response headers plus the negotiated language tag
+// the handler echoed back.
+func negotiate(t *testing.T, base, acceptLanguage string) (http.Header, string) {
 	t.Helper()
 
 	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, base+"/greet", nil)
 	if err != nil {
 		t.Fatalf("build request: %v", err)
 	}
+
 	if acceptLanguage != "" {
 		req.Header.Set("Accept-Language", acceptLanguage)
 	}
@@ -80,10 +86,12 @@ func negotiate(t *testing.T, base, acceptLanguage string) (*http.Response, strin
 		t.Fatalf("GET /greet (Accept-Language %q): status = %d, want 200", acceptLanguage, resp.StatusCode)
 	}
 
-	body := make([]byte, 64)
-	n, _ := resp.Body.Read(body)
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		t.Fatalf("read body: %v", readErr)
+	}
 
-	return resp, strings.TrimPrefix(strings.TrimSpace(string(body[:n])), "lang=")
+	return resp.Header, strings.TrimPrefix(strings.TrimSpace(string(body)), "lang=")
 }
 
 func TestLanguageNegotiationThroughDefaultStack(t *testing.T) {
@@ -95,22 +103,22 @@ func TestLanguageNegotiationThroughDefaultStack(t *testing.T) {
 	t.Run("primary-subtag fallback and q-weight ordering", func(t *testing.T) {
 		t.Parallel()
 
-		resp, lang := negotiate(t, base, "da-DK,da;q=0.9,en;q=0.4")
+		header, lang := negotiate(t, base, "da-DK,da;q=0.9,en;q=0.4")
 		if lang != "da" {
 			t.Errorf("negotiated = %q, want da (primary-subtag fallback)", lang)
 		}
-		if cl := resp.Header.Get("Content-Language"); cl != "da" {
+		if cl := header.Get("Content-Language"); cl != "da" {
 			t.Errorf("Content-Language = %q, want da", cl)
 		}
-		if vary := resp.Header.Get("Vary"); !strings.Contains(vary, "Accept-Language") {
+		if vary := header.Get("Vary"); !strings.Contains(vary, "Accept-Language") {
 			t.Errorf("Vary = %q, want it to name Accept-Language", vary)
 		}
 
-		resp2, lang2 := negotiate(t, base, "en;q=0.2,da;q=0.9")
+		header2, lang2 := negotiate(t, base, "en;q=0.2,da;q=0.9")
 		if lang2 != "da" {
 			t.Errorf("q-weight negotiated = %q, want da (0.9 beats 0.2)", lang2)
 		}
-		if cl := resp2.Header.Get("Content-Language"); cl != "da" {
+		if cl := header2.Get("Content-Language"); cl != "da" {
 			t.Errorf("q-weight Content-Language = %q, want da", cl)
 		}
 	})

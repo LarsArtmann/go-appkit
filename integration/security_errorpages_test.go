@@ -19,6 +19,7 @@
 //     plain 405 path. Pretty 405s are Wrap's job (custom-server setups).
 //   - classified handler error rendered via errorpages.Write → pretty page
 //     with the error-family status and the security headers.
+
 package integration_test
 
 import (
@@ -33,7 +34,7 @@ import (
 	"github.com/larsartmann/go-appkit/errorpages"
 	"github.com/larsartmann/go-appkit/security"
 	"github.com/larsartmann/go-appkit/testkit"
-	"github.com/larsartmann/go-error-family"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 func newSecuredErrorpagesService(t *testing.T) (*testkit.TestServer, string) {
@@ -50,14 +51,21 @@ func newSecuredErrorpagesService(t *testing.T) (*testkit.TestServer, string) {
 	errorpages.Mount(svc.Mux, errorpages.Config{})
 
 	apiKey := "itest-security-errorpages-key"
-	svc.Mux.Handle("GET /api", security.APIKeyAuth(apiKey)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = w.Write([]byte(`{"ok":true}`))
-	})))
 
-	unclassified := errorfamily.NewInfrastructure("itest.security_errorpages", "infrastructure failure behind the pretty pages")
+	greet := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	})
+	svc.Mux.Handle("GET /api", security.APIKeyAuth(apiKey)(greet))
+
+	unclassified := errorfamily.NewInfrastructure(
+		"itest.security_errorpages",
+		"infrastructure failure behind the pretty pages",
+	)
+
 	svc.Mux.HandleFunc("GET /boom", func(w http.ResponseWriter, r *http.Request) {
 		errorpages.Write(w, r, unclassified, errorpages.Config{})
 	})
+
 	ts := testkit.Serve(t, svc)
 
 	t.Cleanup(func() {
@@ -95,136 +103,184 @@ func TestErrorpagesBehindSecurityStack(t *testing.T) {
 	t.Run("authed route serves through the stack", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, base+"/api", nil)
-		if err != nil {
-			t.Fatalf("build request: %v", err)
-		}
-		req.Header.Set(security.APIKeyHeader, apiKey)
-
-		authed, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
-		if err != nil {
-			t.Fatalf("GET /api with key: %v", err)
-		}
-		defer func() { _ = authed.Body.Close() }()
-
-		if authed.StatusCode != http.StatusOK {
-			t.Fatalf("GET /api with key: status = %d, want 200", authed.StatusCode)
-		}
-
-		securityHeadersPresent(t, authed.Header)
+		secErrAuthedRoute(t, base, apiKey)
 	})
 
 	t.Run("missing key stays a plain JSON 401", func(t *testing.T) {
 		t.Parallel()
 
-		resp := e2eGet(t, base+"/api")
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusUnauthorized {
-			t.Fatalf("GET /api without key: status = %d, want 401", resp.StatusCode)
-		}
-
-		body, _ := io.ReadAll(resp.Body)
-		if strings.Contains(string(body), "<html") {
-			t.Error("401 body is an HTML page — errorpages must NOT render auth rejections (it owns 404s only)")
-		}
-		if !strings.Contains(string(body), `"error"`) {
-			t.Errorf("401 body = %q, want the APIKeyAuth JSON contract", string(body))
-		}
-
-		securityHeadersPresent(t, resp.Header)
+		secErrPlain401(t, base)
 	})
 
 	t.Run("unknown path renders the pretty 404 with security headers", func(t *testing.T) {
 		t.Parallel()
 
-		resp := e2eGet(t, base+"/definitely-missing")
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusNotFound {
-			t.Fatalf("GET unknown path: status = %d, want 404", resp.StatusCode)
-		}
-
-		if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
-			t.Errorf("404 Content-Type = %q, want text/html (pretty page)", ct)
-		}
-
-		body, _ := io.ReadAll(resp.Body)
-		if !strings.Contains(string(body), "<main") {
-			t.Errorf("404 body = %.80q, want the pretty <main> fragment", string(body))
-		}
-
-		securityHeadersPresent(t, resp.Header)
+		secErrPretty404(t, base)
 	})
 
 	t.Run("JSON contract for API clients", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, base+"/definitely-missing", nil)
-		if err != nil {
-			t.Fatalf("build request: %v", err)
-		}
-		req.Header.Set("Accept", "application/json")
-
-		resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
-		if err != nil {
-			t.Fatalf("GET unknown path with Accept json: %v", err)
-		}
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusNotFound {
-			t.Fatalf("status = %d, want 404", resp.StatusCode)
-		}
-
-		if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/json") {
-			t.Errorf("404 Content-Type = %q, want application/json for Accept: application/json", ct)
-		}
-
-		body, _ := io.ReadAll(resp.Body)
-		if strings.Contains(string(body), "<html") {
-			t.Error("404 body is HTML — the JSON contract must win for API clients")
-		}
+		secErrJSONContract(t, base)
 	})
 
 	t.Run("method mismatch is swallowed by the catch-all into a pretty 404", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, base+"/api", nil)
-		if err != nil {
-			t.Fatalf("build request: %v", err)
-		}
-
-		resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
-		if err != nil {
-			t.Fatalf("POST /api: %v", err)
-		}
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusNotFound {
-			t.Fatalf("POST /api: status = %d, want 404 (Mount's \"/\" catch-all matches every method, so the mux's plain 405 never surfaces)", resp.StatusCode)
-		}
-
-		body, _ := io.ReadAll(resp.Body)
-		if !strings.Contains(string(body), "<main") {
-			t.Errorf("POST /api body = %.80q, want the pretty <main> 404 fragment", string(body))
-		}
+		secErrMethodMismatch(t, base)
 	})
 
 	t.Run("classified handler error renders pretty with error-family status", func(t *testing.T) {
 		t.Parallel()
 
-		resp := e2eGet(t, base+"/boom")
-		defer func() { _ = resp.Body.Close() }()
-
-		want := appkit.HTTPStatus(errorfamily.NewInfrastructure("itest.security_errorpages", "infrastructure failure behind the pretty pages"))
-		if resp.StatusCode != want {
-			t.Fatalf("GET /boom: status = %d, want %d (error-family classification)", resp.StatusCode, want)
-		}
-
-		if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
-			t.Errorf("error page Content-Type = %q, want text/html", ct)
-		}
-
-		securityHeadersPresent(t, resp.Header)
+		secErrClassifiedError(t, base)
 	})
+}
+
+func secErrAuthedRoute(t *testing.T, base, apiKey string) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, base+"/api", nil)
+	if err != nil {
+		t.Fatalf("build request: %v", err)
+	}
+
+	req.Header.Set(security.APIKeyHeader, apiKey)
+
+	authed, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
+	if err != nil {
+		t.Fatalf("GET /api with key: %v", err)
+	}
+	defer func() { _ = authed.Body.Close() }()
+
+	if authed.StatusCode != http.StatusOK {
+		t.Fatalf("GET /api with key: status = %d, want 200", authed.StatusCode)
+	}
+
+	securityHeadersPresent(t, authed.Header)
+}
+
+func secErrPlain401(t *testing.T, base string) {
+	t.Helper()
+
+	resp := e2eGet(t, base+"/api")
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("GET /api without key: status = %d, want 401", resp.StatusCode)
+	}
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if strings.Contains(string(body), "<html") {
+		t.Error("401 body is an HTML page — errorpages must NOT render auth rejections (it owns 404s only)")
+	}
+
+	if !strings.Contains(string(body), `"error"`) {
+		t.Errorf("401 body = %q, want the APIKeyAuth JSON contract", string(body))
+	}
+
+	securityHeadersPresent(t, resp.Header)
+}
+
+func secErrPretty404(t *testing.T, base string) {
+	t.Helper()
+
+	resp := e2eGet(t, base+"/definitely-missing")
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("GET unknown path: status = %d, want 404", resp.StatusCode)
+	}
+
+	if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
+		t.Errorf("404 Content-Type = %q, want text/html (pretty page)", ct)
+	}
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if !strings.Contains(string(body), "<main") {
+		t.Errorf("404 body = %.80q, want the pretty <main> fragment", string(body))
+	}
+
+	securityHeadersPresent(t, resp.Header)
+}
+
+func secErrJSONContract(t *testing.T, base string) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, base+"/definitely-missing", nil)
+	if err != nil {
+		t.Fatalf("build request: %v", err)
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
+	if err != nil {
+		t.Fatalf("GET unknown path with Accept json: %v", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("status = %d, want 404", resp.StatusCode)
+	}
+
+	if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/json") {
+		t.Errorf("404 Content-Type = %q, want application/json for Accept: application/json", ct)
+	}
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if strings.Contains(string(body), "<html") {
+		t.Error("404 body is HTML — the JSON contract must win for API clients")
+	}
+}
+
+func secErrMethodMismatch(t *testing.T, base string) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, base+"/api", nil)
+	if err != nil {
+		t.Fatalf("build request: %v", err)
+	}
+
+	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
+	if err != nil {
+		t.Fatalf("POST /api: %v", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf(
+			"POST /api: status = %d, want 404 (Mount's \"/\" catch-all matches every method, so the mux's plain 405 never surfaces)",
+			resp.StatusCode,
+		)
+	}
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if !strings.Contains(string(body), "<main") {
+		t.Errorf("POST /api body = %.80q, want the pretty <main> 404 fragment", string(body))
+	}
+}
+
+func secErrClassifiedError(t *testing.T, base string) {
+	t.Helper()
+
+	resp := e2eGet(t, base+"/boom")
+	defer func() { _ = resp.Body.Close() }()
+
+	want := appkit.HTTPStatus(
+		errorfamily.NewInfrastructure("itest.security_errorpages", "infrastructure failure behind the pretty pages"),
+	)
+	if resp.StatusCode != want {
+		t.Fatalf("GET /boom: status = %d, want %d (error-family classification)", resp.StatusCode, want)
+	}
+
+	if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
+		t.Errorf("error page Content-Type = %q, want text/html", ct)
+	}
+
+	securityHeadersPresent(t, resp.Header)
 }

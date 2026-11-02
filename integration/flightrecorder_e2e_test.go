@@ -17,6 +17,7 @@
 // The trigger matches on Type ("GET /work") rather than latency on purpose:
 // latency thresholds are flaky under shared-box load, Type matching is
 // deterministic.
+
 package integration_test
 
 import (
@@ -116,16 +117,22 @@ func TestFlightrecorderMiddlewareThroughService(t *testing.T) {
 	}
 
 	trigger := func(tc fr.TriggerContext) bool { return tc.Type == "GET /work" }
-	svc.Mux.Handle("GET /work", flightrecorder.Middleware(rec, trigger)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = w.Write([]byte("work done"))
-	})))
+	svc.Mux.Handle(
+		"GET /work",
+		flightrecorder.Middleware(rec, trigger)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			_, _ = w.Write([]byte("work done"))
+		})),
+	)
 
 	// A trigger that never fires: proves the middleware consults the trigger
 	// rather than capturing every request.
 	never := func(fr.TriggerContext) bool { return false }
-	svc.Mux.Handle("GET /other", flightrecorder.Middleware(rec, never)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = w.Write([]byte("other"))
-	})))
+	svc.Mux.Handle(
+		"GET /other",
+		flightrecorder.Middleware(rec, never)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			_, _ = w.Write([]byte("other"))
+		})),
+	)
 
 	svc.Mux.Handle("POST /debug/flightrecorder/snapshot", flightrecorder.SnapshotHandler(rec))
 
@@ -133,88 +140,123 @@ func TestFlightrecorderMiddlewareThroughService(t *testing.T) {
 	base := ts.FullChainURL
 
 	t.Run("trigger-matched request lands an async snapshot", func(t *testing.T) {
-		resp := e2eGet(t, base+"/work")
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Fatalf("GET /work: status = %d, want 200", resp.StatusCode)
-		}
-
-		waitNonEmpty := func() []string {
-			deadline := time.Now().Add(5 * time.Second)
-			for time.Now().Before(deadline) {
-				if got := nonEmptySnapshots(t, snapDir); len(got) >= 1 {
-					return got
-				}
-
-				time.Sleep(25 * time.Millisecond)
-			}
-
-			t.Fatalf("no non-empty snapshot within 5s (has %d files): async capture did not flush", snapshotCount(t, snapDir))
-
-			return nil
-		}
-
-		matches := waitNonEmpty()
-		info, statErr := os.Stat(matches[0])
-		if statErr != nil {
-			t.Fatalf("stat snapshot: %v", statErr)
-		}
-
-		if info.Size() == 0 {
-			t.Error("snapshot file is empty — the capture wrote no trace bytes")
-		}
+		frE2EFirstCapture(t, base, snapDir)
 	})
 
 	t.Run("second matched request writes a second retained file", func(t *testing.T) {
-		resp := e2eGet(t, base+"/work")
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Fatalf("GET /work: status = %d, want 200", resp.StatusCode)
-		}
-
-		waitForSnapshots(t, snapDir, 2)
+		frE2ESecondCapture(t, base, snapDir)
 	})
 
 	t.Run("non-matching trigger captures nothing", func(t *testing.T) {
-		resp := e2eGet(t, base+"/other")
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Fatalf("GET /other: status = %d, want 200", resp.StatusCode)
-		}
-
-		time.Sleep(300 * time.Millisecond)
-
-		if got := snapshotCount(t, snapDir); got != 2 {
-			t.Errorf("snapshot count after non-matching request = %d, want 2 (unchanged)", got)
-		}
+		frE2ETriggerFiltering(t, base, snapDir)
 	})
 
 	t.Run("snapshot endpoint streams the buffer over HTTP", func(t *testing.T) {
-		req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, base+"/debug/flightrecorder/snapshot?download=1", nil)
-		if err != nil {
-			t.Fatalf("build request: %v", err)
-		}
-
-		resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(req)
-		if err != nil {
-			t.Fatalf("POST snapshot download: %v", err)
-		}
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Fatalf("snapshot download: status = %d, want 200", resp.StatusCode)
-		}
-
-		if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/octet-stream") {
-			t.Errorf("Content-Type = %q, want application/octet-stream", ct)
-		}
-
-		body, _ := io.ReadAll(resp.Body)
-		if len(body) == 0 {
-			t.Error("download body is empty — SnapshotToWriter streamed no trace bytes")
-		}
+		frE2ESnapshotDownload(t, base)
 	})
+}
+
+func frE2EFirstCapture(t *testing.T, base, snapDir string) {
+	t.Helper()
+
+	resp := e2eGet(t, base+"/work")
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /work: status = %d, want 200", resp.StatusCode)
+	}
+
+	waitNonEmpty := func() []string {
+		deadline := time.Now().Add(5 * time.Second)
+
+		for time.Now().Before(deadline) {
+			if got := nonEmptySnapshots(t, snapDir); len(got) >= 1 {
+				return got
+			}
+
+			time.Sleep(25 * time.Millisecond)
+		}
+
+		t.Fatalf(
+			"no non-empty snapshot within 5s (has %d files): async capture did not flush",
+			snapshotCount(t, snapDir),
+		)
+
+		return nil
+	}
+
+	matches := waitNonEmpty()
+
+	info, statErr := os.Stat(matches[0])
+	if statErr != nil {
+		t.Fatalf("stat snapshot: %v", statErr)
+	}
+
+	if info.Size() == 0 {
+		t.Error("snapshot file is empty — the capture wrote no trace bytes")
+	}
+}
+
+func frE2ESecondCapture(t *testing.T, base, snapDir string) {
+	t.Helper()
+
+	resp := e2eGet(t, base+"/work")
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /work: status = %d, want 200", resp.StatusCode)
+	}
+
+	waitForSnapshots(t, snapDir, 2)
+}
+
+func frE2ETriggerFiltering(t *testing.T, base, snapDir string) {
+	t.Helper()
+
+	resp := e2eGet(t, base+"/other")
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /other: status = %d, want 200", resp.StatusCode)
+	}
+
+	time.Sleep(300 * time.Millisecond)
+
+	if got := snapshotCount(t, snapDir); got != 2 {
+		t.Errorf("snapshot count after non-matching request = %d, want 2 (unchanged)", got)
+	}
+}
+
+func frE2ESnapshotDownload(t *testing.T, base string) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(
+		t.Context(),
+		http.MethodPost,
+		base+"/debug/flightrecorder/snapshot?download=1",
+		nil,
+	)
+	if err != nil {
+		t.Fatalf("build request: %v", err)
+	}
+
+	resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(req)
+	if err != nil {
+		t.Fatalf("POST snapshot download: %v", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("snapshot download: status = %d, want 200", resp.StatusCode)
+	}
+
+	if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/octet-stream") {
+		t.Errorf("Content-Type = %q, want application/octet-stream", ct)
+	}
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if len(body) == 0 {
+		t.Error("download body is empty — SnapshotToWriter streamed no trace bytes")
+	}
 }
