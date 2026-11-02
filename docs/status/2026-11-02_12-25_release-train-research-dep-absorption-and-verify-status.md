@@ -4,6 +4,7 @@
 **Scope of this report:** the single session that answered "Time for some new releases?" — loaded the go-release skill, researched the full pending-release surface, decided the 8-module wave shape, absorbed the pending dependabot bumps in-tree, and ran hermetic verification until the box's environment (load 245, full /tmp, shared-cache races) and a PARALLEL SESSION working the same tree interrupted the run. No tags were cut, nothing was pushed, no CHANGELOG was edited.
 
 **Scope discipline — what this session VERIFIED (command/artifact):**
+
 - Per-module pending-change inventory: `git diff <tag>..HEAD -- <module>/` for all 11 tagged modules (command log in session; results in §a-1).
 - Latest family versions: `GOWORK=off go list -m -versions` against proxy.golang.org for error-family (v0.12.0), httputil (v1.7.0), go-health-dashboard (v0.12.2), ssetest (v0.5.0), go-cqrs-lite system v4.16.0 / event v4.15.2 / otel-v4 v4.5.3 — all confirmed LATEST.
 - Dependabot PR contents: `gh pr diff` read for #44, #46, #47, #48, #50, #28; titles for #37/#38/#42/#51. 11 PRs open at session start; list captured.
@@ -14,6 +15,7 @@
 - CSP truth-check: `grep -n "slices.Sort" security/csp.go` → line 122 present; the Unreleased comment change describes existing behavior accurately.
 
 **What this session did NOT verify (and why):**
+
 - **API-break diffs (Release Ritual step 1) for ANY module** — the `go doc -all` old-tag-vs-tree comparison never ran; the wave was still in the verify phase. This is the single most important un-run ritual step.
 - cqrs/otel/realtime `-race` suites — runs launched but results LOST (see §d-2).
 - golangci-lint on ANY module this session — not reached.
@@ -26,16 +28,16 @@
 
 ## Headline numbers
 
-| Metric | Value |
-| --- | --- |
-| Modules scoped for the wave | 8 (core v0.9.1, cqrs v0.9.0, otel v0.3.1, flightrecorder v0.2.1, health v0.3.1, realtime v0.1.4, security v0.2.1, systemd v0.1.1) |
-| Modules skipped (no unreleased content) | 3 (flightrecorderhealth, errorpages, docs) |
-| Dependency bumps absorbed in-tree | 12 bumps across 7 modules, all tidied |
-| Suites green this session | root/core (6.2s), health (1.3s), flightrecorder package (1.4s), cqrs build+vet, otel build+vet |
-| Suites UNRESOLVED (lost background jobs) | cqrs -race, otel -race, realtime build/vet/-race, flightrecorder example link |
-| Environment incidents | 4 (templ-embed cache race; go-mod permission storm; go-build link race; /tmp 100% FULL) |
+| Metric                                      | Value                                                                                                                                          |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Modules scoped for the wave                 | 8 (core v0.9.1, cqrs v0.9.0, otel v0.3.1, flightrecorder v0.2.1, health v0.3.1, realtime v0.1.4, security v0.2.1, systemd v0.1.1)              |
+| Modules skipped (no unreleased content)     | 3 (flightrecorderhealth, errorpages, docs)                                                                                                     |
+| Dependency bumps absorbed in-tree           | 12 bumps across 7 modules, all tidied                                                                                                          |
+| Suites green this session                   | root/core (6.2s), health (1.3s), flightrecorder package (1.4s), cqrs build+vet, otel build+vet                                                 |
+| Suites UNRESOLVED (lost background jobs)    | cqrs -race, otel -race, realtime build/vet/-race, flightrecorder example link                                                                  |
+| Environment incidents                       | 4 (templ-embed cache race; go-mod permission storm; go-build link race; /tmp 100% FULL)                                                        |
 | Parallel-session commits landed mid-session | 8+ (PR merges #37/#38/#51, docs catalog v4.11.0, M3-M14 a467328, templ-components/errorpage f323363, golangci converge b9bf812, merge cbcfeba) |
-| Tags cut / pushes | 0 / 0 |
+| Tags cut / pushes                           | 0 / 0                                                                                                                                          |
 
 ---
 
