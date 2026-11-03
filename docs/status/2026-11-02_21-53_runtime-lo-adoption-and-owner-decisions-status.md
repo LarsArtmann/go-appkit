@@ -57,6 +57,7 @@
 ## f) Up to 50 things we should get done next
 
 **Session-direct (this repo):**
+
 1. Land the lo-adoption set: daemon commit (or hand-commit on instruction) → push → tip-CI ritual on the final commit.
 2. Post-push: confirm matrix + fleet-lint + guards green on the lo commit (first CI proof of runtime lo).
 3. Fix the AGENTS↔§6 split brain: superseded banner on the §6 boundary map pointing at the AGENTS bullet.
@@ -113,7 +114,7 @@
 44. Quarterly re-run of routed-destinations + kept-claims audits on the living corpus.
 45. Migrate the runtime-lo gate outcome into the §6 map's superseded banner text (folds into item 3).
 
-*(45 items — the honest list.)*
+_(45 items — the honest list.)_
 
 ## g) Questions I cannot figure out myself
 
@@ -123,4 +124,4 @@
 
 ---
 
-*Point-in-time report — verdicts as-of 2026-11-02 21:53 CET, local tip `9effe43` == origin, lo-adoption set uncommitted. Completed work lives in module CHANGELOGs; this file records what THIS leg did, verified, and got wrong.*
+_Point-in-time report — verdicts as-of 2026-11-02 21:53 CET, local tip `9effe43` == origin, lo-adoption set uncommitted. Completed work lives in module CHANGELOGs; this file records what THIS leg did, verified, and got wrong._

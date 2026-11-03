@@ -18,7 +18,7 @@
 
 ## b) PARTIALLY DONE
 
-1. **Local suite coverage is spot-check-shaped, not full:** only root + integration ran locally; the other ten satellites' green is CI evidence from the identical code state (tree differs from `2d8db0d` only in docs). Acceptable bar, but it should be *documented* as the bar, not implied.
+1. **Local suite coverage is spot-check-shaped, not full:** only root + integration ran locally; the other ten satellites' green is CI evidence from the identical code state (tree differs from `2d8db0d` only in docs). Acceptable bar, but it should be _documented_ as the bar, not implied.
 2. **go.sum disappearance — outcome verified, mechanism NOT:** I verified the clean outcome but never identified WHO reverted the mid-session go.sum edits (pma never mutates files per the dossier; the candidates are the daemon's post-commit cleanup or a BuildFlow per-step safety revert). My summary named "BuildFlow-style safety revert" on vibes — see §d-1.
 3. **Post-BuildFlow re-verification:** the owner's 21:01 full run landed AFTER my verification snapshot and after my summary. I re-verified at 21:35: tree still holds only the three cosmetic doc diffs (the run's `go-mod-tidy`/`go-mod-update` "rewrote" entries netted zero — per-step safety revert), and its `dprint-format` step rewrote the same two status docs to the same canonical form. Re-verified, but this only happened because the report request forced a re-check — I did not monitor for external mutation events unprompted.
 4. **BuildFlow findings triage:** the 21:01 run surfaced findings I noticed and recorded (§f) but did NOT act on this session — they are either owner-gated (runtime lo sites), demand-gated (cqrs idempotency), or machine-side (DB size, binary freshness).
@@ -33,7 +33,7 @@
 
 ## d) TOTALLY FUCKED UP
 
-1. **Unverified mechanism attribution (worst):** my summary stated the go.sum edits were reverted by a "BuildFlow-style safety revert" WITHOUT a single piece of evidence — no journalctl check, no daemon-log check, no BuildFlow state query. AGENTS.md itself documents this exact failure class (ghost mechanisms, manufactured conclusions). The *outcome* I reported was true; the *cause* was a guess dressed as a fact. Lesson recorded in §e-1.
+1. **Unverified mechanism attribution (worst):** my summary stated the go.sum edits were reverted by a "BuildFlow-style safety revert" WITHOUT a single piece of evidence — no journalctl check, no daemon-log check, no BuildFlow state query. AGENTS.md itself documents this exact failure class (ghost mechanisms, manufactured conclusions). The _outcome_ I reported was true; the _cause_ was a guess dressed as a fact. Lesson recorded in §e-1.
 2. **Stale-on-arrival "all green" declaration:** I delivered the verification summary, then the owner's 21:01 BuildFlow full run mutated the tree (and re-fixed the same files) — my "everything verified" snapshot was already outdated when the user next looked. A verification pass that doesn't pin its as-of boundary invites exactly this. Mitigated: §b-3 re-verification at 21:35 confirmed net-zero drift, but the process hole remains.
 3. **Contradiction proceeded-past:** my first live check showed go.sum diffs (+67 in otel), and the very next command over the same paths returned empty — a direct contradiction I resolved only two checks later, after building a todo list on top of the ambiguous state. Should have stopped and reconciled immediately.
 4. **(Minor) parallel-command race by construction:** I launched the go.sum inspection and the log-reading in one batch while a background daemon/BuildFlow was mid-write on the same files — self-inflicted raciness on a box AGENTS.md documents as routinely running concurrent heavy automation.
@@ -49,6 +49,7 @@
 ## f) Up to 50 things we should get done next
 
 **Session-direct (this repo, next session or owner-free):**
+
 1. Verify the eventual daemon commit carrying the three doc edits (TODO fix + padding) and confirm tree returns clean (docs-only → no CI run expected).
 2. Close the §d-1 attribution gap: identify the go.sum reverter (pma journalctl + BuildFlow state DB evidence pass) or write it into the accept-cadence note as unknown-by-evidence.
 3. Run `scripts/verify-all.sh` once on a quiet-load window (`scripts/quiet-run.sh` gate) for full LOCAL 12/12 proof — closes §b-1 permanently.
@@ -101,7 +102,7 @@
 40. Index this report in `docs/status/README.md` (done alongside writing this file).
 41. Quarterly: re-run the routed-destinations + keep-claims audits on the whole living-docs corpus (the mechanical truth net is only as good as its re-runs).
 
-*(41 items — the honest list, not padded to 50.)*
+_(41 items — the honest list, not padded to 50.)_
 
 ## g) Questions I cannot figure out myself
 
@@ -111,4 +112,4 @@
 
 ---
 
-*Point-in-time report — verdicts as-of 2026-11-02 21:35 CET against tip `9effe43`. Completed work lives in module CHANGELOGs; this file records what THIS session verified, found, and fucked up.*
+_Point-in-time report — verdicts as-of 2026-11-02 21:35 CET against tip `9effe43`. Completed work lives in module CHANGELOGs; this file records what THIS session verified, found, and fucked up._
