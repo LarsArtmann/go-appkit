@@ -16,12 +16,12 @@ Score **46/100 (low)** — the number reads harsher than reality because 6 rows 
 N/A (errorpages deliberately supersedes the library's HTTP/CLI rendering), but the
 classification-registry gap is real and cheap to close.
 
-| Fact | Value | Evidence |
-|---|---|---|
-| In-graph version | v0.12.0 (= latest tag, 2026-10-14) | `go.mod:7` + 10 satellite go.mods |
-| Direct importers | root, cqrs, docs, errorpages, flightrecorder, flightrecorderhealth, health, integration, otel, systemd; indirect in realtime | `go.mod` files |
-| Runtime symbols touched | 21 exported; zero registry/classify calls | `rg 'errorfamily\.[A-Z]' --glob '!*_test.go'` |
-| Note | AGENTS.md "Core Dependencies" table says v0.10.1 — stale vs go.mod v0.12.0 | AGENTS.md:67 vs `go.mod:7` |
+| Fact                    | Value                                                                                                                        | Evidence                                      |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| In-graph version        | v0.12.0 (= latest tag, 2026-10-14)                                                                                           | `go.mod:7` + 10 satellite go.mods             |
+| Direct importers        | root, cqrs, docs, errorpages, flightrecorder, flightrecorderhealth, health, integration, otel, systemd; indirect in realtime | `go.mod` files                                |
+| Runtime symbols touched | 21 exported; zero registry/classify calls                                                                                    | `rg 'errorfamily\.[A-Z]' --glob '!*_test.go'` |
+| Note                    | AGENTS.md "Core Dependencies" table says v0.10.1 — stale vs go.mod v0.12.0                                                   | AGENTS.md:67 vs `go.mod:7`                    |
 
 ## 1. Usage evidence
 
@@ -48,26 +48,26 @@ bridge/diagnose/agent submodules.
 
 ## 2. Capability inventory vs adoption
 
-| # | go-error-family capability | Status | Evidence / gap meaning |
-|---|---|---|---|
-| 1 | Family constructors: Rejection / Infrastructure / Transient | 🟢 Full | wrap-at-source discipline, 20+ sites |
-| 2 | Constructors: Conflict / Corruption / Orchestration | 🟡 Partial | test-only (`NewConflict`/`NewCorruption` in tests); runtime never produces them — arguably correct for an HTTP framework's error population |
-| 3 | `New`/`Newf` generic constructors | 🟢 Full | `config.go:201`, `health/mount.go:62`, `errorpages:176` |
-| 4 | Wrap family (`Wrap`, `WrapInfrastructure(f)`, `WrapRejectionf`) | 🟢 Full | `service.go:111-301`, `systemd/notify.go`, cqrs/eventservice |
-| 5 | `HTTPStatus` mapping | 🟢 Full | re-exported `errors.go:13` |
-| 6 | `LogError` / `LogErrorContext` | 🟡 Partial | `LogError` re-exported (`errors.go:20`); `LogErrorContext` (trace correlation) unused — otel correlation is done differently |
-| 7 | `HandleError` CLI exit pipeline | 🟡 Partial | examples only; no shipped CLI (correct scope, partial adoption) |
-| 8 | `Classify` dynamic classification | 🔴 Missed | zero calls. Appkit's wrap-at-source style mostly doesn't need it, but boundaries that receive FOREIGN errors — errorpages rendering arbitrary handler errors (unclassified → 500 by contract), health probes wrapping third-party check errors — could upgrade unclassified errors instead of defaulting |
-| 9 | Registry API (sentinel/classifier registration, `RegisterStdlibDefaults`) | 🔴 Missed | zero registrations. e.g. `http.MaxBytesError` (security's BodyLimit contract) and `context.Canceled` are handled ad hoc per module instead of one fleet-default classification |
-| 10 | WrapOnce | 🔴 Missed (small) | idempotent-wrap sites exist by construction: `Shutdown` is idempotent (`shutdown.go`) and re-wraps hook errors on every call |
-| 11 | `WithContext*` builders | 🔴 Missed | zero use. Context-rich errors would flow into `LogError` fields and otel exception capture for free |
-| 12 | `errorfamilytest` asserts | 🔴 Missed | zero imports; tests hand-roll family assertions (`otel/setup_test.go:302-322`, `systemd/notify_test.go:173`) |
-| 13 | Templates (`What/Why/Fix/WayOut`) | ⚪ N/A | errorpages is the rich rendering layer (HTML/JSON via templ-components); templates target plain-text CLI output the framework doesn't emit |
-| 14 | `HTTPHandler` (JSON error handler) | ⚪ N/A | superseded BY errorpages — the deliberate architecture |
-| 15 | `ExitCode` / sysexits mapping | ⚪ N/A | no CLI binaries in the repo; examples don't need the mapping |
-| 16 | `Compose` | ⚪ N/A | alias of `errors.Join`; the shutdown path already joins errors directly |
-| 17 | `RetryPolicy` | ⚪ N/A | no retry loops in the framework; go-retry is its consumer, not appkit |
-| 18 | submodules: diagnose / agent / bridge | ⚪ N/A | debug-agent/diagnostic-rule class features, explicitly app-side (bridge README positioning) |
+| #  | go-error-family capability                                                | Status            | Evidence / gap meaning                                                                                                                                                                                                                                                                                   |
+| -- | ------------------------------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | Family constructors: Rejection / Infrastructure / Transient               | 🟢 Full           | wrap-at-source discipline, 20+ sites                                                                                                                                                                                                                                                                     |
+| 2  | Constructors: Conflict / Corruption / Orchestration                       | 🟡 Partial        | test-only (`NewConflict`/`NewCorruption` in tests); runtime never produces them — arguably correct for an HTTP framework's error population                                                                                                                                                              |
+| 3  | `New`/`Newf` generic constructors                                         | 🟢 Full           | `config.go:201`, `health/mount.go:62`, `errorpages:176`                                                                                                                                                                                                                                                  |
+| 4  | Wrap family (`Wrap`, `WrapInfrastructure(f)`, `WrapRejectionf`)           | 🟢 Full           | `service.go:111-301`, `systemd/notify.go`, cqrs/eventservice                                                                                                                                                                                                                                             |
+| 5  | `HTTPStatus` mapping                                                      | 🟢 Full           | re-exported `errors.go:13`                                                                                                                                                                                                                                                                               |
+| 6  | `LogError` / `LogErrorContext`                                            | 🟡 Partial        | `LogError` re-exported (`errors.go:20`); `LogErrorContext` (trace correlation) unused — otel correlation is done differently                                                                                                                                                                             |
+| 7  | `HandleError` CLI exit pipeline                                           | 🟡 Partial        | examples only; no shipped CLI (correct scope, partial adoption)                                                                                                                                                                                                                                          |
+| 8  | `Classify` dynamic classification                                         | 🔴 Missed         | zero calls. Appkit's wrap-at-source style mostly doesn't need it, but boundaries that receive FOREIGN errors — errorpages rendering arbitrary handler errors (unclassified → 500 by contract), health probes wrapping third-party check errors — could upgrade unclassified errors instead of defaulting |
+| 9  | Registry API (sentinel/classifier registration, `RegisterStdlibDefaults`) | 🔴 Missed         | zero registrations. e.g. `http.MaxBytesError` (security's BodyLimit contract) and `context.Canceled` are handled ad hoc per module instead of one fleet-default classification                                                                                                                           |
+| 10 | WrapOnce                                                                  | 🔴 Missed (small) | idempotent-wrap sites exist by construction: `Shutdown` is idempotent (`shutdown.go`) and re-wraps hook errors on every call                                                                                                                                                                             |
+| 11 | `WithContext*` builders                                                   | 🔴 Missed         | zero use. Context-rich errors would flow into `LogError` fields and otel exception capture for free                                                                                                                                                                                                      |
+| 12 | `errorfamilytest` asserts                                                 | 🔴 Missed         | zero imports; tests hand-roll family assertions (`otel/setup_test.go:302-322`, `systemd/notify_test.go:173`)                                                                                                                                                                                             |
+| 13 | Templates (`What/Why/Fix/WayOut`)                                         | ⚪ N/A            | errorpages is the rich rendering layer (HTML/JSON via templ-components); templates target plain-text CLI output the framework doesn't emit                                                                                                                                                               |
+| 14 | `HTTPHandler` (JSON error handler)                                        | ⚪ N/A            | superseded BY errorpages — the deliberate architecture                                                                                                                                                                                                                                                   |
+| 15 | `ExitCode` / sysexits mapping                                             | ⚪ N/A            | no CLI binaries in the repo; examples don't need the mapping                                                                                                                                                                                                                                             |
+| 16 | `Compose`                                                                 | ⚪ N/A            | alias of `errors.Join`; the shutdown path already joins errors directly                                                                                                                                                                                                                                  |
+| 17 | `RetryPolicy`                                                             | ⚪ N/A            | no retry loops in the framework; go-retry is its consumer, not appkit                                                                                                                                                                                                                                    |
+| 18 | submodules: diagnose / agent / bridge                                     | ⚪ N/A            | debug-agent/diagnostic-rule class features, explicitly app-side (bridge README positioning)                                                                                                                                                                                                              |
 
 **Score derivation**: A = 12 applicable (13-18 N/A with reasons). Green = 4 (rows 1, 3, 4, 5).
 Partial = 3 × 0.5 = 1.5 (rows 2, 6, 7). Missed = 5 (rows 8, 9, 10, 11, 12).
@@ -76,6 +76,7 @@ Partial = 3 × 0.5 = 1.5 (rows 2, 6, 7). Missed = 5 (rows 8, 9, 10, 11, 12).
 ## 3. Findings (Pareto order)
 
 ### F1 — The registry is the missing half (one-time, fleet-wide payoff)
+
 Wrap-at-source covers appkit's own errors; it does nothing for errors appkit RECEIVES:
 third-party probe errors in health, handler errors rendered by errorpages, store errors in
 cqrs. Today every such site either default-classifies (Transient fail-open) or hand-maps.
@@ -87,16 +88,19 @@ v1-shaped, demand-gated per house rules — but write it down as the adoption pa
 "register at boot" is the pattern the library is designed around and appkit never performs it.
 
 ### F2 — `WrapOnce` at idempotent seams (small, free)
+
 `Service.Shutdown` is documented idempotent (`service.go` contract) and re-runs
 `WrapInfrastructuref` over hook errors. `WrapOnce` exists precisely for re-executed wrap
 sites. No behavior bug today (double-wrap is cosmetic), but it is the textbook use.
 
 ### F3 — `WithContext` + `errorfamilytest`: DX upgrades, zero-risk adoption
+
 Context-carrying errors would enrich `LogError` output and the otel exception capture
 (otel already indexes exception events); `errorfamilytest`'s seven asserts would replace the
 hand-rolled family assertions in otel/systemd tests. Both are mechanical, additions-only.
 
 ### F4 — AGENTS.md table drift (fix on sight, done in this audit's memory pass)
+
 AGENTS.md:65/67 still say httputil v1.4.0 / go-error-family v0.10.1 while go.mod carries
 v1.7.0 / v0.12.0. Updated in this audit.
 

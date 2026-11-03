@@ -12,15 +12,15 @@ two-thirds of the library's capability surface is untouched.** Adoption score **
 (moderate-high): 11 of 18 applicable capability rows fully leveraged, 3 partial, 4 missed.
 The misses split into three classes: a planned-but-pending server seam refactor, four
 middleware families with no adoption story yet (CORS, ClientIP, compression, trusted-proxy
-keying), and one refactor opportunity created *after* the fact (otel's custom Recovery
+keying), and one refactor opportunity created _after_ the fact (otel's custom Recovery
 predates httputil v1.6.0's `OnPanic` hook).
 
-| Fact | Value | Evidence |
-|---|---|---|
-| In-graph version | v1.7.0 (= latest tag) | `go.mod:8` + 7 satellite go.mods |
-| Direct importers | core, flightrecorder, otel, security, integration; indirect in errorpages/health/systemd | `go.mod` files |
-| Runtime symbols touched | 21 of ~120+ exported | `rg 'httputil\.[A-Z]' --glob '!*_test.go'` |
-| Latest tag vs HEAD | v1.7.0; HEAD 30 commits ahead (deps/apidiff/unreleased work) | `git -C ~/projects/httputil rev-list --count v1.7.0..HEAD` |
+| Fact                    | Value                                                                                    | Evidence                                                   |
+| ----------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| In-graph version        | v1.7.0 (= latest tag)                                                                    | `go.mod:8` + 7 satellite go.mods                           |
+| Direct importers        | core, flightrecorder, otel, security, integration; indirect in errorpages/health/systemd | `go.mod` files                                             |
+| Runtime symbols touched | 21 of ~120+ exported                                                                     | `rg 'httputil\.[A-Z]' --glob '!*_test.go'`                 |
+| Latest tag vs HEAD      | v1.7.0; HEAD 30 commits ahead (deps/apidiff/unreleased work)                             | `git -C ~/projects/httputil rev-list --count v1.7.0..HEAD` |
 
 ## 1. Usage evidence (what appkit actually does with it)
 
@@ -53,29 +53,29 @@ framework) and uses `Language`/`LanguageFromContext` test-only.
 
 ## 2. Capability inventory vs adoption
 
-| # | httputil capability | Status | Evidence / gap meaning |
-|---|---|---|---|
-| 1 | `Chain`/`Compose`/`Middleware` type | 🟢 Full | `service.go:89`, `middleware.go:45`; 10+ sites |
-| 2 | `Recovery` | 🟢 Full | default stack `middleware.go:18` |
-| 3 | `RequestID` + `DefaultRequestIDConfig` | 🟢 Full | `middleware.go:19` |
-| 4 | `Logging` | 🟢 Full | `middleware.go:20` (perf baseline: +30µs emitted, AGENTS) |
-| 5 | `LoggingFromContext` | 🟡 Partial | comment-only (`otel/doc.go:109`); zero runtime wiring |
-| 6 | `Timeout` + `NoTimeout` opt-out | 🟢 Full | `middleware.go:24-26`; SSE contract pinned |
-| 7 | `SecurityHeaders` | 🟢 Full | `middleware.go:28-30`, `security/headers.go` |
-| 8 | Health endpoints (`RegisterHealth` + 3 handlers) | 🟢 Full | `health.go:12-13`, `service.go:59-61` |
-| 9 | `ResponseRecorder` | 🟢 Full | root usage; errorpages divergence is recorded |
-| 10 | CSRF (`CSRFMiddleware`/`CSRFConfig`) | 🟢 Full | via security, `security/csrf.go` |
-| 11 | Keyed rate limiting (`KeyedRateLimiter*`) | 🟢 Full | via security, `security/ratelimit.go:105-106` |
-| 12 | `httpspec` test framework | 🟢 Full | `httpspec_test.go:10` |
-| 13 | `Server`/`NewServerListener` (v1.7.0 seam) | 🟡 Partial | seam SHIPPED, refactor NOT — core still owns a raw `http.Server`; spike verdict + re-run are queued (AGENTS "Architecture and Control Flow", `docs/planning/2026-09-16_composition-spike-verdict.md`) |
-| 14 | `MaxBodySize`/`MaxBodySizeMiddleware` | 🟡 Partial | security hand-rolls `BodyLimit` (`security/bodylimit.go:18`) — deliberate typed-413 contract (`security/THREAT_MODEL.md:49`), but two MaxBytesReader wrappers now exist in-family |
-| 15 | `Nonce`/CSP builders | 🟡 Partial | security owns `GenerateNonce`+`BuildCSP` policy tiers (`security/csp_nonce.go`); httputil's middleware+`RecommendedCSPWithNonce` unused — two nonce generators in-family |
-| 16 | `CORS` | 🔴 Missed | zero usage; `OriginCheck` (`security/origin_check.go`) is CSRF origin validation, NOT resource-sharing CORS — different concern, real gap for browser-API consumers |
-| 17 | `ClientIP`/`ClientIPMiddleware`/`TrustedProxySet` | 🔴 Missed | rate limiter defaults to `KeyExtractorFromRemoteAddr`; v1.6.0's trusted-proxy keying and `ClientIP` context are entirely unused |
-| 18 | `Compression`/`Decompression` | 🔴 Missed | zero usage; no appkit story for gzip/deflate on either direction |
-| 19 | `Metrics` middleware | ⚪ N/A | fleet observability standard is the otel module (OTel semconv); httputil's zero-dep counter hook is for non-otel services |
-| 20 | `Language` negotiation | ⚪ N/A | i18n module researched and declined (`docs/planning/2026-10-09_i18n-module-research.md`, decision memo 2026-10-10); test-only usage only |
-| 21 | `MiddlewareStack`/`queryparam`/`capabilities` | ⚪ N/A | no route-table or query-binding story yet — battery W3-B2/B6 territory |
+| #  | httputil capability                               | Status     | Evidence / gap meaning                                                                                                                                                                                |
+| -- | ------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | `Chain`/`Compose`/`Middleware` type               | 🟢 Full    | `service.go:89`, `middleware.go:45`; 10+ sites                                                                                                                                                        |
+| 2  | `Recovery`                                        | 🟢 Full    | default stack `middleware.go:18`                                                                                                                                                                      |
+| 3  | `RequestID` + `DefaultRequestIDConfig`            | 🟢 Full    | `middleware.go:19`                                                                                                                                                                                    |
+| 4  | `Logging`                                         | 🟢 Full    | `middleware.go:20` (perf baseline: +30µs emitted, AGENTS)                                                                                                                                             |
+| 5  | `LoggingFromContext`                              | 🟡 Partial | comment-only (`otel/doc.go:109`); zero runtime wiring                                                                                                                                                 |
+| 6  | `Timeout` + `NoTimeout` opt-out                   | 🟢 Full    | `middleware.go:24-26`; SSE contract pinned                                                                                                                                                            |
+| 7  | `SecurityHeaders`                                 | 🟢 Full    | `middleware.go:28-30`, `security/headers.go`                                                                                                                                                          |
+| 8  | Health endpoints (`RegisterHealth` + 3 handlers)  | 🟢 Full    | `health.go:12-13`, `service.go:59-61`                                                                                                                                                                 |
+| 9  | `ResponseRecorder`                                | 🟢 Full    | root usage; errorpages divergence is recorded                                                                                                                                                         |
+| 10 | CSRF (`CSRFMiddleware`/`CSRFConfig`)              | 🟢 Full    | via security, `security/csrf.go`                                                                                                                                                                      |
+| 11 | Keyed rate limiting (`KeyedRateLimiter*`)         | 🟢 Full    | via security, `security/ratelimit.go:105-106`                                                                                                                                                         |
+| 12 | `httpspec` test framework                         | 🟢 Full    | `httpspec_test.go:10`                                                                                                                                                                                 |
+| 13 | `Server`/`NewServerListener` (v1.7.0 seam)        | 🟡 Partial | seam SHIPPED, refactor NOT — core still owns a raw `http.Server`; spike verdict + re-run are queued (AGENTS "Architecture and Control Flow", `docs/planning/2026-09-16_composition-spike-verdict.md`) |
+| 14 | `MaxBodySize`/`MaxBodySizeMiddleware`             | 🟡 Partial | security hand-rolls `BodyLimit` (`security/bodylimit.go:18`) — deliberate typed-413 contract (`security/THREAT_MODEL.md:49`), but two MaxBytesReader wrappers now exist in-family                     |
+| 15 | `Nonce`/CSP builders                              | 🟡 Partial | security owns `GenerateNonce`+`BuildCSP` policy tiers (`security/csp_nonce.go`); httputil's middleware+`RecommendedCSPWithNonce` unused — two nonce generators in-family                              |
+| 16 | `CORS`                                            | 🔴 Missed  | zero usage; `OriginCheck` (`security/origin_check.go`) is CSRF origin validation, NOT resource-sharing CORS — different concern, real gap for browser-API consumers                                   |
+| 17 | `ClientIP`/`ClientIPMiddleware`/`TrustedProxySet` | 🔴 Missed  | rate limiter defaults to `KeyExtractorFromRemoteAddr`; v1.6.0's trusted-proxy keying and `ClientIP` context are entirely unused                                                                       |
+| 18 | `Compression`/`Decompression`                     | 🔴 Missed  | zero usage; no appkit story for gzip/deflate on either direction                                                                                                                                      |
+| 19 | `Metrics` middleware                              | ⚪ N/A     | fleet observability standard is the otel module (OTel semconv); httputil's zero-dep counter hook is for non-otel services                                                                             |
+| 20 | `Language` negotiation                            | ⚪ N/A     | i18n module researched and declined (`docs/planning/2026-10-09_i18n-module-research.md`, decision memo 2026-10-10); test-only usage only                                                              |
+| 21 | `MiddlewareStack`/`queryparam`/`capabilities`     | ⚪ N/A     | no route-table or query-binding story yet — battery W3-B2/B6 territory                                                                                                                                |
 
 **Score derivation** (library-deep-dive rubric): A = 18 applicable rows (19-21 N/A with
 reasons). Fully leveraged = 11 rows (1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12). Partially used =
@@ -85,6 +85,7 @@ reasons). Fully leveraged = 11 rows (1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12). Partia
 ## 3. Findings (Pareto order)
 
 ### F1 — Server seam refactor is the single highest-value adoption step (planned, pending)
+
 httputil v1.7.0 shipped exactly the seam the composition spike asked for:
 `NewServerListener(ln, cfg, handler)` with synchronous bind-failure classification and
 `ListenerAddr()` from construction (`~/projects/httputil/server.go:216-256`). Core still
@@ -97,20 +98,23 @@ already on the books — this report adds nothing but urgency math: it is the di
 between 72 and ~83 on this scorecard.
 
 ### F2 — CORS is a real missed capability, not covered by security's OriginCheck
+
 `security/origin_check.go` validates the Origin header as CSRF defense-in-depth (same-origin
 always allowed, allowlist otherwise). httputil `CORS(cfg)` answers a different question:
-cross-origin *resource sharing* (preflight, credentialed subdomain wildcards,
+cross-origin _resource sharing_ (preflight, credentialed subdomain wildcards,
 private-network/LNA). A browser-API consumer serving cross-origin clients on appkit today
 must hand-roll CORS or leave the framework. Demand-gated per house rules, but it belongs on
 the W3-httpx battery shortlist next to B4/B5.
 
 ### F3 — Trusted-proxy ClientIP keying: shipped upstream v1.6.0, unused here
+
 `KeyExtractorFromTrustedClientIP(cidrs)` + `TrustedProxySet` (`~/projects/httputil/ratelimit_keyed_trusted.go`)
 solve the "rate-limit key behind a load balancer" problem appkit's security module will hit
 the first time a consumer deploys behind a proxy. One-line wiring when demand appears;
 recorded here so the demand signal is recognizable.
 
 ### F4 — otel's custom Recovery can now delegate to `RecoveryWithConfig(OnPanic: …)`
+
 `appkitotel.Recovery` hand-replicates httputil.Recovery's behavior plus exception-span
 capture (`otel/exceptions.go:19-37`) — written BEFORE httputil v1.6.0 (2026-10-24) shipped
 `RecoveryWithConfig`/`OnPanic` for exactly this integration. Refactoring to
@@ -120,6 +124,7 @@ the OTel payload. Cheap, testable, and pinned by the existing exceptions tests. 
 one actionable code finding of this audit.**
 
 ### F5 — Two deliberate in-family duplications to keep an eye on (not defects)
+
 - `security.BodyLimit` vs `httputil.MaxBodySize`: both wrap `http.MaxBytesReader`. The
   security version exists for the typed `*http.MaxBytesError` → 413 contract
   (`security/THREAT_MODEL.md:49`); httputil's middleware classifies config errors and

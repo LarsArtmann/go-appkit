@@ -16,14 +16,14 @@ adopt-the-gap-not-the-dep pipeline works. Everything else is duplicate or refere
 go-daemon is a competing host layer (owns its own socket+`http.Server` lifecycle), UDS-first,
 deliberately mechanism-only.**
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 | `rg 'go-daemon' --glob '*.go'` → empty |
-| In graph? | No | absent from all go.mod/go.sum |
-| Latest tag | v0.4.0 (2026-10-03) | `git -C ~/projects/go-daemon tag --sort=-v:refname \| head -1` |
-| Module path | **`github.com/LarsArtmann/go-daemon` — capital LA** (case-sensitive module path; the user-facing lowercase form does NOT resolve on the proxy) | `~/projects/go-daemon/go.mod:1` |
-| Upstream state | HEAD 31 commits past v0.4.0; `[Unreleased]` carries `JSONv2Codec` + injectable negotiation codecs (`WithJSONCodec`/`WithCBORCodec`) | `~/projects/go-daemon/CHANGELOG.md:8-32` |
-| Overlap note | appkit/systemd v0.1.0 implements the same sd_notify/Watchdog pattern go-daemon's `notify.go` ships | `systemd/notify.go` vs `~/projects/go-daemon/notify.go` |
+| Fact           | Value                                                                                                                                          | Evidence                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Direct imports | 0                                                                                                                                              | `rg 'go-daemon' --glob '*.go'` → empty                         |
+| In graph?      | No                                                                                                                                             | absent from all go.mod/go.sum                                  |
+| Latest tag     | v0.4.0 (2026-10-03)                                                                                                                            | `git -C ~/projects/go-daemon tag --sort=-v:refname \| head -1` |
+| Module path    | **`github.com/LarsArtmann/go-daemon` — capital LA** (case-sensitive module path; the user-facing lowercase form does NOT resolve on the proxy) | `~/projects/go-daemon/go.mod:1`                                |
+| Upstream state | HEAD 31 commits past v0.4.0; `[Unreleased]` carries `JSONv2Codec` + injectable negotiation codecs (`WithJSONCodec`/`WithCBORCodec`)            | `~/projects/go-daemon/CHANGELOG.md:8-32`                       |
+| Overlap note   | appkit/systemd v0.1.0 implements the same sd_notify/Watchdog pattern go-daemon's `notify.go` ships                                             | `systemd/notify.go` vs `~/projects/go-daemon/notify.go`        |
 
 ## 1. Capability inventory
 
@@ -41,14 +41,14 @@ UDS-daemon building blocks (`~/projects/go-daemon/`, single package):
 
 ## 2. Capability vs applicability (re-verifying the 2026-10-01 table)
 
-| Capability | Status | Reason |
-|---|---|---|
-| Server/socket lifecycle as a dependency | ⚪ N/A — ruled NO (2026-10-01, holds) | Competing host layer: importing it inverts layering — appkit core owns the HTTP lifecycle; go-daemon would own a second one. UDS-first framing also doesn't match appkit's TCP/default posture |
-| sd_notify / watchdog | 🟢 ADOPTED — as the /systemd module | The research's "one real gap" shipped v0.1.0 (core `StartHooks` seam was the prerequisite; shipped since). Same pattern (`WatchdogSec/2`), appkit-owned implementation over core hooks — go-daemon proved the design, appkit did not import it |
-| Content negotiation | ⚪ N/A — adopt the PATTERN, not the dep (holds) | Pre-agreed home is battery B5 (W3 httpx) built on go-codec; go-daemon's `[Unreleased]` injectable-codec work makes it an even better reference, still not a dependency |
-| `ParseSSEData` | ⚪ N/A | Duplicates appkit/realtime (go-sse owns SSE framing+replay) |
-| Flight-recorder integration | ⚪ N/A | Duplicates appkit/flightrecorder + appkit/otel bridges |
-| Socket clients | ⚪ N/A | No UDS consumer story in appkit |
+| Capability                              | Status                                          | Reason                                                                                                                                                                                                                                         |
+| --------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Server/socket lifecycle as a dependency | ⚪ N/A — ruled NO (2026-10-01, holds)           | Competing host layer: importing it inverts layering — appkit core owns the HTTP lifecycle; go-daemon would own a second one. UDS-first framing also doesn't match appkit's TCP/default posture                                                 |
+| sd_notify / watchdog                    | 🟢 ADOPTED — as the /systemd module             | The research's "one real gap" shipped v0.1.0 (core `StartHooks` seam was the prerequisite; shipped since). Same pattern (`WatchdogSec/2`), appkit-owned implementation over core hooks — go-daemon proved the design, appkit did not import it |
+| Content negotiation                     | ⚪ N/A — adopt the PATTERN, not the dep (holds) | Pre-agreed home is battery B5 (W3 httpx) built on go-codec; go-daemon's `[Unreleased]` injectable-codec work makes it an even better reference, still not a dependency                                                                         |
+| `ParseSSEData`                          | ⚪ N/A                                          | Duplicates appkit/realtime (go-sse owns SSE framing+replay)                                                                                                                                                                                    |
+| Flight-recorder integration             | ⚪ N/A                                          | Duplicates appkit/flightrecorder + appkit/otel bridges                                                                                                                                                                                         |
+| Socket clients                          | ⚪ N/A                                          | No UDS consumer story in appkit                                                                                                                                                                                                                |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

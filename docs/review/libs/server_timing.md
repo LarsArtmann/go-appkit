@@ -29,12 +29,12 @@ the library lives as a submodule of the httputil repo
 (`~/projects/httputil/server_timing/`, module path
 `github.com/larsartmann/httputil/server_timing`, tagged `server_timing/v1.0.3`).
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 of 12 modules | `rg 'server_timing' --glob '*.go'` → empty |
-| In graph? | go.sum only (httputil test dep chain) | `go.sum:33-34` + 4 satellite go.sums |
-| Latest tag | server_timing/v1.0.3 = in-graph version | `git -C ~/projects/httputil tag \| grep server_timing` |
-| Adoption path | battery F2 re-scope (2026-10-11 audit); W3 httpx context | TODO_LIST upstream-ask annotation |
+| Fact           | Value                                                    | Evidence                                               |
+| -------------- | -------------------------------------------------------- | ------------------------------------------------------ |
+| Direct imports | 0 of 12 modules                                          | `rg 'server_timing' --glob '*.go'` → empty             |
+| In graph?      | go.sum only (httputil test dep chain)                    | `go.sum:33-34` + 4 satellite go.sums                   |
+| Latest tag     | server_timing/v1.0.3 = in-graph version                  | `git -C ~/projects/httputil tag \| grep server_timing` |
+| Adoption path  | battery F2 re-scope (2026-10-11 audit); W3 httpx context | TODO_LIST upstream-ask annotation                      |
 
 ## 1. Capability inventory (why it is worth wiring when the time comes)
 
@@ -54,11 +54,11 @@ A complete W3C Server-Timing implementation in a zero-dependency module
 
 ## 2. Capability vs applicability
 
-| Capability | Status | Reason |
-|---|---|---|
+| Capability                      | Status                                | Reason                                                                                                                                      |
+| ------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Middleware + `WrapServerTiming` | ⚪ N/A today / adoption path recorded | No timing-exposure story exists in the default stack or batteries yet; wiring is routed through battery F2/W3, demand-gated per house rules |
-| Context helpers | ⚪ N/A today | Same gate |
-| Version currency | 🟢 | v1.0.3 in every go.sum = newest tag |
+| Context helpers                 | ⚪ N/A today                          | Same gate                                                                                                                                   |
+| Version currency                | 🟢                                    | v1.0.3 in every go.sum = newest tag                                                                                                         |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

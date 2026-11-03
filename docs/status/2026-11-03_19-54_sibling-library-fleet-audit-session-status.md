@@ -7,6 +7,7 @@
 ## Scope line — verified vs NOT verified
 
 **Verified in this session (fresh commands, same-day):**
+
 - Import/graph state of all 12 libs: `rg` over every `*.go` + all 12 `go.mod`s; `go mod why -m`
   chains for go-retry/go-codec/go-idempotency (cqrs AND integration), `exit 0`.
 - Version currency: `git tag --sort=-v:refname | head -1` in 11 local checkouts + `server_timing`
@@ -19,6 +20,7 @@
 - AGENTS.md cap: 134/220 lines after the memory update.
 
 **NOT verified here (and why):**
+
 - **The full test suite was not run** — the diff touches only `.md`/`.html` + AGENTS.md; no Go
   source changed. `routed-destinations` + `go-directives` are the docs-relevant gates; the full
   `verify-all` loop was skipped as disproportionate (defensible, but it means the library-deep-dive
@@ -39,6 +41,7 @@
 ## Brutal self-review (the three opening questions)
 
 **What did I forget?**
+
 1. **The TODO_LIST harvest.** The 2026-10-11 sibling audit applied its doc pass same-session
    (annotated battery D7/F2 in TODO_LIST). Mine did NOT: the audit's actionable outputs (otel
    Recovery refactor, error-family registry decision, the go-etag five-module note for battery
@@ -57,6 +60,7 @@
    split-brain decision explicitly in the handoff instead of burying it in a README row.
 
 **What could I have done better?**
+
 1. **Derive scores once.** The httputil score-derivation paragraph shipped mangled
    ("partials are rows 5, 13, 14, 15 = 4 partials → wait:") in the first draft — I re-derived
    mid-prose instead of counting once and writing once. Caught and fixed, but it shipped in a
@@ -71,6 +75,7 @@
    claims rest on fresh commands vs memory until this report's scope line.
 
 **What could I still improve?**
+
 1. Treat report appendices as code: execute them, or mark them "untested transcript."
 2. Make the audit scorecards reproducible by a script (the counts exist only in prose).
 3. Do the HARVEST in-session unless explicitly told to wait (the skill says the loop isn't
@@ -80,43 +85,43 @@
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-|---|---|---|
-| 1 | Discovery scan: 12 libs × 12 modules (go.mod presence + code imports + go.sum) | `rg` outputs in session; result: 3 direct (httputil, go-error-family, go-sse), 4 indirect (go-etag, go-idempotency, go-retry, go-codec), 5 absent |
-| 2 | Phase-0 priors read before writing: 2026-10-11 sibling audit (full text), 2026-09-16 ecosystem dive (indexed), go-daemon integration research, battery spec, library-analysis README | Supersede chains recorded in every new report |
-| 3 | Capability inventories for 11 local checkouts (README/CHANGELOG/exported-symbol sweeps) | 11 agent inventories + 2 direct reads (httputil maxbodysize, go-sse fanout via inventory) |
-| 4 | 12 per-lib reports at `docs/review/libs/<lib>.md`, each with usage evidence, capability table, score/posture, should/should-not answer, recommendations | `ls docs/review/libs` (12 files, 4.6–10.6 KB each) |
-| 5 | Aggregate `docs/review/libs/index.html` composed from the editorial kit template by copy+replace (no line splicing) | 47,212 bytes; python html.parser: 0 errors/0 unclosed |
-| 6 | Screenshot render verification (headless Firefox, 1440px + 1100px) | `/tmp/index-render*.png`; visual check: nav/hero/scorecard/tables correct |
-| 7 | Discoverability rows added to `docs/research/README.md` AND `docs/reviews/README.md` — with the historical 2026-10-12 row PRESERVED after I briefly overwrote it (caught, restored) | `git diff docs/reviews/README.md`: 1 insertion only |
-| 8 | AGENTS.md memory: audit-outcome bullet + stale Core-Dependencies table fixed (httputil v1.4.0→v1.7.0, error-family v0.10.1→v0.12.0); 134/220 lines | `git diff AGENTS.md` (3+/2-) |
-| 9 | Docs guards green at HEAD: routed-destinations (13 files, 0 unenforced), go-directives (12/12) | exit 0 both |
-| 10 | Citation precision pass: 16 file:line cites verified; exceptions.go range corrected to 19-37 (`func Recovery` at :37) | `sed -n` outputs logged in session |
+| #  | Item                                                                                                                                                                                 | Evidence                                                                                                                                          |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | Discovery scan: 12 libs × 12 modules (go.mod presence + code imports + go.sum)                                                                                                       | `rg` outputs in session; result: 3 direct (httputil, go-error-family, go-sse), 4 indirect (go-etag, go-idempotency, go-retry, go-codec), 5 absent |
+| 2  | Phase-0 priors read before writing: 2026-10-11 sibling audit (full text), 2026-09-16 ecosystem dive (indexed), go-daemon integration research, battery spec, library-analysis README | Supersede chains recorded in every new report                                                                                                     |
+| 3  | Capability inventories for 11 local checkouts (README/CHANGELOG/exported-symbol sweeps)                                                                                              | 11 agent inventories + 2 direct reads (httputil maxbodysize, go-sse fanout via inventory)                                                         |
+| 4  | 12 per-lib reports at `docs/review/libs/<lib>.md`, each with usage evidence, capability table, score/posture, should/should-not answer, recommendations                              | `ls docs/review/libs` (12 files, 4.6–10.6 KB each)                                                                                                |
+| 5  | Aggregate `docs/review/libs/index.html` composed from the editorial kit template by copy+replace (no line splicing)                                                                  | 47,212 bytes; python html.parser: 0 errors/0 unclosed                                                                                             |
+| 6  | Screenshot render verification (headless Firefox, 1440px + 1100px)                                                                                                                   | `/tmp/index-render*.png`; visual check: nav/hero/scorecard/tables correct                                                                         |
+| 7  | Discoverability rows added to `docs/research/README.md` AND `docs/reviews/README.md` — with the historical 2026-10-12 row PRESERVED after I briefly overwrote it (caught, restored)  | `git diff docs/reviews/README.md`: 1 insertion only                                                                                               |
+| 8  | AGENTS.md memory: audit-outcome bullet + stale Core-Dependencies table fixed (httputil v1.4.0→v1.7.0, error-family v0.10.1→v0.12.0); 134/220 lines                                   | `git diff AGENTS.md` (3+/2-)                                                                                                                      |
+| 9  | Docs guards green at HEAD: routed-destinations (13 files, 0 unenforced), go-directives (12/12)                                                                                       | exit 0 both                                                                                                                                       |
+| 10 | Citation precision pass: 16 file:line cites verified; exceptions.go range corrected to 19-37 (`func Recovery` at :37)                                                                | `sed -n` outputs logged in session                                                                                                                |
 
 ## b) PARTIALLY DONE
 
-| # | Item | Works | Open | Effort to finish |
-|---|---|---|---|---|
-| 1 | library-deep-dive done-bar (4 items) | Index ✓ (two README rows), Memory ✓ (AGENTS bullet) | Gate = 2 guards, NOT the full suite; Browser = desktop screenshots only, no mobile pass | S (run suite at next code change; 1 mobile screenshot) |
-| 2 | "How to verify" appendices in all 12 reports | Written; most commands are the ones I actually ran | None executed as-written; ≥1 provably invalid (httputil.md rg syntax) | S (run all 12 blocks, fix failures) |
-| 3 | Audit-findings routing | Reports + AGENTS.md carry every finding | TODO_LIST.md has NOTHING from this audit (harvest pending — the skill says (f) is HARVEST input, not entombed content) | S (docs-health HARVEST) |
-| 4 | Scorecards | 3 used libs scored with derivations (72/81/46) | Unused libs are posture-graded only — by design, but it means "to the max" is answered qualitatively (N/A-tables) for 9/12 | — (design choice, documented) |
-| 5 | Upstream watch items documented | go-sse breaking `ssetest.WithLastEventID` + `DefaultSubscriberBuffer` export recorded in report + AGENTS | Nothing mechanical watches for the next go-sse release; relies on a future session reading the report | S (TODO_LIST watch row) |
+| # | Item                                         | Works                                                                                                    | Open                                                                                                                       | Effort to finish                                       |
+| - | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| 1 | library-deep-dive done-bar (4 items)         | Index ✓ (two README rows), Memory ✓ (AGENTS bullet)                                                      | Gate = 2 guards, NOT the full suite; Browser = desktop screenshots only, no mobile pass                                    | S (run suite at next code change; 1 mobile screenshot) |
+| 2 | "How to verify" appendices in all 12 reports | Written; most commands are the ones I actually ran                                                       | None executed as-written; ≥1 provably invalid (httputil.md rg syntax)                                                      | S (run all 12 blocks, fix failures)                    |
+| 3 | Audit-findings routing                       | Reports + AGENTS.md carry every finding                                                                  | TODO_LIST.md has NOTHING from this audit (harvest pending — the skill says (f) is HARVEST input, not entombed content)     | S (docs-health HARVEST)                                |
+| 4 | Scorecards                                   | 3 used libs scored with derivations (72/81/46)                                                           | Unused libs are posture-graded only — by design, but it means "to the max" is answered qualitatively (N/A-tables) for 9/12 | — (design choice, documented)                          |
+| 5 | Upstream watch items documented              | go-sse breaking `ssetest.WithLastEventID` + `DefaultSubscriberBuffer` export recorded in report + AGENTS | Nothing mechanical watches for the next go-sse release; relies on a future session reading the report                      | S (TODO_LIST watch row)                                |
 
 ## c) NOT STARTED
 
-| # | Item | Why not started |
-|---|---|---|
-| 1 | **F1 code fix: delegate `appkitotel.Recovery` to `httputil.RecoveryWithConfig` + `OnPanic`** (the audit's one actionable code finding) | Docs-audit session; code changes owner-gated. Effort S-M incl. exceptions-test updates |
-| 2 | Error-family fleet-classification registry (decision + possible `RegisterStdlibDefaults`-based bootstrap) | Demand-gated by charter; needs the adopt decision recorded first (F2) |
-| 3 | Battery-row annotations: go-etag five-module note on B4/W4 rows | Annotation work, deferred to harvest |
-| 4 | `realtime/hub.go:80` doc-comment fix (unexported `sse.defaultSubscriberBuffer` reference) | Trivial; deferred without good reason |
-| 5 | Convention decision: canonical home for per-lib deep-dives | Needs owner ruling (question g/1) |
-| 6 | HARVEST of this report's section (f) into TODO_LIST/ROADMAP | Awaiting report review per instruction |
-| 7 | Mobile/print render pass for index.html | Desktop verified; mobile never shot |
-| 8 | Mechanical AGENTS-table↔go.mod version-drift guard (extension of check-pin-drift.sh) | Idea born this session; zero work done |
-| 9 | `go list -m` proof of the integration go-retry MVS resolution | One command; not run |
-| 10 | dprint/format pass over the 13 new files | Not attempted (unknown whether dprint.json covers md/html) |
+| #  | Item                                                                                                                                   | Why not started                                                                        |
+| -- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 1  | **F1 code fix: delegate `appkitotel.Recovery` to `httputil.RecoveryWithConfig` + `OnPanic`** (the audit's one actionable code finding) | Docs-audit session; code changes owner-gated. Effort S-M incl. exceptions-test updates |
+| 2  | Error-family fleet-classification registry (decision + possible `RegisterStdlibDefaults`-based bootstrap)                              | Demand-gated by charter; needs the adopt decision recorded first (F2)                  |
+| 3  | Battery-row annotations: go-etag five-module note on B4/W4 rows                                                                        | Annotation work, deferred to harvest                                                   |
+| 4  | `realtime/hub.go:80` doc-comment fix (unexported `sse.defaultSubscriberBuffer` reference)                                              | Trivial; deferred without good reason                                                  |
+| 5  | Convention decision: canonical home for per-lib deep-dives                                                                             | Needs owner ruling (question g/1)                                                      |
+| 6  | HARVEST of this report's section (f) into TODO_LIST/ROADMAP                                                                            | Awaiting report review per instruction                                                 |
+| 7  | Mobile/print render pass for index.html                                                                                                | Desktop verified; mobile never shot                                                    |
+| 8  | Mechanical AGENTS-table↔go.mod version-drift guard (extension of check-pin-drift.sh)                                                   | Idea born this session; zero work done                                                 |
+| 9  | `go list -m` proof of the integration go-retry MVS resolution                                                                          | One command; not run                                                                   |
+| 10 | dprint/format pass over the 13 new files                                                                                               | Not attempted (unknown whether dprint.json covers md/html)                             |
 
 ## d) TOTALLY FUCKED UP
 
@@ -156,7 +161,7 @@ shipped defect:
    `scripts/check-pin-drift.sh` (or a sibling) to assert AGENTS table versions == go.mod
    versions. This is the same truth-automation class SUPERB v10 shipped for `→ routed` markers.
 5. **Score derivations: count once, write once.** Never re-derive mid-prose; compute the table
-   counts programmatically and paste. 
+   counts programmatically and paste.
 6. **Convention-first handoffs.** When the user-specified output path differs from the repo's
    established series home, state the split-brain explicitly in the final message and record
    the resolution in the docs map (pending g/1).
@@ -173,6 +178,7 @@ Ranked by impact × ease. **This section is the HARVEST feed** — it belongs in
 not in this file. (I: impact, E: effort S<30m / M≤2h / L>2h, C: category)
 
 **Code (the audit's actionable outputs)**
+
 1. Refactor `appkitotel.Recovery` onto `httputil.RecoveryWithConfig` + `OnPanic`; extend exceptions tests to pin the delegation. I:High E:M C:Quality
 2. Fix `realtime/hub.go:80` doc comment (unexported `sse.defaultSubscriberBuffer` → concept reference). I:Low E:S C:Documentation
 3. Add `WrapOnce` at the idempotent `Shutdown` re-wrap sites in core (double-wrap is cosmetic today). I:Low E:S C:Quality

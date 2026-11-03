@@ -14,14 +14,14 @@ data-emission surface (the docs module) serves machine-readable catalogs over HT
 terminal tables. No battery, TODO row, or roadmap item names output rendering. The library's
 consumers live in the family's CLI-shaped projects (cmdguard-built tools), not here.**
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 | `rg 'go-output' --glob '*.go'` → empty |
-| In graph? | No | absent from all go.mod/go.sum |
-| Latest tag | v0.38.7 | `git -C ~/projects/go-output tag --sort=-v:refname \| head -1` |
-| Shape | Root module (zero heavy deps) + 18 submodules, each independently versioned | `~/projects/go-output/go.mod`, 19 go.mods total |
-| Version traps | v0.32.1 / v0.33.0 / v0.34.0 RETRACTED (bogus/stale tags) | `~/projects/go-output/go.mod:21-28` |
-| Upstream state | HEAD 6 commits past v0.38.7 ([Unreleased] empty) | `~/projects/go-output/CHANGELOG.md` |
+| Fact           | Value                                                                       | Evidence                                                       |
+| -------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Direct imports | 0                                                                           | `rg 'go-output' --glob '*.go'` → empty                         |
+| In graph?      | No                                                                          | absent from all go.mod/go.sum                                  |
+| Latest tag     | v0.38.7                                                                     | `git -C ~/projects/go-output tag --sort=-v:refname \| head -1` |
+| Shape          | Root module (zero heavy deps) + 18 submodules, each independently versioned | `~/projects/go-output/go.mod`, 19 go.mods total                |
+| Version traps  | v0.32.1 / v0.33.0 / v0.34.0 RETRACTED (bogus/stale tags)                    | `~/projects/go-output/go.mod:21-28`                            |
+| Upstream state | HEAD 6 commits past v0.38.7 ([Unreleased] empty)                            | `~/projects/go-output/CHANGELOG.md`                            |
 
 ## 1. Capability inventory
 
@@ -39,12 +39,12 @@ consumers live in the family's CLI-shaped projects (cmdguard-built tools), not h
 
 ## 2. Capability vs applicability
 
-| Capability | Status | Reason |
-|---|---|---|
-| Table/diagram rendering | ⚪ N/A — category mismatch | appkit emits HTTP JSON (docs catalog, health endpoints), not terminal/report output; no CLI ships in this repo |
-| NOM progress | ⚪ N/A | Long-running-work visualization targets build/install tools, not an HTTP framework |
-| testhelpers | ⚪ N/A | Repo testing is stdlib `testing` + family `ssetest`/`httpspec`; adopting a second assert library would fragment conventions |
-| Version currency | 🟢 | v0.38.7 is the newest non-retracted tag (moot until adoption) |
+| Capability              | Status                     | Reason                                                                                                                      |
+| ----------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Table/diagram rendering | ⚪ N/A — category mismatch | appkit emits HTTP JSON (docs catalog, health endpoints), not terminal/report output; no CLI ships in this repo              |
+| NOM progress            | ⚪ N/A                     | Long-running-work visualization targets build/install tools, not an HTTP framework                                          |
+| testhelpers             | ⚪ N/A                     | Repo testing is stdlib `testing` + family `ssetest`/`httpspec`; adopting a second assert library would fragment conventions |
+| Version currency        | 🟢                         | v0.38.7 is the newest non-retracted tag (moot until adoption)                                                               |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

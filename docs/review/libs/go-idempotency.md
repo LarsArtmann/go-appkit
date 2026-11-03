@@ -14,13 +14,13 @@ code and README level, and the battery-D7 adopt-vs-port annotation from the 2026
 audit is intact in TODO_LIST. The one cheap deliverable that audit recommended — a README
 wiring recipe — is still not written and remains gated on demand.**
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 of 12 modules | `rg 'go-idempotency' --glob '*.go'` → empty |
-| In-graph version | v0.3.1 (= latest tag), indirect | `cqrs/go.mod:64`, `integration/go.mod:109` |
-| Chain | cqrs → go-cqrs-lite/middleware/v4 → go-idempotency | `go mod why -m` (verified 2026-11-03) |
-| Posture records | `cqrs/commands.go:24` + `cqrs/README.md:618` + TODO_LIST:50/52 | consistent across all three |
-| Upstream state | HEAD 13 commits past v0.3.1 (release-hardening planning; no API change) | `~/projects/go-idempotency` |
+| Fact             | Value                                                                   | Evidence                                    |
+| ---------------- | ----------------------------------------------------------------------- | ------------------------------------------- |
+| Direct imports   | 0 of 12 modules                                                         | `rg 'go-idempotency' --glob '*.go'` → empty |
+| In-graph version | v0.3.1 (= latest tag), indirect                                         | `cqrs/go.mod:64`, `integration/go.mod:109`  |
+| Chain            | cqrs → go-cqrs-lite/middleware/v4 → go-idempotency                      | `go mod why -m` (verified 2026-11-03)       |
+| Posture records  | `cqrs/commands.go:24` + `cqrs/README.md:618` + TODO_LIST:50/52          | consistent across all three                 |
+| Upstream state   | HEAD 13 commits past v0.3.1 (release-hardening planning; no API change) | `~/projects/go-idempotency`                 |
 
 ## 1. Capability inventory
 
@@ -43,12 +43,12 @@ A focused at-most-once SDK (`~/projects/go-idempotency/`):
 
 ## 2. Capability vs applicability
 
-| Capability | Status | Reason |
-|---|---|---|
+| Capability                                | Status                                | Reason                                                                                                                                                                                                                                                                          |
+| ----------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Store + `CheckAndRecord` in cqrs commands | ⚪ N/A today — adoption path recorded | cqrs's EventConfig deliberately excludes idempotency from defaults (changes command semantics, `cqrs/commands.go:24`); TODO_LIST:52 names the cheap path: `EventConfig.CommandMiddleware` + `CommandIdempotency` from go-cqrs-lite/middleware — no new appkit dependency needed |
-| HTTP `Idempotency-Key` middleware | ⚪ N/A today | Belongs to the W3 httpx battery if a consumer asks; not a default-stack concern |
-| contract suite | ⚪ N/A today | Activates when a consumer implements a Store backend (battery D7's likely final shape: budget the backend, not a parallel store) |
-| Version currency | 🟢 | v0.3.1 everywhere = newest published tag |
+| HTTP `Idempotency-Key` middleware         | ⚪ N/A today                          | Belongs to the W3 httpx battery if a consumer asks; not a default-stack concern                                                                                                                                                                                                 |
+| contract suite                            | ⚪ N/A today                          | Activates when a consumer implements a Store backend (battery D7's likely final shape: budget the backend, not a parallel store)                                                                                                                                                |
+| Version currency                          | 🟢                                    | v0.3.1 everywhere = newest published tag                                                                                                                                                                                                                                        |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

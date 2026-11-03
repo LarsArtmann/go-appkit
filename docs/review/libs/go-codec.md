@@ -25,12 +25,12 @@ wrapper delegates payload codecs to go-cqrs-lite, which is exactly the layering 
 agreed on. The recorded future surface: battery B5 (content negotiation in the W3 httpx
 module) is pre-agreed to be built ON go-codec, not on go-daemon's copy of the pattern.**
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 of 12 modules | `rg 'go-codec' --glob '*.go'` → empty |
+| Fact              | Value                                                                                                | Evidence                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Direct imports    | 0 of 12 modules                                                                                      | `rg 'go-codec' --glob '*.go'` → empty                       |
 | In-graph versions | cqrs v0.3.3 (= latest); docs v0.3.2 + integration v0.3.2 (MVS union resolves v0.3.3 for repo builds) | `cqrs/go.mod:53`, `docs/go.mod:16`, `integration/go.mod:87` |
-| Chain | cqrs → go-cqrs-lite/command/v4 → go-codec | `go mod why -m` (verified 2026-11-03) |
-| Upstream state | v0.3.3 (2026-10-29, decode-only additive); HEAD 1 commit ahead | `~/projects/go-codec/CHANGELOG.md` |
+| Chain             | cqrs → go-cqrs-lite/command/v4 → go-codec                                                            | `go mod why -m` (verified 2026-11-03)                       |
+| Upstream state    | v0.3.3 (2026-10-29, decode-only additive); HEAD 1 commit ahead                                       | `~/projects/go-codec/CHANGELOG.md`                          |
 
 ## 1. Capability inventory
 
@@ -53,12 +53,12 @@ An event-payload codec SDK (`~/projects/go-codec/`, single package):
 
 ## 2. Capability vs applicability
 
-| Capability | Status | Reason |
-|---|---|---|
-| Payload codecs in appkit/cqrs | ⚪ N/A — layering by design | cqrs delegates payloads to go-cqrs-lite (which requires go-codec); appkit's wrapper surface stays command/query + projections + DLQ |
+| Capability                      | Status                                | Reason                                                                                                                                                                                                                                                       |
+| ------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Payload codecs in appkit/cqrs   | ⚪ N/A — layering by design           | cqrs delegates payloads to go-cqrs-lite (which requires go-codec); appkit's wrapper surface stays command/query + projections + DLQ                                                                                                                          |
 | Content negotiation (future B5) | ⚪ N/A today — adoption path recorded | `docs/planning/2026-10-01_go-daemon-and-go-aichat-integration.md` pre-agrees: build negotiation on go-codec in the W3 httpx module, using go-daemon's `ResolveRequestCodec`/`ResolveResponseCodec` as the reference implementation — do not import go-daemon |
-| COSE / envelope / autodetect | ⚪ N/A | Signing/encryption are cqrs-lite module concerns (deferred EventConfig opt-ins, TODO_LIST:52) |
-| Version currency | 🟢 | v0.3.3 in cqrs = newest tag; v0.3.2 floors in docs/integration self-heal at the next re-pin |
+| COSE / envelope / autodetect    | ⚪ N/A                                | Signing/encryption are cqrs-lite module concerns (deferred EventConfig opt-ins, TODO_LIST:52)                                                                                                                                                                |
+| Version currency                | 🟢                                    | v0.3.3 in cqrs = newest tag; v0.3.2 floors in docs/integration self-heal at the next re-pin                                                                                                                                                                  |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

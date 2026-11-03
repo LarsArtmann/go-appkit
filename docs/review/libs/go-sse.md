@@ -17,12 +17,12 @@ upstream coupling to watch: go-sse's next release carries a breaking
 `ssetest.WithLastEventID` signature change and an exported `DefaultSubscriberBuffer`
 that realtime's docs currently reference as an unexported const.
 
-| Fact | Value | Evidence |
-|---|---|---|
-| In-graph versions | go-sse v0.6.2, ssetest v0.5.0, sseparse v0.2.1 — all = latest published tags | `realtime/go.mod:6-7,14`, `integration/go.mod:31-32` |
-| Direct importers | realtime (runtime), integration (E2E), cqrs (indirect) | go.mods |
-| Latest-tag vs HEAD | v0.6.2 published; HEAD 74 commits ahead — `[Unreleased]` has the breaking ssetest change + `DefaultSubscriberBuffer` export | `~/projects/go-sse/CHANGELOG.md` head |
-| Protocol guard | `scripts/check-sse-protocol.sh` (CI + pre-commit) enforces SubscriberCount-sync + timeout-client house rules | AGENTS "Load-flake protocol" |
+| Fact               | Value                                                                                                                       | Evidence                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| In-graph versions  | go-sse v0.6.2, ssetest v0.5.0, sseparse v0.2.1 — all = latest published tags                                                | `realtime/go.mod:6-7,14`, `integration/go.mod:31-32` |
+| Direct importers   | realtime (runtime), integration (E2E), cqrs (indirect)                                                                      | go.mods                                              |
+| Latest-tag vs HEAD | v0.6.2 published; HEAD 74 commits ahead — `[Unreleased]` has the breaking ssetest change + `DefaultSubscriberBuffer` export | `~/projects/go-sse/CHANGELOG.md` head                |
+| Protocol guard     | `scripts/check-sse-protocol.sh` (CI + pre-commit) enforces SubscriberCount-sync + timeout-client house rules                | AGENTS "Load-flake protocol"                         |
 
 ## 1. Usage evidence
 
@@ -53,27 +53,27 @@ consumer-side via `PatchLike`).
 
 ## 2. Capability inventory vs adoption
 
-| # | go-sse capability | Status | Evidence |
-|---|---|---|---|
-| 1 | `Broadcaster` lifecycle (New/Broadcast/BroadcastMany/Subscribe/Unsubscribe/SubscriberCount) | 🟢 Full | `hub.go:54,99,105,145` |
-| 2 | `BroadcasterHealth` + `Health()` | 🟢 Full | `hub.go:140`; pinned by integration SSE E2Es |
-| 3 | `Shutdown` graceful drain vs `Close` | 🟢 Full | `hub.go:127-134`; drain-before-server-stop contract documented |
-| 4 | Option: `WithBufferSize` | 🟢 Full | `hub.go:53-55` |
-| 5 | Options: `OnSubscribe`/`OnUnsubscribe` setters | 🟢 Full | `hub.go:60-66` (exposed as `WithOnSubscribe`/`WithOnUnsubscribe`) |
-| 6 | Option: `WithOnDrop` | 🔴 Missed | TODO W5-C1 (drop/backpressure counters); known, demand-gated |
-| 7 | `Stream` (NewStream/Send) | 🟢 Full | `handler.go:101` |
-| 8 | `Stream.Heartbeat` | 🟢 Full | `handler.go:132`; `WithHeartbeat` default 15s |
-| 9 | `LastEventID` / resume path | 🟢 Full | `handler.go:203` — uses the library's validated accessor, no hand-parsing |
-| 10 | `Replay` / `ReplayFiltered` (push-down) | 🟢 Full | `handler.go:52,253` incl. in-memory post-filter fallback |
-| 11 | `EventStore`/`FilteredEventStore` contract | 🟢 Full | interface consumed; no production store shipped (consumer-provided, demand-gated — correct SDK posture) |
-| 12 | `OnDisconnect` | 🔴 Missed (small) | no disconnect hook wired; candidate alongside W5-C1 metrics |
-| 13 | `Event`/`EventID`/`ParseEventID` | 🟢 Full | throughout hub/handler/tests |
-| 14 | `WriteEvent`/`WriteHeartbeat`/`WriteRetry` raw writers | ⚪ N/A | Stream wraps them internally; direct calls would bypass the mutex discipline |
-| 15 | `SendJSON`/`SendData`/`SendLines`/`SendKeyed` | ⚪ N/A | realtime's canonical endpoint streams events only; JSON-over-SSE is out of lane |
-| 16 | `KeyedLines`/`WriteKeyedLines` (DataStar shaping) | ⚪ N/A | consumers shape payloads via `PatchLike.Event()` |
-| 17 | `ContentType`/`EventConnected` constants | 🟡 Partial | test-only (`realtime_test.go:583-584`); runtime headers come from `NewStream` |
-| 18 | `ssetest` harness | 🟢 Full | realtime + integration suites (SubscriberCount-sync rule is CI-enforced) |
-| 19 | `sseparse` | 🟡 Partial | indirect via ssetest compat re-exports; no direct parse use |
+| #  | go-sse capability                                                                           | Status            | Evidence                                                                                                |
+| -- | ------------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------- |
+| 1  | `Broadcaster` lifecycle (New/Broadcast/BroadcastMany/Subscribe/Unsubscribe/SubscriberCount) | 🟢 Full           | `hub.go:54,99,105,145`                                                                                  |
+| 2  | `BroadcasterHealth` + `Health()`                                                            | 🟢 Full           | `hub.go:140`; pinned by integration SSE E2Es                                                            |
+| 3  | `Shutdown` graceful drain vs `Close`                                                        | 🟢 Full           | `hub.go:127-134`; drain-before-server-stop contract documented                                          |
+| 4  | Option: `WithBufferSize`                                                                    | 🟢 Full           | `hub.go:53-55`                                                                                          |
+| 5  | Options: `OnSubscribe`/`OnUnsubscribe` setters                                              | 🟢 Full           | `hub.go:60-66` (exposed as `WithOnSubscribe`/`WithOnUnsubscribe`)                                       |
+| 6  | Option: `WithOnDrop`                                                                        | 🔴 Missed         | TODO W5-C1 (drop/backpressure counters); known, demand-gated                                            |
+| 7  | `Stream` (NewStream/Send)                                                                   | 🟢 Full           | `handler.go:101`                                                                                        |
+| 8  | `Stream.Heartbeat`                                                                          | 🟢 Full           | `handler.go:132`; `WithHeartbeat` default 15s                                                           |
+| 9  | `LastEventID` / resume path                                                                 | 🟢 Full           | `handler.go:203` — uses the library's validated accessor, no hand-parsing                               |
+| 10 | `Replay` / `ReplayFiltered` (push-down)                                                     | 🟢 Full           | `handler.go:52,253` incl. in-memory post-filter fallback                                                |
+| 11 | `EventStore`/`FilteredEventStore` contract                                                  | 🟢 Full           | interface consumed; no production store shipped (consumer-provided, demand-gated — correct SDK posture) |
+| 12 | `OnDisconnect`                                                                              | 🔴 Missed (small) | no disconnect hook wired; candidate alongside W5-C1 metrics                                             |
+| 13 | `Event`/`EventID`/`ParseEventID`                                                            | 🟢 Full           | throughout hub/handler/tests                                                                            |
+| 14 | `WriteEvent`/`WriteHeartbeat`/`WriteRetry` raw writers                                      | ⚪ N/A            | Stream wraps them internally; direct calls would bypass the mutex discipline                            |
+| 15 | `SendJSON`/`SendData`/`SendLines`/`SendKeyed`                                               | ⚪ N/A            | realtime's canonical endpoint streams events only; JSON-over-SSE is out of lane                         |
+| 16 | `KeyedLines`/`WriteKeyedLines` (DataStar shaping)                                           | ⚪ N/A            | consumers shape payloads via `PatchLike.Event()`                                                        |
+| 17 | `ContentType`/`EventConnected` constants                                                    | 🟡 Partial        | test-only (`realtime_test.go:583-584`); runtime headers come from `NewStream`                           |
+| 18 | `ssetest` harness                                                                           | 🟢 Full           | realtime + integration suites (SubscriberCount-sync rule is CI-enforced)                                |
+| 19 | `sseparse`                                                                                  | 🟡 Partial        | indirect via ssetest compat re-exports; no direct parse use                                             |
 
 **Score derivation**: A = 16 applicable (14-16 N/A with reasons; 17 and 19 count as
 applicable-with-partial). Green = 12 (rows 1,2,3,4,5,7,8,9,10,11,13,18). Partial = 2 × 0.5
@@ -82,12 +82,14 @@ applicable-with-partial). Green = 12 (rows 1,2,3,4,5,7,8,9,10,11,13,18). Partial
 ## 3. Findings (Pareto order)
 
 ### F1 — `WithOnDrop` is the last high-value unwired option (already planned)
+
 go-sse fires `OnDrop` per full subscriber buffer; the fleet-coherence note (TODO_LIST) even
 names go-aichat ssehub's `Drops()` shape as the reference. When W5-C1 lands, the Hub should
 expose drop counters through `WithOnDrop` (respecting the re-entry deadlock rule: the
 callback runs under the read lock and must be non-blocking — a counter increment only).
 
 ### F2 — Upstream `[Unreleased]` coupling: two changes to absorb at the next go-sse release
+
 1. **Breaking:** `ssetest.WithLastEventID` takes `sse.EventID` (not string) — touches
    realtime/integration tests and the integration PIN (integration pins PUBLISHED tags, so
    the pin re-pin ritual covers it; do not absorb early).
@@ -96,11 +98,13 @@ callback runs under the read lock and must be non-blocking — a counter increme
    (`hub.go:80`); update the reference to the exported name on the next train.
 
 ### F3 — Version currency is perfect on published tags; 74 unreleased upstream commits
+
 All three in-graph versions equal the newest tags (v0.6.2 / ssetest v0.5.0 / sseparse
 v0.2.1). HEAD-ahead content is upstream release-engineering + the F2 items — nothing to
 chase now; re-check at the next go-sse release.
 
 ### F4 — No production EventStore shipped — correct, keep it that way
+
 Realtime accepts any `sse.EventStore` but ships no implementation; cqrs consumers get
 projection-backed stores from go-cqrs-lite. Shipping a default in-memory store would invite
 unbounded memory growth in a framework whose stores are consumer-domain (same reasoning as

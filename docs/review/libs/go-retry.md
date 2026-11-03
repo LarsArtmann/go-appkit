@@ -14,12 +14,12 @@ primitives (graceful drain, deadlines) are deadline-based, not retry-based — a
 commands is consumer domain by charter. Natural adoption surface if/when the W4 `polite`
 outbound-client battery is built.**
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 of 12 modules | `rg 'go-retry' --glob '*.go'` → empty |
+| Fact              | Value                                                                                                                                                                                                                                                                                                                                               | Evidence                                                                    |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Direct imports    | 0 of 12 modules                                                                                                                                                                                                                                                                                                                                     | `rg 'go-retry' --glob '*.go'` → empty                                       |
 | In-graph versions | cqrs v0.9.0 (= latest, working tree); integration resolves **v0.8.0** — CORRECTED 2026-11-03: `go list -m all` in integration proves its published-tag chain tops out at v0.8.0 (the earlier "repo build union resolves v0.9.0" claim was wrong — there is no cross-module union for a standalone module build; each module resolves its own graph) | `cqrs/go.mod:65`, `integration/go.mod:110`, `go list -m all` run 2026-11-03 |
-| Chain | cqrs → go-cqrs-lite/middleware/v4 → go-retry | `go mod why -m` (verified 2026-11-03, both cqrs and integration) |
-| Upstream state | v0.9.0 (2026-10-27); HEAD 3 commits ahead (lint-config chores, [Unreleased] empty) | `~/projects/go-retry` |
+| Chain             | cqrs → go-cqrs-lite/middleware/v4 → go-retry                                                                                                                                                                                                                                                                                                        | `go mod why -m` (verified 2026-11-03, both cqrs and integration)            |
+| Upstream state    | v0.9.0 (2026-10-27); HEAD 3 commits ahead (lint-config chores, [Unreleased] empty)                                                                                                                                                                                                                                                                  | `~/projects/go-retry`                                                       |
 
 ## 1. Capability inventory
 
@@ -40,12 +40,12 @@ A dependency-light retry loop over go-error-family (`~/projects/go-retry/`, sing
 
 ## 2. Capability vs applicability
 
-| Capability | Status | Reason |
-|---|---|---|
-| Retry loops in core lifecycle | ⚪ N/A by design | Shutdown/drain are deadline-driven (`DrainDelay`, `NoDrainDelay`); a framework retry loop would fight the operator's deadline contract |
-| Retry in cqrs commands | ⚪ N/A — consumer domain, already wired upstream | go-cqrs-lite/middleware exposes retry over go-retry; cqrs documents it as a non-default (`cqrs/commands.go:24`, README:618) |
-| Outbound-call retry (future `polite` client, W4) | ⚪ N/A today — adoption path recorded | The battery has no in-framework consumer yet; go-retry (+ `DelayFunc` for Retry-After) is the natural floor when it is designed |
-| Version currency | 🟢 | v0.9.0 in cqrs = newest tag; integration floor self-heals at the next integration re-pin |
+| Capability                                       | Status                                           | Reason                                                                                                                                 |
+| ------------------------------------------------ | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Retry loops in core lifecycle                    | ⚪ N/A by design                                 | Shutdown/drain are deadline-driven (`DrainDelay`, `NoDrainDelay`); a framework retry loop would fight the operator's deadline contract |
+| Retry in cqrs commands                           | ⚪ N/A — consumer domain, already wired upstream | go-cqrs-lite/middleware exposes retry over go-retry; cqrs documents it as a non-default (`cqrs/commands.go:24`, README:618)            |
+| Outbound-call retry (future `polite` client, W4) | ⚪ N/A today — adoption path recorded            | The battery has no in-framework consumer yet; go-retry (+ `DelayFunc` for Retry-After) is the natural floor when it is designed        |
+| Version currency                                 | 🟢                                               | v0.9.0 in cqrs = newest tag; integration floor self-heals at the next integration re-pin                                               |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

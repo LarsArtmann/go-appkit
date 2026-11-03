@@ -15,13 +15,13 @@ What changed since the 2026-10-11 audit: go-etag v0.6.0 split into FIVE modules 
 client-side conditional-GET `RoundTripper` plus a metrics package — which widens the
 adoption surface beyond the server-side battery B4 story on file.
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 of 12 modules | `rg 'go-etag' --glob '*.go'` → empty |
-| In-graph version | entitytag v0.6.1 + server v0.6.1 (= latest), indirect × 8 | `go.mod:22-23` + satellites |
-| Root module | deprecated shim (removal at v1.0.0) | `~/projects/go-etag/deprecated.go` |
-| Graph hygiene | integration's exclude block fences pre-extraction root versions v0.1.1-v0.5.0 | `integration/go.mod:174-177` |
-| Modules | 5: root shim, entitytag (zero-dep), server, client, metrics | `~/projects/go-etag/*/go.mod` |
+| Fact             | Value                                                                         | Evidence                             |
+| ---------------- | ----------------------------------------------------------------------------- | ------------------------------------ |
+| Direct imports   | 0 of 12 modules                                                               | `rg 'go-etag' --glob '*.go'` → empty |
+| In-graph version | entitytag v0.6.1 + server v0.6.1 (= latest), indirect × 8                     | `go.mod:22-23` + satellites          |
+| Root module      | deprecated shim (removal at v1.0.0)                                           | `~/projects/go-etag/deprecated.go`   |
+| Graph hygiene    | integration's exclude block fences pre-extraction root versions v0.1.1-v0.5.0 | `integration/go.mod:174-177`         |
+| Modules          | 5: root shim, entitytag (zero-dep), server, client, metrics                   | `~/projects/go-etag/*/go.mod`        |
 
 ## 1. Capability inventory (what the library now offers)
 
@@ -41,13 +41,13 @@ adoption surface beyond the server-side battery B4 story on file.
 
 ## 2. Capability vs applicability
 
-| Capability | Status | Reason |
-|---|---|---|
+| Capability                          | Status                                | Reason                                                                                                                                      |
+| ----------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | server middleware (conditional GET) | ⚪ N/A today — adoption path recorded | Battery B4 (W3 httpx) explicitly "promotes the unused go-etag indirect dep" (TODO_LIST:50); no consumer asks for HTTP caching semantics yet |
-| client `RoundTripper` | ⚪ N/A today — NEW adoption surface | Relevant to the planned W4 `polite` outbound client battery, which has no in-framework consumer today |
-| metrics `Attach` | ⚪ N/A today | Only meaningful once the server middleware is wired |
-| entitytag primitives | ⚪ N/A | No appkit code manipulates validators |
-| Version currency | 🟢 | v0.6.1 everywhere = newest tag; excludes block keeps MVS clean |
+| client `RoundTripper`               | ⚪ N/A today — NEW adoption surface   | Relevant to the planned W4 `polite` outbound client battery, which has no in-framework consumer today                                       |
+| metrics `Attach`                    | ⚪ N/A today                          | Only meaningful once the server middleware is wired                                                                                         |
+| entitytag primitives                | ⚪ N/A                                | No appkit code manipulates validators                                                                                                       |
+| Version currency                    | 🟢                                    | v0.6.1 everywhere = newest tag; excludes block keeps MVS clean                                                                              |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

@@ -8,6 +8,7 @@
 ## Scope line — verified vs NOT verified
 
 **Verified (fresh commands, minutes ago):**
+
 - Root `go test ./... -race -count=1` — **ok** (appkit + testkit), with the three NEW tests
   passing: `TestServiceConfig_ServerTiming_Knob` (nil/&true/&false knob states),
   `TestRegisterClassifications_MaxBytesErrorIsRejection`, `TestRegisterClassifications_StdlibDefaults`.
@@ -24,6 +25,7 @@
   ("caller abandoned; retrying without a new request is wrong"), `DeadlineExceeded → Transient`.
 
 **NOT verified / NOT done:**
+
 - **CHANGELOG not yet updated** for the knob, the otel delegation, or the registry — the three
   new code changes are documented only in code/doc-comments so far.
 - **README config table** has no `ServerTiming` knob row yet.
@@ -36,51 +38,51 @@
 
 ## The 13 decisions — record of answers
 
-| # | Question | Answer |
-|---|---|---|
-| 1 | Server-Timing posture | **Config knob, default-ON** (`ServerTiming *bool`, RegisterHealth semantics) |
-| 2 | Release train | **Accumulate** — hold master, one bigger train later |
-| 3 | B5 shape | **Full httpx module program** (B1-B9 family) |
-| 4 | Ruling scope | **Blanket promote all W3-W5** batteries to planned work |
-| 5 | Docs home | **docs/review/libs/ canonical** |
-| 6 | otel Recovery refactor | **Into this train** (done now — see a/2) |
-| 7 | Commit strategy | **I commit now**, logical groups |
-| 8 | Harvest | **Now, full** |
-| 9 | Error-family registry | **Build now** (done now — see a/3) |
-| 10 | Consumer heads-up | **Draft for both** (cqrs-htmx + PapDashboard) |
-| 11 | Next workstream | **Repair backlog first** |
-| 12 | svc.Routes() seam | **Deferred — owner asked "what is httpx vs httputil?"** (answered in chat; decision pending) |
-| 13 | ST metric coverage | **Phases now** — partially unservable, see (d)/#1 |
+| #  | Question               | Answer                                                                                       |
+| -- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| 1  | Server-Timing posture  | **Config knob, default-ON** (`ServerTiming *bool`, RegisterHealth semantics)                 |
+| 2  | Release train          | **Accumulate** — hold master, one bigger train later                                         |
+| 3  | B5 shape               | **Full httpx module program** (B1-B9 family)                                                 |
+| 4  | Ruling scope           | **Blanket promote all W3-W5** batteries to planned work                                      |
+| 5  | Docs home              | **docs/review/libs/ canonical**                                                              |
+| 6  | otel Recovery refactor | **Into this train** (done now — see a/2)                                                     |
+| 7  | Commit strategy        | **I commit now**, logical groups                                                             |
+| 8  | Harvest                | **Now, full**                                                                                |
+| 9  | Error-family registry  | **Build now** (done now — see a/3)                                                           |
+| 10 | Consumer heads-up      | **Draft for both** (cqrs-htmx + PapDashboard)                                                |
+| 11 | Next workstream        | **Repair backlog first**                                                                     |
+| 12 | svc.Routes() seam      | **Deferred — owner asked "what is httpx vs httputil?"** (answered in chat; decision pending) |
+| 13 | ST metric coverage     | **Phases now** — partially unservable, see (d)/#1                                            |
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-|---|---|---|
-| 1 | **ServerTiming config knob**: `ServiceConfig.ServerTiming *bool` — nil/&true ON, &false omits the middleware; DefaultServiceConfig sets &t; knob + stamp-on-commit phase contract documented in the field comment and the stack docstring | `config.go`, `middleware.go`; knob test asserts all three states through `buildMiddleware`+`Chain` |
-| 2 | **otel Recovery delegation**: `appkitotel.Recovery` is now `httputil.RecoveryWithConfig{Logger, OnPanic: recordPanic}` — the hand-replicated log/500/re-panic body is gone; `isAbortPanic` deleted (library re-panics aborts before the hook); exception capture + error status unchanged and pinned by the existing otel suite | otel `-race` ok, lint clean; `otel/exceptions.go` shrank to hook + recordPanic + RecordError |
-| 3 | **Fleet error classifications**: `appkit.RegisterClassifications()` — stdlib defaults (context deadline→Transient, canceled→Rejection, sql/os per the family table) + `*http.MaxBytesError`→Rejection into the default registry; idempotent; deliberately NOT auto-called (global-state hygiene documented) | `errors.go` + new `errors_test.go` (Classify→Rejection, HTTPStatus→400, idempotent re-call, stdlib pins) |
-| 4 | Tree green end-to-end: root `-race` ok ×2 files, otel `-race` ok, root lint 0 issues, otel lint clean, gofmt clean | command outputs this session |
+| # | Item                                                                                                                                                                                                                                                                                                                            | Evidence                                                                                                 |
+| - | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| 1 | **ServerTiming config knob**: `ServiceConfig.ServerTiming *bool` — nil/&true ON, &false omits the middleware; DefaultServiceConfig sets &t; knob + stamp-on-commit phase contract documented in the field comment and the stack docstring                                                                                       | `config.go`, `middleware.go`; knob test asserts all three states through `buildMiddleware`+`Chain`       |
+| 2 | **otel Recovery delegation**: `appkitotel.Recovery` is now `httputil.RecoveryWithConfig{Logger, OnPanic: recordPanic}` — the hand-replicated log/500/re-panic body is gone; `isAbortPanic` deleted (library re-panics aborts before the hook); exception capture + error status unchanged and pinned by the existing otel suite | otel `-race` ok, lint clean; `otel/exceptions.go` shrank to hook + recordPanic + RecordError             |
+| 3 | **Fleet error classifications**: `appkit.RegisterClassifications()` — stdlib defaults (context deadline→Transient, canceled→Rejection, sql/os per the family table) + `*http.MaxBytesError`→Rejection into the default registry; idempotent; deliberately NOT auto-called (global-state hygiene documented)                     | `errors.go` + new `errors_test.go` (Classify→Rejection, HTTPStatus→400, idempotent re-call, stdlib pins) |
+| 4 | Tree green end-to-end: root `-race` ok ×2 files, otel `-race` ok, root lint 0 issues, otel lint clean, gofmt clean                                                                                                                                                                                                              | command outputs this session                                                                             |
 
 ## b) PARTIALLY DONE
 
-| # | Item | Works | Open | Effort |
-|---|---|---|---|---|
+| # | Item                      | Works                                                                                                                                                 | Open                                                                                                                                                                                                                                                                                                                                                                                                 | Effort                    |
+| - | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
 | 1 | "Phases now" (answer #13) | Knob + collector-in-every-context + the handler-phase pattern (`MeasureServerTiming` before first write) documented in the stack docstring and README | **The literal ask — a framework-measured app-handler phase — is unservable on net/http**: the header is stamped at response commit, and the mux duration always completes after the commit, so it can never appear in the header. The honest deliverable is knob + documented handler-side phases; a framework phase would require delaying commits (breaks SSE). Needs your ack of this constraint. | — (design fact, not work) |
-| 2 | Decision records | This report + code comments | AGENTS/TODO_LIST/ROADMAP write-down of all 13 answers + docs-home rule NOT yet done | S |
-| 3 | CHANGELOG | Original Server-Timing entry exists | Knob, otel delegation, registry entries missing | S |
-| 4 | README | Features + stack lines updated earlier | Config-table row for the ServerTiming knob missing | S |
-| 5 | Landing | All work verified on master | `commit_now` not executed (waiting for CHANGELOG/records to complete first so commits are truthful) | S-M |
+| 2 | Decision records          | This report + code comments                                                                                                                           | AGENTS/TODO_LIST/ROADMAP write-down of all 13 answers + docs-home rule NOT yet done                                                                                                                                                                                                                                                                                                                  | S                         |
+| 3 | CHANGELOG                 | Original Server-Timing entry exists                                                                                                                   | Knob, otel delegation, registry entries missing                                                                                                                                                                                                                                                                                                                                                      | S                         |
+| 4 | README                    | Features + stack lines updated earlier                                                                                                                | Config-table row for the ServerTiming knob missing                                                                                                                                                                                                                                                                                                                                                   | S                         |
+| 5 | Landing                   | All work verified on master                                                                                                                           | `commit_now` not executed (waiting for CHANGELOG/records to complete first so commits are truthful)                                                                                                                                                                                                                                                                                                  | S-M                       |
 
 ## c) NOT STARTED (queued by your answers)
 
-| # | Item | Gate |
-|---|---|---|
-| 1 | Consumer heads-up drafts (cqrs-htmx + PapDashboard, your voice) | github-voice skill; next step |
-| 2 | Full HARVEST of both status reports into TODO_LIST/ROADMAP | docs-health skill; next step |
-| 3 | Repair backlog (your chosen next workstream): invalid rg verify-command in httputil.md, mobile screenshot, real ServerTiming bench baseline, hub.go:80 comment, dprint check, example-smoke, integration MVS proof | After landing |
-| 4 | httpx module program (B1-B9, full family per answer #3) | Big; after repairs; svc.Routes() answer pending your read of the httpx explanation |
-| 5 | Blanket-promotion TODO/ROADMAP rewrite of W3-W5 (answer #4) | Part of the records write-down |
-| 6 | Version-drift guard (AGENTS table vs go.mod) | After repairs |
+| # | Item                                                                                                                                                                                                               | Gate                                                                               |
+| - | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| 1 | Consumer heads-up drafts (cqrs-htmx + PapDashboard, your voice)                                                                                                                                                    | github-voice skill; next step                                                      |
+| 2 | Full HARVEST of both status reports into TODO_LIST/ROADMAP                                                                                                                                                         | docs-health skill; next step                                                       |
+| 3 | Repair backlog (your chosen next workstream): invalid rg verify-command in httputil.md, mobile screenshot, real ServerTiming bench baseline, hub.go:80 comment, dprint check, example-smoke, integration MVS proof | After landing                                                                      |
+| 4 | httpx module program (B1-B9, full family per answer #3)                                                                                                                                                            | Big; after repairs; svc.Routes() answer pending your read of the httpx explanation |
+| 5 | Blanket-promotion TODO/ROADMAP rewrite of W3-W5 (answer #4)                                                                                                                                                        | Part of the records write-down                                                     |
+| 6 | Version-drift guard (AGENTS table vs go.mod)                                                                                                                                                                       | After repairs                                                                      |
 
 ## d) TOTALLY FUCKED UP
 
@@ -112,7 +114,7 @@ the invalid rg verify-command in httputil.md; mobile screenshot; dprint check �
    option on a decision list. If it turns out unservable, lead the report with that fact.
 3. **Answer-records-first landing**: write the 13 answers into AGENTS/TODO/ROADMAP BEFORE coding
    spills further, so every later commit carries the decision context (currently only this report
-   + code hold them).
+   - code hold them).
 4. **Commit in logical groups as units complete** rather than accumulating 17+ files across
    multiple features (the tree now spans 4 separable changes).
 5. Keep what worked: `go doc` verification of hook ordering before the refactor (the
@@ -124,6 +126,7 @@ the invalid rg verify-command in httputil.md; mobile screenshot; dprint check �
 dropped; the surviving list, re-ranked by your answers.)
 
 **Landing the current batch (before anything else)**
+
 1. CHANGELOG: knob, otel delegation, registry entries ([Unreleased]). I:High E:S C:Documentation
 2. README: ServerTiming knob row in the config table. I:Medium E:S C:Documentation
 3. Write the 13-answer decision record into AGENTS.md + TODO_LIST + ROADMAP (incl. docs/review/libs canonical rule into both indexes). I:High E:S C:Documentation

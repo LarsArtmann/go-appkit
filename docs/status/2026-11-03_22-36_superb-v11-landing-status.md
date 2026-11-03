@@ -8,6 +8,7 @@
 ## Scope line — verified vs NOT verified
 
 **Verified (fresh commands):**
+
 - Pushed: `cd06828..21601ce` on origin/master — 8 commits, tree **clean** (0 dirty files).
 - Full local gate green on every landing step: root+otel+realtime `-race` suites ok,
   `golangci-lint` 0 issues, gofmt clean, routed-destinations/directives/charter guards exit 0.
@@ -25,6 +26,7 @@
   chain tops out there); the earlier "repo union resolves v0.9.0" was wrong — fixed in place.
 
 **NOT verified:**
+
 - **CI on the pushed commits is still QUEUED** (runs `41720778048`, `41722882481` — shared-runner
   contention, fleet-wide load storm 130+). The session-close ritual (CI green on the FINAL pushed
   commit) is therefore OPEN. Local gates were green pre-push on every commit; hooks re-verified.
@@ -37,6 +39,7 @@
 ## Brutal self-review (the three questions)
 
 **What did I forget?**
+
 1. **FEATURES.md** — the knob, the registry, and the otel delegation are new API surface sitting
    on master, and FEATURES still describes the old surface. The release ritual defers FEATURES to
    the train (accumulate posture), so this is consistent — but "consistent with a rule" is not the
@@ -50,6 +53,7 @@
    checked `git log --format='%an %ci'` for the second committer before theorizing.
 
 **What could I have done better?**
+
 1. **I rewrote your commit's grouping without flagging it first.** "fix it" made the restructure
    the right move, and the result is provably identical (`git diff c4dd8a8 HEAD` empty) — but
    soft-resetting a commit YOU hand-made deserved one sentence of warning before doing it. The
@@ -67,6 +71,7 @@
    the start.
 
 **What could I still improve?**
+
 1. Wait-or-publish policy for CI: define it (e.g. "docs-only waves may push with CI pending;
    code waves wait for green") instead of improvising each time.
 2. A quiet-box bench/example-smoke pass once the fleet storm passes — both verdicts currently
@@ -76,39 +81,39 @@
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-|---|---|---|
-| 1 | Fleet audit + errata + canonical-home rule, all pushed | `docs/review/libs/*` (13 files) in `ca97016`; index rules in both indexes |
-| 2 | Server-Timing adoption + knob + total pin + bench | `81bc506` + `244b334`; knob test 3-state, server-level `total` assertion, bench + AGENTS perf row |
-| 3 | otel Recovery delegation | `ccf1d95` (user-refined grouping); otel `-race` green, contract pins hold |
-| 4 | Fleet error classifications | `602b43e`; MaxBytesError→Rejection + stdlib pins |
-| 5 | Decision records + SUPERB v11 plan (pareto tiers, 18 macro / 60 micro tasks, mermaid graph) | `8567a96`; plan at `docs/planning/2026-11-03_21-31_…md` |
-| 6 | Version-drift guard + pre-tag wiring | `530d71a`; negative-tested, first gate run green |
-| 7 | Consumer heads-up drafts (both, voice-checked) | `21601ce`; `docs/feedback/outgoing/2026-11-03_consumer-heads-up-*.md` |
-| 8 | HARVEST routed | `21601ce`; 4 P2 + 2 P3 rows in TODO_LIST |
-| 9 | Report corrections in place | httputil.md rg fixed; go-retry.md MVS corrected by proof |
-| 10 | Repairs: hub.go:80 comment, mobile shot, example-smoke classification, `total` assertion | `244b334` + screenshots + smoke log |
+| #  | Item                                                                                        | Evidence                                                                                          |
+| -- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 1  | Fleet audit + errata + canonical-home rule, all pushed                                      | `docs/review/libs/*` (13 files) in `ca97016`; index rules in both indexes                         |
+| 2  | Server-Timing adoption + knob + total pin + bench                                           | `81bc506` + `244b334`; knob test 3-state, server-level `total` assertion, bench + AGENTS perf row |
+| 3  | otel Recovery delegation                                                                    | `ccf1d95` (user-refined grouping); otel `-race` green, contract pins hold                         |
+| 4  | Fleet error classifications                                                                 | `602b43e`; MaxBytesError→Rejection + stdlib pins                                                  |
+| 5  | Decision records + SUPERB v11 plan (pareto tiers, 18 macro / 60 micro tasks, mermaid graph) | `8567a96`; plan at `docs/planning/2026-11-03_21-31_…md`                                           |
+| 6  | Version-drift guard + pre-tag wiring                                                        | `530d71a`; negative-tested, first gate run green                                                  |
+| 7  | Consumer heads-up drafts (both, voice-checked)                                              | `21601ce`; `docs/feedback/outgoing/2026-11-03_consumer-heads-up-*.md`                             |
+| 8  | HARVEST routed                                                                              | `21601ce`; 4 P2 + 2 P3 rows in TODO_LIST                                                          |
+| 9  | Report corrections in place                                                                 | httputil.md rg fixed; go-retry.md MVS corrected by proof                                          |
+| 10 | Repairs: hub.go:80 comment, mobile shot, example-smoke classification, `total` assertion    | `244b334` + screenshots + smoke log                                                               |
 
 ## b) PARTIALLY DONE
 
-| # | Item | Works | Open |
-|---|---|---|---|
-| 1 | Session-close ritual | Local gates green, pushed | **CI green on `21601ce` unverified** (queued under runner contention) |
-| 2 | ST metric coverage | Knob + handler-phase pattern + `total` pins | Named framework phases unservable (stamp-on-commit); commit-deferring wrapper idea unexplored |
-| 3 | Phases recipe | Documented in docstring + config comment | Dedicated README recipe section still a TODO row |
-| 4 | example-smoke | 6/7 + flake classified | Quiet-box re-run for a bulletproof verdict |
-| 5 | Bench truth | Real baseline recorded | Quiet-box re-baseline (current numbers are upper bounds) |
+| # | Item                 | Works                                       | Open                                                                                          |
+| - | -------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 1 | Session-close ritual | Local gates green, pushed                   | **CI green on `21601ce` unverified** (queued under runner contention)                         |
+| 2 | ST metric coverage   | Knob + handler-phase pattern + `total` pins | Named framework phases unservable (stamp-on-commit); commit-deferring wrapper idea unexplored |
+| 3 | Phases recipe        | Documented in docstring + config comment    | Dedicated README recipe section still a TODO row                                              |
+| 4 | example-smoke        | 6/7 + flake classified                      | Quiet-box re-run for a bulletproof verdict                                                    |
+| 5 | Bench truth          | Real baseline recorded                      | Quiet-box re-baseline (current numbers are upper bounds)                                      |
 
 ## c) NOT STARTED
 
-| # | Item | Gate |
-|---|---|---|
-| 1 | httpx module program (B1-B9; B5 on go-codec) | Your svc.Routes() answer (httpx-vs-httputil explained in chat) |
-| 2 | W3-W5 gated battery execution (D4/D7/W4/W5) | Sequenced per the blanket promotion; post-repairs |
-| 3 | dprint coverage decision | Needs dprint (nix shell) — availability not confirmed |
-| 4 | TLS seam spike (httputil v1.7.0 `NewServerListener`) | Accumulate-train slot |
-| 5 | go-sse breaking-change absorption | Their next release |
-| 6 | Quiet-box re-baseline (bench + smoke) | Fleet load storm passing |
+| # | Item                                                 | Gate                                                           |
+| - | ---------------------------------------------------- | -------------------------------------------------------------- |
+| 1 | httpx module program (B1-B9; B5 on go-codec)         | Your svc.Routes() answer (httpx-vs-httputil explained in chat) |
+| 2 | W3-W5 gated battery execution (D4/D7/W4/W5)          | Sequenced per the blanket promotion; post-repairs              |
+| 3 | dprint coverage decision                             | Needs dprint (nix shell) — availability not confirmed          |
+| 4 | TLS seam spike (httputil v1.7.0 `NewServerListener`) | Accumulate-train slot                                          |
+| 5 | go-sse breaking-change absorption                    | Their next release                                             |
+| 6 | Quiet-box re-baseline (bench + smoke)                | Fleet load storm passing                                       |
 
 ## d) TOTALLY FUCKED UP
 

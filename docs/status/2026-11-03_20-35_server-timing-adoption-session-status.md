@@ -8,6 +8,7 @@
 ## Scope line — verified vs NOT verified
 
 **Verified (fresh commands, this session):**
+
 - `GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1` — root + testkit **ok** (twice:
   after the middleware change and again after the drift fixes); otel module ok after its README edit.
 - `go build` + `go vet` hermetic — OK; `golangci-lint run ./...` from repo root — **0 issues**
@@ -26,6 +27,7 @@
 - AGENTS.md: 136/220 lines after ruling bullet + deps-table row.
 
 **NOT verified (and why):**
+
 - **The bench has no real baseline.** I ran `-benchtime 1x` as a smoke (667µs/op is amortized
   server startup, not per-op truth). A proper `-benchtime` run was never done and no number is
   recorded anywhere (AGENTS' perf section has Logging numbers; ServerTiming has none).
@@ -45,6 +47,7 @@
 ## Brutal self-review (the three questions)
 
 **What did I forget?**
+
 1. **The drift sweep.** I changed a grep-able contract (the middleware stack order) and updated
    middleware.go + README + CHANGELOG — but NOT `config.go:61`'s doc comment,
    `docs/DOMAIN_LANGUAGE.md`'s default-stack row, or `otel/README.md`'s recipe paragraph. The AGENTS
@@ -59,6 +62,7 @@
 4. **The GOWORK prefix discipline** on a "quick" run — mutated go.work.sum.
 
 **What could I have done better?**
+
 1. Contract-change checklist: grep the old string repo-wide BEFORE declaring done, not while
    writing the retro. (The 2026-10-11 audit found the stack via `middleware.go:14-31` — the same
    class of reference now lives in config/DOMAIN_LANGUAGE/otel-README, and I touched none of them
@@ -69,6 +73,7 @@
 4. Fix flagged defects in the same session that flags them, or explicitly ticket them with an owner.
 
 **What could I still improve?**
+
 1. The Server-Timing story could get a composition E2E in `integration/` (stream + header) at the
    next integration re-pin train, when core's new stack is actually pinnable.
 2. The full a-f harvest from BOTH status reports still needs one docs-health pass (TODO_LIST got
@@ -78,41 +83,41 @@
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-|---|---|---|
-| 1 | **server_timing ADOPTED into core**: direct require `httputil/server_timing v1.0.3`; `servertiming.ServerTimingMiddleware()` OUTERMOST in the default stack (`ServerTiming → Recovery → RequestID → Logging → [Timeout] → SecurityHeaders`) | `go.mod:9`; `middleware.go:11-31`; hermetic `go mod tidy` delta = 1 line |
-| 2 | Test pins: default-stack header present (renamed `TestMiddleware_DefaultStackHeaders_Present`, asserts X-Request-ID + Server-Timing on one request); replaced-stack absence assertion; dedup lint fixed | `-run` verbose PASS; lint 0 issues |
-| 3 | Bench added: `BenchmarkServerTimingMiddleware` (servertiming_bench_test.go, same harness as Logging benches) | compiles, runs (`-benchtime 1x` smoke) |
+| # | Item                                                                                                                                                                                                                                                           | Evidence                                                                                                                            |
+| - | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | **server_timing ADOPTED into core**: direct require `httputil/server_timing v1.0.3`; `servertiming.ServerTimingMiddleware()` OUTERMOST in the default stack (`ServerTiming → Recovery → RequestID → Logging → [Timeout] → SecurityHeaders`)                    | `go.mod:9`; `middleware.go:11-31`; hermetic `go mod tidy` delta = 1 line                                                            |
+| 2 | Test pins: default-stack header present (renamed `TestMiddleware_DefaultStackHeaders_Present`, asserts X-Request-ID + Server-Timing on one request); replaced-stack absence assertion; dedup lint fixed                                                        | `-run` verbose PASS; lint 0 issues                                                                                                  |
+| 3 | Bench added: `BenchmarkServerTimingMiddleware` (servertiming_bench_test.go, same harness as Logging benches)                                                                                                                                                   | compiles, runs (`-benchtime 1x` smoke)                                                                                              |
 | 4 | Truth-sync: core `CHANGELOG.md` [Unreleased] Added entry; README features + default-stack comment lines; middleware.go docstring contract; `config.go` Middlewares doc comment; `docs/DOMAIN_LANGUAGE.md` default-stack row; `otel/README.md` recipe paragraph | git diff; grep now shows zero stale `Recovery → RequestID` mentions outside point-in-time records + tag-pinned integration comments |
-| 5 | Composition-ruling records: dated errata blocks in `docs/review/libs/server_timing.md` + `go-codec.md`; index.html errata callout + 2 corrected matrix rows (screenshot-verified); `docs/research/README.md` row note; status-report addendum (19:54 file) | python replace asserts passed; HTML balance OK; Firefox crops |
-| 6 | AGENTS.md: ruling bullet (mission, consequence #1 shipped, #2 promoted, NOT-flipped list) + deps-table row for server_timing | 136/220 lines; git diff |
-| 7 | TODO_LIST: battery W3-W5 row carries the ruling inline; B5 (go-codec) promoted to in-scope | git diff line 50 |
-| 8 | Gates: full `-race` suite green ×2 (root+testkit, plus otel), vet/build green, lint 0 issues, gofmt clean, routed-destinations + go-directives guards green after every doc touch | command outputs logged this session |
+| 5 | Composition-ruling records: dated errata blocks in `docs/review/libs/server_timing.md` + `go-codec.md`; index.html errata callout + 2 corrected matrix rows (screenshot-verified); `docs/research/README.md` row note; status-report addendum (19:54 file)     | python replace asserts passed; HTML balance OK; Firefox crops                                                                       |
+| 6 | AGENTS.md: ruling bullet (mission, consequence #1 shipped, #2 promoted, NOT-flipped list) + deps-table row for server_timing                                                                                                                                   | 136/220 lines; git diff                                                                                                             |
+| 7 | TODO_LIST: battery W3-W5 row carries the ruling inline; B5 (go-codec) promoted to in-scope                                                                                                                                                                     | git diff line 50                                                                                                                    |
+| 8 | Gates: full `-race` suite green ×2 (root+testkit, plus otel), vet/build green, lint 0 issues, gofmt clean, routed-destinations + go-directives guards green after every doc touch                                                                              | command outputs logged this session                                                                                                 |
 
 ## b) PARTIALLY DONE
 
-| # | Item | Works | Open | Effort |
-|---|---|---|---|---|
-| 1 | Bench for the new middleware | Exists, runs | No real baseline (`-benchtime 1x` only); number not recorded in AGENTS perf section | S |
-| 2 | Header contract pin | Presence asserted | `total` metric format not asserted; SSE-streaming injection not pinned locally (upstream-doc claim) | S |
-| 3 | Composition-ruling propagation | Reports + index + AGENTS + TODO battery row + status addendum done | go-etag/go-idempotency/go-retry errata NOT added (deliberate — their framing already matches the mission); harvest of both reports' (f) lists still pending | S-M |
-| 4 | library-deep-dive done-bar | Gate=full suite green this time; Memory=AGENTS | Browser=desktop only (mobile never shot); Index rows exist but the canonical-home question is unanswered | S |
-| 5 | Wire-change release readiness | Code+tests+CHANGELOG ready on master | Uncommitted; consumer-claims guard + fresh-consumer proxy check are pre-tag rituals; header reaches consumers only at the next core tag | M (a release train) |
+| # | Item                           | Works                                                              | Open                                                                                                                                                        | Effort              |
+| - | ------------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| 1 | Bench for the new middleware   | Exists, runs                                                       | No real baseline (`-benchtime 1x` only); number not recorded in AGENTS perf section                                                                         | S                   |
+| 2 | Header contract pin            | Presence asserted                                                  | `total` metric format not asserted; SSE-streaming injection not pinned locally (upstream-doc claim)                                                         | S                   |
+| 3 | Composition-ruling propagation | Reports + index + AGENTS + TODO battery row + status addendum done | go-etag/go-idempotency/go-retry errata NOT added (deliberate — their framing already matches the mission); harvest of both reports' (f) lists still pending | S-M                 |
+| 4 | library-deep-dive done-bar     | Gate=full suite green this time; Memory=AGENTS                     | Browser=desktop only (mobile never shot); Index rows exist but the canonical-home question is unanswered                                                    | S                   |
+| 5 | Wire-change release readiness  | Code+tests+CHANGELOG ready on master                               | Uncommitted; consumer-claims guard + fresh-consumer proxy check are pre-tag rituals; header reaches consumers only at the next core tag                     | M (a release train) |
 
 ## c) NOT STARTED
 
-| # | Item | Why |
-|---|---|---|
-| 1 | W3-httpx `B5 content negotiation on go-codec` (the promoted go-codec seam — new module) | Battery-sized work; ruling promotes it, design not started |
-| 2 | otel Recovery → `httputil.RecoveryWithConfig`+`OnPanic` refactor (the audit's other code finding) | Awaiting owner go (asked twice, unanswered) |
-| 3 | Fix the INVALID rg command in `httputil.md` verify block (+ execute all 12 blocks) | Flagged at 19:54, still unfixed — embarrassment #1 |
-| 4 | Version-drift guard (assert AGENTS deps-table versions == go.mod) | Idea from round 1; the table was edited AGAIN this round by hand |
-| 5 | Mobile-width screenshot of index.html | Flagged at 19:54, still not done |
-| 6 | `realtime/hub.go:80` doc comment (unexported go-sse const reference) | Flagged at 19:54, still not done |
-| 7 | dprint/format check over new/changed md+html | Never attempted |
-| 8 | Canonical home decision for per-lib deep-dives (docs/review/libs vs docs/research) | Owner question, unanswered |
-| 9 | Composition E2E for Server-Timing (stream + header) in integration | Needs next core tag to pin against (integration pins PUBLISHED tags) |
-| 10 | HARVEST of both status reports into TODO_LIST/ROADMAP | Awaiting owner routing preference |
+| #  | Item                                                                                              | Why                                                                  |
+| -- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1  | W3-httpx `B5 content negotiation on go-codec` (the promoted go-codec seam — new module)           | Battery-sized work; ruling promotes it, design not started           |
+| 2  | otel Recovery → `httputil.RecoveryWithConfig`+`OnPanic` refactor (the audit's other code finding) | Awaiting owner go (asked twice, unanswered)                          |
+| 3  | Fix the INVALID rg command in `httputil.md` verify block (+ execute all 12 blocks)                | Flagged at 19:54, still unfixed — embarrassment #1                   |
+| 4  | Version-drift guard (assert AGENTS deps-table versions == go.mod)                                 | Idea from round 1; the table was edited AGAIN this round by hand     |
+| 5  | Mobile-width screenshot of index.html                                                             | Flagged at 19:54, still not done                                     |
+| 6  | `realtime/hub.go:80` doc comment (unexported go-sse const reference)                              | Flagged at 19:54, still not done                                     |
+| 7  | dprint/format check over new/changed md+html                                                      | Never attempted                                                      |
+| 8  | Canonical home decision for per-lib deep-dives (docs/review/libs vs docs/research)                | Owner question, unanswered                                           |
+| 9  | Composition E2E for Server-Timing (stream + header) in integration                                | Needs next core tag to pin against (integration pins PUBLISHED tags) |
+| 10 | HARVEST of both status reports into TODO_LIST/ROADMAP                                             | Awaiting owner routing preference                                    |
 
 ## d) TOTALLY FUCKED UP
 
@@ -160,6 +165,7 @@ No data loss, no broken gates, no failing tests — the tree is green end to end
 TODO_LIST/ROADMAP; routed items from round 1 that are DONE are dropped, still-open ones carried.)
 
 **Immediate repair (this session's own loose ends)**
+
 1. Fix the invalid rg command in `httputil.md`'s verify block; execute all 12 report verify-blocks as written, fix failures. I:High E:S C:Quality
 2. Record a real ServerTiming bench baseline (`-benchtime 1s -count 6`, benchstat) into AGENTS' perf section next to the Logging numbers. I:Medium E:S C:Quality
 3. Assert the `Server-Timing` header carries `total` (strings.Contains) in the default-stack test. I:Medium E:S C:Quality
@@ -233,7 +239,7 @@ TODO_LIST/ROADMAP; routed items from round 1 that are DONE are dropped, still-op
 2. **Do you want the core release train NOW** (tag the Server-Timing stack so cqrs-htmx/other
    consumers can pin it), **or accumulate** more default-stack composition work (otel Recovery
    refactor, B5) into one train? This decides whether I run the pre-tag ritual + consumer-claims
-   + fresh-consumer proxy check today or keep the tree on master.
+   - fresh-consumer proxy check today or keep the tree on master.
 3. **For B5 (go-codec content negotiation): build it as the new `httpx` module per the battery
    spec (B1..B9 family), or as a smaller standalone negotiation seam first?** The battery spec's
    httpx home needs the `svc.Routes()` seam decision for B6/B8 anyway — I can't tell whether you

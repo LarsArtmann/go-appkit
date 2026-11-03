@@ -12,13 +12,13 @@ floor for battery D4 (atomic file write, "floor: go-atomic-write ≥ v0.5.1, Win
 trap") in the canonical battery spec and TODO_LIST — the only plausible adoption surfaces
 are D4, the F1/F4 config modules, and the W4 sqlite ops kit, all demand-gated P3 work.**
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 | `rg 'go-atomic-write' --glob '*.go'` → empty |
-| In graph? | No — absent from every go.mod and go.sum | `rg 'go-atomic-write' --glob 'go*.sum'` → empty |
-| Latest tag | v0.6.0 | `git -C ~/projects/go-atomic-write tag --sort=-v:refname \| head -1` |
-| Battery floor | "≥ v0.5.1 (Windows trap)" — v0.6.0 satisfies it | battery spec line 65, TODO_LIST:50 |
-| Upstream state | HEAD 17 commits past v0.6.0; the go-1.27 directive bump sits in their `[Unreleased]` (their CHANGELOG has no 0.6.0 section yet — their hygiene, not ours) | `~/projects/go-atomic-write/CHANGELOG.md` head |
+| Fact           | Value                                                                                                                                                     | Evidence                                                             |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Direct imports | 0                                                                                                                                                         | `rg 'go-atomic-write' --glob '*.go'` → empty                         |
+| In graph?      | No — absent from every go.mod and go.sum                                                                                                                  | `rg 'go-atomic-write' --glob 'go*.sum'` → empty                      |
+| Latest tag     | v0.6.0                                                                                                                                                    | `git -C ~/projects/go-atomic-write tag --sort=-v:refname \| head -1` |
+| Battery floor  | "≥ v0.5.1 (Windows trap)" — v0.6.0 satisfies it                                                                                                           | battery spec line 65, TODO_LIST:50                                   |
+| Upstream state | HEAD 17 commits past v0.6.0; the go-1.27 directive bump sits in their `[Unreleased]` (their CHANGELOG has no 0.6.0 section yet — their hygiene, not ours) | `~/projects/go-atomic-write/CHANGELOG.md` head                       |
 
 ## 1. Capability inventory
 
@@ -38,12 +38,12 @@ Crash-safe, race-free file writes (`~/projects/go-atomic-write/`, single package
 
 ## 2. Capability vs applicability
 
-| Capability | Status | Reason |
-|---|---|---|
-| Any file write in appkit today | ⚪ N/A | No module persists files: no config-file writes, no state files, no ledger — the framework is an in-memory HTTP service by charter |
-| Battery D4 (atomic file write) | ⚪ N/A today — floor pre-named | Battery spec + TODO_LIST already route it: wrap/promote go-atomic-write with the ≥ v0.5.1 floor in code comments; demand-gated |
-| F1/F4 config modules | ⚪ N/A today | Config hot-reload/persistence is P3 demand-gated; if it lands, `WriteFuncVerified` is the natural persistence primitive |
-| Version currency | 🟢 | v0.6.0 is the newest tag; floor satisfied with headroom |
+| Capability                     | Status                         | Reason                                                                                                                             |
+| ------------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Any file write in appkit today | ⚪ N/A                         | No module persists files: no config-file writes, no state files, no ledger — the framework is an in-memory HTTP service by charter |
+| Battery D4 (atomic file write) | ⚪ N/A today — floor pre-named | Battery spec + TODO_LIST already route it: wrap/promote go-atomic-write with the ≥ v0.5.1 floor in code comments; demand-gated     |
+| F1/F4 config modules           | ⚪ N/A today                   | Config hot-reload/persistence is P3 demand-gated; if it lands, `WriteFuncVerified` is the natural persistence primitive            |
+| Version currency               | 🟢                             | v0.6.0 is the newest tag; floor satisfied with headroom                                                                            |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

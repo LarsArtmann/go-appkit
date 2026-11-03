@@ -14,13 +14,13 @@ the demand-gated F1/F4 config modules — and even there it would be an opt-in m
 core, because the library's dependency weight (fsnotify, go-gitignore, gogenfilter/v3)
 would break core's dependency-lean charter.**
 
-| Fact | Value | Evidence |
-|---|---|---|
-| Direct imports | 0 | `rg 'go-filewatcher' --glob '*.go'` → empty |
-| In graph? | No — absent from every go.mod/go.sum | `rg 'go-filewatcher' --glob 'go*.sum'` → empty |
-| Latest tag | v2.4.2 | `git -C ~/projects/go-filewatcher tag --sort=-v:refname \| head -1` |
-| Module path | **`github.com/larsartmann/go-filewatcher/v2` — the `/v2` suffix is REQUIRED** | `~/projects/go-filewatcher/go.mod:1`, README:57 |
-| Upstream state | HEAD 42 commits past v2.4.2 ([Unreleased] empty; 2.4.x line: NFC normalization, case-sensitivity modes, watch budgets) | `~/projects/go-filewatcher/CHANGELOG.md` |
+| Fact           | Value                                                                                                                  | Evidence                                                            |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Direct imports | 0                                                                                                                      | `rg 'go-filewatcher' --glob '*.go'` → empty                         |
+| In graph?      | No — absent from every go.mod/go.sum                                                                                   | `rg 'go-filewatcher' --glob 'go*.sum'` → empty                      |
+| Latest tag     | v2.4.2                                                                                                                 | `git -C ~/projects/go-filewatcher tag --sort=-v:refname \| head -1` |
+| Module path    | **`github.com/larsartmann/go-filewatcher/v2` — the `/v2` suffix is REQUIRED**                                          | `~/projects/go-filewatcher/go.mod:1`, README:57                     |
+| Upstream state | HEAD 42 commits past v2.4.2 ([Unreleased] empty; 2.4.x line: NFC normalization, case-sensitivity modes, watch budgets) | `~/projects/go-filewatcher/CHANGELOG.md`                            |
 
 ## 1. Capability inventory
 
@@ -39,12 +39,12 @@ A heavyweight, composable watcher over fsnotify (`~/projects/go-filewatcher/`):
 
 ## 2. Capability vs applicability
 
-| Capability | Status | Reason |
-|---|---|---|
-| Config hot-reload | ⚪ N/A today | No config-file loading exists to watch — `ServiceConfig` is code-constructed; F1/F4 config modules are unscheduled P3 demand-gated work |
-| Dev workflows (docs/codegen watching) | ⚪ N/A | Repo tooling lives in BuildFlow/scripts, not in shipped Go modules |
-| Any module | ⚪ N/A | Zero demand signals in TODO_LIST, ROADMAP, or the battery spec (40 proposed batteries, none watch files) |
-| Version currency | 🟢 | v2.4.2 is the newest tag (moot until adoption) |
+| Capability                            | Status       | Reason                                                                                                                                  |
+| ------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Config hot-reload                     | ⚪ N/A today | No config-file loading exists to watch — `ServiceConfig` is code-constructed; F1/F4 config modules are unscheduled P3 demand-gated work |
+| Dev workflows (docs/codegen watching) | ⚪ N/A       | Repo tooling lives in BuildFlow/scripts, not in shipped Go modules                                                                      |
+| Any module                            | ⚪ N/A       | Zero demand signals in TODO_LIST, ROADMAP, or the battery spec (40 proposed batteries, none watch files)                                |
+| Version currency                      | 🟢           | v2.4.2 is the newest tag (moot until adoption)                                                                                          |
 
 ## 3. Why we SHOULD NOT use it now (and when that flips)
 

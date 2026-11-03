@@ -63,12 +63,12 @@ cd <module> && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
 
 ## Core Dependencies
 
-| Module                                   | Version | Role                                                 |
-| ---------------------------------------- | ------- | ---------------------------------------------------- |
-| `github.com/larsartmann/httputil`        | v1.7.0  | Middleware, health endpoints, Middleware type        |
-| `github.com/larsartmann/httputil/server_timing` | v1.0.3 | W3C Server-Timing (default-stack outermost middleware) |
-| `github.com/charmbracelet/log`           | v1.0.0  | Pretty slog handler (Logger implements slog.Handler) |
-| `github.com/larsartmann/go-error-family` | v0.12.0 | Error classification, HTTPStatus, LogError           |
+| Module                                          | Version | Role                                                   |
+| ----------------------------------------------- | ------- | ------------------------------------------------------ |
+| `github.com/larsartmann/httputil`               | v1.7.0  | Middleware, health endpoints, Middleware type          |
+| `github.com/larsartmann/httputil/server_timing` | v1.0.3  | W3C Server-Timing (default-stack outermost middleware) |
+| `github.com/charmbracelet/log`                  | v1.0.0  | Pretty slog handler (Logger implements slog.Handler)   |
+| `github.com/larsartmann/go-error-family`        | v0.12.0 | Error classification, HTTPStatus, LogError             |
 
 ## Core Module — Code Organization
 
