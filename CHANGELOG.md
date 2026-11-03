@@ -4,6 +4,26 @@
 
 ### Added
 
+- Fleet-default error classifications: `appkit.RegisterClassifications()` installs the stdlib
+  defaults (context deadline→Transient, cancellation→Rejection, sql/os per go-error-family's
+  rationale table) plus `*http.MaxBytesError`→Rejection into the default registry, so oversize
+  bodies (security.BodyLimit / httputil.MaxBodySize contract) map to the 400 family at
+  `Classify`/`HTTPStatus` boundaries instead of the fail-open Transient default. Idempotent;
+  deliberately NOT auto-called on import or NewService — registries are process-global state,
+  and a library must not mutate global state as a side effect. Call once at boot.
+- Server-Timing on the default stack (family composition, owner ruling
+  2026-11-03): `servertiming.ServerTimingMiddleware()` from the family's
+  `httputil/server_timing` v1.0.3 now sits OUTERMOST in the default chain
+  (`ServerTiming → Recovery → RequestID → Logging → [Timeout] →
+  SecurityHeaders`), so its auto-recorded `total` covers the full downstream
+  chain, recovery included. The header is stamped when the response commits,
+  so SSE services (`WriteTimeout: NoTimeout`) are unaffected; handlers record
+  sub-phases via the request-context collector BEFORE their first write
+  (`servertiming.MeasureServerTiming(r.Context(), "db")` — post-commit metrics
+  miss the header, which is why the framework records no phase of its own).
+  Replacing `Config.Middlewares` removes it exactly like every other default
+  middleware; zero new config surface. Direct require added to `go.mod`
+  (the module already rode every go.sum via httputil's test chain).
 - testkit: `HTTPGetURL`/`HTTPGetContext` (noctx-compliant GET helpers that
   fatal with the URL in the message), `WaitForRunning`/`WaitForRunningWithin`
   (listener-up poll), and `FreeAddr` (the rebind-verified ephemeral-port

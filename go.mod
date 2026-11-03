@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/log v1.0.0
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/httputil v1.7.0
+	github.com/larsartmann/httputil/server_timing v1.0.3
 )
 
 require (

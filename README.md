@@ -42,7 +42,7 @@ func main() {
 That gives you:
 
 - HTTP server with graceful drain + shutdown on SIGINT/SIGTERM
-- Middleware: Recovery → RequestID → Logging → Timeout → SecurityHeaders
+- Middleware: ServerTiming → Recovery → RequestID → Logging → Timeout → SecurityHeaders (W3C `Server-Timing` header via the family's [httputil/server_timing](https://github.com/LarsArtmann/httputil) — every appkit service exposes request timings to DevTools/APMs out of the box; replace `Middlewares` to drop it)
 - Health endpoints: `GET /health`, `GET /health/live`, `GET /health/ready`
 - Pretty structured logging via charmbracelet/log
 - Error classification via go-error-family
@@ -101,6 +101,7 @@ All config is via `ServiceConfig`. Zero-value fields get production defaults:
 | `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack                                                                                                        |
 | `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack                                                                                                      |
 | `OuterMiddlewares` | `[]httputil.Middleware` | `nil`     | Wrap the entire chain (default stack included), outermost — where tracing sits                                                              |
+| `ServerTiming`     | `*bool`                 | `&true`   | W3C `Server-Timing` header via the default stack's outermost middleware; set to `&false` to omit                                            |
 | `StartHooks`       | `[]Hook`                | `nil`     | Run once inside `Start`, after the listener binds but before serving (`Addr`/`Running` already live); any error fails the start             |
 | `DrainHooks`       | `[]func(ctx) error`     | `nil`     | Run once at drain start, while traffic is still served (errors joined)                                                                      |
 | `ShutdownHooks`    | `[]func(ctx) error`     | `nil`     | Run once after connections are released (e.g. telemetry flush; errors joined)                                                               |
@@ -190,7 +191,7 @@ negligible either way.
 The default stack is opinionated but replaceable:
 
 ```go
-// Use defaults (Recovery → RequestID → Logging → Timeout → SecurityHeaders):
+// Use defaults (ServerTiming → Recovery → RequestID → Logging → Timeout → SecurityHeaders):
 svc, _ := appkit.NewService(appkit.ServiceConfig{Addr: ":8080"})
 
 // Replace the entire stack:

@@ -58,7 +58,7 @@ type ServiceConfig struct {
 	DrainDelay        time.Duration
 
 	// Middlewares replaces the default middleware stack if non-nil.
-	// Default: Recovery → RequestID → Logging → Timeout → SecurityHeaders.
+	// Default: ServerTiming → Recovery → RequestID → Logging → Timeout → SecurityHeaders.
 	Middlewares []httputil.Middleware
 
 	// ExtraMiddlewares appends to the default stack (ignored if Middlewares is non-nil).
@@ -71,6 +71,19 @@ type ServiceConfig struct {
 	// downstream; OpenTelemetry tracing is the canonical case (see the otel
 	// module). Optional.
 	OuterMiddlewares []httputil.Middleware
+
+	// ServerTiming controls whether the W3C Server-Timing middleware rides
+	// the default stack (outermost position). Uses a pointer so the
+	// zero-value (nil) defaults to true — every appkit service exposes
+	// request timings to DevTools/APMs out of the box; the auto-recorded
+	// `total` covers the full chain including recovery. Set to false to
+	// omit the middleware entirely. Handlers always record sub-phases
+	// ("db", "cache", ...) via the request-context collector BEFORE their
+	// first write — metrics recorded after the response commits miss the
+	// header (the library's stamp-on-commit contract), which is why the
+	// framework itself records no post-commit phase. Ignored when
+	// Middlewares replaces the default stack.
+	ServerTiming *bool
 
 	// StartHooks run once, in order, inside Start AFTER the listener has
 	// bound but BEFORE serving begins — Addr and Running already observe
@@ -152,6 +165,7 @@ func DefaultServiceConfig() ServiceConfig {
 		ShutdownTimeout:   defaultShutdownTimeout,
 		DrainDelay:        defaultDrainDelay,
 		RegisterHealth:    &t,
+		ServerTiming:      &t,
 	}
 }
 

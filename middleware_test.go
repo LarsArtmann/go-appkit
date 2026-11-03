@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/larsartmann/httputil"
@@ -44,7 +45,7 @@ func TestMiddleware_PanicRecovery_Returns500(t *testing.T) {
 	assertServerStopped(t, errCh)
 }
 
-func TestMiddleware_RequestID_HeaderPresent(t *testing.T) {
+func TestMiddleware_DefaultStackHeaders_Present(t *testing.T) {
 	t.Parallel()
 
 	svc, err := NewService(ServiceConfig{
@@ -71,6 +72,13 @@ func TestMiddleware_RequestID_HeaderPresent(t *testing.T) {
 
 	if resp.Header.Get("X-Request-ID") == "" {
 		t.Error("expected X-Request-Id header to be set")
+	}
+
+	// Family composition (owner ruling 2026-11-03): the W3C Server-Timing
+	// middleware (httputil/server_timing) rides the default stack outermost
+	// and auto-records total at first write.
+	if resp.Header.Get("Server-Timing") == "" {
+		t.Error("expected Server-Timing header on the default stack")
 	}
 
 	_ = svc.Close()
@@ -159,6 +167,12 @@ func TestMiddleware_ReplacedStack(t *testing.T) {
 	// With replaced stack, default RequestID middleware is gone — no X-Request-Id header.
 	if resp.Header.Get("X-Request-ID") != "" {
 		t.Error("replaced stack should not include default RequestID middleware")
+	}
+
+	// The default Server-Timing middleware is gone with it — family
+	// composition rides the DEFAULT stack only, never a replaced one.
+	if resp.Header.Get("Server-Timing") != "" {
+		t.Error("replaced stack should not include default Server-Timing middleware")
 	}
 
 	_ = svc.Close()
@@ -320,5 +334,39 @@ func TestBuildMiddleware_DoesNotMutateConfigSlices(t *testing.T) {
 
 	if rec.Header().Get("X-Victim") != "1" {
 		t.Error("config slice backing array was written through; caller slices must stay untouched")
+	}
+}
+
+func TestServiceConfig_ServerTiming_Knob(t *testing.T) {
+	t.Parallel()
+
+	slog := slog.New(slog.DiscardHandler)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	serve := func(cfg ServiceConfig) string {
+		rec := httptestNewRecorder()
+		chain := httputil.Chain(handler, buildMiddleware(slog, cfg)...)
+		chain.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/knob", nil))
+
+		return rec.Header().Get("Server-Timing")
+	}
+
+	// Nil pointer defaults the knob ON (RegisterHealth semantics).
+	if got := serve(ServiceConfig{}); !strings.Contains(got, "total") {
+		t.Errorf("nil ServerTiming should ride the default stack, header = %q", got)
+	}
+
+	// Explicit false omits the middleware entirely.
+	off := false
+	if got := serve(ServiceConfig{ServerTiming: &off}); got != "" {
+		t.Errorf("ServerTiming=&false should drop the header, got %q", got)
+	}
+
+	// Explicit true keeps it.
+	on := true
+	if got := serve(ServiceConfig{ServerTiming: &on}); !strings.Contains(got, "total") {
+		t.Errorf("ServerTiming=&true should keep the header, header = %q", got)
 	}
 }

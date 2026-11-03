@@ -66,8 +66,8 @@ swaps the metric pipeline.
 one: the `Logging` middleware inside core's default stack emits its
 completion line without the request context. Since httputil v1.6.0,
 `LoggingFromContext` fixes it. `cfg.Middlewares` replaces the default stack
-wholesale, so the recipe mirrors that stack (Recovery → RequestID → Logging
-→ Timeout → SecurityHeaders) with exactly one swap:
+wholesale, so the recipe mirrors that stack (ServerTiming → Recovery →
+RequestID → Logging → Timeout → SecurityHeaders) with exactly one swap:
 
 ```go
 logger := slog.New(appkitotel.TraceHandler(slog.NewJSONHandler(os.Stdout, nil)))
