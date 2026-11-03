@@ -17,7 +17,7 @@ outbound-client battery is built.**
 | Fact | Value | Evidence |
 |---|---|---|
 | Direct imports | 0 of 12 modules | `rg 'go-retry' --glob '*.go'` → empty |
-| In-graph versions | cqrs v0.9.0 (= latest); integration require lists v0.8.0 (floor via published cqrs v0.8.0's chain; repo build union resolves v0.9.0) | `cqrs/go.mod:65`, `integration/go.mod:110` |
+| In-graph versions | cqrs v0.9.0 (= latest, working tree); integration resolves **v0.8.0** — CORRECTED 2026-11-03: `go list -m all` in integration proves its published-tag chain tops out at v0.8.0 (the earlier "repo build union resolves v0.9.0" claim was wrong — there is no cross-module union for a standalone module build; each module resolves its own graph) | `cqrs/go.mod:65`, `integration/go.mod:110`, `go list -m all` run 2026-11-03 |
 | Chain | cqrs → go-cqrs-lite/middleware/v4 → go-retry | `go mod why -m` (verified 2026-11-03, both cqrs and integration) |
 | Upstream state | v0.9.0 (2026-10-27); HEAD 3 commits ahead (lint-config chores, [Unreleased] empty) | `~/projects/go-retry` |
 

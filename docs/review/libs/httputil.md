@@ -141,7 +141,7 @@ compression (no demand signal yet; would join the default stack only with a cons
 ```bash
 cd /home/lars/projects/go-appkit
 rg -n 'httputil\.[A-Z]' --glob '*.go' --glob '!*_test.go' -o | sed 's/.*://' | sort -u   # 21 runtime symbols
-rg -n 'httputil' --include=go.mod -r '' -g 'go.mod'                                      # v1.7.0 × 8 go.mods
+rg -n 'httputil' -g 'go.mod'                                                            # v1.7.0 × 8 go.mods
 git -C /home/lars/projects/httputil tag --sort=-v:refname | head -1                       # v1.7.0
 rg -n 'RecoveryWithConfig|OnPanic' otel/        # empty → F4 stands
 sed -n '14,31p' middleware.go                   # the 5-middleware default stack
