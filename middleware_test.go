@@ -77,8 +77,8 @@ func TestMiddleware_DefaultStackHeaders_Present(t *testing.T) {
 	// Family composition (owner ruling 2026-11-03): the W3C Server-Timing
 	// middleware (httputil/server_timing) rides the default stack outermost
 	// and auto-records total at first write.
-	if resp.Header.Get("Server-Timing") == "" {
-		t.Error("expected Server-Timing header on the default stack")
+	if st := resp.Header.Get("Server-Timing"); !strings.Contains(st, "total") {
+		t.Errorf("expected Server-Timing header carrying total on the default stack, got %q", st)
 	}
 
 	_ = svc.Close()

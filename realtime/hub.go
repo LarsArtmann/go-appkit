@@ -75,7 +75,7 @@ func WithStore(store sse.EventStore) Option {
 }
 
 // WithBufferSize sets the per-subscriber channel buffer capacity. The default
-// is 64 (go-sse's [sse.defaultSubscriberBuffer]). Larger buffers absorb longer
+// is 64 (go-sse's default subscriber buffer). Larger buffers absorb longer
 // consumer slowdowns before events are dropped; smaller buffers reduce memory
 // per subscriber at the cost of earlier drops.
 func WithBufferSize(size int) Option {
