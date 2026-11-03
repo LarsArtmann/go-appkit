@@ -22,6 +22,16 @@ demand-driven — the canonical demand analysis and per-battery specs live in
 (waves W1–W2 shipped; W3–W5 are routed into TODO_LIST; this file holds the
 direction, not the tasks).
 
+**Composition-mission program (OWNER RULING 2026-11-03):** the mission is
+"make it easy for my apps to smartly use all my libs together" — family-lib
+batteries are IN-SCOPE, demand-gating them contradicts the repo's purpose.
+All W3-W5 batteries are blanket-promoted to planned work (sequencing lives
+in TODO_LIST). The next structural step is the `httpx` handler-DX module
+(B1-B9 family; B5 content negotiation is built on go-codec). Server-Timing
+now ships in core's default stack with a `ServerTiming *bool` knob —
+framework-measured app phases are unservable (stamp-on-commit contract);
+sub-phases are handler-side via the request collector.
+
 ## v1.0.0 (core)
 
 Core's stability contract. The working exit-criteria draft lives at
