@@ -1,0 +1,1350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sibling Library Fleet Audit &mdash; go-appkit</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS LIGHT — Editorial template
+         Design language: form follows function. Primary colors on warm paper.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         Token architecture: see references/bauhaus-tokens.md
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Light) --- */
+        --color-paper: #f4f4f0;
+        --color-paper-2: #ffffff;
+        --color-paper-3: #e8e8e2;
+        --color-ink: #111111;
+        --color-red: #e63946;
+        --color-blue: #1d3557;
+        --color-yellow: #f4d35e;
+        --color-hairline: rgba(17, 17, 17, 0.14);
+        --color-hairline-strong: rgba(17, 17, 17, 0.3);
+
+        /* --- Semantic layer (shared vocabulary with dark template) --- */
+        --surface: var(--color-paper);
+        --surface-raised: var(--color-paper-2);
+        --surface-sunken: var(--color-paper-3);
+        --text: var(--color-ink);
+        --text-muted: rgba(17, 17, 17, 0.72);
+        --text-faint: rgba(17, 17, 17, 0.5);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-red);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Backward-compatible aliases (do not break consumer skills) --- */
+        --bg: var(--surface);
+        --bg-elevated: var(--surface-raised);
+        --bg-sunken: var(--surface-sunken);
+        --bg-card: var(--surface-raised);
+        --bg-code: var(--surface-sunken);
+        --ink: var(--text);
+        --ink-secondary: var(--text-muted);
+        --ink-muted: var(--text-faint);
+        --rose: var(--problem);
+        --rose-glow: color-mix(in srgb, var(--problem) 15%, transparent);
+        --emerald: var(--solution);
+        --emerald-glow: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber: var(--warning);
+        --amber-glow: color-mix(in srgb, var(--warning) 15%, transparent);
+        --amber-light: color-mix(in srgb, var(--warning) 22%, transparent);
+        --coral: var(--problem);
+        --coral-light: color-mix(in srgb, var(--problem) 12%, transparent);
+        --teal: var(--solution);
+        --teal-light: color-mix(in srgb, var(--solution) 12%, transparent);
+
+        /* --- Shape --- */
+        --radius: 0px;
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Accessibility: keyboard focus --- */
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      a:focus-visible {
+        outline-offset: -1px;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout: optional sticky sidebar TOC --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--text);
+      }
+      .sidebar a {
+        font-size: 0.86rem;
+        color: var(--text);
+        text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        border-left: 4px solid transparent;
+        font-weight: 600;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        color: var(--accent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: var(--text);
+      }
+      h1 {
+        font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+        line-height: 1.05;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 3px solid var(--text);
+        display: flex;
+        align-items: baseline;
+        gap: 0.7rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      h3 {
+        font-size: 1.15rem;
+        margin: 0 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 1rem;
+        margin: 0 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 2rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 3px solid var(--text);
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+        margin-bottom: 0.9rem;
+      }
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        max-width: 70ch;
+        margin: 0 0 1rem;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .tag {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 0.25rem 0.6rem;
+        background: var(--surface-sunken);
+        color: var(--text);
+        border: 1px solid var(--border-strong);
+      }
+      .tag.amber {
+        background: var(--warning);
+        border-color: var(--warning);
+        color: var(--text);
+      }
+      .tag.teal {
+        background: var(--solution);
+        border-color: var(--solution);
+        color: var(--surface);
+      }
+
+      /* Bauhaus signature: geometric shape cluster (optional) */
+      .hero-shapes {
+        position: relative;
+        height: 90px;
+        margin-bottom: 1.2rem;
+      }
+      .hero-shapes .circle {
+        position: absolute;
+        top: 0;
+        right: 180px;
+        width: 64px;
+        height: 64px;
+        background: var(--problem);
+        border-radius: 50%;
+      }
+      .hero-shapes .square {
+        position: absolute;
+        top: 26px;
+        right: 90px;
+        width: 56px;
+        height: 56px;
+        background: var(--solution);
+      }
+      .hero-shapes .tri {
+        position: absolute;
+        top: 8px;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-left: 32px solid transparent;
+        border-right: 32px solid transparent;
+        border-bottom: 56px solid var(--warning);
+      }
+      .hero-shapes .bar {
+        position: absolute;
+        bottom: 0;
+        right: 230px;
+        width: 100px;
+        height: 14px;
+        background: var(--text);
+      }
+
+      /* --- Scorecard / stat cards --- */
+      .scorecard,
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0;
+        margin: 1.5rem 0 2rem;
+        border: 3px solid var(--text);
+      }
+      .score-card,
+      .stat-card {
+        padding: 1.3rem 1rem;
+        text-align: center;
+        border-right: 3px solid var(--text);
+        background: var(--surface-raised);
+      }
+      .score-card:last-child,
+      .stat-card:last-child {
+        border-right: none;
+      }
+
+      .score,
+      .stat-value {
+        font-family: var(--font-heading);
+        font-size: 2.6rem;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+      .score-card .label,
+      .stat-label {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-top: 0.5rem;
+      }
+      /* Semantic state classes — no nth-child decoration, no !important */
+      .score-good,
+      .stat-good {
+        background: var(--solution);
+        color: var(--surface);
+      }
+      .score-warn,
+      .stat-warn {
+        background: var(--warning);
+        color: var(--text);
+      }
+      .score-bad,
+      .stat-bad {
+        background: var(--problem);
+        color: var(--surface);
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+        border-left: 8px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+        border-left: 8px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.22rem 0.6rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+        color: var(--text);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Inline badges --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        border: 1px solid var(--text);
+        color: var(--text);
+      }
+      .badge-critical {
+        background: var(--problem);
+        color: var(--surface);
+      }
+      .badge-high {
+        background: var(--warning);
+      }
+      .badge-medium {
+        background: var(--surface-sunken);
+      }
+      .badge-low {
+        background: var(--surface-raised);
+        color: var(--text-muted);
+      }
+      .badge-fixed {
+        background: var(--solution);
+        color: var(--surface);
+      }
+
+      /* --- Callouts --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--border-strong);
+        border-left: 4px solid var(--border-strong);
+        background: var(--surface-sunken);
+        font-size: 0.92rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-teal,
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 10%,
+          var(--surface-raised)
+        );
+      }
+      .callout-amber,
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 18%,
+          var(--surface-raised)
+        );
+      }
+
+      /* --- Strengths --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.9rem;
+        padding: 0.75rem 0;
+        border-bottom: 2px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 900;
+        color: var(--solution);
+        font-size: 1.3rem;
+        line-height: 1.3;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Tables --- */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.92rem;
+        border: 2px solid var(--text);
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--text);
+        color: var(--surface);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-right: 1px solid var(--border-strong);
+      }
+      th:last-child {
+        border-right: none;
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-top: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+      }
+      td:last-child {
+        border-right: none;
+      }
+      tr:nth-child(even) td {
+        background: var(--surface-sunken);
+      }
+      table.compare td.yes {
+        color: var(--solution);
+        font-weight: 700;
+      }
+      table.compare td.no {
+        color: var(--problem);
+        font-weight: 700;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--text);
+        color: var(--surface);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+        border: 2px solid var(--text);
+      }
+      code {
+        font-family: var(--font-mono);
+      }
+      p code,
+      li code,
+      td code {
+        font-size: 0.88em;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+      }
+      .tok-keyword {
+        color: var(--warning);
+      }
+      .tok-type {
+        color: var(--warning);
+      }
+      .tok-string {
+        color: #95e1d3;
+      }
+      .tok-comment {
+        color: rgba(244, 244, 240, 0.45);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #6eb5ff;
+      }
+      .tok-number {
+        color: var(--warning);
+      }
+      .tok-generic {
+        color: var(--problem);
+      }
+      .tok-builtin {
+        color: #6eb5ff;
+      }
+      .tok-punct {
+        color: rgba(244, 244, 240, 0.7);
+      }
+      .tok-attr {
+        color: var(--warning);
+      }
+
+      /* --- Dependency tree / ASCII diagrams --- */
+      .dep-tree {
+        background: var(--surface-sunken);
+        border: 2px solid var(--text);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .dep-tree .root {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .dep-tree .ok {
+        color: var(--solution);
+      }
+      .dep-tree .unwanted {
+        color: var(--problem);
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.4rem 0.75rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 700;
+        background: var(--surface-sunken);
+        border: 1px solid var(--text);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Grids --- */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* --- Inline TOC --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        border-left: 6px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Migration / numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1.1rem;
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        border-left: 6px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.94rem;
+      }
+
+      /* --- Before/After comparison --- */
+      .compare-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+      .compare-before,
+      .compare-after {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 0.7rem;
+        color: var(--surface);
+      }
+      .compare-before {
+        background: var(--problem);
+      }
+      .compare-after {
+        background: var(--solution);
+      }
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .compare-row pre {
+        margin: 0;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 3px solid var(--text);
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-header,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .scorecard,
+        .stat-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .score-card:nth-child(2),
+        .stat-card:nth-child(2) {
+          border-right: none;
+        }
+        .score-card:nth-child(1),
+        .stat-card:nth-child(1),
+        .score-card:nth-child(2),
+        .stat-card:nth-child(2) {
+          border-bottom: 3px solid var(--text);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+        .hero-shapes {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Full-bleed top bar (optional — remove for quieter reports) -->
+    <div class="top-bar">
+      <span>LIBRARY DEEP DIVE &middot; FLEET AUDIT</span>
+      <span>2026-11-03</span>
+      <span>go-appkit &middot; LarsArtmann</span>
+    </div>
+
+    <div class="layout">
+      <!-- Sidebar TOC (hidden below 1024px; use inline .toc if you prefer) -->
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#summary">Summary</a>
+          <a href="#scorecard">Scorecard</a>
+          <a href="#matrix">The 12-library matrix</a>
+          <a href="#strengths">Strengths</a>
+          <a href="#findings">Findings</a>
+          <a href="#proposal">Adoption steps</a>
+          <a href="#appendix">Appendix</a>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="main">
+        <!-- Hero -->
+        <header class="hero">
+          <div class="hero-shapes">
+            <div class="bar"></div>
+            <div class="circle"></div>
+            <div class="square"></div>
+            <div class="tri"></div>
+          </div>
+          <div class="eyebrow">LIBRARY DEEP DIVE &middot; 2026-11-03</div>
+          <h1>Do we use the sibling libraries &mdash; and to the max?</h1>
+          <p class="subtitle">
+            A utilization audit of twelve LarsArtmann sibling libraries against
+            go-appkit's twelve modules: who is imported, how much of each
+            library's surface is actually leveraged, and &mdash; for every
+            non-use &mdash; whether the posture is deliberate, recorded, and
+            correctly demand-gated.
+          </p>
+          <div class="meta">
+            <span class="tag amber">Scope: 12 libraries &times; 12 modules</span>
+            <span class="tag">go-appkit @ master (post-SUPERB v10)</span>
+            <span class="tag teal">Per-library reports: docs/review/libs/&lt;lib&gt;.md</span>
+          </div>
+        </header>
+
+        <!-- Scorecard -->
+        <section id="scorecard" class="scorecard">
+          <div class="score-card score-good">
+            <div class="score">3</div>
+            <div class="label">Libraries imported (httputil, go-error-family, go-sse)</div>
+          </div>
+          <div class="score-card score-warn">
+            <div class="score">9</div>
+            <div class="label">Deliberate non-uses, each with a recorded rationale</div>
+          </div>
+          <div class="score-card score-good">
+            <div class="score">12/12</div>
+            <div class="label">In-graph versions at the newest published tag</div>
+          </div>
+          <div class="score-card">
+            <div class="score">1</div>
+            <div class="label">Actionable code finding (otel Recovery delegation)</div>
+          </div>
+        </section>
+
+        <!-- Summary -->
+        <section id="summary">
+          <h2><span class="num">00</span>Summary</h2>
+          <p>
+            Three of the twelve sibling libraries are imported &mdash;
+            <strong>httputil</strong> (the middleware/health substrate of core),
+            <strong>go-error-family</strong> (the repo-wide error protocol), and
+            <strong>go-sse</strong> (the realtime transport). All three sit at
+            the newest published tag. The other nine are not used, and none of
+            the non-uses is neglect: each one is either an intentional indirect
+            (go-etag, go-idempotency, go-retry, go-codec ride the graph through
+            httputil and go-cqrs-lite), a pre-named battery floor
+            (go-atomic-write for D4, server_timing for F2), or a researched
+            category mismatch (go-daemon, go-output, go-filewatcher).
+          </p>
+          <p>
+            The audit's real yield is small and precise: utilization is deep but
+            not maximal in the three adopted libraries, and the gaps split into
+            one actionable refactor (appkit/otel's custom Recovery predates
+            httputil v1.6.0's <code>RecoveryWithConfig</code>/<code>OnPanic</code>
+            hook it was designed for), one structural half-adoption
+            (go-error-family's classification registry is never used), and a
+            handful of demand-gated battery candidates that are already on the
+            books.
+          </p>
+          <div class="callout callout-amber">
+            <strong>The bottom line</strong>
+            Adoption posture: exemplary &mdash; every use and every non-use
+            carries a recorded rationale, and version currency is perfect.
+            Utilization: 72/100 (httputil), 81/100 (go-sse), 46/100
+            (go-error-family). The cheapest real improvement is delegating
+            appkit/otel's custom Recovery middleware to the httputil hook that
+            shipped for exactly this purpose; the structural one is deciding,
+            once, whether a fleet-default error-classification registry should
+            exist.
+          </div>
+
+          <div class="callout callout-amber">
+            <strong>OWNER RULING &middot; 2026-11-03 (post-publication errata)</strong>
+            The owner clarified the repo's mission: go-appkit exists so his apps can
+            smartly compose the family's libraries &mdash; demand-gating a FAMILY lib out
+            of the framework contradicts the reason it exists. Consequence #1 shipped the
+            same day: <code>servertiming.ServerTimingMiddleware()</code>
+            (httputil/server_timing v1.0.3, direct require) is now OUTERMOST in core's
+            default stack. Consequence #2: W3-httpx B5 content negotiation on go-codec is
+            promoted to in-scope. Dated errata blocks live in
+            <a href="server_timing.md">server_timing.md</a> and
+            <a href="go-codec.md">go-codec.md</a>; the go-etag / go-idempotency /
+            go-retry reports already frame non-use as recorded adoption paths and need no
+            errata. NOT flipped: go-daemon, go-output, go-filewatcher (category
+            mismatches, not demand questions).
+          </div>
+        </section>
+
+        <!-- Matrix -->
+        <section id="matrix">
+          <h2><span class="num">01</span>The 12-library matrix</h2>
+          <p>
+            Every library, its in-graph state, and its verdict. Full evidence,
+            capability tables, and score derivations live in the per-library
+            reports linked in the last column.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Library</th>
+                <th>In go-appkit</th>
+                <th>Latest tag</th>
+                <th>Verdict</th>
+                <th>Score</th>
+                <th>Report</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>httputil</td>
+                <td class="yes">v1.7.0 &middot; 8 go.mods &middot; direct</td>
+                <td>v1.7.0</td>
+                <td class="yes">USED &mdash; deepest adoption; server-seam refactor pending</td>
+                <td class="yes">72/100</td>
+                <td><a href="httputil.md">httputil.md</a></td>
+              </tr>
+              <tr>
+                <td>go-error-family</td>
+                <td class="yes">v0.12.0 &middot; 11 go.mods &middot; direct</td>
+                <td>v0.12.0</td>
+                <td class="yes">USED &mdash; constructors + wrap; registry half untouched</td>
+                <td class="no">46/100</td>
+                <td><a href="go-error-family.md">go-error-family.md</a></td>
+              </tr>
+              <tr>
+                <td>go-sse</td>
+                <td class="yes">v0.6.2 &middot; realtime + integration &middot; direct</td>
+                <td>v0.6.2</td>
+                <td class="yes">USED &mdash; near-max in its lane; WithOnDrop pending (W5-C1)</td>
+                <td class="yes">81/100</td>
+                <td><a href="go-sse.md">go-sse.md</a></td>
+              </tr>
+              <tr>
+                <td>server_timing</td>
+                <td>go.sum only (httputil test dep)</td>
+                <td>server_timing/v1.0.3</td>
+                <td>ADOPTION IN-SCOPE (owner ruling 2026-11-03) &mdash; SHIPPED same day: default-stack outermost middleware; errata in report</td>
+                <td>&mdash;</td>
+                <td><a href="server_timing.md">server_timing.md</a></td>
+              </tr>
+              <tr>
+                <td>go-etag</td>
+                <td>v0.6.1 &middot; indirect &times; 8 (via httputil error table)</td>
+                <td>v0.6.1</td>
+                <td>NOT USED &mdash; battery B4 owns promotion; NEW client module widens the future surface (W4 polite)</td>
+                <td>&mdash;</td>
+                <td><a href="go-etag.md">go-etag.md</a></td>
+              </tr>
+              <tr>
+                <td>go-idempotency</td>
+                <td>v0.3.1 &middot; indirect (cqrs, integration)</td>
+                <td>v0.3.1</td>
+                <td>NOT USED &mdash; documented opt-in posture; wiring recipe on demand</td>
+                <td>&mdash;</td>
+                <td><a href="go-idempotency.md">go-idempotency.md</a></td>
+              </tr>
+              <tr>
+                <td>go-retry</td>
+                <td>v0.9.0 cqrs / v0.8.0 integration floor &middot; indirect</td>
+                <td>v0.9.0</td>
+                <td>NOT USED &mdash; no retryable call sites in-framework; W4 polite candidate</td>
+                <td>&mdash;</td>
+                <td><a href="go-retry.md">go-retry.md</a></td>
+              </tr>
+              <tr>
+                <td>go-codec</td>
+                <td>v0.3.3 cqrs &middot; indirect</td>
+                <td>v0.3.3</td>
+                <td>ADOPTION IN-SCOPE (owner ruling 2026-11-03) &mdash; build the encode seam on it: W3-httpx B5 content negotiation promoted; errata in report</td>
+                <td>&mdash;</td>
+                <td><a href="go-codec.md">go-codec.md</a></td>
+              </tr>
+              <tr>
+                <td>go-atomic-write</td>
+                <td>absent</td>
+                <td>v0.6.0</td>
+                <td>NOT USED &mdash; framework is stateless; battery D4 pre-names it as floor</td>
+                <td>&mdash;</td>
+                <td><a href="go-atomic-write.md">go-atomic-write.md</a></td>
+              </tr>
+              <tr>
+                <td>go-filewatcher</td>
+                <td>absent</td>
+                <td>v2.4.2 (/v2 path)</td>
+                <td>NOT USED &mdash; no feature watches files; at most an opt-in module someday</td>
+                <td>&mdash;</td>
+                <td><a href="go-filewatcher.md">go-filewatcher.md</a></td>
+              </tr>
+              <tr>
+                <td>go-daemon</td>
+                <td>absent</td>
+                <td>v0.4.0</td>
+                <td>NOT USED &mdash; ruled NO 2026-10-01 (competing host layer); its sd_notify gap SHIPPED as /systemd</td>
+                <td>&mdash;</td>
+                <td><a href="go-daemon.md">go-daemon.md</a></td>
+              </tr>
+              <tr>
+                <td>go-output</td>
+                <td>absent</td>
+                <td>v0.38.7</td>
+                <td>NOT USED &mdash; category mismatch (CLI rendering vs HTTP framework)</td>
+                <td>&mdash;</td>
+                <td><a href="go-output.md">go-output.md</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Strengths -->
+        <section id="strengths">
+          <h2><span class="num">&#9670;</span>What's already excellent</h2>
+          <p>Before the findings: the fleet posture is unusually disciplined.</p>
+          <div class="strengths">
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Version currency is perfect</strong>
+                <span>All in-graph versions equal the newest published tag of
+                their repo (httputil v1.7.0, error-family v0.12.0, go-sse
+                v0.6.2, etag v0.6.1, codec v0.3.3, idempotency v0.3.1, retry
+                v0.9.0). Zero stale pins; integration's exclude blocks fence
+                the historic go-etag root versions cleanly.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Every non-use is a recorded decision, not neglect</strong>
+                <span>Four independent record classes agree: AGENTS.md, the
+                battery gap-analysis (canonical spec), the planning docs
+                (go-daemon ruling 2026-10-01, spike verdict), and the prior
+                audits. The battery rows for D4/D7/F2/B4 pre-name exactly which
+                sibling covers each future need.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Zero misuses, zero accidental duplicates</strong>
+                <span>The two partial-overlap hand-rolls (security's BodyLimit
+                and CSP nonce builders vs httputil equivalents) are deliberate,
+                threat-model-documented divergences with typed-error or
+                policy-tier contracts &mdash; recorded, not accidental.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>The adopt-the-gap-not-the-dep pipeline works</strong>
+                <span>The 2026-10-01 go-daemon research surfaced exactly one
+                real gap (systemd sd_notify + watchdog) and rejected the
+                dependency; the gap shipped as the opt-in /systemd module
+                (v0.1.0) built on core StartHooks/DrainHooks. The pattern is
+                proven end to end.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Findings -->
+        <section id="findings">
+          <h2><span class="num">02</span>Findings</h2>
+          <p>Ordered by impact. Only F1 changes code.</p>
+
+          <div class="issue issue-important" id="issue-1">
+            <span class="severity severity-important">Important &middot; Medium impact &middot; code</span>
+            <h3>F1 &mdash; appkit/otel's custom Recovery predates the httputil hook built for it</h3>
+            <div class="where">otel/exceptions.go:19-37 &middot; httputil v1.6.0 shipped RecoveryWithConfig/OnPanic on 2026-10-24; otel's middleware predates it</div>
+            <p>
+              <code>appkitotel.Recovery</code> hand-replicates
+              httputil.Recovery's behavior (log-line contract,
+              <code>ErrAbortHandler</code> re-panic) plus OTel exception-span
+              capture. httputil v1.6.0 now exposes
+              <code>RecoveryWithConfig</code> with an <code>OnPanic</code> hook
+              for exactly this integration. Delegating deletes the behavioral
+              duplication surface while keeping the OTel payload; the existing
+              exceptions tests pin the contract.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix</strong>
+              Refactor <code>appkitotel.Recovery</code> to
+              <code>httputil.RecoveryWithConfig</code> + an <code>OnPanic</code>
+              hook that records the exception event. Cheap, testable &mdash;
+              the one actionable code finding of this audit. Verified unused:
+              <code>rg 'RecoveryWithConfig|OnPanic' otel/</code> is empty.
+            </div>
+          </div>
+
+          <div class="issue issue-important" id="issue-2">
+            <span class="severity severity-important">Important &middot; structural &middot; demand-gated</span>
+            <h3>F2 &mdash; go-error-family's classification registry is never used</h3>
+            <div class="where">zero calls to Classify / RegisterClassification / RegisterStdlibDefaults across all 12 modules</div>
+            <p>
+              Appkit classifies at creation (wrap-at-source) but never at
+              boundaries that receive FOREIGN errors: third-party probe errors
+              in health, arbitrary handler errors rendered by errorpages
+              (unclassified &rarr; 500 by contract), MaxBytesError handling in
+              security. A single fleet-default classification registration
+              (stdlib defaults + <code>http.MaxBytesError</code> &rarr;
+              Rejection + <code>context.Canceled</code> &rarr; Infrastructure)
+              would make <code>Classify</code> meaningful there and centralize
+              per-module ad-hoc mapping. Additions-only; gate on a real
+              misclassification incident or consumer ask.
+            </p>
+          </div>
+
+          <div class="issue issue-nice" id="issue-3">
+            <span class="severity severity-nice">Nice to have &middot; battery candidates (already demand-gated)</span>
+            <h3>F3 &mdash; three httputil families with no adoption story yet</h3>
+            <div class="where">CORS (zero usage), ClientIP/trusted-proxy keying (v1.6.0, unused), Compression/Decompression (zero usage)</div>
+            <p>
+              <code>security/origin_check.go</code> is CSRF origin validation,
+              NOT resource-sharing CORS &mdash; a browser-API consumer on
+              appkit has no CORS story today. Rate limiting keys on
+              RemoteAddr; <code>KeyExtractorFromTrustedClientIP</code> solves
+              the behind-a-proxy deployment and is unused. These belong on the
+              W3/W4 battery shortlists, not in the default stack.
+            </p>
+          </div>
+
+          <div class="issue issue-nice" id="issue-4">
+            <span class="severity severity-nice">Nice to have &middot; documentation &amp; upstream watch</span>
+            <h3>F4 &mdash; truth-sync items surfaced by the audit</h3>
+            <div class="where">AGENTS.md:65,67 &middot; TODO_LIST battery rows &middot; upstream [Unreleased] sections</div>
+            <p>
+              (a) AGENTS' Core Dependencies table said httputil v1.4.0 /
+              error-family v0.10.1 vs go.mod v1.7.0 / v0.12.0 &mdash;
+              <strong>fixed in this audit</strong>. (b) Battery B4's go-etag
+              note should mention the five-module split (client + metrics are
+              relevant to W4's polite client). (c) go-sse's next release
+              carries a breaking <code>ssetest.WithLastEventID</code> signature
+              change and an exported <code>DefaultSubscriberBuffer</code> that
+              realtime's doc comment cites as unexported &mdash; absorb at the
+              next re-pin, not before.
+            </p>
+          </div>
+        </section>
+
+        <!-- Adoption steps -->
+        <section id="proposal">
+          <h2><span class="num">03</span>Adoption steps (Pareto order)</h2>
+          <p>If the findings were acted on, this is the sequence.</p>
+          <pre><code>1. Delegate appkitotel.Recovery to httputil.RecoveryWithConfig + OnPanic   [code, cheap, next train]
+2. Server-seam refactor: re-run the 2026-09-16 spike against httputil
+   v1.7.0 NewServerListener, then swap core's raw http.Server               [planned, AGENTS]
+3. Decide (once) on a fleet-default error-classification registry;
+   if yes: RegisterStdlibDefaults + MaxBytesError + context.Canceled        [demand-gated]
+4. Doc annotations: B4/W4 battery rows gain the go-etag five-module note;
+   keep D7/F2 adopt-wire verdicts as-is                                    [annotation]
+5. At the next go-sse release: absorb ssetest.WithLastEventID breaking
+   change + update realtime's DefaultSubscriberBuffer doc reference        [watch]</code></pre>
+          <div class="callout callout-teal">
+            <strong>What NOT to adopt</strong>
+            go-daemon (competing host layer &mdash; ruling holds), go-output
+            and go-filewatcher (no category fit, no demand), and any CV port
+            of idempotency stores or timing headers (the sibling SDKs cover
+            both; the ports must not be written).
+          </div>
+        </section>
+
+        <!-- Appendix -->
+        <section id="appendix">
+          <h2><span class="num">04</span>Appendix</h2>
+          <p>
+            <strong>Method.</strong> Phase 0 read the priors
+            (<code>docs/research/2026-10-11_sibling-library-utilization-audit.html</code>,
+            <code>2026-09-16_larsartmann-ecosystem-deep-dive.html</code>,
+            <code>docs/planning/2026-10-01_go-daemon-and-go-aichat-integration.md</code>,
+            the battery gap-analysis, archived library-analysis). Phase 1
+            scanned all 12 module go.mods + every .go file for imports and
+            symbol usage. Phase 2 built capability inventories from the local
+            checkouts (READMEs, CHANGELOGs, exported-symbol sweeps). Phase 3
+            graded each capability row (fully/partial/missed/N-A-with-reason)
+            and derived scores per the library-deep-dive rubric. Point-in-time:
+            2026-11-03; in-graph states verified same day.
+          </p>
+          <p>
+            <strong>Series discipline.</strong> This batch supersedes the
+            go-etag / server_timing / go-idempotency sections of the
+            2026-10-11 sibling audit (newer and narrower), re-verifies that
+            audit's battery annotations as current, and is itself indexed in
+            <code>docs/research/README.md</code> and
+            <code>docs/reviews/README.md</code>.
+          </p>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Report</th>
+                <th>Used?</th>
+                <th>Score</th>
+                <th>One-line verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><a href="httputil.md">httputil.md</a></td><td class="yes">yes</td><td>72/100</td><td>Deep adoption; server seam + CORS + trusted-proxy + otel-hook gaps</td></tr>
+              <tr><td><a href="go-error-family.md">go-error-family.md</a></td><td class="yes">yes</td><td>46/100</td><td>Protocol adopted; registry/classify half never engaged</td></tr>
+              <tr><td><a href="go-sse.md">go-sse.md</a></td><td class="yes">yes</td><td>81/100</td><td>Near-max lane discipline; WithOnDrop + OnDisconnect open</td></tr>
+              <tr><td><a href="server_timing.md">server_timing.md</a></td><td>no</td><td>&mdash;</td><td>Wire via battery F2; zero-dep; never port</td></tr>
+              <tr><td><a href="go-etag.md">go-etag.md</a></td><td>no</td><td>&mdash;</td><td>Intentional indirect; B4 promotion; client module new since 10-11</td></tr>
+              <tr><td><a href="go-idempotency.md">go-idempotency.md</a></td><td>no</td><td>&mdash;</td><td>Opt-in by charter; recipe-on-demand; adopt-wire not port</td></tr>
+              <tr><td><a href="go-retry.md">go-retry.md</a></td><td>no</td><td>&mdash;</td><td>No retryable sites; W4 polite candidate</td></tr>
+              <tr><td><a href="go-codec.md">go-codec.md</a></td><td>no</td><td>&mdash;</td><td>Payload layer owned by cqrs-lite; B5 pre-agreed floor</td></tr>
+              <tr><td><a href="go-atomic-write.md">go-atomic-write.md</a></td><td>no</td><td>&mdash;</td><td>Stateless framework; D4 floor pre-named (&ge; v0.5.1, v0.6.0 OK)</td></tr>
+              <tr><td><a href="go-filewatcher.md">go-filewatcher.md</a></td><td>no</td><td>&mdash;</td><td>No demand; would be opt-in module at most; /v2 path required</td></tr>
+              <tr><td><a href="go-daemon.md">go-daemon.md</a></td><td>no</td><td>&mdash;</td><td>Ruling NO holds; sd_notify slice shipped as /systemd; capital-LA path</td></tr>
+              <tr><td><a href="go-output.md">go-output.md</a></td><td>no</td><td>&mdash;</td><td>Category mismatch; right library for a future family CLI</td></tr>
+            </tbody>
+          </table>
+          <pre><code># Re-derive the headline facts (from the repo root)
+rg -c 'httputil\.|errorfamily\.|sse\.' --glob '*.go' --glob '!*_test.go'   # the three used libs
+for lib in go-etag go-idempotency go-retry go-codec; do rg -n "larsartmann/$lib" --glob '*.go' | wc -l; done
+git -C /home/lars/projects/httputil tag --sort=-v:refname | head -1         # v1.7.0
+rg -n 'RecoveryWithConfig|OnPanic' otel/                                    # empty = F1 stands
+sed -n '14,31p' middleware.go                                               # default stack</code></pre>
+        </section>
+
+<!-- Footer -->
+        <footer class="footer">
+          <p>
+            Generated 2026-11-03 &middot; go-appkit @ master (post-SUPERB v10)
+            &middot; 12 libraries &times; 12 modules &middot; all version and
+            import claims verified same day; scores derived per the
+            library-deep-dive rubric with inputs shown in each report
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <!-- Progressive-enhancement scrollspy. Nav still works without JS via anchor links. -->
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>
