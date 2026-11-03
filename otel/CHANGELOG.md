@@ -4,6 +4,13 @@
 
 ### Changed
 
+- `appkitotel.Recovery` now DELEGATES to `httputil.RecoveryWithConfig`
+  (v1.6.0's `OnPanic` hook — built for exactly this integration after the
+  custom middleware predates it) with `recordPanic` moved into the hook.
+  Zero contract delta: same panic log line, same 500 response, same
+  exception span events; `http.ErrAbortHandler` re-panics happen BEFORE the
+  hook upstream, so aborts produce no span event — identical to the old
+  hand-rolled ordering, minus ~40 lines of duplicated recovery machinery.
 - httputil v1.5.0 → v1.7.0 (via v1.6.0); go-error-family v0.11.0 → v0.12.0
   (MVS). The v1.6.0 tag carries `LoggingFromContext`, which CLOSES the
   documented completion-line limitation: doc.go's log-correlation note now
