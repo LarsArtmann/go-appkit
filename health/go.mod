@@ -14,7 +14,7 @@ require (
 
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
-	github.com/a-h/templ v0.3.1070 // indirect
+	github.com/a-h/templ v0.3.1100 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
@@ -36,11 +36,11 @@ require (
 	github.com/larsartmann/go-etag/server v0.6.1 // indirect
 	github.com/larsartmann/go-sse v0.6.2 // indirect
 	github.com/larsartmann/httputil v1.7.0 // indirect
-	github.com/larsartmann/templ-components v1.24.0 // indirect
-	github.com/larsartmann/templ-components/datastar v1.24.0 // indirect
-	github.com/larsartmann/templ-components/htmx v1.24.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.25.1 // indirect
-	github.com/larsartmann/templ-components/utils v1.25.1 // indirect
+	github.com/larsartmann/templ-components v1.26.0 // indirect
+	github.com/larsartmann/templ-components/datastar v1.26.0 // indirect
+	github.com/larsartmann/templ-components/htmx v1.26.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.26.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.26.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
@@ -48,9 +48,9 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/samber/go-type-to-string v1.8.0 // indirect
-	github.com/xo/terminfo v1.2.0 // indirect
+	github.com/xo/terminfo v1.3.0 // indirect
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
-	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
