@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+
+	"github.com/samber/lo"
 )
 
 // OriginCheck returns middleware that validates the request's Origin header
@@ -35,10 +37,9 @@ func OriginCheck(allowedOrigins []string, logger *slog.Logger) func(http.Handler
 		)
 	}
 
-	normalized := make(map[string]struct{}, len(allowedOrigins))
-	for _, origin := range allowedOrigins {
-		normalized[strings.ToLower(origin)] = struct{}{}
-	}
+	normalized := lo.SliceToMap(allowedOrigins, func(origin string) (string, struct{}) {
+		return strings.ToLower(origin), struct{}{}
+	})
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

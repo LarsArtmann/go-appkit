@@ -6,6 +6,10 @@
 
 ### Changed
 
+- Runtime: adopted `samber/lo` (v1.53.0, direct require) for `NewProbe`'s
+  map-to-map conversion (`lo.MapEntries`) — owner-authorized runtime-lo
+  gate exercised 2026-11-02; behavior identical (the linter's original
+  SliceToMap suggestion misread the site: it converts a MAP, not a slice).
 - `Mounted.setStarted` godoc now cross-links the drain-latch note on
   `Shutdown`: a `false` write unwedges a failed `Start` (the surface stays
   restartable) but does NOT clear the probe's 503 drain latch — only a fresh

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/larsartmann/go-health"
+	"github.com/samber/lo"
 )
 
 // CheckFunc is one named health check. Return nil when the dependency is
@@ -60,11 +61,9 @@ type CheckFunc func(ctx context.Context) error
 // directly — the resulting *health.Probe composes with everything in this
 // package unchanged.
 func NewProbe(checks map[string]CheckFunc, opts ...health.Option) *health.Probe {
-	goChecks := make(map[string]health.CheckFunc, len(checks))
-
-	for name, check := range checks {
-		goChecks[name] = health.CheckFunc(check)
-	}
+	goChecks := lo.MapEntries(checks, func(name string, check CheckFunc) (string, health.CheckFunc) {
+		return name, health.CheckFunc(check)
+	})
 
 	return health.NewChecks(goChecks, opts...)
 }

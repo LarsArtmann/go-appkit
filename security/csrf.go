@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/larsartmann/httputil"
+	"github.com/samber/lo"
 )
 
 // CSRF builds the double-submit-cookie CSRF middleware (a thin, opinionated
@@ -23,14 +24,9 @@ import (
 // allow-all.
 func CSRF(cfg httputil.CSRFConfig, logger *slog.Logger) func(http.Handler) http.Handler {
 	if slices.Contains(cfg.TrustedOrigins, "*") {
-		origins := make([]string, 0, len(cfg.TrustedOrigins))
-		for _, o := range cfg.TrustedOrigins {
-			if o != "*" {
-				origins = append(origins, o)
-			}
-		}
-
-		cfg.TrustedOrigins = origins
+		cfg.TrustedOrigins = lo.Filter(cfg.TrustedOrigins, func(o string, _ int) bool {
+			return o != "*"
+		})
 
 		if logger != nil {
 			logger.Warn("security.CSRF: \"*\" in TrustedOrigins is not allow-all; " +

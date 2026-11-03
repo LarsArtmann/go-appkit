@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/larsartmann/go-sse"
+	"github.com/samber/lo"
 )
 
 // defaultHeartbeat is the interval between SSE comment-frame pings sent to
@@ -269,12 +270,9 @@ func eventsAfter(
 		return nil, err //nolint:wrapcheck // store error propagated untouched
 	}
 
-	events := make([]sse.Event, 0, len(all))
-	for _, evt := range all {
-		if safeFilter(filter, evt) {
-			events = append(events, evt)
-		}
-	}
+	events := lo.Filter(all, func(evt sse.Event, _ int) bool {
+		return safeFilter(filter, evt)
+	})
 
 	return events, nil
 }

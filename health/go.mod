@@ -9,6 +9,7 @@ require (
 	github.com/larsartmann/go-health v0.8.1
 	github.com/larsartmann/go-health-dashboard v0.12.2
 	github.com/samber/do/v2 v2.1.0
+	github.com/samber/lo v1.53.0
 )
 
 require (
@@ -51,5 +52,6 @@ require (
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
 	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 )

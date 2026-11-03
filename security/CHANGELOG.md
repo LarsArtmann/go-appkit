@@ -6,6 +6,11 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Runtime: adopted `samber/lo` (v1.53.0, direct require) for the CSRF
+  `"*"`-strip filter (`lo.Filter`) and the OriginCheck allowlist map build
+  (`lo.SliceToMap`) — owner-authorized runtime-lo gate exercised
+  2026-11-02; behavior identical (order-preserving filter, last-wins
+  lowercased keys; `golang.org/x/text` joins as an indirect).
 - Example-only `github.com/larsartmann/go-appkit` dependency
   v0.6.0 → v0.9.0 (tracks the latest core — v0.8.0 brought
   `testkit.DrainWindowProbe`, `[]Hook`, and `ServiceConfig.StartHooks`;

@@ -275,6 +275,23 @@ nothing to apply; recorded rather than force.
 | security/csrf.go:27 (Filter)             | runtime | keep              | same                                                                                    |
 | security/origin_check.go:39 (SliceToMap) | runtime | keep              | same                                                                                    |
 
+**2026-11-02 — the map above is PARTIALLY SUPERSEDED (runtime gate opened).**
+The owner exercised the runtime USER gate (SUPERB v10 tail): all four
+runtime "keep" rows above were FLIPPED TO ADOPT and applied — cqrs/domain.go
+`lo.Flatten`, security/csrf.go `lo.Filter`, security/origin_check.go
+`lo.SliceToMap`, health/probe.go `lo.MapEntries` (the health row's
+SliceToMap label was a tool misread — the site converts a MAP; correct
+helper applied), realtime/handler.go `lo.Filter` through `safeFilter`.
+Security and health gained the direct require; live truth: the
+samber/lo bullet in the repo-root AGENTS.md. The five test "ADOPT" rows
+were applied 2026-10-13 as planned. The 2026-11-02 BuildFlow sweep
+re-flagged those five (informational: lo has no stdlib equivalent —
+expected, not candidates) and surfaced THREE NEW test candidates —
+otel/diagnostics_test.go:43 (Map), otel/setup_test.go:56 (SliceToMap),
+cqrs/scenario_store_pin_test.go:68 (Filter) — PENDING owner ruling;
+`cqrs/domain_test.go:88` (Reduce) remains DECLINED per the
+`slices.Backward` verdict above.
+
 Dep impact: samber/lo is the fleet-REQUIRED functional stack
 (required-libraries.md: lo + mo). It already rides cqrs's and
 integration's go.sum transitively (go-cqrs-lite family); otel + realtime

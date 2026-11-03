@@ -4,10 +4,11 @@
 
 ### Changed
 
-- Test-only: adopted `samber/lo` (v1.53.0, direct require) at the
-  replay-dedup collect per fleet policy's required functional stack;
-  runtime code stays hand-rolled (dependency-lean boundary, 2026-10-12
-  standing decision).
+- Adopted `samber/lo` (v1.53.0, direct require) beyond the test-only
+  boundary: `eventsAfter`'s in-memory post-filter is now `lo.Filter`
+  wrapping the panic-recovering `safeFilter` — owner-authorized runtime-lo
+  gate exercised 2026-11-02; behavior identical (order-preserving,
+  capacity-preserving).
 
 ## [0.1.3] - 2026-10-06
 
