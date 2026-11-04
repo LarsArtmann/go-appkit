@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/integration
 go 1.27.2
 
 require (
-	github.com/larsartmann/cqrs-htmx/v4 v4.14.1
+	github.com/larsartmann/cqrs-htmx/v4 v4.15.0
 	github.com/larsartmann/go-appkit v0.9.0
 	github.com/larsartmann/go-appkit/cqrs v0.8.0
 	github.com/larsartmann/go-appkit/docs v0.3.3
@@ -30,7 +30,7 @@ require (
 	github.com/larsartmann/go-health v0.8.1
 	github.com/larsartmann/go-sse v0.6.2
 	github.com/larsartmann/go-sse/ssetest v0.5.0
-	github.com/larsartmann/httputil v1.7.0
+	github.com/larsartmann/httputil v1.8.0
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/samber/do/v2 v2.1.0
 	github.com/samber/lo v1.53.0

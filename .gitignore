@@ -68,3 +68,9 @@ reports/
 go.work
 go.work.sum
 # <<< buildflow-managed (.gitignore) <<<
+
+# go.work is tracked so CI can read the go directive; these un-ignore rules
+# MUST stay after the buildflow-managed block (last matching rule wins and
+# `buildflow --fix` regenerates that block).
+!go.work
+!go.work.sum
