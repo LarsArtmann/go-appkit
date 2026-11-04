@@ -38,7 +38,11 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/systemd":              "v0.1.0",
 
 	"github.com/larsartmann/cqrs-htmx/v4":   "v4.15.0",
-	"github.com/larsartmann/go-sse":         "v0.7.0",
+	// go-sse stays on v0.6.2 deliberately: v0.7.0 requires a-h/templ v0.3.1100
+	// (its regenerated examples use the new runtime API), which removed
+	// ResolveAttributeValue and breaks templ-components v1.22.0's generated
+	// code. Bump both together after the templ-components v0.3.1100 migration.
+	"github.com/larsartmann/go-sse":         "v0.6.2",
 	"github.com/larsartmann/go-sse/ssetest": "v0.5.0",
 	"github.com/larsartmann/httputil":       "v1.8.0",
 
