@@ -6,7 +6,7 @@ require (
 	github.com/larsartmann/go-appkit v0.9.0
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
-	github.com/larsartmann/httputil v1.7.0
+	github.com/larsartmann/httputil v1.8.0
 )
 
 require (

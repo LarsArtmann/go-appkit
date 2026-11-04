@@ -14,7 +14,7 @@ require (
 
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
-	github.com/a-h/templ v0.3.1100 // indirect
+	github.com/a-h/templ v0.3.1070 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
@@ -35,7 +35,7 @@ require (
 	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
 	github.com/larsartmann/go-etag/server v0.6.1 // indirect
 	github.com/larsartmann/go-sse v0.6.2 // indirect
-	github.com/larsartmann/httputil v1.7.0 // indirect
+	github.com/larsartmann/httputil v1.8.0 // indirect
 	github.com/larsartmann/templ-components v1.26.0 // indirect
 	github.com/larsartmann/templ-components/datastar v1.26.0 // indirect
 	github.com/larsartmann/templ-components/htmx v1.26.0 // indirect
