@@ -37,10 +37,10 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/security":             "v0.2.0",
 	"github.com/larsartmann/go-appkit/systemd":              "v0.1.0",
 
-	"github.com/larsartmann/cqrs-htmx/v4":   "v4.14.1",
-	"github.com/larsartmann/go-sse":         "v0.6.2",
+	"github.com/larsartmann/cqrs-htmx/v4":   "v4.15.0",
+	"github.com/larsartmann/go-sse":         "v0.7.0",
 	"github.com/larsartmann/go-sse/ssetest": "v0.5.0",
-	"github.com/larsartmann/httputil":       "v1.7.0",
+	"github.com/larsartmann/httputil":       "v1.8.0",
 
 	// Composition-contract legs (T14, 2026-09-29): the third-party surfaces
 	// the composition tests exercise. These are VERSION-LOCKED to the pins
