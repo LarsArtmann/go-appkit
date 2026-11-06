@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	github.com/go-logr/logr v1.4.4
-	github.com/larsartmann/go-appkit v0.9.0
+	github.com/larsartmann/go-appkit v0.10.0
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
 	github.com/larsartmann/httputil v1.8.0
@@ -42,12 +42,13 @@ require (
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
 	github.com/larsartmann/go-etag/server v0.6.1 // indirect
+	github.com/larsartmann/httputil/server_timing v1.0.3 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/xo/terminfo v1.3.0 // indirect
+	github.com/xo/terminfo v1.3.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.47.0 // indirect
 	go.opentelemetry.io/otel/log v1.47.0 // indirect

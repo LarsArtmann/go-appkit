@@ -88,7 +88,7 @@ if [[ "${1:-}" == "--baseline" ]]; then
 		echo "# Six-month gate (SUPERB v12/v13): go-appkit direct > 10 (beats every composed block)"
 		echo "Go apps (meta --tags app): $total"
 		printf '%s\n' "${summary_lines[@]}"
-	} > "$baseline_file"
+	} >"$baseline_file"
 	echo "BASELINE WRITTEN: $baseline_file"
 	exit 0
 fi
@@ -96,8 +96,8 @@ fi
 if [ -f "$baseline_file" ]; then
 	echo
 	echo "--- delta vs baseline ($baseline_file) ---"
-	if diff <(grep -v '^#' "$baseline_file") <(printf 'Go apps (meta --tags app): %d\n%s\n' "$total" "$(printf '%s\n' "${summary_lines[@]}")") \
-		&& echo "UNCHANGED since baseline"; then
+	if diff <(grep -v '^#' "$baseline_file") <(printf 'Go apps (meta --tags app): %d\n%s\n' "$total" "$(printf '%s\n' "${summary_lines[@]}")") &&
+		echo "UNCHANGED since baseline"; then
 		:
 	fi
 else
