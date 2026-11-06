@@ -37,11 +37,31 @@ fi
 
 # Population: app-tagged projects with at least one go.mod (vendor and
 # toolchain dirs excluded) — the audit's Appendix A method.
+
+# resolve_dir: meta names and directory names drift in CASE (papdashboard →
+# PapDashboard) and a case-sensitive `[ -d ]` silently drops the project —
+# that undercount shipped a wrong baseline once (2026-11-06: population 31
+# vs the true 41, two adopters invisible). Exact match first, then a single
+# case-insensitive match with a loud warning; zero or >1 matches skips.
+resolve_dir() {
+	local name="$1" hit
+	if [ -d "$projects_root/$name" ]; then
+		printf '%s' "$projects_root/$name"
+		return 0
+	fi
+	hit=$(find "$projects_root" -maxdepth 1 -mindepth 1 -type d -iname "$name" 2>/dev/null | head -n 1)
+	if [ -n "$hit" ]; then
+		echo "WARN: meta name '$name' resolved case-insensitively to ${hit##*/}" >&2
+		printf '%s' "$hit"
+		return 0
+	fi
+	return 1
+}
+
 declare -a go_apps=()
 while IFS= read -r name; do
 	[ -z "$name" ] && continue
-	dir="$projects_root/$name"
-	[ -d "$dir" ] || continue
+	dir=$(resolve_dir "$name") || continue
 	if find "$dir" -name go.mod -not -path '*/vendor/*' -not -path '*/node_modules/*' \
 		-not -path '*/.direnv/*' -not -path '*/result*' -print -quit 2>/dev/null | grep -q .; then
 		go_apps+=("$name")
@@ -61,16 +81,22 @@ for module in "${modules[@]}"; do
 	any_count=0
 	direct_count=0
 	for name in "${go_apps[@]}"; do
-		dir="$projects_root/$name"
+		dir=$(resolve_dir "$name") || continue
 		any_hit=0
 		direct_hit=0
 		while IFS= read -r gomod; do
-			if grep -Eq "^[[:space:]]*${module}([[:space:]]|/)" "$gomod"; then
-				any_hit=1
-				if ! grep -Eq "^[[:space:]]*${module}([[:space:]]|/).*// indirect" "$gomod"; then
-					direct_hit=1
+			# Per-LINE indirect check: a module can appear BOTH ways in one
+			# go.mod (papdashboard: direct core + indirect security sibling) —
+			# the old per-FILE check let any `// indirect` sibling line poison
+			# the direct verdict (2026-11-06, undercounted direct 7→6).
+			while IFS= read -r line; do
+				if printf '%s\n' "$line" | grep -Eq "^[[:space:]]*${module}([[:space:]]|/)"; then
+					any_hit=1
+					if ! printf '%s\n' "$line" | grep -Eq "//[[:space:]]*indirect([[:space:]]|$)"; then
+						direct_hit=1
+					fi
 				fi
-			fi
+			done < "$gomod"
 		done < <(find "$dir" -name go.mod -not -path '*/vendor/*' -not -path '*/node_modules/*' \
 			-not -path '*/.direnv/*' -not -path '*/result*' 2>/dev/null)
 		any_count=$((any_count + any_hit))
