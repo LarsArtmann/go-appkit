@@ -67,7 +67,7 @@ func newLanguageService(t *testing.T) *testkit.TestServer {
 // langProbe is shared across all negotiate calls: one connection pool.
 // Abandoned per-call transports hold idle keep-alive conns open against the
 // shutdown window (the 2026-11-06 listener_close hang class).
-var langProbe = &http.Client{Timeout: 10 * time.Second} //nolint:gochecknoglobals // shared probe client
+var langProbe = &http.Client{Timeout: 10 * time.Second}
 
 func negotiate(t *testing.T, base, acceptLanguage string) (http.Header, string) {
 	t.Helper()
