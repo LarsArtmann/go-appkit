@@ -46,7 +46,7 @@ while IFS= read -r name; do
 		-not -path '*/.direnv/*' -not -path '*/result*' -print -quit 2>/dev/null | grep -q .; then
 		go_apps+=("$name")
 	fi
-done < <(meta list --tags app --format json | jq -r 'keys[]' 2>/dev/null | sort)
+done < <(meta list --tags app --format json 2>/dev/null | jq -r 'keys[]' 2>/dev/null | sort)
 
 total=${#go_apps[@]}
 if ((total == 0)); then
@@ -73,8 +73,8 @@ for module in "${modules[@]}"; do
 			fi
 		done < <(find "$dir" -name go.mod -not -path '*/vendor/*' -not -path '*/node_modules/*' \
 			-not -path '*/.direnv/*' -not -path '*/result*' 2>/dev/null)
-		((any_count += any_hit))
-		((direct_count += direct_hit))
+		any_count=$((any_count + any_hit))
+		direct_count=$((direct_count + direct_hit))
 	done
 	summary_lines+=("$(printf '%-45s any %2d/%d  direct %2d/%d' "$module" "$any_count" "$total" "$direct_count" "$total")")
 done
