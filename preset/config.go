@@ -57,6 +57,14 @@ type Config struct {
 	// (healthz/readyz/startupz still mount).
 	NoDashboard bool
 
+	// Lifecycle hooks pass through to the core ServiceConfig. Consumer
+	// hooks run FIRST in every phase; the preset's spine closures (health
+	// Mounted, realtime hub, otel provider flush) run after, so otel spans
+	// cover app shutdown work.
+	StartHooks   []appkit.Hook
+	DrainHooks   []appkit.Hook
+	ShutdownHooks []appkit.Hook
+
 	// Legs — nil means the env switch decides.
 	OTEL       *OTELConfig
 	Security   *SecurityConfig

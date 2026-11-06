@@ -3,6 +3,7 @@ package preset
 import (
 	"context"
 	"log/slog"
+	"slices"
 
 	"github.com/larsartmann/go-appkit"
 	"github.com/larsartmann/go-appkit/errorpages"
@@ -64,40 +65,42 @@ func New(cfg Config) (*appkit.Service, error) {
 		ShutdownTimeout:   cfg.Timeouts.ShutdownTimeout,
 		DrainDelay:        cfg.Timeouts.DrainDelay,
 
+		// Consumer hooks run FIRST in every phase; the spine closures below
+		// run after, so otel spans (flushed last) cover app shutdown work.
+		//
 		// Nil-guard closures: the pointed-to values are assigned after
 		// NewService (below) — hooks only run at Start/Run or Shutdown,
 		// long after assignment, so the closures are safe.
-		StartHooks: []appkit.Hook{
-			func(ctx context.Context) error {
-				if mounted == nil {
-					return nil
-				}
-				return mounted.Start(ctx)
-			},
-		},
-		DrainHooks: []appkit.Hook{
-			func(context.Context) error {
-				if mounted == nil {
-					return nil
-				}
-				mounted.Drain()
+		StartHooks: append(slices.Clone(cfg.StartHooks), func(ctx context.Context) error {
+			if mounted == nil {
 				return nil
-			},
-		},
-		ShutdownHooks: []appkit.Hook{
-			func(ctx context.Context) error {
-				if hub != nil {
-					if err := hub.Shutdown(ctx); err != nil {
-						return err
-					}
-				}
-				if provider != nil {
-					return provider.Shutdown(ctx)
-				}
+			}
+			return mounted.Start(ctx)
+		}),
+		DrainHooks: append(slices.Clone(cfg.DrainHooks), func(context.Context) error {
+			if mounted == nil {
 				return nil
-			},
-		},
+			}
+			mounted.Drain()
+			return nil
+		}),
+		ShutdownHooks: append(slices.Clone(cfg.ShutdownHooks), func(ctx context.Context) error {
+			if hub != nil {
+				if err := hub.Shutdown(ctx); err != nil {
+					return err
+				}
+			}
+			if provider != nil {
+				return provider.Shutdown(ctx)
+			}
+			return nil
+		}),
 	}
+
+	// The dashboard owns /health (the health module's documented contract):
+	// core's default /health family would collide and panic the mux.
+	registerHealth := !cfg.NoDashboard
+	sc.RegisterHealth = &registerHealth
 
 	if provider != nil {
 		sc.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
