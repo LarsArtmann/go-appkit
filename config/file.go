@@ -2,14 +2,15 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	goFasterYaml "github.com/go-faster/yaml"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // readFile loads a YAML or JSON file into the flat key space the file layer
@@ -21,27 +22,27 @@ func readFile(path string) (map[string]string, []error) {
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, []error{&FieldError{Field: "(file)", Key: path, Kind: KindFileRead, Err: err}}
+		return nil, []error{&FieldError{Field: fileToken, Key: path, Kind: KindFileRead, Err: err}}
 	}
 
 	var raw map[string]any
 
 	var decodeErr error
 
-	switch ext { //nolint:exhaustive // default is the extension error
+	switch ext {
 	case ".yaml", ".yml":
 		decodeErr = goFasterYaml.Unmarshal(data, &raw)
 	case ".json":
-		decodeErr = json.Unmarshal(data, &raw) //nolint:errchkjson // errors captured and classified below
+		decodeErr = json.Unmarshal(data, &raw)
 	default:
 		return nil, []error{&FieldError{
-			Field: "(file)", Key: path, Kind: KindUnknownExtension,
-			Err: errors.New("file layer supports .yaml, .yml, and .json"),
+			Field: fileToken, Key: path, Kind: KindUnknownExtension,
+			Err: errorfamily.NewRejection("config.file_extension", "file layer supports .yaml, .yml, and .json"),
 		}}
 	}
 
 	if decodeErr != nil {
-		return nil, []error{&FieldError{Field: "(file)", Key: path, Kind: KindFileDecode, Err: decodeErr}}
+		return nil, []error{&FieldError{Field: fileToken, Key: path, Kind: KindFileDecode, Err: decodeErr}}
 	}
 
 	return flatten(raw, "")
@@ -64,13 +65,11 @@ func flatten(raw map[string]any, prefix string) (map[string]string, []error) {
 			nested, nestedErrs := flatten(typed, full)
 			errs = append(errs, nestedErrs...)
 
-			for k, v := range nested {
-				out[k] = v
-			}
+			maps.Copy(out, nested)
 		default:
 			rendered, err := valueToString(typed)
 			if err != nil {
-				errs = append(errs, &FieldError{Field: "(file)", Key: full, Kind: KindFileDecode, Err: err})
+				errs = append(errs, &FieldError{Field: fileToken, Key: full, Kind: KindFileDecode, Err: err})
 
 				continue
 			}
@@ -113,8 +112,8 @@ func valueToString(val any) (string, error) {
 
 		return strings.Join(parts, ","), nil
 	case nil:
-		return "", errors.New("null value: set a concrete value or remove the key")
+		return "", errorfamily.NewRejection("config.null_file_value", "null value: set a concrete value or remove the key")
 	default:
-		return "", fmt.Errorf("unsupported file value type %T", val)
+		return "", errorfamily.NewRejectionf("config.file_value_type", "unsupported file value type %T", val)
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var durationType = reflect.TypeOf(time.Duration(0)) //nolint:gochecknoglobals // reflect type, immutable by construction
+var durationType = reflect.TypeFor[time.Duration]() //nolint:gochecknoglobals // reflect type, immutable by construction
 
 // supportedType reports whether parseValue can bind ty. The set is frozen for
 // v0.1.0: string, bool, all int/uint widths, float32/64, time.Duration, and

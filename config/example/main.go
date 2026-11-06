@@ -18,11 +18,11 @@ import (
 
 // Config is the resolved application configuration.
 type Config struct {
-	Addr     string        `env:"APP_ADDR" default:":8080"`
-	LogLevel string        `env:"APP_LOG_LEVEL" default:"info"`
-	APIKey   string        `env:"APP_API_KEY,required"`
-	TTL      time.Duration `env:"APP_TTL" default:"60s"`
-	Hosts    []string      `env:"APP_HOSTS"`
+	Addr     string        `default:":8080" env:"APP_ADDR"`
+	LogLevel string        `default:"info"  env:"APP_LOG_LEVEL"`
+	APIKey   string        `                env:"APP_API_KEY,required"`
+	TTL      time.Duration `default:"60s"   env:"APP_TTL"`
+	Hosts    []string      `                env:"APP_HOSTS"`
 }
 
 func main() {

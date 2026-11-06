@@ -55,6 +55,7 @@ func collectFields(
 
 		envTag, hasTag := field.Tag.Lookup("env")
 		name, opts, _ := strings.Cut(envTag, ",")
+
 		idx := append(append([]int{}, index...), i)
 
 		if field.Anonymous && !hasTag {
@@ -64,7 +65,7 @@ func collectFields(
 			continue
 		}
 
-		if field.Type.Kind() == reflect.Struct && field.Type != reflect.TypeOf(time.Time{}) {
+		if field.Type.Kind() == reflect.Struct && field.Type != reflect.TypeFor[time.Time]() {
 			if !hasTag {
 				continue // untagged named struct: caller's own wiring, untouched
 			}
@@ -120,7 +121,7 @@ func joinPath(prefix, name string) string {
 }
 
 func hasOption(opts, want string) bool {
-	for _, opt := range strings.Split(opts, ",") {
+	for opt := range strings.SplitSeq(opts, ",") {
 		if strings.TrimSpace(opt) == want {
 			return true
 		}

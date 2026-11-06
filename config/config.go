@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"reflect"
 	"slices"
@@ -104,7 +105,7 @@ type loaderConfig struct {
 
 // NewLoader builds a Loader from the given options.
 func NewLoader[T any](opts ...Option) *Loader[T] {
-	cfg := loaderConfig{lookup: os.LookupEnv}
+	cfg := loaderConfig{lookup: os.LookupEnv} //nolint:exhaustruct_v5 // optional layers stay zero until their Option runs
 
 	for _, opt := range opts {
 		opt(&cfg)
@@ -141,9 +142,7 @@ func WithValues(vals map[string]string) Option {
 			c.values = make(map[string]string, len(vals))
 		}
 
-		for k, v := range vals {
-			c.values[k] = v
-		}
+		maps.Copy(c.values, vals)
 	}
 }
 
@@ -153,7 +152,14 @@ func WithValues(vals map[string]string) Option {
 // rules belong in the field's parser or the required tag.
 func WithValidate[T any](fn func(*T) error) Option {
 	return func(c *loaderConfig) {
-		c.validate = func(v any) error { return fn(v.(*T)) }
+		c.validate = func(v any) error {
+			typed, ok := v.(*T) //nolint:errorlint // exact-type bridge: only Load[T] stores this hook
+			if !ok {
+				return nil // unreachable: Load[T] always passes its own *T
+			}
+
+			return fn(typed)
+		}
 	}
 }
 
@@ -207,6 +213,7 @@ func (l *Loader[T]) applyFile(rv reflect.Value, specs []fieldSpec, errs *[]error
 	}
 
 	vals, fileErrs := readFile(l.cfg.file)
+
 	*errs = append(*errs, fileErrs...)
 	if len(fileErrs) > 0 {
 		return
@@ -221,8 +228,8 @@ func (l *Loader[T]) applyFile(rv reflect.Value, specs []fieldSpec, errs *[]error
 		spec, ok := byFileKey[key]
 		if !ok {
 			*errs = append(*errs, &FieldError{
-				Field: "(file)", Key: key, Kind: KindFileDecode,
-				Err: errors.New("no tagged field declares this key"),
+				Field: fileToken, Key: key, Kind: KindFileDecode,
+				Err: errorfamily.NewRejection("config.unknown_file_key", "no tagged field declares this key"),
 			})
 
 			continue
@@ -257,7 +264,7 @@ func (l *Loader[T]) applyValues(rv reflect.Value, specs []fieldSpec, errs *[]err
 		if !ok {
 			*errs = append(*errs, &FieldError{
 				Field: name, Key: name, Kind: KindUnknownField,
-				Err: errors.New("no tagged field with this name"),
+				Err: errorfamily.NewRejection("config.unknown_field", "no tagged field with this name"),
 			})
 
 			continue
@@ -289,7 +296,7 @@ func checkRequired(rv reflect.Value, specs []fieldSpec, errs *[]error) {
 		if rv.FieldByIndex(spec.index).IsZero() {
 			*errs = append(*errs, &FieldError{
 				Field: spec.path, Key: spec.envKey, Kind: KindMissingRequired,
-				Err: errors.New("required value is unset or empty"),
+				Err: errorfamily.NewRejection("config.required_unset", "required value is unset or empty"),
 			})
 		}
 	}
@@ -302,7 +309,7 @@ func specByPath(specs []fieldSpec, name string) (fieldSpec, bool) {
 		}
 	}
 
-	return fieldSpec{}, false
+	return fieldSpec{}, false //nolint:exhaustruct_v5 // zero value is the miss signal
 }
 
 // setParsed parses raw into spec's field and sets it, appending a KindParseFailed
@@ -317,6 +324,10 @@ func setParsed(rv reflect.Value, spec fieldSpec, raw string, key string, errs *[
 
 	rv.FieldByIndex(spec.index).Set(v)
 }
+
+// fileToken names the pseudo-field carrying file-layer errors (the file
+// itself is at fault, not any struct field).
+const fileToken = "(file)"
 
 // rejectionFrom folds FieldErrors (and any other error) into the single
 // Rejection every Load failure returns.
@@ -356,18 +367,18 @@ func FieldErrorsOf(err error) []*FieldError {
 
 	var walk func(error)
 
-	walk = func(e error) {
-		if e == nil {
+	walk = func(node error) {
+		if node == nil {
 			return
 		}
 
-		if fieldErr, ok := e.(*FieldError); ok { //nolint:errorlint // exact-node match; descending here would double-count
+		if fieldErr, ok := node.(*FieldError); ok { //nolint:errorlint // exact-node match; errors.As would descend and double-count
 			out = append(out, fieldErr)
 
 			return
 		}
 
-		switch unwrapper := e.(type) {
+		switch unwrapper := node.(type) { //nolint:errorlint // canonical join-tree walk: interface unwrap, not type detection
 		case interface{ Unwrap() error }:
 			walk(unwrapper.Unwrap())
 		case interface{ Unwrap() []error }:

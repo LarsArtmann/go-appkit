@@ -12,13 +12,13 @@ import (
 )
 
 type basicConfig struct {
-	Addr     string        `env:"TEST_ADDR" default:":8080"`
-	LogLevel string        `env:"TEST_LOG_LEVEL" default:"info"`
-	APIKey   string        `env:"TEST_API_KEY,required"`
-	TTL      time.Duration `env:"TEST_TTL" default:"60s"`
-	Retries  int           `env:"TEST_RETRIES" default:"3"`
-	Verbose  bool          `env:"TEST_VERBOSE"`
-	Hosts    []string      `env:"TEST_HOSTS"`
+	Addr     string        `default:":8080" env:"TEST_ADDR"`
+	LogLevel string        `default:"info"  env:"TEST_LOG_LEVEL"`
+	APIKey   string        `                env:"TEST_API_KEY,required"`
+	TTL      time.Duration `default:"60s"   env:"TEST_TTL"`
+	Retries  int           `default:"3"     env:"TEST_RETRIES"`
+	Verbose  bool          `                env:"TEST_VERBOSE"`
+	Hosts    []string      `                env:"TEST_HOSTS"`
 }
 
 type scalarsConfig struct {
@@ -38,11 +38,12 @@ type nestedConfig struct {
 }
 
 type embeddedBase struct {
-	BaseAddr string `env:"EMB_BASE_ADDR" default:"embedded-default"`
+	BaseAddr string `default:"embedded-default" env:"EMB_BASE_ADDR"`
 }
 
 type embeddedConfig struct {
 	embeddedBase
+
 	Own string `env:"EMB_OWN"`
 }
 
@@ -53,6 +54,7 @@ type unsupportedConfig struct {
 func envMap(vals map[string]string) func(string) (string, bool) {
 	return func(key string) (string, bool) {
 		v, ok := vals[key]
+
 		return v, ok
 	}
 }
@@ -221,7 +223,7 @@ func TestLoad_BadDefaultCaughtAtLoad(t *testing.T) {
 	t.Parallel()
 
 	_, err := Load[struct {
-		TTL time.Duration `env:"BADDEF_TTL" default:"bogus"`
+		TTL time.Duration `default:"bogus" env:"BADDEF_TTL"`
 	}](WithLookup(envMap(map[string]string{})))
 	if err == nil {
 		t.Fatal("bad default must fail Load")
@@ -236,7 +238,7 @@ func TestLoad_PrecedenceMatrix(t *testing.T) {
 	t.Parallel()
 
 	type target struct {
-		Addr string `env:"PREC_ADDR" default:"default-value"`
+		Addr string `default:"default-value" env:"PREC_ADDR"`
 	}
 
 	writeFile := func(t *testing.T, content string) string {
@@ -263,10 +265,10 @@ func TestLoad_PrecedenceMatrix(t *testing.T) {
 			want: "default-value",
 		},
 		{
-			name:  "file beats default",
-			file:  "addr: file-value",
-			env:   map[string]string{},
-			want:  "file-value",
+			name: "file beats default",
+			file: "addr: file-value",
+			env:  map[string]string{},
+			want: "file-value",
 		},
 		{
 			name: "env beats file",
@@ -290,7 +292,7 @@ func TestLoad_PrecedenceMatrix(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests { //nolint:paralleltest // temp-file cases; no shared state
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
