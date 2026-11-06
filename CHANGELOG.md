@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Runtime: `runHooks` now classifies hook failures with
+  `errorfamily.WrapOnce` — a hook that already returns an errorfamily error
+  keeps its own family and code (no re-wrap nesting under the phase code);
+  foreign errors still gain the phase code, and every failure carries its
+  `hook_index` in the error context (error-family adoption batch, audit F3).
+
+### Added
+
+- Tests: `hookclassification_test.go` pins the WrapOnce contract via
+  `errorfamilytest` asserts (root's first) — classified hook errors keep
+  their code, foreign ones get the phase code, both carry `hook_index`.
+- Docs: README gains the `RegisterClassifications()` fleet-default recipe
+  (Error handling section) and the Server-Timing handler-phase recipe
+  (sub-metrics beyond `total`; snippet scratch-compiled — the package name
+  is `servertiming`); `example/main.go` calls `RegisterClassifications()`
+  at boot.
+
 ## [0.10.0] - 2026-11-06
 
 ### Added

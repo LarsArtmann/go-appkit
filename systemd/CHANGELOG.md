@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Tests: `TestNotify_SendFailureIsClassified` now asserts through
+  `errorfamilytest` (AssertCode + AssertFamily) instead of a manual code
+  comparison — the module's classified-error contract is pinned by the
+  family's own test kit (error-family adoption batch).
+
 ## [0.1.0] - 2026-10-07
 
 ### Added

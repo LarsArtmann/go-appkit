@@ -9,6 +9,11 @@ import (
 	"github.com/larsartmann/go-error-family/errorfamilytest"
 )
 
+// errForeignHookFailure is the unclassified control error: runHooks must
+// wrap it with the phase code (unlike classified hook errors, which keep
+// their own family).
+var errForeignHookFailure = errors.New("plain failure")
+
 // TestRunHooks_RespectsHookClassification pins the WrapOnce contract
 // (error-family adoption batch, audit F3): a hook that already returns an
 // errorfamily error keeps its own family and code — no re-wrap nesting under
@@ -22,7 +27,7 @@ func TestRunHooks_RespectsHookClassification(t *testing.T) {
 	hooks := []Hook{
 		func(context.Context) error { return nil }, // index 0: silent
 		func(context.Context) error { return classified },
-		func(context.Context) error { return errors.New("plain failure") },
+		func(context.Context) error { return errForeignHookFailure },
 	}
 
 	svc := &Service{}

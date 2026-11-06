@@ -224,7 +224,7 @@ the header (the phase is still recorded, it just cannot ship).
 import "github.com/larsartmann/httputil/server_timing"
 
 func getUser(w http.ResponseWriter, r *http.Request) {
-	defer server_timing.MeasureServerTiming(r.Context(), "db_fetch")() // "db_fetch;dur=…"
+	defer servertiming.MeasureServerTiming(r.Context(), "db_fetch")() // "db_fetch;dur=…"
 	fetchUser(r.Context())
 	w.WriteHeader(http.StatusOK)
 }
