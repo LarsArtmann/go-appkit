@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SUPERB v12 — App Composition Preset Program (Pareto Plan)</title>
+    <title>SUPERB v12 — App Composition Preset Program (Pareto Plan, rev 2)</title>
     <style>
       /* =========================================================================
          BAUHAUS DARK — Dashboard template
@@ -823,12 +823,28 @@
           grid-template-columns: 1fr;
         }
       }
+
+      /* --- v2 additions: adoption chart + table wrappers (kit tokens only) --- */
+      .chart { display: flex; flex-direction: column; gap: 0.15rem; margin: 1rem 0; }
+      .bar-row { display: grid; grid-template-columns: 190px 1fr 72px; align-items: center; gap: 0.75rem; font-size: 0.78rem; }
+      .bar-label { font-family: var(--font-mono); text-align: right; color: var(--text-muted); }
+      .bar-row.highlight .bar-label { color: var(--text); font-weight: 700; }
+      .bar-track { position: relative; height: 13px; background: var(--surface-sunken); border: 1px solid var(--border); overflow: hidden; }
+      .bar-any { position: absolute; top: 0; bottom: 0; left: 0; background: color-mix(in srgb, var(--warning) 40%, transparent); }
+      .bar-direct { position: absolute; top: 0; bottom: 0; left: 0; background: var(--solution); }
+      .bar-row.highlight .bar-direct { background: var(--problem); }
+      .bar-val { font-family: var(--font-mono); color: var(--text-faint); }
+      .chart-note { font-size: 0.85rem; color: var(--text-muted); }
+      .table-wrap { overflow-x: auto; max-inline-size: 100%; border: 1px solid var(--border); container-type: inline-size; }
+      .table-wrap table { margin: 0; min-inline-size: min(100%, 42rem); }
+      .table-wrap thead th { position: sticky; top: 0; background: var(--surface-raised); z-index: 1; }
+      .compare-header { margin-bottom: 0.4rem; }
     </style>
   </head>
   <body>
 <div class="top-bar">
-  <span>go-appkit · SUPERB v12</span>
-  <span>2026-11-06 01:00</span>
+  <span>go-appkit · SUPERB v12 · rev 2 (expanded)</span>
+  <span>2026-11-06 01:00 · revised 01:45</span>
 </div>
 
 <div class="layout">
@@ -836,15 +852,19 @@
     <nav>
       <div class="label">Contents</div>
       <a href="#summary">00 Summary</a>
-      <a href="#findings">01 Findings</a>
+      <a href="#paradox">01 The paradox</a>
       <a href="#ledger">02 Duplication ledger</a>
-      <a href="#tier1">03 Tier 1% → 51%</a>
-      <a href="#tier4">04 Tier 4% → 64%</a>
-      <a href="#tier20">05 Tier 20% → 80%</a>
-      <a href="#graph">06 Execution graph</a>
-      <a href="#sprint">07 Sprint 1 fine breakdown</a>
-      <a href="#nongoals">08 Non-goals</a>
-      <a href="#verify">09 Verification</a>
+      <a href="#archetypes">03 Fleet archetypes</a>
+      <a href="#exemplars">04 Shipped, not adopted</a>
+      <a href="#causes">05 Root causes</a>
+      <a href="#tier1">06 Tier 1% → 51%</a>
+      <a href="#tier4">07 Tier 4% → 64%</a>
+      <a href="#tier20">08 Tier 20% → 80%</a>
+      <a href="#graph">09 Execution graph</a>
+      <a href="#sequence">10 Sequencing + risk</a>
+      <a href="#sprint">11 Sprint 1 breakdown</a>
+      <a href="#nongoals">12 Non-goals</a>
+      <a href="#verify">13 Verification + gates</a>
     </nav>
   </aside>
 
@@ -855,13 +875,14 @@
         <div class="square"></div>
         <div class="tri"></div>
       </div>
-      <div class="hero-badge">Pareto Plan · SUPERB v12</div>
+      <div class="hero-badge">Pareto Plan · SUPERB v12 · rev 2</div>
       <h1>Kill the re-assembly tax</h1>
       <p class="hero-subtitle">
-        The 39 Go apps adopt the atomic building blocks everywhere (branded-id 34×, error-family 34×,
-        httputil 24×) — and hand-assemble them ~20–30 times. go-appkit, the composition layer, is the
-        least-adopted core module: 6/39 direct. This plan makes composition the default: one preset,
-        one config battery, one scaffold, then an adoption wave.
+        39 Go apps adopt the atomic blocks everywhere — and hand-assemble the same ten-lib stack
+        ~20–30 times. go-appkit, the composition layer, is the least-adopted core-family module:
+        <strong>6/39 direct, 8/39 counting transitive rides</strong>, below every block it exists
+        to compose. This plan makes composition the default: one config battery, one preset,
+        one scaffold — then an adoption wave onto them.
       </p>
     </div>
 
@@ -871,11 +892,11 @@
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-value">39</div>
-        <div class="stat-label">Go apps audited (of 57 app-tagged)</div>
+        <div class="stat-label">Go apps audited (of 57 app-tagged; 19 non-Go excluded by scope)</div>
       </div>
       <div class="stat-card stat-bad">
         <div class="stat-value">6/39</div>
-        <div class="stat-label">Direct go-appkit adopters (the paradox)</div>
+        <div class="stat-label">Direct go-appkit adopters — the paradox</div>
       </div>
       <div class="stat-card stat-warn">
         <div class="stat-value">22 / 25</div>
@@ -900,138 +921,327 @@
       because every future app AND every migration lands on it. Config first (the preset's env
       binding), scaffold next (kills new-app copy-paste), then the per-repo swap wave.
     </div>
-
-    <h2 id="findings"><span class="num">01</span>Findings</h2>
-    <div class="card card-problem">
-      <h3>The paradox</h3>
-      <p>
-        Adoption counts (direct go.mod requires, all 39 apps): branded-id 34, error-family 34, etag 25,
-        go-sse 24, httputil 24, codec 23, cqrs-lite 22, flightrecorder 22, templ-components 21 …
-        go-appkit <strong>6</strong>. The repo whose mission is "make it easy for my apps to smartly
-        use all my libs together" is the least-used member of the very stack it composes. The blocks
-        are consumed; the assembly is rewritten per app.
-      </p>
+    <div class="callout callout-warning">
+      <strong>Number hygiene.</strong> Adoption figures appear as <em>any / direct</em> pairs
+      throughout this plan. The audit's original table mislabeled any-require counts as direct
+      (same-day errata, strict recount); every number below uses the verified dual-column
+      recount. Conclusion unchanged under both definitions — the gap <em>widens</em> under the
+      strict one.
     </div>
-    <div class="card card-solution">
-      <h3>Presets get adopted; parts catalogs don't</h3>
+
+    <h2 id="paradox"><span class="num">01</span>The paradox, measured</h2>
+    <p>
+      Per-app adoption of the first-party stack across the 39 Go apps. Solid bar = direct
+      (non-indirect) requires; translucent extension = indirect rides through family require
+      graphs. The composition products — go-appkit, cqrs-htmx setup — sit at the bottom of the
+      very stack they compose.
+    </p>
+    <div class="chart" role="img" aria-label="Adoption bar chart: direct vs any-require per library across 39 Go apps; go-appkit lowest at 6 direct">
+      <div class="bar-row"><span class="bar-label">go-branded-id</span><span class="bar-track"><span class="bar-any" style="width:87.2%"></span><span class="bar-direct" style="width:46.2%"></span></span><span class="bar-val">34 / 18</span></div>
+      <div class="bar-row"><span class="bar-label">go-error-family</span><span class="bar-track"><span class="bar-any" style="width:87.2%"></span><span class="bar-direct" style="width:56.4%"></span></span><span class="bar-val">34 / 22</span></div>
+      <div class="bar-row"><span class="bar-label">go-etag</span><span class="bar-track"><span class="bar-any" style="width:64.1%"></span><span class="bar-direct" style="width:20.5%"></span></span><span class="bar-val">25 / 8</span></div>
+      <div class="bar-row"><span class="bar-label">go-sse</span><span class="bar-track"><span class="bar-any" style="width:61.5%"></span><span class="bar-direct" style="width:35.9%"></span></span><span class="bar-val">24 / 14</span></div>
+      <div class="bar-row"><span class="bar-label">httputil</span><span class="bar-track"><span class="bar-any" style="width:61.5%"></span><span class="bar-direct" style="width:53.8%"></span></span><span class="bar-val">24 / 21</span></div>
+      <div class="bar-row"><span class="bar-label">go-codec</span><span class="bar-track"><span class="bar-any" style="width:59.0%"></span><span class="bar-direct" style="width:35.9%"></span></span><span class="bar-val">23 / 14</span></div>
+      <div class="bar-row"><span class="bar-label">go-cqrs-lite</span><span class="bar-track"><span class="bar-any" style="width:56.4%"></span><span class="bar-direct" style="width:53.8%"></span></span><span class="bar-val">22 / 21</span></div>
+      <div class="bar-row"><span class="bar-label">go-flightrecorder</span><span class="bar-track"><span class="bar-any" style="width:56.4%"></span><span class="bar-direct" style="width:5.1%"></span></span><span class="bar-val">22 / 2</span></div>
+      <div class="bar-row"><span class="bar-label">templ-components</span><span class="bar-track"><span class="bar-any" style="width:53.8%"></span><span class="bar-direct" style="width:48.7%"></span></span><span class="bar-val">21 / 19</span></div>
+      <div class="bar-row"><span class="bar-label">go-retry</span><span class="bar-track"><span class="bar-any" style="width:41.0%"></span><span class="bar-direct" style="width:17.9%"></span></span><span class="bar-val">16 / 7</span></div>
+      <div class="bar-row"><span class="bar-label">go-datastar</span><span class="bar-track"><span class="bar-any" style="width:33.3%"></span><span class="bar-direct" style="width:12.8%"></span></span><span class="bar-val">13 / 5</span></div>
+      <div class="bar-row"><span class="bar-label">go-idempotency</span><span class="bar-track"><span class="bar-any" style="width:33.3%"></span><span class="bar-direct" style="width:7.7%"></span></span><span class="bar-val">13 / 3</span></div>
+      <div class="bar-row"><span class="bar-label">go-atomic-write</span><span class="bar-track"><span class="bar-any" style="width:28.2%"></span><span class="bar-direct" style="width:20.5%"></span></span><span class="bar-val">11 / 8</span></div>
+      <div class="bar-row"><span class="bar-label">go-health</span><span class="bar-track"><span class="bar-any" style="width:28.2%"></span><span class="bar-direct" style="width:28.2%"></span></span><span class="bar-val">11 / 11</span></div>
+      <div class="bar-row"><span class="bar-label">go-output</span><span class="bar-track"><span class="bar-any" style="width:28.2%"></span><span class="bar-direct" style="width:10.3%"></span></span><span class="bar-val">11 / 4</span></div>
+      <div class="bar-row"><span class="bar-label">go-health-dashboard</span><span class="bar-track"><span class="bar-any" style="width:25.6%"></span><span class="bar-direct" style="width:25.6%"></span></span><span class="bar-val">10 / 10</span></div>
+      <div class="bar-row"><span class="bar-label">cqrs-htmx (setup)</span><span class="bar-track"><span class="bar-any" style="width:25.6%"></span><span class="bar-direct" style="width:25.6%"></span></span><span class="bar-val">10 / 10</span></div>
+      <div class="bar-row"><span class="bar-label">cmdguard</span><span class="bar-track"><span class="bar-any" style="width:23.1%"></span><span class="bar-direct" style="width:23.1%"></span></span><span class="bar-val">9 / 9</span></div>
+      <div class="bar-row"><span class="bar-label">go-ndjson</span><span class="bar-track"><span class="bar-any" style="width:23.1%"></span><span class="bar-direct" style="width:0%"></span></span><span class="bar-val">9 / 0</span></div>
+      <div class="bar-row"><span class="bar-label">go-sqlitestore</span><span class="bar-track"><span class="bar-any" style="width:23.1%"></span><span class="bar-direct" style="width:0%"></span></span><span class="bar-val">9 / 0</span></div>
+      <div class="bar-row"><span class="bar-label">samber-do-auditlog</span><span class="bar-track"><span class="bar-any" style="width:23.1%"></span><span class="bar-direct" style="width:5.1%"></span></span><span class="bar-val">9 / 2</span></div>
+      <div class="bar-row highlight"><span class="bar-label">go-appkit</span><span class="bar-track"><span class="bar-any" style="width:20.5%"></span><span class="bar-direct" style="width:15.4%"></span></span><span class="bar-val">8 / 6</span></div>
+    </div>
+    <p class="chart-note">
+      Read-outs: <strong>(1)</strong> the blocks are fleet-standard furniture (error-family 22
+      direct, httputil 21, cqrs-lite 21, templ-components 19, branded-id 18); <strong>(2)</strong>
+      the composition layer is the rarest import in its own stack; <strong>(3)</strong> several
+      block counts are propped up transitively (flightrecorder 22→2, etag 25→8, ndjson and
+      sqlitestore 9→0 — rides through appkit modules and cqrs-htmx); <strong>(4)</strong> the only
+      composition product with traction is cqrs-htmx <code>setup</code> — 10/10 direct, zero
+      transitive. <em>Presets get adopted; parts catalogs don't.</em>
+    </p>
+
+    <h2 id="ledger"><span class="num">02</span>The duplication ledger</h2>
+    <p>Presence scans, app-level, non-test Go files. Every row is rebuilt per app today.</p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Duplication ledger: integration shape, app count, shelf status">
+      <table>
+        <thead>
+          <tr><th>Integration shape</th><th>Apps</th><th>On the shelf</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>internal/config package</td><td>22</td><td>—</td><td><span class="badge badge-critical">F1 — build now (T2)</span></td></tr>
+          <tr><td>os.Getenv parsing</td><td>25</td><td>—</td><td><span class="badge badge-critical">F1 — build now (T2)</span></td></tr>
+          <tr><td>Embedded CREATE TABLE migrations</td><td>16</td><td>D3 (partial)</td><td><span class="badge badge-high">extend D3 (T5.2)</span></td></tr>
+          <tr><td>Hand-opened sqlite</td><td>15</td><td>go-sqlitestore / sqliteengine</td><td><span class="badge badge-high">recipe + D3</span></td></tr>
+          <tr><td>Hand-rolled JWT/session</td><td>10</td><td>cqrs-htmx usermgmt (WebAuthn/OAuth2/TOTP)</td><td><span class="badge badge-high">owner gate (T5.4)</span></td></tr>
+          <tr><td>Hand-rolled SSE (text/event-stream)</td><td>9</td><td>appkit/realtime + go-sse</td><td><span class="badge badge-high">C2 Mount (T5.3)</span></td></tr>
+          <tr><td>signal.NotifyContext shutdown</td><td>9</td><td>core Service.Run/Shutdown + DrainHooks</td><td><span class="badge badge-low">preset covers</span></td></tr>
+          <tr><td>charmbracelet/slog hand-setup</td><td>7</td><td>core InitLogger</td><td><span class="badge badge-low">preset covers</span></td></tr>
+          <tr><td>flake.nix</td><td>37</td><td>—</td><td><span class="badge badge-high">scaffold (T3)</span></td></tr>
+          <tr><td>.buildflow.yml</td><td>20</td><td>—</td><td><span class="badge badge-high">scaffold (T3)</span></td></tr>
+          <tr><td>Dockerfile</td><td>16</td><td>—</td><td><span class="badge badge-high">scaffold (T3)</span></td></tr>
+          <tr><td>systemd .service unit</td><td>6</td><td>— (appkit/systemd covers the notify side)</td><td><span class="badge badge-high">scaffold (T3)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="archetypes"><span class="num">03</span>Fleet archetypes — who needs what</h2>
+    <p>
+      The 39 apps cluster into five archetypes. Each tier of this plan serves a specific
+      archetype; the scaffold serves the next app, the preset serves all of them.
+    </p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Fleet archetypes with members and what each proves">
+      <table>
+        <thead>
+          <tr><th>Archetype</th><th>Apps</th><th>Members (representative)</th><th>What they prove</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Preset-hosts</strong> (direct appkit)</td><td>6</td><td>quotaboard, media-atlas, pbx-lens, PapDashboard, Rolls-Royce-golang, legal-graph-ai-system</td><td>appkit works as a host — but each still hand-glues config, logger, dispatchers, register* functions. The preset's design partners.</td></tr>
+          <tr><td><strong>setup-preset users</strong> (cqrs-htmx)</td><td>10</td><td>dnsblockd, crm, crm-stage-t13b, webphone, overview, accountability-system, KeyHolderAI, file-and-image-renamer, quotaboard, PapDashboard</td><td>One-call composition gets adopted 10/10 direct — the existence proof for T1.</td></tr>
+          <tr><td><strong>Hand-rollers</strong> (httputil/chain, no appkit)</td><td>~8</td><td>ChastityAPI, GmbH, dynamic-markdown-site, ksef-sandbox, storbi, testing, nsfw-classifier, RedditParse</td><td>The heaviest duplication: full middleware/config/logging stacks rewritten per app. T4's primary targets.</td></tr>
+          <tr><td><strong>cmdguard CLIs</strong></td><td>9</td><td>CV, media-atlas, mr-sync, nsfw-classifier, AutoCart, crm, crm-stage-t13b, cv-stage-crmfix, file-and-image-renamer</td><td>CLI layer has a standard; the serve-verb → service bridge doesn't. T3's generate target.</td></tr>
+          <tr><td><strong>Engines-only / minimal</strong></td><td>~10</td><td>Cyberdom, Kernovia, go-taskqueue, standard-bug-tracking-schema, desire-secrets, emeet-pixyd, knowledge-graph, Code-Quality-Agent, project-discovery-daemon, io-surface</td><td>Consume cqrs-lite/branded-id directly, skip the HTTP story entirely — the preset must stay optional-leg, not mandatory-weight.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="exemplars"><span class="num">04</span>Shipped but not adopted — the damning exemplars</h2>
+    <div class="issue issue-critical">
+      <span class="severity severity-critical">−1,600 LOC</span>
+      <h4>dnsblockd re-implements three shipped appkit modules</h4>
+      <div class="where">~/projects/dnsblockd — internal/otel, internal/sdnotify, internal/middleware, internal/logging</div>
       <p>
-        The one composition product with real adoption is cqrs-htmx <code>setup.New()</code> — 10
-        apps, one call, dispatcher + auth + SSE + errorpages + service. dnsblockd re-implements
-        appkit/otel (777 LOC), appkit/systemd (59), appkit/security (~590); ChastityAPI re-implements
-        ~4,800 LOC of the same battery set; PapDashboard hosts appkit and still hand-rolls the
-        security battery 1:1. The batteries exist — the cheap path to them does not.
+        <code>internal/otel</code> 777 LOC ≈ appkit/otel v0.3.0 (OTLP, log bridge, self-diagnostics).
+        <code>internal/sdnotify</code> 59 LOC ≈ appkit/systemd v0.1.0's <code>Install(&cfg)</code>.
+        <code>internal/middleware</code> ~590 LOC (csrf 175, ratelimit 167, requestid 63, security
+        88, statusrecorder 84) ≈ appkit/security v0.2.0 + httputil. <code>internal/logging</code>
+        sampling 206 LOC ≈ core's documented gated sampling option. Plus
+        <code>internal/config</code> 2,172 LOC (732 + 1,440 validation) — the F1 demand poster child.
+        And a cobra+fang CLI where cmdguard exists.
       </p>
     </div>
     <div class="issue issue-critical">
-      <span class="severity severity-critical">Root cause</span>
-      <h4>Opt-in-everything + no swap recipes + no scaffold</h4>
-      <div class="where">audit §4 — docs/review/apps/2026-11-06_integration-burden-audit.md</div>
+      <span class="severity severity-critical">−4,800 LOC</span>
+      <h4>ChastityAPI re-implements the battery catalog</h4>
+      <div class="where">~/projects/ChastityAPI — internal/{auth,logger,config,captcha,csp,sse,db}</div>
       <p>
-        Each battery is a separate module and a separate wiring decision; most apps predate the
-        batteries; nothing makes adopting cheaper than keeping the hand-roll; every new app starts by
-        copy-pasting a cousin's config/logger/CLI/flake.
+        auth 1,068 LOC (middleware 365, ratelimit 201, token 150, password 100, csrf 92 — wait,
+        csrf is its own class: cookie 53 + csrf 92 + device_auth 53 + request_id 52), logger 541,
+        config 409, captcha 151, csp 110, sse + hand-wired sqliteengine/timerengine/scheduling in
+        <code>cmd/server/main.go:41–150</code> (JWT dev-secret gating, rate consts, scheduler-join
+        choreography). Maps to: security, usermgmt, realtime, D1, F1.
+      </p>
+    </div>
+    <div class="issue issue-important">
+      <span class="severity severity-important">1:1 overlap</span>
+      <h4>PapDashboard hosts appkit — and still hand-rolls the security battery</h4>
+      <div class="where">~/projects/PapDashboard — internal/middleware/auth.go:75 (APIKeyAuth, BodyLimit, RateLimit, CSP)</div>
+      <p>
+        Already documented in the M17 ghost-API review: hosting the composition layer does not
+        compose the batteries. Each is a separate opt-in wiring decision — per-app willpower is
+        the limiting resource. The preset exists to spend that willpower once.
+      </p>
+    </div>
+    <div class="issue issue-important">
+      <span class="severity severity-important">Contract clone</span>
+      <h4>pbx-lens hand-rolls the cmdguard exit-code contract</h4>
+      <div class="where">~/projects/pbx-lens — cmd/pbx-lens/main.go:19–109</div>
+      <p>
+        Map-of-subcommands dispatch + <code>flag.FlagSet</code> + hand-rolled
+        <code>fatalCode</code> mapping error-family classes to sysexits (Rejection/Conflict 1,
+        Transient 75, Infrastructure 69, Corruption 65) — that IS the cmdguard typed-flag +
+        exit-code contract, reimplemented. Its serve path, meanwhile, uses appkit correctly.
+      </p>
+    </div>
+    <div class="card card-solution">
+      <h3>The healthy poles — what "good" looks like today</h3>
+      <p>
+        <strong>quotaboard</strong> (<code>main.go:80–135</code>): cqrs-htmx MustNew +
+        appkit.NewService + systemd.Install + StartHooks/ShutdownHooks refresher — and still
+        hand-writes slog setup, config.FromEnv, dispatcher recovery, route mounting.
+        <strong>media-atlas</strong>: cmdguard ×15 verbs + appkit + testkit + errorpages — each
+        subsystem a hand-written register* glue function. The pattern is consistent: where a
+        preset exists (setup), adoption follows; where assembly is manual, everyone assembles.
       </p>
     </div>
 
-    <h2 id="ledger"><span class="num">02</span>Duplication ledger</h2>
-    <table>
-      <thead>
-        <tr><th>Integration shape</th><th>Apps</th><th>On the shelf</th><th>Status</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>internal/config package</td><td>22</td><td>—</td><td><span class="badge badge-critical">F1 build now</span></td></tr>
-        <tr><td>os.Getenv parsing</td><td>25</td><td>—</td><td><span class="badge badge-critical">F1 build now</span></td></tr>
-        <tr><td>Embedded CREATE TABLE migrations</td><td>16</td><td>D3 (partial)</td><td><span class="badge badge-high">extend D3</span></td></tr>
-        <tr><td>Hand-opened sqlite</td><td>15</td><td>go-sqlitestore / sqliteengine</td><td><span class="badge badge-high">recipe + D3</span></td></tr>
-        <tr><td>Hand-rolled JWT/session</td><td>10</td><td>cqrs-htmx usermgmt</td><td><span class="badge badge-high">decision owed</span></td></tr>
-        <tr><td>Hand-rolled SSE</td><td>9</td><td>appkit/realtime</td><td><span class="badge badge-high">C2 Mount</span></td></tr>
-        <tr><td>signal.NotifyContext shutdown</td><td>9</td><td>core Service</td><td><span class="badge badge-low">preset covers</span></td></tr>
-        <tr><td>charmbracelet/slog setup</td><td>7</td><td>core InitLogger</td><td><span class="badge badge-low">preset covers</span></td></tr>
-        <tr><td>flake.nix / buildflow / Dockerfile / unit</td><td>37/20/16/6</td><td>—</td><td><span class="badge badge-high">scaffold</span></td></tr>
-      </tbody>
-    </table>
-
-    <h2 id="tier1"><span class="num">03</span>Tier 1% → 51% — the preset spine</h2>
-    <p>Medium-granularity tasks (30–100 min each). Source: audit §5, evidence §1–§3.</p>
-    <table>
-      <thead>
-        <tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Destination</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>T2.1</td><td>Design <code>appkit/config</code> env-first API: struct-tag binding, defaults, validate hook, precedence (flag &gt; env &gt; file); koanf adopt-or-decline verdict in the design note</td><td>Very High</td><td>~90m</td><td>new module <code>config/</code> (F1)</td></tr>
-        <tr><td>T2.2</td><td>Implement env binding + precedence + error-family classified failures; table tests</td><td>Very High</td><td>2×90m</td><td><code>config/</code></td></tr>
-        <tr><td>T2.3</td><td>README + runnable example + compile-checked snippets (doc-snippets-are-code rule)</td><td>High</td><td>~60m</td><td><code>config/</code></td></tr>
-        <tr><td>T2.4</td><td>Tag config v0.1.0 (release ritual: API diff, pre-tag-checks, fresh-consumer proxy check)</td><td>High</td><td>~60m</td><td>release train</td></tr>
-        <tr><td>T1.1</td><td>Design <code>appkit/preset</code>: <code>preset.Config</code>, env switches (OTEL / SECURITY_PROFILE / REALTIME / ERRORPAGES / METRICS), every leg overridable; skeleton module</td><td>Very High</td><td>~90m</td><td>new module <code>preset/</code></td></tr>
-        <tr><td>T1.2</td><td>Wire always-on spine: core Service + systemd.Install + health dashboard + errorpages + metrics/version + RegisterClassifications</td><td>Very High</td><td>2×90m</td><td><code>preset/</code></td></tr>
-        <tr><td>T1.3</td><td>Optional otel leg behind <code>APPKIT_OTEL</code> (env-driven, explicit code wins over env)</td><td>High</td><td>~90m</td><td><code>preset/</code></td></tr>
-        <tr><td>T1.4</td><td>Optional security-profile + realtime legs; posture documented per profile</td><td>High</td><td>2×90m</td><td><code>preset/</code></td></tr>
-        <tr><td>T1.5</td><td>Example app (&lt;40 LOC main.go, full production posture) + integration E2E through PUBLISHED tags after release</td><td>High</td><td>2×90m</td><td><code>preset/example/</code> + <code>integration/</code></td></tr>
-        <tr><td>T1.6</td><td>Tag preset v0.1.0; consumer heads-up drafts (cqrs-htmx + PapDashboard convention)</td><td>High</td><td>~60m</td><td>release train</td></tr>
-      </tbody>
-    </table>
-    <div class="callout callout-amber">
-      <strong>Constraint.</strong> The preset composes ONLY shipped batteries — no new capability is
-      invented inside it. Core stays thin; the preset is an independently versioned satellite whose
-      entire job is correct default composition (ROADMAP north star).
+    <h2 id="causes"><span class="num">05</span>Root causes</h2>
+    <div class="issue issue-critical">
+      <span class="severity severity-critical">Cause 1</span>
+      <h4>Timing + no swap recipes</h4>
+      <div class="where">audit §4</div>
+      <p>Most apps predate the batteries (core v0.9.0, security v0.2.0, systemd v0.1.0, otel v0.3.0 — all Aug–Oct 2026). Nothing makes adopting cheaper than keeping the hand-roll.</p>
+    </div>
+    <div class="issue issue-critical">
+      <span class="severity severity-critical">Cause 2</span>
+      <h4>No appkit-side preset</h4>
+      <div class="where">§01 read-out 4</div>
+      <p>The one composition product that works covers only event-sourced HTMX apps. Non-cqrs apps — and even setup apps for config/logger glue — assemble by hand.</p>
+    </div>
+    <div class="issue issue-important">
+      <span class="severity severity-important">Cause 3</span>
+      <h4>Opt-in-everything posture</h4>
+      <div class="where">PapDashboard exemplar</div>
+      <p>Each battery is a separate module + separate wiring decision. Hosting appkit ≠ composed batteries. Env-driven defaults are absent.</p>
+    </div>
+    <div class="issue issue-important">
+      <span class="severity severity-important">Cause 4</span>
+      <h4>No scaffold</h4>
+      <div class="where">ledger rows 9–12</div>
+      <p>Every new app copy-pastes a cousin's config/logger/CLI/flake/buildflow (37/39 flakes). The fleet has website templates and an unbuilt wizard SDK — no service scaffold.</p>
     </div>
 
-    <h2 id="tier4"><span class="num">04</span>Tier 4% → 64% — the scaffold</h2>
-    <table>
-      <thead>
-        <tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Destination</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>T3.1</td><td>Scaffold shape decision: template repo (go-website-template pattern) vs <code>cmd/appkit-new</code> generator; short verdict doc (go-wizard-sdk's template engine is UNBUILT — do not block on it)</td><td>High</td><td>~90m</td><td><code>docs/planning/</code> verdict</td></tr>
-        <tr><td>T3.2</td><td>Template: cmdguard serve verb + typed flags → preset; templ + templ-components skeleton</td><td>High</td><td>2×90m</td><td>scaffold</td></tr>
-        <tr><td>T3.3</td><td>Template: flake.nix + .buildflow.yml + CI workflow + systemd unit + Dockerfile (the 37/20/16/6 rows)</td><td>High</td><td>2×90m</td><td>scaffold</td></tr>
-        <tr><td>T3.4</td><td>Template: README/CHANGELOG/AGENTS/FEATURES skeleton + meta tags; example-smoke-style boot probe script</td><td>Medium</td><td>~90m</td><td>scaffold</td></tr>
-        <tr><td>T3.5</td><td>Dogfood: scaffold a real toy app end-to-end, boot + graceful-stop check, fix what hurt</td><td>High</td><td>~90m</td><td>scaffold</td></tr>
-      </tbody>
-    </table>
+    <h2 id="tier1"><span class="num">06</span>Tier 1% → 51% — the preset spine</h2>
+    <h3>T2 — <code>appkit/config</code> first (F1, demand-proven: 22 packages / 25 parsers)</h3>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="T2 config battery tasks">
+      <table>
+        <thead><tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Acceptance</th></tr></thead>
+        <tbody>
+          <tr><td>T2.1</td><td>Design env-first API: struct-tag binding, defaults, validate hook, precedence (flag &gt; env &gt; file); koanf adopt-or-decline verdict</td><td>Very High</td><td>~90m</td><td>Design note reviewed; fleet reality (os.Getenv structs) wins over framework fashion</td></tr>
+          <tr><td>T2.2</td><td>Implement binding + precedence + error-family classified failures</td><td>Very High</td><td>2×90m</td><td>Table tests: precedence matrix, missing-required, bad-value → Rejection with field path</td></tr>
+          <tr><td>T2.3</td><td>README + runnable example + compile-checked snippets</td><td>High</td><td>~60m</td><td>Doc-snippets-are-code rule; scratch-module compile check</td></tr>
+          <tr><td>T2.4</td><td>Tag config v0.1.0</td><td>High</td><td>~60m</td><td>Release ritual: API diff additions-only, pre-tag-checks green, fresh-consumer proxy check</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="compare-row">
+      <div class="compare-before">
+        <div class="compare-header"><span>Today — 22× hand-rolled</span></div>
+        <pre><code><span class="tok-comment">// dnsblockd/quotaboard-class config, per app</span>
+<span class="tok-keyword">type</span> <span class="tok-type">Config</span> <span class="tok-keyword">struct</span> { Addr <span class="tok-type">string</span>; TTL <span class="tok-type">time</span>.Duration ... }
+cfg := <span class="tok-type">Config</span>{}
+cfg.Addr = os.<span class="tok-func">Getenv</span>(<span class="tok-string">"ADDR"</span>)  <span class="tok-comment">// +25 apps</span>
+<span class="tok-keyword">if</span> v := os.<span class="tok-func">Getenv</span>(<span class="tok-string">"TTL"</span>); v != <span class="tok-string">""</span> { ... <span class="tok-func">Atoi</span> ... err ... }
+<span class="tok-keyword">if</span> err := <span class="tok-func">validate</span>(cfg); err != <span class="tok-keyword">nil</span> { ... }</code></pre>
+      </div>
+      <div class="compare-after">
+        <div class="compare-header"><span>T2 target — sketch</span></div>
+        <pre><code><span class="tok-keyword">type</span> <span class="tok-type">Config</span> <span class="tok-keyword">struct</span> {
+    Addr     <span class="tok-type">string</span>  `env:<span class="tok-string">"ADDR"</span> default:<span class="tok-string">"127.0.0.1:8080"</span>`
+    LogLevel <span class="tok-type">string</span>  `env:<span class="tok-string">"LOG_LEVEL"</span> default:<span class="tok-string">"info"</span>`
+    OTLPEndpoint <span class="tok-type">string</span> `env:<span class="tok-string">"OTEL_EXPORTER_OTLP_ENDPOINT"</span>`
+}
+cfg, err := config.<span class="tok-func">Load</span>[<span class="tok-type">Config</span>](config.<span class="tok-func">WithFile</span>(<span class="tok-string">"app.yaml"</span>))
+<span class="tok-comment">// flags stay cmdguard's; env &gt; file; errors are Rejection + field path</span></code></pre>
+      </div>
+    </div>
+    <h3>T1 — <code>appkit/preset</code>: one call, full production posture</h3>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="T1 preset tasks">
+      <table>
+        <thead><tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Acceptance</th></tr></thead>
+        <tbody>
+          <tr><td>T1.1</td><td>Design preset.Config + env-switch grammar (APPKIT_OTEL, APPKIT_SECURITY, APPKIT_REALTIME, APPKIT_ERRORPAGES); skeleton module</td><td>Very High</td><td>~90m</td><td>Every leg overridable in code; explicit code wins over env; posture table documented</td></tr>
+          <tr><td>T1.2</td><td>Always-on spine: core Service + systemd.Install + health dashboard + errorpages + metrics/version + RegisterClassifications</td><td>Very High</td><td>2×90m</td><td>Composition E2E: each spine piece observable (health UI 200, /version, sd_notify READY under Type=notify harness)</td></tr>
+          <tr><td>T1.3</td><td>otel leg behind APPKIT_OTEL (env-driven, off-switch honored)</td><td>High</td><td>~90m</td><td>Env absent → zero otel deps active; env present → spans + logs bridge; explicit WithOTEL overrides</td></tr>
+          <tr><td>T1.4</td><td>security-profile + realtime legs (realtime = C2 Mount shape)</td><td>High</td><td>2×90m</td><td>Profile matrix test: none/standard/strict headers; SSE endpoint streams + replays; opt-out removes leg cleanly</td></tr>
+          <tr><td>T1.5</td><td>Example app (&lt;40 LOC main) + integration E2E through PUBLISHED tags post-release</td><td>High</td><td>2×90m</td><td>Example main.go ≤40 lines incl. config; E2E boots, serves, drains via preset through pinned tags</td></tr>
+          <tr><td>T1.6</td><td>Tag preset v0.1.0 + consumer heads-ups (cqrs-htmx, PapDashboard convention)</td><td>High</td><td>~60m</td><td>Release ritual + heads-up drafts voice-checked</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="compare-row">
+      <div class="compare-before">
+        <div class="compare-header"><span>Today — quotaboard-class assembly</span></div>
+        <pre><code><span class="tok-comment">// ~135 LOC of wiring across main.go: logger,</span>
+<span class="tok-comment">// config.FromEnv, dispatchers + recovery,</span>
+<span class="tok-comment">// cqrshtmx.MustNew, appkit.ServiceConfig{...},</span>
+<span class="tok-comment">// systemd.Install, StartHooks/ShutdownHooks,</span>
+<span class="tok-comment">// route mounting, Run</span>
+logger := slog.<span class="tok-func">New</span>(slog.<span class="tok-func">NewTextHandler</span>(os.Stderr, <span class="tok-keyword">nil</span>))
+cfg := config.<span class="tok-func">FromEnv</span>()
+cmdDisp, qryDisp := command.<span class="tok-func">NewDispatcher</span>(), query.<span class="tok-func">NewDispatcher</span>()
+<span class="tok-comment">// ... + 9 more hand-wired seams</span></code></pre>
+      </div>
+      <div class="compare-after">
+        <div class="compare-header"><span>T1 target — sketch</span></div>
+        <pre><code><span class="tok-keyword">func</span> <span class="tok-func">main</span>() {
+    cfg, err := config.<span class="tok-func">Load</span>[<span class="tok-type">Config</span>]()          <span class="tok-comment">// T2</span>
+    <span class="tok-keyword">if</span> err != <span class="tok-keyword">nil</span> { <span class="tok-func">fatal</span>(err) }
+    svc, extras, err := preset.<span class="tok-func">New</span>(ctx, preset.<span class="tok-type">Config</span>{
+        Name: <span class="tok-string">"dnsblockd"</span>, Version: version,
+        Service: appkit.<span class="tok-type">ServiceConfig</span>{Addr: cfg.Addr},
+    })                      <span class="tok-comment">// spine + env legs</span>
+    <span class="tok-keyword">if</span> err != <span class="tok-keyword">nil</span> { <span class="tok-func">fatal</span>(err) }
+    routes.<span class="tok-func">Mount</span>(svc.Mux, extras)     <span class="tok-comment">// domain only</span>
+    <span class="tok-func">fatal</span>(svc.<span class="tok-func">Run</span>(ctx))
+}
+<span class="tok-comment">// systemd + health UI + errorpages + metrics/version</span>
+<span class="tok-comment">// + classifications + otel/realtime legs: preset's job</span></code></pre>
+      </div>
+    </div>
+    <div class="callout callout-warning">
+      <strong>Constraint.</strong> The preset composes ONLY shipped batteries — no new capability
+      is invented inside it. Core stays thin; the preset is an independently versioned satellite
+      whose entire job is correct default composition (ROADMAP north star). Security never
+      silently joins a stack — the security leg is an explicit profile switch, same posture as
+      security v0.2.0.
+    </div>
 
-    <h2 id="tier20"><span class="num">05</span>Tier 20% → 80% — adoption wave + demand-proven batteries</h2>
-    <table>
-      <thead>
-        <tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Destination</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>T4.1</td><td>Battery-swap recipe template (per-repo checklist: inventory hand-rolls → map to batteries → swap order → delete LOC count → suite green)</td><td>High</td><td>~60m</td><td><code>docs/recipes/</code></td></tr>
-        <tr><td>T4.2</td><td>dnsblockd recipe: internal otel/sdnotify/middleware/logging-sampling → appkit otel/systemd/security/core (−~1,600 LOC)</td><td>High</td><td>~60m recipe</td><td>their repo executes</td></tr>
-        <tr><td>T4.3</td><td>ChastityAPI recipe: security/usermgmt/realtime/D1 mapping (−~4,800 LOC class)</td><td>High</td><td>~90m recipe</td><td>their repo executes</td></tr>
-        <tr><td>T4.4</td><td>PapDashboard security swap recipe (M17 follow-up)</td><td>Medium</td><td>~45m recipe</td><td>their repo executes</td></tr>
-        <tr><td>T4.5</td><td>pbx-lens cmdguard migration recipe (fatalCode exit contract → cmdguard)</td><td>Medium</td><td>~45m recipe</td><td>their repo executes</td></tr>
-        <tr><td>T5.1</td><td>D1 worker supervisor module (port-from: quotaboard refresher hooks + ChastityAPI scheduler joins)</td><td>High</td><td>train</td><td>battery D1</td></tr>
-        <tr><td>T5.2</td><td>D3 SQLite ops kit + embedded-migration helper (16-app demand)</td><td>High</td><td>train</td><td>battery D3</td></tr>
-        <tr><td>T5.3</td><td>C2 realtime <code>Mount</code> one-liner + SubscribeFolded contract (9 SSE hand-rollers)</td><td>Medium</td><td>train</td><td>realtime module</td></tr>
-        <tr><td>T5.4</td><td>Auth-bridge DECISION memo: usermgmt recipe for non-cqrs apps vs security session battery (10 JWT hand-rollers) — OWNER GATE</td><td>High</td><td>~90m memo</td><td><code>docs/planning/</code></td></tr>
-        <tr><td>T5.5</td><td>W3 httpx B1–B9 program — already promoted (SUPERB v11); unchanged, sequenced after the preset spine</td><td>High</td><td>train</td><td>TODO_LIST P2</td></tr>
-      </tbody>
-    </table>
+    <h2 id="tier4"><span class="num">07</span>Tier 4% → 64% — the scaffold</h2>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="T3 scaffold tasks">
+      <table>
+        <thead><tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Acceptance</th></tr></thead>
+        <tbody>
+          <tr><td>T3.1</td><td>Shape decision: template repo (go-website-template pattern) vs cmd/appkit-new generator; short verdict doc</td><td>High</td><td>~90m</td><td>Verdict names maintenance owner + update path; go-wizard-sdk's unbuilt template engine is NOT a dependency</td></tr>
+          <tr><td>T3.2</td><td>Template: cmdguard serve verb + typed flags → preset; templ + templ-components skeleton</td><td>High</td><td>2×90m</td><td>Generated app compiles, boots, serves one page + one SSE stream</td></tr>
+          <tr><td>T3.3</td><td>Template: flake.nix + .buildflow.yml + CI workflow + systemd unit + Dockerfile</td><td>High</td><td>2×90m</td><td>Generated infra matches fleet conventions (go 1.27.2 floor, guard set, unit Type=notify)</td></tr>
+          <tr><td>T3.4</td><td>Template: README/CHANGELOG/AGENTS/FEATURES skeleton + meta tags; boot probe script</td><td>Medium</td><td>~90m</td><td>example-smoke pattern: build → boot → probe → graceful-stop, exit 0</td></tr>
+          <tr><td>T3.5</td><td>Dogfood: scaffold one real app end-to-end, fix what hurt</td><td>High</td><td>~90m</td><td>Time-to-first-route &lt; 15 min from empty dir; pain list empty or routed</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <h2 id="graph"><span class="num">06</span>Execution graph</h2>
+    <h2 id="tier20"><span class="num">08</span>Tier 20% → 80% — adoption wave + demand-proven batteries</h2>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="T4 adoption wave and T5 battery tasks">
+      <table>
+        <thead><tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Acceptance</th></tr></thead>
+        <tbody>
+          <tr><td>T4.1</td><td>Swap-recipe template (inventory → battery map → swap order → deleted LOC → suite green)</td><td>High</td><td>~60m</td><td>Template applies mechanically to dnsblockd as the worked example</td></tr>
+          <tr><td>T4.2</td><td>dnsblockd recipe (−~1,600 LOC)</td><td>High</td><td>~60m</td><td>Recipe maps every internal/* duplicate to a shipped module with swap order + risk notes</td></tr>
+          <tr><td>T4.3</td><td>ChastityAPI recipe (−~4,800 LOC class)</td><td>High</td><td>~90m</td><td>auth/logger/config/csp/sse mapped; JWT→usermgmt flagged for the T5.4 decision</td></tr>
+          <tr><td>T4.4</td><td>PapDashboard security swap recipe (M17 follow-up)</td><td>Medium</td><td>~45m</td><td>Hand-rolled BodyLimit/APIKeyAuth/RateLimit/CSP → security v0.2.0 matrix</td></tr>
+          <tr><td>T4.5</td><td>pbx-lens cmdguard migration recipe</td><td>Medium</td><td>~45m</td><td>fatalCode class table → cmdguard exit-code contract 1:1</td></tr>
+          <tr><td>T5.1</td><td>D1 worker supervisor (port-from: quotaboard refresher hooks + ChastityAPI scheduler joins)</td><td>High</td><td>train</td><td>Per battery spec D1 acceptance (goroutine-baseline stable, panic-restart counts, start-during-shutdown joins)</td></tr>
+          <tr><td>T5.2</td><td>D3 SQLite ops kit + embedded-migration helper (16-app demand)</td><td>High</td><td>train</td><td>Spec D3 lease/backup/ledger matrix + migration versioning round-trip</td></tr>
+          <tr><td>T5.3</td><td>C2 realtime Mount one-liner + SubscribeFolded contract (9 SSE hand-rollers)</td><td>Medium</td><td>train</td><td>Spec C2 discriminator test (mid-fold wrapper provably included in broadcast)</td></tr>
+          <tr><td>T5.4</td><td>Auth-bridge DECISION memo — usermgmt recipe vs security session battery (10 JWT hand-rollers)</td><td>High</td><td>~90m</td><td>OWNER GATE; decision recorded; preset ships without auth either way</td></tr>
+          <tr><td>T5.5</td><td>W3 httpx B1–B9 — already promoted (v11), sequenced after the spine</td><td>High</td><td>train</td><td>Unchanged; see TODO_LIST P2 httpx rows</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="graph"><span class="num">09</span>Execution graph</h2>
     <div style="border: 1px solid var(--border); padding: 1rem; overflow-x: auto;">
-      <?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-d2-version="v0.9.0" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1875 1104"><svg class="d2-1242875589 d2-svg" width="1875" height="1104" viewBox="-23 -85 1875 1104"><rect x="-23" y="-85" width="1875" height="1104" rx="0" fill="#1E1E2E" class=" fill-N7" stroke-width="0" /><style type="text/css"><![CDATA[
-.d2-1242875589 .text {
-	font-family: "d2-1242875589-font-regular";
+      <?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-d2-version="v0.9.0" preserveAspectRatio="xMinYMin meet" viewBox="0 0 2002 1761"><svg class="d2-1973814791 d2-svg" width="2002" height="1761" viewBox="-34 -85 2002 1761"><rect x="-34" y="-85" width="2002" height="1761" rx="0" fill="#1E1E2E" class=" fill-N7" stroke-width="0" /><style type="text/css"><![CDATA[
+.d2-1973814791 .text {
+	font-family: "d2-1973814791-font-regular";
 }
 @font-face {
-	font-family: d2-1242875589-font-regular;
-	src: url("data:application/font-woff;base64,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");
+	font-family: d2-1973814791-font-regular;
+	src: url("data:application/font-woff;base64,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");
 }
-.d2-1242875589 .text-bold {
-	font-family: "d2-1242875589-font-bold";
-}
-@font-face {
-	font-family: d2-1242875589-font-bold;
-	src: url("data:application/font-woff;base64,d09GRgABAAAAABS4AAoAAAAAHtwAAguFAAAAAAAAAAAAAAAAAAAAAAAAAABPUy8yAAAA9AAAAGAAAABgXxHXrmNtYXAAAAFUAAAAxQAAARoGqgfGZ2x5ZgAAAhwAAA15AAAScEfp6/xoZWFkAAAPmAAAADYAAAA2G38e1GhoZWEAAA/QAAAAJAAAACQKfwX+aG10eAAAD/QAAADSAAAA/HqaCbpsb2NhAAAQyAAAAIAAAACAlUqZwG1heHAAABFIAAAAIAAAACAAVwD3bmFtZQAAEWgAAAMvAAAIKgjwVkFwb3N0AAAUmAAAACAAAAAg/9EAMgADAioCvAAFAAACigJYAAAASwKKAlgAAAFeADIBKQAAAgsHAwMEAwICBGAAAvcAAAADAAAAAAAAAABBREJPACAAIP//Au7/BgAAA9gBESAAAZ8AAAAAAfAClAAAACAAA3ichM3JLnMBGIDh57T9f1Md8zwdNbWqZlXd2UiIhYRE7FiKK3BZ7IgQt2HnNlh8oule3u2bPEjkJSgqJClKMgU5mYqqmg11TUdOnLlw6cq1W/cRyJTbz6aGQ8dOnbefG3cR8SmV6tQV3/EV7/EWr/ESz/EUH/EYDy35rxJ1+w7saahaU7PeErds27ErJ6/gn/86fiXdehT1SvXpN2BQ05BhI0aNGTdh0pRpM2bNycwrWbBoybIVZRWr/AAAAP//AwDT9ClcAAAAeJyEV2twG9d1PvcCxJIQ+AAWixfxXmAXAAmQwGKxJAgSBAmCDxF8SiRt8SGzskSJEqVKVCjZlJ2ZyFZrQ1VqKjJlNY6riSepx+7YVdNR0qqddsZONdGMZ+q46nQa2XU9qpq2MZNyUsclgc5dkBSkP/lBXM3o7j3f/c53vnMulMEQAJ7Fl0EBFVANOmAABK1L6xV4nqUkQZJYo0LikZYawrr8m9/l/Uq/XxlwrjqemZlB2Wl8efPovuzs7K9nWlryr//wR/mL6NSPAHDhKwDciXNQAVoAmhJ4juNZlUpBCzTLs9T9mperK2srlRrzV3feu/NHvh/7UF8iEV4QosfyL+Dc5uK1awAACsgC4ATOgRYs4CbYhIjBwOhVFCMvKlYhRGJilGNZrRCR1+wn6aPtQV+kM32ye6YrFo5EM6NnE62jOGfLJOtGq5WVu1Ode/zoQoDlnPmJiTovAIJQYR034lWoBShzc5wYjcWEiMFIcRzrVqkYvUGIxCSjCk2NvDS69+JI8oBrwCyx9b11Yz2+pGlgRNP/rWNHrw4L7mmjLTLdceCExzy5HzBkAXA/zoEamBL0KpYXIjGCmwC+eeCV4aFL+4PWptFQaLTJinPpSydOvNK95JscGHjCCwRfFgB9gXOwi3DgYlyMwLCMi8mi1fz/3buHqnFu+RvPXlne2ftA5r5kbxZdy3/52Wc4t/zq8iZs74NPcQ4U5ExBm13Buc1FQFBTWEc3cA5qAIxujpcM5PKiVtDqVarP+g66D+gazT7/Sv2UpqWlz+UMp9D38tnkXNt27M9wDsqKZ7qY7ArCOLe5trwTE7+Dc+CQ/582GIxCLCbRgpYllEssRbE8z9oxw2T/+LBap1aqtepDb7xIVSiU4tTwVFSpLKdwLn/P2ma3t1mRe3PxC+fgkOPab35zzTE06PxiOwbhnC7GMAocJ4qCllXwrMHAMNlX32pXKqtyZCmrxLn8X30z+vX4/c1F1PUHseX4vwMAlvXwHF6F6scUIYuOL0rOTXSBxiZe2L37hYnib+fAQGfnwIBm5OqR+W8NDl45cuTqyPOLs7MLC7Ozi+Rcgq0R50AD+hI1q1iW2dHvpz2nM5nFruGeM+2JNM7xk4P9sw0/QyNzQqDIIVtYx2q8CgEZ2XZ+ohzPh/CjwmX0BqOxGAHp25+P7GHHfKGgULfXleBaDqebTgR2O9t5Ltgc2NOSiS9oGkNP2zm3zWHTeaoaMg2xiWh9YMpc67Da7Vq3aU9XbLIJEJgBMI1zQJEbsKKLYbV3bqCvbuCa5eXNtSLGKgCFE+fABSAoSvL88F8KVlH0BEpx4eyrQVWVSqmm1ZlzGTWtVlKVVPDi4g/byyvLlKrK8lacy38oHIpGDwkonP8wPCeKhyIovLmIfFzW48ly+X8CVPgSADM4B9UAgqgQjFuhJEHB3Hr/9XiVpVJZZa1see39B+i7V7xdHNflvZKffCDnO1BYRz9FG2AGVla9GI1Jcu1TvEwoo2UJVikSk0TZD/46PXR+BbN+R7tHbJiPzxw8o1Y6usvNXnog4dCMJwcmql28iXnK5lk4mf9csLInjfS4us5mMsrxUoV1bMC3QE8qgWSRpVitwFCPiYx1E6NDXa5Om1JzakVpS7sTEw2JmQkuNlbv1/s0LqeIb73db7G1/W7/3rPJM5n+F4M/0VXJOfAU1tEttAGWxz2NdT90NBUydx1P9XwtHeq2drFOMZlsNIXouHdM03p6ZHSx1W6csfWn2rNM9X5nLcktBr6wjjbwLaDBuc0VQW3kRaGEpW0B/mryeMtM1N9kVq2cUSstGWzidXSdno01aF4+O3y6zWrq/5PNzrCFPaM3/0RX1dnd2wVYxv6vaANM4HgEPdEy5SKKJ9gVQpREQY7ukx2dR1u6pxqUOH9XnQmLsTA3/doNvt4d07QtjgwvJpPzadpbERNcT1jsKO4XG8hdEJgA0CK+TVaiZemx+iHWqX2yo8Mz1OmI1tRWWjS19ieeQOeOldWKY1GN6mhZmYuzn8p/A0AB7kIQU2gDGqAF+mRmODEqiTL2rSUmRIwCw24VvZsnBAlEXnqVSlHiKvRWU3Nz8pZfxaebuulap8nij0+L9a4fDFIV0QnJ5tC5/UOTT6WX+2w8b7PxvD/SznsFs0tT2/qRpak+4VNW+hy1kRqlLl2XGPRp5ne59c19HnW1gda1dArDIXQ74Of9Pp8/kF/xmI01CoXJbLUVuUmRZMsaBWFHm4yW1cqkU9rUCmXdHRnuXbE5rT4TvvX2E+a6+an8HeSK+czG/HtQKIAEAD/DH2EOWgCAggS8tHO2Hd8CDeFd0AqSQNEsTzGpS8pvv/Gnf/mdE0l8K7/w/p38v/xt9zNkf2Ed6fAtUttGNyc3o20B/31/y4q2ooxS6TRezb7dmN28a9QhdKyMIt8BKGxoQ/YhrUD8gGT3kZtQO2uK1HAmLKZoV194aPeKzeltJD8NaK3dEazzucPb12vMv7e1bPOENkBfGqOUpzNqpTO7QxRaS9qDj/BU1Lusnd/ebwzJ4+n08WRyIZ1eSAZDoWAoGNyq1dbF0ZHTrUvZ9lQ/KVkCK1XowQa0ATTYAYwP0cny43gjQz+0GXJ9Wy//5FxiJuZMWMoGudhYXUDvu4m/H7awv39q75lkrXnwD5Fnx2SIF/SgDfl8J0CZKMnHbheRIAlaRakXoMMqc4e7aAhtxNE+3zGDm6/2mxyyIdic4c0J5HnoBlt6QZfQBugeySPFPWS4tp9jrGpTpbnG2qpHa+ORcFnZ80qlP5L/FBAwhXX0HbQB/CMzTZTjij1z5zDSMe2Y0as+Ch/iOtxJh8tuC1nsLb7De5vHHR2WqKW5mXO2+uc0nGPSXGuktQZarfE0+7vGeNOE3sCbzFW72OZQ51SxhrSFdbSAF8Eou5gosqIkCcRVSgwYJgfT/dpnlpZYm8asNtKS5sjY7WOq8+dP/TjgVSnnVZriWYnCOvoSrYH+sRrQbtnuPw73rtidVs6wcmaXwtGnmZ9C0fwnot9iQz35mi5vPSBSb6iA1qBS7sslLfLG9y63k85bQatTF6+jtZ97szyf9f48X7Ptk3gNrYHrse9KTmC3ZnyKurz8SqNKrVJSlRXS800V1ZSSqqAafm/p7SBVSSmpXVQ9Wrvv7eG4Pva+vPZ47+drPmAzPl+G/WB7fkDraI3MGgLNlwSkjA/jVK1eer1ebVAry3Xl7tVvXn29UWPUKCv0FTzCvxhi6himjhkq/HKEqWeYOsMIOVdTaEObaA1qS3UgSY9QUYXPGFzVFkpX7vWpqb+53L1Lp1aWaysSF982Ng3+nUp5ApV5bBb0bx+7M162m/04v6ttrzybYfAW1tF/4guwa6uOxehWufHb837xOWFA5QfPnTtI/sw+o9FnNvlMJp/mrevX33zz+vW3Tnqnx8cn3e7J8fFp+X2SAUD/jJ8l+RNImxVjMYmYcualpWiP++jSEjq+T23Vb24sERyIVDv6HF8AK9nfhsVoySxD4KjIpCEw3uFzmbDfLZmGGmbTyWmxZTJqShi+vid77nCwIcxbBiNCZF+rePx4TFG2TM41FNbRJ/gC+B+vI1aMxB6JUvJI+5/sMTZty/gamqx9XWPtPs4t2fvqZ+OzZyVB6k7NayK+KauH91j9hrkGzuW1W57k6vaNhjMGZU22rWW0jtwJAw2AvsTPQgWpAFogXZXIjRZdIk24YJk3XixDSo2lKpL/7wd/3tuLyg85hu2WWG1+YfVp9Fz+4olVcgdjYR19ip8Fx2N3IFbC0y6GpXZY+t+Bo1yHLe0Lx5vqrV5bhw7N/ccuFyfta0od0US9UxZvJNwYqdIFUGp5qTowns4ciMpY/YV19F+yDnwAyK2itoMoHnr71pCh2mqsepUK0WZBr25yuRoa7K0LXb2nO5OT9myNZGXjrMLcaxuZj88gr829uzkciwTyH6ZePr602ht0TOhqveN9Tnbm6Y4ZEl8hz7MP5PzzEN3pKA+nkNI3tOLxuYPjZY0iKnkgngx6G6OTLeNHIq5Qe9PTVt7vsQUSGm+jO+FjrHFN/aAQ7zMprT2R2GBgZjDUbVCaB5KRoRB6LtjoDXq8fH3+Y95n9dq0tGgLNAAGd2Ed3Ze58QPQRR+UmaB3shErNpJtsASt6vuNHrNAqyW3s7E1OWUfqIlZPc0ebO61xfZG4vub2whh6M8iAZmfvCZkL9Li8ATGOzv2C6mXTnztam+hAK2FdfgC/RLz0AqA0qAiKyCog9vIhcLkPSyJAlP369tzc0QvPYUs8uFPiGcaZf6Ia5NGcSfZ1ZWclCIR6cahe+fP3zvEPXV3/sjdWUDQWMiimq1veLnyyc0YvSo32RSJNE0mu7pucLN3j8zffYqTvwUElYX9KIY/IPGNtKCovL3/9huKgxuvEQxumEa/wDHy/pdEVhTEYhP5h3ffPfruu9M3527enLtJ5q1xnEB7FHGgoA0ZYGeOg5+ite13fmoFreVrABXewc0wij8iZ2pLnMobCnm9oRBuDrBsgPyR+DJn8A7ZayzZe4UTBI4TBI3I+0TRx4ukvaRwAtoUcRJPwUtG9Q9+5zWc+PZTfwH/DwAA//8DAC864FUAAAAAAQAAAAILhcxWFM1fDzz1AAED6AAAAADYXaCEAAAAAN1mLzb+N/7ECG0D8QABAAMAAgAAAAAAAAABAAAD2P7vAAAImP43/jcIbQABAAAAAAAAAAAAAAAAAAAAP3icBMAxSgNREMbx/3wLQXETR4wxNinWlWB2E+wUzCumCRY+EFSMhSex8Ab23kEbWy9g72UkIOtPn9zwDUrdRk9krVjomayarJJsc7L94eqRtSHrjax3Frojq+VYLUfFnIH63a92mSkR9kOtxFQ9artnrBGVLgkbcq6asAlRPBJaEmqolQglpvZK2BcH9sKeLlhqh7LYYiwx0DalnBM5KzkTOSM5+3IO5ZzKmcmprCXZNY2tubI1Z3ZLX06lhgcbEtB9WEuCLv4BAAD//wMAy64huAAAAAAALAAsAFAAhACwANQA6gD+AQoBKAE4AWoBjAG4AdoCGgIsAmYChAK8Au4DGgNMA4ADpgQOBDAEPARUBHAEogTEBPAFIAVUBXQFsAXWBfgGFAZMBngGqAbUBuwHGAdWB3oHrAfsCDoIegiGCJIIrAjGCNQI6AjyCP4JFAkqCTgAAQAAAD8AkAAMAGMABwABAAAAAAAAAAAAAAAAAAQAA3icnJTPbhtlFMV/TmzTCsECRVW6ib4FiyK1Y1MlVdusJqRWRkRx8LggJIQ0tie25fHMyDN2Gp6ANW/BW3TFQ/AciDW619euXRAFK4p1Zub+Od+5537AAX+yT6V6H/itnhqucFS/NrzHvfqF4X1a9T3DVR7VfjdcY1BbGK7zea1j+CPeVn8xfI/j6o+G73NYbRn+mKfVA8Of7Dv+MPwpx7xd4go852fDFQ7JDe9xwA+G93mA1axUeUDTcI3PODJc5wjoMqYkYUzKEMcNY4bMmRFTEBIzY8wNMQMcAT4Jpb5NiRQ5hv/4NiKkZEakFUeUOBJCEiIKRlbxJ83KuNaO0memSLr5lIyI6GnGhIgUR8aQjJSYidYpKcl5SYMGBX3lm1NS4FEwJsEjY8aQBm1aXNJlxJgCR0srCbOQjBtKbom0v7MIUaZPTEphrOakDJSnU36xZgdc4miTa+xm5cutCo9xfKvZwk1iHF/i6b/bYLbdd8UmYqF6ioY9EuV5qxMcqeLS1+cbxSUvcTvps83kwxoNlJ3MekyPuc5f5id5wiTFuUN8QnVQ6B7iONPngFAV+Y6ALhe0eU1Xn306dPC5okvAK81t08HxFW2uONeMQPHyW0sdc8X3OL4m0BipHZs+ork8vSE3dwt3cYacY0quWyAzlvOL8+OdJiw7lG25o1BX9HWPJFL2QFSRPYsYmitydcVUtVx5ozD9BuYI+VrqbN99l21Y2O6ttviOTHfYMTdOMrklow9N1XvPM7f65xExIKOnEX0ypjQoudOzXRMxJ8Fxrj6+0C0p8dc50udOXRIzVQYBqdaZketvZL4JjXt/y/fO7hLZvKnu6GR9ql26SOV0Y0avVb3Vt9BUjjcm0LCpZpYjE5bKy5OK9yXa2+IfqvsLvd0ynnBGRsLgbzfAUzyaHHPCKSPtIJVTFnY7NPWGaPKCUz39hFij5L58ozpJhRM8nnHCCS949p6OKybOuLg1l83ePuec0eb0P51iGd/mjFfrd//e9Vdl2tSzOJ6sn57vPMVH/8OtX/B4677s6C0gm7Owau+24oqIqXBxh5tauId4fwEAAP//AwD0t09RAAADAAAAAAAA/84AMgAAAAAAAAAAAAAAAAAAAAAAAAAA");
-}
-.d2-1242875589 .text-italic {
-	font-family: "d2-1242875589-font-italic";
+.d2-1973814791 .text-bold {
+	font-family: "d2-1973814791-font-bold";
 }
 @font-face {
-	font-family: d2-1242875589-font-italic;
-	src: url("data:application/font-woff;base64,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");
+	font-family: d2-1973814791-font-bold;
+	src: url("data:application/font-woff;base64,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");
+}
+.d2-1973814791 .text-italic {
+	font-family: "d2-1973814791-font-italic";
+}
+@font-face {
+	font-family: d2-1973814791-font-italic;
+	src: url("data:application/font-woff;base64,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");
 }]]></style><style type="text/css"><![CDATA[.shape {
   shape-rendering: geometricPrecision;
   stroke-linejoin: round;
@@ -1045,79 +1255,131 @@
   opacity: 0.5;
 }
 
-		.d2-1242875589 .fill-N1{fill:#CDD6F4;}
-		.d2-1242875589 .fill-N2{fill:#BAC2DE;}
-		.d2-1242875589 .fill-N7{fill:#1E1E2E;}
-		.d2-1242875589 .fill-B1{fill:#CBA6f7;}
-		.d2-1242875589 .fill-B5{fill:#45475A;}
-		.d2-1242875589 .fill-B6{fill:#313244;}
-		.d2-1242875589 .stroke-B1{stroke:#CBA6f7;}
-		.d2-1242875589 .stroke-B2{stroke:#CBA6f7;}.appendix text.text{fill:#CDD6F4}.md{--color-fg-default:#CDD6F4;--color-fg-muted:#BAC2DE;--color-fg-subtle:#A6ADC8;--color-canvas-default:#1E1E2E;--color-canvas-subtle:#313244;--color-border-default:#CBA6f7;--color-border-muted:#CBA6f7;--color-neutral-muted:#313244;--color-accent-fg:#CBA6f7;--color-accent-emphasis:#CBA6f7;--color-attention-subtle:#BAC2DE;--color-danger-fg:red;}.light-code{display: none}.dark-code{display: block}]]></style><g class="cHJlc2V0X3Byb2dyYW0="><g class="shape" ><rect x="78" y="56" width="1673" height="474" stroke="#CBA6f7" fill="#0e0e10" class=" stroke-B1" style="stroke-width:2;" /></g><text x="914.5" y="43" fill="#CDD6F4" class="text fill-N1" style="text-anchor:middle;font-size:28px">appkit preset program</text></g><g class="ZmxlZXQ="><g class="shape" ><rect x="104" y="760" width="1615" height="158" stroke="#CBA6f7" fill="#18181d" class=" stroke-B1" style="stroke-width:2;" /></g><text x="911.5" y="747" fill="#CDD6F4" class="text fill-N1" style="text-anchor:middle;font-size:28px">the 39 Go apps</text></g><g class="dDE="><g class="shape" ><rect x="829" y="580" width="60" height="66" stroke="#CBA6f7" fill="#313244" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="859" y="618.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">t1</text></g><g class="cHJlc2V0X3Byb2dyYW0udDI="><g class="shape" ><rect x="108" y="244" width="260" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="238" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="238" dy="0">T2 Config battery (F1)</tspan><tspan x="238" dy="17.666667">env-first typed config</tspan><tspan x="238" dy="17.666667">22 config pkgs / 25 env parsers</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDE="><g class="shape" ><rect x="717" y="244" width="285" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="859.5" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="859.5" dy="0">T1 appkit/preset</tspan><tspan x="859.5" dy="17.666667">one-call env-driven service</tspan><tspan x="859.5" dy="17.666667">composes ONLY shipped batteries</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDM="><g class="shape" ><rect x="1417" y="86" width="279" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1556.5" y="124.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1556.5" dy="0">T3 Scaffold `appkit new`</tspan><tspan x="1556.5" dy="17.666667">cmdguard serve + preset + templ</tspan><tspan x="1556.5" dy="17.666667">+ flake + buildflow + CI + systemd</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDQ="><g class="shape" ><rect x="1392" y="244" width="329" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1556.5" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1556.5" dy="0">T4 Adoption wave</tspan><tspan x="1556.5" dy="17.666667">per-repo battery-swap recipes</tspan><tspan x="1556.5" dy="17.666667">dnsblockd -1600 / ChastityAPI -4800 LOC</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDU="><g class="shape" ><rect x="1414" y="402" width="284" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1556" y="440.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1556" dy="0">T5 Battery completions</tspan><tspan x="1556" dy="17.666667">D1 workers / D3 sqlite+migrations</tspan><tspan x="1556" dy="17.666667">C2 realtime Mount / auth decision</tspan></text></g><g class="ZmxlZXQuaGFuZA=="><g class="shape" ><rect x="1424" y="790" width="265" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1556.5" y="828.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1556.5" dy="0">hand-rolled:</tspan><tspan x="1556.5" dy="17.666667">config 22x / migrations 16x</tspan><tspan x="1556.5" dy="17.666667">JWT 10x / SSE 9x / shutdown 9x</tspan></text></g><g class="ZmxlZXQuYWRvcHRlcnM="><g class="shape" ><rect x="134" y="798" width="208" height="82" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="238" y="836.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="238" dy="0">cqrs-htmx setup</tspan><tspan x="238" dy="18.5">10 adopters (the proof)</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQyIC0mZ3Q7IHQxKVswXQ=="><marker id="mk-d2-1242875589-3488378134" markerWidth="10" markerHeight="12" refX="7" refY="6" viewBox="0 0 10 12" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0,0 10,6 0,12" fill="#CBA6f7" class="connection fill-B1" stroke-width="2" /> </marker><path d="M 370.5 293 C 507.299988 293 576.900024 293 712.5 293" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="542.5" y="291" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="542.5" dy="0">preset needs</tspan><tspan x="542.5" dy="18.5">env binding</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQzKVswXQ=="><path d="M 965.311571 243.152527 C 1149.900024 156.800003 1240.5 135 1412.5 135" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1180.5" y="147" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1180.5" dy="0">scaffold generates</tspan><tspan x="1180.5" dy="18.5">preset usage</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQ0KVswXQ=="><path d="M 1004.5 293 C 1157.699951 293 1235.5 293 1387.5 293" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1197" y="291" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1197" dy="0">preset is the</tspan><tspan x="1197" dy="18.5">cheap migration target</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQ1KVswXQ=="><path d="M 965.311571 342.847473 C 1149.900024 429.200012 1240.099976 451 1410.5 451" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1179.5" y="434" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1179.5" dy="0">demand numbers</tspan><tspan x="1179.5" dy="18.5">reprioritize spec</tspan></text></g><g class="KGZsZWV0LmhhbmQgLSZndDsgdDEpWzBd"><path d="M 1421.511371 853.651993 C 1241.900024 872.887024 1134.900024 828.75 891.630404 635.240094" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1128" y="821" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1128" dy="0">6/39 direct appkit</tspan><tspan x="1128" dy="18.5">adoption today</tspan></text></g><g class="KGZsZWV0LmFkb3B0ZXJzIC0mZ3Q7IHQxKVswXQ=="><path d="M 344.5 839.25 C 502.100006 839.25 599.400024 797.450012 825.766518 632.604696" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="607" y="789" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="607" dy="0">presets get adopted</tspan><tspan x="607" dy="18.5">parts catalogs don&#39;t</tspan></text></g><g class="KHQxIC0mZ3Q7IGZsZWV0LmhhbmQpWzBd"><path d="M 890.238913 626.738019 C 1134.900024 765.75 1241.900024 805.612 1419.522742 824.634063" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1141.5" y="766" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1141.5" dy="0">target: 10+ direct adopters</tspan><tspan x="1141.5" dy="18.5">in six months</tspan></text></g><mask id="d2-1242875589" maskUnits="userSpaceOnUse" x="-23" y="-85" width="1875" height="1104">
-<rect x="-23" y="-85" width="1875" height="1104" fill="white"></rect>
-<rect x="498" y="275" width="89" height="37" fill="black"></rect>
-<rect x="1117" y="131" width="127" height="37" fill="black"></rect>
-<rect x="1118" y="275" width="158" height="37" fill="black"></rect>
-<rect x="1119" y="418" width="121" height="37" fill="black"></rect>
-<rect x="1068" y="805" width="120" height="37" fill="black"></rect>
-<rect x="538" y="773" width="138" height="37" fill="black"></rect>
-<rect x="1052" y="750" width="179" height="37" fill="black"></rect>
+		.d2-1973814791 .fill-N1{fill:#CDD6F4;}
+		.d2-1973814791 .fill-N2{fill:#BAC2DE;}
+		.d2-1973814791 .fill-N7{fill:#1E1E2E;}
+		.d2-1973814791 .fill-B1{fill:#CBA6f7;}
+		.d2-1973814791 .fill-B5{fill:#45475A;}
+		.d2-1973814791 .fill-B6{fill:#313244;}
+		.d2-1973814791 .stroke-B1{stroke:#CBA6f7;}
+		.d2-1973814791 .stroke-B2{stroke:#CBA6f7;}.appendix text.text{fill:#CDD6F4}.md{--color-fg-default:#CDD6F4;--color-fg-muted:#BAC2DE;--color-fg-subtle:#A6ADC8;--color-canvas-default:#1E1E2E;--color-canvas-subtle:#313244;--color-border-default:#CBA6f7;--color-border-muted:#CBA6f7;--color-neutral-muted:#313244;--color-accent-fg:#CBA6f7;--color-accent-emphasis:#CBA6f7;--color-attention-subtle:#BAC2DE;--color-danger-fg:red;}.light-code{display: none}.dark-code{display: block}]]></style><g class="cHJlc2V0X3Byb2dyYW0="><g class="shape" ><rect x="86" y="56" width="1781" height="474" stroke="#CBA6f7" fill="#0e0e10" class=" stroke-B1" style="stroke-width:2;" /></g><text x="976.5" y="43" fill="#CDD6F4" class="text fill-N1" style="text-anchor:middle;font-size:28px">SUPERB v12 — the preset program</text></g><g class="Z2F0ZQ=="><g class="shape" ><rect x="770" y="616" width="1067" height="168" stroke="#CBA6f7" fill="#18181d" class=" stroke-B1" style="stroke-width:2;" /></g><text x="1303.5" y="603" fill="#CDD6F4" class="text fill-N1" style="text-anchor:middle;font-size:28px">success gate (6-month re-sweep)</text></g><g class="ZmxlZXQ="><g class="shape" ><rect x="67" y="1122" width="1041" height="453" stroke="#CBA6f7" fill="#18181d" class=" stroke-B1" style="stroke-width:2;" /></g><text x="587.5" y="1109" fill="#CDD6F4" class="text fill-N1" style="text-anchor:middle;font-size:28px">the 39 Go apps</text></g><g class="dDE="><g class="shape" ><rect x="893" y="960" width="60" height="66" stroke="#CBA6f7" fill="#313244" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="923" y="998.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">t1</text></g><g class="dDQ="><g class="shape" ><rect x="208" y="662" width="61" height="66" stroke="#CBA6f7" fill="#313244" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="238.5" y="700.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">t4</text></g><g class="dDM="><g class="shape" ><rect x="893" y="834" width="60" height="66" stroke="#CBA6f7" fill="#313244" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="923" y="872.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">t3</text></g><g class="cHJlc2V0X3Byb2dyYW0udDI="><g class="shape" ><rect x="116" y="244" width="245" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="238.5" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="238.5" dy="0">T2 appkit/config (F1)</tspan><tspan x="238.5" dy="17.666667">env-first typed config</tspan><tspan x="238.5" dy="17.666667">22 pkgs / 25 parsers demand</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDE="><g class="shape" ><rect x="805" y="244" width="236" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="923" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="923" dy="0">T1 appkit/preset</tspan><tspan x="923" dy="17.666667">one-call env-driven service</tspan><tspan x="923" dy="17.666667">ONLY shipped batteries</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDM="><g class="shape" ><rect x="1537" y="402" width="286" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1680" y="440.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1680" dy="0">T3 Scaffold `appkit new`</tspan><tspan x="1680" dy="17.666667">cmdguard + preset + templ</tspan><tspan x="1680" dy="17.666667">flake buildflow CI systemd Docker</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDQ="><g class="shape" ><rect x="1523" y="244" width="314" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1680" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1680" dy="0">T4 Adoption wave</tspan><tspan x="1680" dy="17.666667">per-repo swap recipes</tspan><tspan x="1680" dy="17.666667">dnsblockd -1.6k ChastityAPI -4.8k LOC</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDU="><g class="shape" ><rect x="1542" y="86" width="276" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1680" y="124.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1680" dy="0">T5 Battery completions</tspan><tspan x="1680" dy="17.666667">D1 workers D3 sqlite+migrations</tspan><tspan x="1680" dy="17.666667">C2 realtime Mount auth gate</tspan></text></g><g class="Z2F0ZS5iYXNlbGluZQ=="><g class="shape" ><rect x="800" y="646" width="246" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="923" y="684.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="923" dy="0">baseline 2026-11-06:</tspan><tspan x="923" dy="17.666667">appkit 6 direct / 8 any</tspan><tspan x="923" dy="17.666667">setup 10 (fleet&#39;s only preset)</tspan></text></g><g class="Z2F0ZS50YXJnZXQ="><g class="shape" ><rect x="1554" y="656" width="253" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1680.5" y="694.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1680.5" dy="0">target:</tspan><tspan x="1680.5" dy="17.666667">appkit direct &gt; 10</tspan><tspan x="1680.5" dy="17.666667">ledger rows trending shipped</tspan></text></g><g class="ZmxlZXQuaG9zdHM="><g class="shape" ><rect x="768" y="1309" width="310" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="923" y="1347.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="923" dy="0">preset-hosts: 6</tspan><tspan x="923" dy="17.666667">quotaboard media-atlas pbx-lens</tspan><tspan x="923" dy="17.666667">PapDashboard RR-golang legal-graph</tspan></text></g><g class="ZmxlZXQuc2V0dXA="><g class="shape" ><rect x="138" y="1152" width="201" height="82" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="238.5" y="1190.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="238.5" dy="0">setup-preset users: 10</tspan><tspan x="238.5" dy="18.5">the adoption proof</tspan></text></g><g class="ZmxlZXQuaGFuZA=="><g class="shape" ><rect x="97" y="1294" width="282" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="238" y="1332.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="238" dy="0">hand-rollers: ~14</tspan><tspan x="238" dy="17.666667">ChastityAPI GmbH ksef-sandbox</tspan><tspan x="238" dy="17.666667">storbi webphone desire-secrets...</tspan></text></g><g class="ZmxlZXQuY2xpcw=="><g class="shape" ><rect x="116" y="1463" width="244" height="82" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="238" y="1501.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="238" dy="0">cmdguard CLIs: 9</tspan><tspan x="238" dy="18.5">CV mr-sync nsfw-classifier...</tspan></text></g><g class="ZmxlZXQudDM="><g class="shape" ><rect x="893" y="1471" width="60" height="66" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="923" y="1509.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">t3</text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQyIC0mZ3Q7IHQxKVswXQ=="><marker id="mk-d2-1973814791-3488378134" markerWidth="10" markerHeight="12" refX="7" refY="6" viewBox="0 0 10 12" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0,0 10,6 0,12" fill="#CBA6f7" class="connection fill-B1" stroke-width="2" /> </marker><path d="M 363.5 293 C 492.299988 293 697.799988 293 801 293" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /><text x="583.5" y="299" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">env binding</text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQzKVswXQ=="><path d="M 1002.694901 343.061749 C 1140.199951 429.200012 1386.599976 451 1533 451" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /><text x="1256" y="445" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">generates preset usage</text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQ0KVswXQ=="><path d="M 1043 293 C 1148.199951 293 1383.800049 293 1519 293" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /><text x="1282.5" y="299" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">cheap migration target</text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQ1KVswXQ=="><path d="M 1002.694901 242.938251 C 1140.199951 156.800003 1387.599976 135 1538 135" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /><text x="1258.5" y="152" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">demand numbers</text></g><g class="Z2F0ZS4oYmFzZWxpbmUgLSZndDsgdGFyZ2V0KVswXQ=="><path d="M 1048 695 C 1149.199951 695 1389.900024 696.234985 1549.501825 701.057178" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /></g><g class="ZmxlZXQuKGhhbmQgLSZndDsgaG9zdHMpWzBd"><path d="M 380.997004 1350.359425 C 495.799988 1356.650024 690.400024 1358.25 764 1358.25" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /><text x="573.5" y="1363" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">migrate via T4</text></g><g class="ZmxlZXQuKGNsaXMgLSZndDsgdDMpWzBd"><path d="M 362 1504.25 C 492 1504.25 715.400024 1504.25 889 1504.25" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /><text x="627" y="1502" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="627" dy="0">scaffold serves</tspan><tspan x="627" dy="18.5">the serve verb</tspan></text></g><g class="KGZsZWV0LmhhbmQgLSZndDsgdDEpWzBd"><path d="M 380.950789 1310.559068 C 495.799988 1284.599976 715.400024 1226.599976 890.385214 1024.027027" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /></g><g class="KGZsZWV0LnNldHVwIC0mZ3Q7IHQxKVswXQ=="><path d="M 341.5 1193 C 487.899994 1193 715.400024 1156.599976 889.906656 1013.535985" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /></g><g class="KHQ0IC0mZ3Q7IGdhdGUuYmFzZWxpbmUpWzBd"><path d="M 271.5 695 C 473.899994 695 696.799988 695 796 695" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /></g><g class="KHQzIC0mZ3Q7IGdhdGUudGFyZ2V0KVswXQ=="><path d="M 954.785626 850.599144 C 1130.599976 761.900024 1389.900024 735.237 1549.521552 718.599671" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1973814791-3488378134)" mask="url(#d2-1973814791)" /></g><mask id="d2-1973814791" maskUnits="userSpaceOnUse" x="-34" y="-85" width="2002" height="1761">
+<rect x="-34" y="-85" width="2002" height="1761" fill="white"></rect>
+<rect x="543" y="283" width="81" height="21" fill="black"></rect>
+<rect x="1177" y="429" width="158" height="21" fill="black"></rect>
+<rect x="1204" y="283" width="157" height="21" fill="black"></rect>
+<rect x="1198" y="136" width="121" height="21" fill="black"></rect>
+<rect x="524" y="1347" width="99" height="21" fill="black"></rect>
+<rect x="576" y="1486" width="102" height="37" fill="black"></rect>
 </mask></svg></svg>
 
     </div>
 
-    <h2 id="sprint"><span class="num">07</span>Sprint 1 fine breakdown (T2.1, ≤15 min per task)</h2>
-    <table>
-      <thead>
-        <tr><th>#</th><th>Micro-task</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>1</td><td>Re-read battery spec F1 + 3 exemplar config packages (dnsblockd, ChastityAPI, quotaboard) — extract the recurring struct shape</td></tr>
-        <tr><td>2</td><td>Write <code>config/README.md</code> API sketch (Load, Bind, defaults, precedence) — design-first</td></tr>
-        <tr><td>3</td><td>koanf verdict note: env-first struct tags vs koanf wrapper (fleet reality is os.Getenv structs — 25 apps)</td></tr>
-        <tr><td>4</td><td>Module skeleton: go.mod (go 1.27.2), .golangci.yml copied from a satellite, CHANGELOG [Unreleased]</td></tr>
-        <tr><td>5</td><td>Core types: <code>Loader[T]</code>, <code>Tag</code> struct-tag grammar, <code>ValidationError</code> via error-family</td></tr>
-        <tr><td>6</td><td>Env binding happy-path test (red) → implementation (green)</td></tr>
-        <tr><td>7</td><td>Defaults + precedence test → implementation</td></tr>
-        <tr><td>8</td><td>Validate-hook test → implementation</td></tr>
-        <tr><td>9</td><td>Workspace charter: add module to go.work via <code>check-workspace-charter.sh --fix</code>; dependabot parity entry</td></tr>
-        <tr><td>10</td><td>Run verify loop: <code>scripts/verify-all.sh config</code>; lint from module dir</td></tr>
-      </tbody>
-    </table>
+    <h2 id="sequence"><span class="num">10</span>Sequencing + risk</h2>
+    <div class="migration-step">
+      <div class="migration-num">1</div>
+      <div class="migration-content"><h4>Train 1 — config (T2.1–T2.4)</h4><p>No dependencies; the preset needs its env binding. Tags config v0.1.0.</p></div>
+    </div>
+    <div class="migration-step">
+      <div class="migration-num">2</div>
+      <div class="migration-content"><h4>Train 2 — preset (T1.1–T1.6)</h4><p>Consumes config; composes shipped batteries only. Tags preset v0.1.0 + integration E2E re-pin.</p></div>
+    </div>
+    <div class="migration-step">
+      <div class="migration-num">3</div>
+      <div class="migration-content"><h4>Train 3 — scaffold (T3.1–T3.5)</h4><p>Generates preset usage; dogfood closes the loop. Can start T3.1 in parallel with train 2.</p></div>
+    </div>
+    <div class="migration-step">
+      <div class="migration-num">4</div>
+      <div class="migration-content"><h4>Train 4 — wave + batteries (T4, T5)</h4><p>Recipes land as the preset stabilizes; D1/D3/C2 ride their own trains; T5.4 is owner-gated and can decide anytime.</p></div>
+    </div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Risk register">
+      <table>
+        <thead><tr><th>Risk</th><th>Likelihood</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Preset grows capability ("fat core by proxy")</td><td><span class="badge badge-critical">Watched</span></td><td>Compose-only constraint + review gate: any new capability goes to a satellite first, preset wires it a train later</td></tr>
+          <tr><td>Env-switch sprawl (APPKIT_* flags drift per app)</td><td><span class="badge badge-medium">Possible</span></td><td>Grammar frozen in T1.1; every switch documented in the posture table; no per-app custom switches in v0.x</td></tr>
+          <tr><td>Recipes rot as modules move</td><td><span class="badge badge-medium">Possible</span></td><td>Recipes live in docs/recipes/ with as-of tags; re-verified at each preset minor train</td></tr>
+          <tr><td>v11 repair backlog contends for the same trains</td><td><span class="badge badge-high">Certain</span></td><td>Owner sequencing call owed (status report g1); config train is small enough to interleave</td></tr>
+          <tr><td>Success-gate measurement stays manual</td><td><span class="badge badge-medium">Possible</span></td><td>Adoption-counter script (dual-column) routed as a v12 backlog item; wire into pre-tag or CI when built</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <h2 id="nongoals"><span class="num">08</span>Non-goals (deliberate)</h2>
+    <h2 id="sprint"><span class="num">11</span>Sprint 1 fine breakdown (≤15 min per task)</h2>
+    <h3>T2.1 — config design (10 micro-tasks)</h3>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="T2.1 micro breakdown">
+      <table>
+        <thead><tr><th>#</th><th>Micro-task</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Re-read battery spec F1 + 3 exemplar config packages (dnsblockd, ChastityAPI, quotaboard) — extract the recurring struct shape</td></tr>
+          <tr><td>2</td><td>Write config/README.md API sketch (Load, Bind, defaults, precedence) — design-first</td></tr>
+          <tr><td>3</td><td>koanf verdict note: env-first struct tags vs koanf wrapper (fleet reality is os.Getenv structs — 25 apps)</td></tr>
+          <tr><td>4</td><td>Module skeleton: go.mod (go 1.27.2), .golangci.yml from a satellite, CHANGELOG [Unreleased]</td></tr>
+          <tr><td>5</td><td>Core types: Loader[T], Tag struct-tag grammar, ValidationError via error-family</td></tr>
+          <tr><td>6</td><td>Env binding happy-path test (red) → implementation (green)</td></tr>
+          <tr><td>7</td><td>Defaults + precedence test → implementation</td></tr>
+          <tr><td>8</td><td>Validate-hook test → implementation</td></tr>
+          <tr><td>9</td><td>Workspace charter: add module via check-workspace-charter.sh --fix; dependabot parity entry</td></tr>
+          <tr><td>10</td><td>Run scripts/verify-all.sh config; lint from module dir</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>T1.1 — preset design (6 micro-tasks, starts after T2.1 item 2)</h3>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="T1.1 micro breakdown">
+      <table>
+        <thead><tr><th>#</th><th>Micro-task</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Enumerate the spine pieces + their config surfaces (core, systemd, health, errorpages, metrics/version, RegisterClassifications)</td></tr>
+          <tr><td>2</td><td>Env-switch grammar table (name, type, default, conflict rules) — freeze it</td></tr>
+          <tr><td>3</td><td>preset.Config struct + options sketch in README (design-first)</td></tr>
+          <tr><td>4</td><td>Posture table: what each switch turns on, per environment (dev/prod/systemd)</td></tr>
+          <tr><td>5</td><td>Conflict-matrix test plan (env present + code override + both absent)</td></tr>
+          <tr><td>6</td><td>Skeleton module + charter + dependabot entries (same as T2.1 item 9)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="nongoals"><span class="num">12</span>Non-goals (deliberate)</h2>
     <div class="strengths">
       <div class="strength"><div class="check">×</div><div class="text">No fat core — the preset is a satellite; core stays a thin lifecycle (north star).</div></div>
       <div class="strength"><div class="check">×</div><div class="text">No app-rewrites from THIS repo — adoption wave work lives in the consumer repos; appkit ships recipes only.</div></div>
       <div class="strength"><div class="check">×</div><div class="text">No magic DI container — samber/do bridge stays a W4 battery decision, not a preset dependency.</div></div>
       <div class="strength"><div class="check">×</div><div class="text">KeyHolderAI / go-aichat reverse adoption stays user-gated (TODO_LIST P3, unchanged).</div></div>
-      <div class="strength"><div class="check">×</div><div class="text">Security never silently joins a stack — the preset's security leg is an explicit profile switch, same posture as security v0.2.0.</div></div>
+      <div class="strength"><div class="check">×</div><div class="text">Security never silently joins a stack — explicit profile switch, same posture as security v0.2.0.</div></div>
+      <div class="strength"><div class="check">×</div><div class="text">No auth leg in preset v0.x — T5.4 owner gate decides the shape first.</div></div>
     </div>
 
-    <h2 id="verify"><span class="num">09</span>Verification + success metrics</h2>
+    <h2 id="verify"><span class="num">13</span>Verification + success gates</h2>
     <div class="migration-step">
       <div class="migration-num">1</div>
-      <div class="migration-content">
-        <h4>Per-task</h4>
-        <p>Module verify loop (<code>scripts/verify-all.sh</code>), lint from module dir, release ritual (API diff + pre-tag-checks + fresh-consumer proxy check), integration E2E through published tags after each release.</p>
-      </div>
+      <div class="migration-content"><h4>Per-task</h4><p>Module verify loop (scripts/verify-all.sh), lint from module dir, release ritual (API diff + pre-tag-checks + fresh-consumer proxy check), integration E2E through published tags after each release.</p></div>
     </div>
     <div class="migration-step">
       <div class="migration-num">2</div>
-      <div class="migration-content">
-        <h4>Program (six months, re-sweep)</h4>
-        <p>Re-run this audit's sweep: go-appkit direct adopters &gt; setup's 10; §2 ledger rows trending to the shipped-battery column; new-app bootstrap = scaffold run + domain code.</p>
+      <div class="migration-content"><h4>Program gate — six-month re-sweep (dual-column, mechanical when the counter script lands)</h4>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Success gates baseline versus target">
+          <table>
+            <thead><tr><th>Metric</th><th>Baseline 2026-11-06</th><th>Target ~2027-05</th></tr></thead>
+            <tbody>
+              <tr><td>go-appkit direct adopters</td><td>6</td><td>&gt; 10 (beat setup)</td></tr>
+              <tr><td>go-appkit any-require adopters</td><td>8</td><td>&gt; 16</td></tr>
+              <tr><td>Apps on preset (any)</td><td>0 (module unborn)</td><td>&gt; 8</td></tr>
+              <tr><td>Hand-rolled config packages</td><td>22</td><td>&lt; 12</td></tr>
+              <tr><td>Hand-rolled SSE</td><td>9</td><td>&lt; 4</td></tr>
+              <tr><td>dnsblockd + ChastityAPI duplicated LOC</td><td>~6,400</td><td>~0 (swapped)</td></tr>
+              <tr><td>New-app bootstrap</td><td>copy-paste a cousin</td><td>scaffold run + domain code</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
     <div class="migration-step">
       <div class="migration-num">3</div>
-      <div class="migration-content">
-        <h4>Guard rails touched by this plan</h4>
-        <p>Workspace charter (new modules), dependabot parity, pin-drift (integration re-pins ride the release ritual), AGENTS ≤220-line cap for any pointer added.</p>
-      </div>
+      <div class="migration-content"><h4>Guard rails touched by this plan</h4><p>Workspace charter (new modules), dependabot parity, pin-drift (integration re-pins ride the release ritual), AGENTS ≤220-line cap for any pointer added.</p></div>
     </div>
 
     <footer class="footer">
-      Generated 2026-11-06 &middot; Evidence: docs/review/apps/2026-11-06_integration-burden-audit.md &middot; all counts scripted + reproducible (audit appendix A)
+      Generated 2026-11-06, rev 2 (expanded) · Evidence: docs/review/apps/2026-11-06_integration-burden-audit.md (incl. same-day errata) ·
+      all counts scripted + reproducible (audit appendix A) · status: docs/status/2026-11-06_01-25_cross-app-audit-superb-v12-routing.md
     </footer>
   </main>
 </div>
