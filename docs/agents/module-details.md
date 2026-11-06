@@ -127,7 +127,7 @@ context, NOT user documentation — each module's user-facing docs live in its o
 - The `go-health` dependency exists solely for the compile-time interface assertion in `contract_test.go` — no runtime usage. If go-health's `HealthRecorder` interface changes, the build breaks instead of failing silently.
 - Errors use [go-error-family](https://github.com/LarsArtmann/go-error-family) constructors: `flightrecorder.recorder_missing` is `Rejection`, `flightrecorder.recorder_disabled` is `Infrastructure`.
 - Tests use `do.New()` with registered `healthSvc` mocks, `WithMinAge(50ms)` + `WithMaxBytes(1MiB)` + 100ms warmup sleep for trace data.
-- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.2.0` (2026-09-20 v0.1.3; contract assertions unchanged — the health module moved to v0.4.1 but frh's own pin stays until its next train), `samber/do v2.1.0`, `go-error-family v0.11.0`.
+- Dependencies: `go-flightrecorder v0.2.0`, `go-health v0.8.1` (frh's own DIRECT pin since the 2026-11-02 shape change — pin and MVS agree fleet-wide: frh v0.8.1 = health v0.8.1 = integration v0.8.1; refreshed 2026-11-06, issue54 §f13), `samber/do v2.1.0`, `go-error-family v0.11.0`.
 
 ## health Module
 

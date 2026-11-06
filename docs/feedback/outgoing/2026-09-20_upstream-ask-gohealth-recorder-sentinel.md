@@ -1,11 +1,11 @@
 # Upstream draft: go-health — reject `WithHealthRecorder` on the function-path constructors with a sentinel error
 
-**Status:** DRAFT — filing is USER-gated (plan Gate Q3, 2026-09-20). Do not
-file without explicit approval.
-**→ RESOLVED: FILED 2026-10-13 as [go-health#7](https://github.com/LarsArtmann/go-health/issues/7);
+**Status:** RESOLVED — FILED 2026-10-13 as [go-health#7](https://github.com/LarsArtmann/go-health/issues/7);
 CLOSED COMPLETED upstream — shipped in go-health v0.8.x
 (`ErrRecorderNotApplicable` fails at boot on the function path), adopted + pinned by
-appkit health v0.3.0 (2026-10-27; `TestNewProbe_RecorderOptionFailsAtBoot`).**
+appkit health v0.3.0 (2026-10-27) and re-pinned by health v0.3.1 (2026-11-06;
+`TestNewProbe_RecorderOptionFailsAtBoot`). The earlier DRAFT/user-gate header is
+history (refreshed 2026-11-06, issue54 §f21).
 **Target repo:** github.com/larsartmann/go-health (own repo — treat as a
 decision note, not an external ask)
 **Evidence versions:** v0.1.3, v0.2.0, v0.3.0 (all verified identical)

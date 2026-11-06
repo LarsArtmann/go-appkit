@@ -8,8 +8,12 @@ awareness) — and [go-health-dashboard] — the real-time HTML dashboard with
 SSE updates, trend history, Prometheus exposition, and webhooks — into
 appkit's lifecycle.
 
-> Requires `GOEXPERIMENT=jsonv2` (go-health serializes with
-> `encoding/json/v2`; the dashboard depends on go-sse).
+> The dashboard serializes with `encoding/json/v2` (default-on since the
+> Go 1.26 floor — no GOEXPERIMENT prefix needed) and depends on go-sse.
+>
+> Since health v0.3.1 (templ-components v1.26.0 alignment) the rendered
+> dashboard markup wraps scroll regions in `role="region"` containers for
+> screen-reader navigation; the CSV/export wire surfaces are byte-identical.
 
 ## Why
 
