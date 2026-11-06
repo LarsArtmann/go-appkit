@@ -4,6 +4,14 @@
 
 ### Changed
 
+- cqrs-lint F032 (catalog-mandate, upstream owner policy 2026-11-03; rule
+  shipped in cqrs-lint v4.20.0 and retro-red on this module's CI): suppressed
+  inline at the `command/v4` import with the recorded reason — this module is
+  a framework wrapper over `system`, not a domain app; the domain vocabulary
+  belongs to consumers, who derive catalogs from their own DomainConfig via
+  `systemcatalog`. The stale E014 suppression moved from the file preamble to
+  the package clause (its anchor drifted to `commands.go:5` in the same
+  upstream wave; the linter now warns on misplaced suppressions).
 - Adopted `samber/lo` (v1.53.0, promoted from indirect to direct
   require) at the plan-query-name and example-name collects per fleet
   policy's required functional stack. Runtime: the owner exercised the

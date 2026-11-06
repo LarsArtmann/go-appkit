@@ -6,6 +6,14 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- `collectFields` restructured to guard-clause style with a `nestedWalk`
+  helper — behavior-identical, but the function drops from cyclomatic
+  complexity 14 to under the module's cyclop limit of 12. The complexity
+  finding shipped red in v0.1.0 (CI fleet-lint, latent since the release
+  commit; caught in the 2026-11-06 CI-red triage).
+
 ## [0.1.0] - 2026-11-06
 
 ### Added — initial module (battery F1, SUPERB v12 C-train)

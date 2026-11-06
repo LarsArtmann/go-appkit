@@ -342,7 +342,7 @@ whenever answered — none block the P/S/R trains.
 ## Errata (2026-11-06 08:02 — concurrent-session reconciliation)
 
 1. **The §0 claim "suite GREEN under `-race -count=1` hermetic (17.2s, re-run this
-   session)" is ONE LUCKY PASS, not suite health.** The preset suite carries an
+   session)" is ONE LUCKY PASS, not suite health.** The preset suite carried an
    intermittent shutdown hang: ~1/3 of targeted runs
    (`-run 'TestErrorPages|TestSecurity|TestNew_ZeroAppCodeBoots' -race -count=3`) and ~1
    failure per full-suite run — `testkit.Serve` cleanup blocks the full 5s stop-timeout in
@@ -352,6 +352,22 @@ whenever answered — none block the P/S/R trains.
    isolation; otel+spine, realtime+spine, conflict+spine PASS; **errorpages+security+spine
    reproduces ~1/3**. **This bug GATES P9b (the preset tag) until the suite is green ×3
    consecutive.** TODO_LIST carries the corrected row (same edit train).
+
+   **RESOLVED 2026-11-06 08:35 — root cause: TEST HYGIENE, not a product bug.** The old
+   `spine_test.go` probes did `resp.Body.Close()` WITHOUT draining (`http.Get` → close →
+   assert status). Abandoned bodies make the client tear the conns down mid-response; the
+   server conn goroutine, caught reading the "next request" on a reset connection, sits in
+   the ACTIVE state that `http.Server.Shutdown`'s idle-close deliberately skips — under
+   scheduling load the error propagation stretches past the 5s stop-timeout and Shutdown
+   returns `context deadline exceeded`. The concurrent session's noctx refactor
+   (spine/otel tests → `getURL`/`testkit.HTTPGetContext`, 08:08) replaced every
+   close-without-drain with drain-then-close — the accidental fix. Evidence: pre-refactor
+   tree failed 2/3 targeted runs (08:06); post-refactor tree is 25/25 clean across quiet
+   AND artificially loaded conditions (load 32 + 24 spinners, watcher-armed goroutine
+   dumps never tripped). The preset MODULE was never at fault; the P9b gate is the ×3
+   consecutive green-suite requirement, now running against the fixed tests. Standing
+   lesson (candidate for the house rules): test clients must DRAIN response bodies before
+   closing — close-without-drain is an RST generator and a shutdown-flake factory.
 2. **Duplicate-plan resolution (owner-approved design):** a second v13 plan
    (`2026-11-06_07-46_SUPERB-v13-ship-the-spine-refresh-plan.md`, commit d732139) was
    written in a race with THIS plan's authoring session; THIS file (07-10) is canonical,
