@@ -139,8 +139,8 @@ verdicts were checked against a live goroutine dump before being believed.
 1. **Push master + CI verify on the FINAL pushed commit** (§f7's gating action; the 13:27
    daemon commit + this session's ~10 files). Verify: structure-linter job RUNS (not
    skipped) post-push, proxy-smoke preset leg, agents-deps live run.
-2. meta null-tags bug → upstream ask draft (verify-before-filing gate: reproduce one-liner
-   in the issue).
+2. meta null-tags bug → FILED post-report: project-meta [#4](https://github.com/LarsArtmann/project-meta/issues/4)
+   (verified repro + version stamped in the issue).
 3. golangci-lint v2.15.0 machine drift → check-golangci-configs.sh + CI pin stay v2.14.0;
    consider pinning the local nix profile.
 4. Root-owned ~/.cache/go-mod → owner machine fix (see a15).
