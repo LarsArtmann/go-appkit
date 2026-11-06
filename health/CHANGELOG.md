@@ -6,6 +6,27 @@
 
 ### Changed
 
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.3.1] - 2026-11-06
+
+The dependency-alignment release, cut so consumers can pin a real tag
+instead of a pseudo-version (go-appkit#54): no library API change —
+`NewProbe`, `New`, `Mount`, and `Mounted` keep byte-identical signatures.
+What moves is the stack underneath the mounted dashboard and the error
+classifications reaching your handlers.
+
+### Changed
+
+- Dependency sweep to the fleet's current pins: `go-health-dashboard`
+  v0.10.2 → v0.12.2 (rendered dashboard markup gains templ-components
+  v1.24.0's accessibility `role="region"` scroll wrappers; the CSV/export
+  wire surfaces stay byte-identical), `go-error-family` v0.11.0 → v0.12.0,
+  `templ-components` v1.21.0 → v1.26.0, `httputil` v1.5.0 → v1.8.0.
 - Runtime: adopted `samber/lo` (v1.53.0, direct require) for `NewProbe`'s
   map-to-map conversion (`lo.MapEntries`) — owner-authorized runtime-lo
   gate exercised 2026-11-02; behavior identical (the linter's original
