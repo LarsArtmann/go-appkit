@@ -7,7 +7,6 @@
 > asks landed via the p9a + 13-10 closeouts, and the gated program legs
 > carry routed markers into their wired TODO rows. Archived 2026-11-06:
 > every §f item carries a verdict; nothing here is unowned.
->
 
 > **2026-11-03 21:25 CET · go-appkit @ master · docs/status/2026-11-03_21-25_decision-batch-execution-status.md**
 > Covers: the 13 answered Questions-tool decisions and their first execution wave

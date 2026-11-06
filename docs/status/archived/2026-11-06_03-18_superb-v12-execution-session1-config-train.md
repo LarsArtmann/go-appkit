@@ -7,7 +7,6 @@
 > scaffold/battery/v13-program legs carry routed markers into their wired
 > rows. Archived 2026-11-06: every §f item carries a verdict; nothing here
 > is unowned.
->
 
 **Created:** 2026-11-06 03:18 · **Scope:** this session only — execution of
 `docs/planning/2026-11-06_01-48_SUPERB-v12-unified-execution-plan.md` per the owner's

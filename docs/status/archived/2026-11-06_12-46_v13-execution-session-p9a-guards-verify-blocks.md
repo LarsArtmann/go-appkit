@@ -7,7 +7,6 @@
 > scaffold/battery/owner legs carry routed markers into their wired TODO
 > rows. Archived 2026-11-06: every §f item carries a verdict; nothing here
 > is unowned.
->
 
 **Written:** 2026-11-06 12:46 +0100 · **Session window:** ~06:30–08:45 (active), bench
 completed in background by 12:46 · **Companion:** concurrent sibling session (the preset

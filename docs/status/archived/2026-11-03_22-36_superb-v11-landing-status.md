@@ -7,7 +7,6 @@
 > the battery/upstream/owner legs carry routed markers into their wired TODO
 > rows. Archived 2026-11-06: every §f item carries a verdict; nothing here
 > is unowned.
->
 
 > **2026-11-03 22:36 CET · go-appkit @ master · docs/status/2026-11-03_22-36_superb-v11-landing-status.md**
 > Covers the FULL session arc: 12-lib fleet audit → owner composition ruling → Server-Timing

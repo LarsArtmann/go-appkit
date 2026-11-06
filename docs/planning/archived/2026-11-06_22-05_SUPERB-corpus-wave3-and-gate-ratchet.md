@@ -11,7 +11,6 @@
 > Guard/tooling-improvements row (eleven asks), the guards-count fix.
 > The wave-0 verdict changed once: wave 3 expanded beyond the plan's own
 > wave-1 scope and drained the WHOLE corpus, not just the floor.
->
 
 **Date:** 2026-11-06 22:05 CET
 **Trigger:** `docs-gates run .` red on freshness+audit-all (the concurrent

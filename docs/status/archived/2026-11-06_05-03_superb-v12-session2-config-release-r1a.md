@@ -7,7 +7,6 @@
 > the scaffold/battery/machine-ops legs carry routed markers into their
 > wired rows. Archived 2026-11-06: every §f item carries a verdict; nothing
 > here is unowned.
->
 
 **Created:** 2026-11-06 05:03 · **Scope:** session 2 of the "execute the WHOLE list"
 directive (session 1 report: `2026-11-06_03-18_...`). This session: finished the C-train

@@ -7,7 +7,6 @@
 > recorded with checkable evidence, and the audit-tooling asks carry routed
 > markers into the micro-backlog row. Archived 2026-11-06: every §f item
 > carries a verdict; nothing here is unowned.
->
 
 > **2026-11-03 19:54 CET · go-appkit @ master · docs/status/2026-11-03_19-54_sibling-library-fleet-audit-session-status.md**
 > Scope of this report: the 12-library fleet-audit session that produced

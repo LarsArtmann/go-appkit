@@ -7,7 +7,6 @@
 > battery/upstream/owner legs carry routed markers into their wired TODO
 > rows. Archived 2026-11-06: every §f item carries a verdict; nothing here
 > is unowned.
->
 
 > **2026-11-03 20:35 CET · go-appkit @ master · docs/status/2026-11-03_20-35_server-timing-adoption-session-status.md**
 > Covers: the fleet audit (earlier today) → the owner's composition-mission ruling → the

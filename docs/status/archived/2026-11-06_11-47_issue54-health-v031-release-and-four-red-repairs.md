@@ -7,7 +7,6 @@
 > TODO row. The guards-count wording fix landed in this archive's
 > close-out. Archived 2026-11-06: every §f item carries a verdict; nothing
 > here is unowned.
->
 
 **Created:** 2026-11-06 11:47 · **Scope:** resolve
 [go-appkit#54](https://github.com/LarsArtmann/go-appkit/issues/54) ("cut

@@ -6,7 +6,6 @@
 > asks are in AGENTS, and the owner gates + program rows carry routed
 > markers into their wired TODO rows. Archived 2026-11-06: every §f item
 > carries a verdict; nothing here is unowned.
->
 
 **As-of:** 2026-11-03 16:28 CET · **Scope:** this session leg only — everything after the 21:53 (11-02) report: the §6 split-brain repair, the consumer-claims guard's first live catch since the PapDashboard leg (cqrs-htmx released `setup/v4.16.0`), the claims refresh, the suite re-verifications, and the overnight landing of the whole lo-adoption set as daemon commit `99c7d8a`. Supersedes the 21:53 report for CURRENT state; all prior reports remain valid point-in-time snapshots.
 
