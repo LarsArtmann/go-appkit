@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SUPERB v12 — App Composition Preset Program (Pareto Plan)</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS DARK — Dashboard template
+         Design language: form follows function. Primary colors on graphite.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         Token architecture: see references/bauhaus-tokens.md
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Dark) --- */
+        --color-graphite: #0e0e10;
+        --color-graphite-2: #18181d;
+        --color-graphite-3: #16161a;
+        --color-bone: #f4f4f0;
+        --color-red: #ff6b6b;
+        --color-blue: #6eb5ff;
+        --color-yellow: #f4d35e;
+        --color-amber: #ffb347;
+        --color-hairline: rgba(244, 244, 240, 0.12);
+        --color-hairline-strong: rgba(244, 244, 240, 0.25);
+
+        /* --- Semantic layer (shared vocabulary with editorial template) --- */
+        --surface: var(--color-graphite);
+        --surface-raised: var(--color-graphite-2);
+        --surface-sunken: var(--color-graphite-3);
+        --text: var(--color-bone);
+        --text-muted: rgba(244, 244, 240, 0.72);
+        --text-faint: rgba(244, 244, 240, 0.45);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-amber);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Backward-compatible aliases (do not break consumer skills) --- */
+        --bg: var(--surface);
+        --bg-elevated: var(--surface-raised);
+        --bg-sunken: var(--surface-sunken);
+        --bg-card: var(--surface-raised);
+        --bg-code: var(--surface-sunken);
+        --ink: var(--text);
+        --ink-secondary: var(--text-muted);
+        --ink-muted: var(--text-faint);
+        --rose: var(--problem);
+        --rose-glow: color-mix(in srgb, var(--problem) 15%, transparent);
+        --emerald: var(--solution);
+        --emerald-glow: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-glow: color-mix(in srgb, var(--warning) 15%, transparent);
+        --coral: var(--problem);
+        --coral-light: color-mix(in srgb, var(--problem) 15%, transparent);
+        --teal: var(--solution);
+        --teal-light: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-light: color-mix(in srgb, var(--warning) 20%, transparent);
+
+        /* --- Shape --- */
+        --radius: 0px; /* Bauhaus default: sharp corners */
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      /* Sticky-header offset for anchor jumps */
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Accessibility: keyboard focus --- */
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      a:focus-visible {
+        outline-offset: -1px;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout: optional sticky sidebar TOC --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .sidebar a {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.45rem 0.75rem;
+        border-left: 2px solid transparent;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.1;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      h3 {
+        font-size: 1.1rem;
+        margin: 0 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 0.98rem;
+        margin: 0 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .hero-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--surface);
+        background: var(--accent);
+        padding: 0.3rem 0.7rem;
+        margin-bottom: 0.9rem;
+      }
+      .hero-subtitle {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        max-width: 70ch;
+        margin: 0;
+      }
+
+      /* Bauhaus signature: geometric shape cluster (optional) */
+      .hero-shapes {
+        position: relative;
+        height: 80px;
+        margin-bottom: 1rem;
+      }
+      .hero-shapes .circle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 56px;
+        height: 56px;
+        background: var(--problem);
+        border-radius: 50%;
+      }
+      .hero-shapes .square {
+        position: absolute;
+        top: 24px;
+        left: 72px;
+        width: 48px;
+        height: 48px;
+        background: var(--solution);
+      }
+      .hero-shapes .tri {
+        position: absolute;
+        top: 8px;
+        left: 140px;
+        width: 0;
+        height: 0;
+        border-left: 28px solid transparent;
+        border-right: 28px solid transparent;
+        border-bottom: 48px solid var(--warning);
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges (used inside issue cards) --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Inline badges (used in tables) --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.18rem 0.5rem;
+        border: 1px solid var(--border-strong);
+        color: var(--text-muted);
+      }
+      .badge-critical {
+        color: var(--problem);
+        border-color: var(--problem);
+      }
+      .badge-high {
+        color: var(--warning);
+        border-color: var(--warning);
+      }
+      .badge-medium {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .badge-low {
+        color: var(--text-muted);
+      }
+      .badge-fixed {
+        color: var(--solution);
+        border-color: var(--solution);
+      }
+
+      /* --- Callouts (used inside issues or standalone) --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.7rem 0.9rem;
+        border-left: 3px solid var(--border-strong);
+        background: color-mix(in srgb, var(--text) 5%, transparent);
+        font-size: 0.9rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 10%, transparent);
+      }
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 10%, transparent);
+      }
+
+      /* --- Stat cards / scorecards (aliased vocabulary) --- */
+      .stat-grid,
+      .scorecard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .stat-card,
+      .score-card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1rem;
+        position: relative;
+      }
+      .stat-card::before,
+      .score-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-strong);
+      }
+      .stat-bad,
+      .score-bad {
+        /* default top bar already set */
+      }
+      .stat-bad::before,
+      .score-bad::before {
+        background: var(--problem);
+      }
+      .stat-good::before,
+      .score-good::before {
+        background: var(--solution);
+      }
+      .stat-warn::before,
+      .score-warn::before {
+        background: var(--warning);
+      }
+      .stat-value,
+      .score {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: var(--text);
+      }
+      .stat-bad .stat-value,
+      .score-bad .score {
+        color: var(--problem);
+      }
+      .stat-good .stat-value,
+      .score-good .score {
+        color: var(--solution);
+      }
+      .stat-warn .stat-value,
+      .score-warn .score {
+        color: var(--warning);
+      }
+      .stat-label,
+      .score-card .label {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-faint);
+        margin-top: 0.5rem;
+      }
+
+      /* --- Strengths list --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--solution);
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* --- Tables --- */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.9rem;
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--surface-raised);
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-strong);
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+      }
+      tr:hover td {
+        background: var(--surface-raised);
+      }
+
+      /* --- Before/After comparison --- */
+      .compare-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+      .compare-before,
+      .compare-after {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 0.7rem;
+        color: var(--surface);
+      }
+      .compare-before {
+        background: var(--problem);
+      }
+      .compare-after {
+        background: var(--solution);
+      }
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .compare-row pre {
+        margin: 0;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+      }
+      code {
+        font-family: var(--font-mono);
+      }
+      p code,
+      li code,
+      td code {
+        font-size: 0.88em;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+      }
+      .tok-keyword {
+        color: var(--accent);
+      } /* func, type, struct, if, return */
+      .tok-type {
+        color: var(--warning);
+      } /* int, string, bool, error */
+      .tok-string {
+        color: var(--solution);
+      } /* "quoted strings" */
+      .tok-comment {
+        color: var(--text-faint);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #74a9ff;
+      } /* function names */
+      .tok-number {
+        color: var(--accent);
+      } /* 42, 3.14 */
+      .tok-generic {
+        color: var(--problem);
+      } /* T, ID in generics */
+      .tok-builtin {
+        color: #4dd9ff;
+      } /* make, len, append */
+      .tok-punct {
+        color: var(--text-muted);
+      } /* { } ( ) ; = : */
+      .tok-attr {
+        color: var(--accent);
+      } /* Nix attribute names */
+
+      /* --- Dependency tree / ASCII diagrams --- */
+      .dep-tree {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .dep-tree .root {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .dep-tree .ok {
+        color: var(--solution);
+      }
+      .dep-tree .unwanted {
+        color: var(--problem);
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.35rem 0.7rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: var(--surface-sunken);
+        border: 1px solid var(--border-strong);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+        border-color: var(--accent);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+        border-color: var(--problem);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+        border-color: var(--solution);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Grids (responsive) --- */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* --- Inline TOC (alternative to sidebar) --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Migration / numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-header,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .stat-grid,
+        .scorecard {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+<div class="top-bar">
+  <span>go-appkit · SUPERB v12</span>
+  <span>2026-11-06 01:00</span>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" data-nav>
+    <nav>
+      <div class="label">Contents</div>
+      <a href="#summary">00 Summary</a>
+      <a href="#findings">01 Findings</a>
+      <a href="#ledger">02 Duplication ledger</a>
+      <a href="#tier1">03 Tier 1% → 51%</a>
+      <a href="#tier4">04 Tier 4% → 64%</a>
+      <a href="#tier20">05 Tier 20% → 80%</a>
+      <a href="#graph">06 Execution graph</a>
+      <a href="#sprint">07 Sprint 1 fine breakdown</a>
+      <a href="#nongoals">08 Non-goals</a>
+      <a href="#verify">09 Verification</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="hero">
+      <div class="hero-shapes">
+        <div class="circle"></div>
+        <div class="square"></div>
+        <div class="tri"></div>
+      </div>
+      <div class="hero-badge">Pareto Plan · SUPERB v12</div>
+      <h1>Kill the re-assembly tax</h1>
+      <p class="hero-subtitle">
+        The 39 Go apps adopt the atomic building blocks everywhere (branded-id 34×, error-family 34×,
+        httputil 24×) — and hand-assemble them ~20–30 times. go-appkit, the composition layer, is the
+        least-adopted core module: 6/39 direct. This plan makes composition the default: one preset,
+        one config battery, one scaffold, then an adoption wave.
+      </p>
+    </div>
+
+    <nav class="toc"></nav>
+
+    <h2 id="summary"><span class="num">00</span>Summary</h2>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-value">39</div>
+        <div class="stat-label">Go apps audited (of 57 app-tagged)</div>
+      </div>
+      <div class="stat-card stat-bad">
+        <div class="stat-value">6/39</div>
+        <div class="stat-label">Direct go-appkit adopters (the paradox)</div>
+      </div>
+      <div class="stat-card stat-warn">
+        <div class="stat-value">22 / 25</div>
+        <div class="stat-label">Hand-rolled config packages / env parsers</div>
+      </div>
+      <div class="stat-card stat-bad">
+        <div class="stat-value">~9,400</div>
+        <div class="stat-label">LOC of shipped batteries re-implemented in 3 exemplar apps</div>
+      </div>
+      <div class="stat-card stat-good">
+        <div class="stat-value">10</div>
+        <div class="stat-label">cqrs-htmx setup adopters — the fleet's only preset, and the proof</div>
+      </div>
+      <div class="stat-card stat-good">
+        <div class="stat-value">37/39</div>
+        <div class="stat-label">flake.nix copies — the scaffold's demand base</div>
+      </div>
+    </div>
+    <div class="callout callout-solution">
+      <strong>Pareto thesis.</strong> One percent of the work — a single <code>preset.New()</code>
+      composing batteries that already shipped — removes 51% of the per-app integration burden,
+      because every future app AND every migration lands on it. Config first (the preset's env
+      binding), scaffold next (kills new-app copy-paste), then the per-repo swap wave.
+    </div>
+
+    <h2 id="findings"><span class="num">01</span>Findings</h2>
+    <div class="card card-problem">
+      <h3>The paradox</h3>
+      <p>
+        Adoption counts (direct go.mod requires, all 39 apps): branded-id 34, error-family 34, etag 25,
+        go-sse 24, httputil 24, codec 23, cqrs-lite 22, flightrecorder 22, templ-components 21 …
+        go-appkit <strong>6</strong>. The repo whose mission is "make it easy for my apps to smartly
+        use all my libs together" is the least-used member of the very stack it composes. The blocks
+        are consumed; the assembly is rewritten per app.
+      </p>
+    </div>
+    <div class="card card-solution">
+      <h3>Presets get adopted; parts catalogs don't</h3>
+      <p>
+        The one composition product with real adoption is cqrs-htmx <code>setup.New()</code> — 10
+        apps, one call, dispatcher + auth + SSE + errorpages + service. dnsblockd re-implements
+        appkit/otel (777 LOC), appkit/systemd (59), appkit/security (~590); ChastityAPI re-implements
+        ~4,800 LOC of the same battery set; PapDashboard hosts appkit and still hand-rolls the
+        security battery 1:1. The batteries exist — the cheap path to them does not.
+      </p>
+    </div>
+    <div class="issue issue-critical">
+      <span class="severity severity-critical">Root cause</span>
+      <h4>Opt-in-everything + no swap recipes + no scaffold</h4>
+      <div class="where">audit §4 — docs/review/apps/2026-11-06_integration-burden-audit.md</div>
+      <p>
+        Each battery is a separate module and a separate wiring decision; most apps predate the
+        batteries; nothing makes adopting cheaper than keeping the hand-roll; every new app starts by
+        copy-pasting a cousin's config/logger/CLI/flake.
+      </p>
+    </div>
+
+    <h2 id="ledger"><span class="num">02</span>Duplication ledger</h2>
+    <table>
+      <thead>
+        <tr><th>Integration shape</th><th>Apps</th><th>On the shelf</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>internal/config package</td><td>22</td><td>—</td><td><span class="badge badge-critical">F1 build now</span></td></tr>
+        <tr><td>os.Getenv parsing</td><td>25</td><td>—</td><td><span class="badge badge-critical">F1 build now</span></td></tr>
+        <tr><td>Embedded CREATE TABLE migrations</td><td>16</td><td>D3 (partial)</td><td><span class="badge badge-high">extend D3</span></td></tr>
+        <tr><td>Hand-opened sqlite</td><td>15</td><td>go-sqlitestore / sqliteengine</td><td><span class="badge badge-high">recipe + D3</span></td></tr>
+        <tr><td>Hand-rolled JWT/session</td><td>10</td><td>cqrs-htmx usermgmt</td><td><span class="badge badge-high">decision owed</span></td></tr>
+        <tr><td>Hand-rolled SSE</td><td>9</td><td>appkit/realtime</td><td><span class="badge badge-high">C2 Mount</span></td></tr>
+        <tr><td>signal.NotifyContext shutdown</td><td>9</td><td>core Service</td><td><span class="badge badge-low">preset covers</span></td></tr>
+        <tr><td>charmbracelet/slog setup</td><td>7</td><td>core InitLogger</td><td><span class="badge badge-low">preset covers</span></td></tr>
+        <tr><td>flake.nix / buildflow / Dockerfile / unit</td><td>37/20/16/6</td><td>—</td><td><span class="badge badge-high">scaffold</span></td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="tier1"><span class="num">03</span>Tier 1% → 51% — the preset spine</h2>
+    <p>Medium-granularity tasks (30–100 min each). Source: audit §5, evidence §1–§3.</p>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Destination</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>T2.1</td><td>Design <code>appkit/config</code> env-first API: struct-tag binding, defaults, validate hook, precedence (flag &gt; env &gt; file); koanf adopt-or-decline verdict in the design note</td><td>Very High</td><td>~90m</td><td>new module <code>config/</code> (F1)</td></tr>
+        <tr><td>T2.2</td><td>Implement env binding + precedence + error-family classified failures; table tests</td><td>Very High</td><td>2×90m</td><td><code>config/</code></td></tr>
+        <tr><td>T2.3</td><td>README + runnable example + compile-checked snippets (doc-snippets-are-code rule)</td><td>High</td><td>~60m</td><td><code>config/</code></td></tr>
+        <tr><td>T2.4</td><td>Tag config v0.1.0 (release ritual: API diff, pre-tag-checks, fresh-consumer proxy check)</td><td>High</td><td>~60m</td><td>release train</td></tr>
+        <tr><td>T1.1</td><td>Design <code>appkit/preset</code>: <code>preset.Config</code>, env switches (OTEL / SECURITY_PROFILE / REALTIME / ERRORPAGES / METRICS), every leg overridable; skeleton module</td><td>Very High</td><td>~90m</td><td>new module <code>preset/</code></td></tr>
+        <tr><td>T1.2</td><td>Wire always-on spine: core Service + systemd.Install + health dashboard + errorpages + metrics/version + RegisterClassifications</td><td>Very High</td><td>2×90m</td><td><code>preset/</code></td></tr>
+        <tr><td>T1.3</td><td>Optional otel leg behind <code>APPKIT_OTEL</code> (env-driven, explicit code wins over env)</td><td>High</td><td>~90m</td><td><code>preset/</code></td></tr>
+        <tr><td>T1.4</td><td>Optional security-profile + realtime legs; posture documented per profile</td><td>High</td><td>2×90m</td><td><code>preset/</code></td></tr>
+        <tr><td>T1.5</td><td>Example app (&lt;40 LOC main.go, full production posture) + integration E2E through PUBLISHED tags after release</td><td>High</td><td>2×90m</td><td><code>preset/example/</code> + <code>integration/</code></td></tr>
+        <tr><td>T1.6</td><td>Tag preset v0.1.0; consumer heads-up drafts (cqrs-htmx + PapDashboard convention)</td><td>High</td><td>~60m</td><td>release train</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-amber">
+      <strong>Constraint.</strong> The preset composes ONLY shipped batteries — no new capability is
+      invented inside it. Core stays thin; the preset is an independently versioned satellite whose
+      entire job is correct default composition (ROADMAP north star).
+    </div>
+
+    <h2 id="tier4"><span class="num">04</span>Tier 4% → 64% — the scaffold</h2>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Destination</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>T3.1</td><td>Scaffold shape decision: template repo (go-website-template pattern) vs <code>cmd/appkit-new</code> generator; short verdict doc (go-wizard-sdk's template engine is UNBUILT — do not block on it)</td><td>High</td><td>~90m</td><td><code>docs/planning/</code> verdict</td></tr>
+        <tr><td>T3.2</td><td>Template: cmdguard serve verb + typed flags → preset; templ + templ-components skeleton</td><td>High</td><td>2×90m</td><td>scaffold</td></tr>
+        <tr><td>T3.3</td><td>Template: flake.nix + .buildflow.yml + CI workflow + systemd unit + Dockerfile (the 37/20/16/6 rows)</td><td>High</td><td>2×90m</td><td>scaffold</td></tr>
+        <tr><td>T3.4</td><td>Template: README/CHANGELOG/AGENTS/FEATURES skeleton + meta tags; example-smoke-style boot probe script</td><td>Medium</td><td>~90m</td><td>scaffold</td></tr>
+        <tr><td>T3.5</td><td>Dogfood: scaffold a real toy app end-to-end, boot + graceful-stop check, fix what hurt</td><td>High</td><td>~90m</td><td>scaffold</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="tier20"><span class="num">05</span>Tier 20% → 80% — adoption wave + demand-proven batteries</h2>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Task</th><th>Impact</th><th>Effort</th><th>Destination</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>T4.1</td><td>Battery-swap recipe template (per-repo checklist: inventory hand-rolls → map to batteries → swap order → delete LOC count → suite green)</td><td>High</td><td>~60m</td><td><code>docs/recipes/</code></td></tr>
+        <tr><td>T4.2</td><td>dnsblockd recipe: internal otel/sdnotify/middleware/logging-sampling → appkit otel/systemd/security/core (−~1,600 LOC)</td><td>High</td><td>~60m recipe</td><td>their repo executes</td></tr>
+        <tr><td>T4.3</td><td>ChastityAPI recipe: security/usermgmt/realtime/D1 mapping (−~4,800 LOC class)</td><td>High</td><td>~90m recipe</td><td>their repo executes</td></tr>
+        <tr><td>T4.4</td><td>PapDashboard security swap recipe (M17 follow-up)</td><td>Medium</td><td>~45m recipe</td><td>their repo executes</td></tr>
+        <tr><td>T4.5</td><td>pbx-lens cmdguard migration recipe (fatalCode exit contract → cmdguard)</td><td>Medium</td><td>~45m recipe</td><td>their repo executes</td></tr>
+        <tr><td>T5.1</td><td>D1 worker supervisor module (port-from: quotaboard refresher hooks + ChastityAPI scheduler joins)</td><td>High</td><td>train</td><td>battery D1</td></tr>
+        <tr><td>T5.2</td><td>D3 SQLite ops kit + embedded-migration helper (16-app demand)</td><td>High</td><td>train</td><td>battery D3</td></tr>
+        <tr><td>T5.3</td><td>C2 realtime <code>Mount</code> one-liner + SubscribeFolded contract (9 SSE hand-rollers)</td><td>Medium</td><td>train</td><td>realtime module</td></tr>
+        <tr><td>T5.4</td><td>Auth-bridge DECISION memo: usermgmt recipe for non-cqrs apps vs security session battery (10 JWT hand-rollers) — OWNER GATE</td><td>High</td><td>~90m memo</td><td><code>docs/planning/</code></td></tr>
+        <tr><td>T5.5</td><td>W3 httpx B1–B9 program — already promoted (SUPERB v11); unchanged, sequenced after the preset spine</td><td>High</td><td>train</td><td>TODO_LIST P2</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="graph"><span class="num">06</span>Execution graph</h2>
+    <div style="border: 1px solid var(--border); padding: 1rem; overflow-x: auto;">
+      <?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-d2-version="v0.9.0" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1875 1104"><svg class="d2-1242875589 d2-svg" width="1875" height="1104" viewBox="-23 -85 1875 1104"><rect x="-23" y="-85" width="1875" height="1104" rx="0" fill="#1E1E2E" class=" fill-N7" stroke-width="0" /><style type="text/css"><![CDATA[
+.d2-1242875589 .text {
+	font-family: "d2-1242875589-font-regular";
+}
+@font-face {
+	font-family: d2-1242875589-font-regular;
+	src: url("data:application/font-woff;base64,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");
+}
+.d2-1242875589 .text-bold {
+	font-family: "d2-1242875589-font-bold";
+}
+@font-face {
+	font-family: d2-1242875589-font-bold;
+	src: url("data:application/font-woff;base64,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");
+}
+.d2-1242875589 .text-italic {
+	font-family: "d2-1242875589-font-italic";
+}
+@font-face {
+	font-family: d2-1242875589-font-italic;
+	src: url("data:application/font-woff;base64,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");
+}]]></style><style type="text/css"><![CDATA[.shape {
+  shape-rendering: geometricPrecision;
+  stroke-linejoin: round;
+}
+.connection {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.blend {
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+		.d2-1242875589 .fill-N1{fill:#CDD6F4;}
+		.d2-1242875589 .fill-N2{fill:#BAC2DE;}
+		.d2-1242875589 .fill-N7{fill:#1E1E2E;}
+		.d2-1242875589 .fill-B1{fill:#CBA6f7;}
+		.d2-1242875589 .fill-B5{fill:#45475A;}
+		.d2-1242875589 .fill-B6{fill:#313244;}
+		.d2-1242875589 .stroke-B1{stroke:#CBA6f7;}
+		.d2-1242875589 .stroke-B2{stroke:#CBA6f7;}.appendix text.text{fill:#CDD6F4}.md{--color-fg-default:#CDD6F4;--color-fg-muted:#BAC2DE;--color-fg-subtle:#A6ADC8;--color-canvas-default:#1E1E2E;--color-canvas-subtle:#313244;--color-border-default:#CBA6f7;--color-border-muted:#CBA6f7;--color-neutral-muted:#313244;--color-accent-fg:#CBA6f7;--color-accent-emphasis:#CBA6f7;--color-attention-subtle:#BAC2DE;--color-danger-fg:red;}.light-code{display: none}.dark-code{display: block}]]></style><g class="cHJlc2V0X3Byb2dyYW0="><g class="shape" ><rect x="78" y="56" width="1673" height="474" stroke="#CBA6f7" fill="#0e0e10" class=" stroke-B1" style="stroke-width:2;" /></g><text x="914.5" y="43" fill="#CDD6F4" class="text fill-N1" style="text-anchor:middle;font-size:28px">appkit preset program</text></g><g class="ZmxlZXQ="><g class="shape" ><rect x="104" y="760" width="1615" height="158" stroke="#CBA6f7" fill="#18181d" class=" stroke-B1" style="stroke-width:2;" /></g><text x="911.5" y="747" fill="#CDD6F4" class="text fill-N1" style="text-anchor:middle;font-size:28px">the 39 Go apps</text></g><g class="dDE="><g class="shape" ><rect x="829" y="580" width="60" height="66" stroke="#CBA6f7" fill="#313244" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="859" y="618.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">t1</text></g><g class="cHJlc2V0X3Byb2dyYW0udDI="><g class="shape" ><rect x="108" y="244" width="260" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="238" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="238" dy="0">T2 Config battery (F1)</tspan><tspan x="238" dy="17.666667">env-first typed config</tspan><tspan x="238" dy="17.666667">22 config pkgs / 25 env parsers</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDE="><g class="shape" ><rect x="717" y="244" width="285" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="859.5" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="859.5" dy="0">T1 appkit/preset</tspan><tspan x="859.5" dy="17.666667">one-call env-driven service</tspan><tspan x="859.5" dy="17.666667">composes ONLY shipped batteries</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDM="><g class="shape" ><rect x="1417" y="86" width="279" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1556.5" y="124.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1556.5" dy="0">T3 Scaffold `appkit new`</tspan><tspan x="1556.5" dy="17.666667">cmdguard serve + preset + templ</tspan><tspan x="1556.5" dy="17.666667">+ flake + buildflow + CI + systemd</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDQ="><g class="shape" ><rect x="1392" y="244" width="329" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1556.5" y="282.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1556.5" dy="0">T4 Adoption wave</tspan><tspan x="1556.5" dy="17.666667">per-repo battery-swap recipes</tspan><tspan x="1556.5" dy="17.666667">dnsblockd -1600 / ChastityAPI -4800 LOC</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0udDU="><g class="shape" ><rect x="1414" y="402" width="284" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1556" y="440.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1556" dy="0">T5 Battery completions</tspan><tspan x="1556" dy="17.666667">D1 workers / D3 sqlite+migrations</tspan><tspan x="1556" dy="17.666667">C2 realtime Mount / auth decision</tspan></text></g><g class="ZmxlZXQuaGFuZA=="><g class="shape" ><rect x="1424" y="790" width="265" height="98" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="1556.5" y="828.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="1556.5" dy="0">hand-rolled:</tspan><tspan x="1556.5" dy="17.666667">config 22x / migrations 16x</tspan><tspan x="1556.5" dy="17.666667">JWT 10x / SSE 9x / shutdown 9x</tspan></text></g><g class="ZmxlZXQuYWRvcHRlcnM="><g class="shape" ><rect x="134" y="798" width="208" height="82" stroke="#CBA6f7" fill="#45475A" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="238" y="836.5" fill="#CDD6F4" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px"><tspan x="238" dy="0">cqrs-htmx setup</tspan><tspan x="238" dy="18.5">10 adopters (the proof)</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQyIC0mZ3Q7IHQxKVswXQ=="><marker id="mk-d2-1242875589-3488378134" markerWidth="10" markerHeight="12" refX="7" refY="6" viewBox="0 0 10 12" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0,0 10,6 0,12" fill="#CBA6f7" class="connection fill-B1" stroke-width="2" /> </marker><path d="M 370.5 293 C 507.299988 293 576.900024 293 712.5 293" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="542.5" y="291" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="542.5" dy="0">preset needs</tspan><tspan x="542.5" dy="18.5">env binding</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQzKVswXQ=="><path d="M 965.311571 243.152527 C 1149.900024 156.800003 1240.5 135 1412.5 135" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1180.5" y="147" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1180.5" dy="0">scaffold generates</tspan><tspan x="1180.5" dy="18.5">preset usage</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQ0KVswXQ=="><path d="M 1004.5 293 C 1157.699951 293 1235.5 293 1387.5 293" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1197" y="291" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1197" dy="0">preset is the</tspan><tspan x="1197" dy="18.5">cheap migration target</tspan></text></g><g class="cHJlc2V0X3Byb2dyYW0uKHQxIC0mZ3Q7IHQ1KVswXQ=="><path d="M 965.311571 342.847473 C 1149.900024 429.200012 1240.099976 451 1410.5 451" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1179.5" y="434" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1179.5" dy="0">demand numbers</tspan><tspan x="1179.5" dy="18.5">reprioritize spec</tspan></text></g><g class="KGZsZWV0LmhhbmQgLSZndDsgdDEpWzBd"><path d="M 1421.511371 853.651993 C 1241.900024 872.887024 1134.900024 828.75 891.630404 635.240094" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1128" y="821" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1128" dy="0">6/39 direct appkit</tspan><tspan x="1128" dy="18.5">adoption today</tspan></text></g><g class="KGZsZWV0LmFkb3B0ZXJzIC0mZ3Q7IHQxKVswXQ=="><path d="M 344.5 839.25 C 502.100006 839.25 599.400024 797.450012 825.766518 632.604696" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="607" y="789" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="607" dy="0">presets get adopted</tspan><tspan x="607" dy="18.5">parts catalogs don&#39;t</tspan></text></g><g class="KHQxIC0mZ3Q7IGZsZWV0LmhhbmQpWzBd"><path d="M 890.238913 626.738019 C 1134.900024 765.75 1241.900024 805.612 1419.522742 824.634063" stroke="#CBA6f7" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1242875589-3488378134)" mask="url(#d2-1242875589)" /><text x="1141.5" y="766" fill="#BAC2DE" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px"><tspan x="1141.5" dy="0">target: 10+ direct adopters</tspan><tspan x="1141.5" dy="18.5">in six months</tspan></text></g><mask id="d2-1242875589" maskUnits="userSpaceOnUse" x="-23" y="-85" width="1875" height="1104">
+<rect x="-23" y="-85" width="1875" height="1104" fill="white"></rect>
+<rect x="498" y="275" width="89" height="37" fill="black"></rect>
+<rect x="1117" y="131" width="127" height="37" fill="black"></rect>
+<rect x="1118" y="275" width="158" height="37" fill="black"></rect>
+<rect x="1119" y="418" width="121" height="37" fill="black"></rect>
+<rect x="1068" y="805" width="120" height="37" fill="black"></rect>
+<rect x="538" y="773" width="138" height="37" fill="black"></rect>
+<rect x="1052" y="750" width="179" height="37" fill="black"></rect>
+</mask></svg></svg>
+
+    </div>
+
+    <h2 id="sprint"><span class="num">07</span>Sprint 1 fine breakdown (T2.1, ≤15 min per task)</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Micro-task</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Re-read battery spec F1 + 3 exemplar config packages (dnsblockd, ChastityAPI, quotaboard) — extract the recurring struct shape</td></tr>
+        <tr><td>2</td><td>Write <code>config/README.md</code> API sketch (Load, Bind, defaults, precedence) — design-first</td></tr>
+        <tr><td>3</td><td>koanf verdict note: env-first struct tags vs koanf wrapper (fleet reality is os.Getenv structs — 25 apps)</td></tr>
+        <tr><td>4</td><td>Module skeleton: go.mod (go 1.27.2), .golangci.yml copied from a satellite, CHANGELOG [Unreleased]</td></tr>
+        <tr><td>5</td><td>Core types: <code>Loader[T]</code>, <code>Tag</code> struct-tag grammar, <code>ValidationError</code> via error-family</td></tr>
+        <tr><td>6</td><td>Env binding happy-path test (red) → implementation (green)</td></tr>
+        <tr><td>7</td><td>Defaults + precedence test → implementation</td></tr>
+        <tr><td>8</td><td>Validate-hook test → implementation</td></tr>
+        <tr><td>9</td><td>Workspace charter: add module to go.work via <code>check-workspace-charter.sh --fix</code>; dependabot parity entry</td></tr>
+        <tr><td>10</td><td>Run verify loop: <code>scripts/verify-all.sh config</code>; lint from module dir</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="nongoals"><span class="num">08</span>Non-goals (deliberate)</h2>
+    <div class="strengths">
+      <div class="strength"><div class="check">×</div><div class="text">No fat core — the preset is a satellite; core stays a thin lifecycle (north star).</div></div>
+      <div class="strength"><div class="check">×</div><div class="text">No app-rewrites from THIS repo — adoption wave work lives in the consumer repos; appkit ships recipes only.</div></div>
+      <div class="strength"><div class="check">×</div><div class="text">No magic DI container — samber/do bridge stays a W4 battery decision, not a preset dependency.</div></div>
+      <div class="strength"><div class="check">×</div><div class="text">KeyHolderAI / go-aichat reverse adoption stays user-gated (TODO_LIST P3, unchanged).</div></div>
+      <div class="strength"><div class="check">×</div><div class="text">Security never silently joins a stack — the preset's security leg is an explicit profile switch, same posture as security v0.2.0.</div></div>
+    </div>
+
+    <h2 id="verify"><span class="num">09</span>Verification + success metrics</h2>
+    <div class="migration-step">
+      <div class="migration-num">1</div>
+      <div class="migration-content">
+        <h4>Per-task</h4>
+        <p>Module verify loop (<code>scripts/verify-all.sh</code>), lint from module dir, release ritual (API diff + pre-tag-checks + fresh-consumer proxy check), integration E2E through published tags after each release.</p>
+      </div>
+    </div>
+    <div class="migration-step">
+      <div class="migration-num">2</div>
+      <div class="migration-content">
+        <h4>Program (six months, re-sweep)</h4>
+        <p>Re-run this audit's sweep: go-appkit direct adopters &gt; setup's 10; §2 ledger rows trending to the shipped-battery column; new-app bootstrap = scaffold run + domain code.</p>
+      </div>
+    </div>
+    <div class="migration-step">
+      <div class="migration-num">3</div>
+      <div class="migration-content">
+        <h4>Guard rails touched by this plan</h4>
+        <p>Workspace charter (new modules), dependabot parity, pin-drift (integration re-pins ride the release ritual), AGENTS ≤220-line cap for any pointer added.</p>
+      </div>
+    </div>
+
+    <footer class="footer">
+      Generated 2026-11-06 &middot; Evidence: docs/review/apps/2026-11-06_integration-burden-audit.md &middot; all counts scripted + reproducible (audit appendix A)
+    </footer>
+  </main>
+</div>
+
+    <!-- Progressive-enhancement scrollspy. Nav still works without JS via anchor links. -->
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>
