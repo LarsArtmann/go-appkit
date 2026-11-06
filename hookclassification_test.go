@@ -14,6 +14,15 @@ import (
 // their own family).
 var errForeignHookFailure = errors.New("plain failure")
 
+// multiUnwrapper is the shape errors.Join returns: an error that exposes its
+// members. errors.AsType constrains its type argument to error, so the
+// anonymous `interface{ Unwrap() []error }` needs the Error method folded in.
+type multiUnwrapper interface {
+	error
+
+	Unwrap() []error
+}
+
 // TestRunHooks_RespectsHookClassification pins the WrapOnce contract
 // (error-family adoption batch, audit F3): a hook that already returns an
 // errorfamily error keeps its own family and code — no re-wrap nesting under
@@ -36,7 +45,7 @@ func TestRunHooks_RespectsHookClassification(t *testing.T) {
 		context.Background(), hooks, "server.shutdown_hook_failed", "shutdown hook failed",
 	)
 
-	joinedSplit, ok := errors.AsType[interface{Unwrap() []error}](joined)
+	joinedSplit, ok := errors.AsType[multiUnwrapper](joined)
 	if !ok {
 		t.Fatalf("joined error does not unwrap to members: %v", joined)
 	}
