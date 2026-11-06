@@ -9,9 +9,9 @@
 package main
 
 import (
-	"os"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/larsartmann/go-appkit/config"
