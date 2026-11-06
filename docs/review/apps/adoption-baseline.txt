@@ -1,13 +1,9 @@
-# Adoption baseline — written 2026-11-06 08:24 +0100 by scripts/count-adopters.sh
+# Adoption baseline — written 2026-11-06 14:13 +0100 by scripts/count-adopters.sh
 # Six-month gate (SUPERB v12/v13): go-appkit direct > 10 (beats every composed block)
-# Population note: the counter uses TODAY's meta app tags + recursive go.mod
-# presence — the 2026-11-06 audit snapshot (39 Go apps, 6 direct) predates
-# tag drift (59 tagged now, 31 Go, io-surface untagged); trend THIS baseline,
-# not the snapshot.
-Go apps (meta --tags app): 31
-github.com/larsartmann/go-appkit              any  7/31  direct  5/31
-github.com/larsartmann/httputil               any 21/31  direct 13/31
-github.com/larsartmann/go-sse                 any 21/31  direct  2/31
-github.com/larsartmann/go-error-family        any 27/31  direct 17/31
-github.com/larsartmann/go-cqrs-lite           any 18/31  direct  1/31
-github.com/larsartmann/templ-components       any 17/31  direct  5/31
+Go apps (meta --tags app): 41
+github.com/larsartmann/go-appkit              any  9/41  direct  7/41
+github.com/larsartmann/httputil               any 27/41  direct 24/41
+github.com/larsartmann/go-sse                 any 26/41  direct 15/41
+github.com/larsartmann/go-error-family        any 37/41  direct 24/41
+github.com/larsartmann/go-cqrs-lite           any 24/41  direct 22/41
+github.com/larsartmann/templ-components       any 23/41  direct 21/41
