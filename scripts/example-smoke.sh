@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Example smoke harness (SUPERB v6 T13). The seven example dirs carry
+# Example smoke harness (SUPERB v6 T13). The eight example dirs carry
 # "[no test files]" — until now their only verification was dated
 # "live-verified" claims from hand-run sessions. This script makes the
 # claim mechanical: build each example hermetically, run it on an
@@ -115,6 +115,7 @@ targets_all=(
 	"flightrecorder|flightrecorder|API_KEY=|/health/ready:200 /ok:200"
 	"systemd|systemd|API_KEY=|/health/ready:200 /:200"
 	"errorpages|errorpages|API_KEY=|/health:200 /no/such/page:404"
+	"preset|preset|API_KEY=|/health/ready:200 /hello:200 /version:200"
 )
 
 wanted=("$@")

@@ -13,7 +13,13 @@ import (
 )
 
 func main() {
+	addr := ":8080"
+	if port := os.Getenv("PORT"); port != "" {
+		addr = ":" + port
+	}
+
 	svc, err := preset.New(preset.Config{
+		Addr:    addr,
 		Version: "example-0.1.0",
 		HealthChecks: map[string]health.CheckFunc{
 			"always": func(context.Context) error { return nil },
