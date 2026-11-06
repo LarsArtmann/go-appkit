@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "threshold": 1,
-  "recordedAt": "2026-10-18T20:38:54.957238188Z",
+  "recordedAt": "2026-11-06T22:38:26.257492599Z",
   "entries": [
     {
       "hash": "046e9eb31c880db3",
@@ -44,6 +44,14 @@
       "tokens": 2
     },
     {
+      "hash": "791c7ed6852eb825",
+      "files": [
+        "otel/client.go",
+        "otel/middleware.go"
+      ],
+      "tokens": 2
+    },
+    {
       "hash": "93a9b09aaa101148",
       "files": [
         "cqrs/staleness_test.go",
@@ -63,14 +71,6 @@
         "otel/setup.go"
       ],
       "tokens": 4
-    },
-    {
-      "hash": "d334264ebba8df9e",
-      "files": [
-        "otel/exceptions.go",
-        "otel/diagnostics.go"
-      ],
-      "tokens": 2
     },
     {
       "hash": "f80309c9400bd042",
