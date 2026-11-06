@@ -27,22 +27,13 @@ func TestNew_ZeroAppCodeBoots(t *testing.T) {
 	ts := testkit.Serve(t, svc)
 
 	for _, path := range []string{"/healthz", "/readyz", "/startupz"} {
-		resp, err := http.Get(ts.FullChainURL + path)
-		if err != nil {
-			t.Fatalf("get %s: %v", path, err)
-		}
-		_ = resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("%s = %d, want 200", path, resp.StatusCode)
+		if status, _ := getURL(t, ts.FullChainURL+path); status != http.StatusOK {
+			t.Errorf("%s = %d, want 200", path, status)
 		}
 	}
 
-	dash, err := http.Get(ts.FullChainURL + "/health")
-	if err != nil {
-		t.Fatalf("dashboard: get: %v", err)
-	}
-	defer dash.Body.Close()
+	dash := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/health")
+	defer func() { _ = dash.Body.Close() }()
 
 	if dash.StatusCode != http.StatusOK {
 		t.Errorf("dashboard /health = %d, want 200", dash.StatusCode)
@@ -52,7 +43,6 @@ func TestNew_ZeroAppCodeBoots(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dashboard: read: %v", err)
 	}
-
 	if !strings.Contains(dash.Header.Get("Content-Type"), "text/html") {
 		t.Errorf("dashboard Content-Type = %q, want text/html", dash.Header.Get("Content-Type"))
 	}
@@ -134,22 +124,13 @@ func TestNew_VersionPassthrough(t *testing.T) {
 
 	ts := testkit.Serve(t, svc)
 
-	resp, err := http.Get(ts.FullChainURL + "/version")
-	if err != nil {
-		t.Fatalf("get /version: %v", err)
-	}
-	defer resp.Body.Close()
+	status, body := getURL(t, ts.FullChainURL+"/version")
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatalf("read /version: %v", err)
+	if status != http.StatusOK {
+		t.Errorf("/version = %d, want 200", status)
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("/version = %d, want 200", resp.StatusCode)
-	}
-
-	if !strings.Contains(string(body), "preset-test-1.2.3") {
+	if !strings.Contains(body, "preset-test-1.2.3") {
 		t.Errorf("/version body %q does not contain the version", body)
 	}
 }
@@ -168,14 +149,8 @@ func TestNew_NoDashboard(t *testing.T) {
 	ts := testkit.Serve(t, svc)
 
 	for _, path := range []string{"/healthz", "/readyz", "/health", "/health/ready"} {
-		resp, err := http.Get(ts.FullChainURL + path)
-		if err != nil {
-			t.Fatalf("get %s: %v", path, err)
-		}
-		_ = resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("%s = %d, want 200", path, resp.StatusCode)
+		if status, _ := getURL(t, ts.FullChainURL+path); status != http.StatusOK {
+			t.Errorf("%s = %d, want 200", path, status)
 		}
 	}
 }

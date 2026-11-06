@@ -70,11 +70,9 @@ func TestOTEL_CodeEnabled_RecordsSpans(t *testing.T) {
 
 	ts := testkit.Serve(t, svc)
 
-	resp, err := http.Get(ts.FullChainURL + "/healthz")
-	if err != nil {
-		t.Fatalf("get /healthz: %v", err)
+	if status, _ := getURL(t, ts.FullChainURL+"/healthz"); status != http.StatusOK {
+		t.Fatalf("/healthz = %d, want 200", status)
 	}
-	_ = resp.Body.Close()
 
 	if err := ts.Shutdown(t.Context()); err != nil {
 		t.Fatalf("graceful shutdown: %v", err)
@@ -109,11 +107,9 @@ func TestOTEL_CodeDisabled_EnvOn_ZeroSpans(t *testing.T) {
 
 	ts := testkit.Serve(t, svc)
 
-	resp, err := http.Get(ts.FullChainURL + "/healthz")
-	if err != nil {
-		t.Fatalf("get /healthz: %v", err)
+	if status, _ := getURL(t, ts.FullChainURL+"/healthz"); status != http.StatusOK {
+		t.Fatalf("/healthz = %d, want 200", status)
 	}
-	_ = resp.Body.Close()
 
 	if err := ts.Shutdown(t.Context()); err != nil {
 		t.Fatalf("graceful shutdown: %v", err)
@@ -135,13 +131,7 @@ func TestOTEL_EnvOn_Boots(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	resp, err := http.Get(ts + "/healthz")
-	if err != nil {
-		t.Fatalf("get /healthz: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("/healthz = %d, want 200", resp.StatusCode)
+	if status, _ := getURL(t, ts+"/healthz"); status != http.StatusOK {
+		t.Errorf("/healthz = %d, want 200", status)
 	}
 }

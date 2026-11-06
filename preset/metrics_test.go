@@ -8,6 +8,7 @@ import (
 	"github.com/larsartmann/go-appkit"
 	"github.com/larsartmann/go-appkit/preset"
 )
+
 // TestMetrics_NilStaysNil: nil Metrics passes through verbatim — the preset
 // never invents credentials, so no /metrics route exists (the errorpages
 // catch-all answers instead).
