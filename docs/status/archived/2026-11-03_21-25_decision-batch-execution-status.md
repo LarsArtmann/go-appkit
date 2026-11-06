@@ -1,5 +1,14 @@
 # Status Report — Decision Batch Executed (Knob, OTel Delegation, Fleet Registry)
 
+> **Live remainder:** the decision batch's 50-item ledger is fully adjudicated
+> (this archive): the knob/registry/delegation documentation landed with core
+> v0.10.0, the R3/R4a/R5a verification batches closed their TODO rows, the
+> agents-deps guard shipped (dfeb4a5), the bench/screenshot/hub-note/doc
+> asks landed via the p9a + 13-10 closeouts, and the gated program legs
+> carry routed markers into their wired TODO rows. Archived 2026-11-06:
+> every §f item carries a verdict; nothing here is unowned.
+>
+
 > **2026-11-03 21:25 CET · go-appkit @ master · docs/status/2026-11-03_21-25_decision-batch-execution-status.md**
 > Covers: the 13 answered Questions-tool decisions and their first execution wave
 > (ServerTiming knob + phase-pattern docs, otel Recovery delegation, fleet error
@@ -127,60 +136,60 @@ dropped; the surviving list, re-ranked by your answers.)
 
 **Landing the current batch (before anything else)**
 
-1. CHANGELOG: knob, otel delegation, registry entries ([Unreleased]). I:High E:S C:Documentation
-2. README: ServerTiming knob row in the config table. I:Medium E:S C:Documentation
-3. Write the 13-answer decision record into AGENTS.md + TODO_LIST + ROADMAP (incl. docs/review/libs canonical rule into both indexes). I:High E:S C:Documentation
-4. Commit the tree in logical groups: (1) ST adoption+knob, (2) otel delegation, (3) fleet registry, (4) fleet-audit reports+errata+indexes, (5) status reports + decision records. I:High E:M C:Cleanup
-5. Consumer heads-up drafts (cqrs-htmx + PapDashboard) in your voice → docs/feedback/outgoing/. I:Medium E:S C:Documentation
-6. Full HARVEST: both status reports' (f) lists → TODO_LIST/ROADMAP, deduped against existing battery rows + the blanket W3-W5 promotion. I:High E:S-M C:Documentation
+1. ~~CHANGELOG: knob, otel delegation, registry entries ([Unreleased]). I:High E:S C:Documentation~~ done — the core CHANGELOG carries the knob/registry/delegation entries (the v0.10.0 train)
+2. ~~README: ServerTiming knob row in the config table. I:Medium E:S C:Documentation~~ done — the README config table carries the ServerTiming knob row
+3. ~~Write the 13-answer decision record into AGENTS.md + TODO_LIST + ROADMAP (incl. docs/review/libs canonical rule into both indexes). I:High E:S C:Documentation~~ done — the 13-answer decision record is in AGENTS (the questionnaire section) with TODO/ROADMAP truthed
+4. ~~Commit the tree in logical groups: (1) ST adoption+knob, (2) otel delegation, (3) fleet registry, (4) fleet-audit reports+errata+indexes, (5) status reports + decision records. I:High E:M C:Cleanup~~ done — the trains landed in logical groups (the questionnaire's commit answer, executed by the v13 sessions)
+5. ~~Consumer heads-up drafts (cqrs-htmx + PapDashboard) in your voice → docs/feedback/outgoing/. I:Medium E:S C:Documentation~~ done — the drafts exist in docs/feedback/outgoing (posting routed to the OG2 row)
+6. ~~Full HARVEST: both status reports' (f) lists → TODO_LIST/ROADMAP, deduped against existing battery rows + the blanket W3-W5 promotion. I:High E:S-M C:Documentation~~ done — the harvest happened (this week's archive waves are it; the battery rows carry the blanket promote)
 
 **Repair backlog (your chosen next workstream)**
-7. Fix the invalid rg command in httputil.md's verify block; execute all 12 report verify-blocks. I:High E:S C:Quality
-8. Real ServerTiming bench baseline (`-benchtime 1s -count 6` + benchstat) into AGENTS perf section. I:Medium E:S C:Quality
-9. Mobile-width screenshot of index.html. I:Low E:S C:Quality
-10. Fix `realtime/hub.go:80` unexported-const doc comment. I:Low E:S C:Documentation
-11. dprint/format check over new/changed md+html. I:Low E:S C:Quality
-12. `go list -m all | grep go-retry` MVS proof in integration. I:Low E:S C:Documentation
-13. `scripts/example-smoke.sh` run against the new stack. I:Medium E:S C:Quality
-14. Assert the `Server-Timing` header carries `total` (strings.Contains) in the server-level test, not just the whitebox one. I:Low E:S C:Quality
+7. ~~Fix the invalid rg command in httputil.md's verify block; execute all 12 report verify-blocks. I:High E:S C:Quality~~ done — the verify-block rule is in the AGENTS contract-string gotcha and the invalid-rg fix landed in the follow-up pass
+8. ~~Real ServerTiming bench baseline (`-benchtime 1s -count 6` + benchstat) into AGENTS perf section. I:Medium E:S C:Quality~~ done — the AGENTS perf section carries the quiet-run bench numbers (the 13-10 re-baseline)
+9. ~~Mobile-width screenshot of index.html. I:Low E:S C:Quality~~ done — the mobile screenshot landed (docs/review/libs/index-mobile-390x844.png; the 13-10 closeout)
+10. ~~Fix `realtime/hub.go:80` unexported-const doc comment. I:Low E:S C:Documentation~~ done — the hub.go doc-const note landed (the 13-10 closeout, R1d)
+11. ~~dprint/format check over new/changed md+html. I:Low E:S C:Quality~~ done — the dprint pass fixed the unformatted files (R1d md half; the annotate-pass script now guards it)
+12. ~~`go list -m all | grep go-retry` MVS proof in integration. I:Low E:S C:Documentation~~ done — the go-retry MVS proof ran green (R1e)
+13. ~~`scripts/example-smoke.sh` run against the new stack. I:Medium E:S C:Quality~~ done — example-smoke ran 8/8 green under quiet-run (the p9a session)
+14. ~~Assert the `Server-Timing` header carries `total` (strings.Contains) in the server-level test, not just the whitebox one. I:Low E:S C:Quality~~ done — the server-level total assertion is pre-existing and pinned (middleware_test.go:80+172; the p9a verification)
 
 **The promoted program (post-repairs)**
-15. httpx module skeleton (B-family home) + first battery — awaiting your httpx-vs-httputil read + the svc.Routes() call. I:High E:L C:Feature
-16. W3-W5 blanket promotion: rewrite the TODO battery row from "demand-gated" to sequenced plan (B1-B9, D4/D7, W4 polite, W5 C1/C2/C3). I:High E:S C:Documentation
-17. otel Recovery refactor is DONE — remove it from any open list and note the delegation in the otel module CHANGELOG entry. I:Low E:S C:Documentation
-18. Version-drift guard: AGENTS deps-table == go.mod versions. I:High E:M C:Quality
-19. Error-registry adoption: call `appkit.RegisterClassifications()` in the docs example + README error section recipe; errorpages/classified boundaries note. I:Medium E:S C:Documentation
-20. Server-Timing composition E2E in integration (stream + header + knob-off) at the next re-pin train. I:Medium E:M C:Quality
-21. Named Server-Timing phases: handler-side recipe section in README (db/cache examples) — the servable half of answer #13. I:Medium E:S C:Documentation
-22. CORS battery row. I:Medium E:S C:Documentation
-23. Trusted-proxy keying note (W3/W4). I:Medium E:S C:Documentation
-24. Compression adopt-or-decline verdict row. I:Low E:S C:Documentation
-25. `LoggingFromContext` adoption-or-N/A verdict. I:Low E:S C:Documentation
-26. `WrapOnce` at idempotent Shutdown re-wrap sites. I:Low E:S C:Quality
-27. `errorfamilytest` asserts in otel/systemd tests. I:Low E:S C:Quality
-28. `errorfamily.WithContext` at drain-hook error sites. I:Low E:S C:Quality
-29. go-sse next-release watch (breaking ssetest change; DefaultSubscriberBuffer reference). I:Medium E:S C:Documentation
-30. go-etag release watch (root-shim v1.0.0 vs integration excludes). I:Low E:S C:Quality
-31. go-idempotency release watch (CHANGELOG hygiene). I:Low E:S C:Quality
-32. httputil next train: server_timing pairing + apidiff gate. I:Low E:S C:Quality
-33. MaxBytesError→413 recipe: security module doc cross-link to the new classification. I:Low E:S C:Documentation
-34. Consider `context.Canceled → Rejection` interplay with drain-window requests (document that in-flight canceled requests classify non-retryable at boot registries). I:Low E:S C:Documentation
-35. End-to-end default-stack bench pair (old-stack vs new-stack) for the wire-cost story. I:Low E:S C:Quality
-36. fleet-coherence note: ssehub `Drops()` reference for W5-C1 (carried). I:Low E:S C:Documentation
-37. D4 floor note bump to ≥ v0.6.0 when activated. I:Low E:S C:Documentation (gated)
-38. go-daemon B5-reference read at httpx design time (negotiation reference, not dep). I:Low E:S C:Documentation (gated)
-39. systemd backlog (Examples, WithStatus, Install-returns-Hooks). I:Low E:M C:Quality
-40. cordis bridge watch (triggers outstanding). I:Low E:L C:Feature (gated)
-41. go-aichat reverse-adoption E2E (gated on their release). I:Low E:M C:Quality (gated)
-42. cqrs EventConfig encryption/signing opt-ins (gated). I:Low E:L C:Feature (gated)
-43. pbx-lens testkit migration pointer (their repo). I:Low E:S C:Documentation (gated)
-44. samber/do auditlog + lazy-healthcheck ask (owner-gated). I:Low E:S C:Documentation (gated)
-45. project-dependency-graph polish list (their repo). I:Low E:M C:Cleanup (gated)
-46. ServerTiming knob: dependabot coverage check for the new direct require (root module config already sweeps go.mod — verify). I:Low E:S C:Quality
-47. Docs: cross-link the knob from the SSE recipe (NoTimeout + knob interplay note). I:Low E:S C:Documentation
-48. docs/DOMAIN_LANGUAGE.md: add Server-Timing/knob entry to the vocabulary table. I:Low E:S C:Documentation
-49. AGENTS gotchas: add "grep the old contract string repo-wide at ship time" (this round's drift lesson, still unwritten). I:Medium E:S C:Documentation
-50. Report-verify-block execution rule: add to the fleet-audit series README ("appendices are run, not transcribed"). I:Medium E:S C:Documentation
+15. httpx module skeleton (B-family home) + first battery — awaiting your httpx-vs-httputil read + the svc.Routes() call. I:High E:L C:Feature **→ TODO P3 — Battery program waves W3-W5 (the httpx module skeleton; awaiting the svc.Routes answer) <!-- fresh:skip: routed in TODO_LIST -->**
+16. ~~W3-W5 blanket promotion: rewrite the TODO battery row from "demand-gated" to sequenced plan (B1-B9, D4/D7, W4 polite, W5 C1/C2/C3). I:High E:S C:Documentation~~ done — the battery row carries the OWNER RULING blanket promote with the sequenced plan
+17. ~~otel Recovery refactor is DONE — remove it from any open list and note the delegation in the otel module CHANGELOG entry. I:Low E:S C:Documentation~~ done — the otel Recovery delegation is recorded (the fleet-audit errata + AGENTS; the hand-rolled body deleted)
+18. ~~Version-drift guard: AGENTS deps-table == go.mod versions. I:High E:M C:Quality~~ done at `dfeb4a5`
+19. ~~Error-registry adoption: call `appkit.RegisterClassifications()` in the docs example + README error section recipe; errorpages/classified boundaries note. I:Medium E:S C:Documentation~~ done — the README recipe + example call landed (R3; row closed)
+20. Server-Timing composition E2E in integration (stream + header + knob-off) at the next re-pin train. I:Medium E:M C:Quality **→ TODO P2 — SUPERB v12 preset spine (ST composition E2E at the re-pin) <!-- fresh:skip: routed in TODO_LIST -->**
+21. ~~Named Server-Timing phases: handler-side recipe section in README (db/cache examples) — the servable half of answer #13. I:Medium E:S C:Documentation~~ done — the handler-phase recipe landed (R4a; row closed)
+22. ~~CORS battery row. I:Medium E:S C:Documentation~~ done — the CORS verdict recorded (R5a; row closed)
+23. ~~Trusted-proxy keying note (W3/W4). I:Medium E:S C:Documentation~~ done — the trusted-proxy verdict recorded (R5a; row closed)
+24. ~~Compression adopt-or-decline verdict row. I:Low E:S C:Documentation~~ done — the compression verdict recorded (R5a; row closed)
+25. ~~`LoggingFromContext` adoption-or-N/A verdict. I:Low E:S C:Documentation~~ done — the LoggingFromContext verdict recorded (R5a; row closed)
+26. ~~`WrapOnce` at idempotent Shutdown re-wrap sites. I:Low E:S C:Quality~~ done — WrapOnce landed (R3; row closed)
+27. ~~`errorfamilytest` asserts in otel/systemd tests. I:Low E:S C:Quality~~ done — errorfamilytest asserts landed (R3; row closed)
+28. ~~`errorfamily.WithContext` at drain-hook error sites. I:Low E:S C:Quality~~ done — the hook_index context landed (R3; row closed)
+29. go-sse next-release watch (breaking ssetest change; DefaultSubscriberBuffer reference). I:Medium E:S C:Documentation **→ TODO P3 — Upstream watchlist (go-sse next-release watch) <!-- fresh:skip: routed in TODO_LIST -->**
+30. go-etag release watch (root-shim v1.0.0 vs integration excludes). I:Low E:S C:Quality **→ TODO P3 — Upstream watchlist (go-etag root-shim watch) <!-- fresh:skip: routed in TODO_LIST -->**
+31. go-idempotency release watch (CHANGELOG hygiene). I:Low E:S C:Quality **→ TODO P3 — Upstream watchlist (go-idempotency CHANGELOG hygiene) <!-- fresh:skip: routed in TODO_LIST -->**
+32. httputil next train: server_timing pairing + apidiff gate. I:Low E:S C:Quality **→ TODO P3 — Upstream watchlist (httputil server_timing pairing + apidiff gate) <!-- fresh:skip: routed in TODO_LIST -->**
+33. ~~MaxBytesError→413 recipe: security module doc cross-link to the new classification. I:Low E:S C:Documentation~~ done — the security BodyLimit classification cross-link landed (security/bodylimit.go:14; R3)
+34. Consider `context.Canceled → Rejection` interplay with drain-window requests (document that in-flight canceled requests classify non-retryable at boot registries). I:Low E:S C:Documentation **→ TODO P3 — Battery program waves W3-W5 (drain-window context.Canceled note) <!-- fresh:skip: routed in TODO_LIST -->**
+35. ~~End-to-end default-stack bench pair (old-stack vs new-stack) for the wire-cost story. I:Low E:S C:Quality~~ done — the AGENTS perf section carries the old + new stack numbers (the wire-cost story data)
+36. fleet-coherence note: ssehub `Drops()` reference for W5-C1 (carried). I:Low E:S C:Documentation **→ TODO P3 — Battery program waves W3-W5 (W5-C1 ssehub Drops() reference) <!-- fresh:skip: routed in TODO_LIST -->**
+37. D4 floor note bump to ≥ v0.6.0 when activated. I:Low E:S C:Documentation (gated) **→ TODO P3 — Battery program waves W3-W5 (D4 floor note bump when activated) <!-- fresh:skip: routed in TODO_LIST -->**
+38. go-daemon B5-reference read at httpx design time (negotiation reference, not dep). I:Low E:S C:Documentation (gated) **→ TODO P3 — Battery program waves W3-W5 (go-daemon B5-reference read at httpx design) <!-- fresh:skip: routed in TODO_LIST -->**
+39. systemd backlog (Examples, WithStatus, Install-returns-Hooks). I:Low E:M C:Quality **→ TODO P3 — systemd module small backlog <!-- fresh:skip: routed in TODO_LIST -->**
+40. cordis bridge watch (triggers outstanding). I:Low E:L C:Feature (gated) **→ TODO P3 — cordis bridge watchlist (triggers outstanding) <!-- fresh:skip: routed in TODO_LIST -->**
+41. go-aichat reverse-adoption E2E (gated on their release). I:Low E:M C:Quality (gated) **→ TODO P3 — cordis bridge watchlist (go-aichat reverse-adoption E2E gated on their release) <!-- fresh:skip: routed in TODO_LIST -->**
+42. cqrs EventConfig encryption/signing opt-ins (gated). I:Low E:L C:Feature (gated) **→ TODO P3 — Battery program waves W3-W5 (cqrs EventConfig encryption/signing opt-ins; Deferred-Register gated) <!-- fresh:skip: routed in TODO_LIST -->**
+43. pbx-lens testkit migration pointer (their repo). I:Low E:S C:Documentation (gated) **→ TODO P3 — Straggler routing row (pbx-lens testkit migration; their repo) <!-- fresh:skip: routed in TODO_LIST -->**
+44. samber/do auditlog + lazy-healthcheck ask (owner-gated). I:Low E:S C:Documentation (gated) **→ TODO P3 — samber/do items (auditlog + lazy-healthcheck; owner-gated) <!-- fresh:skip: routed in TODO_LIST -->**
+45. project-dependency-graph polish list (their repo). I:Low E:M C:Cleanup (gated) **→ TODO P3 — Upstream watchlist (project-dependency-graph polish list; their repo) <!-- fresh:skip: routed in TODO_LIST -->**
+46. ~~ServerTiming knob: dependabot coverage check for the new direct require (root module config already sweeps go.mod — verify). I:Low E:S C:Quality~~ done — the direct-require dependabot coverage verified (R4a; the knob adds no require beyond server_timing)
+47. Docs: cross-link the knob from the SSE recipe (NoTimeout + knob interplay note). I:Low E:S C:Documentation **→ TODO P3 — Battery program waves W3-W5 (SSE recipe knob interplay cross-link at the W3 docs pass) <!-- fresh:skip: routed in TODO_LIST -->**
+48. docs/DOMAIN_LANGUAGE.md: add Server-Timing/knob entry to the vocabulary table. I:Low E:S C:Documentation **→ TODO P3 — Battery program waves W3-W5 (DOMAIN_LANGUAGE Server-Timing vocabulary entry) <!-- fresh:skip: routed in TODO_LIST -->**
+49. ~~AGENTS gotchas: add "grep the old contract string repo-wide at ship time" (this round's drift lesson, still unwritten). I:Medium E:S C:Documentation~~ done — the grep-the-old-contract-string gotcha is in AGENTS (this round's lesson, recorded)
+50. Report-verify-block execution rule: add to the fleet-audit series README ("appendices are run, not transcribed"). I:Medium E:S C:Documentation **→ TODO P3 — SUPERB v12 micro-backlog (series-README appendices-are-run rule) <!-- fresh:skip: routed in TODO_LIST -->**
 
 ## g) Three questions I cannot figure out myself
 

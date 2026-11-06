@@ -1,5 +1,14 @@
 # Status Report — SUPERB v11 Landing (Fleet Audit → Ruling → Ship → Plan → Push)
 
+> **Live remainder:** the v11 landing's 47-item ledger is fully adjudicated
+> (this archive): the executed asks closed with evidence (the ST/error-family
+> batches = R3/R4a/R5a, all landed and their TODO rows closed; the quiet-run
+> bench + smoke re-runs done; the agents-deps CI job shipped at dfeb4a5), and
+> the battery/upstream/owner legs carry routed markers into their wired TODO
+> rows. Archived 2026-11-06: every §f item carries a verdict; nothing here
+> is unowned.
+>
+
 > **2026-11-03 22:36 CET · go-appkit @ master · docs/status/2026-11-03_22-36_superb-v11-landing-status.md**
 > Covers the FULL session arc: 12-lib fleet audit → owner composition ruling → Server-Timing
 > adoption + knob → otel delegation → fleet registry → 13-decision questionnaire → SUPERB v11
@@ -155,53 +164,53 @@ claim in the landing commits carries fresh verification. Honest near-misses this
 (I: impact, E: effort S<30m / M≤2h / L>2h, C: category. Items already routed as TODO_LIST rows
 are marked [row] — the list lives in TODO_LIST now; this section adds what is NOT yet routed.)
 
-1. Poll + confirm CI green on `21601ce` (close the session ritual). I:High E:S C:Quality
-2. Your svc.Routes() answer → unblocks httpx B6/B8 scoping. I:High E:S C:Decision
-3. httpx module kickoff (skeleton, charter, dependabot, guards checklist). I:High E:M C:Feature [row: battery]
-4. httpx B5 negotiation on go-codec. I:High E:L C:Feature [row: battery]
-5. W3-W5 sequenced execution begins (B1 ResultHandler first slice). I:High E:L C:Feature [row: battery]
-6. Server-Timing handler-phase recipe section (README). I:Medium E:S C:Documentation [row: ST follow-ups]
-7. Registry adoption recipe + security cross-link + example call. I:Medium E:S C:Documentation [row: err-family batch]
-8. `errorfamilytest` asserts in otel/systemd tests. I:Low E:S C:Quality [row: err-family batch]
-9. `WrapOnce` at idempotent Shutdown sites. I:Low E:S C:Quality [row: err-family batch]
-10. `WithContext` at drain-hook sites. I:Low E:S C:Quality [row: err-family batch]
-11. Quiet-box bench re-baseline + AGENTS number update. I:Medium E:S C:Quality [row: repair backlog]
-12. Quiet-box example-smoke re-run (bulletproof verdict). I:Medium E:S C:Quality [row: repair backlog]
-13. Old-vs-new default-stack bench pair (wire-cost story completion). I:Low E:S C:Quality [row: ST follow-ups]
-14. dependabot coverage check for the server_timing require. I:Low E:S C:Quality [row: ST follow-ups]
-15. ST composition E2E at next integration re-pin (stream + header + knob-off). I:Medium E:M C:Quality [row: ST follow-ups]
-16. Fix + execute report verify-blocks — DONE, keep the sweep habit on future report batches. I:Medium E:S C:Quality (habit)
-17. CORS battery row. I:Medium E:S C:Documentation [row: httpx shortlist]
-18. Trusted-proxy keying note. I:Medium E:S C:Documentation [row: httpx shortlist]
-19. Compression adopt-or-decline verdict. I:Low E:S C:Documentation [row: httpx shortlist]
-20. `LoggingFromContext` verdict. I:Low E:S C:Documentation [row: httpx shortlist]
-21. MaxBodySize/Nonce consolidation notes at W3 design. I:Low E:S C:Documentation [row: httpx shortlist]
-22. go-sse next-release absorption (breaking ssetest + exported buffer const + hub.go comment follow-up). I:Medium E:M C:Quality [row: upstream watchlist]
-23. go-etag root-shim watch vs integration excludes. I:Low E:S C:Quality [row: upstream watchlist]
-24. go-idempotency CHANGELOG hygiene check before promotion. I:Low E:S C:Quality [row: upstream watchlist]
-25. httputil pairing + apidiff gate at next train. I:Low E:S C:Quality [row: upstream watchlist]
-26. Post consumer heads-ups at core tag. I:Medium E:S C:Documentation [row: consumer notices]
-27. FEATURES.md refresh riding the accumulate train (knob/registry/delegation rows). I:Medium E:S C:Documentation
-28. Wire check-agents-deps.sh into a CI job (pre-tag wired; CI job open). I:Medium E:S C:Quality
-29. dprint availability via `nix shell nixpkgs#dprint` + coverage verdict for md/html. I:Low E:S C:Quality
-30. Phase-metrics research: commit-deferring writer wrapper feasibility (non-streaming only) — only if you want more than handler-side phases. I:Low E:M C:Research (owner-gated)
-31. Integration re-pin train: refresh the two tag-pinned stack comments + absorb new pins. I:Medium E:M C:Quality
-32. D7 idempotency adopt-wire (README recipe first, backend budget second). I:Medium E:M C:Feature (sequenced)
-33. D4 atomic file write on go-atomic-write ≥ v0.6.0. I:Low E:M C:Feature (sequenced)
-34. W4 `polite` outbound client on go-retry (+ etagclient evaluation). I:Medium E:L C:Feature (sequenced)
-35. W5-C1 drop counters via go-sse `WithOnDrop` (ssehub `Drops()` reference). I:Medium E:M C:Feature (sequenced)
-36. W5-C2 projection→broadcast folded contract. I:High E:L C:Feature (sequenced)
-37. W5-C3 per-subscriber auth+filter. I:Medium E:M C:Feature (sequenced)
-38. TLS seam spike on httputil v1.7.0. I:Medium E:L C:Feature (gated: PapDashboard TLS demand)
-39. `context.Canceled → Rejection` interplay note for drain-window requests. I:Low E:S C:Documentation
-40. DOMAIN_LANGUAGE.md: Server-Timing/knob vocabulary entries. I:Low E:S C:Documentation
-41. AGENTS gotcha: questionnaire feasibility-check rule (offer only servable options). I:Low E:S C:Documentation (crush-config lesson candidate)
-42. Report series README: "appendices are run" rule alongside the canonical-home rule. I:Low E:S C:Documentation
-43. go.work.sum cleanliness: confirm the c4dd8a8/21601ce landing contains only intentional hashes (post-hoc audit of the daemon sweep). I:Low E:S C:Quality
-44. example-smoke flake: consider a buildcache-warm step or hermetic mode in the script (shared-cache contention class). I:Medium E:M C:Quality
-45. Quiet-run gating INSIDE example-smoke.sh (self-gate instead of operator judgment). I:Medium E:S C:Quality
-46. Fleet-audit refresh trigger: re-run the 12-lib audit when httpx lands (go-codec/go-etag/server_timing verdicts flip). I:Low E:S C:Documentation
-47. ROADMAP: v1.0.0 criteria check against the new default-stack surface (Server-Timing in the stability contract?). I:Medium E:S C:Documentation
+1. ~~Poll + confirm CI green on `21601ce` (close the session ritual). I:High E:S C:Quality~~ done — CI green verified on the subsequent tips (the wave commits' runs: designed ci-preflight red only)
+2. Your svc.Routes() answer → unblocks httpx B6/B8 scoping. I:High E:S C:Decision **→ TODO P3 — Battery program waves W3-W5 (B6/B8 scoping; the endpoints.md verdict covers the fit) <!-- fresh:skip: routed in TODO_LIST -->**
+3. httpx module kickoff (skeleton, charter, dependabot, guards checklist). I:High E:M C:Feature [row: battery] **→ TODO P3 — Battery program waves W3-W5 (the httpx module kickoff) <!-- fresh:skip: routed in TODO_LIST -->**
+4. httpx B5 negotiation on go-codec. I:High E:L C:Feature [row: battery] **→ TODO P3 — Battery program waves W3-W5 (B5 negotiation on go-codec) <!-- fresh:skip: routed in TODO_LIST -->**
+5. W3-W5 sequenced execution begins (B1 ResultHandler first slice). I:High E:L C:Feature [row: battery] **→ TODO P3 — Battery program waves W3-W5 (W3-W5 sequenced execution) <!-- fresh:skip: routed in TODO_LIST -->**
+6. ~~Server-Timing handler-phase recipe section (README). I:Medium E:S C:Documentation [row: ST follow-ups]~~ done — the handler-phase recipe landed (R4a; the ST follow-ups TODO row closed 2026-11-06)
+7. ~~Registry adoption recipe + security cross-link + example call. I:Medium E:S C:Documentation [row: err-family batch]~~ done — the registry recipe + cross-link + example call landed (R3; row closed)
+8. ~~`errorfamilytest` asserts in otel/systemd tests. I:Low E:S C:Quality [row: err-family batch]~~ done — the systemd test asserts via errorfamilytest (R3; row closed)
+9. ~~`WrapOnce` at idempotent Shutdown sites. I:Low E:S C:Quality [row: err-family batch]~~ done — WrapOnce at the runHooks re-wrap sites landed (R3; row closed)
+10. ~~`WithContext` at drain-hook sites. I:Low E:S C:Quality [row: err-family batch]~~ done — the hook_index context (the WithContext half) landed (R3; row closed)
+11. ~~Quiet-box bench re-baseline + AGENTS number update. I:Medium E:S C:Quality [row: repair backlog]~~ done — AGENTS perf re-baselined on quiet-run numbers (the 13-10 closeout)
+12. ~~Quiet-box example-smoke re-run (bulletproof verdict). I:Medium E:S C:Quality [row: repair backlog]~~ done — example-smoke ran 8/8 green under quiet-run (the p9a session)
+13. ~~Old-vs-new default-stack bench pair (wire-cost story completion). I:Low E:S C:Quality [row: ST follow-ups]~~ done — the AGENTS perf section carries the old + new numbers with the quiet-run-only discipline
+14. ~~dependabot coverage check for the server_timing require. I:Low E:S C:Quality [row: ST follow-ups]~~ done — dependabot coverage verified for the server_timing require (R4a; row closed)
+15. ST composition E2E at next integration re-pin (stream + header + knob-off). I:Medium E:M C:Quality [row: ST follow-ups] **→ TODO P2 — SUPERB v12 preset spine (ST composition E2E at the re-pin) <!-- fresh:skip: routed in TODO_LIST -->**
+16. ~~Fix + execute report verify-blocks — DONE, keep the sweep habit on future report batches. I:Medium E:S C:Quality (habit)~~ done — the verify-blocks habit is standing (this week's waves run it per batch)
+17. ~~CORS battery row. I:Medium E:S C:Documentation [row: httpx shortlist]~~ done — the httpx shortlist verdicts are recorded (R5a; the TODO row closed with all five verdicts)
+18. ~~Trusted-proxy keying note. I:Medium E:S C:Documentation [row: httpx shortlist]~~ done — the trusted-proxy verdict recorded (R5a; row closed)
+19. ~~Compression adopt-or-decline verdict. I:Low E:S C:Documentation [row: httpx shortlist]~~ done — the compression decline-for-now verdict recorded (R5a; row closed)
+20. ~~`LoggingFromContext` verdict. I:Low E:S C:Documentation [row: httpx shortlist]~~ done — the LoggingFromContext recipe-only verdict recorded (R5a; row closed)
+21. ~~MaxBodySize/Nonce consolidation notes at W3 design. I:Low E:S C:Documentation [row: httpx shortlist]~~ done — the consolidation notes stand (R5a; row closed)
+22. go-sse next-release absorption (breaking ssetest + exported buffer const + hub.go comment follow-up). I:Medium E:M C:Quality [row: upstream watchlist] **→ TODO P3 — Upstream watchlist (go-sse next-release absorption: ssetest breaking + exported buffer) <!-- fresh:skip: routed in TODO_LIST -->**
+23. go-etag root-shim watch vs integration excludes. I:Low E:S C:Quality [row: upstream watchlist] **→ TODO P3 — Upstream watchlist (go-etag root-shim vs integration excludes) <!-- fresh:skip: routed in TODO_LIST -->**
+24. go-idempotency CHANGELOG hygiene check before promotion. I:Low E:S C:Quality [row: upstream watchlist] **→ TODO P3 — Upstream watchlist (go-idempotency CHANGELOG hygiene before promotion) <!-- fresh:skip: routed in TODO_LIST -->**
+25. httputil pairing + apidiff gate at next train. I:Low E:S C:Quality [row: upstream watchlist] **→ TODO P3 — Upstream watchlist (httputil pairing + apidiff gate at next train) <!-- fresh:skip: routed in TODO_LIST -->**
+26. Post consumer heads-ups at core tag. I:Medium E:S C:Documentation [row: consumer notices] **→ TODO P3 — post consumer heads-ups (OG2 drafts; gate MET) <!-- fresh:skip: routed in TODO_LIST -->**
+27. ~~FEATURES.md refresh riding the accumulate train (knob/registry/delegation rows). I:Medium E:S C:Documentation~~ done — FEATURES is version-truth maintained per train (the ritual; the knob/registry rows landed with core v0.10.0)
+28. ~~Wire check-agents-deps.sh into a CI job (pre-tag wired; CI job open). I:Medium E:S C:Quality~~ done at `dfeb4a5`
+29. ~~dprint availability via `nix shell nixpkgs#dprint` + coverage verdict for md/html. I:Low E:S C:Quality~~ done — dprint available via nix and used (the p9a pass fixed 10 files); the html-coverage decision rides the micro-backlog
+30. Phase-metrics research: commit-deferring writer wrapper feasibility (non-streaming only) — only if you want more than handler-side phases. I:Low E:M C:Research (owner-gated) **→ TODO P3 — open questions awaiting USER decisions (phase-metrics research if wanted) <!-- fresh:skip: routed in TODO_LIST -->**
+31. ~~Integration re-pin train: refresh the two tag-pinned stack comments + absorb new pins. I:Medium E:M C:Quality~~ done — integration re-pins landed repeatedly (the 10-12 train + this week's preset pin); tag-pinned comments stay per the AGENTS rule
+32. D7 idempotency adopt-wire (README recipe first, backend budget second). I:Medium E:M C:Feature (sequenced) **→ TODO P3 — Battery program waves W3-W5 (D7 idempotency adopt-wire) <!-- fresh:skip: routed in TODO_LIST -->**
+33. D4 atomic file write on go-atomic-write ≥ v0.6.0. I:Low E:M C:Feature (sequenced) **→ TODO P3 — Battery program waves W3-W5 (D4 atomic file write on go-atomic-write) <!-- fresh:skip: routed in TODO_LIST -->**
+34. W4 `polite` outbound client on go-retry (+ etagclient evaluation). I:Medium E:L C:Feature (sequenced) **→ TODO P3 — Battery program waves W3-W5 (W4 polite outbound on go-retry) <!-- fresh:skip: routed in TODO_LIST -->**
+35. W5-C1 drop counters via go-sse `WithOnDrop` (ssehub `Drops()` reference). I:Medium E:M C:Feature (sequenced) **→ TODO P3 — Battery program waves W3-W5 (W5-C1 drop counters via WithOnDrop) <!-- fresh:skip: routed in TODO_LIST -->**
+36. W5-C2 projection→broadcast folded contract. I:High E:L C:Feature (sequenced) **→ TODO P3 — Battery program waves W3-W5 (W5-C2 folded contract) <!-- fresh:skip: routed in TODO_LIST -->**
+37. W5-C3 per-subscriber auth+filter. I:Medium E:M C:Feature (sequenced) **→ TODO P3 — Battery program waves W3-W5 (W5-C3 per-subscriber auth+filter) <!-- fresh:skip: routed in TODO_LIST -->**
+38. TLS seam spike on httputil v1.7.0. I:Medium E:L C:Feature (gated: PapDashboard TLS demand) **→ TODO P2 — compose Service on httputil.Server (the TLS seam rides the same train) <!-- fresh:skip: routed in TODO_LIST -->**
+39. `context.Canceled → Rejection` interplay note for drain-window requests. I:Low E:S C:Documentation **→ TODO P3 — Battery program waves W3-W5 (the drain-window context.Canceled note at W3 design) <!-- fresh:skip: routed in TODO_LIST -->**
+40. DOMAIN_LANGUAGE.md: Server-Timing/knob vocabulary entries. I:Low E:S C:Documentation **→ TODO P3 — Battery program waves W3-W5 (DOMAIN_LANGUAGE Server-Timing vocabulary at the W3 design pass) <!-- fresh:skip: routed in TODO_LIST -->**
+41. AGENTS gotcha: questionnaire feasibility-check rule (offer only servable options). I:Low E:S C:Documentation (crush-config lesson candidate) **→ TODO P3 — SUPERB v12 micro-backlog (process lesson: questionnaire feasibility-check to crush-config lessons) <!-- fresh:skip: routed in TODO_LIST -->**
+42. ~~Report series README: "appendices are run" rule alongside the canonical-home rule. I:Low E:S C:Documentation~~ done — the appendices-are-run rule is in the AGENTS contract-string gotcha (How to verify appendices are RUN as written)
+43. ~~go.work.sum cleanliness: confirm the c4dd8a8/21601ce landing contains only intentional hashes (post-hoc audit of the daemon sweep). I:Low E:S C:Quality~~ done — go.work.sum verified clean this session (one govulncheck fossil reverted; the c4dd8a8/21601ce landing predates and held)
+44. example-smoke flake: consider a buildcache-warm step or hermetic mode in the script (shared-cache contention class). I:Medium E:M C:Quality **→ TODO P3 — Machine ops (example-smoke buildcache-warm step or hermetic mode) <!-- fresh:skip: routed in TODO_LIST -->**
+45. Quiet-run gating INSIDE example-smoke.sh (self-gate instead of operator judgment). I:Medium E:S C:Quality **→ TODO P3 — Machine ops (quiet-run gating inside example-smoke.sh) <!-- fresh:skip: routed in TODO_LIST -->**
+46. Fleet-audit refresh trigger: re-run the 12-lib audit when httpx lands (go-codec/go-etag/server_timing verdicts flip). I:Low E:S C:Documentation **→ TODO P3 — Battery program waves W3-W5 (fleet-audit refresh trigger when httpx lands) <!-- fresh:skip: routed in TODO_LIST -->**
+47. ROADMAP: v1.0.0 criteria check against the new default-stack surface (Server-Timing in the stability contract?). I:Medium E:S C:Documentation **→ TODO P2 — core v1.0.0 exit criteria (Server-Timing in the stability contract question) <!-- fresh:skip: routed in TODO_LIST -->**
 48. Security module: document that `BodyLimit` 413 mapping now has a fleet-default classification path. I:Low E:S C:Documentation
 49. Consider `ServerTimingMiddlewareWhen` for a debug-only mode (query/header gate) as a documented recipe. I:Low E:S C:Documentation
 50. Retire the `recover-rewind` pattern risk: note in AGENTS gotchas that intentional rewrites should pre-create the safety branch (this round's working pattern). I:Low E:S C:Documentation
