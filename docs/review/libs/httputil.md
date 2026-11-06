@@ -169,3 +169,9 @@ sed -n '10,45p' middleware.go                   # the 6-middleware default stack
   `OnPanic`; the hand-rolled body is deleted (the old `isAbortPanic` was dead
   code — upstream re-panics aborts before the hook runs). The finding stands
   resolved; see `otel/exceptions.go`.
+- **The audit could not cover the `endpoints/` subdirectory module**
+  (`github.com/larsartmann/httputil/endpoints`): `endpoints/v0.1.0` was tagged
+  2026-11-06 05:27, three days after this report. Closed retroactively by
+  `endpoints.md` — verdict NOT USED (zero module-graph presence), strongest
+  pending-adoption candidate: it IS the seam owner decision H8 (`svc.Routes()`,
+  B6/B8) waits on.

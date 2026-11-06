@@ -55,8 +55,8 @@ func TestErrorPages_Pretty404Default(t *testing.T) {
 		t.Errorf("Content-Type = %q, want text/html", resp.Header.Get("Content-Type"))
 	}
 
-	if !strings.Contains(strings.ToLower(body), "<!doctype html") {
-		t.Error("404 body is not the pretty HTML page")
+	if !strings.Contains(body, "Page not found") {
+		t.Errorf("404 body %q is not the pretty page", body[:min(len(body), 200)])
 	}
 }
 
