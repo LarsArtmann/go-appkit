@@ -188,7 +188,7 @@ config/v0.1.0 (needs the push).
 8. P2: spine boot test: /healthz+/readyz 200, dashboard route 200, graceful stop
 9. P3: errorpages leg (spine-ON by default, APPKIT_ERRORPAGES=off opts out)
 10. P3: metrics passthrough documented (preset never invents creds; Version stamps)
-11. P3: full-spine-boots-with-zero-app-code test
+11. ~~P3: full-spine-boots-with-zero-app-code test~~ done at `e26b7e5`
 12. P4: otel leg (APPKIT_OTEL trool; Setup+WithService(Name,Version)+Middleware→
     OuterMiddlewares+ShutdownHook; env-absent → zero otel activity)
 13. P4: conflict test: explicit OTEL config wins over env both ways
@@ -222,7 +222,7 @@ config/v0.1.0 (needs the push).
 34. A5: pbx-lens cmdguard migration recipe
 35. D1: worker supervisor + pools (acceptance per battery spec)
 36. D3: sqlitekit design + lease + backup + ledger + migration helper
-37. C2R: realtime FoldedSource + SubscribeFolded discriminator test
+37. C2R: realtime FoldedSource + SubscribeFolded discriminator test **→ TODO P3 — Battery program waves W3-W5 (W5 C2 projection→broadcast folded contract)** <!-- fresh:skip: routed in TODO_LIST -->
 38. R2–R5a: deps-guard CI, error-family batch, ST recipe, httpx shortlist verdicts
 39. H1–H7: httpx module program (B1 first; classification-parity test)
 40. X1: compose-on-httputil refactor (the v1.7.0-seam swap plan)

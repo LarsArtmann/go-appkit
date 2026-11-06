@@ -185,9 +185,9 @@ parked).
 change the appkit-lane N?).
 
 **Watchers (deliberately bare, no action)**
-41. `LanguageWhen` route-conditional variant.
-42. Matched-vs-default context distinction.
-43. `AbsentEncoding`-style empty-header policy doc.
+41. ~~`LanguageWhen` route-conditional variant.~~ **NOT-DO — the i18n module does not fire (ruled 2026-10-10) — the parked set lives in `docs/planning/2026-10-09_i18n-module-research.md`.**
+42. ~~Matched-vs-default context distinction.~~ **NOT-DO — the i18n module does not fire (ruled 2026-10-10) — the parked set lives in `docs/planning/2026-10-09_i18n-module-research.md`.**
+43. ~~`AbsentEncoding`-style empty-header policy doc.~~ **NOT-DO — the i18n module does not fire (ruled 2026-10-10) — the parked set lives in `docs/planning/2026-10-09_i18n-module-research.md`.**
 44. Appkit content lane (Translator/guards/Alternates) — fires on real
 demand only; sketches preserved in the research doc.
 45. Accept-Charset-style Non-goals for other dead headers (dup of 18 —

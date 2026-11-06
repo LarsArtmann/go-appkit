@@ -195,8 +195,8 @@ proxy check (push-blocked).
     counts, start-during-shutdown joins)
 29. D3: sqlitekit (Open+WithLease, Backup VACUUM INTO, OpenLedger,
     migration helper, SetMaxOpenConns(1) doc)
-30. C2R: realtime FoldedSource + SubscribeFolded discriminator test
-31. R2: deps-guard CI job
+30. C2R: realtime FoldedSource + SubscribeFolded discriminator test **→ TODO P3 — Battery program waves W3-W5 (W5 C2 projection→broadcast folded contract)** <!-- fresh:skip: routed in TODO_LIST -->
+31. ~~R2: deps-guard CI job~~ done at `dfeb4a5`
 32. R3: error-family adoption batch (README recipe, BodyLimit cross-link,
     errorfamilytest asserts, WrapOnce, WithContext)
 33. R4: Server-Timing handler-phase recipe
@@ -210,7 +210,7 @@ proxy check (push-blocked).
 39. X4: core v1 exit-criteria watch
 40. Y1–Y7: backlog (incl. Y-push-window items)
 41. Z1: add the `-o` truncation class to crush-config lessons (repo commit)
-42. Z2–Z7: process debts
+42. Z2–Z7: process debts **→ routed — docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md (Z2-Z7 rows)** <!-- fresh:skip: routed in the v13 plan -->
 43. AGENTS one-liner: "pin holds ride held_pins in the same change" (from e1)
 44. OG1/OG3–OG6: owner memos (incl. the catalog unblock ask)
 45. Final `scripts/verify-all.sh` (now 13 buildable modules + integration)

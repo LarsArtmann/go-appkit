@@ -147,13 +147,13 @@ verify-all + release-state sync (AGENTS/FEATURES/TODO_LIST headers).
 20. P3: errorpages Mount + pretty-404 test
 21. P3: metrics/version + /version test
 22. P3: RegisterClassifications + idempotency test
-23. P3: full-spine-boots-with-zero-app-code test
+23. ~~P3: full-spine-boots-with-zero-app-code test~~ done at `e26b7e5`
 24. P4: otel leg + APPKIT_OTEL parse; env-absent → no otel deps active
 25. P4: env-present → spans + log bridge; explicit WithOTEL overrides env
 26. P5: security profile enum none/standard/strict matrix test
 27. P5: standard profile through security battery; opt-out removes leg cleanly
 28. P6: realtime leg Mount wiring + stream smoke test
-29. P7: example app main ≤40 LOC + conflict-matrix suite
+29. ~~P7: example app main ≤40 LOC + conflict-matrix suite~~ done at `6c74730`
 30. P7: boot probe + graceful-stop probe
 31. P8: integration E2E skeleton (pins PUBLISHED tags — needs C5+P9 tags)
 32. P8: E2E preset boot → health → drain through tags; env legs on/off
@@ -165,9 +165,9 @@ verify-all + release-state sync (AGENTS/FEATURES/TODO_LIST headers).
 37. S7: dogfood one real app end-to-end
 38. G-CNT: adoption-counter script (dual any/direct) + gate table mode + guard wiring
 39. A1–A5: recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes
-40. D3a–c: sqlitekit design/lease matrix/backup/ledger/migration helper
+40. D3a–c: sqlitekit design/lease matrix/backup/ledger/migration helper **→ TODO P3 — Battery program waves W3-W5 (W4 sqlite ops kit: lease/backup/ledger)** <!-- fresh:skip: routed in TODO_LIST -->
 41. D1a–b: worker supervisor + pools + panic-restart + shutdown joins
-42. C2R: realtime FoldedSource + SubscribeFolded discriminator test
+42. C2R: realtime FoldedSource + SubscribeFolded discriminator test **→ TODO P3 — Battery program waves W3-W5 (W5 C2 projection→broadcast folded contract)** <!-- fresh:skip: routed in TODO_LIST -->
 43. R1b–e: verify-blocks 7–12, ST bench baseline, hub doc note, MVS proof
 44. R2–R5a: deps-guard CI, error-family batch, ST recipe, httpx shortlist verdicts
 45. H1–H7: httpx module program (B1→B7 per plan order)

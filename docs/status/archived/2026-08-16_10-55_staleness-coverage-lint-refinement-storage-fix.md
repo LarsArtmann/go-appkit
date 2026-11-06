@@ -203,7 +203,7 @@ The session 5 report says "go test ./... -race -count=1 — ok (3.5s)" and "lint
 
 6. Add test: `CheckStaleness` with multiple projections, one stale, one fresh — max-lag semantics.
 7. Add test: `closeOnConstructionFailure` with nil primary error (edge case — should it return the close error alone?).
-8. Add benchmark: `CheckStaleness` overhead on N projections (should be O(N) lock-hold).
+8. ~~Add benchmark: `CheckStaleness` overhead on N projections (should be O(N) lock-hold).~~ **NOT-DO — the N-projection loop lives upstream in go-cqrs-lite's projectionhost (this wrapper only delegates) — the benchmark belongs in that repo.**
 9. Add test: `CheckProjectionStaleness` on a registered projection with lag <= budget — assert nil (currently only stale and fresh-within-budget are tested).
 10. Verify `errors.Join` behavior when `GracefulClose` returns nil (primary error alone is returned, not wrapped) — covered by `TestCloseOnConstructionFailure_CloseSucceeds` but could be more explicit.
 
@@ -221,7 +221,7 @@ The session 5 report says "go test ./... -race -count=1 — ok (3.5s)" and "lint
 17. Verify cqrs/README accessor table formatting renders correctly (added rows in session 5, not visually verified).
 18. Add `.cqrs-lint.json` to AGENTS.md "Code Organization" or "Gotchas" section for the cqrs module.
 19. Document the `library-framework` preset choice and its implications in cqrs/README or AGENTS.md (done in AGENTS.md cqrs-lint line, verify it's sufficient).
-20. Update cqrs/CHANGELOG with a release date when ready to tag.
+20. ~~Update cqrs/CHANGELOG with a release date when ready to tag.~~ done at `a28cbf8`
 
 ### Broader verification
 

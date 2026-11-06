@@ -108,9 +108,9 @@
 
 9. **Composition refactor:** re-run the spike against httputil v1.7.0's single-serve semantics (listener consumed after a serve ends; `server.listener_consumed`), re-pin `Addr()`/`Running()` + phase-log contract, then swap; Core TLS rides the same seam.
 10. **Guard-coverage symmetry review** (pre-tag-only vs CI-only guards; decide the intended matrix; do NOT default-add network-heavy guards to CI).
-11. **FEATURES row-by-row re-verification** for the 9 sections only spot-checked this session.
+11. ~~**FEATURES row-by-row re-verification** for the 9 sections only spot-checked this session.~~ done at `a467328`
 12. **TODO kept-claims audit completion** (the remaining `[ ]`/`[~]` rows each checked against code — d-6's lesson generalized).
-13. **ROADMAP raw-ideas row-by-row re-verification.**
+13. ~~**ROADMAP raw-ideas row-by-row re-verification.**~~ done at `a467328`
 14. **DOMAIN_LANGUAGE.md verify pass** (terms vs code; untouched this session).
 15. **frh go-health v0.5.1 → v0.8.1 sweep watch** (integration already MVS-resolves v0.8.1; frh's own pin moves on its next natural train — keep the fixture comment true when it does).
 

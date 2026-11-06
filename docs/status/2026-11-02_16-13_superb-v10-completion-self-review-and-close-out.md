@@ -90,7 +90,7 @@
 21. **Build `check-touched-modules.sh`** (improvement #1 made mechanical) and wire into pre-commit.
 22. **Retire TODO row 29's remaining half** after satellite/integration migrations land (the dedup row completes).
 23. **Battery W3 `httpx` module** — demand-gated; re-check demand at next consumer sweep.
-24. **Battery W4/W5 rows** — same gate.
+24. **Battery W4/W5 rows** — same gate. **→ TODO P3 — Battery program waves W3-W5 (W4 ops & data, W5 realtime completions)** <!-- fresh:skip: routed in TODO_LIST -->
 25. **cqrs EventConfig opt-ins** — demand-gated (idempotency recipe path documented).
 26. **watchlist row 56 consolidation** — it has grown huge; next docs pass should split it into per-target rows or a table.
 27. **Re-run `verify-all.sh` end-to-end on a quiet-load window** as the pre-tag gate for #3 (runner truth carried the wave; the pre-tag gate runs it canonically anyway).

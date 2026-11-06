@@ -238,7 +238,7 @@ flagged again.
 **Integration & CI hardening**
 24. integration: add an SSE+health combined lifecycle test (drain during an open SSE stream — the last unproven composition overlap).
 25. integration: hardened-dashboard test asserts `frame-ancestors 'none'` and sorted directive order (policy determinism), not just nonce presence.
-26. CI: run `check-go-directives.sh` in the proxy-smoke job too (belt and braces).
+26. ~~CI: run `check-go-directives.sh` in the proxy-smoke job too (belt and braces).~~ **NOT-DO — superseded by the dedicated go-directives CI job (added with the 2026-10-07 guard wave) — running the same guard inside proxy-smoke adds a second red line, not a second signal.**
 27. CI: cache golangci-lint builds if runtimes grow (observational).
 28. Dependabot: confirm the weekly grouped run doesn't fight `documentedPins` (it bumps go.mod; the fixture test then fails until the pin is bumped — intended, but watch the noise).
 29. Add `scripts/check-go-directives.sh` to pre-commit via BuildFlow config if you want local parity.

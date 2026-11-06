@@ -87,7 +87,7 @@ Discovery found exactly one red thing anywhere: **CI has been red on 4-5 consecu
 20. flightrecorder pkg.go.dev re-tag ruling (00:15 Q2). **→ TODO P2 pkg.go.dev row (owner-gated)**
 ~~21. quiet-run.sh `--pin-cluster` topology option.~~ **Won't implement — never needed — SMT-primary pinning suffices.**
 22. W3 httpx battery (B1/B2/B9). **→ TODO P3 rows — live in the 2026-11-02 rebuild**
-23. W4 ops kit. **→ TODO P3 rows — live in the 2026-11-02 rebuild**
+23. W4 ops kit. **→ TODO P3 rows — live in the 2026-11-02 rebuild** <!-- fresh:skip: routed in TODO_LIST -->
 24. W5 realtime completions. **→ TODO P3 rows — live in the 2026-11-02 rebuild**
 25. 3 composition-gap E2Es. **→ TODO P3 rows — live in the 2026-11-02 rebuild**
 26. subscribe-before-flush. **→ TODO P3 rows — live in the 2026-11-02 rebuild**

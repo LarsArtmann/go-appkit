@@ -95,7 +95,7 @@ reports; cqrs-htmx moved under us mid-session (setup now pins **core v0.5.0**, t
 13. F2 timing battery after Draft 2 lands (shared duration source).
 14. GREEN-LIGHT: implement `httputil.NewServerListener(ln, cfg, handler)` upstream — unblocks 15+16 in one move.
 15. Re-run the composition spike against that API; execute the refactor for real.
-16. Core TLS option (`ServiceConfig.TLS{CertFile, KeyFile}`) — PapDashboard's first demand.
+16. Core TLS option (`ServiceConfig.TLS{CertFile, KeyFile}`) — PapDashboard's first demand. **→ routed — AGENTS.md Deferred Register (trigger: PapDashboard TLS cert handling)**
 
 **Finish the partials**
 17. govulncheck on health + security from a networked machine.

@@ -92,7 +92,7 @@
 28. testkit helper migrations: satellites + integration (next core train; import-cycle + hermeticity constraints documented).
 29. systemd backlog: godoc Examples, `WithStatus`, `Install` returns Hooks, watchdog note.
 30. Battery W3: `httpx` module (B1/B2/B9 first; errorpages-taxonomy parity test).
-31. Battery W4: worker/sqlite ops/polite/do bridge.
+31. Battery W4: worker/sqlite ops/polite/do bridge. **→ TODO P3 — Battery program waves W3-W5 (W4 ops & data)** <!-- fresh:skip: routed in TODO_LIST -->
 32. Battery W5: C2 projection→broadcast folded contract.
 33. cqrs EventConfig idempotency README recipe (also answers the BuildFlow eventservice.go:456 warning).
 34. go-flightrecorder#2 cooldown combinator → then delete frh's hand-rolled cooldown.

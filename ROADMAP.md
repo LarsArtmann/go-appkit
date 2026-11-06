@@ -116,6 +116,10 @@ appkit never grows application-shaped code.
   shared `fr.Recorder` demo across HTTP middleware + projections; DLQ admin
   and dead-letter-age alerting recipes; SnapshotStore/ReadModels accessor
   examples (Bundle-reachable, undocumented).
+- Example-app and ops gaps from the 2026-09-04 SUPERB plan:
+  errorpages+cqrs composition example (F44 — one cqrs/ES app serving
+  classified error pages) and a per-projection readiness helper (F27,
+  demand-gated — surface cqrs projection staleness as a go-health probe).
 - go-health aggregate/federation adoption (evaluated 2026-09-20, plan T25;
   re-checked 2026-10-12 and re-baselined 2026-11-02: the health module now
   pins go-health v0.8.1 (health v0.3.0), so the old "v0.3.0 floor gate" is
@@ -143,3 +147,6 @@ appkit never grows application-shaped code.
   tooling, pre-#46); buildflow-skill PR documenting the `.jscpd.json`
   convention + the go-work-sync/charter caveat + the 2026-10-12
   verification-status rows.
+- BuildFlow-repo link-check config: lychee excludes for archived
+  dependency-diagram trees (`docs/library-analysis/archive`) so the link
+  checker stops re-walking settled diagrams.
