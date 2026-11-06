@@ -173,8 +173,8 @@ func TestLoad_MissingRequiredIsRejectionWithFieldPath(t *testing.T) {
 		t.Error("cfg must be nil on error")
 	}
 
-	var rejection *errorfamily.Error
-	if !errors.As(err, &rejection) {
+	rejection, ok := errors.AsType[*errorfamily.Error](err)
+	if !ok {
 		t.Fatalf("error is not a *errorfamily.Error: %v", err)
 	}
 

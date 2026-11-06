@@ -36,8 +36,8 @@ func TestRunHooks_RespectsHookClassification(t *testing.T) {
 		context.Background(), hooks, "server.shutdown_hook_failed", "shutdown hook failed",
 	)
 
-	var joinedSplit interface{ Unwrap() []error }
-	if !errors.As(joined, &joinedSplit) {
+	joinedSplit, ok := errors.AsType[interface{Unwrap() []error}](joined)
+	if !ok {
 		t.Fatalf("joined error does not unwrap to members: %v", joined)
 	}
 
