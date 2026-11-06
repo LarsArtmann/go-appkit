@@ -1,7 +1,6 @@
 package preset_test
 
 import (
-	"io"
 	"net/http"
 	"testing"
 	"time"

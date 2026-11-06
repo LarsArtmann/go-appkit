@@ -9,7 +9,6 @@ package integration_test
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"strings"
 	"testing"
