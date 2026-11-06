@@ -1,5 +1,5 @@
 {
-  "audit_max": 12,
+  "audit_max": 0,
   "rule_f": false,
   "cadence": {
     "struck_rows": 20,
