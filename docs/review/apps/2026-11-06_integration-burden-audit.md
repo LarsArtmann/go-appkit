@@ -124,13 +124,16 @@ CV, ai-router-implementation, Cyberdom, dnsblockd, wise-transaction-visualizatio
 **§1's table header says "direct `go.mod` requires" — wrong.** The sweep matched the
 lib string anywhere in `go.mod`, including `// indirect` lines; the published counts
 (branded-id 34, error-family 34, etag 25, go-sse 24, …) are the **any-require
-(direct-or-indirect), per-app** definition. Corrected strict per-app counts
-(non-indirect requires only, spot-verified): branded-id 18, error-family 22, httputil
-21, templ-components 18, go-codec 14, go-sse 13, retry 7, flightrecorder 2,
-datastar 2, idempotency 3, **go-appkit 6**. The headline conclusion HOLDS under both
-definitions — the composition layer sits far below the blocks it composes, and the
-gap WIDENS under the strict one (several block counts were propped up by indirect
-rides through cqrs-htmx/cqrs-lite require graphs; go-etag's 25 is mostly transitive).
+(direct-or-indirect), per-app** definition. Corrected strict per-app counts (non-indirect
+requires only; full clean line-scan recount 2026-11-06 01:40, per-app dedup):
+go-branded-id 18 · go-error-family 22 · go-etag 8 · go-sse 14 · httputil 21 · go-codec 14 ·
+go-cqrs-lite 21 · go-flightrecorder 2 · templ-components 19 · go-retry 7 · go-datastar 5 ·
+go-idempotency 3 · go-atomic-write 8 · go-health 11 · go-output 4 · go-health-dashboard 10 ·
+cqrs-htmx 10 · cmdguard 9 · go-ndjson 0 · go-sqlitestore 0 · samber-do-auditlog 2 ·
+**go-appkit 6**. The headline conclusion HOLDS under both definitions — the composition layer
+sits far below the blocks it composes, and the gap WIDENS under the strict one (flightrecorder
+22→2, etag 25→8, output 11→4 are mostly transitive rides through the cqrs-htmx/cqrs-lite/appkit
+require graphs; ndjson/sqlitestore are 100% transitive at 9/9).
 Table above left as-published per the annotate-never-rewrite rule; future re-sweeps
 must report BOTH columns (fix-forward: adoption-counter script item in the v12
 program backlog).
