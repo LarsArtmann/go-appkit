@@ -1,5 +1,13 @@
 # SUPERB v10 Completion, Self-Review, and Close-Out
 
+> **Live remainder:** the close-out's 50-item ledger is fully adjudicated
+> (this archive): the process rules landed in AGENTS (parallelism posture,
+> spot-check bar, rows-vs-live-state), the govulncheck sweep RAN (2026-11-06:
+> one stdlib finding, GO-2026-6809, fix routed to the minted floor-train
+> row), and the owner gates + program rows carry routed markers into their
+> owning TODO rows. Archived 2026-11-06: every §f item carries a verdict;
+> nothing here is unowned.
+
 **2026-11-02 16:13 CET · Scope:** the continuation window that executed M15-closeout through M26 + F95 after the owner's "GET SHIT DONE" re-dispatch, plus a brutal self-review of what this window forgot, did badly, and should improve. Part 1 (M3–M15 execution + corpus sweep) lives in this same file above; the 12:25 narrative covers that half.
 
 **State at close:** tip `2d8db0d` == origin/master. CI on the FINAL pushed commit: every job green except `ci-preflight` (designed chronic red — Actions `SSH_PRIVATE_KEY` secret empty) and `structure-linter` (skips by design, rides ci-preflight). Root + testkit + integration `-race` suites green hermetically; root and integration `golangci-lint` **0 issues**; routed-destinations 194/0; directives, charter, dependabot-parity guards green.
@@ -67,56 +75,56 @@
 
 ## f) NEXT THINGS (up to 50, ordered by impact)
 
-1. **Restore the repo Actions `SSH_PRIVATE_KEY` secret** (owner) — retires the chronic ci-preflight red and re-arms structure-linter on push runs.
-2. **Fix structure-linter on dependabot-PR runs** — either `skip` the job for dependabot actors or wire working SSH auth into that context (every future dependabot PR reds on it until then).
-3. **Cut the additions-empty anchor core tag** (v0.9.1, doc+testkit-additions) — starts the v1.0.0 freeze clock; criterion 1 is armed at a zero-line diff.
-4. **Execute the composition swap train** (Service → `NewServerListener`) per the TODO plan-of-record; Core TLS rides it.
-5. **Push crush-config `227a130`** so the exact-token lesson deploys through home-manager.
-6. **File the samber/do lazy-healthcheck ask** (owner-gated; fold in the `isHealthchecker()` exclusion nuance at filing time).
-7. **Satellite testkit migrations** (realtime/fr/cqrs `httpGetURL`, `mustDo`, poll spellings) on the next core train.
-8. **Integration migrations** (`e2eGet`→`testkit.HTTPGetURL`, `freeAddr`→`testkit.FreeAddr`, `waitRunning`→`WaitForRunning`) after the same tag.
-9. **Add `HTTPPostJSON` to testkit** — the inventory found five GET families but MISSED the POST family (`flightrecorder_test.go` hand-rolls `httpPostJSON`); fold it into the same testkit train.
-10. **errorpages module follow-up:** clarify the `Mount` godoc — the "plain 405" claim does not hold when a catch-all is registered (my M18 test proved the actual composition); a two-sentence godoc fix on errorpages' next train.
-11. **PapDashboard next-tag watch** — claims guard fires on their refresh; criterion 5 overlap unblocks then.
-12. **cqrs-htmx v5 window (ADR-0052)** — their repo; unblocked.
-13. **go-flightrecorder#2 cooldown combinator** — upstream OPEN; when shipped, delete frh's hand-rolled cooldown on frh's next train.
-14. **Machine-default go upgrade decision** (standing since 09-29): nixpkgs can't provide it (1.26.10 drift) — needs an explicit owner path decision (flake-pinned toolchain vs autoload).
-15. **pkg.go.dev flightrecorder 404 watch** — owner-gated re-tag last resort stands.
-16. **Flip the FEATURES "UNRELEASED" testkit rows** when the anchor tag ships.
-17. **Retire the composition-gap watchlist row** (NOTHING REMAINS) at the next docs-health pass, or keep it as the landing pad for new gaps — owner taste.
-18. **Annotate the 12:25 report's "awaiting instructions" line** as superseded-by-close-out.
-19. **Update `docs/status/README.md`'s 12-25 index line** to mention part 2 (minor staleness).
-20. **Write the "test global posture" rule into AGENTS Testing section** (improvement #2 made durable).
-21. **Build `check-touched-modules.sh`** (improvement #1 made mechanical) and wire into pre-commit.
-22. **Retire TODO row 29's remaining half** after satellite/integration migrations land (the dedup row completes).
-23. **Battery W3 `httpx` module** — demand-gated; re-check demand at next consumer sweep.
+1. **Restore the repo Actions `SSH_PRIVATE_KEY` secret** (owner) — retires the chronic ci-preflight red and re-arms structure-linter on push runs. **→ TODO P1 — owner-gated CI secret (SSH_PRIVATE_KEY restore) <!-- fresh:skip: routed in TODO_LIST -->**
+2. **Fix structure-linter on dependabot-PR runs** — either `skip` the job for dependabot actors or wire working SSH auth into that context (every future dependabot PR reds on it until then). **→ TODO P1 — owner-gated CI secret (the dependabot-run posture rides the same restore; the job designed-skips today) <!-- fresh:skip: routed in TODO_LIST -->**
+3. **Cut the additions-empty anchor core tag** (v0.9.1, doc+testkit-additions) — starts the v1.0.0 freeze clock; criterion 1 is armed at a zero-line diff. **→ TODO P2 — core v1.0.0 exit criteria (the anchor-pair start is owner-gated; the tree moved past v0.9.1 to v0.10.0) <!-- fresh:skip: routed in TODO_LIST -->**
+4. **Execute the composition swap train** (Service → `NewServerListener`) per the TODO plan-of-record; Core TLS rides it. **→ TODO P2 — compose Service on httputil.Server (the swap plan-of-record row) <!-- fresh:skip: routed in TODO_LIST -->**
+5. ~~**Push crush-config `227a130`** so the exact-token lesson deploys through home-manager.~~ done — pushed: origin/master carries 227a130 (verified 2026-11-06); home-manager deploys it
+6. **File the samber/do lazy-healthcheck ask** (owner-gated; fold in the `isHealthchecker()` exclusion nuance at filing time). **→ TODO P3 — samber/do items (file the lazy-healthcheck ask at approval; fold in the isHealthchecker nuance) <!-- fresh:skip: routed in TODO_LIST -->**
+7. **Satellite testkit migrations** (realtime/fr/cqrs `httpGetURL`, `mustDo`, poll spellings) on the next core train. **→ TODO P2 — test-helper dedup (satellite realtime/fr/cqrs migrations ride the next core train) <!-- fresh:skip: routed in TODO_LIST -->**
+8. **Integration migrations** (`e2eGet`→`testkit.HTTPGetURL`, `freeAddr`→`testkit.FreeAddr`, `waitRunning`→`WaitForRunning`) after the same tag. **→ TODO P2 — test-helper dedup (integration migrations ride the same train) <!-- fresh:skip: routed in TODO_LIST -->**
+9. **Add `HTTPPostJSON` to testkit** — the inventory found five GET families but MISSED the POST family (`flightrecorder_test.go` hand-rolls `httpPostJSON`); fold it into the same testkit train. **→ TODO P2 — test-helper dedup (the HTTPPostJSON family ask rides the same row) <!-- fresh:skip: routed in TODO_LIST -->**
+10. **errorpages module follow-up:** clarify the `Mount` godoc — the "plain 405" claim does not hold when a catch-all is registered (my M18 test proved the actual composition); a two-sentence godoc fix on errorpages' next train. **→ TODO P3 — errorpages Mount godoc follow-up (the catch-all caveat; next errorpages train) <!-- fresh:skip: routed in TODO_LIST -->**
+11. **PapDashboard next-tag watch** — claims guard fires on their refresh; criterion 5 overlap unblocks then. **→ TODO P3 — Upstream watchlist (PapDashboard next-tag watch; the guard fires on their refresh) <!-- fresh:skip: routed in TODO_LIST -->**
+12. ~~**cqrs-htmx v5 window (ADR-0052)** — their repo; unblocked.~~ done — as-watch — their v5 window is UNBLOCKED (the AGENTS consumer bullet tracks ADR-0052; their repo owns it)
+13. **go-flightrecorder#2 cooldown combinator** — upstream OPEN; when shipped, delete frh's hand-rolled cooldown on frh's next train. **→ TODO P3 — upstream ask FILED go-flightrecorder#2 (cooldown combinator) <!-- fresh:skip: routed in TODO_LIST -->**
+14. **Machine-default go upgrade decision** (standing since 09-29): nixpkgs can't provide it (1.26.10 drift) — needs an explicit owner path decision (flake-pinned toolchain vs autoload). **→ TODO P3 — open questions awaiting USER decisions (machine go default) <!-- fresh:skip: routed in TODO_LIST -->**
+15. **pkg.go.dev flightrecorder 404 watch** — owner-gated re-tag last resort stands. **→ TODO P2 — pkg.go.dev render watch (flightrecorder 404; re-tag last resort) <!-- fresh:skip: routed in TODO_LIST -->**
+16. ~~**Flip the FEATURES "UNRELEASED" testkit rows** when the anchor tag ships.~~ done — the testkit additions shipped in core v0.10.0 and FEATURES carries no UNRELEASED rows (grep-verified 2026-11-06)
+17. ~~**Retire the composition-gap watchlist row** (NOTHING REMAINS) at the next docs-health pass, or keep it as the landing pad for new gaps — owner taste.~~ done — the watchlist row already records its landing-gaps role (nothing remains; new gaps enter via the batteries-demand ledger)
+18. ~~**Annotate the 12:25 report's "awaiting instructions" line** as superseded-by-close-out.~~ done — the 12:25 report moved to archived/ in this wave with its banner naming the close-out
+19. ~~**Update `docs/status/README.md`'s 12-25 index line** to mention part 2 (minor staleness).~~ done — the README 12-25 line already carries the part-2 note; the row joined the archived manifest this wave
+20. ~~**Write the "test global posture" rule into AGENTS Testing section** (improvement #2 made durable).~~ done — the parallelism-design-time rule is in the AGENTS Testing section (this archive wave)
+21. **Build `check-touched-modules.sh`** (improvement #1 made mechanical) and wire into pre-commit. **→ TODO P3 — the check-touched-modules.sh guard (improvement #1 made mechanical) <!-- fresh:skip: routed in TODO_LIST -->**
+22. **Retire TODO row 29's remaining half** after satellite/integration migrations land (the dedup row completes). **→ TODO P2 — test-helper dedup (the row completes when the migrations land) <!-- fresh:skip: routed in TODO_LIST -->**
+23. **Battery W3 `httpx` module** — demand-gated; re-check demand at next consumer sweep. **→ TODO P3 — Battery program waves W3-W5 (the httpx module) <!-- fresh:skip: routed in TODO_LIST -->**
 24. **Battery W4/W5 rows** — same gate. **→ TODO P3 — Battery program waves W3-W5 (W4 ops & data, W5 realtime completions)** <!-- fresh:skip: routed in TODO_LIST -->
-25. **cqrs EventConfig opt-ins** — demand-gated (idempotency recipe path documented).
-26. **watchlist row 56 consolidation** — it has grown huge; next docs pass should split it into per-target rows or a table.
-27. **Re-run `verify-all.sh` end-to-end on a quiet-load window** as the pre-tag gate for #3 (runner truth carried the wave; the pre-tag gate runs it canonically anyway).
-28. **Announce/decide the SSE E2E sync rules** — sse-protocol guard green; nothing pending; skip unless drift.
-29. **Re-check `golangci-lint-auto-configure` convergence after the next upstream tool bump** — the daemon rewrite of 11 configs (10-13 precedent) will recur; the configs-verify guard covers schema, but the POLICY deltas (noinlineerr stays disabled) need eyeballing.
-30. **Consider making ci-preflight's expected-red state visible** — e.g. a workflow-level annotation or a badge note, so "failure" on the tip reads as designed without tribal knowledge (ties to #1: fixing the secret retires this entirely).
-31. **Add the structure-linter install-auth diagnosis to its CI job comment** so the next person doesn't re-derive it.
-32. **frh's `adapter.go` cooldown** — delete when fr#2 ships (dup of 13, keep one).
-33. **`security_realtime_test.go` header** — it carries the package's only attached doc comment now; decide whether it stays the canonical package doc or gets detached like the others (cosmetic consistency).
-34. **Battery: `DropCounter` W5-C1** — still parked on cqrs+realtime composition demand (zero consumers).
-35. **`testkit` POST/query-param helper ergonomics** — if #9 lands, inventory once more before the train.
-36. **core `svc.Routes()` seam** — battery B8 blocked on it; core has not agreed; keep parked.
-37. **`httpx` B1 classification-parity test** — rides W3.
-38. **Re-verify `example-smoke` covers the systemd example** — it boots all seven examples; green this run; nothing pending.
-39. **`govulncheck` sweep on the next dependency train** (last clean 2026-10-13).
-40. **dependabot grouped-config audit** — the 10:10 update run recreated PRs correctly post-wave; verify next week's run doesn't re-open closed supersessions (the auto-close behavior worked; watch for regression).
-41. **AGENTS.md ≤220 cap** — currently 133; keep module detail in `docs/agents/module-details.md` as content grows.
-42. **`docs/agents/module-details.md` §integration** — add the `documentedPins` requires-flightrecorder note (fixture now covers 11 appkit modules).
-43. **M19's `waitForSnapshots` timeout** — 5s is fine under current load; if the shared box saturates harder, raise or quiet-run-gate.
-44. **Consider `GOMODCACHE` isolation for integration `go get` operations** under load (the escalation path used in part 1's hermetic passes).
-45. **TODO "Open questions" section** — machine-default go (#14) is the only true open question left; prune resolved ones at next pass.
-46. **Cross-repo tracking posture** — the standing §g question (nudge cqrs-htmx vs report-only) still awaits owner intent.
-47. **The four pma decisions** — cooldown + staged-respect implementations are the two actionable ones (checklist ready).
-48. **Keep `art-dupl-gate` pin lockstep** — when re-baselining next, move the CI pin with it (documented trap).
-49. **Annotate THIS report into the status index** during the next docs pass with its final verdicts.
-50. **The v1.0.0 announcement surface** — when the anchor tag + overlap land, README/website get the v1 posture; parked until criteria close.
+25. **cqrs EventConfig opt-ins** — demand-gated (idempotency recipe path documented). **→ TODO P3 — Battery program waves W3-W5 (cqrs EventConfig opt-ins stay Deferred-Register demand-gated) <!-- fresh:skip: routed in TODO_LIST -->**
+26. **watchlist row 56 consolidation** — it has grown huge; next docs pass should split it into per-target rows or a table. **→ TODO P3 — split the huge composition-gap watchlist row (minted) <!-- fresh:skip: routed in TODO_LIST -->**
+27. ~~**Re-run `verify-all.sh` end-to-end on a quiet-load window** as the pre-tag gate for #3 (runner truth carried the wave; the pre-tag gate runs it canonically anyway).~~ done — verify-all ran on later windows (the 10-25 wave; the p9a guard runs); the pre-tag canon runs the guards anyway
+28. ~~**Announce/decide the SSE E2E sync rules** — sse-protocol guard green; nothing pending; skip unless drift.~~ done — the sse-protocol guard enforces the sync rules; nothing pending
+29. ~~**Re-check `golangci-lint-auto-configure` convergence after the next upstream tool bump** — the daemon rewrite of 11 configs (10-13 precedent) will recur; the configs-verify guard covers schema, but the POLICY deltas (noinlineerr stays disabled) need eyeballing.~~ done — as-standing — the golangci-config-verify CI job covers schema/policy drift; noinlineerr stays disabled by the 2026-10-13 ruling
+30. **Consider making ci-preflight's expected-red state visible** — e.g. a workflow-level annotation or a badge note, so "failure" on the tip reads as designed without tribal knowledge (ties to #1: fixing the secret retires this entirely). **→ TODO P3 — ci-preflight expected-red visibility (annotation or badge note; minted) <!-- fresh:skip: routed in TODO_LIST -->**
+31. ~~**Add the structure-linter install-auth diagnosis to its CI job comment** so the next person doesn't re-derive it.~~ done — the diagnosis lives in the ci.yml structure-linter job comment (private binary, SSH-need, designed-skip; verified 2026-11-06)
+32. **frh's `adapter.go` cooldown** — delete when fr#2 ships (dup of 13, keep one). **→ TODO P3 — upstream ask FILED go-flightrecorder#2 (frh cooldown deletion rides it) <!-- fresh:skip: routed in TODO_LIST -->**
+33. **`security_realtime_test.go` header** — it carries the package's only attached doc comment now; decide whether it stays the canonical package doc or gets detached like the others (cosmetic consistency). **→ TODO P3 — integration test-file hygiene (the security_realtime_test.go header decision) <!-- fresh:skip: routed in TODO_LIST -->**
+34. **Battery: `DropCounter` W5-C1** — still parked on cqrs+realtime composition demand (zero consumers). **→ TODO P3 — Battery program waves W3-W5 (W5-C1 DropCounter) <!-- fresh:skip: routed in TODO_LIST -->**
+35. **`testkit` POST/query-param helper ergonomics** — if #9 lands, inventory once more before the train. **→ TODO P2 — test-helper dedup (POST/query-param ergonomics inventory before the train) <!-- fresh:skip: routed in TODO_LIST -->**
+36. **core `svc.Routes()` seam** — battery B8 blocked on it; core has not agreed; keep parked. **→ TODO P3 — Battery program waves W3-W5 (B8 rides the svc.Routes seam; the endpoints.md verdict covers the fit) <!-- fresh:skip: routed in TODO_LIST -->**
+37. **`httpx` B1 classification-parity test** — rides W3. **→ TODO P3 — Battery program waves W3-W5 (httpx B1 classification-parity test) <!-- fresh:skip: routed in TODO_LIST -->**
+38. ~~**Re-verify `example-smoke` covers the systemd example** — it boots all seven examples; green this run; nothing pending.~~ done — example-smoke boots all examples green (8/8 legs in the p9a session); nothing pending
+39. ~~**`govulncheck` sweep on the next dependency train** (last clean 2026-10-13).~~ done — the sweep RAN 2026-11-06 across 13 modules: ONE stdlib finding (GO-2026-6809 crypto/x509, fixed in go1.27.3), ZERO dependency findings; the fix rides the minted floor-train row
+40. ~~**dependabot grouped-config audit** — the 10:10 update run recreated PRs correctly post-wave; verify next week's run doesn't re-open closed supersessions (the auto-close behavior worked; watch for regression).~~ done — dependabot verified not re-opening (the 21-35 pass: gh pr list empty; grouped manifests regenerate correctly)
+41. ~~**AGENTS.md ≤220 cap** — currently 133; keep module detail in `docs/agents/module-details.md` as content grows.~~ done — AGENTS is 144 lines against the 220 cap; module-details holds the deep content
+42. ~~**`docs/agents/module-details.md` §integration** — add the `documentedPins` requires-flightrecorder note (fixture now covers 11 appkit modules).~~ done — the documentedPins scope note is in docs/agents/module-details.md §integration (this archive wave)
+43. ~~**M19's `waitForSnapshots` timeout** — 5s is fine under current load; if the shared box saturates harder, raise or quiet-run-gate.~~ done — as-is — the 5s timeout holds under quiet-run; the raise trigger is recorded in the item itself
+44. ~~**Consider `GOMODCACHE` isolation for integration `go get` operations** under load (the escalation path used in part 1's hermetic passes).~~ done — as-documented — the fresh-GOMODCACHE escalation recipe is the AGENTS stale-cache gotcha
+45. ~~**TODO "Open questions" section** — machine-default go (#14) is the only true open question left; prune resolved ones at next pass.~~ done — the open-questions block already carries only the machine-default question (pruned by a later pass; verified 2026-11-06)
+46. **Cross-repo tracking posture** — the standing §g question (nudge cqrs-htmx vs report-only) still awaits owner intent. **→ TODO P3 — open questions awaiting USER decisions (cross-repo posture) <!-- fresh:skip: routed in TODO_LIST -->**
+47. **The four pma decisions** — cooldown + staged-respect implementations are the two actionable ones (checklist ready). **→ TODO P3 — pma rows (cooldown + staged-respect implementations; checklist ready in the memo) <!-- fresh:skip: routed in TODO_LIST -->**
+48. ~~**Keep `art-dupl-gate` pin lockstep** — when re-baselining next, move the CI pin with it (documented trap).~~ done — as-standing — the pin-lockstep trap is documented in the AGENTS art-dupl-gate paragraph
+49. ~~**Annotate THIS report into the status index** during the next docs pass with its final verdicts.~~ done — the report joins the README index + archived manifest in this wave
+50. **The v1.0.0 announcement surface** — when the anchor tag + overlap land, README/website get the v1 posture; parked until criteria close. **→ TODO P2 — core v1.0.0 exit criteria (the README/website v1 posture is parked on the criteria landing) <!-- fresh:skip: routed in TODO_LIST -->**
 
 ## g) QUESTIONS FOR LARS (cannot self-answer)
 
