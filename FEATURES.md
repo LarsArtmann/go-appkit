@@ -233,7 +233,7 @@ which carries the `StartHooks` seam it depends on):
 ## config (`github.com/larsartmann/go-appkit/config`)
 
 Shipped as **config v0.1.0** (2026-11-06, SUPERB v12 C-train, battery F1; tag
-local — push held for the owner's push-policy answer):
+on origin, pushed 06:59):
 
 | Feature                                                                                                  | Status           | Evidence                                          |
 | -------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------- |
@@ -245,6 +245,22 @@ local — push held for the owner's push-policy answer):
 | One Rejection wrapping typed `FieldError`s; `FieldErrorsOf` collects the full tree                       | FULLY_FUNCTIONAL | `config.go`, error-taxonomy tests                 |
 | `Keys[T]` sorted declared-key discoverability                                                            | FULLY_FUNCTIONAL | `config.go`, Keys tests                           |
 | `WithValidate` cross-field hook (runs last)                                                              | FULLY_FUNCTIONAL | validation-hook test                              |
+
+## preset (`github.com/larsartmann/go-appkit/preset`)
+
+Shipped as **preset v0.1.0** (2026-11-06, SUPERB v12/v13 P-train — the one-call
+composition module):
+
+| Feature                                                                                              | Status           | Evidence                                  |
+| ---------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------- |
+| `New(Config)` always-on spine: core stack, systemd sd_notify, health dashboard (owns `/health` + `/healthz` `/readyz` `/startupz`; core's family only under `NoDashboard`), errorpages, `RegisterClassifications`, version stamp | FULLY_FUNCTIONAL | `preset.go`, `spine_test.go`              |
+| Env-switch legs `APPKIT_OTEL`/`APPKIT_REALTIME`/`APPKIT_ERRORPAGES`/`APPKIT_SECURITY` with explicit-code-wins precedence, fail-fast Rejection on invalid values | FULLY_FUNCTIONAL | `env.go`, `env_test.go`, `conflict_test.go` |
+| Hooks passthrough consumer-first (consumer hooks run before spine closures in every phase)                                            | FULLY_FUNCTIONAL | `preset.go`, hook-order test               |
+| Realtime leg: hub at `/events` (configurable pattern), `Hub` out-field, graceful SSE shutdown                                           | FULLY_FUNCTIONAL | `realtime_test.go`                          |
+| Security profiles: standard (HSTS/nosniff/body-limit) and strict (origin allowlist, boot-rejects without origins)                        | FULLY_FUNCTIONAL | `security_test.go`                          |
+| otel leg: provider Setup + middleware + shutdown flush; code wins over env; off by default                                              | FULLY_FUNCTIONAL | `otel_test.go`                              |
+| Metrics passthrough verbatim (never invents credentials)                                                                                | FULLY_FUNCTIONAL | `metrics_test.go`                            |
+| 35-LOC example app (acceptance: full production posture)                                                                                 | FULLY_FUNCTIONAL | `example/main.go`, example-smoke green      |
 
 ## integration (`github.com/larsartmann/go-appkit/integration` — never released)
 

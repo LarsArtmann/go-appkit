@@ -1,29 +1,38 @@
-# Consumer heads-up — PapDashboard: core default stack now emits `Server-Timing`
+# Consumer heads-up — PapDashboard: core v0.10.0 ships `Server-Timing`; preset is your upgrade path
 
-> **Drafted 2026-11-03 · target: PapDashboard (your repo) · post as issue/comment when the core
-> train tags · voice: github-voice, AI-drafted (Crush/GLM) — review before posting.**
+> **Refreshed 2026-11-06 (drafted 2026-11-03) · target: PapDashboard (your repo) · the core
+> train is now TAGGED (`v0.10.0`, pushed 2026-11-06); preset `preset/v0.1.0` tags with it ·
+> voice: github-voice, AI-drafted (Crush/GLM) — review before posting.**
 
 ## Proposed title
 
-`Heads-up: go-appkit core will emit a Server-Timing header on every response (next core minor)`
+`Heads-up: go-appkit core v0.10.0 emits Server-Timing; new preset module composes the family in one call`
 
 ## Body draft
 
-`go-appkit` core master adds a W3C `Server-Timing` middleware as the outermost default-stack
-entry (commit `a5d9e55`, family module `httputil/server_timing` v1.0.3). Plain `Service` usage
-like yours gets it automatically once you bump core — every response gains exactly one header:
-`Server-Timing: total;dur=<ms>`.
+Two go-appkit releases relevant to your core pin (`v0.4.0` today):
 
-## What changes for you
+**core `v0.10.0`** — plain `Service` usage like yours gets the following on
+bump:
 
-- Nothing functional: same statuses, same bodies, one additive response header your browser
-  DevTools and any APM can read.
-- Your notification-hub SSE endpoints are safe — the header stamps at response commit, streams
-  unaffected.
-- If you ever want it off: `appkit.ServiceConfig.ServerTiming: &false` (or replace
-  `Config.Middlewares`).
+- One additive response header on every response: `Server-Timing:
+  total;dur=<ms>` (W3C, outermost default-stack entry). Same statuses, same
+  bodies; browser DevTools and any APM can read it.
+- Your notification-hub SSE endpoints are safe — the header stamps at
+  response commit, streams unaffected.
+- Off switches: `appkit.ServiceConfig.ServerTiming: &false`, or replace
+  `Config.Middlewares`.
 
-No action needed now; core has not tagged this yet (accumulate-train). Pinned evidence:
-go-appkit `a5d9e55`, `middleware.go`, `README.md` config table (`ServerTiming` row).
+**`appkit/preset` `v0.1.0`** — the upgrade path for the hosting boilerplate
+you hand-rolled in v0.3.0: `preset.New(preset.Config{...})` boots the whole
+spine (core stack + graceful drain, systemd sd_notify, health dashboard with
+`/healthz /readyz /startupz`, pretty error pages, version stamp) and
+env-driven legs for otel tracing, SSE realtime, and security profiles —
+`APPKIT_SECURITY=standard` alone adds HSTS/nosniff/body-limit. Example app:
+35 LOC to full production posture. Your repo keeps ownership of the swap
+(per the integration memo, `docs/planning/2026-09-04_papdashboard-integration.md` §7).
+
+Pinned evidence: go-appkit `v0.10.0` tag, `middleware.go`, `preset/README.md`
+(env grammar table), `preset/example/main.go` (the 35-LOC demo).
 
 💘 Generated with Crush

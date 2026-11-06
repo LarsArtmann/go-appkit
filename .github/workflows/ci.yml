@@ -107,7 +107,7 @@ jobs:
   # Fresh-consumer proxy smoke: a clean module resolves each RELEASED module
   # from the module proxy, imports it, and builds. Catches proxy-unresolvable
   # tags and missing-dep packaging before consumers do. The matrix covers all
-  # eleven released modules (integration is never released and stays out).
+  # thirteen released modules (integration is never released and stays out).
   proxy-smoke:
     runs-on: ubuntu-latest
     # Deliberately NOT needs:test: this job verifies the module PROXY and
