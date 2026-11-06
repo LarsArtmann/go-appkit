@@ -1,5 +1,13 @@
 # Status Report — SUPERB v12 Plan Rev 2 + Self-Review Corrections (session segment 01:25–01:33)
 
+> **Live remainder:** this is the rev-2 corrections pass over the same v12
+> program the 01-25 report routed — and the program EXECUTED the same day:
+> config v0.1.0 (`614cc2f`) + preset v0.1.0 (`21c1a78`) tagged; G-CNT shipped
+> (`scripts/count-adopters.sh`, `06e9a77`); the scaffold/recipes/battery/
+> process-lesson legs carry routed markers into the v13 plan + TODO_LIST P3.
+> Archived 2026-11-06: all 20 §f items carry verdicts; nothing here is unowned.
+>
+
 **Scope line.** This report covers the SECOND segment of the 2026-11-06 session: the
 user-demanded expansion of the v12 plan HTML ("more detailed and just more superb"), and the
 self-review pass that immediately followed it. It SUPERSEDES the population figure in the
@@ -95,31 +103,31 @@ sequencing call.
 
 ## f) Up to 50 next (◆ = new this segment; ★ = routed in TODO_LIST already; ⇄ = carried open from 01-25)
 
-1. ★ T2.1–T2.4 `appkit/config` → v0.1.0.
-2. ★ T1.1–T1.6 `appkit/preset` → v0.1.0.
-3. ★ T3.1–T3.5 scaffold verdict → template → infra → docs skeleton → dogfood.
-4. ★ T4.1–T4.5 swap-recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes.
-5. ★ T5.4 auth-bridge decision memo (owner gate).
-6. ★ T5.1–T5.3 D1 worker supervisor, D3 sqlite+migrations, C2 realtime Mount.
-7. ⇄ Adoption-counter script (dual-column) wired as mechanical success gate.
-8. ⇄ Sequential-retry deep-reads: CV (13 modules) first, then KeyHolderAI, crm, webphone.
-9. ⇄ Depth-audit the 22 config packages (read the 5 largest; firm up the class claim).
-10. ⇄ Browser-render check for HTML reports (environmentally blocked here — needs the owner's
+1. ~~★ T2.1–T2.4 `appkit/config` → v0.1.0.~~ done at `614cc2f`
+2. ~~★ T1.1–T1.6 `appkit/preset` → v0.1.0.~~ done at `21c1a78`
+3. ★ T3.1–T3.5 scaffold verdict → template → infra → docs skeleton → dogfood. **→ TODO P3 — v13 plan S2-S7 scaffold rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; S1 verdict landed) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+4. ★ T4.1–T4.5 swap-recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes. **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; A1 template landed) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+5. ★ T5.4 auth-bridge decision memo (owner gate). **→ TODO P3 — Auth-bridge DECISION memo (owner gate) <!-- fresh:skip: routed in TODO_LIST -->**
+6. ★ T5.1–T5.3 D1 worker supervisor, D3 sqlite+migrations, C2 realtime Mount. **→ TODO P3 — v13 plan D1 / D3 / C2R battery rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+7. ~~⇄ Adoption-counter script (dual-column) wired as mechanical success gate.~~ done at `06e9a77`
+8. ⇄ Sequential-retry deep-reads: CV (13 modules) first, then KeyHolderAI, crm, webphone. **→ TODO P3 — SUPERB v12 micro-backlog (CV deep-read + archetype matrix) <!-- fresh:skip: routed in TODO_LIST -->**
+9. ⇄ Depth-audit the 22 config packages (read the 5 largest; firm up the class claim). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (config depth-audit) <!-- fresh:skip: routed in TODO_LIST -->**
+10. ⇄ Browser-render check for HTML reports (environmentally blocked here — needs the owner's **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (browser-render probe + devDependency decision) <!-- fresh:skip: routed in TODO_LIST -->**
     devDependency decision, see e4).
-11. ⇄ Preserve the sweep script in-repo (kills the /tmp dependency).
-12. ◆ Process lesson → crush-config `references/lessons.md`: "asserted vs computed counts"
+11. ~~⇄ Preserve the sweep script in-repo (kills the /tmp dependency).~~ done — moot — the sweep script is IN the repo: scripts/count-adopters.sh (06e9a77) + docs/review/apps/adoption-baseline.txt committed; the /tmp dependency is dead
+12. ◆ Process lesson → crush-config `references/lessons.md`: "asserted vs computed counts" **→ TODO P3 — SUPERB v12 micro-backlog (process lesson asserted-vs-computed counts to crush-config references/lessons.md) <!-- fresh:skip: routed in TODO_LIST -->**
     (two same-day instances: require-semantics label, population denominator).
-13. ◆ dprint html coverage decision: add an html/markup plugin to the repo config OR document
+13. ◆ dprint html coverage decision: add an html/markup plugin to the repo config OR document **→ TODO P3 — SUPERB v12 micro-backlog (dprint html coverage decision) <!-- fresh:skip: routed in TODO_LIST -->**
     html as out of dprint scope (kills the vacuous-pass class).
-14. ◆ Single-membership archetype matrix as an audit appendix (primary archetype per app).
-15. ◆ Add "rev 2 (expanded)" convention ruling to the planning-docs house rules (see g3).
-16. ◆ Extend the plan's success-gate table with per-archetype targets (preset-hosts → 6/6 on
+14. ◆ Single-membership archetype matrix as an audit appendix (primary archetype per app). **→ TODO P3 — SUPERB v12 micro-backlog (single-membership archetype matrix appendix) <!-- fresh:skip: routed in TODO_LIST -->**
+15. ◆ Add "rev 2 (expanded)" convention ruling to the planning-docs house rules (see g3). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (planning-docs rev-2 convention ruling, owner) <!-- fresh:skip: routed in TODO_LIST -->**
+16. ◆ Extend the plan's success-gate table with per-archetype targets (preset-hosts → 6/6 on **→ TODO P3 — SUPERB v12 micro-backlog (per-archetype gate targets; counter script landed) <!-- fresh:skip: routed in TODO_LIST -->**
     preset; hand-rollers → ≤4 remaining) when the counter script lands.
-17. ⇄ Fine-breakdown (≤15 min) for T1.2 spine wiring before the preset sprint.
-18. ⇄ Consider a `meta`-side appkit-adoption tag/flag (one-liner success gate at the inventory
+17. ~~⇄ Fine-breakdown (≤15 min) for T1.2 spine wiring before the preset sprint.~~ done — moot — the preset sprint executed same day: preset v0.1.0 tagged (21c1a78); the T1.2 spine-wiring breakdown is overtaken by the shipped module
+18. ⇄ Consider a `meta`-side appkit-adoption tag/flag (one-liner success gate at the inventory **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (meta-side adoption tag) <!-- fresh:skip: routed in TODO_LIST -->**
     layer).
-19. ⇄ Owner sequencing: v11 repair backlog vs v12 spine (see g1 — still THE blocker).
-20. ⇄ TODO_LIST preset-spine row: append the any/direct dual-number citation (it currently
+19. ~~⇄ Owner sequencing: v11 repair backlog vs v12 spine (see g1 — still THE blocker).~~ done — superseded — the sequencing call happened: the v13 plan reconciles both tracks and the preset program executed first (preset v0.1.0 tagged 21c1a78); the repair backlog continues on its own TODO rows
+20. ⇄ TODO_LIST preset-spine row: append the any/direct dual-number citation (it currently **→ TODO P3 — SUPERB v12 micro-backlog (TODO preset-row any/direct dual-number citation fix; the row already cites the §Errata) <!-- fresh:skip: routed in TODO_LIST -->**
     quotes any-require counts unqualified).
 
 ## g) Questions I cannot answer myself

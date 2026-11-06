@@ -1,6 +1,15 @@
 # Status: SUPERB v13 planning session — concurrent-session discovery, plan split brain, push held at the gate
 
-**Created:** 2026-11-06 07:50 · **Scope:** the owner's pareto-planning directive
+> **Live remainder:** the freeze this report recorded LIFTED the same day —
+> `v0.10.0` (`04f0c20`) and `preset/v0.1.0` (`21c1a78`) are tagged and pushed,
+> the 5s `listener_close` hang was root-caused as test hygiene and fixed
+> (`33f1152`), and the split brain was resolved (07-46 plan deleted, canonical
+> 07-10 stands). The P8 integration E2E, P9c proxy checks, consumer heads-ups,
+> and the H/X/Y/Z program rows live on the v13 plan + TODO_LIST (each §f item
+> below carries its routed marker). Archived 2026-11-06: all 10 §f items carry
+> verdicts; nothing here is unowned.
+>
+> **Created:** 2026-11-06 07:50 · **Scope:** the owner's pareto-planning directive
 (comprehensive plan → micro plan → tables → plan doc with graph → commit → push).
 This session did the full planning ritual — and discovered mid-flight that a
 SECOND agent session is LIVE in this repo, executing the same program. The
@@ -93,28 +102,28 @@ whichever session the owner designates (see g1).
 
 ## f) NEXT — in execution order (as designed before the freeze)
 
-1. Owner answers g → resolve the split brain (canonicalize 07-10, delete
-   07-46, TODO pointer → 07-10, append hang-erratum)
-2. Push master + `v0.10.0` (pre-tag-checks already green; gosum leg
-   self-heals); verify CI on the push
-3. THE SHIP-BLOCKER: root-cause the 5s listener_close hang (goroutine
-   dump mid-window on the errorpages+security+spine combo), fix, pin,
-   suite green ×3 consecutive
-4. Preset P7 finish: module lint 0, README truth+snippet compile check,
-   example-smoke wiring (the other session already started this —
-   coordinate per g1)
-5. P9: preset CHANGELOG [0.1.0] + API-diff record + fast guards → tag
-   `preset/v0.1.0` → pre-tag-checks → push → release-state sync (AGENTS
-   13 released + preset bullet, FEATURES, TODO_LIST, ci.yml
-   "eleven"→twelve)
-6. P8: integration E2E through PUBLISHED preset tags
-7. Consumer heads-ups refreshed (+preset announcement) — gate met
-8. Post-push verification: CI green on final commit, fresh-consumer proxy
+1. ~~Owner answers g → resolve the split brain (canonicalize 07-10, delete~~ done — split brain resolved: the 07-46 plan file is gone from docs/planning (canonical 07-10 stands) and the TODO preset-spine row + hang erratum point at 07-10
+   ~~07-46, TODO pointer → 07-10, append hang-erratum)~~
+2. ~~Push master + `v0.10.0` (pre-tag-checks already green; gosum leg~~ done at `04f0c20`
+   ~~self-heals); verify CI on the push~~
+3. ~~THE SHIP-BLOCKER: root-cause the 5s listener_close hang (goroutine~~ done at `33f1152`
+   ~~dump mid-window on the errorpages+security+spine combo), fix, pin,~~
+   ~~suite green ×3 consecutive~~
+4. ~~Preset P7 finish: module lint 0, README truth+snippet compile check,~~ done at `21c1a78`
+   ~~example-smoke wiring (the other session already started this —~~
+   ~~coordinate per g1)~~
+5. ~~P9: preset CHANGELOG [0.1.0] + API-diff record + fast guards → tag~~ done at `21c1a78`
+   ~~`preset/v0.1.0` → pre-tag-checks → push → release-state sync (AGENTS~~
+   ~~13 released + preset bullet, FEATURES, TODO_LIST, ci.yml~~
+   ~~"eleven"→twelve)~~
+6. P8: integration E2E through PUBLISHED preset tags **→ TODO P2 — SUPERB v12 preset spine (remaining half: P8 integration E2E through PUBLISHED tags) <!-- fresh:skip: routed in TODO_LIST -->**
+7. Consumer heads-ups refreshed (+preset announcement) — gate met **→ TODO P3 — post consumer heads-ups (OG2 preset/config drafts; v13 plan OG2 row) <!-- fresh:skip: routed in TODO_LIST -->**
+8. Post-push verification: CI green on final commit, fresh-consumer proxy **→ TODO P3 — v13 plan P9c fresh-consumer proxy checks (preset + config close-out) <!-- fresh:skip: routed in TODO_LIST -->**
    checks (v0.10.0, config, preset), unset the global insteadOf rewrite
-9. S1–S7 scaffold program; 10. G-CNT adoption counter; 11–15. A1–A5 swap
+9. S1–S7 scaffold program; 10. G-CNT adoption counter; 11–15. A1–A5 swap **→ TODO P3 — v13 plan S2-S7 / A2-A5 / D1 / D3 / C2R rows (already landed: S1 verdict, G-CNT counter 06e9a77, A1 template, R1b-e/R2-R4/R5a repairs per the p9a session) <!-- fresh:skip: routed in TODO_LIST -->**
    recipes; 16. D1 worker supervisor; 17. D3 sqlitekit; 18. C2R realtime
    folded; 19. R1b–e repairs; 20. R2–R4; 21. R5a + endpoints.md H8 feed;
-   22. H1–H3 httpx core; 23. H4–H7; 24. X1 compose-on-httputil; 25.
+   22. H1–H3 httpx core; 23. H4–H7; 24. X1 compose-on-httputil; 25. **→ TODO P3 — v13 plan H1-H7 / X1-X4 / Y-Z rows (httpx program, compose-on-httputil, backlog) <!-- fresh:skip: routed in TODO_LIST -->**
    X2–X4; 26. Y/Z backlog + AGENTS pin-hold one-liner; 27. OG memos +
    final verify-all + release-state sync + /tmp cleanup
 

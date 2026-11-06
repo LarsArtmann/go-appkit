@@ -10,15 +10,15 @@
 
 ## Headline numbers
 
-| Measure                              | Before  | After        |
-| ------------------------------------ | ------- | ------------ |
-| `audit-all` unharvested open items   | 26      | **0**        |
-| `audit-all` pin (`audit_max`)        | 12      | 12 (unchanged — owed) |
-| `annotate` findings (pin 255)        | 244     | 244 (unchanged) |
-| Unarchived reports (threshold 15)    | 19      | 20 (this report added one) |
-| Oldest unarchived report (thr. 29d)  | 30d     | 30d (unchanged) |
-| Files edited                         | —       | 12 reports + `ROADMAP.md` + this report |
-| Routed markers dead                  | —       | 0 (10 enforced, 1 unenforced note) |
+| Measure                             | Before | After                                   |
+| ----------------------------------- | ------ | --------------------------------------- |
+| `audit-all` unharvested open items  | 26     | **0**                                   |
+| `audit-all` pin (`audit_max`)       | 12     | 12 (unchanged — owed)                   |
+| `annotate` findings (pin 255)       | 244    | 244 (unchanged)                         |
+| Unarchived reports (threshold 15)   | 19     | 20 (this report added one)              |
+| Oldest unarchived report (thr. 29d) | 30d    | 30d (unchanged)                         |
+| Files edited                        | —      | 12 reports + `ROADMAP.md` + this report |
+| Routed markers dead                 | —      | 0 (10 enforced, 1 unenforced note)      |
 
 Gate matrix now: `freshness` PASS · `audit-all` **PASS** · `annotate` PASS · `routing` PASS · `cadence` **FAIL**.
 
@@ -94,58 +94,58 @@ Gate matrix now: `freshness` PASS · `audit-all` **PASS** · `annotate` PASS · 
 
 ## f) UP TO 50 THINGS TO GET DONE NEXT (ordered; 1–8 are the real work, the rest is backfill)
 
-| #   | Item                                                                                                                       | Why / evidence |
-| --- | -------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| 1   | **Archive `2026-10-07_11-00_pma-daemon…`** (0 §f items) with the `> **Live remainder:**` banner naming TODO P2 pma row + the owner memo §6 | Clears the 30d age arm with one file |
-| 2   | **Archive 3 more** (cheapest safe set: `01-25` 15 items, `12-25_superb` 26, `07-14` 28 remaining) → 15 unarchived | Brings count to threshold; 15 gives zero headroom, so prefer 4–5 |
-| 3   | For each archive candidate: adjudicate EVERY `§f` item (strike/done/NOT-DO/routed+skip) **before** `git mv` | The archive bill of materials; ~15–30 verdicts per file |
-| 4   | **Re-pin `audit_max: 0`** in `.docs-gates.json` after the drain, and re-run the battery | The drain is 0 today; the pin is 12 |
-| 5   | Run `annotate.go check-rows --strict` + `bare-rows` over every file about to move | Archive-decision gate, must precede `git mv` <!-- fresh:skip: in-report procedure step, executed by whichever session runs the archive ritual --> |
-| 6   | Run the formatter over the touched set, then `check-rows` again | Formatter canon: a rewriter with no knowledge of markers |
-| 7   | **Refresh `docs/status/README.md`**: add the 11 missing reports to "Current (unarchived)", fix `2026-11-06_01-25_…-routing-status.md` → `…-routing.md` | Dead pointer in the canonical index |
-| 8   | Write the bulk-archive manifest (filename → classification + reason) when the batch lands | Required by the skill for >1 archive per pass |
-| 9   | Convert the `06-22` #42 `Z2–Z7` routed marker to an enforced form (or accept the note deliberately) | 1 unenforced note remains |
-| 10  | Reconsider `08-16` #8: route the benchmark upstream instead of NOT-DO, or add `BenchmarkCheckStaleness` here | My NOT-DO is an unrequested ruling |
-| 11  | Add `scripts/docs-annotate-pass.sh` (annotate → check-rows → format → check-rows) | Makes the canon mechanical |
-| 12  | Add an index-integrity leg: every filename listed in `docs/status/README.md` must exist | The stale `-status.md` pointer class |
-| 13  | Add the routed-destinations guard to the docs-gates battery (or document why it stays a script) | It caught 3 real failures this session |
-| 14  | Document the `fresh:skip` convention in `docs/agents/module-details.md` (or the docs-home the repo prefers) — zero prior uses in this repo | New pattern must not look like vandalism to the next session |
-| 15  | Note the routed-vs-freshness semantic gap upstream (routed ≠ resolved for `docs-freshness`) | Tool inconsistency found at source level |
-| 16  | Sweep the ~0-strike `11-02` reports in a dedicated corpus pass (222 items total) | The real remaining docs debt |
-| 17  | Same for the `11-03` batch (190 items) | As above |
-| 18  | Decide whether today's `11-06` reports should ever be archived while the v12/v13 program is live | Their §f lists are the live backlog |
-| 19  | Re-check `annotate_max` after the corpus pass and lower it | Ratchet hygiene |
-| 20  | Add a `docs-gates` "why is this item open" hint (`--explain-item` auto-run on failure) | Would have saved the harvest-vs-adjudicate detour |
-| 21  | Verify dprint stability of the new `<!-- fresh:skip -->` suffix inside list items | Untested interaction |
-| 22  | Verify the `fresh:skip` marker survives a `git mv` (paths irrelevant, line-scoped) | Cheap insurance |
-| 23  | Check whether the `SUPERB-execution-wave` routed table row still renders correctly (long cell) | Cosmetic |
-| 24  | Record the `TODO P3` vs `TODO_LIST P3` fragment grammar lesson in the docs-health skill notes | The guard's rule 5 is non-obvious |
-| 25  | Record the "generic-token item = unharvestable" rule in the skill | Same class |
-| 26  | Audit the 5 remaining `Z`-row destinations in the v13 plan for liveness | Routed but unenforced |
-| 27  | Re-run `docs-gates run .` after items 1–7 and confirm 5/5 | The actual definition of done |
-| 28  | Confirm the daemon commit `062fd0c` is the tip before archiving (avoid a rewind race) | pma daemon commits mid-session |
-| 29  | Check `git status` clean after the archive pass (daemon may commit mid-`git mv`) | Archive moves are multi-step |
-| 30  | If `check-rows --normalize` is needed, use it (never `unwrap` on padding damage) | Damage-class triage |
-| 31  | Sweep for any other `~~`-less `→ routed` lines in unarchived reports that lack `fresh:skip` | Would silently inflate `audit-all` again |
-| 32  | Consider lowering `GenericDF` from 8 only with a replay-based justification | Do NOT fiddle blindly <!-- fresh:skip: tuning caution, not backlog --> |
-| 33  | Re-read `docs/status/README.md`'s archive manifest section and keep append-only ordering | Index hygiene |
-| 34  | Add a "docs-gates red → first three commands" block to `AGENTS.md` gotchas | Session-start speed |
-| 35  | Note `oldest_days: 29` (repo) vs 21 (binary default) in the config docs | A deliberate override nobody has explained |
-| 36  | Verify `rule_f: false` is still the intended posture | Spacing rule disabled |
-| 37  | Check the `annotate` `G/uniform` findings are pre-existing (244 baseline), not newly minted | I verified the count; provenance not re-derived |
-| 38  | Add the `2026-11-06` reports to the index once they stop changing | Avoid indexing a moving target |
-| 39  | Decide whether the pma dossier should keep a live `> **Live remainder:**` banner pointing at the TODO P2 row | Required by the cadence ritual text |
-| 40  | Re-verify the `ROADMAP` additions bind after a format pass (word wrapping can split tokens) | Pre-flight was run pre-format |
-| 41  | Consider adding the two new ROADMAP bullets to `FEATURES.md` if either is a tracked gap | Ownership check |
-| 42  | Check that no `→ routed` marker in the living docs now points at a renamed section after the TODO edits | Guard covers this; re-run |
-| 43  | Close out the `09-20` #26 NOT-DO by confirming the dedicated job exists on origin CI | Local read only this session |
-| 44  | Confirm `10-10` #41–#43 NOT-DO wording matches the decision memo, not just the research doc | Two docs, one decision |
-| 45  | Re-read the `08-16` NOT-DO reason against upstream's own benchmark posture | Was reasoning from absence |
-| 46  | Add a `docs/agents` pointer for the `fresh:skip` convention | Discoverability |
-| 47  | Sweep for reports whose §f items reference `TODO row N` style that no longer exists | Legacy anchor drift |
-| 48  | Decide the fate of the 5 unenforced notes once the plan is renamed | Guard signal quality |
-| 49  | Re-run `docs-gates annotate` after the format pass; assert 244 or lower | Ratchet watch |
-| 50  | Final session-close: `docs-gates run .` green + `check-routed-destinations.sh` exit 0 in one paste | Definition of done |
+| #  | Item                                                                                                                                                   | Why / evidence                                                                                                                                    |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | **Archive `2026-10-07_11-00_pma-daemon…`** (0 §f items) with the `> **Live remainder:**` banner naming TODO P2 pma row + the owner memo §6             | Clears the 30d age arm with one file                                                                                                              |
+| 2  | **Archive 3 more** (cheapest safe set: `01-25` 15 items, `12-25_superb` 26, `07-14` 28 remaining) → 15 unarchived                                      | Brings count to threshold; 15 gives zero headroom, so prefer 4–5                                                                                  |
+| 3  | For each archive candidate: adjudicate EVERY `§f` item (strike/done/NOT-DO/routed+skip) **before** `git mv`                                            | The archive bill of materials; ~15–30 verdicts per file                                                                                           |
+| 4  | **Re-pin `audit_max: 0`** in `.docs-gates.json` after the drain, and re-run the battery                                                                | The drain is 0 today; the pin is 12                                                                                                               |
+| 5  | Run `annotate.go check-rows --strict` + `bare-rows` over every file about to move                                                                      | Archive-decision gate, must precede `git mv` <!-- fresh:skip: in-report procedure step, executed by whichever session runs the archive ritual --> |
+| 6  | Run the formatter over the touched set, then `check-rows` again                                                                                        | Formatter canon: a rewriter with no knowledge of markers                                                                                          |
+| 7  | **Refresh `docs/status/README.md`**: add the 11 missing reports to "Current (unarchived)", fix `2026-11-06_01-25_…-routing-status.md` → `…-routing.md` | Dead pointer in the canonical index                                                                                                               |
+| 8  | Write the bulk-archive manifest (filename → classification + reason) when the batch lands                                                              | Required by the skill for >1 archive per pass                                                                                                     |
+| 9  | Convert the `06-22` #42 `Z2–Z7` routed marker to an enforced form (or accept the note deliberately)                                                    | 1 unenforced note remains                                                                                                                         |
+| 10 | Reconsider `08-16` #8: route the benchmark upstream instead of NOT-DO, or add `BenchmarkCheckStaleness` here                                           | My NOT-DO is an unrequested ruling                                                                                                                |
+| 11 | Add `scripts/docs-annotate-pass.sh` (annotate → check-rows → format → check-rows)                                                                      | Makes the canon mechanical                                                                                                                        |
+| 12 | Add an index-integrity leg: every filename listed in `docs/status/README.md` must exist                                                                | The stale `-status.md` pointer class                                                                                                              |
+| 13 | Add the routed-destinations guard to the docs-gates battery (or document why it stays a script)                                                        | It caught 3 real failures this session                                                                                                            |
+| 14 | Document the `fresh:skip` convention in `docs/agents/module-details.md` (or the docs-home the repo prefers) — zero prior uses in this repo             | New pattern must not look like vandalism to the next session                                                                                      |
+| 15 | Note the routed-vs-freshness semantic gap upstream (routed ≠ resolved for `docs-freshness`)                                                            | Tool inconsistency found at source level                                                                                                          |
+| 16 | Sweep the ~0-strike `11-02` reports in a dedicated corpus pass (222 items total)                                                                       | The real remaining docs debt                                                                                                                      |
+| 17 | Same for the `11-03` batch (190 items)                                                                                                                 | As above                                                                                                                                          |
+| 18 | Decide whether today's `11-06` reports should ever be archived while the v12/v13 program is live                                                       | Their §f lists are the live backlog                                                                                                               |
+| 19 | Re-check `annotate_max` after the corpus pass and lower it                                                                                             | Ratchet hygiene                                                                                                                                   |
+| 20 | Add a `docs-gates` "why is this item open" hint (`--explain-item` auto-run on failure)                                                                 | Would have saved the harvest-vs-adjudicate detour                                                                                                 |
+| 21 | Verify dprint stability of the new `<!-- fresh:skip -->` suffix inside list items                                                                      | Untested interaction                                                                                                                              |
+| 22 | Verify the `fresh:skip` marker survives a `git mv` (paths irrelevant, line-scoped)                                                                     | Cheap insurance                                                                                                                                   |
+| 23 | Check whether the `SUPERB-execution-wave` routed table row still renders correctly (long cell)                                                         | Cosmetic                                                                                                                                          |
+| 24 | Record the `TODO P3` vs `TODO_LIST P3` fragment grammar lesson in the docs-health skill notes                                                          | The guard's rule 5 is non-obvious                                                                                                                 |
+| 25 | Record the "generic-token item = unharvestable" rule in the skill                                                                                      | Same class                                                                                                                                        |
+| 26 | Audit the 5 remaining `Z`-row destinations in the v13 plan for liveness                                                                                | Routed but unenforced                                                                                                                             |
+| 27 | Re-run `docs-gates run .` after items 1–7 and confirm 5/5                                                                                              | The actual definition of done                                                                                                                     |
+| 28 | Confirm the daemon commit `062fd0c` is the tip before archiving (avoid a rewind race)                                                                  | pma daemon commits mid-session                                                                                                                    |
+| 29 | Check `git status` clean after the archive pass (daemon may commit mid-`git mv`)                                                                       | Archive moves are multi-step                                                                                                                      |
+| 30 | If `check-rows --normalize` is needed, use it (never `unwrap` on padding damage)                                                                       | Damage-class triage                                                                                                                               |
+| 31 | Sweep for any other `~~`-less `→ routed` lines in unarchived reports that lack `fresh:skip`                                                            | Would silently inflate `audit-all` again                                                                                                          |
+| 32 | Consider lowering `GenericDF` from 8 only with a replay-based justification                                                                            | Do NOT fiddle blindly <!-- fresh:skip: tuning caution, not backlog -->                                                                            |
+| 33 | Re-read `docs/status/README.md`'s archive manifest section and keep append-only ordering                                                               | Index hygiene                                                                                                                                     |
+| 34 | Add a "docs-gates red → first three commands" block to `AGENTS.md` gotchas                                                                             | Session-start speed                                                                                                                               |
+| 35 | Note `oldest_days: 29` (repo) vs 21 (binary default) in the config docs                                                                                | A deliberate override nobody has explained                                                                                                        |
+| 36 | Verify `rule_f: false` is still the intended posture                                                                                                   | Spacing rule disabled                                                                                                                             |
+| 37 | Check the `annotate` `G/uniform` findings are pre-existing (244 baseline), not newly minted                                                            | I verified the count; provenance not re-derived                                                                                                   |
+| 38 | Add the `2026-11-06` reports to the index once they stop changing                                                                                      | Avoid indexing a moving target                                                                                                                    |
+| 39 | Decide whether the pma dossier should keep a live `> **Live remainder:**` banner pointing at the TODO P2 row                                           | Required by the cadence ritual text                                                                                                               |
+| 40 | Re-verify the `ROADMAP` additions bind after a format pass (word wrapping can split tokens)                                                            | Pre-flight was run pre-format                                                                                                                     |
+| 41 | Consider adding the two new ROADMAP bullets to `FEATURES.md` if either is a tracked gap                                                                | Ownership check                                                                                                                                   |
+| 42 | Check that no `→ routed` marker in the living docs now points at a renamed section after the TODO edits                                                | Guard covers this; re-run                                                                                                                         |
+| 43 | Close out the `09-20` #26 NOT-DO by confirming the dedicated job exists on origin CI                                                                   | Local read only this session                                                                                                                      |
+| 44 | Confirm `10-10` #41–#43 NOT-DO wording matches the decision memo, not just the research doc                                                            | Two docs, one decision                                                                                                                            |
+| 45 | Re-read the `08-16` NOT-DO reason against upstream's own benchmark posture                                                                             | Was reasoning from absence                                                                                                                        |
+| 46 | Add a `docs/agents` pointer for the `fresh:skip` convention                                                                                            | Discoverability                                                                                                                                   |
+| 47 | Sweep for reports whose §f items reference `TODO row N` style that no longer exists                                                                    | Legacy anchor drift                                                                                                                               |
+| 48 | Decide the fate of the 5 unenforced notes once the plan is renamed                                                                                     | Guard signal quality                                                                                                                              |
+| 49 | Re-run `docs-gates annotate` after the format pass; assert 244 or lower                                                                                | Ratchet watch                                                                                                                                     |
+| 50 | Final session-close: `docs-gates run .` green + `check-routed-destinations.sh` exit 0 in one paste                                                     | Definition of done                                                                                                                                |
 
 ---
 

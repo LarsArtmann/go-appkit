@@ -177,7 +177,7 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | Per-check durations + deadline-bound batches (`NewProbe` → go-health `NewChecks`, #25)   | FULLY_FUNCTIONAL | `probe.go`, `probe_test.go` (v0.2.0, 2026-10-12; serves `duration_ns`, wedged check fails closed at the batch deadline)               |
 | Recovered panic fails closed (probe `fail`/readiness 503, not `warn`/200)                | FULLY_FUNCTIONAL | `TestNewProbe_PanicIsolatedPerCheck`, `ExampleNewProbe_panickingCheck` (v0.3.0, 2026-10-27 — go-health v0.8.1 semantic change pinned) |
 | `WithHealthRecorder` on the function path fails at boot (`ErrRecorderNotApplicable`)     | FULLY_FUNCTIONAL | `TestNewProbe_RecorderOptionFailsAtBoot` (v0.3.0, 2026-10-27 — the silent zero-trace cliff is gone upstream)                          |
-| Dashboard rides go-health-dashboard v0.12.2 (markup a11y, byte-identical CSV export)     | FULLY_FUNCTIONAL | `mount_test.go`, `TestMount_WithDashboardServesHTMLJSONAndProbes` (v0.3.1, 2026-11-06 — dependency alignment, no library API change)   |
+| Dashboard rides go-health-dashboard v0.12.2 (markup a11y, byte-identical CSV export)     | FULLY_FUNCTIONAL | `mount_test.go`, `TestMount_WithDashboardServesHTMLJSONAndProbes` (v0.3.1, 2026-11-06 — dependency alignment, no library API change)  |
 
 Shipped through health **v0.3.1** (2026-11-06 dependency alignment so
 consumers can pin a real tag instead of a pseudo-version — go-appkit#54:

@@ -176,44 +176,44 @@ checks); /tmp cleanup (plus NEW scratch: /tmp/ptc-v0.10.0*.log,
 
 ## f) NEXT — in execution order
 
-1. Root-cause the 5s shutdown hang (goroutine dump during the window;
-   fix; pin with a regression test if preset-side)
-2. Full preset suite green ×3 consecutive (`-race -count=3`)
-3. preset lint → 0 issues (module dir, real binary); fix what it reports
-4. README truth pass (hooks passthrough + grammar) + scratch-module
-   snippet compile check
-5. Check `scripts/example-smoke.sh` — add the preset example if the script
-   enumerates examples explicitly
-6. P9: preset CHANGELOG [0.1.0] + API diff record + fast guards → tag
-   `preset/v0.1.0` → pre-tag-checks (expect the same unpushed-tag
-   gosum-canonical red-by-hold on core v0.10.0 + preset legs) →
-   release-state sync (AGENTS latest-per-module +preset v0.1.0, 13
-   released; FEATURES preset section; TODO_LIST; ci.yml "eleven released"
-   comment → twelve)
-7. Consumer heads-up drafts (cqrs-htmx + PapDashboard) announcing preset
-8. R1b–R1e (verify-blocks batch 2, ServerTiming bench baseline, hub.go:80
-   note + libs index screenshot + dprint decision, go-retry MVS proof +
-   example-smoke vs new stack)
-9. S1–S7 scaffold (verdict doc → template pieces → dogfood)
-10. G-CNT adoption-counter script + gate table + guard wiring
-11. A1–A5 swap recipes (template + dnsblockd + ChastityAPI + PapDashboard
+1. ~~Root-cause the 5s shutdown hang (goroutine dump during the window;~~ done at `33f1152`
+   ~~fix; pin with a regression test if preset-side)~~
+2. ~~Full preset suite green ×3 consecutive (`-race -count=3`)~~ done — the post-drain-fix tree ran 25/25 clean under quiet AND loaded conditions and preset v0.1.0 shipped off it (TODO preset-spine row + the 12-49 root-cause report)
+3. ~~preset lint → 0 issues (module dir, real binary); fix what it reports~~ done — preset module lint 0 achieved on the release train (P7 finish; the tag shipped)
+4. ~~README truth pass (hooks passthrough + grammar) + scratch-module~~ done — preset README truth pass + scratch-compiled snippets landed before the tag; grammar frozen in docs/planning/2026-11-06_appkit-preset-design-note.md
+   ~~snippet compile check~~
+5. ~~Check `scripts/example-smoke.sh` — add the preset example if the script~~ done — the preset example rides example-smoke (8/8 legs green in the p9a session)
+   ~~enumerates examples explicitly~~
+6. ~~P9: preset CHANGELOG [0.1.0] + API diff record + fast guards → tag~~ done at `21c1a78`
+   ~~`preset/v0.1.0` → pre-tag-checks (expect the same unpushed-tag~~
+   ~~gosum-canonical red-by-hold on core v0.10.0 + preset legs) →~~
+   ~~release-state sync (AGENTS latest-per-module +preset v0.1.0, 13~~
+   ~~released; FEATURES preset section; TODO_LIST; ci.yml "eleven released"~~
+   ~~comment → twelve)~~
+7. Consumer heads-up drafts (cqrs-htmx + PapDashboard) announcing preset **→ TODO P3 — post consumer heads-ups (OG2 preset/config drafts; v13 plan OG2 row) <!-- fresh:skip: routed in TODO_LIST -->**
+8. ~~R1b–R1e (verify-blocks batch 2, ServerTiming bench baseline, hub.go:80~~ done — R1b/R1e green in the p9a session (guards verify + go-retry proof + example-smoke 8/8); R1c/R1d closed by docs/status/2026-11-06_13-10_v13-continuation-r1c-r1d-closeout.md
+   ~~note + libs index screenshot + dprint decision, go-retry MVS proof +~~
+   ~~example-smoke vs new stack)~~
+9. S1–S7 scaffold (verdict doc → template pieces → dogfood) **→ TODO P3 — v13 plan S2-S7 scaffold rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; S1 verdict landed) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+10. ~~G-CNT adoption-counter script + gate table + guard wiring~~ done at `06e9a77`
+11. A1–A5 swap recipes (template + dnsblockd + ChastityAPI + PapDashboard **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; A1 template landed) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
     - pbx-lens)
-12. D1 worker supervisor; D3 sqlitekit; C2R realtime FoldedSource
-13. R2 deps-guard CI+pre-commit; R3 error-family batch; R4 Server-Timing
-    recipe; R5a httpx shortlist verdicts
-14. H1–H7 httpx program (B1 + classification-parity test first)
-15. X1 compose-on-httputil (re-run spike vs v1.7.0+), X2 TLS, X3 testkit
+12. D1 worker supervisor; D3 sqlitekit; C2R realtime FoldedSource **→ TODO P3 — v13 plan D1 / D3 / C2R battery rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+13. ~~R2 deps-guard CI+pre-commit; R3 error-family batch; R4 Server-Timing~~ done — R2 shipped as the agents-deps CI job (dfeb4a5); R3/R4/R5a landed and their TODO rows 37-39 closed 2026-11-06
+    ~~recipe; R5a httpx shortlist verdicts~~
+14. H1–H7 httpx program (B1 + classification-parity test first) **→ TODO P3 — v13 plan H1-H7 httpx rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+15. X1 compose-on-httputil (re-run spike vs v1.7.0+), X2 TLS, X3 testkit **→ TODO P3 — v13 plan X1-X4 rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; compose-on-httputil, TLS, testkit migrations, v1-exit) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
     migrations, X4 v1-exit watch
-16. Y1–Y6 backlog; Z1–Z7 process debts; AGENTS pin-hold one-liner (e1
+16. Y1–Y6 backlog; Z1–Z7 process debts; AGENTS pin-hold one-liner (e1 **→ TODO P3 — v13 plan Y/Z rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; the AGENTS pin-hold one-liner already shipped as the setup/v4.16.0 core v0.9.0 pin note) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
     from session 3)
-17. OG1/OG3–OG6 owner memos (incl. catalog unblock ask)
-18. Final `scripts/verify-all.sh` (13 buildable modules + integration);
+17. OG1/OG3–OG6 owner memos (incl. catalog unblock ask) **→ TODO P3 — v13 plan OG rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; owner memos incl. catalog unblock ask) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+18. Final `scripts/verify-all.sh` (13 buildable modules + integration); **→ TODO P3 — v13 plan close-out rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; final verify-all + release-state ritual — the sync itself already shipped in AGENTS) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
     final release-state sync; session-close ritual
-19. IF push-policy YES: push master + config/v0.1.0 + v0.10.0 +
-    preset/v0.1.0; re-run pre-tag-checks (gosum legs self-heal);
-    fresh-consumer proxy checks; P8 E2E. IF NO: hold and keep documenting.
-20. Housekeeping: /tmp scratch cleanup; UNSET the global insteadOf git
-    rewrite when local-tag tidies end.
+19. ~~IF push-policy YES: push master + config/v0.1.0 + v0.10.0 +~~ done at `04f0c20`
+    ~~preset/v0.1.0; re-run pre-tag-checks (gosum legs self-heal);~~
+    ~~fresh-consumer proxy checks; P8 E2E. IF NO: hold and keep documenting.~~
+20. ~~Housekeeping: /tmp scratch cleanup; UNSET the global insteadOf git~~ done — the ritual insteadOf rewrite is unset (git config verified 2026-11-06; only the standard SSH-URL rewrites remain); /tmp scratch is session-ephemeral
+    ~~rewrite when local-tag tidies end.~~
 
 ## g) QUESTIONS FOR THE OWNER (cannot be answered from the repo)
 

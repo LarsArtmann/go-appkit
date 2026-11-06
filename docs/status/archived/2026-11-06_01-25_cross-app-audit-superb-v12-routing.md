@@ -1,20 +1,28 @@
 # Status Report — Cross-App Integration Audit + SUPERB v12 Routing (session of 2026-11-06 00:40–01:25)
 
-**Scope line.** This report covers ONE session: the owner's "review all `meta` app projects
-for what we keep rebuilding" request → cross-app integration audit → SUPERB v12 Pareto plan →
-TODO_LIST/AGENTS routing. **Verified this session** (commands/artifacts): population
-classification (39 Go / 19 non-Go of 57 app-tagged, `meta list --tags app --format json` +
-recursive `go.mod` scan); per-app lib adoption matrix (scripted `go.mod` sweep; the go-appkit
-headline number additionally direct-vs-indirect verified app-by-app); integration-signal
-ledger (app-level `rg` presence, non-test `.go`); LOC measurements (`wc -l`, tests excluded)
-for dnsblockd/ChastityAPI packages; entrypoint deep-reads of dnsblockd, quotaboard, pbx-lens,
-ChastityAPI, media-atlas (+ GmbH structural). **NOT verified:** visual/browser rendering of
-the HTML plan (structure + self-containment parsed programmatically only); deep reads of the
-remaining ~14 exemplar apps I had queued (see b/d); usage depth behind every presence count
-("hand-rolled" for all 22 config packages is name+sample inference, not per-app reading);
-everything in OTHER sessions' backlogs (v11 repair items etc. — untouched, not re-checked).
-No Go code was built or tested this session — docs/planning only; all guards that touch docs
-were run green.
+> **Live remainder:** the v12 program this report routed EXECUTED the same
+> day — config v0.1.0 (`614cc2f`) and preset v0.1.0 (`21c1a78`) are tagged;
+> the scaffold/recipes/battery legs live on the v13 plan
+> (`docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md`)
+> and TODO_LIST P3 (auth-bridge owner gate, micro-backlog deep-reads, the
+> minted audit-loose-ends row). Archived 2026-11-06: all 15 §f items carry
+> verdicts; nothing here is unowned.
+>
+> **Scope line.** This report covers ONE session: the owner's "review all `meta` app projects
+> for what we keep rebuilding" request → cross-app integration audit → SUPERB v12 Pareto plan →
+> TODO_LIST/AGENTS routing. **Verified this session** (commands/artifacts): population
+> classification (39 Go / 19 non-Go of 57 app-tagged, `meta list --tags app --format json` +
+> recursive `go.mod` scan); per-app lib adoption matrix (scripted `go.mod` sweep; the go-appkit
+> headline number additionally direct-vs-indirect verified app-by-app); integration-signal
+> ledger (app-level `rg` presence, non-test `.go`); LOC measurements (`wc -l`, tests excluded)
+> for dnsblockd/ChastityAPI packages; entrypoint deep-reads of dnsblockd, quotaboard, pbx-lens,
+> ChastityAPI, media-atlas (+ GmbH structural). **NOT verified:** visual/browser rendering of
+> the HTML plan (structure + self-containment parsed programmatically only); deep reads of the
+> remaining ~14 exemplar apps I had queued (see b/d); usage depth behind every presence count
+> ("hand-rolled" for all 22 config packages is name+sample inference, not per-app reading);
+> everything in OTHER sessions' backlogs (v11 repair items etc. — untouched, not re-checked).
+> No Go code was built or tested this session — docs/planning only; all guards that touch docs
+> were run green.
 
 ---
 
@@ -109,11 +117,11 @@ were run green.
 1. ~~★ T2.1–T2.4 `appkit/config` design → implement → docs → tag v0.1.0 (4 tasks).~~ done at `614cc2f`
 2. ~~★ T1.1–T1.6 `appkit/preset` skeleton → spine wiring → otel leg → security/realtime legs →~~ done at `21c1a78`
    ~~example+E2E → tag v0.1.0 (6 tasks).~~
-3. ★ T3.1–T3.5 scaffold verdict → cmdguard+preset template → infra files → docs skeleton → **→ routed — docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md (S2-S7 rows; S1 verdict landed as docs/planning/2026-11-06_08-45_scaffold-shape-verdict.md) <!-- fresh:skip: routed in the v13 plan -->**
+3. ★ T3.1–T3.5 scaffold verdict → cmdguard+preset template → infra files → docs skeleton → **→ TODO P3 — v13 plan S2-S7 scaffold rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; S1 verdict already landed at docs/planning/2026-11-06_08-45_scaffold-shape-verdict.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
    dogfood (5 tasks).
-4. ★ T4.1–T4.5 swap-recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes (5). **→ routed — docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md (A2-A5 rows; A1 template landed as docs/recipes/battery-swap-recipe.template.md) <!-- fresh:skip: routed in the v13 plan -->**
+4. ★ T4.1–T4.5 swap-recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes (5). **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; A1 template already landed at docs/recipes/battery-swap-recipe.template.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
 5. ★ T5.4 auth-bridge decision memo (owner gate). **→ TODO P3 — Auth-bridge DECISION memo (owner gate) <!-- fresh:skip: routed in TODO_LIST -->**
-6. ★ T5.1–T5.3 D1 worker supervisor, D3 sqlite+migrations, C2 realtime Mount (existing **→ routed — docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md (D1a-b, D3a-c, C2R rows) <!-- fresh:skip: routed in the v13 plan -->**
+6. ★ T5.1–T5.3 D1 worker supervisor, D3 sqlite+migrations, C2 realtime Mount (existing **→ TODO P3 — v13 plan D1a-b / D3a-c / C2R battery rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
    battery rows, demand now quantified).
 
 **From this review (not yet routed):**

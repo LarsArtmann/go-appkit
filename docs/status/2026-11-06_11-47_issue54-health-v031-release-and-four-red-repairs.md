@@ -346,17 +346,17 @@ cd /tmp/proxy-e2e && GOWORK=off GOTOOLCHAIN=go1.27.2 GOPRIVATE='' \
 
 ## Commits landed this session (cdaf7b3 → 45cfacf)
 
-| Commit | Subject |
-| --- | --- |
-| `2ff2c80` | fix: restore the root test build broken by the errors.AsType migration |
+| Commit    | Subject                                                                       |
+| --------- | ----------------------------------------------------------------------------- |
+| `2ff2c80` | fix: restore the root test build broken by the errors.AsType migration        |
 | `94503d4` | release: health v0.3.1 so consumers can pin a tag instead of a pseudo-version |
-| `c728374` | chore: auto-commit (daemon: integration pin + go.sum + go.work.sum) |
-| `4c14899` | docs: keep the release-state module list parseable by the pin-drift guard |
-| `e70eb6d` | docs: correct the security example's core pin claim |
-| `6f48fe0` | chore: auto-commit (daemon: AGENTS release-ritual step 6) |
-| `33f1152` | test: drain response bodies before shutdown in the security/errorpages E2E |
-| `68e7fe5` | docs: give the health module the license file every sibling already ships |
-| `45cfacf` | docs: record how long a stale proxy 404 really lasts |
+| `c728374` | chore: auto-commit (daemon: integration pin + go.sum + go.work.sum)           |
+| `4c14899` | docs: keep the release-state module list parseable by the pin-drift guard     |
+| `e70eb6d` | docs: correct the security example's core pin claim                           |
+| `6f48fe0` | chore: auto-commit (daemon: AGENTS release-ritual step 6)                     |
+| `33f1152` | test: drain response bodies before shutdown in the security/errorpages E2E    |
+| `68e7fe5` | docs: give the health module the license file every sibling already ships     |
+| `45cfacf` | docs: record how long a stale proxy 404 really lasts                          |
 
 **Tag:** `health/v0.3.1` (annotated, on origin, verified via `ls-remote`;
 proxy + sumdb live). **Last code-bearing CI run:** `68e7fe5`, 40/41 jobs
