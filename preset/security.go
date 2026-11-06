@@ -30,6 +30,7 @@ func securityMiddlewares(cfg *SecurityConfig) ([]httputil.Middleware, error) {
 
 	if profile == SecurityStrict && len(origins) == 0 {
 		return nil, errorfamily.NewRejection(
+			"preset.strict_origins_missing",
 			"strict security profile requires Config.Security.Origins (an empty allowlist would reject every browser request)",
 		)
 	}

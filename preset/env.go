@@ -30,7 +30,7 @@ func triBool(name string, absentVal bool) (bool, error) {
 		return false, nil
 	default:
 		return false, errorfamily.NewRejection(
-			fmt.Sprintf("invalid %s=%q: want on|off", name, value),
+			"preset.env_invalid", fmt.Sprintf("invalid %s=%q: want on|off", name, value),
 		)
 	}
 }
@@ -47,7 +47,7 @@ func parseSecurityProfile() (SecurityProfile, error) {
 		return SecurityProfile(value), nil
 	default:
 		return "", errorfamily.NewRejection(
-			fmt.Sprintf("invalid %s=%q: want none|standard|strict", envSecurity, value),
+			"preset.env_invalid", fmt.Sprintf("invalid %s=%q: want none|standard|strict", envSecurity, value),
 		)
 	}
 }
