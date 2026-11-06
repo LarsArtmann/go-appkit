@@ -141,3 +141,10 @@ program backlog).
 **Appendix A's raw artifact `/tmp/goapp-fp.txt` is ephemeral** — it vanishes on
 reboot. The sweep method is described precisely enough to reproduce, but the script
 itself was not preserved in-repo (preservation is a routed backlog item).
+
+**Errata addendum 01:33 — population denominator.** The scope line above says "39 of the
+57 app-tagged"; the correct figure is **58** (56 tracked + 2 untracked, matching `meta`'s own
+"58 project(s) (56 tracked, 2 untracked)" footer) — 39 Go + 19 non-Go = 58. The 55 was a
+mis-read of the first JSON dump (never length-checked at the time); caught by re-running the
+count during the rev-2 self-review. All per-app numbers are unaffected (the app set itself was
+complete and stable across both dumps, diff-verified).

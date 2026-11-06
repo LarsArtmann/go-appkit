@@ -892,7 +892,7 @@
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-value">39</div>
-        <div class="stat-label">Go apps audited (of 57 app-tagged; 19 non-Go excluded by scope)</div>
+        <div class="stat-label">Go apps audited (of 58 app-tagged: 56 tracked + 2 untracked; 19 non-Go excluded by scope)</div>
       </div>
       <div class="stat-card stat-bad">
         <div class="stat-value">6/39</div>
@@ -996,8 +996,10 @@
 
     <h2 id="archetypes"><span class="num">03</span>Fleet archetypes — who needs what</h2>
     <p>
-      The 39 apps cluster into five archetypes. Each tier of this plan serves a specific
-      archetype; the scaffold serves the next app, the preset serves all of them.
+      The 39 apps cluster into five overlapping archetypes (members can appear in more than
+      one — e.g. quotaboard is both a preset-host and a setup user; counts therefore sum to
+      more than 39). Each tier of this plan serves a specific archetype; the scaffold serves
+      the next app, the preset serves all of them.
     </p>
     <div class="table-wrap" tabindex="0" role="region" aria-label="Fleet archetypes with members and what each proves">
       <table>
@@ -1034,9 +1036,9 @@
       <h4>ChastityAPI re-implements the battery catalog</h4>
       <div class="where">~/projects/ChastityAPI — internal/{auth,logger,config,captcha,csp,sse,db}</div>
       <p>
-        auth 1,068 LOC (middleware 365, ratelimit 201, token 150, password 100, csrf 92 — wait,
-        csrf is its own class: cookie 53 + csrf 92 + device_auth 53 + request_id 52), logger 541,
-        config 409, captcha 151, csp 110, sse + hand-wired sqliteengine/timerengine/scheduling in
+        auth 1,068 LOC in eight files (middleware 365, ratelimit 201, token 150, password 100,
+        csrf 92, cookie 53, device_auth 53, request_id 52), logger 541, config 409, captcha 151,
+        csp 110, sse + hand-wired sqliteengine/timerengine/scheduling in
         <code>cmd/server/main.go:41–150</code> (JWT dev-secret gating, rate consts, scheduler-join
         choreography). Maps to: security, usermgmt, realtime, D1, F1.
       </p>
