@@ -31,10 +31,10 @@ hot-reload stays demand-gated), no pull-model registry.
 
 ```go
 type Config struct {
-    Addr     string        `env:"APP_ADDR" default:":8080"`
-    LogLevel string        `env:"APP_LOG_LEVEL" default:"info"`
+    Addr     string        `default:":8080" env:"APP_ADDR"`
+    LogLevel string        `default:"info" env:"APP_LOG_LEVEL"`
     APIKey   string        `env:"APP_API_KEY,required"`     // missing → Rejection
-    TTL      time.Duration `env:"APP_TTL" default:"60s"`
+    TTL      time.Duration `default:"60s" env:"APP_TTL"`
     Hosts    []string      `env:"APP_HOSTS"`                // comma-separated
     Nested   Sub           `env:"APP"`                      // prefix for child fields
 }

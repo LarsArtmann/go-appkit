@@ -105,7 +105,9 @@ type loaderConfig struct {
 
 // NewLoader builds a Loader from the given options.
 func NewLoader[T any](opts ...Option) *Loader[T] {
-	cfg := loaderConfig{lookup: os.LookupEnv} //nolint:exhaustruct_v5 // optional layers stay zero until their Option runs
+	cfg := loaderConfig{
+		lookup: os.LookupEnv,
+	} //nolint:exhaustruct_v5 // optional layers stay zero until their Option runs
 
 	for _, opt := range opts {
 		opt(&cfg)
@@ -153,7 +155,7 @@ func WithValues(vals map[string]string) Option {
 func WithValidate[T any](fn func(*T) error) Option {
 	return func(c *loaderConfig) {
 		c.validate = func(v any) error {
-			typed, ok := v.(*T) //nolint:errorlint // exact-type bridge: only Load[T] stores this hook
+			typed, ok := v.(*T) // exact-type bridge: only Load[T] stores this hook
 			if !ok {
 				return nil // unreachable: Load[T] always passes its own *T
 			}
@@ -168,26 +170,26 @@ func WithValidate[T any](fn func(*T) error) Option {
 func (l *Loader[T]) Load() (*T, error) {
 	out := new(T)
 
-	rv := reflect.ValueOf(out).Elem()
+	target := reflect.ValueOf(out).Elem()
 
-	if rv.Kind() != reflect.Struct {
+	if target.Kind() != reflect.Struct {
 		return nil, errorfamily.Newf(
 			errorfamily.Rejection,
 			"config.invalid",
-			"type parameter must be a struct, got %s", rv.Kind(),
+			"type parameter must be a struct, got %s", target.Kind(),
 		)
 	}
 
-	specs, errs := collectFields(rv.Type(), "", "", nil)
+	specs, errs := collectFields(target.Type(), "", "", nil)
 	if len(errs) > 0 {
 		return nil, rejectionFrom(errs)
 	}
 
-	l.applyDefaults(rv, specs, &errs)
-	l.applyFile(rv, specs, &errs)
-	l.applyEnv(rv, specs, &errs)
-	l.applyValues(rv, specs, &errs)
-	checkRequired(rv, specs, &errs)
+	l.applyDefaults(target, specs, &errs)
+	l.applyFile(target, specs, &errs)
+	l.applyEnv(target, specs, &errs)
+	l.applyValues(target, specs, &errs)
+	checkRequired(target, specs, &errs)
 	l.runValidate(out, &errs)
 
 	if len(errs) > 0 {
@@ -197,17 +199,17 @@ func (l *Loader[T]) Load() (*T, error) {
 	return out, nil
 }
 
-func (l *Loader[T]) applyDefaults(rv reflect.Value, specs []fieldSpec, errs *[]error) {
+func (l *Loader[T]) applyDefaults(target reflect.Value, specs []fieldSpec, errs *[]error) {
 	for _, spec := range specs {
 		if !spec.hasDefault {
 			continue
 		}
 
-		setParsed(rv, spec, spec.defaultVal, spec.envKey, errs)
+		setParsed(target, spec, spec.defaultVal, spec.envKey, errs)
 	}
 }
 
-func (l *Loader[T]) applyFile(rv reflect.Value, specs []fieldSpec, errs *[]error) {
+func (l *Loader[T]) applyFile(target reflect.Value, specs []fieldSpec, errs *[]error) {
 	if l.cfg.file == "" {
 		return
 	}
@@ -235,11 +237,11 @@ func (l *Loader[T]) applyFile(rv reflect.Value, specs []fieldSpec, errs *[]error
 			continue
 		}
 
-		setParsed(rv, spec, raw, key, errs)
+		setParsed(target, spec, raw, key, errs)
 	}
 }
 
-func (l *Loader[T]) applyEnv(rv reflect.Value, specs []fieldSpec, errs *[]error) {
+func (l *Loader[T]) applyEnv(target reflect.Value, specs []fieldSpec, errs *[]error) {
 	for _, spec := range specs {
 		if spec.envKey == "" || l.cfg.lookup == nil {
 			continue
@@ -250,11 +252,11 @@ func (l *Loader[T]) applyEnv(rv reflect.Value, specs []fieldSpec, errs *[]error)
 			continue
 		}
 
-		setParsed(rv, spec, raw, spec.envKey, errs)
+		setParsed(target, spec, raw, spec.envKey, errs)
 	}
 }
 
-func (l *Loader[T]) applyValues(rv reflect.Value, specs []fieldSpec, errs *[]error) {
+func (l *Loader[T]) applyValues(target reflect.Value, specs []fieldSpec, errs *[]error) {
 	for name, raw := range l.cfg.values {
 		if raw == "" {
 			continue
@@ -270,7 +272,7 @@ func (l *Loader[T]) applyValues(rv reflect.Value, specs []fieldSpec, errs *[]err
 			continue
 		}
 
-		setParsed(rv, spec, raw, name, errs)
+		setParsed(target, spec, raw, name, errs)
 	}
 }
 
@@ -287,13 +289,13 @@ func (l *Loader[T]) runValidate(out *T, errs *[]error) {
 }
 
 // checkRequired flags tagged-required fields that still hold their zero value.
-func checkRequired(rv reflect.Value, specs []fieldSpec, errs *[]error) {
+func checkRequired(target reflect.Value, specs []fieldSpec, errs *[]error) {
 	for _, spec := range specs {
 		if !spec.required {
 			continue
 		}
 
-		if rv.FieldByIndex(spec.index).IsZero() {
+		if target.FieldByIndex(spec.index).IsZero() {
 			*errs = append(*errs, &FieldError{
 				Field: spec.path, Key: spec.envKey, Kind: KindMissingRequired,
 				Err: errorfamily.NewRejection("config.required_unset", "required value is unset or empty"),
@@ -314,7 +316,7 @@ func specByPath(specs []fieldSpec, name string) (fieldSpec, bool) {
 
 // setParsed parses raw into spec's field and sets it, appending a KindParseFailed
 // FieldError on failure.
-func setParsed(rv reflect.Value, spec fieldSpec, raw string, key string, errs *[]error) {
+func setParsed(target reflect.Value, spec fieldSpec, raw string, key string, errs *[]error) {
 	v, err := parseValue(spec.typ, raw)
 	if err != nil {
 		*errs = append(*errs, &FieldError{Field: spec.path, Key: key, Kind: KindParseFailed, Err: err})
@@ -322,7 +324,7 @@ func setParsed(rv reflect.Value, spec fieldSpec, raw string, key string, errs *[
 		return
 	}
 
-	rv.FieldByIndex(spec.index).Set(v)
+	target.FieldByIndex(spec.index).Set(v)
 }
 
 // fileToken names the pseudo-field carrying file-layer errors (the file
