@@ -98,8 +98,9 @@ func New(cfg Config) (*appkit.Service, error) {
 	}
 
 	// The dashboard owns /health (the health module's documented contract):
-	// core's default /health family would collide and panic the mux.
-	registerHealth := !cfg.NoDashboard
+	// core's default /health family would collide and panic the mux. Without
+	// the dashboard, core's family registers normally.
+	registerHealth := cfg.NoDashboard
 	sc.RegisterHealth = &registerHealth
 
 	if provider != nil {
