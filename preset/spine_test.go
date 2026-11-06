@@ -28,23 +28,15 @@ func TestNew_ZeroAppCodeBoots(t *testing.T) {
 
 	ts := testkit.Serve(t, svc)
 
-	for name, tc := range map[string]struct {
-		path     string
-		accept   string
-		wantBody string
-	}{
-		"healthz":  {path: "/healthz"},
-		"readyz":   {path: "/readyz"},
-		"startupz": {path: "/startupz"},
-	} {
-		resp, err := http.Get(ts.FullChainURL + tc.path)
+	for _, path := range []string{"/healthz", "/readyz", "/startupz"} {
+		resp, err := http.Get(ts.FullChainURL + path)
 		if err != nil {
-			t.Fatalf("%s: get: %v", name, err)
+			t.Fatalf("get %s: %v", path, err)
 		}
 		_ = resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			t.Errorf("%s = %d, want 200", tc.path, resp.StatusCode)
+			t.Errorf("%s = %d, want 200", path, resp.StatusCode)
 		}
 	}
 
@@ -190,12 +182,4 @@ func TestNew_NoDashboard(t *testing.T) {
 			t.Errorf("%s = %d, want 200", path, resp.StatusCode)
 		}
 	}
-}
-
-// retries returns a deadline function for short polling loops.
-func retries(n int) func() bool {
-	for range n {
-		return func() bool { return false }
-	}
-	return func() bool { return true }
 }
