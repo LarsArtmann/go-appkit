@@ -1,5 +1,13 @@
 # Status Report — Corpus-Archive Execution: 12 Reports, Durability Guards, and the Treadmill Honest Truth
 
+> **ARCHIVED 2026-11-06 ~22:20** — the full-session report of the corpus
+> wave (12 reports, ~340 adjudications, two durability guards). Its §f was
+> born-routed at write time (fresh:skip markers into the waves row and the
+> TODO owners); this move re-verifies the markers hold and takes the corpus
+> to 12 unarchived. Superseded as a snapshot by the TODO rows + the
+> wave-3 plan (docs/planning/2026-11-06_22-05_SUPERB-corpus-wave3-and-gate-ratchet.md).
+>
+
 **2026-11-06 21:30 CET · Scope:** the full session run (≈12:47 → 21:27 CET)
 executing `docs/planning/2026-11-06_09-37_SUPERB-docs-gates-green-and-corpus-archive.md`
 (waves 1+2, the 20% systemic tier) plus the concurrent-session drift repairs

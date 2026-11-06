@@ -1,5 +1,13 @@
 # Status Report — v13 Continuation Self-Review + Full Program Status
 
+> **Live remainder:** the continuation self-review's 42-item ledger is fully
+> adjudicated (this archive): the verifiable asks closed (P8 confirmed at
+> 2de5875, the release-state re-count landed, the structure-linter error
+> reads total=0, FEATURES preset truth verified), and the program/watch/
+> owner legs carry routed markers into their wired TODO rows. Archived
+> 2026-11-06: every §f item carries a verdict; nothing here is unowned.
+>
+
 **Written:** 2026-11-06 13:13 +0100 · **Session window:** 13:00–13:13 (this file) ·
 **Prior files this session:** `2026-11-06_13-10_v13-continuation-r1c-r1d-closeout.md` (the work log) —
 this report adds the demanded self-review (§d), the full a–g status, and the fixes the
@@ -124,57 +132,57 @@ self-review itself surfaced (gitattributes binary policy).
 
 ## f) NEXT — impact-ordered (observed state; [S]=sibling lane, [O]=owner-gated)
 
-1. [S] `cqrs/commands.go:1` structure-linter package-naming ERROR — introduced by
-   6fd1de8 (08:31, their preset-hang train); CI-venue guard will go red on next push.
-2. [S] P8 verification close-out: hermetic integration suite green, documentedPins
-   add confirmed, pin re-align as-written.
-3. P9c: fresh-consumer proxy check `preset/v0.1.0` (recipe as written, isolated cache).
-4. P9c: `config/v0.1.0` (the held-push close-out check).
-5. P9c: `v0.10.0` (completes the sibling's list of three).
-6. AGENTS.md release-state truth: "twelve released + two unreleased … preset" is
-   stale post-tag — re-count to thirteen released (integration remains unreleased).
-7. CI verify ritual on the FINAL pushed commits — incl. proxy-smoke preset leg and
-   the new agents-deps job's live run (unpushed local commits are accumulating since
-   12:58; push is the gating action).
-8. R4b: Server-Timing composition E2E — unblocked by P8's landed pin.
-9. OG2: draft cqrs-htmx consumer notice (gate MET: core v0.10.0 + preset v0.1.0 pushed).
-10. OG2: draft PapDashboard consumer notice.
-11. pkg.go.dev preset page render check (after proxy catch-up; LICENSE present).
-12. [O] H8 decision: httputil/endpoints family route registry vs preset leg vs decline.
-13. [O] OG6 decision: machine go ≥1.27.2 default; retire the GOTOOLCHAIN prefix?
-14. [O] Lane contract for concurrent sessions (see §g3).
-15. TODO row 46: lessons.md entries — pipe-trap + asserted-vs-computed (crush-config repo).
-16. TODO row 46: dprint html coverage decision (plugin vs documented exclusion — the
+1. ~~[S] `cqrs/commands.go:1` structure-linter package-naming ERROR — introduced by~~ done — the package-naming error no longer reproduces: go-structure-linter reads total=0 on the current tree (verified 2026-11-06; the E014 relocation pass cleaned it)
+   ~~6fd1de8 (08:31, their preset-hang train); CI-venue guard will go red on next push.~~
+2. ~~[S] P8 verification close-out: hermetic integration suite green, documentedPins~~ done — the P8 close-out shipped: hermetic suite green, documentedPins confirmed (2de5875; proven again this week)
+   ~~add confirmed, pin re-align as-written.~~
+3. P9c: fresh-consumer proxy check `preset/v0.1.0` (recipe as written, isolated cache). **→ TODO P3 — v13 plan P9c fresh-consumer proxy checks (preset/v0.1.0 leg) <!-- fresh:skip: routed in TODO_LIST -->**
+4. P9c: `config/v0.1.0` (the held-push close-out check). **→ TODO P3 — v13 plan P9c fresh-consumer proxy checks (config/v0.1.0 leg) <!-- fresh:skip: routed in TODO_LIST -->**
+5. P9c: `v0.10.0` (completes the sibling's list of three). **→ TODO P3 — v13 plan P9c fresh-consumer proxy checks (v0.10.0 leg) <!-- fresh:skip: routed in TODO_LIST -->**
+6. ~~AGENTS.md release-state truth: "twelve released + two unreleased … preset" is~~ done — the AGENTS release-state now reads thirteen released + one unreleased (integration); re-counted by a later pass
+   ~~stale post-tag — re-count to thirteen released (integration remains unreleased).~~
+7. ~~CI verify ritual on the FINAL pushed commits — incl. proxy-smoke preset leg and~~ done — the ritual ran on the final pushed commits (the wave commit's CI: designed ci-preflight red only; the status-index job live-green; proxy-smoke green)
+   ~~the new agents-deps job's live run (unpushed local commits are accumulating since~~
+   ~~12:58; push is the gating action).~~
+8. R4b: Server-Timing composition E2E — unblocked by P8's landed pin. **→ TODO P2 — SUPERB v12 preset spine (R4b ST composition E2E rides the re-pin) <!-- fresh:skip: routed in TODO_LIST -->**
+9. OG2: draft cqrs-htmx consumer notice (gate MET: core v0.10.0 + preset v0.1.0 pushed). **→ TODO P3 — post consumer heads-ups (OG2 cqrs-htmx draft; gate MET) <!-- fresh:skip: routed in TODO_LIST -->**
+10. OG2: draft PapDashboard consumer notice. **→ TODO P3 — post consumer heads-ups (OG2 PapDashboard draft) <!-- fresh:skip: routed in TODO_LIST -->**
+11. pkg.go.dev preset page render check (after proxy catch-up; LICENSE present). **→ TODO P2 — pkg.go.dev render watch (the preset page joins the fleet check) <!-- fresh:skip: routed in TODO_LIST -->**
+12. [O] H8 decision: httputil/endpoints family route registry vs preset leg vs decline. **→ TODO P3 — Battery program waves W3-W5 (H8 endpoints-registry decision) <!-- fresh:skip: routed in TODO_LIST -->**
+13. [O] OG6 decision: machine go ≥1.27.2 default; retire the GOTOOLCHAIN prefix? **→ TODO P3 — open questions awaiting USER decisions (machine go >=1.27.2) <!-- fresh:skip: routed in TODO_LIST -->**
+14. [O] Lane contract for concurrent sessions (see §g3). **→ TODO P3 — open questions awaiting USER decisions (concurrent-session lane contract) <!-- fresh:skip: routed in TODO_LIST -->**
+15. TODO row 46: lessons.md entries — pipe-trap + asserted-vs-computed (crush-config repo). **→ TODO P3 — SUPERB v12 micro-backlog (crush-config lessons.md entries: pipe-trap + asserted-vs-computed) <!-- fresh:skip: routed in TODO_LIST -->**
+16. TODO row 46: dprint html coverage decision (plugin vs documented exclusion — the **→ TODO P3 — SUPERB v12 micro-backlog (dprint html coverage decision) <!-- fresh:skip: routed in TODO_LIST -->**
     vacuous-pass class; evidence now proven per the 12:46 report).
-17. TODO row 46: CV deep-read + single-membership archetype matrix.
-18. TODO row 46: TODO preset-row any/direct dual-number citation fix.
-19. TODO row 46: plan-revision convention ruling (owner).
-20. TODO row 46: per-archetype gate targets via the adoption counter (now mechanical).
-21. TODO row 50: browser-render probe for HTML planning artifacts (chromium cached).
-22. TODO row 50: depth-audit the 22 hand-rolled config packages (read 5 largest).
-23. TODO row 50: meta-side apps-by-appkit-adoption tag (counter one-liner).
-24. A2 dnsblockd swap recipe (−~1,600 LOC mapped, template ready).
-25. A3 ChastityAPI swap recipe (−~4,800 LOC class).
-26. A4 PapDashboard security swap recipe (M17 follow-up).
-27. A5 pbx-lens cmdguard migration recipe (fatalCode → exit contract).
-28. D3a SQLite ops kit: design + lease matrix.
-29. D3b SQLite ops kit: backup round-trip + ledger atomicity.
-30. D3c embedded-migration helper + versioning round-trip (16-app demand).
-31. D1a worker supervisor Manager port-from (quotaboard hooks + ChastityAPI joins).
-32. D1b worker supervisor: pools, panic-restart, start-during-shutdown joins.
-33. C2R realtime: Mount one-liner + SubscribeFolded discriminator test.
-34. [O] S2–S7 scaffold program (template repo dogfood — gated on §g answers).
-35. [O] H-train httpx B1–B9 (gated on H8; B5 full program per the blanket promote).
-36. [O] X-train Service-on-httputil.Server compose refactor (spike re-run vs v1.7.0).
-37. Watch item: go-sse re-pin — exported `DefaultSubscriberBuffer` +
+17. TODO row 46: CV deep-read + single-membership archetype matrix. **→ TODO P3 — SUPERB v12 micro-backlog (CV deep-read + single-membership archetype matrix) <!-- fresh:skip: routed in TODO_LIST -->**
+18. TODO row 46: TODO preset-row any/direct dual-number citation fix. **→ TODO P3 — SUPERB v12 micro-backlog (TODO preset-row any/direct dual-number citation fix) <!-- fresh:skip: routed in TODO_LIST -->**
+19. TODO row 46: plan-revision convention ruling (owner). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (plan-revision convention ruling) <!-- fresh:skip: routed in TODO_LIST -->**
+20. TODO row 46: per-archetype gate targets via the adoption counter (now mechanical). **→ TODO P3 — SUPERB v12 micro-backlog (per-archetype gate targets via the counter) <!-- fresh:skip: routed in TODO_LIST -->**
+21. TODO row 50: browser-render probe for HTML planning artifacts (chromium cached). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (browser-render probe) <!-- fresh:skip: routed in TODO_LIST -->**
+22. TODO row 50: depth-audit the 22 hand-rolled config packages (read 5 largest). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (config depth-audit) <!-- fresh:skip: routed in TODO_LIST -->**
+23. TODO row 50: meta-side apps-by-appkit-adoption tag (counter one-liner). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (meta-side adoption tag) <!-- fresh:skip: routed in TODO_LIST -->**
+24. A2 dnsblockd swap recipe (−~1,600 LOC mapped, template ready). **→ TODO P3 — Battery program waves W3-W5 (A2 dnsblockd swap recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+25. A3 ChastityAPI swap recipe (−~4,800 LOC class). **→ TODO P3 — Battery program waves W3-W5 (A3 ChastityAPI swap recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+26. A4 PapDashboard security swap recipe (M17 follow-up). **→ TODO P3 — Battery program waves W3-W5 (A4 PapDashboard security swap recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+27. A5 pbx-lens cmdguard migration recipe (fatalCode → exit contract). **→ TODO P3 — Battery program waves W3-W5 (A5 pbx-lens cmdguard recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+28. D3a SQLite ops kit: design + lease matrix. **→ TODO P3 — Battery program waves W3-W5 (D3a SQLite ops kit) <!-- fresh:skip: routed in TODO_LIST -->**
+29. D3b SQLite ops kit: backup round-trip + ledger atomicity. **→ TODO P3 — Battery program waves W3-W5 (D3b backup round-trip + ledger) <!-- fresh:skip: routed in TODO_LIST -->**
+30. D3c embedded-migration helper + versioning round-trip (16-app demand). **→ TODO P3 — Battery program waves W3-W5 (D3c embedded-migration helper) <!-- fresh:skip: routed in TODO_LIST -->**
+31. D1a worker supervisor Manager port-from (quotaboard hooks + ChastityAPI joins). **→ TODO P3 — Battery program waves W3-W5 (D1a worker supervisor port-from) <!-- fresh:skip: routed in TODO_LIST -->**
+32. D1b worker supervisor: pools, panic-restart, start-during-shutdown joins. **→ TODO P3 — Battery program waves W3-W5 (D1b pools/panic-restart/joins) <!-- fresh:skip: routed in TODO_LIST -->**
+33. C2R realtime: Mount one-liner + SubscribeFolded discriminator test. **→ TODO P3 — Battery program waves W3-W5 (C2R Mount + SubscribeFolded) <!-- fresh:skip: routed in TODO_LIST -->**
+34. [O] S2–S7 scaffold program (template repo dogfood — gated on §g answers). **→ TODO P3 — v13 plan S2-S7 scaffold rows (dogfood gated on the owner answers) <!-- fresh:skip: routed in TODO_LIST -->**
+35. [O] H-train httpx B1–B9 (gated on H8; B5 full program per the blanket promote). **→ TODO P3 — Battery program waves W3-W5 (H-train httpx B1-B9; gated on H8) <!-- fresh:skip: routed in TODO_LIST -->**
+36. [O] X-train Service-on-httputil.Server compose refactor (spike re-run vs v1.7.0). **→ TODO P2 — compose Service on httputil.Server (X-train spike re-run vs v1.7.0) <!-- fresh:skip: routed in TODO_LIST -->**
+37. Watch item: go-sse re-pin — exported `DefaultSubscriberBuffer` + **→ TODO P3 — Upstream watchlist (go-sse re-pin: DefaultSubscriberBuffer + ssetest breaking change) <!-- fresh:skip: routed in TODO_LIST -->**
     `ssetest.WithLastEventID` breaking change (hub.go note now cross-links it).
-38. Optional: re-confirm the 14.7-16.6µs ST band on a fully quiet box (single run).
-39. Minor: reference the mobile screenshot from `docs/review/libs/index.html` or its
+38. Optional: re-confirm the 14.7-16.6µs ST band on a fully quiet box (single run). **→ TODO P2 — SUPERB v12 preset spine (optional ST band re-confirm on a fully quiet box) <!-- fresh:skip: routed in TODO_LIST -->**
+39. Minor: reference the mobile screenshot from `docs/review/libs/index.html` or its **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (reference the mobile screenshot from the libs index) <!-- fresh:skip: routed in TODO_LIST -->**
     md sibling (discoverability of the evidence asset).
-40. Verify FEATURES.md preset row truth post-v0.1.0 (release ritual §3 — may be done
-    in the sibling's train; unverified by me).
-41. cqrs-htmx v5-window revisit (their ADR-0052) is unblocked — their repo, watch only.
-42. Six-month adoption re-sweep via `scripts/count-adopters.sh --baseline` (metric:
+40. ~~Verify FEATURES.md preset row truth post-v0.1.0 (release ritual §3 — may be done~~ done — FEATURES.md carries the preset truth (the core v0.10.0 spine row; verified 2026-11-06)
+    ~~in the sibling's train; unverified by me).~~
+41. ~~cqrs-htmx v5-window revisit (their ADR-0052) is unblocked — their repo, watch only.~~ done — as-watch — their v5 window is UNBLOCKED; the AGENTS consumer bullet tracks ADR-0052 (their repo)
+42. Six-month adoption re-sweep via `scripts/count-adopters.sh --baseline` (metric: **→ TODO P2 — SUPERB v12 preset spine (six-month adoption re-sweep via the counter; beat setup's 10 direct) <!-- fresh:skip: routed in TODO_LIST -->**
     beat setup's 10 direct adopters).
 
 ## g) Questions I cannot answer myself
