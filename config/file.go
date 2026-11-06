@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"maps"
 	"os"
 	"path/filepath"
@@ -114,6 +113,6 @@ func valueToString(val any) (string, error) {
 	case nil:
 		return "", errorfamily.NewRejection("config.null_file_value", "null value: set a concrete value or remove the key")
 	default:
-		return "", errorfamily.NewRejectionf("config.file_value_type", "unsupported file value type %T", val)
+		return "", errorfamily.Newf(errorfamily.Rejection, "config.file_value_type", "unsupported file value type %T", val)
 	}
 }
