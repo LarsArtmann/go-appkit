@@ -1,3 +1,8 @@
     📖 Parsing files and building analysis tree...
     196 files discovered
 🔍 Type-aware mode: loading type information for 196 Go files...
+ ✅
+
+Found total 0 clone groups.
+
+✅ No new clones detected (baseline: 9 groups).
