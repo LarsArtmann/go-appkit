@@ -115,7 +115,7 @@ targets_all=(
 	"flightrecorder|flightrecorder|API_KEY=|/health/ready:200 /ok:200"
 	"systemd|systemd|API_KEY=|/health/ready:200 /:200"
 	"errorpages|errorpages|API_KEY=|/health:200 /no/such/page:404"
-	"preset|preset|API_KEY=|/health/ready:200 /hello:200 /version:200"
+	"preset|preset|API_KEY=|/readyz:200 /hello:200 /version:200"
 )
 
 wanted=("$@")

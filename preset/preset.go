@@ -70,35 +70,15 @@ func New(cfg Config) (*appkit.Service, error) {
 		// NewService (below) — hooks only run at Start/Run or Shutdown,
 		// long after assignment, so the closures are safe.
 		StartHooks: append(slices.Clone(cfg.StartHooks), func(ctx context.Context) error {
-			if mounted == nil {
-				return nil
-			}
-
-			return mounted.Start(ctx)
+			return startMounted(ctx, mounted)
 		}),
 		DrainHooks: append(slices.Clone(cfg.DrainHooks), func(context.Context) error {
-			if mounted == nil {
-				return nil
-			}
-
-			mounted.Drain()
+			drainMounted(mounted)
 
 			return nil
 		}),
 		ShutdownHooks: append(slices.Clone(cfg.ShutdownHooks), func(ctx context.Context) error {
-			if hub != nil {
-				if err := hub.Shutdown(ctx); err != nil {
-					return errorfamily.WrapInfrastructuref(
-						err, "preset.realtime_shutdown_failed", "shutdown realtime hub",
-					)
-				}
-			}
-
-			if provider != nil {
-				return provider.Shutdown(ctx)
-			}
-
-			return nil
+			return shutdownLegs(ctx, hub, provider)
 		}),
 	}
 
@@ -150,6 +130,41 @@ func New(cfg Config) (*appkit.Service, error) {
 	return svc, nil
 }
 
+// startMounted starts the health dashboard when mounted (nil until New
+// finishes wiring — the hook only runs at Start/Run, long after assignment).
+func startMounted(ctx context.Context, mounted *health.Mounted) error {
+	if mounted == nil {
+		return nil
+	}
+
+	return mounted.Start(ctx) //nolint:wrapcheck // health module classifies its own start errors
+}
+
+// drainMounted flips the dashboard to draining when mounted.
+func drainMounted(mounted *health.Mounted) {
+	if mounted == nil {
+		return
+	}
+
+	mounted.Drain()
+}
+
+// shutdownLegs tears the legs down in reverse dependency order: the realtime
+// hub first (stops streams), then the otel provider (flushes spans last).
+func shutdownLegs(ctx context.Context, hub *realtime.Hub, provider *appkitotel.Provider) error {
+	if hub != nil {
+		if err := hub.Shutdown(ctx); err != nil {
+			return errorfamily.WrapInfrastructuref(err, "preset.realtime_shutdown_failed", "shutdown realtime hub")
+		}
+	}
+
+	if provider != nil {
+		return provider.Shutdown(ctx) //nolint:wrapcheck // flush errors propagate to core's classified join
+	}
+
+	return nil
+}
+
 // setupProvider builds and starts the otel provider when the leg resolved
 // on; a nil provider (leg off) makes every downstream no-op.
 func setupProvider(cfg Config, enabled bool) (*appkitotel.Provider, error) {
@@ -196,7 +211,7 @@ func mountRealtime(mux *http.ServeMux, cfg *Config) *realtime.Hub {
 func applySecurity(svcConfig *appkit.ServiceConfig, secCfg *SecurityConfig) error {
 	middlewares, err := securityMiddlewares(secCfg)
 	if err != nil {
-		return err //nolint:wrapcheck // strict-profile Rejection propagates untouched
+		return err
 	}
 
 	svcConfig.ExtraMiddlewares = middlewares
