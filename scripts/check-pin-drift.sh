@@ -22,6 +22,13 @@
 #      parses as JSON (catches: rename/delete while README/FEATURES still
 #      point at it).
 #
+# Release-window rule (2026-11-06, issue54 session §e1): "newest tag exists
+# locally but not on origin" is the NORMAL state between `git tag -a` and
+# `git push` (the pre-tag ritual runs this gate in exactly that window), so
+# it is a loud NOTE, not drift. Only a claim/pin that matches NEITHER a
+# local nor an origin tag is a failure; when origin is unreachable the
+# origin leg degrades to local-only verification with its own loud line.
+#
 # CI runs this from a fetch-depth: 0 checkout (check 1 and 2 need full tag
 # history). Locally it runs against the local clone in under a second:
 #
@@ -38,6 +45,38 @@ fail() {
 	status=1
 }
 ok() { echo "OK:   $*"; }
+note() { echo "NOTE: $*"; }
+
+# --- origin tag state (one roundtrip) ----------------------------------------
+# origin_tags: newline-separated tag names known to origin. Empty means the
+# ls-remote failed (offline); the origin leg then DEGRADES to local-only
+# verification with a loud line instead of failing every claim.
+origin_tags="$(git ls-remote --tags origin 2>/dev/null | sed -n 's|.*refs/tags/\([^^]*\)$|\1|p' || true)"
+origin_reachable=1
+if [[ -z "$origin_tags" ]]; then
+	note "origin unreachable (ls-remote failed) — release-window check degraded to local-only verification"
+	origin_reachable=0
+fi
+
+tag_on_origin() {
+	local tag="$1"
+	[[ "$origin_reachable" == 1 ]] || return 1
+	grep -qxF "$tag" <<<"$origin_tags"
+}
+
+# tag_state <full-tag-name>: prints "origin" | "local-only" | "absent".
+tag_state() {
+	local tag="$1"
+	if git cat-file -e "${tag}^{commit}" 2>/dev/null; then
+		if tag_on_origin "$tag"; then
+			echo origin
+		else
+			echo local-only
+		fi
+	else
+		echo absent
+	fi
+}
 
 # 1) AGENTS release line vs git tags.
 core_version="$(sed -n 's/.*ON ORIGIN through \*\*core \(v[0-9][0-9.]*\)\*\*.*/\1/p' AGENTS.md | head -n1)"
@@ -47,7 +86,15 @@ fi
 if [[ -z "$core_version" ]]; then
 	fail "AGENTS.md has no 'ON ORIGIN through **core vX.Y.Z**' or 'Latest per module: core vX.Y.Z' release line"
 elif git tag -l -- "$core_version" | grep -qxF "$core_version"; then
-	ok "AGENTS release line $core_version exists as a tag"
+	state="$(tag_state "$core_version")"
+	case "$state" in
+	origin) ok "AGENTS release line $core_version exists as a tag on origin" ;;
+	local-only)
+		ok "AGENTS release line $core_version exists locally"
+		note "$core_version is LOCAL-ONLY (not yet on origin) — release window: push before consumers can resolve it"
+		;;
+	absent) fail "AGENTS release line names $core_version but the tag is in an unreachable state" ;;
+	esac
 else
 	fail "AGENTS release line says $core_version but git tag -l has no such tag"
 fi
@@ -70,13 +117,26 @@ latest_line="$(sed -n 's/.*Latest per module: //p' AGENTS.md | head -n1)"
 if [[ -z "$latest_line" ]]; then
 	fail "AGENTS.md has no 'Latest per module: ...' line (per-module claims unparseable)"
 else
-	# The list ends the parenthetical release sentence; cut at the first ').'
+	# The list ends the parenthetical release sentence; cut at the last ')'.
 	claims="${latest_line%%).*}"
-	pairs="$(printf '%s\n' "$claims" | tr ',' '\n' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
-	entry_count="$(printf '%s\n' "$pairs" | grep -c . || true)"
-	pair_count="$(printf '%s\n' "$pairs" | awk 'NF == 2 && $2 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ {n++} END {print n + 0}')"
-	if [[ "$entry_count" != "$pair_count" ]]; then
-		fail "Latest-per-module line has $entry_count entries but only $pair_count parse as 'name vX.Y.Z' (format drift?)"
+	# STRICT parser (2026-11-06 rewrite, issue54 §e3): every entry must be
+	# exactly "name vX.Y.Z" — the old aggregate-count check ("15 entries but
+	# 12 parse") never named the corrupting token, so prose inside the list
+	# silently corrupted the claim set. Name every offender.
+	pairs=""
+	offenders=""
+	while IFS= read -r entry; do
+		entry="$(printf '%s' "$entry" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+		[[ -n "$entry" ]] || continue
+		if [[ "$entry" =~ ^[a-z]+[[:space:]]+v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+			pairs+="$entry"$'\n'
+		else
+			offenders+="  '$entry' (expected 'name vX.Y.Z')"$'\n'
+		fi
+	done < <(printf '%s' "$claims" | tr ',' '\n')
+	if [[ -n "$offenders" ]]; then
+		fail "Latest-per-module line carries unparseable entries (strict list):"
+		printf '%s' "$offenders"
 	fi
 	declare -A claimed=()
 	while read -r name version; do
@@ -93,9 +153,17 @@ else
 		elif [[ "$version" != "$tag_version" ]]; then
 			fail "$name: AGENTS claims $version but the newest tag is $tag_latest (same-train release-state update missed?)"
 		else
-			ok "$name claim $version == newest tag $tag_latest"
+			state="$(tag_state "$tag_latest")"
+			case "$state" in
+			origin) ok "$name claim $version == newest tag $tag_latest (on origin)" ;;
+			local-only)
+				ok "$name claim $version == newest tag $tag_latest (local)"
+				note "$tag_latest is LOCAL-ONLY (not yet on origin) — release window: push before consumers can resolve it"
+				;;
+			absent) fail "$name: claim $version verified against $tag_latest which is in an unreachable state" ;;
+			esac
 		fi
-	done <<<"$(printf '%s\n' "$pairs" | awk 'NF == 2 && $2 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/')"
+	done <<<"$pairs"
 
 	# Reverse: every TAGGED module must appear in the claims (module set from
 	# go.work use entries — the charter guard keeps that list honest).
@@ -144,7 +212,15 @@ while read -r mod want; do
 	else
 		latest_version="${latest#"$sub/"}"
 		if [[ "$want" == "$latest_version" ]]; then
-			ok "$mod pinned at latest published tag $latest"
+			state="$(tag_state "$latest")"
+			case "$state" in
+			origin) ok "$mod pinned at latest published tag $latest (on origin)" ;;
+			local-only)
+				ok "$mod pinned at latest tag $latest (local)"
+				note "$latest is LOCAL-ONLY (not yet on origin) — release window: the pin resolves from the proxy only after push"
+				;;
+			absent) fail "$mod: pin verified against $latest which is in an unreachable state" ;;
+			esac
 		else
 			fail "$mod pinned at $want but latest published tag is $latest (release train shipped without the integration pin bump?)"
 		fi
