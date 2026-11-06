@@ -1,5 +1,14 @@
 # Status Report — SUPERB v13 execution session (plan → P9a → guards → verify-blocks → error-family batch)
 
+> **Live remainder:** the p9a session's 50-item ledger is fully adjudicated
+> (this archive): the session's own blocking asks closed (the hang
+> root-caused and fixed at 33f1152, the TODO rows closed with evidence,
+> R1c/R1d landed via the 13-10 closeout, P8 proven at 2de5875), and the
+> scaffold/battery/owner legs carry routed markers into their wired TODO
+> rows. Archived 2026-11-06: every §f item carries a verdict; nothing here
+> is unowned.
+>
+
 **Written:** 2026-11-06 12:46 +0100 · **Session window:** ~06:30–08:45 (active), bench
 completed in background by 12:46 · **Companion:** concurrent sibling session (the preset
 train) ran in parallel the whole time — attribution below is per-session.
@@ -123,56 +132,56 @@ migration, v1 exit); Y1–Y6; Z1/Z3/Z5/Z6/Z7; OG1/OG3–OG6 (owner-only).
 
 ## f) Next up to 50 (impact-ordered; [S]=sibling-owned, [O]=owner-only)
 
-1. Confirm hang resolved + preset v0.1.0 train completion (their issue-54 session) [S]
-2. P9c fresh-consumer proxy checks (preset + config close-out) — tag is pushed
-3. P8 integration E2E through published tags + re-pin [S]
-4. OG2 consumer heads-ups (drafts ready, gate met)
-5. Record R1c bench numbers in AGENTS perf section (data in hand)
-6. R1d mobile screenshot (chromium already fetched)
-7. Close TODO rows R3/R4a/R5a (work done, rows not marked)
-8. S2 template: cmdguard serve verb → config.Load → preset.New
-9. S3 templ + templ-components skeleton
-10. S4 flake.nix + .buildflow.yml
-11. S5 CI workflow + systemd unit + Dockerfile
-12. S6 README/CHANGELOG/AGENTS/FEATURES skeletons + boot probe
-13. S7 dogfood one real app end-to-end
-14. A2 dnsblockd swap recipe (−~1,600 LOC mapped)
-15. A3 ChastityAPI swap recipe (−~4,800 LOC class)
-16. A4 PapDashboard security swap recipe
-17. A5 pbx-lens cmdguard migration recipe
-18. D3a sqlite ops kit: leases design + matrix
-19. D3b backup round-trip + ledger atomicity
-20. D3c embedded-migration helper (16-app demand)
-21. D1a worker supervisor Manager
-22. D1b pools, panic-restart, shutdown joins
-23. C2R realtime Mount + SubscribeFolded discriminator
-24. R4b ST composition E2E at the re-pin
-25. H1 httpx B1 ResultHandler + parity test
-26. H2 B2 bind + validation
-27. H3 B9 no-leak error responses
-28. H4 B3 ResponseWriter contract
-29. H5 B4 conditional GET (go-etag promotion)
-30. H6 B5 content negotiation (go-codec; reconcile w/ endpoints+Language precedents)
-31. H7 B7 per-route write deadlines
-32. H8 svc.Routes() seam decision — endpoints.md is the input [O]
-33. X1 compose Service on httputil.Server refactor
-34. X2 core TLS on the seam
-35. X3 testkit satellite+integration migration
-36. X4 core v1 exit criteria close-out
-37. Y1 systemd small backlog
-38. Y2 D5 polite outbound client
-39. Y3 D7 idempotency adopt-wire decision
-40. Y4 D4 atomic-write promote + D6 webhook
-41. Y6 C1 realtime drop counters + C3 subscriber auth/filter
-42. Z1 asserted-vs-computed lesson → crush-config references/lessons.md
-43. Z2 dprint html decision (evidence now recorded)
-44. Z3 CV deep-read + archetype matrix
-45. Z4 TODO preset-row dual-number citation fix + plan-revision ruling [O]
-46. Z7 cqrs EventConfig README recipe
-47. OG1 auth-bridge decision memo [O]
-48. OG3 pma owner checklist walkthrough [O]
-49. OG5 CI SSH secret restore (structure-linter leg) [O]
-50. OG6 machine go default ≥1.27.2 (retires the GOTOOLCHAIN prefix) [O]
+1. ~~Confirm hang resolved + preset v0.1.0 train completion (their issue-54 session) [S]~~ done — the hang was root-caused as test hygiene and fixed (33f1152); preset v0.1.0 shipped (21c1a78)
+2. P9c fresh-consumer proxy checks (preset + config close-out) — tag is pushed **→ TODO P3 — v13 plan P9c fresh-consumer proxy checks (preset + config close-out) <!-- fresh:skip: routed in TODO_LIST -->**
+3. ~~P8 integration E2E through published tags + re-pin [S]~~ done at `2de5875`
+4. OG2 consumer heads-ups (drafts ready, gate met) **→ TODO P3 — post consumer heads-ups (OG2 drafts ready; gate MET) <!-- fresh:skip: routed in TODO_LIST -->**
+5. ~~Record R1c bench numbers in AGENTS perf section (data in hand)~~ done — the AGENTS perf section carries the quiet-run numbers (the 13-10 R1c closeout)
+6. ~~R1d mobile screenshot (chromium already fetched)~~ done — the mobile screenshot landed (docs/review/libs/index-mobile-390x844.png; the 13-10 R1d closeout)
+7. ~~Close TODO rows R3/R4a/R5a (work done, rows not marked)~~ done — the TODO rows closed this session (rows 37/38/39 with verified evidence; the freshness item harvested)
+8. S2 template: cmdguard serve verb → config.Load → preset.New **→ TODO P3 — v13 plan S2-S7 scaffold rows (S2 serve verb) <!-- fresh:skip: routed in TODO_LIST -->**
+9. S3 templ + templ-components skeleton **→ TODO P3 — v13 plan S2-S7 scaffold rows (S3 templ skeleton) <!-- fresh:skip: routed in TODO_LIST -->**
+10. S4 flake.nix + .buildflow.yml **→ TODO P3 — v13 plan S2-S7 scaffold rows (S4 flake/buildflow) <!-- fresh:skip: routed in TODO_LIST -->**
+11. S5 CI workflow + systemd unit + Dockerfile **→ TODO P3 — v13 plan S2-S7 scaffold rows (S5 CI/systemd/Dockerfile) <!-- fresh:skip: routed in TODO_LIST -->**
+12. S6 README/CHANGELOG/AGENTS/FEATURES skeletons + boot probe **→ TODO P3 — v13 plan S2-S7 scaffold rows (S6 docs skeletons + boot probe) <!-- fresh:skip: routed in TODO_LIST -->**
+13. S7 dogfood one real app end-to-end **→ TODO P3 — v13 plan S2-S7 scaffold rows (S7 dogfood) <!-- fresh:skip: routed in TODO_LIST -->**
+14. A2 dnsblockd swap recipe (−~1,600 LOC mapped) **→ TODO P3 — Battery program waves W3-W5 (A2 dnsblockd recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+15. A3 ChastityAPI swap recipe (−~4,800 LOC class) **→ TODO P3 — Battery program waves W3-W5 (A3 ChastityAPI recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+16. A4 PapDashboard security swap recipe **→ TODO P3 — Battery program waves W3-W5 (A4 PapDashboard recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+17. A5 pbx-lens cmdguard migration recipe **→ TODO P3 — Battery program waves W3-W5 (A5 pbx-lens recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+18. D3a sqlite ops kit: leases design + matrix **→ TODO P3 — Battery program waves W3-W5 (D3a leases design) <!-- fresh:skip: routed in TODO_LIST -->**
+19. D3b backup round-trip + ledger atomicity **→ TODO P3 — Battery program waves W3-W5 (D3b backup + ledger) <!-- fresh:skip: routed in TODO_LIST -->**
+20. D3c embedded-migration helper (16-app demand) **→ TODO P3 — Battery program waves W3-W5 (D3c embedded-migration helper) <!-- fresh:skip: routed in TODO_LIST -->**
+21. D1a worker supervisor Manager **→ TODO P3 — Battery program waves W3-W5 (D1a worker supervisor) <!-- fresh:skip: routed in TODO_LIST -->**
+22. D1b pools, panic-restart, shutdown joins **→ TODO P3 — Battery program waves W3-W5 (D1b pools + joins) <!-- fresh:skip: routed in TODO_LIST -->**
+23. C2R realtime Mount + SubscribeFolded discriminator **→ TODO P3 — Battery program waves W3-W5 (C2R Mount + SubscribeFolded) <!-- fresh:skip: routed in TODO_LIST -->**
+24. R4b ST composition E2E at the re-pin **→ TODO P2 — SUPERB v12 preset spine (R4b ST composition E2E at the re-pin) <!-- fresh:skip: routed in TODO_LIST -->**
+25. H1 httpx B1 ResultHandler + parity test **→ TODO P3 — Battery program waves W3-W5 (H1 B1 ResultHandler + parity) <!-- fresh:skip: routed in TODO_LIST -->**
+26. H2 B2 bind + validation **→ TODO P3 — Battery program waves W3-W5 (H2 B2 bind + validation) <!-- fresh:skip: routed in TODO_LIST -->**
+27. H3 B9 no-leak error responses **→ TODO P3 — Battery program waves W3-W5 (H3 B9 no-leak errors) <!-- fresh:skip: routed in TODO_LIST -->**
+28. H4 B3 ResponseWriter contract **→ TODO P3 — Battery program waves W3-W5 (H4 B3 ResponseWriter contract) <!-- fresh:skip: routed in TODO_LIST -->**
+29. H5 B4 conditional GET (go-etag promotion) **→ TODO P3 — Battery program waves W3-W5 (H5 B4 conditional GET) <!-- fresh:skip: routed in TODO_LIST -->**
+30. H6 B5 content negotiation (go-codec; reconcile w/ endpoints+Language precedents) **→ TODO P3 — Battery program waves W3-W5 (H6 B5 negotiation) <!-- fresh:skip: routed in TODO_LIST -->**
+31. H7 B7 per-route write deadlines **→ TODO P3 — Battery program waves W3-W5 (H7 B7 write deadlines) <!-- fresh:skip: routed in TODO_LIST -->**
+32. H8 svc.Routes() seam decision — endpoints.md is the input [O] **→ TODO P3 — Battery program waves W3-W5 (H8 seam decision; endpoints.md input) <!-- fresh:skip: routed in TODO_LIST -->**
+33. X1 compose Service on httputil.Server refactor **→ TODO P2 — compose Service on httputil.Server (X1 refactor) <!-- fresh:skip: routed in TODO_LIST -->**
+34. X2 core TLS on the seam **→ TODO P2 — compose Service on httputil.Server (X2 TLS) <!-- fresh:skip: routed in TODO_LIST -->**
+35. X3 testkit satellite+integration migration **→ TODO P2 — test-helper dedup (X3 migrations) <!-- fresh:skip: routed in TODO_LIST -->**
+36. X4 core v1 exit criteria close-out **→ TODO P2 — core v1.0.0 exit criteria (X4 close-out) <!-- fresh:skip: routed in TODO_LIST -->**
+37. Y1 systemd small backlog **→ TODO P3 — systemd module small backlog (Y1) <!-- fresh:skip: routed in TODO_LIST -->**
+38. Y2 D5 polite outbound client **→ TODO P3 — Battery program waves W3-W5 (Y2 polite outbound) <!-- fresh:skip: routed in TODO_LIST -->**
+39. Y3 D7 idempotency adopt-wire decision **→ TODO P3 — Battery program waves W3-W5 (Y3 D7 adopt-wire) <!-- fresh:skip: routed in TODO_LIST -->**
+40. Y4 D4 atomic-write promote + D6 webhook **→ TODO P3 — Battery program waves W3-W5 (Y4 D4 promote + D6 webhook) <!-- fresh:skip: routed in TODO_LIST -->**
+41. Y6 C1 realtime drop counters + C3 subscriber auth/filter **→ TODO P3 — Battery program waves W3-W5 (Y6 C1 drops + C3 auth/filter) <!-- fresh:skip: routed in TODO_LIST -->**
+42. Z1 asserted-vs-computed lesson → crush-config references/lessons.md **→ TODO P3 — SUPERB v12 micro-backlog (Z1 the asserted-vs-computed lesson) <!-- fresh:skip: routed in TODO_LIST -->**
+43. Z2 dprint html decision (evidence now recorded) **→ TODO P3 — SUPERB v12 micro-backlog (Z2 dprint html decision; evidence recorded) <!-- fresh:skip: routed in TODO_LIST -->**
+44. Z3 CV deep-read + archetype matrix **→ TODO P3 — SUPERB v12 micro-backlog (Z3 CV deep-read + archetype matrix) <!-- fresh:skip: routed in TODO_LIST -->**
+45. Z4 TODO preset-row dual-number citation fix + plan-revision ruling [O] **→ TODO P3 — SUPERB v12 micro-backlog (Z4 dual-number fix + plan-revision ruling) <!-- fresh:skip: routed in TODO_LIST -->**
+46. Z7 cqrs EventConfig README recipe **→ TODO P3 — Battery program waves W3-W5 (Z7 EventConfig README recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+47. OG1 auth-bridge decision memo [O] **→ TODO P3 — Auth-bridge DECISION memo (OG1; owner gate) <!-- fresh:skip: routed in TODO_LIST -->**
+48. OG3 pma owner checklist walkthrough [O] **→ TODO P3 — pma rows (OG3 owner checklist walkthrough) <!-- fresh:skip: routed in TODO_LIST -->**
+49. OG5 CI SSH secret restore (structure-linter leg) [O] **→ TODO P1 — owner-gated CI secret (OG5 SSH restore; the structure-linter leg) <!-- fresh:skip: routed in TODO_LIST -->**
+50. OG6 machine go default ≥1.27.2 (retires the GOTOOLCHAIN prefix) [O] **→ TODO P3 — open questions awaiting USER decisions (OG6 machine go default) <!-- fresh:skip: routed in TODO_LIST -->**
 
 ## g) Questions I cannot answer myself
 
