@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -179,7 +180,10 @@ func TestErrorpagesUnclassifiedThroughLiveService(t *testing.T) {
 		t.Fatalf("request: %v", err)
 	}
 
-	defer resp.Body.Close() //nolint:errcheck // read-side drain: the status is already captured above
+	defer func() {
+		_, _ = io.Copy(io.Discard, resp.Body) // real drain (the old comment claimed one; none existed)
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusInternalServerError {
 		t.Errorf("recovered panic through Wrap: status = %d, want 500", resp.StatusCode)

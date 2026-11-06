@@ -150,6 +150,7 @@ func TestHardenedDashboardBehindCSP(t *testing.T) {
 		t.Fatalf("GET /health/readyz: %v", err)
 	}
 	defer func() { _ = resp.Body.Close() }()
+	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("/health/readyz = %d, want 200", resp.StatusCode)
 	}

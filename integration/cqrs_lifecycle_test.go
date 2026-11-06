@@ -21,6 +21,7 @@ package integration_test
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"sync/atomic"
 	"testing"
@@ -115,6 +116,7 @@ func waitReady(t *testing.T, baseURL string) {
 	for {
 		resp, err := http.Get(baseURL + "/health/ready") //nolint:noctx // test boundary
 		if err == nil {
+			_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 			_ = resp.Body.Close()
 			if resp.StatusCode == http.StatusOK {
 				return
@@ -137,7 +139,10 @@ func postStatus(t *testing.T, url string) int {
 		t.Fatalf("POST %s: %v", url, err)
 	}
 
-	defer func() { _ = resp.Body.Close() }()
+	defer func() {
+		_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
+		_ = resp.Body.Close()
+	}()
 
 	return resp.StatusCode
 }

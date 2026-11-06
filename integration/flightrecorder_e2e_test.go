@@ -161,6 +161,7 @@ func frE2EFirstCapture(t *testing.T, base, snapDir string) {
 
 	resp := e2eGet(t, base+"/work")
 	defer func() { _ = resp.Body.Close() }()
+	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("GET /work: status = %d, want 200", resp.StatusCode)
@@ -202,6 +203,7 @@ func frE2ESecondCapture(t *testing.T, base, snapDir string) {
 
 	resp := e2eGet(t, base+"/work")
 	defer func() { _ = resp.Body.Close() }()
+	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("GET /work: status = %d, want 200", resp.StatusCode)
@@ -215,6 +217,7 @@ func frE2ETriggerFiltering(t *testing.T, base, snapDir string) {
 
 	resp := e2eGet(t, base+"/other")
 	defer func() { _ = resp.Body.Close() }()
+	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("GET /other: status = %d, want 200", resp.StatusCode)
