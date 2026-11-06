@@ -172,6 +172,11 @@ jobs:
 
   # cqrs-lint over the framework modules that consume go-cqrs-lite.
   # Arg form is "." (not ./...) — a single --path flag.
+  # PINNED (2026-11-06, issue54 §f: the @latest install made CI retro-red
+  # twice — v4.20.0 shipped F032 and failed this module before the
+  # suppression landed). Bump ONLY after running the new version green on
+  # the cqrs tree: GOWORK=off go run github.com/larsartmann/go-cqrs-lite/
+  # cmd/cqrs-lint/v4@<version> . — the art-dupl-gate pin precedent applies.
   cqrs-lint:
     runs-on: ubuntu-latest
     steps:
@@ -180,7 +185,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install cqrs-lint
-        run: go install github.com/larsartmann/go-cqrs-lite/cmd/cqrs-lint/v4@latest
+        run: go install github.com/larsartmann/go-cqrs-lite/cmd/cqrs-lint/v4@v4.21.0
       - name: Lint cqrs module
         working-directory: cqrs
         run: GOWORK=off cqrs-lint .
