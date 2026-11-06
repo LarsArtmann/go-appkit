@@ -64,6 +64,11 @@ func newLanguageService(t *testing.T) *testkit.TestServer {
 // negotiate GETs /greet with the given Accept-Language, closes the response
 // body, and returns the response headers plus the negotiated language tag
 // the handler echoed back.
+// langProbe is shared across all negotiate calls: one connection pool.
+// Abandoned per-call transports hold idle keep-alive conns open against the
+// shutdown window (the 2026-11-06 listener_close hang class).
+var langProbe = &http.Client{Timeout: 10 * time.Second} //nolint:gochecknoglobals // shared probe client
+
 func negotiate(t *testing.T, base, acceptLanguage string) (http.Header, string) {
 	t.Helper()
 
@@ -76,7 +81,7 @@ func negotiate(t *testing.T, base, acceptLanguage string) (http.Header, string) 
 		req.Header.Set("Accept-Language", acceptLanguage)
 	}
 
-	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
+	resp, err := langProbe.Do(req)
 	if err != nil {
 		t.Fatalf("GET /greet: %v", err)
 	}
