@@ -35,6 +35,7 @@ func TestMiddleware_PanicRecovery_Returns500(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/panic")
+
 	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -70,6 +71,7 @@ func TestMiddleware_DefaultStackHeaders_Present(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/test-reqid")
+
 	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -112,6 +114,7 @@ func TestMiddleware_SecurityHeaders_Present(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/test-sec")
+
 	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -166,6 +169,7 @@ func TestMiddleware_ReplacedStack(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/test-custom")
+
 	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -238,6 +242,7 @@ func TestMiddleware_OuterMiddlewares_RunOutsideDefaultStack(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/panic")
+
 	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -296,6 +301,7 @@ func TestMiddleware_OuterMiddlewares_WrapReplacedStack(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/wrapped")
+
 	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
