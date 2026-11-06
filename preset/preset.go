@@ -94,9 +94,7 @@ func New(cfg Config) (*appkit.Service, error) {
 
 	if legs.hasSecurity {
 		if err := applySecurity(&svcConfig, cfg.Security); err != nil {
-			flushProvider(provider)
-
-			return nil, err
+			return nil, bootFail(provider, err)
 		}
 	}
 
@@ -105,18 +103,14 @@ func New(cfg Config) (*appkit.Service, error) {
 
 	svc, err := appkit.NewService(svcConfig)
 	if err != nil {
-		flushProvider(provider)
-
-		return nil, err //nolint:wrapcheck // config Rejection propagates untouched
+		return nil, bootFail(provider, err)
 	}
 
 	probe := health.NewProbe(cfg.HealthChecks)
 
 	mounted, err = health.Mount(svc.Mux, probe, dashboardOpts(cfg.NoDashboard)...)
 	if err != nil {
-		flushProvider(provider)
-
-		return nil, err //nolint:wrapcheck // mount Rejection propagates untouched
+		return nil, bootFail(provider, err) //nolint:wrapcheck // mount Rejection propagates untouched
 	}
 
 	if legs.errorPages {
@@ -237,6 +231,15 @@ func mountErrorPages(mux *http.ServeMux, cfg Config) {
 	}
 
 	errorpages.Mount(mux, pages)
+}
+
+// bootFail is the shared startup-error exit: flush the partially-initialized
+// otel provider (the core never runs ShutdownHooks for a service that never
+// started), then propagate the cause untouched.
+func bootFail(provider *appkitotel.Provider, err error) error {
+	flushProvider(provider)
+
+	return err
 }
 
 // flushProvider shuts the otel provider down on startup-error paths — the
