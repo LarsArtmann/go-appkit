@@ -217,6 +217,34 @@ context, NOT user documentation — each module's user-facing docs live in its o
 - `Wrap` mirrors net/http's `cleanPath` to preserve the mux's path-cleaning redirects (doubled slashes, dot segments); only the canonical request that follows gets the pretty 404.
 - Render failures fall back to a plain-text response with the correct status (inherited from errorpage's buffer-before-write rendering).
 
+## config Module
+
+### Code Organization
+
+| File               | Concern                                                                                                                                                                                                                                            |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`           | Package doc: quick start, precedence, error contract.                                                                                                                                                                                              |
+| `config.go`        | `Load[T]` / `Loader[T]` / `NewLoader`, options (`WithFile`, `WithLookup`, `WithValues`, `WithValidate`), `FieldError` + `FieldErrorKind` enum, `checkRequired`, `setParsed`, `rejectionFrom` (ONE Rejection wrapping joined FieldErrors), `Keys[T]`, `FieldErrorsOf` (exact-node join-tree walk — NOT `errors.As`, which would descend `FieldError.Unwrap` and drop join siblings). |
+| `fields.go`        | Reflection walk (`collectFields`): nested `env:"PREFIX"` key prefixes (child tags are relative suffixes), embedded-struct promotion (incl. unexported embedded types — PkgPath check skips only non-anonymous unexported), untagged fields never touched (what makes embedding `appkit.ServiceConfig` safe).                                                                           |
+| `parse.go`         | One shared parser for every layer: string/bool/all int+uint widths (decimal-only)/float32-64/`time.Duration`/`[]string` (comma-split, trimmed); named types via `Convert`; tagged anything-else → `unsupported_type`.                                                                                                |
+| `file.go`          | YAML (go-faster/yaml) + JSON (stdlib) file layer; lowercased dotted key space (`nested.addr`); STRICT unknown-file-key rejection.                                                                                                                                                                  |
+| `example/main.go`  | Runnable demo (happy + missing-required paths).                                                                                                                                                                                                    |
+
+### Dependencies
+
+| Module                              | Version | Role                                        |
+| ----------------------------------- | ------- | ------------------------------------------- |
+| `github.com/larsartmann/go-error-family` | v0.12.0 | Rejection/FieldError classification         |
+| `github.com/go-faster/yaml`         | v0.4.6  | YAML file layer (public proxy)              |
+
+### Gotchas
+
+- **tagalign `align:false` is deliberate** (this module's `.golangci.yml`): the public tag grammar mixes present/absent keys (required fields carry no `default`), where tagalign's align mode (collapse absent keys) and the golines formatter's realign-tags (pad absent keys) produce INCOMPATIBLE canonical forms — no file satisfies both. `align:false` keeps sort-order enforcement (`default` before `env`) and defers spacing to the formatter. Probed 2026-11-06. Any future module with optional struct-tag keys hits the same conflict; this setting is the fleet answer.
+- Precedence is flag > env > file > default; empty env/flag values count as unset (the fleet's `envOr` convention).
+- `FieldErrorsOf` must stay an exact-node type-switch walk; a `golangci-lint --fix` `modernize` pass once rewrote it into an `errors.As` form that silently dropped join siblings (caught 2026-11-06, session 1).
+- `WrapRejection` message stays short ("invalid configuration") — the joined FieldErrors render the detail; passing joined text duplicates the cause rendering.
+- koanf was evaluated and DECLINED for the fleet (design note `docs/planning/2026-11-06_02-30_appkit-config-design-note.md`): 21 flat env-first packages + 25 `os.Getenv` parsers vs one koanf repo.
+
 ## integration Module — Code Organization
 
 | File                                                                                                                                        | Concern                                                                                                                                                                                                                                                                                                                                                               |

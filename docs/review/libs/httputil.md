@@ -145,9 +145,27 @@ compression (no demand signal yet; would join the default stack only with a cons
 
 ```bash
 cd /home/lars/projects/go-appkit
-rg -n 'httputil\.[A-Z]' --glob '*.go' --glob '!*_test.go' -o | sed 's/.*://' | sort -u   # 21 runtime symbols
-rg -n 'httputil' -g 'go.mod'                                                            # v1.7.0 × 8 go.mods
-git -C /home/lars/projects/httputil tag --sort=-v:refname | head -1                       # v1.7.0
-rg -n 'RecoveryWithConfig|OnPanic' otel/        # empty → F4 stands
-sed -n '14,31p' middleware.go                   # the 5-middleware default stack
+rg -o 'httputil\.[A-Z][A-Za-z]*' --glob '*.go' --glob '!*_test.go' | sed 's/.*://' | sort -u | wc -l   # 24 runtime symbols
+rg -n 'httputil' -g 'go.mod'                                                            # v1.8.0 × 8 go.mods
+git -C /home/lars/projects/httputil tag --sort=-v:refname | head -1                       # v1.8.0
+rg -n 'RecoveryWithConfig|OnPanic' otel/        # 7 hits → F4 resolved (delegation shipped)
+sed -n '10,45p' middleware.go                   # the 6-middleware default stack (ServerTiming outermost)
 ```
+
+## Errata (2026-11-06, re-run of the verify block)
+
+- **The original symbol-count command was broken:** `rg -o 'httputil\.[A-Z]'`
+  truncates every match to one character after the dot (`-o` prints only the
+  matched span), so it can never produce the "21 runtime symbols" it claimed.
+  Fixed above to `[A-Z][A-Za-z]*`; the verified count is 24 (the security
+  battery's `CSRFConfig`/`CSRFMiddleware`/`KeyedRateLimiter*`/`MaxBodySize`
+  usage grew it past the original number).
+- **httputil v1.8.0 released 2026-11-04** (apidiff frozen-API gate, policy-vet
+  CI job, go-health integration guide, nonce double-CSP-writer detection): the
+  in-graph pin moved v1.7.0 → v1.8.0 across all 8 go.mods; "latest tag vs HEAD"
+  above is superseded — re-count against v1.8.0.
+- **F4 RESOLVED 2026-11-03** (the composition-mission train):
+  `appkitotel.Recovery` now delegates to `httputil.RecoveryWithConfig` +
+  `OnPanic`; the hand-rolled body is deleted (the old `isAbortPanic` was dead
+  code — upstream re-panics aborts before the hook runs). The finding stands
+  resolved; see `otel/exceptions.go`.

@@ -115,8 +115,22 @@ duplicate the framework's own layers.
 
 ```bash
 cd /home/lars/projects/go-appkit
-rg -n 'errorfamily\.[A-Z]' --glob '*.go' --glob '!*_test.go' -o | sed 's/.*://' | sort -u
+rg -o 'errorfamily\.[A-Z][A-Za-z]*' --glob '*.go' --glob '!*_test.go' | sed 's/.*://' | sort -u
 rg -n 'errorfamily\.(Classify|RegisterClassif|RegisterTemplate|HTTPHandler|ExitCode|WrapOnce|WithContext)' \
-  --glob '*.go' --glob '!*_test.go' | grep -v '//'   # empty → the gap rows stand
+  --glob '*.go' --glob '!*_test.go' | grep -v '//'   # 1 hit → registry row landed, rest stand
 grep 'go-error-family' go.mod   # v0.12.0
 ```
+
+## Errata (2026-11-06, re-run of the verify block)
+
+- **The symbol-list command had the same `-o` truncation bug as httputil.md**
+  (`errorfamily\.[A-Z]` matched one character after the dot): fixed above to
+  `[A-Z][A-Za-z]*`; 17 distinct runtime symbols in non-test files as of today.
+- **F1's registry battery PARTIALLY landed 2026-11-03** (composition-mission
+  train): `appkit.RegisterClassifications()` engages
+  `errorfamily.RegisterClassificationType` (stdlib defaults +
+  `*http.MaxBytesError` → Rejection; idempotent; deliberately not auto-called —
+  global-state hygiene). The registry row moves from "missed" to "shipped";
+  the remaining gap rows (`Classify`, `RegisterClassification(s)` beyond the
+  battery, `RegisterTemplate`, `HTTPHandler`, `ExitCode`, `WrapOnce`,
+  `WithContext`) still stand.

@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-06
+
 ### Added — initial module (battery F1, SUPERB v12 C-train)
 
 - `Load[T]` / `Loader[T]`: env-first struct-tag binding with fixed precedence

@@ -79,8 +79,14 @@ A focused at-most-once SDK (`~/projects/go-idempotency/`):
 ```bash
 cd /home/lars/projects/go-appkit
 rg -n 'go-idempotency' --glob '*.go'                     # empty → zero imports
-grep 'go-idempotency' cqrs/go.mod integration/go.mod     # v0.3.1 indirect
+grep 'go-idempotency' cqrs/go.mod integration/go.mod     # v0.3.2 / v0.3.1 indirect
 cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.2 go mod why -m github.com/larsartmann/go-idempotency
 sed -n '22,26p' cqrs/commands.go; sed -n '616,620p' cqrs/README.md
-git -C /home/lars/projects/go-idempotency tag --sort=-v:refname | head -1   # v0.3.1
+git -C /home/lars/projects/go-idempotency tag --sort=-v:refname | head -1   # v0.3.2
 ```
+
+## Errata (2026-11-06, re-run of the verify block)
+
+- Block verified as written; only version drift: go-idempotency released
+  **v0.3.2** and cqrs carries it (integration still pins v0.3.1 — member
+  go.mod changes ride release trains; MVS resolves both fine).

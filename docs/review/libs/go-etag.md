@@ -82,5 +82,15 @@ rg -n 'larsartmann/go-etag' --glob '*.go'                    # empty → zero im
 grep -h 'go-etag' go.mod */go.mod | grep -v exclude | sort -u  # entitytag+server v0.6.1 indirect
 sed -n '174,177p' integration/go.mod                          # pre-extraction excludes
 ls /home/lars/projects/go-etag/                               # entitytag/ server/ client/ metrics/
-git -C /home/lars/projects/go-etag tag --sort=-v:refname | head -1  # v0.6.1
+git -C /home/lars/projects/go-etag tag --sort=-v:refname | head -1  # v0.7.0
 ```
+
+## Errata (2026-11-06, re-run of the verify block)
+
+- Block verified as written; the only drift is version: go-etag's latest tag is
+  now **v0.7.0** (was v0.6.1 at audit time). The grep also surfaces
+  integration's exclude-block entries (v0.1.1/v0.3.1/v0.4.0/v0.5.0 — the
+  entry lines themselves carry no "exclude" text; the block header does), and
+  the sed range still lands on the excludes at lines 173-178. appkit's
+  indirect pins remain entitytag+server v0.6.1 (member go.mod changes ride
+  release trains).

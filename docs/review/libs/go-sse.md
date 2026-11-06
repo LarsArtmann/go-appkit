@@ -121,9 +121,28 @@ would blur the wrapper's single responsibility (event fan-out + replay for HTMX/
 
 ```bash
 cd /home/lars/projects/go-appkit
-rg -n 'sse\.[A-Z]' realtime --glob '!*_test.go' -o | sed 's/.*://' | sort | uniq -c
+rg -o 'sse\.[A-Z][A-Za-z]*' realtime --glob '!*_test.go' | sed 's/.*://' | sort | uniq -c
 rg -n 'WithOnDrop|OnDisconnect' realtime/            # empty → F1/F4 gaps stand
-rg -n 'defaultSubscriberBuffer' realtime/hub.go      # F2.2 doc-comment reference
-git -C /home/lars/projects/go-sse tag --sort=-v:refname | head -1   # v0.6.2
-sed -n '1,40p' /home/lars/projects/go-sse/CHANGELOG.md              # [Unreleased] items
+rg -n 'default subscriber buffer' realtime/hub.go    # F2.2 doc-comment reference
+git -C /home/lars/projects/go-sse tag --sort=-v:refname | head -1   # v0.7.0
+sed -n '1,40p' /home/lars/projects/go-sse/CHANGELOG.md              # policy + items
 ```
+
+## Errata (2026-11-06, re-run of the verify block)
+
+- **The symbol-count command had the `-o` truncation bug** (one char after the
+  dot): fixed above to `[A-Z][A-Za-z]*`.
+- **go-sse v0.7.0 released** (was v0.6.2 at audit time): the root API exports
+  `DefaultSubscriberBuffer` (fanout.go:19, was the unexported
+  `defaultSubscriberBuffer` — the const the AGENTS watch item tracked) plus
+  doc-level changes; root API otherwise compatible with appkit usage.
+  appkit still pins v0.6.2 (member go.mod changes ride release trains); a
+  scratch re-pin of realtime to v0.7.0 was verified 2026-11-06 (see the
+  realtime train note). The BREAKING `ssetest.WithLastEventID(string →
+  sse.EventID)` change lives in the ssetest WORKING TREE only — ssetest's
+  latest module tag is still v0.5.0, so appkit's ssetest v0.5.0 pin is
+  unaffected until go-sse tags ssetest/v0.6.0; THAT re-pin must adapt every
+  `WithLastEventID("…")` call site to `WithLastEventID(sse.NewEventID("…"))`.
+- The F2.2 verify command was retargeted: hub.go documents the concept as
+  "go-sse's default subscriber buffer" (true at both versions), not the const
+  identifier (which changed case in v0.7.0).
