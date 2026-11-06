@@ -6,11 +6,19 @@ switches with explicit-code-wins precedence.
 
 ## What joins the service
 
-**Spine (always on):** core `appkit.Service` (lifecycle, middleware stack,
-`/health` family), `systemd.Install` sd_notify (no-op outside systemd), health
-probe + real-time dashboard (`/healthz` `/readyz` `/startupz`), pretty error
-pages (opt-out via env), `appkit.RegisterClassifications()`, and the version
-stamp (`GET /version` + build-info label) when `Config.Version` is set.
+**Spine (always on):** core `appkit.Service` (lifecycle, middleware stack),
+`systemd.Install` sd_notify (no-op outside systemd), health probe + real-time
+dashboard (the dashboard owns the health surface: `/health` + `/healthz`
+`/readyz` `/startupz`; with `Config.NoDashboard` core's own `/health` family
+mounts instead), pretty error pages (opt-out via env),
+`appkit.RegisterClassifications()`, and the version stamp (`GET /version` +
+build-info label) when `Config.Version` is set.
+
+**Lifecycle hooks pass through, consumer first:** `Config.StartHooks`,
+`Config.DrainHooks`, and `Config.ShutdownHooks` run before the preset's own
+spine closures in every phase (health Mounted start/drain, realtime hub
+drain, otel provider flush) — so consumer shutdown work is still covered by
+traces.
 
 **Legs (env-driven, code overridable):** see the grammar table below.
 
