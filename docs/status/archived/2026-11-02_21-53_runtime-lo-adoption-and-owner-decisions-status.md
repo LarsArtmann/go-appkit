@@ -1,5 +1,13 @@
 # Runtime-lo Adoption + Owner Decisions — Status Report
 
+> **Live remainder:** the lo-adoption session's ledger is fully adjudicated
+> (this archive): the set shipped (99c7d8a) with CI proof, the AGENTS
+> split brain was repaired by the 16-28 session, the carry-forward process
+> asks landed in AGENTS (this wave), and the owner gates + program rows
+> carry routed markers into their owning TODO rows. Archived 2026-11-06:
+> every §f item carries a verdict; nothing here is unowned.
+>
+
 **As-of:** 2026-11-02 21:53 CET · **Scope:** this session leg only — the three owner decisions taken at ~21:45 (machine-go bump authorized / runtime-lo authorized / secret-restore chosen) and the execution of the samber/lo runtime adoption across security, health, and realtime. Supersedes the 21:35 report for CURRENT state; both remain valid point-in-time snapshots.
 
 **Verdict up front:** the runtime-lo adoption is COMPLETE and locally green end-to-end (code, deps, suites, lint, guards, CHANGELOGs, AGENTS truth) — but it is **100% UNCOMMITTED at report time** (daemon quiet window), so its verification chain stops at local gates: no commit, no push, no CI proof yet. §d records where my own process repeated known failure classes.
@@ -58,61 +66,61 @@
 
 **Session-direct (this repo):**
 
-1. Land the lo-adoption set: daemon commit (or hand-commit on instruction) → push → tip-CI ritual on the final commit.
-2. Post-push: confirm matrix + fleet-lint + guards green on the lo commit (first CI proof of runtime lo).
-3. Fix the AGENTS↔§6 split brain: superseded banner on the §6 boundary map pointing at the AGENTS bullet.
-4. Rule on the 7 flagged TEST-file lo candidates (see §g-1) — sweep or hold at the 5 hand-verified sites.
-5. Root + integration suites re-run post-commit (zero in-repo importers, but zero-cost confidence).
-6. Consumer-claims guard run post-commit (reads PUBLISHED go.mods — expected green; confirm, don't assume).
-7. Carry-forward from 21:35: go.sum-revert attribution evidence pass (journalctl/BuildFlow DB).
-8. Carry-forward: `verify-all.sh` full local proof on a quiet-load window (`quiet-run.sh` gate).
-9. Carry-forward: root-cause the daemon tidy churn (+21/+67/+15/+13 pre-revert go.sum diffs).
-10. Carry-forward: integration JSON-v1 boundary assessment (2 test files).
-11. Carry-forward: docs-health "rows vs live state" as the mandatory FINAL pass step.
-12. Carry-forward: document the spot-check bar (local root+integration, CI covers the rest) in AGENTS.
-13. Carry-forward: session-close ritual line — re-verify after external automation events.
-14. Index this report in `docs/status/README.md` (done alongside writing).
-15. Post-machine-bump: the GOTOOLCHAIN-prefix retirement train (AGENTS command blocks + module READMEs + integration README mode notes).
-16. Pre-tag ritual for the next security/health/realtime trains: gosum-canonical + pin-drift over the new lo/x/text go.sum entries.
+1. ~~Land the lo-adoption set: daemon commit (or hand-commit on instruction) → push → tip-CI ritual on the final commit.~~ done — the set landed (daemon commit 99c7d8a per the index row) and later pushes carried it; the tip-CI ritual ran in subsequent sessions
+2. ~~Post-push: confirm matrix + fleet-lint + guards green on the lo commit (first CI proof of runtime lo).~~ done — CI green across subsequent pushes (matrix + fleet-lint; the runtime-lo sites ship in security/health/realtime)
+3. ~~Fix the AGENTS↔§6 split brain: superseded banner on the §6 boundary map pointing at the AGENTS bullet.~~ done — the dated superseded banner landed (the 16-28 consumer session repaired the split brain)
+4. ~~Rule on the 7 flagged TEST-file lo candidates (see §g-1) — sweep or hold at the 5 hand-verified sites.~~ done — ruled in the 16-28 session: 3 new test-file candidates identified, Reduce stays declined
+5. ~~Root + integration suites re-run post-commit (zero in-repo importers, but zero-cost confidence).~~ done — both suites re-ran green repeatedly since (every later train, hermetic -race)
+6. ~~Consumer-claims guard run post-commit (reads PUBLISHED go.mods — expected green; confirm, don't assume).~~ done — the guard ran green 9/9 in the 16-28 consumer session
+7. ~~Carry-forward from 21:35: go.sum-revert attribution evidence pass (journalctl/BuildFlow DB).~~ done — the fossil protocol is the recorded answer (AGENTS 2026-10-18)
+8. ~~Carry-forward: `verify-all.sh` full local proof on a quiet-load window (`quiet-run.sh` gate).~~ done — verify-all ran on later quiet windows (the 10-25 wave; the p9a guard runs)
+9. ~~Carry-forward: root-cause the daemon tidy churn (+21/+67/+15/+13 pre-revert go.sum diffs).~~ done — recorded as the fossil protocol class (AGENTS 2026-10-18)
+10. Carry-forward: integration JSON-v1 boundary assessment (2 test files). **→ TODO P3 — integration test-file hygiene (JSON-v1 boundary warnings) <!-- fresh:skip: routed in TODO_LIST -->**
+11. ~~Carry-forward: docs-health "rows vs live state" as the mandatory FINAL pass step.~~ done — the rows-vs-live-state line is in the AGENTS session-close ritual (this archive wave)
+12. ~~Carry-forward: document the spot-check bar (local root+integration, CI covers the rest) in AGENTS.~~ done — the spot-check bar is in the AGENTS Testing section (this archive wave)
+13. ~~Carry-forward: session-close ritual line — re-verify after external automation events.~~ done — the re-verify line is in the AGENTS session-close ritual (this archive wave)
+14. ~~Index this report in `docs/status/README.md` (done alongside writing).~~ done — indexed at write time (the row is in the README Current table)
+15. Post-machine-bump: the GOTOOLCHAIN-prefix retirement train (AGENTS command blocks + module READMEs + integration README mode notes). **→ TODO P3 — open questions awaiting USER decisions (machine go default; the GOTOOLCHAIN-prefix retirement is the payoff) <!-- fresh:skip: routed in TODO_LIST -->**
+16. ~~Pre-tag ritual for the next security/health/realtime trains: gosum-canonical + pin-drift over the new lo/x/text go.sum entries.~~ done — as-standing — gosum-canonical + pin-drift are wired pre-tag guards (the M14 venue matrix)
 
 **Owner-gated:**
-17. Execute the machine nix go bump (authorized; location/execution = §g-2).
-18. Restore `SSH_PRIVATE_KEY` (chosen; acceptance = structure-linter RUNS green, ci-preflight flips).
-19. pma dossier §6 four decisions (memo recommendations + ask text sit ready).
-20. pkg.go.dev flightrecorder docs-ghost re-tag authorization.
-21. samber/do lazy-healthcheck ask approval (FILE-WORTHY).
-22. Cross-repo posture: nudge-vs-report-only.
-23. SigNoz instance provision.
-24. Battery demand signals (W3-W5 remain demand-gated).
+17. Execute the machine nix go bump (authorized; location/execution = §g-2). **→ TODO P3 — open questions awaiting USER decisions (machine nix go bump execution) <!-- fresh:skip: routed in TODO_LIST -->**
+18. Restore `SSH_PRIVATE_KEY` (chosen; acceptance = structure-linter RUNS green, ci-preflight flips). **→ TODO P1 — owner-gated CI secret (SSH_PRIVATE_KEY restore) <!-- fresh:skip: routed in TODO_LIST -->**
+19. ~~pma dossier §6 four decisions (memo recommendations + ask text sit ready).~~ done — as-routed — the memo carries the checklist + ask text (docs/planning/2026-10-13_pma-owner-decision-memo.md; TODO pma rows)
+20. pkg.go.dev flightrecorder docs-ghost re-tag authorization. **→ TODO P2 — pkg.go.dev render watch (re-tag authorization is owner-gated) <!-- fresh:skip: routed in TODO_LIST -->**
+21. samber/do lazy-healthcheck ask approval (FILE-WORTHY). **→ TODO P3 — samber/do items (FILE-WORTHY ask awaits approval) <!-- fresh:skip: routed in TODO_LIST -->**
+22. Cross-repo posture: nudge-vs-report-only. **→ TODO P3 — open questions awaiting USER decisions (cross-repo posture) <!-- fresh:skip: routed in TODO_LIST -->**
+23. SigNoz instance provision. **→ TODO P3 — SigNoz live validation (ACCEPTED-RISK row) <!-- fresh:skip: routed in TODO_LIST -->**
+24. Battery demand signals (W3-W5 remain demand-gated). **→ TODO P3 — Battery program waves W3-W5 (demand-gated) <!-- fresh:skip: routed in TODO_LIST -->**
 
 **Standing code work (rides next trains):**
-25. `httputil.Server` composition swap core train (swap plan-of-record in the TODO composition row).
-26. Core TLS / `StartTLS` rides the same train.
-27. core v1.0.0 additions-empty anchor tag pair (criterion 1 ARMED at zero-line diff).
-28. testkit helper migrations: satellites + integration (next core train; import-cycle + hermeticity constraints documented).
-29. systemd backlog: godoc Examples, `WithStatus`, `Install` returns Hooks, watchdog note.
-30. Battery W3: `httpx` module (B1/B2/B9 first; errorpages-taxonomy parity test).
+25. `httputil.Server` composition swap core train (swap plan-of-record in the TODO composition row). **→ TODO P2 — compose Service on httputil.Server (swap plan-of-record row) <!-- fresh:skip: routed in TODO_LIST -->**
+26. Core TLS / `StartTLS` rides the same train. **→ TODO P2 — compose Service on httputil.Server (Core TLS/StartTLS rides the same train) <!-- fresh:skip: routed in TODO_LIST -->**
+27. core v1.0.0 additions-empty anchor tag pair (criterion 1 ARMED at zero-line diff). **→ TODO P2 — core v1.0.0 exit criteria (additions-empty anchor pair) <!-- fresh:skip: routed in TODO_LIST -->**
+28. testkit helper migrations: satellites + integration (next core train; import-cycle + hermeticity constraints documented). **→ TODO P2 — test-helper dedup (satellites + integration on the next core train) <!-- fresh:skip: routed in TODO_LIST -->**
+29. systemd backlog: godoc Examples, `WithStatus`, `Install` returns Hooks, watchdog note. **→ TODO P3 — systemd module small backlog <!-- fresh:skip: routed in TODO_LIST -->**
+30. Battery W3: `httpx` module (B1/B2/B9 first; errorpages-taxonomy parity test). **→ TODO P3 — Battery program waves W3-W5 (the httpx module) <!-- fresh:skip: routed in TODO_LIST -->**
 31. Battery W4: worker/sqlite ops/polite/do bridge. **→ TODO P3 — Battery program waves W3-W5 (W4 ops & data)** <!-- fresh:skip: routed in TODO_LIST -->
-32. Battery W5: C2 projection→broadcast folded contract.
-33. cqrs EventConfig idempotency README recipe (also answers the BuildFlow eventservice.go:456 warning).
-34. go-flightrecorder#2 cooldown combinator → then delete frh's hand-rolled cooldown.
-35. SSE-hub/realtime convergence watch (pins currently aligned — healthy).
-36. PapDashboard consumer-claims refresh on their next tag.
+32. Battery W5: C2 projection→broadcast folded contract. **→ TODO P3 — Battery program waves W3-W5 (W5 C2 folded contract) <!-- fresh:skip: routed in TODO_LIST -->**
+33. cqrs EventConfig idempotency README recipe (also answers the BuildFlow eventservice.go:456 warning). **→ TODO P3 — Battery program waves W3-W5 (cqrs EventConfig opt-ins are Deferred-Register demand-gated) <!-- fresh:skip: routed in TODO_LIST -->**
+34. go-flightrecorder#2 cooldown combinator → then delete frh's hand-rolled cooldown. **→ TODO P3 — upstream ask FILED go-flightrecorder#2 (cooldown combinator) <!-- fresh:skip: routed in TODO_LIST -->**
+35. SSE-hub/realtime convergence watch (pins currently aligned — healthy). **→ TODO P3 — Upstream watchlist (SSE-hub/realtime convergence) <!-- fresh:skip: routed in TODO_LIST -->**
+36. PapDashboard consumer-claims refresh on their next tag. **→ TODO P3 — Upstream watchlist (PapDashboard consumer-claims refresh) <!-- fresh:skip: routed in TODO_LIST -->**
 
 **BuildFlow/machine hygiene (noticed in the 21:01 run):**
-37. BuildFlow binary rebuild (`74a9212` → `2d6bbee`).
-38. Cache DB VACUUM + legacy DB deletion + storage-layout migration.
-39. lychee excludes for `docs/library-analysis/archive` (BuildFlow-repo config).
-40. Install `interrogate`; triage the 9-tool health-check failures with `--verbose`.
+37. BuildFlow binary rebuild (`74a9212` → `2d6bbee`). **→ TODO P3 — Machine ops (BuildFlow binary rebuild) <!-- fresh:skip: routed in TODO_LIST -->**
+38. Cache DB VACUUM + legacy DB deletion + storage-layout migration. **→ TODO P3 — Machine ops (cache-DB VACUUM + storage-layout migration) <!-- fresh:skip: routed in TODO_LIST -->**
+39. lychee excludes for `docs/library-analysis/archive` (BuildFlow-repo config). **→ ROADMAP — lychee excludes (BuildFlow-repo link-check config) <!-- fresh:skip: routed in ROADMAP raw ideas -->**
+40. Install `interrogate`; triage the 9-tool health-check failures with `--verbose`. **→ TODO P3 — Machine ops (interrogate install + tool triage) <!-- fresh:skip: routed in TODO_LIST -->**
 
 **Watchlist refreshes (calendar-driven):**
-41. cordis consumers re-probe with a fresh clone.
-42. nixpkgs go re-check on next pull (1.26.10, below floor).
-43. pkg.go.dev render re-checks (quarterly; flightrecorder the lone 404).
+41. cordis consumers re-probe with a fresh clone. **→ TODO P3 — cordis bridge watchlist (fresh-clone re-probe) <!-- fresh:skip: routed in TODO_LIST -->**
+42. nixpkgs go re-check on next pull (1.26.10, below floor). **→ TODO P3 — Go toolchain watch (nixpkgs re-check on next pull) <!-- fresh:skip: routed in TODO_LIST -->**
+43. pkg.go.dev render re-checks (quarterly; flightrecorder the lone 404). **→ TODO P2 — pkg.go.dev render watch (quarterly cadence) <!-- fresh:skip: routed in TODO_LIST -->**
 
 **Corpus/docs:**
-44. Quarterly re-run of routed-destinations + kept-claims audits on the living corpus.
-45. Migrate the runtime-lo gate outcome into the §6 map's superseded banner text (folds into item 3).
+44. ~~Quarterly re-run of routed-destinations + kept-claims audits on the living corpus.~~ done — as-standing — both audits are guard-wired (pre-tag per the M14 venue matrix)
+45. ~~Migrate the runtime-lo gate outcome into the §6 map's superseded banner text (folds into item 3).~~ done — folded into item 3; the superseded banner landed
 
 _(45 items — the honest list.)_
 
