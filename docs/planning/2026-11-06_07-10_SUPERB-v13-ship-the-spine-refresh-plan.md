@@ -336,3 +336,24 @@ whenever answered — none block the P/S/R trains.
   command, not a claim.
 - This plan's own claims: every carried row re-verified against TODO_LIST 2026-11-06 ~07:00
   and source (suite run, ls-remote, script/dir greps); corrections recorded in §0.
+
+---
+
+## Errata (2026-11-06 08:02 — concurrent-session reconciliation)
+
+1. **The §0 claim "suite GREEN under `-race -count=1` hermetic (17.2s, re-run this
+   session)" is ONE LUCKY PASS, not suite health.** The preset suite carries an
+   intermittent shutdown hang: ~1/3 of targeted runs
+   (`-run 'TestErrorPages|TestSecurity|TestNew_ZeroAppCodeBoots' -race -count=3`) and ~1
+   failure per full-suite run — `testkit.Serve` cleanup blocks the full 5s stop-timeout in
+   the `listener_close` phase, then logs
+   `[infrastructure:server.shutdown_failed] shutdown: context deadline exceeded`. All
+   HTTP requests complete BEFORE shutdown (µs–ms durations logged). Bisected: passes in
+   isolation; otel+spine, realtime+spine, conflict+spine PASS; **errorpages+security+spine
+   reproduces ~1/3**. **This bug GATES P9b (the preset tag) until the suite is green ×3
+   consecutive.** TODO_LIST carries the corrected row (same edit train).
+2. **Duplicate-plan resolution (owner-approved design):** a second v13 plan
+   (`2026-11-06_07-46_SUPERB-v13-ship-the-spine-refresh-plan.md`, commit d732139) was
+   written in a race with THIS plan's authoring session; THIS file (07-10) is canonical,
+   the duplicate is deleted (history preserves it at d732139), and the TODO_LIST pointer
+   was reverted to this file.
