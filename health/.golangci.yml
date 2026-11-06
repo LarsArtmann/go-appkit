@@ -212,6 +212,12 @@ linters:
         - .WithMessage(
         - .WithMessagef(
         - .WithStack(
+        # go-error-family IS the wrapping layer — its constructors are the
+        # sanctioned terminal forms (v2.15.0 wrapcheck drift, 2026-11-07).
+        - Newf(
+        - NewRejection(
+        - WrapInfrastructuref(
+        - WrapInfrastructure(
   exclusions:
     generated: lax
     rules:
