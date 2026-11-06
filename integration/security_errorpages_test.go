@@ -153,6 +153,10 @@ func secErrAuthedRoute(t *testing.T, base, apiKey string) {
 	}
 	defer func() { _ = authed.Body.Close() }()
 
+	// Drain before closing: an unread body keeps the server-side conn ACTIVE
+	// and pushes Shutdown past its stop timeout (the v13 §Errata class).
+	_, _ = io.Copy(io.Discard, authed.Body)
+
 	if authed.StatusCode != http.StatusOK {
 		t.Fatalf("GET /api with key: status = %d, want 200", authed.StatusCode)
 	}
@@ -270,6 +274,8 @@ func secErrClassifiedError(t *testing.T, base string) {
 
 	resp := e2eGet(t, base+"/boom")
 	defer func() { _ = resp.Body.Close() }()
+
+	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body blocks Shutdown's listener close
 
 	want := appkit.HTTPStatus(
 		errorfamily.NewInfrastructure("itest.security_errorpages", "infrastructure failure behind the pretty pages"),
