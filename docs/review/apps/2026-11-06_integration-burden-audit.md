@@ -148,3 +148,21 @@ itself was not preserved in-repo (preservation is a routed backlog item).
 mis-read of the first JSON dump (never length-checked at the time); caught by re-running the
 count during the rev-2 self-review. All per-app numbers are unaffected (the app set itself was
 complete and stable across both dumps, diff-verified).
+
+**Errata 2 — 2026-11-06 depth-audit (TODO row 50: "read the 5 largest; correct the class
+claim if any are thin wrappers").** The §2 row "Hand-rolled `internal/config` package | 22"
+is REPRODUCIBLE but undercounts and overstates at the same time. Recount (any config-package
+path: `internal/config`, `pkg/config`, `internal/app/config`, root-level `config*.go`): **28
+of 39 apps** (27 distinct implementations) maintain a config package — chastityapi and
+CV/cv-stage-crmfix top the size table, and CV's two meta entries are byte-identical worktrees
+(counted once, the class-claim denominator stays 39). Depth-read of the five largest (CV
+2,405; ChastityAPI 2,172; crm 1,067; media-atlas 836; sperrmuell-direct 634): **none are thin
+wrappers** — all five are koanf or viper BACKED (CV: koanf; ChastityAPI: viper;
+sperrmuell-direct: viper; crm + media-atlas: koanf), with typed option structs layered on top.
+"Hand-rolled" is therefore shorthand for "hand-assembled on an embedded general-purpose
+library" — the app-side LOC is glue + precedence + typed-field plumbing, which is exactly the
+surface appkit/config v0.1.0 (battery F1) deletes. Sizing correction: F1 does not delete the
+packages whole; the honest estimate is **15-30% of each package's LOC** (loader/precedence/
+error-typing layers; the domain option structs stay). Per-package verdicts and evidence are
+in the depth-audit session report; the §5 T1 row's "22 config packages, 25 env parsers"
+demand citation should read 28 (env-parser row unverified by this pass).

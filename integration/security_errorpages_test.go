@@ -26,6 +26,8 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"os"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -73,6 +75,9 @@ func newSecuredErrorpagesService(t *testing.T) (*testkit.TestServer, string) {
 		defer cancel()
 
 		if shutdownErr := ts.Shutdown(ctx); shutdownErr != nil {
+			buf := make([]byte, 4<<20) //nolint:mnd // TEMP diagnostics
+			n := runtime.Stack(buf, true)
+			_ = os.WriteFile("/tmp/shutdown-stacks.txt", buf[:n], 0o644) //nolint:noctx // TEMP diagnostics
 			t.Errorf("shutdown: %v", shutdownErr)
 		}
 	})
