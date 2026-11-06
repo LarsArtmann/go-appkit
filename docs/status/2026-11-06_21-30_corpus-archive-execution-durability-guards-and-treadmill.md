@@ -10,13 +10,13 @@ wave went green.
 
 **State on exit (verified 21:27):**
 
-| Gate        | Verdict | Detail                                                          |
-| ----------- | ------- | --------------------------------------------------------------- |
-| freshness   | PASS    | the 14-25 item was routed in this report's own close-out        |
-| audit-all   | PASS    | pin 0 holds (see §c-1 for the 21:27→21:45 story)                |
-| annotate    | PASS    | 243 findings, pin 255 (was 244 at wave start — net -1)          |
-| routing     | PASS    | STRICT, 0 unrouted, 0 dead, 0 unenforced                        |
-| cadence     | PASS    | 15 unarchived (threshold 15 — ZERO headroom), oldest 3d         |
+| Gate      | Verdict | Detail                                                   |
+| --------- | ------- | -------------------------------------------------------- |
+| freshness | PASS    | the 14-25 item was routed in this report's own close-out |
+| audit-all | PASS    | pin 0 holds (see §c-1 for the 21:27→21:45 story)         |
+| annotate  | PASS    | 243 findings, pin 255 (was 244 at wave start — net -1)   |
+| routing   | PASS    | STRICT, 0 unrouted, 0 dead, 0 unenforced                 |
+| cadence   | PASS    | 15 unarchived (threshold 15 — ZERO headroom), oldest 3d  |
 
 My wave ended 5/5 green at ~20:00; the 14-25 concurrent report re-RED
 freshness/audit-all by 21:27, and MY OWN 21-30 report re-tripped cadence
@@ -216,6 +216,7 @@ sessions write faster than waves archive — see §e-3.
 ## f) NEXT — 50 things to get done (impact-ordered within tiers)
 
 **Immediate (the live red + its class):**
+
 1. Adjudicate the 14-25 report's item 4 (root-owned `~/.cache/go-mod`): route **→ TODO P3 — Machine ops (root-owned go-mod cache; the 14-25 report's item 4) **<!-- fresh:skip: routed in TODO_LIST -->**
    to the machine-ops row (venue form) or mint if missing — clears the
    current freshness/audit-all red.
@@ -242,12 +243,14 @@ with rows this wave closed — likely fast):**
 15. Archive `13-10_v13-continuation-r1c-r1d-closeout.md` (light §f). **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
 16. Archive `13-13_v13-continuation-self-review-and-full-status.md`. **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
 17. Archive `14-25_integration-flake-rootcause-counter-corrections-status.md` **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
-    (after item 1).
+(after item 1).
 18. Wave 4 (post-v13): this report + the remaining 11-06 session reports. **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
 
 **Product/code rows minted this wave (real work, not docs):**
 19. Floor-train go 1.27.2 → 1.27.3 (clears GO-2026-6809; 12 go.mods + go.work **→ TODO P2 — Floor-train go 1.27.2 → 1.27.3 <!-- fresh:skip: routed in TODO_LIST -->**
-    + integration fixture + AGENTS mentions).
+
+- integration fixture + AGENTS mentions).
+
 20. cqrs-lint: pin the CI install (art-dupl-gate precedent; needs an upstream **→ TODO P3 — cqrs-lint tooling debts (pin the CI install) <!-- fresh:skip: routed in TODO_LIST -->**
     stable tag first).
 21. cqrs-lint: upstream memo for F032 framework wrappers. **→ TODO P3 — cqrs-lint tooling debts (F032 upstream memo) <!-- fresh:skip: routed in TODO_LIST -->**
@@ -276,7 +279,7 @@ with rows this wave closed — likely fast):**
 38. `meta`-side apps-by-appkit-adoption tag (one-liner counter population). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (meta-side adoption tag) <!-- fresh:skip: routed in TODO_LIST -->**
 39. Planning-docs "rev N (expanded)" convention ruling. **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (rev-N convention ruling) <!-- fresh:skip: routed in TODO_LIST -->**
 40. docs/research HTML trio keep-vs-archive ruling (2026-09-04 has a **→ TODO P3 — docs/research HTML deep-dive trio (keep-vs-archive ruling) <!-- fresh:skip: routed in TODO_LIST -->**
-    placeholder `<title>`).
+placeholder `<title>`).
 41. lychee excludes for archived dependency trees (BuildFlow-repo config). **→ ROADMAP — lychee excludes (BuildFlow-repo link-check config) <!-- fresh:skip: routed in ROADMAP raw ideas -->**
 
 **Upstream asks (file via verify-before-filing; drafts only from here):**
@@ -290,10 +293,10 @@ with rows this wave closed — likely fast):**
 47. Cross-repo posture: nudge cqrs-htmx vs report-only. **→ TODO P3 — open questions awaiting USER decisions (cross-repo posture) <!-- fresh:skip: routed in TODO_LIST -->**
 48. SigNoz instance provision (ACCEPTED-RISK row). **→ TODO P3 — SigNoz live validation (ACCEPTED-RISK row) <!-- fresh:skip: routed in TODO_LIST -->**
 49. samber/do lazy-healthcheck filing approval; auth-bridge decision memo; **→ TODO P3 — standing owner-gated rows (samber/do, auth-bridge, pma, pkg.go.dev) <!-- fresh:skip: routed in TODO_LIST -->**
-    pma cooldown + staged-respect implementations; pkg.go.dev flightrecorder
-    re-tag authorization (the standing owner-gated set).
+pma cooldown + staged-respect implementations; pkg.go.dev flightrecorder
+re-tag authorization (the standing owner-gated set).
 50. Consumer heads-ups posting (OG2 drafts ready) + P9c fresh-consumer proxy **→ TODO P3 — post consumer heads-ups (OG2 drafts; P9c proxy checks) <!-- fresh:skip: routed in TODO_LIST -->**
-    checks (preset + config close-out).
+checks (preset + config close-out).
 
 ## g) QUESTIONS I CANNOT ANSWER MYSELF
 
