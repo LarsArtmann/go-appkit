@@ -8,11 +8,11 @@ cousin), `docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.
 
 ## Options considered
 
-| Option                                     | Verdict | One-line reason                                                                                                                  |
-| ------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Option                                          | Verdict | One-line reason                                                                                                                     |
+| ----------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | **Template repo (go-website-template pattern)** | ✅ PICK | Proven fleet pattern (the website template already killed its copy-paste class); zero generated-code maintenance; dogfoodable today |
-| `cmd/appkit-new` generator now             | ❌      | go-wizard-sdk's template engine is UNBUILT — the stated blocker; a hand-rolled generator is code-to-maintain for the same output   |
-| Generator later, on go-wizard-sdk          | ⏭ watch | Revisit when go-wizard-sdk ships its engine; a template repo ports INTO a generator almost verbatim (templates are the asset)      |
+| `cmd/appkit-new` generator now                  | ❌      | go-wizard-sdk's template engine is UNBUILT — the stated blocker; a hand-rolled generator is code-to-maintain for the same output    |
+| Generator later, on go-wizard-sdk               | ⏭ watch | Revisit when go-wizard-sdk ships its engine; a template repo ports INTO a generator almost verbatim (templates are the asset)       |
 
 ## The pick
 

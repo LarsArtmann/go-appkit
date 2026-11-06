@@ -24,12 +24,12 @@ traces.
 
 ## Env grammar (frozen)
 
-| Switch              | Values               | Absent | Meaning                                              |
-| ------------------- | -------------------- | ------ | ---------------------------------------------------- |
-| `APPKIT_OTEL`       | `on` \| `off`        | off    | otel tracing: Setup + middleware + shutdown flush    |
-| `APPKIT_REALTIME`   | `on` \| `off`        | off    | SSE hub mounted at `/events` (configurable pattern)  |
-| `APPKIT_ERRORPAGES` | `on` \| `off`        | on     | spine member — opt out with `off`                    |
-| `APPKIT_SECURITY`   | `none`\|`standard`\|`strict` | none | security profile (see below)               |
+| Switch              | Values                       | Absent | Meaning                                             |
+| ------------------- | ---------------------------- | ------ | --------------------------------------------------- |
+| `APPKIT_OTEL`       | `on` \| `off`                | off    | otel tracing: Setup + middleware + shutdown flush   |
+| `APPKIT_REALTIME`   | `on` \| `off`                | off    | SSE hub mounted at `/events` (configurable pattern) |
+| `APPKIT_ERRORPAGES` | `on` \| `off`                | on     | spine member — opt out with `off`                   |
+| `APPKIT_SECURITY`   | `none`\|`standard`\|`strict` | none   | security profile (see below)                        |
 
 Invalid values fail fast at `New` with a Rejection naming the variable.
 

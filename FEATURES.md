@@ -11,31 +11,31 @@ aspirations.
 
 ## core (`github.com/larsartmann/go-appkit`)
 
-| Feature                                           | Status                                                         | Evidence                                          |
-| ------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------- |
-| `Service` lifecycle (Run/Start/Shutdown)          | FULLY_FUNCTIONAL                                               | `service.go`, `service_test.go`                   |
-| Graceful drain (ready→503, delay, stop)           | FULLY_FUNCTIONAL                                               | `service.go:134`                                  |
-| Default middleware stack (replace/extend)         | FULLY_FUNCTIONAL                                               | `middleware.go`                                   |
-| Health endpoints `/health`, live, ready           | FULLY_FUNCTIONAL                                               | `health.go`, `health_test.go`                     |
-| `ReadyCheck` external readiness gate              | FULLY_FUNCTIONAL                                               | `config.go:50`, `service.go:192`                  |
-| `OuterMiddlewares` outermost hook                 | FULLY_FUNCTIONAL                                               | `config.go:65`, `middleware_test.go`              |
-| `ShutdownHooks` post-shutdown flush hooks         | FULLY_FUNCTIONAL                                               | `service.go`, `shutdownhooks_test.go`             |
-| `DrainHooks` drain-start readiness hooks          | FULLY_FUNCTIONAL                                               | `config.go`, `service.go`, `drainhooks_test.go`   |
-| `StartHooks` post-listen startup seam             | FULLY_FUNCTIONAL                                               | `config.go`, `service.go`, `starthooks_test.go`   |
-| Shutdown phase logging (per-phase INFO)           | FULLY_FUNCTIONAL                                               | `service.go` (`logPhase`), `shutdownlog_test.go`  |
-| `NoDrainDelay` fast-test shutdown sentinel        | FULLY_FUNCTIONAL                                               | `config.go:37`, `config_test.go`                  |
-| charmbracelet/logging (`InitLogger`)              | FULLY_FUNCTIONAL                                               | `logger.go`                                       |
-| error-family re-exports (`HTTPStatus`…)           | FULLY_FUNCTIONAL                                               | `errors.go`                                       |
-| SSE-safe `WriteTimeout` configuration             | FULLY_FUNCTIONAL                                               | `config.go` (`NoTimeout`), `notimeout_test.go`    |
-| Opt-in Prometheus surface (`Metrics`, `/metrics`) | FULLY_FUNCTIONAL                                               | `metrics.go`, `metrics_test.go`                   |
-| `Version` + `GET /version` build info             | FULLY_FUNCTIONAL                                               | `version.go`, `metrics_test.go`                   |
-| `testkit.Serve` full-chain test harness           | FULLY_FUNCTIONAL                                               | `testkit/testkit.go`, `testkit/testkit_test.go`   |
-| `testkit.NewService` test-safe defaults           | FULLY_FUNCTIONAL                                               | `testkit/testkit.go`, `testkit_test.go` (v0.9.0)  |
-| `testkit.HTTPGetURL`/`HTTPGetContext` GET helpers | FULLY_FUNCTIONAL (v0.10.0)                                       | `testkit/httptest.go`, `testkit/httptest_test.go` |
-| `testkit.WaitForRunning`/`WaitForRunningWithin`   | FULLY_FUNCTIONAL (v0.10.0)                                       | `testkit/httptest.go`, `testkit/httptest_test.go` |
-| `testkit.FreeAddr` rebind-verified port reserve   | FULLY_FUNCTIONAL (v0.10.0)                                       | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| Feature                                           | Status                                                            | Evidence                                          |
+| ------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
+| `Service` lifecycle (Run/Start/Shutdown)          | FULLY_FUNCTIONAL                                                  | `service.go`, `service_test.go`                   |
+| Graceful drain (ready→503, delay, stop)           | FULLY_FUNCTIONAL                                                  | `service.go:134`                                  |
+| Default middleware stack (replace/extend)         | FULLY_FUNCTIONAL                                                  | `middleware.go`                                   |
+| Health endpoints `/health`, live, ready           | FULLY_FUNCTIONAL                                                  | `health.go`, `health_test.go`                     |
+| `ReadyCheck` external readiness gate              | FULLY_FUNCTIONAL                                                  | `config.go:50`, `service.go:192`                  |
+| `OuterMiddlewares` outermost hook                 | FULLY_FUNCTIONAL                                                  | `config.go:65`, `middleware_test.go`              |
+| `ShutdownHooks` post-shutdown flush hooks         | FULLY_FUNCTIONAL                                                  | `service.go`, `shutdownhooks_test.go`             |
+| `DrainHooks` drain-start readiness hooks          | FULLY_FUNCTIONAL                                                  | `config.go`, `service.go`, `drainhooks_test.go`   |
+| `StartHooks` post-listen startup seam             | FULLY_FUNCTIONAL                                                  | `config.go`, `service.go`, `starthooks_test.go`   |
+| Shutdown phase logging (per-phase INFO)           | FULLY_FUNCTIONAL                                                  | `service.go` (`logPhase`), `shutdownlog_test.go`  |
+| `NoDrainDelay` fast-test shutdown sentinel        | FULLY_FUNCTIONAL                                                  | `config.go:37`, `config_test.go`                  |
+| charmbracelet/logging (`InitLogger`)              | FULLY_FUNCTIONAL                                                  | `logger.go`                                       |
+| error-family re-exports (`HTTPStatus`…)           | FULLY_FUNCTIONAL                                                  | `errors.go`                                       |
+| SSE-safe `WriteTimeout` configuration             | FULLY_FUNCTIONAL                                                  | `config.go` (`NoTimeout`), `notimeout_test.go`    |
+| Opt-in Prometheus surface (`Metrics`, `/metrics`) | FULLY_FUNCTIONAL                                                  | `metrics.go`, `metrics_test.go`                   |
+| `Version` + `GET /version` build info             | FULLY_FUNCTIONAL                                                  | `version.go`, `metrics_test.go`                   |
+| `testkit.Serve` full-chain test harness           | FULLY_FUNCTIONAL                                                  | `testkit/testkit.go`, `testkit/testkit_test.go`   |
+| `testkit.NewService` test-safe defaults           | FULLY_FUNCTIONAL                                                  | `testkit/testkit.go`, `testkit_test.go` (v0.9.0)  |
+| `testkit.HTTPGetURL`/`HTTPGetContext` GET helpers | FULLY_FUNCTIONAL (v0.10.0)                                        | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| `testkit.WaitForRunning`/`WaitForRunningWithin`   | FULLY_FUNCTIONAL (v0.10.0)                                        | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| `testkit.FreeAddr` rebind-verified port reserve   | FULLY_FUNCTIONAL (v0.10.0)                                        | `testkit/httptest.go`, `testkit/httptest_test.go` |
 | Server-Timing outermost on the default stack      | FULLY_FUNCTIONAL (v0.10.0; `ServerTiming *bool` knob, default on) | `middleware.go`, `servertiming_bench_test.go`     |
-| `RegisterClassifications` fleet error registry    | FULLY_FUNCTIONAL (v0.10.0; idempotent, not auto-called)          | `errors.go`, `errors_test.go`                     |
+| `RegisterClassifications` fleet error registry    | FULLY_FUNCTIONAL (v0.10.0; idempotent, not auto-called)           | `errors.go`, `errors_test.go`                     |
 
 Shipped through core **v0.10.0** (2026-11-06; lifecycle hooks in v0.4.0,
 metrics/version/testkit in v0.5.0, `appkit.Hook` alias +

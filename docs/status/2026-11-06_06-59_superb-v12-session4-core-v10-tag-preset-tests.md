@@ -54,17 +54,17 @@ reproducible — details in b).
 6. **preset.Config gained lifecycle hooks passthrough** (design-note
    amendment): StartHooks/DrainHooks/ShutdownHooks []appkit.Hook. Without
    them a preset consumer could not register ANY lifecycle hook (systemd
-   + spine wiring is internal). Consumer hooks run FIRST in every phase;
-   the spine closures run after, so the otel provider flush lands LAST and
-   spans cover app shutdown work. Pinned by TestNew_HookWiring
-   ([start drain shutdown] order + health-check-run proof of
-   Mounted.Start).
+   - spine wiring is internal). Consumer hooks run FIRST in every phase;
+     the spine closures run after, so the otel provider flush lands LAST and
+     spans cover app shutdown work. Pinned by TestNew_HookWiring
+     ([start drain shutdown] order + health-check-run proof of
+     Mounted.Start).
 7. **P2–P7 test suite WRITTEN (8 files, 29 tests; current pass state in
    verification block):**
    - `spine_test.go`: zero-app-code boot (healthz/readyz/startupz 200 +
      dashboard /health 200 HTML + graceful stop), hook wiring + order,
      version passthrough (/version), NoDashboard coexistence (core family
-     + probe family, no collision).
+     - probe family, no collision).
    - `errorpages_test.go`: pretty 404 default (title "Page not found"),
      JSON by Accept ("not_found" code), code-off → stdlib 404, env-off →
      stdlib 404, consumer route wins over the catch-all.
@@ -135,7 +135,7 @@ release-state sync; consumer heads-up drafts; R1b–e; S-train; G-CNT;
 A1–A5; D1; D3; C2R; R2–R5a; H1–H7; X1–X4; Y/Z; OG memos; final
 verify-all; final release-state sync; push-blocked legs (P8, proxy
 checks); /tmp cleanup (plus NEW scratch: /tmp/ptc-v0.10.0*.log,
-/tmp/preset-test-*.log, /tmp/z*.log, /tmp/zb*.log, /tmp/p404.log).
+/tmp/preset-test-_.log, /tmp/z_.log, /tmp/zb*.log, /tmp/p404.log).
 
 ## d) TOTALLY FUCKED UP (own mistakes, all caught forward)
 
@@ -197,7 +197,7 @@ checks); /tmp cleanup (plus NEW scratch: /tmp/ptc-v0.10.0*.log,
 9. S1–S7 scaffold (verdict doc → template pieces → dogfood)
 10. G-CNT adoption-counter script + gate table + guard wiring
 11. A1–A5 swap recipes (template + dnsblockd + ChastityAPI + PapDashboard
-    + pbx-lens)
+    - pbx-lens)
 12. D1 worker supervisor; D3 sqlitekit; C2R realtime FoldedSource
 13. R2 deps-guard CI+pre-commit; R3 error-family batch; R4 Server-Timing
     recipe; R5a httpx shortlist verdicts

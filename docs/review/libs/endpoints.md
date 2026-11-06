@@ -21,13 +21,13 @@ uses it either. The package is hours old at review time. It is, however, the
 that owner decision H8 (`svc.Routes()`, SUPERB v12 TL W8) has been waiting on —
 shipped stdlib-only, type-compatible with `svc.Mux` as-is.
 
-| Fact              | Value                                                          | Evidence                                                       |
-| ----------------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
-| Direct imports    | 0 of 14 modules (consumers too: 0)                             | `rg 'httputil/endpoints' --glob '*.go'` → empty                |
-| In module graph?  | No — no require edge, not even go.sum                          | `rg 'httputil/endpoints' -g 'go*.sum'` → empty                 |
-| Latest tag        | endpoints/v0.1.0 (2026-11-06 05:27 +0100) = first release      | `git -C ~/projects/httputil log -1 endpoints/v0.1.0`           |
-| Dependencies      | stdlib-only (own go.mod, `go 1.27`)                            | `endpoints/go.mod`                                             |
-| Adoption path     | H8 `svc.Routes()` seam → B6 golden test → B8 docs feed         | TODO_LIST W3; batteries spec B6/B8                             |
+| Fact             | Value                                                     | Evidence                                             |
+| ---------------- | --------------------------------------------------------- | ---------------------------------------------------- |
+| Direct imports   | 0 of 14 modules (consumers too: 0)                        | `rg 'httputil/endpoints' --glob '*.go'` → empty      |
+| In module graph? | No — no require edge, not even go.sum                     | `rg 'httputil/endpoints' -g 'go*.sum'` → empty       |
+| Latest tag       | endpoints/v0.1.0 (2026-11-06 05:27 +0100) = first release | `git -C ~/projects/httputil log -1 endpoints/v0.1.0` |
+| Dependencies     | stdlib-only (own go.mod, `go 1.27`)                       | `endpoints/go.mod`                                   |
+| Adoption path    | H8 `svc.Routes()` seam → B6 golden test → B8 docs feed    | TODO_LIST W3; batteries spec B6/B8                   |
 
 ## 1. What the package offers (capability inventory)
 

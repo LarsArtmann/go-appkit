@@ -5,7 +5,8 @@
 This session did the full planning ritual — and discovered mid-flight that a
 SECOND agent session is LIVE in this repo, executing the same program. The
 session is STOPPED at the point where the next action (split-brain resolution
-+ v0.10.0 push) would collide with the other session's in-flight work.
+
+- v0.10.0 push) would collide with the other session's in-flight work.
 
 ---
 
@@ -20,7 +21,7 @@ session is STOPPED at the point where the next action (split-brain resolution
    sorted by impact/effort/customer-value — delivered as table views in the
    session transcript as demanded.
 3. **Plan committed:** `docs/planning/2026-11-06_07-46_SUPERB-v13-ship-the-spine-refresh-plan.md`
-   + the TODO_LIST pointer fix (commit d732139, detailed message).
+   - the TODO_LIST pointer fix (commit d732139, detailed message).
 4. **Push policy RESOLVED by evidence:** the interrupted 07:02 session
    already pushed master + `config/v0.1.0` (origin ls-remote verified this
    session) under the same directive family; the current directive
@@ -138,8 +139,9 @@ whichever session the owner designates (see g1).
 ---
 
 **Verification state at write time:** master = 28e0a3d (daemon; my d732139
-+ the other session's 8c9395e beneath); working tree clean; origin/master
-= 5f25726 → origin is 3 commits behind local; tags: config/v0.1.0 ON
-ORIGIN, v0.10.0 LOCAL-ONLY; preset suite: 1 known intermittent failure
-(~1/3), sources unchanged since 06:53; insteadOf git rewrite still set
-globally.
+
+- the other session's 8c9395e beneath); working tree clean; origin/master
+  = 5f25726 → origin is 3 commits behind local; tags: config/v0.1.0 ON
+  ORIGIN, v0.10.0 LOCAL-ONLY; preset suite: 1 known intermittent failure
+  (~1/3), sources unchanged since 06:53; insteadOf git rewrite still set
+  globally.

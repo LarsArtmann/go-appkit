@@ -11,15 +11,15 @@ The preset composes SHIPPED batteries only — no new capability, no fat core.
 
 ## 1. Spine pieces and their config surfaces
 
-| Piece | Battery call (verified signature) | Always on? |
-| ----- | --------------------------------- | ---------- |
-| Core service | `appkit.NewService(appkit.ServiceConfig) (*appkit.Service, error)` | YES |
-| sd_notify | `systemd.Install(&cfg)` — appends Start/Drain/Shutdown hooks; no-op outside systemd | YES |
-| Health probe + dashboard | `health.NewProbe(map[string]health.CheckFunc, ...health.Option) *health.Probe` + `health.Mount(svc.Mux, probe, health.WithDashboard()) (*health.Mounted, error)` → `/healthz /readyz /startupz` + dashboard (no collision with core's `/health` family) | YES |
-| Error pages | `errorpages.Mount(svc.Mux, cfg)` — catch-all `/` pretty-404/JSON | YES (spine member; env can opt OUT) |
-| Error classification | `appkit.RegisterClassifications()` (idempotent; deliberately not auto-called by core — the preset owns the call) | YES |
-| Version stamp | `ServiceConfig.Version` → `GET /version` + build_info label | YES when consumer sets it |
-| Metrics | `ServiceConfig.Metrics *MetricsConfig` — **passthrough only**: preset never invents credentials; nil stays nil | passthrough |
+| Piece                    | Battery call (verified signature)                                                                                                                                                                                                                       | Always on?                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Core service             | `appkit.NewService(appkit.ServiceConfig) (*appkit.Service, error)`                                                                                                                                                                                      | YES                                 |
+| sd_notify                | `systemd.Install(&cfg)` — appends Start/Drain/Shutdown hooks; no-op outside systemd                                                                                                                                                                     | YES                                 |
+| Health probe + dashboard | `health.NewProbe(map[string]health.CheckFunc, ...health.Option) *health.Probe` + `health.Mount(svc.Mux, probe, health.WithDashboard()) (*health.Mounted, error)` → `/healthz /readyz /startupz` + dashboard (no collision with core's `/health` family) | YES                                 |
+| Error pages              | `errorpages.Mount(svc.Mux, cfg)` — catch-all `/` pretty-404/JSON                                                                                                                                                                                        | YES (spine member; env can opt OUT) |
+| Error classification     | `appkit.RegisterClassifications()` (idempotent; deliberately not auto-called by core — the preset owns the call)                                                                                                                                        | YES                                 |
+| Version stamp            | `ServiceConfig.Version` → `GET /version` + build_info label                                                                                                                                                                                             | YES when consumer sets it           |
+| Metrics                  | `ServiceConfig.Metrics *MetricsConfig` — **passthrough only**: preset never invents credentials; nil stays nil                                                                                                                                          | passthrough                         |
 
 Wiring order (chicken-egg): hooks that reference `*health.Mounted` (and the
 otel provider, realtime hub) are appended to the config BEFORE
@@ -41,12 +41,12 @@ the ready flip happens before DrainHooks run at all.
 
 ## 2. Env-switch grammar — FROZEN
 
-| Switch | Type | Values | Absent | Invalid |
-| ------ | ---- | ------ | ------ | ------- |
-| `APPKIT_OTEL` | tri-bool | `on`, `off` | **off** (zero otel activity) | Rejection at boot |
-| `APPKIT_REALTIME` | tri-bool | `on`, `off` | **off** | Rejection at boot |
-| `APPKIT_ERRORPAGES` | tri-bool | `on`, `off` | **on** (spine member) | Rejection at boot |
-| `APPKIT_SECURITY` | enum | `none`, `standard`, `strict` | **none** (nothing silently joins a stack) | Rejection at boot |
+| Switch              | Type     | Values                       | Absent                                    | Invalid           |
+| ------------------- | -------- | ---------------------------- | ----------------------------------------- | ----------------- |
+| `APPKIT_OTEL`       | tri-bool | `on`, `off`                  | **off** (zero otel activity)              | Rejection at boot |
+| `APPKIT_REALTIME`   | tri-bool | `on`, `off`                  | **off**                                   | Rejection at boot |
+| `APPKIT_ERRORPAGES` | tri-bool | `on`, `off`                  | **on** (spine member)                     | Rejection at boot |
+| `APPKIT_SECURITY`   | enum     | `none`, `standard`, `strict` | **none** (nothing silently joins a stack) | Rejection at boot |
 
 Rules:
 
@@ -109,25 +109,25 @@ ServeMux precedence — documented in the README.
 
 ## 4. Posture table
 
-| Environment | OTEL | Security | Realtime | ErrorPages | Notes |
-| ----------- | ---- | -------- | -------- | ---------- | ----- |
-| dev (all absent) | off | none | off | on | zero-config boot; dashboard + pretty 404s |
-| prod | `APPKIT_OTEL=on` | `APPKIT_SECURITY=standard` | per app | on | one env line each; creds via OTEL_* upstream vars |
-| strict (browser-facing) | `APPKIT_OTEL=on` | `APPKIT_SECURITY=strict` | on | on | strict adds OriginCheck — Origins REQUIRED in SecurityConfig, else Rejection |
-| systemd unit | any | any | any | any | Install is always called; no-op outside systemd |
+| Environment             | OTEL             | Security                   | Realtime | ErrorPages | Notes                                                                        |
+| ----------------------- | ---------------- | -------------------------- | -------- | ---------- | ---------------------------------------------------------------------------- |
+| dev (all absent)        | off              | none                       | off      | on         | zero-config boot; dashboard + pretty 404s                                    |
+| prod                    | `APPKIT_OTEL=on` | `APPKIT_SECURITY=standard` | per app  | on         | one env line each; creds via OTEL_* upstream vars                            |
+| strict (browser-facing) | `APPKIT_OTEL=on` | `APPKIT_SECURITY=strict`   | on       | on         | strict adds OriginCheck — Origins REQUIRED in SecurityConfig, else Rejection |
+| systemd unit            | any              | any                        | any      | any        | Install is always called; no-op outside systemd                              |
 
 ## 5. Conflict-matrix test plan (P7 suite)
 
 For each of the four switches, all combinations:
 
-| Code leg | Env | Expectation |
-| -------- | --- | ----------- |
-| nil | absent | default (grammar table) |
-| nil | `on`/`standard` | leg active |
-| nil | `off`/`none` | leg inactive |
-| `Enabled: true` | `off`/absent | ACTIVE — code wins |
-| `Enabled: false` | `on` | INACTIVE — code wins |
-| nil | `banana` | boot Rejection (fail-fast, message names the var + valid values) |
+| Code leg         | Env             | Expectation                                                      |
+| ---------------- | --------------- | ---------------------------------------------------------------- |
+| nil              | absent          | default (grammar table)                                          |
+| nil              | `on`/`standard` | leg active                                                       |
+| nil              | `off`/`none`    | leg inactive                                                     |
+| `Enabled: true`  | `off`/absent    | ACTIVE — code wins                                               |
+| `Enabled: false` | `on`            | INACTIVE — code wins                                             |
+| nil              | `banana`        | boot Rejection (fail-fast, message names the var + valid values) |
 
 Leg observables: OTEL → middleware in chain (traceparent response header with
 a test sampler / provider shutdown hook ran); Security → response headers
