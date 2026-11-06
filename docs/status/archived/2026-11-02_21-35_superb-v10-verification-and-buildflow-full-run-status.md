@@ -7,7 +7,6 @@
 > program rows carry routed markers into their owning TODO rows + ROADMAP.
 > Archived 2026-11-06: all 41 §f items carry verdicts; nothing here is
 > unowned.
->
 
 **As-of:** 2026-11-02 21:35 CET · **Scope:** this session only — the post-execution verification pass over the SUPERB v10 tail (tip `9effe43`), plus honest findings from the owner's 21:01 BuildFlow full run (`--fix --build-mode=full`) that landed after my verification snapshot. No unrelated research; everything below was directly observed or verified this session.
 

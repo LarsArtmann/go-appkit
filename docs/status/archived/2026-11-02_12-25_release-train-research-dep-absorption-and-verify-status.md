@@ -7,7 +7,6 @@
 > The docs-module corpus ruling is recorded in docs/CHANGELOG.md [Unreleased].
 > Archived 2026-11-06: all 30 §f items carry verdicts; nothing here is
 > unowned.
->
 
 **Date:** 2026-11-02 12:25 CET
 **Scope of this report:** the single session that answered "Time for some new releases?" — loaded the go-release skill, researched the full pending-release surface, decided the 8-module wave shape, absorbed the pending dependabot bumps in-tree, and ran hermetic verification until the box's environment (load 245, full /tmp, shared-cache races) and a PARALLEL SESSION working the same tree interrupted the run. No tags were cut, nothing was pushed, no CHANGELOG was edited.
