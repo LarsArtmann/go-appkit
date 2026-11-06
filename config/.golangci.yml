@@ -225,6 +225,8 @@ linters:
         - NewRejection(
         - WrapInfrastructuref(
         - WrapInfrastructure(
+        - WrapRejection(
+        - WrapRejectionf(
   exclusions:
     generated: lax
     rules:
