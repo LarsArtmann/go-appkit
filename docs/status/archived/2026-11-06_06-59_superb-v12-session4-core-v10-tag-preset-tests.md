@@ -1,5 +1,13 @@
 # Status: SUPERB v12 execution — session 4 (core v0.10.0 tagged, preset P2–P7 tests written, one shutdown-hang bug open)
 
+> **Live remainder:** the session's hold LIFTED the same day — core v0.10.0
+> (`04f0c20`), config v0.1.0 (`614cc2f`), and preset v0.1.0 (`21c1a78`) are all
+> tagged and pushed; the 5s hang was root-caused as test hygiene and fixed
+> (`33f1152`); R1b-R1e + R2-R5a closed (agents-deps job, error-family/ST/httpx
+> TODO rows); the S/A/D/H/X/Y/Z program legs carry routed markers into the v13
+> plan + TODO_LIST. Archived 2026-11-06: all 20 §f items carry verdicts.
+>
+
 **Created:** 2026-11-06 06:59 · **Scope:** resumed under the owner's "GET
 SHIT DONE — THE WHOLE TODO LIST" directive (read the session-3 report first
 as instructed; pushes still held — the directive is a work instruction, not

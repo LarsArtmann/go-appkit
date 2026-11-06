@@ -149,3 +149,7 @@ updates:
       actions:
         patterns:
           - "*"
+
+# Superseded-bump PRs: close with a comment citing the master commit that
+# already carries the same bump (a467328 precedent, 2026-11-02) - the grouped
+# manifests regenerate against satisfied go.mods and come back green-or-empty.

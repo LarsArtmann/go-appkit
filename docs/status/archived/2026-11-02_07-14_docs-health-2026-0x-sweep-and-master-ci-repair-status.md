@@ -1,5 +1,14 @@
 # Status Report — Docs-Health 2026-0x Sweep, Master-Tip CI Repair, and TODO_LIST Rebuild
 
+> **Live remainder:** the sweep's open ledger is fully adjudicated (this
+> archive): the verification tasks executed in the same-day 12-25 + 16-13
+> passes (corpus sweep, guard matrix, kept-claims audit, three composition
+> E2Es), the owner questions keep standing in TODO_LIST's open-questions
+> block, and the demand-gated watches carry routed markers into their owning
+> TODO rows. Archived 2026-11-06: all 30 §f items carry verdicts; nothing
+> here is unowned.
+>
+
 **Date:** 2026-11-02 07:14 CET
 **Scope of this report:** the single session that (1) repaired master-tip's red CI (release-state + pin-contract doc drift behind the health v0.3.0 train and a dependabot integration bump), (2) executed the docs-health AUDIT over ALL open `**/2026-0*` files (annotate → check-rows → archive 9 reports → index manifest), (3) rebuilt TODO_LIST per its own charter, (4) truth-synced README/AGENTS/FEATURES/ROADMAP for the health v0.3.0 train and the httputil#41 ship. No other research.
 
@@ -96,41 +105,41 @@
 **P0 — unblock**
 
 1. ~~Fix TODO row 65's stale SSE+health leg~~ done — during this report's prep (FIVE CLOSED + evidence; found via d-6 self-review).
-2. **Owner push + tip-CI ritual** on the wave tip (every job green except designed ci-preflight red; `fleet-lint`/`art-dupl-gate`/`example-smoke` stay green; integration + pin-drift flip back green on the pushed fixture fix).
-3. **Answer: machine go default ≥1.27.2?** (standing since 2026-09-29; yes → one train retires the per-command `GOTOOLCHAIN` prefix discipline across AGENTS/hooks/docs).
-4. **Answer: cross-repo tracking posture** (actively nudge cqrs-htmx items vs report-only).
-5. **Merge the open dependabot wave after master green** (10 PRs; NOTE: integration's go-health v0.8.1 is already MVS-resolved in-tree — that PR must re-tidy, not blind-rebase).
-6. **Restore the `SSH_PRIVATE_KEY` secret** (owner-only; gates exactly the structure-linter job now).
-7. **The 2026-10+ reports docs-health sweep** (36 files; same pipeline: annotate → check-rows → archive → index manifest).
-8. **Stand up the routed-destination liveness check** (e6; grep-able guard or verify-checklist leg; born-red proof expected — ~8 dead destinations existed before this pass).
+2. ~~**Owner push + tip-CI ritual** on the wave tip (every job green except designed ci-preflight red; `fleet-lint`/`art-dupl-gate`/`example-smoke` stay green; integration + pin-drift flip back green on the pushed fixture fix).~~ done — superseded by later trains — master pushed repeatedly since (the 2026-11-06 wave pushed 9ffff2f + three tags) and the tip-CI ritual ran green in the 11-47 health v0.3.1 session
+3. **Answer: machine go default ≥1.27.2?** (standing since 2026-09-29; yes → one train retires the per-command `GOTOOLCHAIN` prefix discipline across AGENTS/hooks/docs). **→ TODO P3 — open questions awaiting USER decisions (machine go default >=1.27.2) <!-- fresh:skip: routed in TODO_LIST -->**
+4. **Answer: cross-repo tracking posture** (actively nudge cqrs-htmx items vs report-only). **→ TODO P3 — open questions awaiting USER decisions (cross-repo tracking posture) <!-- fresh:skip: routed in TODO_LIST -->**
+5. ~~**Merge the open dependabot wave after master green** (10 PRs; NOTE: integration's go-health v0.8.1 is already MVS-resolved in-tree — that PR must re-tidy, not blind-rebase).~~ done — the PR wave merged/disposed in the same-day 12-25 execution (5 merged / 7 superseded, a467328 train)
+6. **Restore the `SSH_PRIVATE_KEY` secret** (owner-only; gates exactly the structure-linter job now). **→ TODO P1 — owner-gated CI secret (SSH_PRIVATE_KEY restore; gates the structure-linter job) <!-- fresh:skip: routed in TODO_LIST -->**
+7. ~~**The 2026-10+ reports docs-health sweep** (36 files; same pipeline: annotate → check-rows → archive → index manifest).~~ done — the same-day 12-25 corpus sweep archived the 2026-06..10 reports (38 files, a467328; README manifest)
+8. ~~**Stand up the routed-destination liveness check** (e6; grep-able guard or verify-checklist leg; born-red proof expected — ~8 dead destinations existed before this pass).~~ done — shipped as scripts/check-routed-destinations.sh (M3, born-red-proven, wired into pre-tag-checks + CI)
 
 **P1 — close the session's residuals**
 
-9. **Composition refactor:** re-run the spike against httputil v1.7.0's single-serve semantics (listener consumed after a serve ends; `server.listener_consumed`), re-pin `Addr()`/`Running()` + phase-log contract, then swap; Core TLS rides the same seam.
-10. **Guard-coverage symmetry review** (pre-tag-only vs CI-only guards; decide the intended matrix; do NOT default-add network-heavy guards to CI).
+9. ~~**Composition refactor:** re-run the spike against httputil v1.7.0's single-serve semantics (listener consumed after a serve ends; `server.listener_consumed`), re-pin `Addr()`/`Running()` + phase-log contract, then swap; Core TLS rides the same seam.~~ done — the spike re-ran 2026-11-02 vs v1.7.0 godoc, all three pins mapped (docs/planning/2026-09-16_composition-spike-verdict.md §5; swap plan-of-record on the TODO compose row)
+10. ~~**Guard-coverage symmetry review** (pre-tag-only vs CI-only guards; decide the intended matrix; do NOT default-add network-heavy guards to CI).~~ done — decided as the M14 guard venue matrix (AGENTS: FAST+OFFLINE all three venues, SLOW/NETWORK pre-tag-only, TOOL-BINARY CI-only)
 11. ~~**FEATURES row-by-row re-verification** for the 9 sections only spot-checked this session.~~ done at `a467328`
-12. **TODO kept-claims audit completion** (the remaining `[ ]`/`[~]` rows each checked against code — d-6's lesson generalized).
+12. ~~**TODO kept-claims audit completion** (the remaining `[ ]`/`[~]` rows each checked against code — d-6's lesson generalized).~~ done — the M5 kept-claims audit batch-verified every TODO file-path claim (12-25 a3 row); the 16-13 close-out continued the dispositions
 13. ~~**ROADMAP raw-ideas row-by-row re-verification.**~~ done at `a467328`
-14. **DOMAIN_LANGUAGE.md verify pass** (terms vs code; untouched this session).
-15. **frh go-health v0.5.1 → v0.8.1 sweep watch** (integration already MVS-resolves v0.8.1; frh's own pin moves on its next natural train — keep the fixture comment true when it does).
+14. ~~**DOMAIN_LANGUAGE.md verify pass** (terms vs code; untouched this session).~~ done — the 12-25 truth pass covered DOMAIN_LANGUAGE.md (README index row: FEATURES/ROADMAP/DOMAIN_LANGUAGE/TODO truth fixes)
+15. ~~**frh go-health v0.5.1 → v0.8.1 sweep watch** (integration already MVS-resolves v0.8.1; frh's own pin moves on its next natural train — keep the fixture comment true when it does).~~ done — /dormant — frh pins go-health v0.8.1 directly since 2026-11-02 (AGENTS shape change: pin and MVS agree fleet-wide, the bite class is dormant)
 
 **P2 — quality / hygiene**
 
-16. Test-helper dedup into testkit (blocked on next core train).
-17. `security.APIKeyMatches` ghost-API review (consumer sweep incl. the PapDashboard security signal).
-18. Realtime subscribe-before-flush (demand-gated; sketch ready in the 17-49 report).
-19. fr#2 cooldown combinator → delete frh's hand-rolled cooldown when it ships.
-20. pkg.go.dev flightrecorder re-check (owner-gated re-tag last resort).
-21. go.work leak #1-7 mutator hunt (inotify) or accept-the-cadence ruling.
-22. pma dossier §6 decisions walkthrough (owner; memo recommendations ready) + working-file `ignore_patterns` ask.
-23. SigNoz live validation reclassification trigger (instance appears → import dashboard + Exceptions proof).
-24. i18n `Language()` composition E2E leg (demand-gated; fits the composition-gap row).
-25. Composition-gap remainders: security×errorpages, flightrecorder middleware E2E (the other legs closed — see TODO row 65, now FIVE CLOSED).
-26. samber/do lazy-healthy draft: file-or-shelve decision (the only draft with no disposition).
-27. huma.md push (owner; Deferred Register).
-28. Core TLS demand watch (PapDashboard removed its TLS envs — the trigger's consumer signal is currently nil; the TLS train waits on a real ask).
-29. Research HTML trio: keep-as-reference ruling or archive-with-banner (the 2026-09-04 one has a placeholder `<title>`).
-30. Cross-project lesson → crush-config `references/lessons.md`: exact-token guards fail silently on decorated comments (the ledger-marker class).
+16. Test-helper dedup into testkit (blocked on next core train). **→ TODO P2 — test-helper dedup (satellite+integration half rides the next core train; in-tree half shipped in core v0.10.0) <!-- fresh:skip: routed in TODO_LIST -->**
+17. ~~`security.APIKeyMatches` ghost-API review (consumer sweep incl. the PapDashboard security signal).~~ done — DECIDED 2026-11-02: KEEP (TODO APIKeyMatches row with the caller census)
+18. Realtime subscribe-before-flush (demand-gated; sketch ready in the 17-49 report). **→ TODO P3 — Realtime handler subscribe-before-flush (demand-gated) <!-- fresh:skip: routed in TODO_LIST -->**
+19. fr#2 cooldown combinator → delete frh's hand-rolled cooldown when it ships. **→ TODO P3 — upstream ask FILED go-flightrecorder#2 (cooldown combinator; delete frh's hand-rolled cooldown when it ships) <!-- fresh:skip: routed in TODO_LIST -->**
+20. pkg.go.dev flightrecorder re-check (owner-gated re-tag last resort). **→ TODO P2 — pkg.go.dev render watch (the flightrecorder page stays in the fleet check; re-tag is the owner-gated last resort) <!-- fresh:skip: routed in TODO_LIST -->**
+21. ~~go.work leak #1-7 mutator hunt (inotify) or accept-the-cadence ruling.~~ done — the M22 evidence pass wrote the accept-cadence note (TODO go.work row; journalctl path dead)
+22. ~~pma dossier §6 decisions walkthrough (owner; memo recommendations ready) + working-file `ignore_patterns` ask.~~ done — the memo carries the checklist + final ask text (docs/planning/2026-10-13_pma-owner-decision-memo.md; TODO pma rows own the asks)
+23. SigNoz live validation reclassification trigger (instance appears → import dashboard + Exceptions proof). **→ TODO P3 — SigNoz live validation (ACCEPTED-RISK row; import dashboard + Exceptions proof when an instance appears) <!-- fresh:skip: routed in TODO_LIST -->**
+24. ~~i18n `Language()` composition E2E leg (demand-gated; fits the composition-gap row).~~ done — pinned by integration/i18n_language_test.go through published tags (M25)
+25. ~~Composition-gap remainders: security×errorpages, flightrecorder middleware E2E (the other legs closed — see TODO row 65, now FIVE CLOSED).~~ done — the remainders closed as M18/M19 (security_errorpages_test.go + flightrecorder_e2e_test.go); the watchlist row records SEVEN CLOSED with nothing remaining
+26. ~~samber/do lazy-healthy draft: file-or-shelve decision (the only draft with no disposition).~~ done — ruled 2026-11-02 on the TODO samber/do row (both items owner-gated with recorded triggers)
+27. ~~huma.md push (owner; Deferred Register).~~ done — huma.md is PUSHED upstream (AGENTS Deferred Register, resolved 2026-11-02)
+28. Core TLS demand watch (PapDashboard removed its TLS envs — the trigger's consumer signal is currently nil; the TLS train waits on a real ask). **→ TODO P2 — compose Service on httputil.Server (Core TLS rides the same train as its G1 seam) <!-- fresh:skip: routed in TODO_LIST -->**
+29. Research HTML trio: keep-as-reference ruling or archive-with-banner (the 2026-09-04 one has a placeholder `<title>`). **→ TODO P3 — docs/research HTML deep-dive trio (keep-as-reference ruling or archive-with-banner) <!-- fresh:skip: routed in TODO_LIST -->**
+30. ~~Cross-project lesson → crush-config `references/lessons.md`: exact-token guards fail silently on decorated comments (the ledger-marker class).~~ done — the exact-token-ledger lesson is committed in crush-config references/lessons.md (227a130, per the 16-13 close-out)
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF (3)
 

@@ -1,5 +1,14 @@
 # Status Report — preset release train (SUPERB v13, sessions 5→6): split-brain resolution, hang root-cause, preset v0.1.0
 
+> **Live remainder:** the hold this report recorded is GONE — preset v0.1.0
+> (`21c1a78`) and core v0.10.0 (`04f0c20`) are tagged and pushed, the P8 E2E
+> shipped (`2de5875`, proven green through the published tag), and the
+> documentedPins fixture carries the pin. Remaining legs (proxy checks, CI
+> close-out ritual, cqrs-lint debts, S/A/D/H/X/Y/Z program) carry routed
+> markers into the v13 plan + TODO_LIST. Archived 2026-11-06: all 22 §f items
+> carry verdicts; nothing here is unowned.
+>
+
 **Written:** 2026-11-06 12:49 +0100 · **Session window:** 08:00–12:45 (active execution
 ~08:00–08:50, report gap until the 12:45 owner demand) · **Companion:** the concurrent
 sibling session (its 12-46 report: `docs/status/2026-11-06_12-46_v13-execution-session-p9a-guards-verify-blocks.md`)
@@ -132,34 +141,34 @@ green except the designed ci-preflight SSH gate.)*
 
 ## f) NEXT — up to 50, in priority order (my lane first, then observed program state)
 
-1. P8 integration E2E through published preset/v0.1.0 (design in c1).
-2. `documentedPins` fixture += preset v0.1.0; pin-drift green.
-3. Fresh-consumer proxy checks: v0.10.0, config v0.1.0, preset v0.1.0.
-4. Re-run full `pre-tag-checks.sh preset/v0.1.0` against the pushed state (close b1).
-5. Verify CI on the final commit: every job incl. proxy-smoke preset leg green.
-6. AGENTS testing section: add the drain-bodies rule (if the sibling hasn't).
-7. Post the two consumer heads-ups (or hand to owner — see g1).
-8. TODO_LIST preset row → released state (partially synced by the sibling — verify).
-9. cqrs-lint upstream memo: F032 and framework wrappers (appkit/cqrs consumers never
+1. ~~P8 integration E2E through published preset/v0.1.0 (design in c1).~~ done at `2de5875`
+2. ~~`documentedPins` fixture += preset v0.1.0; pin-drift green.~~ done at `2de5875`
+3. Fresh-consumer proxy checks: v0.10.0, config v0.1.0, preset v0.1.0. **→ TODO P3 — v13 plan P9c fresh-consumer proxy checks (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; the three-tag close-out) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+4. Re-run full `pre-tag-checks.sh preset/v0.1.0` against the pushed state (close b1). **→ TODO P3 — v13 plan close-out rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; pre-tag re-run ritual against the pushed state) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+5. Verify CI on the final commit: every job incl. proxy-smoke preset leg green. **→ TODO P3 — v13 plan close-out rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; tip-CI verification incl. the proxy-smoke leg) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+6. ~~AGENTS testing section: add the drain-bodies rule (if the sibling hasn't).~~ done — the AGENTS Testing section now carries the drain-bodies rule (landed with this archive wave)
+7. Post the two consumer heads-ups (or hand to owner — see g1). **→ TODO P3 — post consumer heads-ups (OG2 drafts; v13 plan OG2 row) <!-- fresh:skip: routed in TODO_LIST -->**
+8. ~~TODO_LIST preset row → released state (partially synced by the sibling — verify).~~ done — the TODO preset-spine row now records the released state (P8 done at 2de5875, P9 shipped at 21c1a78)
+9. cqrs-lint upstream memo: F032 and framework wrappers (appkit/cqrs consumers never **→ TODO P3 — cqrs-lint tooling debts (F032 framework-wrappers upstream memo) <!-- fresh:skip: routed in TODO_LIST -->**
    import go-cqrs-lite directly, so the mandate never reaches them — either an
    upstream framework-tier exemption or a doc note; my inline suppression records
    the local position).
-10. Pin cqrs-lint in CI (the `@latest` install made CI retro-red twice — the
+10. Pin cqrs-lint in CI (the `@latest` install made CI retro-red twice — the **→ TODO P3 — cqrs-lint tooling debts (pin the CI install; art-dupl-gate precedent) <!-- fresh:skip: routed in TODO_LIST -->**
     art-dupl-gate pin precedent applies; needs upstream's next stable tag).
-11. pkg.go.dev render check for preset once the proxy catches up (LICENSE present).
-12. S-train execution: scaffold template repo per the sibling's S1 verdict
+11. pkg.go.dev render check for preset once the proxy catches up (LICENSE present). **→ TODO P2 — pkg.go.dev render watch (the v0.1.0 module page joins the fleet render check) <!-- fresh:skip: routed in TODO_LIST -->**
+12. S-train execution: scaffold template repo per the sibling's S1 verdict **→ TODO P3 — v13 plan S2-S7 scaffold rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; S1 verdict landed) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
     (`2026-11-06_08-45_scaffold-shape-verdict.md`).
-13. A2–A5 swap recipes on the A1 template.
-14. D1 worker-supervisor battery; D3 sqlitekit (07-10 plan).
-15. C2R: realtime-folded preset documentation row.
-16. R5a + endpoints.md H8 feed (input now exists: `docs/review/libs/endpoints.md`).
-17. H1–H7 httpx core program (B5 full module program per the questionnaire).
-18. X1–X4 compose-on-httputil; Y/Z backlog hygiene (07-10 plan).
-19. Final `scripts/verify-all.sh` over 13 modules + integration; session-close report.
-20. ST bench landed at ~15µs/op (sibling's 12-46 report) — fold into AGENTS perf
-    baselines if not already.
-21. The stale-proxy-404 duration lesson (`45cfacf`) — read before ANY future re-tag.
-22. G-CNT: re-run the adoption counter after preset's announcement window; the
+13. A2–A5 swap recipes on the A1 template. **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; A1 template landed) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+14. D1 worker-supervisor battery; D3 sqlitekit (07-10 plan). **→ TODO P3 — v13 plan D1 / D3 battery rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+15. C2R: realtime-folded preset documentation row. **→ TODO P3 — v13 plan C2R row (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; realtime-folded documentation) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+16. R5a + endpoints.md H8 feed (input now exists: `docs/review/libs/endpoints.md`). **→ TODO P3 — v13 plan H rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; endpoints.md H8 feed — R5a verdicts already landed in the closed TODO row 39) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+17. H1–H7 httpx core program (B5 full module program per the questionnaire). **→ TODO P3 — v13 plan H1-H7 httpx rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+18. X1–X4 compose-on-httputil; Y/Z backlog hygiene (07-10 plan). **→ TODO P3 — v13 plan X/Y/Z rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+19. Final `scripts/verify-all.sh` over 13 modules + integration; session-close report. **→ TODO P3 — v13 plan close-out rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md; final verify-all + session-close report) <!-- fresh:skip: routed in TODO_LIST + the v13 plan -->**
+20. ~~ST bench landed at ~15µs/op (sibling's 12-46 report) — fold into AGENTS perf~~ done — the AGENTS perf baselines carry the quiet-run Server-Timing numbers (the 13-10 closeout re-baselined them)
+    ~~baselines if not already.~~
+21. ~~The stale-proxy-404 duration lesson (`45cfacf`) — read before ANY future re-tag.~~ done — the lesson is recorded in AGENTS (45cfacf, the release-ordering note)
+22. G-CNT: re-run the adoption counter after preset's announcement window; the **→ TODO P3 — SUPERB v12 micro-backlog (re-run the counter after the announcement window) <!-- fresh:skip: routed in TODO_LIST -->**
     six-month gate is now a command.
 
 ## g) QUESTIONS FOR THE OWNER (cannot be answered from here)

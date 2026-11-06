@@ -80,6 +80,7 @@ Moved verbatim to `docs/agents/module-details.md` §core (file-by-file table: se
 
 - Standard `testing` package, no external frameworks; `t.Parallel()` throughout; everything green under `-race -count=1`.
 - Server tests never `time.Sleep`: root tests bind `localhost:0` directly; integration picks ports via the rebind-verified `freeAddr` (issued-registry + rebind probe — the 2026-10-24 runner EADDRINUSE class) and waits via `waitForRunning`/`testkit`.
+- HTTP test probes drain response bodies before close: an undrained RST-teardown connection sits server-side ACTIVE and blocks `server.Shutdown` past the stop-timeout (the 2026-11-06 5s `listener_close` hang class, root-caused + fixed by the drain-then-close refactor; the integration E2E pins the pattern).
 - Default `DrainDelay` (5s) makes tests slow; use `DrainDelay: NoDrainDelay` in non-drain tests — `DrainDelay: 0` applies the 5s default (zero-value production safety), it does NOT disable the wait. Converting the suite dropped wall time ~30s → ~6s.
 
 ## Gotchas
