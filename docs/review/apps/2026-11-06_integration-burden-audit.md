@@ -116,3 +116,25 @@ Full Pareto ranking, task tables, and the execution graph live in the companion 
 ## Appendix B — the 39 Go apps
 
 CV, ai-router-implementation, Cyberdom, dnsblockd, wise-transaction-visualization, GmbH, standard-bug-tracking-schema, desire-secrets, Code-Quality-Agent, dynamic-markdown-site, knowledge-graph, quotaboard, go-taskqueue, media-atlas, pbx-lens, crm, mr-sync, emeet-pixyd, crm-stage-t13b, webphone, nsfw-classifier, cv-stage-crmfix, file-and-image-renamer, testing, overview, PapDashboard, Rolls-Royce-mtuGoHelpCenter-golang, project-discovery-daemon, storbi, accountability-system, RedditParse, ksef-sandbox, legal-graph-ai-system, KeyHolderAI, ChastityAPI, nobletary, AutoCart, Kernovia, io-surface.
+
+---
+
+## Errata — 2026-11-06 01:25 (self-review catch, same day)
+
+**§1's table header says "direct `go.mod` requires" — wrong.** The sweep matched the
+lib string anywhere in `go.mod`, including `// indirect` lines; the published counts
+(branded-id 34, error-family 34, etag 25, go-sse 24, …) are the **any-require
+(direct-or-indirect), per-app** definition. Corrected strict per-app counts
+(non-indirect requires only, spot-verified): branded-id 18, error-family 22, httputil
+21, templ-components 18, go-codec 14, go-sse 13, retry 7, flightrecorder 2,
+datastar 2, idempotency 3, **go-appkit 6**. The headline conclusion HOLDS under both
+definitions — the composition layer sits far below the blocks it composes, and the
+gap WIDENS under the strict one (several block counts were propped up by indirect
+rides through cqrs-htmx/cqrs-lite require graphs; go-etag's 25 is mostly transitive).
+Table above left as-published per the annotate-never-rewrite rule; future re-sweeps
+must report BOTH columns (fix-forward: adoption-counter script item in the v12
+program backlog).
+
+**Appendix A's raw artifact `/tmp/goapp-fp.txt` is ephemeral** — it vanishes on
+reboot. The sweep method is described precisely enough to reproduce, but the script
+itself was not preserved in-repo (preservation is a routed backlog item).
