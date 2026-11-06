@@ -1,0 +1,129 @@
+package config
+
+import (
+	"reflect"
+	"strings"
+	"time"
+)
+
+// fieldSpec is one env-tagged leaf field of the target struct, with the
+// reflection index and every derived key the layers address it by.
+type fieldSpec struct {
+	// path is the struct path ("Nested.Addr"); for promoted fields from
+	// embedded structs it is the bare leaf name ("Addr"), matching how Go
+	// promotes embedded fields.
+	path string
+	// fileKey is the lowercased path with dots ("nested.addr") — the file
+	// layer's key space.
+	fileKey string
+	// envKey is the full environment key ("APP_ADDR"); never empty for a
+	// spec — untagged fields produce no spec at all.
+	envKey string
+	// defaultVal is the raw `default` tag value.
+	defaultVal string
+	hasDefault bool
+	required   bool
+	index      []int
+	typ        reflect.Type
+}
+
+// collectFields walks t and produces one spec per env-tagged leaf field.
+//
+// Rules (frozen in the design note):
+//   - fields without an `env` tag are never touched by any layer;
+//   - `env:"PREFIX"` on a struct field makes child keys PREFIX_CHILD;
+//   - an embedded (anonymous) struct field without its own tag is walked with
+//     the enclosing prefix — its leaves bind as promoted top-level fields;
+//   - a leaf with an env tag must be a supported scalar type, else a
+//     KindUnsupportedType error is returned.
+func collectFields(
+	t reflect.Type,
+	envPrefix string,
+	pathPrefix string,
+	index []int,
+) ([]fieldSpec, []error) {
+	var specs []fieldSpec
+
+	var errs []error
+
+	for i := range t.NumField() {
+		field := t.Field(i)
+
+		if field.PkgPath != "" { // unexported
+			continue
+		}
+
+		name, opts, hasTag := strings.Cut(field.Tag.Get("env"), ",")
+		idx := append(append([]int{}, index...), i)
+
+		if field.Anonymous && !hasTag {
+			childSpecs, childErrs := collectFields(field.Type, envPrefix, pathPrefix, idx)
+			specs, errs = append(specs, childSpecs...), append(errs, childErrs...)
+
+			continue
+		}
+
+		if field.Type.Kind() == reflect.Struct && field.Type != reflect.TypeOf(time.Time{}) {
+			if !hasTag {
+				continue // untagged named struct: caller's own wiring, untouched
+			}
+
+			childSpecs, childErrs := collectFields(
+				field.Type, envPrefix+name+"_", joinPath(pathPrefix, field.Name), idx,
+			)
+			specs, errs = append(specs, childSpecs...), append(errs, childErrs...)
+
+			continue
+		}
+
+		if !hasTag {
+			continue
+		}
+
+		if !supportedType(field.Type) {
+			errs = append(errs, &FieldError{
+				Field: joinPath(pathPrefix, field.Name), Key: name,
+				Kind: KindUnsupportedType,
+			})
+
+			continue
+		}
+
+		spec := fieldSpec{
+			path:     joinPath(pathPrefix, field.Name),
+			envKey:   envPrefix + name,
+			index:    idx,
+			typ:      field.Type,
+			required: hasOption(opts, "required"),
+		}
+
+		if def, ok := field.Tag.Lookup("default"); ok {
+			spec.defaultVal, spec.hasDefault = def, true
+		}
+
+		spec.fileKey = strings.ToLower(spec.path)
+
+		specs = append(specs, spec)
+	}
+
+	return specs, errs
+}
+
+// joinPath builds the struct path; the first segment has no leading dot.
+func joinPath(prefix, name string) string {
+	if prefix == "" {
+		return name
+	}
+
+	return prefix + "." + name
+}
+
+func hasOption(opts, want string) bool {
+	for _, opt := range strings.Split(opts, ",") {
+		if strings.TrimSpace(opt) == want {
+			return true
+		}
+	}
+
+	return false
+}
