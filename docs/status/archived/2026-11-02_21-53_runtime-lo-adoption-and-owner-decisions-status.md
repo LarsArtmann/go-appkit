@@ -6,7 +6,6 @@
 > asks landed in AGENTS (this wave), and the owner gates + program rows
 > carry routed markers into their owning TODO rows. Archived 2026-11-06:
 > every §f item carries a verdict; nothing here is unowned.
->
 
 **As-of:** 2026-11-02 21:53 CET · **Scope:** this session leg only — the three owner decisions taken at ~21:45 (machine-go bump authorized / runtime-lo authorized / secret-restore chosen) and the execution of the samber/lo runtime adoption across security, health, and realtime. Supersedes the 21:35 report for CURRENT state; both remain valid point-in-time snapshots.
 
