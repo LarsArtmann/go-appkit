@@ -18,7 +18,7 @@ func main() {
 		addr = ":" + port
 	}
 
-	svc, err := preset.New(preset.Config{
+	svc, err := preset.New(preset.Config{ //nolint:exhaustruct_v5 // the minimal demo config — zero values are the point
 		Addr:    addr,
 		Version: "example-0.1.0",
 		HealthChecks: map[string]health.CheckFunc{

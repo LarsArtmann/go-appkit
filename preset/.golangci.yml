@@ -229,6 +229,8 @@ linters:
           - funlen
           - cyclop
           - testpackage
+          - errcheck
+          - wrapcheck
       - path: _test\.go
         text: unused
         linters:

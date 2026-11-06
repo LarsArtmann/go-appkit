@@ -39,12 +39,16 @@ func securityMiddlewares(cfg *SecurityConfig) ([]httputil.Middleware, error) {
 	}
 
 	middlewares := []httputil.Middleware{
-		security.SecurityHeaders(security.HeadersConfig{Environment: security.Production}),
-		httputil.Middleware(security.BodyLimit(bodyLimit)),
+		security.SecurityHeaders(
+			security.HeadersConfig{ //nolint:exhaustruct_v5 // Production tier carries production defaults for the rest
+				Environment: security.Production,
+			},
+		),
+		security.BodyLimit(bodyLimit),
 	}
 
 	if profile == SecurityStrict {
-		middlewares = append(middlewares, httputil.Middleware(security.OriginCheck(origins, slog.Default())))
+		middlewares = append(middlewares, security.OriginCheck(origins, slog.Default()))
 	}
 
 	return middlewares, nil

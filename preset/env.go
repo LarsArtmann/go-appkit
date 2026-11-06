@@ -68,7 +68,7 @@ type resolvedLegs struct {
 // non-nil leg field -> the leg's Enabled field decides and the env var is
 // ignored for that leg.
 func resolveLegs(cfg Config) (resolvedLegs, error) {
-	legs := resolvedLegs{}
+	legs := resolvedLegs{} //nolint:exhaustruct_v5 // zero-value start — every field is assigned below
 
 	var err error
 	if legs.otel, err = triBool(envOTEL, false); err != nil {

@@ -113,7 +113,9 @@ func hstsAbsent(t *testing.T, ts string) {
 	}
 }
 
-func TestConflictMatrix_ErrorPages(t *testing.T) { //nolint:dupl // six-row grammar is uniform across legs by design (design note §5)
+func TestConflictMatrix_ErrorPages(
+	t *testing.T,
+) { //nolint:dupl // six-row grammar is uniform across legs by design (design note §5)
 	runMatrix(t, []matrixRow{
 		{name: "absent-defaults-on", assert: pretty404},
 		{name: "env-on", env: map[string]string{"APPKIT_ERRORPAGES": "on"}, assert: pretty404},
@@ -138,7 +140,9 @@ func TestConflictMatrix_ErrorPages(t *testing.T) { //nolint:dupl // six-row gram
 	})
 }
 
-func TestConflictMatrix_Security(t *testing.T) { //nolint:dupl // six-row grammar is uniform across legs by design (design note §5)
+func TestConflictMatrix_Security(
+	t *testing.T,
+) { //nolint:dupl // six-row grammar is uniform across legs by design (design note §5)
 	runMatrix(t, []matrixRow{
 		{name: "absent-defaults-none", assert: hstsAbsent},
 		{name: "env-none", env: map[string]string{"APPKIT_SECURITY": "none"}, assert: hstsAbsent},

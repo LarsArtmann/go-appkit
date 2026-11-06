@@ -3,6 +3,7 @@ package preset
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"slices"
 
 	"github.com/larsartmann/go-appkit"
@@ -11,6 +12,7 @@ import (
 	appkitotel "github.com/larsartmann/go-appkit/otel"
 	"github.com/larsartmann/go-appkit/realtime"
 	"github.com/larsartmann/go-appkit/systemd"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/httputil"
 )
 
@@ -37,15 +39,9 @@ func New(cfg Config) (*appkit.Service, error) {
 	// The otel provider exists before the service does; its Shutdown joins
 	// ShutdownHooks via a closure, and startup-error paths below flush it
 	// (the core never runs hooks for a service that never started).
-	var provider *appkitotel.Provider
-
-	if legs.otel {
-		opts := cfg.OTEL.setupOptions(cfg.Version)
-
-		provider, err = appkitotel.Setup(opts...)
-		if err != nil {
-			return nil, err
-		}
+	provider, setupErr := setupProvider(cfg, legs.otel)
+	if setupErr != nil {
+		return nil, setupErr
 	}
 
 	var (
@@ -53,7 +49,7 @@ func New(cfg Config) (*appkit.Service, error) {
 		hub     *realtime.Hub
 	)
 
-	sc := appkit.ServiceConfig{
+	svcConfig := appkit.ServiceConfig{ //nolint:exhaustruct_v5 // maps only the preset-owned fields; core defaults carry the rest
 		Addr:              cfg.Addr,
 		LogLevel:          cfg.LogLevel,
 		LogFormat:         cfg.LogFormat,
@@ -92,7 +88,9 @@ func New(cfg Config) (*appkit.Service, error) {
 		ShutdownHooks: append(slices.Clone(cfg.ShutdownHooks), func(ctx context.Context) error {
 			if hub != nil {
 				if err := hub.Shutdown(ctx); err != nil {
-					return err
+					return errorfamily.WrapInfrastructuref(
+						err, "preset.realtime_shutdown_failed", "shutdown realtime hub",
+					)
 				}
 			}
 
@@ -108,79 +106,122 @@ func New(cfg Config) (*appkit.Service, error) {
 	// core's default /health family would collide and panic the mux. Without
 	// the dashboard, core's family registers normally.
 	registerHealth := cfg.NoDashboard
-	sc.RegisterHealth = &registerHealth
+	svcConfig.RegisterHealth = &registerHealth
 
 	if provider != nil {
-		sc.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
+		svcConfig.OuterMiddlewares = []httputil.Middleware{appkitotel.Middleware()}
 	}
 
 	if legs.hasSecurity {
-		middlewares, secErr := securityMiddlewares(cfg.Security)
-		if secErr != nil {
+		if err := applySecurity(&svcConfig, cfg.Security); err != nil {
 			flushProvider(provider)
 
-			return nil, secErr
+			return nil, err
 		}
-		// ExtraMiddlewares run inside the default stack; httputil's header
-		// writes use Set semantics, so the profile's environment-tuned
-		// values are authoritative over the default stack's basic set.
-		sc.ExtraMiddlewares = middlewares
 	}
 
-	systemd.Install(&sc)
+	systemd.Install(&svcConfig)
 	appkit.RegisterClassifications()
 
-	svc, err := appkit.NewService(sc)
+	svc, err := appkit.NewService(svcConfig)
 	if err != nil {
 		flushProvider(provider)
 
-		return nil, err
+		return nil, err //nolint:wrapcheck // config Rejection propagates untouched
 	}
 
 	probe := health.NewProbe(cfg.HealthChecks)
 
-	mountOpts := make([]health.MountOption, 0, 1)
-	if !cfg.NoDashboard {
-		mountOpts = append(mountOpts, health.WithDashboard())
-	}
-
-	mounted, err = health.Mount(svc.Mux, probe, mountOpts...)
+	mounted, err = health.Mount(svc.Mux, probe, dashboardOpts(cfg.NoDashboard)...)
 	if err != nil {
 		flushProvider(provider)
 
-		return nil, err
+		return nil, err //nolint:wrapcheck // mount Rejection propagates untouched
 	}
 
 	if legs.errorPages {
-		var pages errorpages.Config
-		if cfg.ErrorPages != nil {
-			pages = cfg.ErrorPages.Config
-		}
-
-		errorpages.Mount(svc.Mux, pages)
+		mountErrorPages(svc.Mux, cfg)
 	}
 
 	if legs.realtime {
-		hub = realtime.NewHub()
-
-		pattern := defaultRealtimePattern
-		if cfg.Realtime != nil && cfg.Realtime.Pattern != "" {
-			pattern = cfg.Realtime.Pattern
-		}
-
-		var mountOpts []realtime.MountOption
-		if cfg.Realtime != nil {
-			mountOpts = cfg.Realtime.Options
-		}
-
-		realtime.Mount(svc.Mux, pattern, hub, mountOpts...)
-
-		if cfg.Realtime != nil && cfg.Realtime.Hub != nil {
-			*cfg.Realtime.Hub = hub
-		}
+		hub = mountRealtime(svc.Mux, &cfg)
 	}
 
 	return svc, nil
+}
+
+// setupProvider builds and starts the otel provider when the leg resolved
+// on; a nil provider (leg off) makes every downstream no-op.
+func setupProvider(cfg Config, enabled bool) (*appkitotel.Provider, error) {
+	if !enabled {
+		return nil, nil //nolint:nilnil // nil provider IS the leg-off signal — every consumer nil-checks
+	}
+
+	provider, err := appkitotel.Setup(cfg.OTEL.setupOptions(cfg.Version)...)
+	if err != nil {
+		return nil, errorfamily.WrapInfrastructuref(err, "preset.otel_setup_failed", "setup otel provider")
+	}
+
+	return provider, nil
+}
+
+// mountRealtime mounts the SSE hub at the configured pattern (default
+// /events) and hands the hub to the config's out-field when set.
+func mountRealtime(mux *http.ServeMux, cfg *Config) *realtime.Hub {
+	hub := realtime.NewHub()
+
+	pattern := defaultRealtimePattern
+	if cfg.Realtime != nil && cfg.Realtime.Pattern != "" {
+		pattern = cfg.Realtime.Pattern
+	}
+
+	var mountOpts []realtime.MountOption
+	if cfg.Realtime != nil {
+		mountOpts = cfg.Realtime.Options
+	}
+
+	realtime.Mount(mux, pattern, hub, mountOpts...)
+
+	if cfg.Realtime != nil && cfg.Realtime.Hub != nil {
+		*cfg.Realtime.Hub = hub
+	}
+
+	return hub
+}
+
+// applySecurity resolves the profile's middlewares onto the service config.
+// ExtraMiddlewares run inside the default stack; httputil's header writes
+// use Set semantics, so the profile's environment-tuned values are
+// authoritative over the default stack's basic set.
+func applySecurity(svcConfig *appkit.ServiceConfig, secCfg *SecurityConfig) error {
+	middlewares, err := securityMiddlewares(secCfg)
+	if err != nil {
+		return err //nolint:wrapcheck // strict-profile Rejection propagates untouched
+	}
+
+	svcConfig.ExtraMiddlewares = middlewares
+
+	return nil
+}
+
+// dashboardOpts mounts the real-time dashboard unless opted out.
+func dashboardOpts(noDashboard bool) []health.MountOption {
+	if noDashboard {
+		return nil
+	}
+
+	return []health.MountOption{health.WithDashboard()}
+}
+
+// mountErrorPages mounts the pretty-error catch-all with the consumer's
+// embedded config when set.
+func mountErrorPages(mux *http.ServeMux, cfg Config) {
+	var pages errorpages.Config
+	if cfg.ErrorPages != nil {
+		pages = cfg.ErrorPages.Config
+	}
+
+	errorpages.Mount(mux, pages)
 }
 
 // flushProvider shuts the otel provider down on startup-error paths — the
