@@ -203,6 +203,17 @@ jobs:
       - name: Check go.mod directive parity
         run: ./scripts/check-go-directives.sh
 
+  # AGENTS deps-table drift guard (found twice 2026-11-03; script 530d71a,
+  # pre-tag-wired same day): every Core Dependencies table row must equal the
+  # root go.mod require. Offline grep guard — the table hand-drifted v1.4.0
+  # vs go.mod v1.7.0 twice in one day before this existed.
+  agents-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check AGENTS deps-table version parity
+        run: ./scripts/check-agents-deps.sh
+
   # SSE-test protocol guard (17-49 f7, 2026-10-18): realtime.Handler
   # flushes headers BEFORE subscribing, so a test broadcasting right after
   # connect() races the subscribe step — a dropped broadcast then hangs

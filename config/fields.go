@@ -38,7 +38,7 @@ func nestedWalk(
 	envTag string,
 	hasTag, isStruct bool,
 	envPrefix, pathPrefix string,
-) (childEnvPrefix, childPathPrefix string, walk bool) {
+) (string, string, bool) {
 	switch {
 	case field.Anonymous && !hasTag:
 		return envPrefix, pathPrefix, true
@@ -101,9 +101,9 @@ func collectFields(
 			errs = append(
 				errs,
 				&FieldError{ //nolint:exhaustruct_v5 // Err deliberately nil: the kind carries the failure
-						Field: joinPath(pathPrefix, field.Name), Key: name,
-						Kind: KindUnsupportedType,
-					},
+					Field: joinPath(pathPrefix, field.Name), Key: name,
+					Kind: KindUnsupportedType,
+				},
 			)
 
 			continue
