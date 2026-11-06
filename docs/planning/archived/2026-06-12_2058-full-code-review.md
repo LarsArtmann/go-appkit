@@ -8,31 +8,31 @@ Date: 2026-06-12
 
 | #  | Task | Impact                                                                         | Effort              | File  |
 | -- | ---- | ------------------------------------------------------------------------------ | ------------------- | ----- |
-| ~~ | 1    | Fix PRAGMA SQL injection — validate keys against allowlist                     | Security critical   | 15min |
-| ~~ | 2    | Make `InitLogger` return `(*slog.Logger, error)` instead of panic              | Library correctness | 15min |
-| ~~ | 3    | Fix race condition in `server_test.go` — poll `Addr()` instead of `time.Sleep` | Test reliability    | 10min |
+|  | ~~1~~ | ~~Fix PRAGMA SQL injection — validate keys against allowlist~~ | ~~Security critical~~ | ~~15min~~ |
+|  | ~~2~~ | ~~Make `InitLogger` return `(*slog.Logger, error)` instead of panic~~ | ~~Library correctness~~ | ~~15min~~ |
+|  | ~~3~~ | ~~Fix race condition in `server_test.go` — poll `Addr()` instead of `time.Sleep`~~ | ~~Test reliability~~ | ~~10min~~ |
 
 ### 4% → 64% Impact
 
 | #  | Task | Impact                                                                         | Effort          | File  |
 | -- | ---- | ------------------------------------------------------------------------------ | --------------- | ----- |
-| ~~ | 4    | Define `LogLevel` and `LogFormat` types (replace raw strings)                  | Type safety     | 20min |
-| ~~ | 5    | Define `HealthStatus` type, couple with HTTP status code                       | Type safety, DX | 15min |
-| ~~ | 6    | Fix flaky `Server` default config — call `DefaultServerConfig()` once          | Code quality    | 10min |
-| ~~ | 7    | Add test coverage for `logger.go` — json format, auto format                   | Test coverage   | 15min |
-| ~~ | 8    | Add test coverage for `sqlite.go` — custom pragmas, pool settings, error paths | Test coverage   | 20min |
+|  | ~~4~~ | ~~Define `LogLevel` and `LogFormat` types (replace raw strings)~~ | ~~Type safety~~ | ~~20min~~ |
+|  | ~~5~~ | ~~Define `HealthStatus` type, couple with HTTP status code~~ | ~~Type safety, DX~~ | ~~15min~~ |
+|  | ~~6~~ | ~~Fix flaky `Server` default config — call `DefaultServerConfig()` once~~ | ~~Code quality~~ | ~~10min~~ |
+|  | ~~7~~ | ~~Add test coverage for `logger.go` — json format, auto format~~ | ~~Test coverage~~ | ~~15min~~ |
+|  | ~~8~~ | ~~Add test coverage for `sqlite.go` — custom pragmas, pool settings, error paths~~ | ~~Test coverage~~ | ~~20min~~ |
 
 ### 20% → 80% Impact
 
 | #  | Task | Impact                                                                 | Effort        | File  |
 | -- | ---- | ---------------------------------------------------------------------- | ------------- | ----- |
-| ~~ | 9    | Allow opting out of `/health` route registration                       | Flexibility   | 15min |
-| ~~ | 10   | Add `Server.Running() bool` and protect `ln` with sync                 | Safety        | 15min |
-| ~~ | 11   | Replace `fmt.Fprintf(os.Stderr)` with slog in `shutdown.go`            | Consistency   | 10min |
-| ~~ | 12   | Add tests for `Server.Shutdown()`, `Addr()` nil, port conflicts        | Test coverage | 20min |
-| ~~ | 13   | Add tests for signal delivery and default config in `shutdown_test.go` | Test coverage | 15min |
-| ~~ | 14   | DRY `healthHandler` — extract shared JSON encode helper                | Code quality  | 10min |
-| ~~ | 15   | Commit uncommitted go.mod/go.sum changes                               | Housekeeping  | 5min  |
+|  | ~~9~~ | ~~Allow opting out of `/health` route registration~~ | ~~Flexibility~~ | ~~15min~~ |
+|  | ~~10~~ | ~~Add `Server.Running() bool` and protect `ln` with sync~~ | ~~Safety~~ | ~~15min~~ |
+|  | ~~11~~ | ~~Replace `fmt.Fprintf(os.Stderr)` with slog in `shutdown.go`~~ | ~~Consistency~~ | ~~10min~~ |
+|  | ~~12~~ | ~~Add tests for `Server.Shutdown()`, `Addr()` nil, port conflicts~~ | ~~Test coverage~~ | ~~20min~~ |
+|  | ~~13~~ | ~~Add tests for signal delivery and default config in `shutdown_test.go`~~ | ~~Test coverage~~ | ~~15min~~ |
+|  | ~~14~~ | ~~DRY `healthHandler` — extract shared JSON encode helper~~ | ~~Code quality~~ | ~~10min~~ |
+|  | ~~15~~ | ~~Commit uncommitted go.mod/go.sum changes~~ | ~~Housekeeping~~ | ~~5min~~ |
 
 ## Execution Graph (D2)
 

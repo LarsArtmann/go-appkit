@@ -48,7 +48,7 @@
 3. ~~**C22 health quality parity** — contract assertion, conflict semantics, BasePath uniform routing, benchmarks, fuzz DONE. REMAINING: runnable godoc Examples with verified output (F107), aggregate multi-probe example (F113), govulncheck (binary not installable here).~~ done (CLOSED 2026-09-17 — godoc examples F107+F113 landed (a55c21c); govulncheck stays env-blocked (TODO_LIST P2))
 4. ~~**C24 upstream asks** — `DashboardHardenedPreset` shipped; go-sse dedup-aware `ReplayFiltered` + httputil Logging request-context + F2 timing sketches DRAFTED at `doc/feedback/outgoing/2026-09-16_upstream-asks-gosse-httputil.md` — NOT FILED (filing is USER-GATED).~~ done (still USER-GATED — drafts at doc/feedback/outgoing/ (TODO_LIST P2))
 5. ~~**C23 fr MetricsHook E2E** — bridge unit-pinned; an end-to-end test driving a REAL capture through the hook remains.~~ done (CLOSED 2026-09-17 — otel/frmetrics_e2e_test.go (8802fdd))
-6. ~~**C28 statusRecorder** — USER GATE unanswered; the ~10-line swap deliberately not executed; TODO stays open.~~ done (STILL OPEN — TODO_LIST P2 USER GATE)
+6. ~~**C28 statusRecorder** — USER GATE unanswered; the ~10-line swap deliberately not executed; TODO stays open.~~ done (remainder routed: the USER GATE lives on TODO_LIST P2)
 7. ~~**C21 remainder (see d-3/d-4):** `cqrs.OTelProjectionMetrics` E2E (F104) NOT done; core composition-contract suite NOT done; the integration-expansion TODO item was NOT closed (stale — still says `[ ]`).~~ done (CLOSED 2026-09-17 — F104 scoped into cqrs (c03360e); composition suite landed (adee737))
 8. ~~**C12 logging posture** — decision + docs only (no behavior change) — that IS the decision, but "implement behind ServiceConfig" from the plan was consciously not applicable (the knob already exists).~~ done (correct as decided — the knob exists (ServiceConfig.LogLevel); decision recorded in the core README)
 9. ~~**Core G2/F5/E1 release** — features are in core `[Unreleased]`, NOT tagged; consumers get them at the next core tag (v0.5.0 train).~~ done (CLOSED 2026-09-17 — core v0.5.0 tagged + proxy-proven (929f363))
@@ -124,7 +124,7 @@
 19. ~~`cqrs.OTelProjectionMetrics` E2E in integration (F104 — the silently dropped one).~~ done (done 2026-09-17 — cqrs/otelmetrics_e2e_test.go (c03360e, scoped into cqrs))
 20. ~~Core composition-contract suite in integration (readiness composition, drain transitions, response parity).~~ done (done 2026-09-17 — integration/composition_contract_test.go (adee737))
 21. ~~fr MetricsHook end-to-end: drive a REAL capture through the bridge and assert the meter.~~ done (done 2026-09-17 — otel/frmetrics_e2e_test.go (8802fdd))
-22. ~~Real browser (chromedp or manual) pass over the health dashboard under a strict-CSP + nonce configuration — the CSP verdict is server-side proven only.~~ **Won't implement — still open — TODO_LIST P2 browser CSP pass.**
+22. ~~Real browser (chromedp or manual) pass over the health dashboard under a strict-CSP + nonce configuration — the CSP verdict is server-side proven only.~~ **Won't implement — the browser CSP pass lives on TODO_LIST P2.**
 23. ~~Measure `NewFlightRecorderMetricsHook` counters from an actual `Middleware` capture (not just a synthetic event).~~ done (done 2026-09-17 — covered by the frmetrics E2E (real capture asserts the meter))
 
 **Batteries (demand-gated — re-confirm demand first)**
@@ -145,11 +145,11 @@
 36. ~~Root CHANGELOG: cut a dated section header for the 2026-09-16/17 wave when core tags.~~ done (done 2026-09-17 — root CHANGELOG 0.5.0/0.5.1 sections dated)
 37. ~~Update the SUPERB plan file with execution verdicts inline (it is the predecessor contract; it still shows C-tasks as planned, not done).~~ done (done 2026-09-17 — EXECUTION VERDICT banner landed; plan archived by the 2026-09-17 docs-health pass)
 38. ~~`doc/TELEMETRY.md`: fix the §-numbering slip (the log-level decision pointer says §5, which is store-separation).~~ done (done 2026-09-17 — pointer now cites the root README Log volume section)
-39. ~~SECURITY.md-style threat-model page for the security module (per-battery threat → test mapping table).~~ **Won't implement — still open — TODO_LIST P2 security trio.**
+39. ~~SECURITY.md-style threat-model page for the security module (per-battery threat → test mapping table).~~ **Won't implement — the security trio lives on TODO_LIST P2.**
 40. ~~Add `security` to the root README module table's "status" column note (opt-in, nothing in the default stack).~~ done (done 2026-09-17 — README security row + opt-in note (08-08 truth batch))
 41. ~~Dependabot: verify the generated /security entry actually matches the sibling format (visual diff against /realtime block).~~ done (done 2026-09-17 — /security block byte-identical vs /realtime; CI assert routed to TODO_LIST P2)
-42. ~~Add a `security` example service (like errorpages/example) demonstrating the full hardened chain composition.~~ **Won't implement — still open — TODO_LIST P2 security trio.**
-43. ~~Write the integration test for `security` + `realtime` composition (rate-limit in front of SSE).~~ **Won't implement — still open — TODO_LIST P2 security trio.**
+42. ~~Add a `security` example service (like errorpages/example) demonstrating the full hardened chain composition.~~ **Won't implement — the security trio lives on TODO_LIST P2.**
+43. ~~Write the integration test for `security` + `realtime` composition (rate-limit in front of SSE).~~ **Won't implement — the security trio lives on TODO_LIST P2.**
 44. ~~Extend `doc/status/README.md` index with the archived-report count and the gate command.~~ done (done 2026-09-17 — the index carries the archived count + gate command)
 45. ~~Move the annotation-depth standard ALSO into `doc/planning/archived/` README (F141 covered status only — the plan's F141 says "both archived READMEs"; only one got it — this is a real gap I introduced).~~ done (verified STALE CLAIM — both archived READMEs already carried it (08-08 §a-9))
 46. ~~Retire the recovered pin-test doc (`doc/planning/archived/2026-09-16_otel-pattern-pin-test.md`) to the archived planning dir (landed + linked).~~ done (done 2026-09-17 — pin-test doc retired to doc/planning/archived/)
