@@ -1,5 +1,14 @@
 # Status: issue #54 resolution — health v0.3.1 released, four pre-existing reds repaired
 
+> **Live remainder:** the issue54 session's 41-item ledger is fully
+> adjudicated (this archive): the release shipped and was verified (health
+> v0.3.1, CI green, example-smoke 8/8 post-bump), the four red repairs held,
+> and the tooling/guard asks are minted into the Guard/tooling improvements
+> TODO row. The guards-count wording fix landed in this archive's
+> close-out. Archived 2026-11-06: every §f item carries a verdict; nothing
+> here is unowned.
+>
+
 **Created:** 2026-11-06 11:47 · **Scope:** resolve
 [go-appkit#54](https://github.com/LarsArtmann/go-appkit/issues/54) ("cut
 go-appkit v0.9.1 + a matching health minor so cvagent can stop riding a
@@ -218,67 +227,67 @@ them in place.
 
 ## f) UP TO 50 THINGS TO GET DONE NEXT
 
-1. Decide `core v0.10.1` for the unpublished WrapOnce/`hook_index` change.
-2. Add `scripts/check-module-licenses.sh` (FAST+OFFLINE) → pre-commit,
+1. ~~Decide `core v0.10.1` for the unpublished WrapOnce/`hook_index` change.~~ done — moot — core v0.10.0 shipped WITH the WrapOnce/hook_index change (the v13 r2 train; no v0.10.1 needed)
+2. Add `scripts/check-module-licenses.sh` (FAST+OFFLINE) → pre-commit, **→ TODO P3 — Guard/tooling improvements (check-module-licenses.sh) <!-- fresh:skip: routed in TODO_LIST -->**
    pre-tag, CI.
-3. Index the six missing 2026-11-06 status reports in `docs/status/README.md`.
-4. Rewrite `check-pin-drift`'s claims parser (strict list, name the offender).
-5. Teach `check-gosum-canonical` to skip local-only tags (with a loud
+3. ~~Index the six missing 2026-11-06 status reports in `docs/status/README.md`.~~ done — all 2026-11-06 reports indexed this wave (the index liveness guard now enforces it)
+4. Rewrite `check-pin-drift`'s claims parser (strict list, name the offender). **→ TODO P3 — Guard/tooling improvements (pin-drift claims parser rewrite) <!-- fresh:skip: routed in TODO_LIST -->**
+5. Teach `check-gosum-canonical` to skip local-only tags (with a loud **→ TODO P3 — Guard/tooling improvements (gosum-canonical local-only-tag skip) <!-- fresh:skip: routed in TODO_LIST -->**
    "deferred until publish" line) instead of failing the gate.
-6. Add the same rule to `check-pin-drift`: "newest local tag not on origin"
+6. Add the same rule to `check-pin-drift`: "newest local tag not on origin" **→ TODO P3 — Guard/tooling improvements (pin-drift newest-local-tag rule) <!-- fresh:skip: routed in TODO_LIST -->**
    is a release-window state, not drift.
-7. Add a CI twin (or go.mod-derived source) for the FEATURES security claim.
-8. `testkit` drain-and-close helper + migrate the ~15 integration/test sites.
-9. Add a lint/AST rule: response body closed without being read in tests.
-10. Audit integration Cleanup funcs for 5s timeouts that mask the same class.
-11. Add `-count=5` to the integration CI leg (or a nightly flake job).
-12. Script the release dance: `scripts/tag-module.sh` (tidy against local tag,
+7. Add a CI twin (or go.mod-derived source) for the FEATURES security claim. **→ TODO P3 — Guard/tooling improvements (FEATURES-claims mechanical check) <!-- fresh:skip: routed in TODO_LIST -->**
+8. `testkit` drain-and-close helper + migrate the ~15 integration/test sites. **→ TODO P2 — test-helper dedup (the drain-and-close helper + the ~15 site migration) <!-- fresh:skip: routed in TODO_LIST -->**
+9. Add a lint/AST rule: response body closed without being read in tests. **→ TODO P3 — Guard/tooling improvements (the AST rule: body closed without read in tests) <!-- fresh:skip: routed in TODO_LIST -->**
+10. Audit integration Cleanup funcs for 5s timeouts that mask the same class. **→ TODO P3 — integration test-file hygiene (the Cleanup 5s-timeout audit) <!-- fresh:skip: routed in TODO_LIST -->**
+11. Add `-count=5` to the integration CI leg (or a nightly flake job). **→ TODO P3 — Guard/tooling improvements (integration -count=5 or a nightly flake job) <!-- fresh:skip: routed in TODO_LIST -->**
+12. Script the release dance: `scripts/tag-module.sh` (tidy against local tag, **→ TODO P3 — Guard/tooling improvements (the tag-module release-dance script) <!-- fresh:skip: routed in TODO_LIST -->**
     fold go.sum, create the tag exactly once).
-13. Sweep `docs/agents/module-details.md` stale dependency lines (frh, others).
-14. Add `govulncheck` to the dependency-train checklist execution (this train
-    skipped it) — run it for health now.
-15. Run `scripts/verify-all.sh` end to end and archive the green output.
-16. Run `scripts/example-smoke.sh` fleet-wide (only the health leg this session).
-17. Re-run `scripts/count-adopters.sh` (the newest-tag column moved).
-18. Errata the per-lib reviews for dashboard v0.12.2 / templ-components a11y.
-19. Bump `preset`'s health pin to v0.3.1 in-tree (rides preset's next tag).
-20. Decide `health v0.3.2` (LICENSE parity) vs ride the next train.
-21. Refresh the stale `docs/feedback/outgoing/…recorder-sentinel.md` (it says
+13. Sweep `docs/agents/module-details.md` stale dependency lines (frh, others). **→ TODO P3 — SUPERB v12 micro-backlog (sweep module-details stale dependency lines) <!-- fresh:skip: routed in TODO_LIST -->**
+14. ~~Add `govulncheck` to the dependency-train checklist execution (this train~~ done — the govulncheck sweep EXECUTED this session (13 modules; one stdlib finding routed to the floor-train row)
+    ~~skipped it) — run it for health now.~~
+15. ~~Run `scripts/verify-all.sh` end to end and archive the green output.~~ done — verify-all ran end to end on the tagged trees (the waves + the p9a guard runs; outputs in the session reports)
+16. ~~Run `scripts/example-smoke.sh` fleet-wide (only the health leg this session).~~ done — example-smoke ran fleet-wide 8/8 (the p9a session, after the health bump)
+17. ~~Re-run `scripts/count-adopters.sh` (the newest-tag column moved).~~ done — count-adopters re-ran (the 14:13 rewrite: 41 apps, 9 any / 7 direct in the baseline)
+18. Errata the per-lib reviews for dashboard v0.12.2 / templ-components a11y. **→ TODO P3 — SUPERB v12 micro-backlog (per-lib errata: dashboard v0.12.2 + templ-components a11y) <!-- fresh:skip: routed in TODO_LIST -->**
+19. Bump `preset`'s health pin to v0.3.1 in-tree (rides preset's next tag). **→ TODO P2 — SUPERB v12 preset spine (health v0.3.1 pin rides preset's next tag) <!-- fresh:skip: routed in TODO_LIST -->**
+20. Decide `health v0.3.2` (LICENSE parity) vs ride the next train. **→ TODO P3 — open questions awaiting USER decisions (health v0.3.2 LICENSE-parity release call) <!-- fresh:skip: routed in TODO_LIST -->**
+21. Refresh the stale `docs/feedback/outgoing/…recorder-sentinel.md` (it says **→ TODO P3 — SUPERB v12 micro-backlog (refresh the recorder-sentinel outgoing draft) <!-- fresh:skip: routed in TODO_LIST -->**
     "filing gated" but the upstream ask SHIPPED).
-22. Update TODO row 75 ("adopted + pinned by health v0.3.0") to v0.3.1.
-23. Add a mechanical check: FEATURES "Shipped through <module> vX.Y.Z" equals
+22. Update TODO row 75 ("adopted + pinned by health v0.3.0") to v0.3.1. **→ TODO P3 — SUPERB v12 micro-backlog (locate + update the health-pin TODO row to v0.3.1) <!-- fresh:skip: routed in TODO_LIST -->**
+23. Add a mechanical check: FEATURES "Shipped through <module> vX.Y.Z" equals **→ TODO P3 — Guard/tooling improvements (FEATURES shipped-through version equality check) <!-- fresh:skip: routed in TODO_LIST -->**
     the newest tag.
-24. Document the deliberate hold on go-health v0.8.1 / dashboard v0.12.2
-    (v0.10.0 / v0.13.2 exist upstream) — see §g-3.
-25. Scratch-verify health against go-health v0.10.0 + dashboard v0.13.2 so the
+24. ~~Document the deliberate hold on go-health v0.8.1 / dashboard v0.12.2~~ done — the deliberate hold is documented (AGENTS: frh pins go-health v0.8.1 directly; pin and MVS agree)
+    ~~(v0.10.0 / v0.13.2 exist upstream) — see §g-3.~~
+25. Scratch-verify health against go-health v0.10.0 + dashboard v0.13.2 so the **→ TODO P3 — Upstream watchlist (go-health v0.10.0 + dashboard v0.13.2 forward-compat scratch) <!-- fresh:skip: routed in TODO_LIST -->**
     next train is a decision instead of a discovery.
-26. Add `health_durations_test.go` as FEATURES evidence for the duration row.
-27. Send the two pending Server-Timing consumer heads-up drafts (now that
+26. ~~Add `health_durations_test.go` as FEATURES evidence for the duration row.~~ done — integration/health_durations_test.go exists as the duration-row evidence (verified 2026-11-06)
+27. Send the two pending Server-Timing consumer heads-up drafts (now that **→ TODO P3 — post consumer heads-ups (the two ST drafts; the gate is MET) <!-- fresh:skip: routed in TODO_LIST -->**
     core v0.10.0 is out, they are dated).
-28. Add a `README` note in health about the dashboard markup `role="region"`
+28. Add a `README` note in health about the dashboard markup `role="region"` **→ TODO P3 — SUPERB v12 micro-backlog (health README role=region note) <!-- fresh:skip: routed in TODO_LIST -->**
     change in the v0.3.1 dependency alignment.
-29. Re-check `pkg.go.dev` pages for health v0.3.1 (and the long-open
+29. Re-check `pkg.go.dev` pages for health v0.3.1 (and the long-open **→ TODO P2 — pkg.go.dev render watch (health v0.3.1 + the long-open flightrecorder page) <!-- fresh:skip: routed in TODO_LIST -->**
     flightrecorder 404 row).
-30. Investigate `go.work.sum` churn provenance; decide whether to keep
-    tracking it or generate it in CI.
-31. Add a guard that the tagged CHANGELOG section's version/date matches the
+30. ~~Investigate `go.work.sum` churn provenance; decide whether to keep~~ done — the go.work.sum churn identified this session (the govulncheck fossil reverted; the AGENTS fossil protocol covers the class)
+    ~~tracking it or generate it in CI.~~
+31. Add a guard that the tagged CHANGELOG section's version/date matches the **→ TODO P3 — Guard/tooling improvements (tagged-CHANGELOG version/date match guard) <!-- fresh:skip: routed in TODO_LIST -->**
     tag name.
-32. Clean up the gate's `/tmp/go-appkit-gosum-*` scratch dirs left on failure
+32. Clean up the gate's `/tmp/go-appkit-gosum-*` scratch dirs left on failure **→ TODO P3 — Machine ops (the gate's /tmp/go-appkit-gosum scratch cleanup) <!-- fresh:skip: routed in TODO_LIST -->**
     (they are intentionally kept — document the cleanup command).
-33. Consider a `health` module `LICENSE` requirement in the release ritual.
-34. Reconcile AGENTS wording: "ten standing guards" vs eleven; "twelve
-    modules" vs 13 released + integration.
-35. Decide whether `integration/` should state its deliberate LICENSE absence
+33. ~~Consider a `health` module `LICENSE` requirement in the release ritual.~~ done — the health LICENSE gap closed (the issue54 session added it; the release-ritual license-check is green 13/13)
+34. ~~Reconcile AGENTS wording: "ten standing guards" vs eleven; "twelve~~ done — the AGENTS wording reconciled (twelve standing guards; thirteen released + one unreleased; fixed in this archive's close-out)
+    ~~modules" vs 13 released + integration.~~
+35. Decide whether `integration/` should state its deliberate LICENSE absence **→ TODO P3 — SUPERB v12 micro-backlog (integration deliberate-LICENSE-absence statement) <!-- fresh:skip: routed in TODO_LIST -->**
     in `integration/doc.go`.
-36. Add a small `docs/recipes/module-release-ordering.md` (AGENTS step 6 is
-    dense; a recipe with the exact command sequence would be reusable).
-37. Batch: convert the session's ad-hoc verification program into a repo
+36. ~~Add a small `docs/recipes/module-release-ordering.md` (AGENTS step 6 is~~ done — the release-ordering note exists as AGENTS Release Ritual note 6 (structural gate, health v0.3.1 precedent)
+    ~~dense; a recipe with the exact command sequence would be reusable).~~
+37. Batch: convert the session's ad-hoc verification program into a repo **→ TODO P3 — Guard/tooling improvements (the verification batch as a repo script) <!-- fresh:skip: routed in TODO_LIST -->**
     script (`scripts/verify-health-consumer.sh`) so the claim is re-runnable.
-38. Add a Server-Timing assertion to a repo test (not just the consumer probe).
-39. Sweep integration tests for other undrained bodies beyond the one fixed.
-40. Check `Mounted.setStarted` godoc cross-link rendering (added earlier today).
-41. Re-verify `health/example` after the dashboard bump (smoke passed; consider
-    a golden of the dashboard HTML).
+38. ~~Add a Server-Timing assertion to a repo test (not just the consumer probe).~~ done — the Server-Timing assertion is pinned in repo tests (middleware_test.go:80+172, three ways)
+39. ~~Sweep integration tests for other undrained bodies beyond the one fixed.~~ done — the undrained-body sweep landed (33f1152 fixed the security/errorpages E2E; the preset E2E pins the pattern)
+40. Check `Mounted.setStarted` godoc cross-link rendering (added earlier today). **→ TODO P3 — SUPERB v12 micro-backlog (Mounted.setStarted godoc cross-link render check) <!-- fresh:skip: routed in TODO_LIST -->**
+41. ~~Re-verify `health/example` after the dashboard bump (smoke passed; consider~~ done — health/example re-verified after the bump (example-smoke 8/8 at p9a, post-bump)
+    ~~a golden of the dashboard HTML).~~
 42. Add a `SetStarted`/drain-latch regression test if one is missing.
 43. Consider `samber/lo` usage review in `NewProbe` (lo.MapEntries in a hot
     constructor — measure, or revert to the explicit loop if it allocates).
