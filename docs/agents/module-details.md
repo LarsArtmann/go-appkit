@@ -221,21 +221,21 @@ context, NOT user documentation — each module's user-facing docs live in its o
 
 ### Code Organization
 
-| File               | Concern                                                                                                                                                                                                                                            |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `doc.go`           | Package doc: quick start, precedence, error contract.                                                                                                                                                                                              |
-| `config.go`        | `Load[T]` / `Loader[T]` / `NewLoader`, options (`WithFile`, `WithLookup`, `WithValues`, `WithValidate`), `FieldError` + `FieldErrorKind` enum, `checkRequired`, `setParsed`, `rejectionFrom` (ONE Rejection wrapping joined FieldErrors), `Keys[T]`, `FieldErrorsOf` (exact-node join-tree walk — NOT `errors.As`, which would descend `FieldError.Unwrap` and drop join siblings). |
-| `fields.go`        | Reflection walk (`collectFields`): nested `env:"PREFIX"` key prefixes (child tags are relative suffixes), embedded-struct promotion (incl. unexported embedded types — PkgPath check skips only non-anonymous unexported), untagged fields never touched (what makes embedding `appkit.ServiceConfig` safe).                                                                           |
-| `parse.go`         | One shared parser for every layer: string/bool/all int+uint widths (decimal-only)/float32-64/`time.Duration`/`[]string` (comma-split, trimmed); named types via `Convert`; tagged anything-else → `unsupported_type`.                                                                                                |
-| `file.go`          | YAML (go-faster/yaml) + JSON (stdlib) file layer; lowercased dotted key space (`nested.addr`); STRICT unknown-file-key rejection.                                                                                                                                                                  |
-| `example/main.go`  | Runnable demo (happy + missing-required paths).                                                                                                                                                                                                    |
+| File              | Concern                                                                                                                                                                                                                                                                                                                                                                             |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc.go`          | Package doc: quick start, precedence, error contract.                                                                                                                                                                                                                                                                                                                               |
+| `config.go`       | `Load[T]` / `Loader[T]` / `NewLoader`, options (`WithFile`, `WithLookup`, `WithValues`, `WithValidate`), `FieldError` + `FieldErrorKind` enum, `checkRequired`, `setParsed`, `rejectionFrom` (ONE Rejection wrapping joined FieldErrors), `Keys[T]`, `FieldErrorsOf` (exact-node join-tree walk — NOT `errors.As`, which would descend `FieldError.Unwrap` and drop join siblings). |
+| `fields.go`       | Reflection walk (`collectFields`): nested `env:"PREFIX"` key prefixes (child tags are relative suffixes), embedded-struct promotion (incl. unexported embedded types — PkgPath check skips only non-anonymous unexported), untagged fields never touched (what makes embedding `appkit.ServiceConfig` safe).                                                                        |
+| `parse.go`        | One shared parser for every layer: string/bool/all int+uint widths (decimal-only)/float32-64/`time.Duration`/`[]string` (comma-split, trimmed); named types via `Convert`; tagged anything-else → `unsupported_type`.                                                                                                                                                               |
+| `file.go`         | YAML (go-faster/yaml) + JSON (stdlib) file layer; lowercased dotted key space (`nested.addr`); STRICT unknown-file-key rejection.                                                                                                                                                                                                                                                   |
+| `example/main.go` | Runnable demo (happy + missing-required paths).                                                                                                                                                                                                                                                                                                                                     |
 
 ### Dependencies
 
-| Module                              | Version | Role                                        |
-| ----------------------------------- | ------- | ------------------------------------------- |
-| `github.com/larsartmann/go-error-family` | v0.12.0 | Rejection/FieldError classification         |
-| `github.com/go-faster/yaml`         | v0.4.6  | YAML file layer (public proxy)              |
+| Module                                   | Version | Role                                |
+| ---------------------------------------- | ------- | ----------------------------------- |
+| `github.com/larsartmann/go-error-family` | v0.12.0 | Rejection/FieldError classification |
+| `github.com/go-faster/yaml`              | v0.4.6  | YAML file layer (public proxy)      |
 
 ### Gotchas
 

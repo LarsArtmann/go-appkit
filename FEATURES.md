@@ -231,16 +231,16 @@ which carries the `StartHooks` seam it depends on):
 Shipped as **config v0.1.0** (2026-11-06, SUPERB v12 C-train, battery F1; tag
 local — push held for the owner's push-policy answer):
 
-| Feature                                                                                                | Status           | Evidence                                        |
-| ------------------------------------------------------------------------------------------------------ | ---------------- | ----------------------------------------------- |
-| `Load[T]` / `Loader[T]` env-first struct-tag binding, precedence flag > env > file > default            | FULLY_FUNCTIONAL | `config.go`, precedence-matrix tests            |
-| Tag grammar: `env` / `,required` / `default` / nested `env:"PREFIX"` prefixes / embedded promotion      | FULLY_FUNCTIONAL | `fields.go`, embedded + nested tests            |
-| Untagged fields never touched (embedding `appkit.ServiceConfig` is safe)                                | FULLY_FUNCTIONAL | `fields.go`, safety test                        |
+| Feature                                                                                                  | Status           | Evidence                                          |
+| -------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------- |
+| `Load[T]` / `Loader[T]` env-first struct-tag binding, precedence flag > env > file > default             | FULLY_FUNCTIONAL | `config.go`, precedence-matrix tests              |
+| Tag grammar: `env` / `,required` / `default` / nested `env:"PREFIX"` prefixes / embedded promotion       | FULLY_FUNCTIONAL | `fields.go`, embedded + nested tests              |
+| Untagged fields never touched (embedding `appkit.ServiceConfig` is safe)                                 | FULLY_FUNCTIONAL | `fields.go`, safety test                          |
 | Scalar parsers: string/bool/int+uint widths/float32-64/Duration/[]string; others fail `unsupported_type` | FULLY_FUNCTIONAL | `parse.go`, scalar round-trip + unsupported tests |
-| File layer: YAML + JSON, strict unknown-key rejection, dotted nested key space                          | FULLY_FUNCTIONAL | `file.go`, file-layer tests                     |
-| One Rejection wrapping typed `FieldError`s; `FieldErrorsOf` collects the full tree                      | FULLY_FUNCTIONAL | `config.go`, error-taxonomy tests               |
-| `Keys[T]` sorted declared-key discoverability                                                          | FULLY_FUNCTIONAL | `config.go`, Keys tests                         |
-| `WithValidate` cross-field hook (runs last)                                                            | FULLY_FUNCTIONAL | validation-hook test                            |
+| File layer: YAML + JSON, strict unknown-key rejection, dotted nested key space                           | FULLY_FUNCTIONAL | `file.go`, file-layer tests                       |
+| One Rejection wrapping typed `FieldError`s; `FieldErrorsOf` collects the full tree                       | FULLY_FUNCTIONAL | `config.go`, error-taxonomy tests                 |
+| `Keys[T]` sorted declared-key discoverability                                                            | FULLY_FUNCTIONAL | `config.go`, Keys tests                           |
+| `WithValidate` cross-field hook (runs last)                                                              | FULLY_FUNCTIONAL | validation-hook test                              |
 
 ## integration (`github.com/larsartmann/go-appkit/integration` — never released)
 

@@ -57,12 +57,12 @@ coerced (the koanf `WeaklyTypedInput` trap).
 
 ## Tag grammar
 
-| Tag | Meaning |
-| --- | --- |
-| `env:"NAME"` | bind environment variable NAME (layer precedence applies) |
-| `env:"NAME,required"` | unset/empty after every layer is a Rejection |
+| Tag                                | Meaning                                                               |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| `env:"NAME"`                       | bind environment variable NAME (layer precedence applies)             |
+| `env:"NAME,required"`              | unset/empty after every layer is a Rejection                          |
 | `env:"PREFIX"` (on a struct field) | child env keys are `PREFIX_CHILD`; child tags carry only their suffix |
-| `default:"..."` | value used when env and file are absent |
+| `default:"..."`                    | value used when env and file are absent                               |
 
 Supported scalar types: `string`, `bool`, all `int`/`uint` widths, `float32/64`,
 `time.Duration`, `[]string` (comma-separated, whitespace-trimmed). A tagged

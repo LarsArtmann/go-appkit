@@ -58,31 +58,23 @@ func collectFields(
 
 		idx := append(append([]int{}, index...), i)
 
-		if field.Anonymous && !hasTag {
-			childSpecs, childErrs := collectFields(field.Type, envPrefix, pathPrefix, idx)
+		walkChild := func(childType reflect.Type, childEnvPrefix, childPathPrefix string) {
+			childSpecs, childErrs := collectFields(childType, childEnvPrefix, childPathPrefix, idx)
 			specs, errs = append(specs, childSpecs...), append(errs, childErrs...)
-
-			continue
 		}
 
-		if field.Type.Kind() == reflect.Struct && field.Type != reflect.TypeFor[time.Time]() {
-			if !hasTag {
-				continue // untagged named struct: caller's own wiring, untouched
-			}
+		isStruct := field.Type.Kind() == reflect.Struct && field.Type != reflect.TypeFor[time.Time]()
 
-			childSpecs, childErrs := collectFields(
-				field.Type, envPrefix+name+"_", joinPath(pathPrefix, field.Name), idx,
-			)
-			specs, errs = append(specs, childSpecs...), append(errs, childErrs...)
-
-			continue
-		}
-
-		if !hasTag {
-			continue
-		}
-
-		if !supportedType(field.Type) {
+		switch {
+		case field.Anonymous && !hasTag:
+			// untagged embedded struct: walk it as-is, promoting its exported fields
+			walkChild(field.Type, envPrefix, pathPrefix)
+		case isStruct && hasTag:
+			// tagged nested struct (env:"PREFIX"): child tags carry relative suffixes
+			walkChild(field.Type, envPrefix+name+"_", joinPath(pathPrefix, field.Name))
+		case isStruct || !hasTag:
+			// untagged named struct or untagged scalar: the caller's own wiring — never touch
+		case !supportedType(field.Type):
 			errs = append(
 				errs,
 				&FieldError{ //nolint:exhaustruct_v5 // Err deliberately nil: the kind carries the failure
@@ -90,25 +82,23 @@ func collectFields(
 					Kind: KindUnsupportedType,
 				},
 			)
+		default:
+			spec := fieldSpec{ //nolint:exhaustruct_v5 // fileKey/default filled just below
+				path:     joinPath(pathPrefix, field.Name),
+				envKey:   envPrefix + name,
+				index:    idx,
+				typ:      field.Type,
+				required: hasOption(opts, "required"),
+			}
 
-			continue
+			if def, ok := field.Tag.Lookup("default"); ok {
+				spec.defaultVal, spec.hasDefault = def, true
+			}
+
+			spec.fileKey = strings.ToLower(spec.path)
+
+			specs = append(specs, spec)
 		}
-
-		spec := fieldSpec{ //nolint:exhaustruct_v5 // fileKey/default filled just below
-			path:     joinPath(pathPrefix, field.Name),
-			envKey:   envPrefix + name,
-			index:    idx,
-			typ:      field.Type,
-			required: hasOption(opts, "required"),
-		}
-
-		if def, ok := field.Tag.Lookup("default"); ok {
-			spec.defaultVal, spec.hasDefault = def, true
-		}
-
-		spec.fileKey = strings.ToLower(spec.path)
-
-		specs = append(specs, spec)
 	}
 
 	return specs, errs

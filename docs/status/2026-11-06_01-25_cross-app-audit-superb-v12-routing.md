@@ -105,6 +105,7 @@ were run green.
 ## f) Next — up to 50 (★ = already routed in TODO_LIST this session; ◆ = new from this review)
 
 **The v12 program (routed, owner-sequence pending):**
+
 1. ★ T2.1–T2.4 `appkit/config` design → implement → docs → tag v0.1.0 (4 tasks).
 2. ★ T1.1–T1.6 `appkit/preset` skeleton → spine wiring → otel leg → security/realtime legs →
    example+E2E → tag v0.1.0 (6 tasks).
@@ -117,19 +118,19 @@ were run green.
 
 **From this review (not yet routed):**
 7. ◆ Preserve the adoption sweep as a script; dual-column output; wire as pre-tag or CI
-   metric so the six-month gate is mechanical.
+metric so the six-month gate is mechanical.
 8. ◆ Sequential-retry the deep-reads: CV first (13 modules), then KeyHolderAI, crm, webphone.
 9. ◆ Add a dated errata cross-link from TODO_LIST's preset-spine row to the audit errata
-   (the row quotes any-require numbers).
+(the row quotes any-require numbers).
 10. ◆ Fine-breakdown (≤15 min) for T1.1/T1.2 before the preset sprint starts.
 11. ◆ Browser-render check of the v12 plan (owner item class; or a headless probe script).
 12. ◆ Depth-audit the 22 config packages (read the 5 largest; correct the class claim if any
-    are thin wrappers).
+are thin wrappers).
 13. ◆ Extend the audit's appendix with the exact sweep script text (cheap, kills the /tmp
-    dependency until #7 lands).
+dependency until #7 lands).
 14. ◆ Consider a `meta`-side tag: apps by appkit-adoption would make the gate a one-liner.
 15. ◆ Questionnaire follow-up: the 2026-11-03 "next workstream = repair backlog" decision now
-    conflicts with v12 — needs the owner's sequencing call (see g1).
+conflicts with v12 — needs the owner's sequencing call (see g1).
 
 ## g) Questions I cannot answer myself
 
@@ -145,5 +146,5 @@ were run green.
 
 ---
 
-*Point-in-time snapshot. Verdicts live here; execution state lives in TODO_LIST. Annotated
-errata, never rewrites. Index: `docs/status/README.md`.*
+_Point-in-time snapshot. Verdicts live here; execution state lives in TODO_LIST. Annotated
+errata, never rewrites. Index: `docs/status/README.md`._

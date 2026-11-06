@@ -136,5 +136,5 @@ sequencing call.
 
 ---
 
-*Point-in-time snapshot; supersedes the 01-25 report's population line only. Verdicts live
-here; execution state lives in TODO_LIST. Index: `docs/status/README.md`.*
+_Point-in-time snapshot; supersedes the 01-25 report's population line only. Verdicts live
+here; execution state lives in TODO_LIST. Index: `docs/status/README.md`._

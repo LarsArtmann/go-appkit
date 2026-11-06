@@ -98,7 +98,7 @@ verify-all + release-state sync (AGENTS/FEATURES/TODO_LIST headers).
    hack) — replaced by the library helper + clean tests.
 4. **process miss:** ran `golangci-lint run --fix` directly; the buildflow skill's
    default is `buildflow --fix` (project AGENTS documents bare per-module golangci-lint
-   as the *verdict* command; for fixing, BuildFlow owns the loop). Scoped to one new
+   as the _verdict_ command; for fixing, BuildFlow owns the loop). Scoped to one new
    module and re-verified by tests — deviation noted, not repeated for the next modules.
 5. **`rg -rn` hook block (third strike on this host):** the rg-replace-shaped trap again;
    corrected to plain `rg -n`. Also one wrong skill path guess and a sed that mis-ordered
