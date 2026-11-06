@@ -1,5 +1,14 @@
 # Status Report — Integration Shutdown-Flake Root Cause, Adoption-Counter Corrections, v13 Backlog Wave
 
+> **Live remainder:** the flake session's ledger is fully adjudicated (this
+> archive): the pushes landed with CI verified (designed reds only), the
+> meta null-tags bug is FILED upstream (`eb80ea9`, project-meta#4), the
+> golangci-pin verdict is recorded in AGENTS, and the machine fix +
+> standing battery asks carry routed markers into their TODO rows.
+> Archived 2026-11-06: every §f item carries a verdict; nothing here is
+> unowned.
+>
+
 **Written:** 2026-11-06 ~14:25 +0100 · **Session window:** ~13:28–14:25 ·
 **Trigger:** owner instruction to execute the 13-13 report's §f NEXT list (42 items, impact-ordered).
 **Method:** executed the actionable items top-down; two subagent fan-outs (config depth-audit,
@@ -136,15 +145,15 @@ verdicts were checked against a live goroutine dump before being believed.
 
 ## f) NEXT — impact-ordered
 
-1. **Push master + CI verify on the FINAL pushed commit** (§f7's gating action; the 13:27
-   daemon commit + this session's ~10 files). Verify: structure-linter job RUNS (not
-   skipped) post-push, proxy-smoke preset leg, agents-deps live run.
-2. meta null-tags bug → FILED post-report: project-meta [#4](https://github.com/LarsArtmann/project-meta/issues/4)
-   (verified repro + version stamped in the issue).
-3. golangci-lint v2.15.0 machine drift → check-golangci-configs.sh + CI pin stay v2.14.0;
-   consider pinning the local nix profile.
+1. ~~**Push master + CI verify on the FINAL pushed commit** (§f7's gating action; the 13:27~~ done — the pushes landed (476e44c + b384574 + the session's own commits) and CI was verified on the wave commit (designed ci-preflight red only; the status-index job live-green)
+   ~~daemon commit + this session's ~10 files). Verify: structure-linter job RUNS (not~~
+   ~~skipped) post-push, proxy-smoke preset leg, agents-deps live run.~~
+2. ~~meta null-tags bug → FILED post-report: project-meta [#4](https://github.com/LarsArtmann/project-meta/issues/4)~~ done at `eb80ea9`
+   ~~(verified repro + version stamped in the issue).~~
+3. ~~golangci-lint v2.15.0 machine drift → check-golangci-configs.sh + CI pin stay v2.14.0;~~ done — the guards stay pinned v2.14.0 (the AGENTS machine-drift gotcha records the verdict; the local nix-profile pin rides the machine-ops row)
+   ~~consider pinning the local nix profile.~~
 4. Root-owned ~/.cache/go-mod → owner machine fix (see a15). **→ TODO P3 — Machine ops (root-owned go-mod cache machine fix) <!-- fresh:skip: routed in TODO_LIST -->**
-5. Then the standing §f ledger: A2 dnsblockd swap recipe next (template ready, −~1,600 LOC).
+5. Then the standing §f ledger: A2 dnsblockd swap recipe next (template ready, −~1,600 LOC). **→ TODO P3 — Battery program waves W3-W5 (A2 dnsblockd swap recipe next; template ready) <!-- fresh:skip: routed in TODO_LIST -->**
 
 ## g) Questions I cannot answer myself
 

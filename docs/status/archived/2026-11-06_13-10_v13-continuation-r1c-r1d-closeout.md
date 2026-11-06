@@ -1,5 +1,12 @@
 # v13 Continuation — R1c/R1d Close-Out (bench record, screenshot, dprint)
 
+> **Live remainder:** none — this close-out landed its deliverables in the
+> same window (the AGENTS perf re-baseline, the realtime hub.go doc-const
+> note, the mobile screenshot, the dprint coverage record) and carries NO §f
+> section; the program rows it references live on the v13 plan + TODO_LIST.
+> Archived 2026-11-06 as a zero-item unit (the cadence wave's free archive).
+>
+
 **Written:** 2026-11-06 13:10 +0100 · **Session window:** ~13:00–13:10 (continuation of the 12:46 session, executing its exact next steps)
 
 ## Context

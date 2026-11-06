@@ -1,5 +1,10 @@
 # Adoption baseline — written 2026-11-06 14:13 +0100 by scripts/count-adopters.sh
 # Six-month gate (SUPERB v12/v13): go-appkit direct > 10 (beats every composed block)
+# Population note (restored 2026-11-06 22:10 from the dfeb4a5 original after a
+# counter rewrite dropped it): the counter uses TODAY's meta app tags + recursive
+# go.mod presence — the 2026-11-06 audit snapshot (39 Go apps, 6 direct) predates
+# tag drift (later refreshed: 41 Go apps, 7 direct in this baseline); trend THIS
+# baseline, not the snapshot.
 Go apps (meta --tags app): 41
 github.com/larsartmann/go-appkit              any  9/41  direct  7/41
 github.com/larsartmann/httputil               any 27/41  direct 24/41

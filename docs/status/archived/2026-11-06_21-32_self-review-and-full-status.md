@@ -1,5 +1,14 @@
 # Status Report — Self-Review + Full Program Status (post-backlog-wave)
 
+> **Live remainder:** the self-review's 50-item ledger is fully adjudicated
+> (this archive): the recoverable DOs landed (baseline note restored from
+> dfeb4a5, the E014 law + golangci-drift gotchas in AGENTS), the lost-data
+> asks (per-repo depth table, archetype matrix, html-overflow probe) are
+> routed to their minted rows with the loss recorded, and everything else
+> carries routed markers into the wired TODO rows. Archived 2026-11-06:
+> every §f item carries a verdict; nothing here is unowned.
+>
+
 **Written:** 2026-11-06 21:32 +0100 · **Work window:** 13:28–14:45 (burst) · this file adds the
 demanded self-review on top of `2026-11-06_14-25_integration-flake-rootcause-counter-corrections-status.md`
 (the work log — read that one for the full a-side evidence; this one owns the honest ledger).
@@ -142,68 +151,68 @@ ownership, langProbe comment — all checked live before writing).
 
 ## f) NEXT — up to 50, impact-ordered ([O]=owner-gated)
 
-1. Fix Errata 2's dangling pointer — persist the full config-depth per-repo table into the
+1. Fix Errata 2's dangling pointer — persist the full config-depth per-repo table into the **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (config depth-audit; persist the per-repo table this run) <!-- fresh:skip: routed in TODO_LIST -->**
    audit doc (or a sibling file) and correct the reference.
-2. Persist the 41-app archetype matrix as `docs/review/apps/archetype-matrix-2026-11-06.md`.
-3. Restore the baseline population-reconciliation note (dropped by the rewrite; recover the
-   text from `git show dfeb4a5:docs/review/apps/adoption-baseline.txt` era and adapt).
-4. Fix the langProbe comment to the real StateNew mechanism (or delete the placebo var).
-5. Write the cqrs E014 directive-shape LAW into AGENTS.md/module-details (directive NEVER on
-   the package clause; stale-suppression warning = accepted noise) — ends the 3-cycle dance.
-6. Record the golangci-lint v2.15.0 machine-drift gotcha in AGENTS (pinned v2.14.0 is the
-   verdict; bare v2.15.0 phantom wrapcheck findings).
-7. Record the GOMODCACHE incident + workaround in AGENTS machine notes (self-healed 13:44,
+2. Persist the 41-app archetype matrix as `docs/review/apps/archetype-matrix-2026-11-06.md`. **→ TODO P3 — SUPERB v12 micro-backlog (persist the single-membership archetype matrix artifact) <!-- fresh:skip: routed in TODO_LIST -->**
+3. ~~Restore the baseline population-reconciliation note (dropped by the rewrite; recover the~~ done — the population-reconciliation note is restored in docs/review/apps/adoption-baseline.txt (adapted to the 41-app numbers; recovered from dfeb4a5)
+   ~~text from `git show dfeb4a5:docs/review/apps/adoption-baseline.txt` era and adapt).~~
+4. Fix the langProbe comment to the real StateNew mechanism (or delete the placebo var). **→ TODO P3 — integration test-file hygiene (the langProbe comment to the real mechanism, or delete the placebo) <!-- fresh:skip: routed in TODO_LIST -->**
+5. ~~Write the cqrs E014 directive-shape LAW into AGENTS.md/module-details (directive NEVER on~~ done — the E014 directive-shape law is in the AGENTS gotchas; the cqrs CHANGELOG [Unreleased] entry carries the relocation record
+   ~~the package clause; stale-suppression warning = accepted noise) — ends the 3-cycle dance.~~
+6. ~~Record the golangci-lint v2.15.0 machine-drift gotcha in AGENTS (pinned v2.14.0 is the~~ done — the golangci v2.15.0 machine-drift gotcha is in AGENTS (the pinned-binary verdict; never chase phantom wrapcheck findings)
+   ~~verdict; bare v2.15.0 phantom wrapcheck findings).~~
+7. Record the GOMODCACHE incident + workaround in AGENTS machine notes (self-healed 13:44, **→ TODO P3 — Machine ops (GOMODCACHE incident note + the quiet-run self-heal guard) <!-- fresh:skip: routed in TODO_LIST -->**
    but the guard belongs in quiet-run).
-8. Add cache-writability + /tmp-space gates to `scripts/quiet-run.sh` (machine-ops row — now
+8. Add cache-writability + /tmp-space gates to `scripts/quiet-run.sh` (machine-ops row — now **→ TODO P3 — Machine ops (quiet-run cache-writability + tmp-space gates; the motivating incident recorded) <!-- fresh:skip: routed in TODO_LIST -->**
    has a concrete motivating incident).
-9. testkit-level pool-close in `TestServer.stop` (core train item — fixes ALL tests at once).
-10. Pool-close line on the remaining explicit cleanups (composition_contract, docs_composition,
+9. testkit-level pool-close in `TestServer.stop` (core train item — fixes ALL tests at once). **→ TODO P2 — test-helper dedup (testkit-level pool-close in TestServer.stop; fixes all tests at the source) <!-- fresh:skip: routed in TODO_LIST -->**
+10. Pool-close line on the remaining explicit cleanups (composition_contract, docs_composition, **→ TODO P2 — test-helper dedup (pool-close lines on the remaining explicit cleanups) <!-- fresh:skip: routed in TODO_LIST -->**
     systemd_lifecycle, sse_health_drain, cqrs goroutine site).
-11. Double-stop fixes: sse_health_drain:129 + cqrs_lifecycle:285 → `ts.Shutdown` per the
+11. Double-stop fixes: sse_health_drain:129 + cqrs_lifecycle:285 → `ts.Shutdown` per the **→ TODO P2 — test-helper dedup (double-stop fixes via ts.Shutdown: sse_health_drain + cqrs_lifecycle) <!-- fresh:skip: routed in TODO_LIST -->**
     testkit contract.
-12. cqrs CHANGELOG [Unreleased]: E014 relocation entry (lint-fix, no API delta).
-13. `scripts/html-overflow-probe.sh` — preserve the probe as a committed guard-able script.
-14. Counter single-awk-pass optimization (2min → seconds).
-15. Satellite test-helper migration (realtime/fr/health → testkit.FreeAddr/HTTPGetContext;
+12. ~~cqrs CHANGELOG [Unreleased]: E014 relocation entry (lint-fix, no API delta).~~ done — the cqrs CHANGELOG [Unreleased] already carries the F032 + E014 relocation entry (verified 2026-11-06)
+13. `scripts/html-overflow-probe.sh` — preserve the probe as a committed guard-able script. **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (recreate the html-overflow probe script; the /tmp original was lost) <!-- fresh:skip: routed in TODO_LIST -->**
+14. Counter single-awk-pass optimization (2min → seconds). **→ TODO P3 — SUPERB v12 micro-backlog (count-adopters single-awk-pass optimization) <!-- fresh:skip: routed in TODO_LIST -->**
+15. Satellite test-helper migration (realtime/fr/health → testkit.FreeAddr/HTTPGetContext; **→ TODO P2 — test-helper dedup (satellite realtime/fr/health migrations; unblocked by core v0.10.0) <!-- fresh:skip: routed in TODO_LIST -->**
     UNBLOCKED by core v0.10.0 published; rides the next satellite trains).
-16. Integration helper migration (e2eGet/freeAddr/poll spellings → testkit family).
-17. Explicitly verify the preset proxy-smoke leg conclusion (the unverified claim, §d6).
-18. Watch meta#4 → land fix → drop the jq workaround + add `meta tags --list` to count-adopters
+16. Integration helper migration (e2eGet/freeAddr/poll spellings → testkit family). **→ TODO P2 — test-helper dedup (integration e2eGet/freeAddr/poll migrations) <!-- fresh:skip: routed in TODO_LIST -->**
+17. Explicitly verify the preset proxy-smoke leg conclusion (the unverified claim, §d6). **→ TODO P3 — v13 plan P9c fresh-consumer proxy checks (the preset leg's unverified conclusion) <!-- fresh:skip: routed in TODO_LIST -->**
+18. Watch meta#4 → land fix → drop the jq workaround + add `meta tags --list` to count-adopters **→ TODO P3 — Upstream watchlist (meta#4 lands → drop the jq workaround + counter cross-check column) <!-- fresh:skip: routed in TODO_LIST -->**
     as a cross-check column.
-19. Responsive-baseline ask for html-report-kit (FUTURE reports; 12/15 corpus overflow).
-20. A2 dnsblockd swap recipe (template ready; −~1,600 LOC mapped).
-21. A3 ChastityAPI swap recipe (−~4,800 LOC class).
-22. A4 PapDashboard security swap recipe (M17 follow-up).
-23. A5 pbx-lens cmdguard migration recipe (fatalCode → exit contract).
-24. D3a SQLite ops kit: design + lease matrix.
-25. D3b SQLite ops kit: backup round-trip + ledger atomicity.
-26. D3c embedded-migration helper + versioning round-trip (16-app demand).
-27. D1a worker supervisor Manager port-from.
-28. D1b worker supervisor: pools, panic-restart, start-during-shutdown joins.
-29. C2R realtime: Mount one-liner + SubscribeFolded discriminator test.
-30. H-train httpx B1–B9 [O] (gated on H8).
-31. X-train Service-on-httputil.Server compose refactor (spike re-run vs v1.7.0) [O-lane].
-32. S2–S7 scaffold program [O] (verdict doc exists: template repo wins).
-33. Scaffold template repo dogfood (boot + graceful-stop probe) [O].
-34. Auth-bridge decision memo (~90m, owner gate).
-35. H8 decision: httputil/endpoints registry adopt/decline [O] (input ready: endpoints.md).
-36. OG6 machine go ≥1.27.2 default [O].
-37. CI SSH_PRIVATE_KEY secret restore [O] (P1; makes structure-linter RUN).
-38. pma owner checklist execution (§6 decisions + `.*-body.html` ignore_patterns) [O].
-39. BuildFlow: honor `go_mod_ignore_dirs` in module-inventory (their repo; kills the standing
+19. Responsive-baseline ask for html-report-kit (FUTURE reports; 12/15 corpus overflow). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (html-report-kit responsive-baseline ask; 12/15 corpus overflow) <!-- fresh:skip: routed in TODO_LIST -->**
+20. A2 dnsblockd swap recipe (template ready; −~1,600 LOC mapped). **→ TODO P3 — Battery program waves W3-W5 (A2 dnsblockd swap recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+21. A3 ChastityAPI swap recipe (−~4,800 LOC class). **→ TODO P3 — Battery program waves W3-W5 (A3 ChastityAPI swap recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+22. A4 PapDashboard security swap recipe (M17 follow-up). **→ TODO P3 — Battery program waves W3-W5 (A4 PapDashboard security swap recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+23. A5 pbx-lens cmdguard migration recipe (fatalCode → exit contract). **→ TODO P3 — Battery program waves W3-W5 (A5 pbx-lens cmdguard recipe) <!-- fresh:skip: routed in TODO_LIST -->**
+24. D3a SQLite ops kit: design + lease matrix. **→ TODO P3 — Battery program waves W3-W5 (D3a SQLite ops kit design + lease matrix) <!-- fresh:skip: routed in TODO_LIST -->**
+25. D3b SQLite ops kit: backup round-trip + ledger atomicity. **→ TODO P3 — Battery program waves W3-W5 (D3b backup round-trip + ledger atomicity) <!-- fresh:skip: routed in TODO_LIST -->**
+26. D3c embedded-migration helper + versioning round-trip (16-app demand). **→ TODO P3 — Battery program waves W3-W5 (D3c embedded-migration helper) <!-- fresh:skip: routed in TODO_LIST -->**
+27. D1a worker supervisor Manager port-from. **→ TODO P3 — Battery program waves W3-W5 (D1a worker supervisor Manager port-from) <!-- fresh:skip: routed in TODO_LIST -->**
+28. D1b worker supervisor: pools, panic-restart, start-during-shutdown joins. **→ TODO P3 — Battery program waves W3-W5 (D1b pools/panic-restart/joins) <!-- fresh:skip: routed in TODO_LIST -->**
+29. C2R realtime: Mount one-liner + SubscribeFolded discriminator test. **→ TODO P3 — Battery program waves W3-W5 (C2R Mount one-liner + SubscribeFolded test) <!-- fresh:skip: routed in TODO_LIST -->**
+30. H-train httpx B1–B9 [O] (gated on H8). **→ TODO P3 — Battery program waves W3-W5 (H-train httpx B1-B9) <!-- fresh:skip: routed in TODO_LIST -->**
+31. X-train Service-on-httputil.Server compose refactor (spike re-run vs v1.7.0) [O-lane]. **→ TODO P2 — compose Service on httputil.Server (X-train; spike re-run vs v1.7.0) <!-- fresh:skip: routed in TODO_LIST -->**
+32. S2–S7 scaffold program [O] (verdict doc exists: template repo wins). **→ TODO P3 — v13 plan S2-S7 scaffold rows (template repo; verdict doc landed) <!-- fresh:skip: routed in TODO_LIST -->**
+33. Scaffold template repo dogfood (boot + graceful-stop probe) [O]. **→ TODO P3 — v13 plan S2-S7 scaffold rows (dogfood boot + graceful-stop probe) <!-- fresh:skip: routed in TODO_LIST -->**
+34. Auth-bridge decision memo (~90m, owner gate). **→ TODO P3 — Auth-bridge DECISION memo (owner gate) <!-- fresh:skip: routed in TODO_LIST -->**
+35. H8 decision: httputil/endpoints registry adopt/decline [O] (input ready: endpoints.md). **→ TODO P3 — Battery program waves W3-W5 (H8 endpoints-registry decision; input ready) <!-- fresh:skip: routed in TODO_LIST -->**
+36. OG6 machine go ≥1.27.2 default [O]. **→ TODO P3 — open questions awaiting USER decisions (machine go >=1.27.2) <!-- fresh:skip: routed in TODO_LIST -->**
+37. CI SSH_PRIVATE_KEY secret restore [O] (P1; makes structure-linter RUN). **→ TODO P1 — owner-gated CI secret (SSH_PRIVATE_KEY restore; structure-linter RUNS) <!-- fresh:skip: routed in TODO_LIST -->**
+38. pma owner checklist execution (§6 decisions + `.*-body.html` ignore_patterns) [O]. **→ TODO P3 — pma rows (owner checklist execution + ignore_patterns) <!-- fresh:skip: routed in TODO_LIST -->**
+39. BuildFlow: honor `go_mod_ignore_dirs` in module-inventory (their repo; kills the standing **→ TODO P3 — Machine ops (BuildFlow-repo module-inventory go_mod_ignore_dirs upstream ask) <!-- fresh:skip: routed in TODO_LIST -->**
     integration warning).
-40. cqrs-lint: pin in CI when an upstream stable tag exists (art-dupl-gate precedent).
-41. per-archetype adoption targets wired into the counter output once the matrix is persisted
+40. cqrs-lint: pin in CI when an upstream stable tag exists (art-dupl-gate precedent). **→ TODO P3 — cqrs-lint tooling debts (CI pin when an upstream stable tag exists) <!-- fresh:skip: routed in TODO_LIST -->**
+41. per-archetype adoption targets wired into the counter output once the matrix is persisted **→ TODO P3 — SUPERB v12 micro-backlog (per-archetype adoption targets once the matrix persists) <!-- fresh:skip: routed in TODO_LIST -->**
     (gate becomes per-archetype mechanical).
-42. Six-month adoption re-sweep ritual reminder (gate: direct > 10; today 7/41).
-43. docs/research HTML trio keep/archive ruling (placeholder `<title>`) [O-ish].
-44. rev-N (expanded) planning-docs convention ruling [O].
-45. plan-revision convention ruling [O] (row 49 remainder).
-46. Watch: go-sse re-pin (DefaultSubscriberBuffer export + ssetest breaking change).
-47. Watch: SigNoz semconv flip; otel v1.48 train readiness (README refresh riders).
-48. Watch: cqrs-htmx / PapDashboard next tags → consumer-claims guard refresh (routine).
-49. Push crush-config lessons (20587f0) on the next crush-config session.
-50. Consider a `quiet-run`-gated suite runner for the integration loop (load-sensitive
+42. Six-month adoption re-sweep ritual reminder (gate: direct > 10; today 7/41). **→ TODO P2 — SUPERB v12 preset spine (six-month adoption re-sweep; direct > 10 vs 7/41 today) <!-- fresh:skip: routed in TODO_LIST -->**
+43. docs/research HTML trio keep/archive ruling (placeholder `<title>`) [O-ish]. **→ TODO P3 — docs/research HTML deep-dive trio (keep/archive ruling) <!-- fresh:skip: routed in TODO_LIST -->**
+44. rev-N (expanded) planning-docs convention ruling [O]. **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (rev-N expanded convention ruling) <!-- fresh:skip: routed in TODO_LIST -->**
+45. plan-revision convention ruling [O] (row 49 remainder). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (plan-revision convention ruling) <!-- fresh:skip: routed in TODO_LIST -->**
+46. Watch: go-sse re-pin (DefaultSubscriberBuffer export + ssetest breaking change). **→ TODO P3 — Upstream watchlist (go-sse re-pin: DefaultSubscriberBuffer + ssetest breaking change) <!-- fresh:skip: routed in TODO_LIST -->**
+47. Watch: SigNoz semconv flip; otel v1.48 train readiness (README refresh riders). **→ TODO P3 — Watch: upstream otel v1.48.0 train readiness (SigNoz semconv flip rides the SigNoz row) <!-- fresh:skip: routed in TODO_LIST -->**
+48. Watch: cqrs-htmx / PapDashboard next tags → consumer-claims guard refresh (routine). **→ TODO P3 — Upstream watchlist (cqrs-htmx/PapDashboard next tags → claims refresh) <!-- fresh:skip: routed in TODO_LIST -->**
+49. Push crush-config lessons (20587f0) on the next crush-config session. **→ TODO P3 — SUPERB v12 micro-backlog (push crush-config lessons 20587f0) <!-- fresh:skip: routed in TODO_LIST -->**
+50. Consider a `quiet-run`-gated suite runner for the integration loop (load-sensitive **→ TODO P3 — Machine ops (quiet-run-gated integration suite runner consideration) <!-- fresh:skip: routed in TODO_LIST -->**
     deadline class is now FIXED in code, but the gate still belongs on bench-style loops).
 
 ## g) Questions I cannot answer myself
