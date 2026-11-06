@@ -37,6 +37,11 @@ jobs:
   # structure-linter job rides this job) and the optional SSH fallback steps
   # in the test matrix.
   ci-preflight:
+    # DESIGNED RED (2026-11-06, 16-13 item 30 made visible): this job fails
+    # BY DESIGN until the owner restores the SSH secret — the name and the
+    # annotation say so, so the red reads as the reminder it is, not as a
+    # regression. It retires entirely when the secret lands.
+    name: "ci-preflight (designed red until the SSH secret is restored)"
     runs-on: ubuntu-latest
     steps:
       - name: Check SSH_PRIVATE_KEY secret is present
@@ -45,6 +50,7 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           if [[ -z "$SSH_KEY" ]]; then
+            echo "::warning title=Designed red (ci-preflight)::SSH_PRIVATE_KEY is absent BY DESIGN until the owner restores the repo secret (Settings -> Secrets -> Actions). This is NOT a regression; the matrix runs unauthenticated. Only the structure-linter job (private binary) waits on the secret."
             echo "::error::SSH_PRIVATE_KEY resolves empty - restore the repo secret (Settings -> Secrets -> Actions). The test matrix runs unauthenticated (all deps public); only the structure-linter job (private binary) and the SSH fallback steps wait on this secret."
             exit 1
           fi
@@ -199,6 +205,21 @@ jobs:
           fetch-depth: 0
       - name: Check release-state pin drift
         run: ./scripts/check-pin-drift.sh
+
+  # FAST+OFFLINE guards (issue54 session, 2026-11-06): LICENSE coverage per
+  # released module + FEATURES version-truth claims vs the tag set. Both
+  # joined the pre-commit fatal set and pre-tag-checks on the same day; this
+  # job completes the M14 three-venue matrix for the pair.
+  module-doc-claims:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # features-claims needs the full tag set
+      - name: LICENSE coverage per released module
+        run: ./scripts/check-module-licenses.sh
+      - name: FEATURES Shipped-through claims == newest tags
+        run: ./scripts/check-features-claims.sh
 
   # Go-directive parity (plan 2026-09-20 T05): every module's go.mod must
   # declare the same go directive as go.work. Cheap, history-free guard for

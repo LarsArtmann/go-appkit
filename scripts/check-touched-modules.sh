@@ -7,16 +7,16 @@
 # landed and CI caught them a push later).
 #
 # Mapping: a staged path under <dir>/ touches module <dir>; a repo-root path
-# (not under any go.work member dir) touches core ("."). A module whose
-# touched set carries NO Go files (.go/.mod/.sum) is skipped — doc/config-only
-# commits do not pay a build. Integration is verified with the same hermetic
-# prefix as everywhere (its TestMain rejects workspace-mode `go test`).
+# (not under any go.work member dir) touches core ("."). In staged mode a
+# module with NO Go payload among its touched files (.go/.mod/.sum) is
+# skipped — doc/config-only commits do not pay a build. Named paths and
+# --all verify the named modules regardless of payload. Integration is
+# verified with the same hermetic prefix as everywhere (its TestMain rejects
+# workspace-mode `go test`).
 #
 # Default depth: build + vet (seconds per module — safe as a FATAL pre-commit
 # guard). `--tests` adds the full `go test ./... -race -count=1` loop (the
 # complete per-module verify loop; manual / pre-tag use — minutes per module).
-# `--staged` (default) reads `git diff --cached`; pass paths or `--all` for
-# explicit module verification.
 #
 # Usage:
 #   scripts/check-touched-modules.sh              # staged set, build+vet
@@ -40,7 +40,7 @@ for arg in "$@"; do
 	--all) verify_all=true ;;
 	--staged) ;; # default
 	-h* | --help)
-		sed -n '2,30p' "$0"
+		sed -n '2,32p' "$0"
 		exit 0
 		;;
 	*) paths+=("$arg") ;;
@@ -63,66 +63,54 @@ while IFS= read -r use_entry; do
 	esac
 done < <(awk '/^use \(/{f=1; next} /^\)/{f=0} f && NF {print $1}' go.work)
 
+# Collect touched modules: explicit selection always verifies; staged mode
+# requires a Go payload per module.
+declare -A pending=()
+declare -A payload=()
+record() {
+	local f="$1" dir
+	dir="${f%%/*}"
+	[[ "$dir" == "${f}" ]] && dir="."
+	if [[ -n "${members[$dir]:-}" ]]; then
+		pending["$dir"]=1
+		case "$f" in
+		*.go | *.mod | *.sum) payload["$dir"]=1 ;;
+		esac
+	fi
+}
+
 if [[ "$verify_all" == true ]]; then
-	touched=("${!members[@]}")
+	for m in "${!members[@]}"; do
+		pending["$m"]=1
+		payload["$m"]=1
+	done
 elif ((${#paths[@]} > 0)); then
-	touched_source="named modules"
 	for p in "${paths[@]}"; do
-		if [[ -n "${members[$p]:-}" ]]; then touched+=("$p"); fi
-	done
-else
-	touched_source="staged set"
-	while IFS= read -r f; do
-		[[ -n "$f" ]] || continue
-		dir="${f%%/*}"
-		if [[ "$dir" == "${f}" ]]; then
-			touched+=(".") # repo-root path
-		elif [[ -n "${members[$dir]:-}" ]]; then
-			touched+=("$dir")
+		if [[ -n "${members[$p]:-}" ]]; then
+			pending["$p"]=1
+			payload["$p"]=1
+		else
+			echo "SKIP: '$p' is not a module directory (go.work members: . ${!members[*]})"
 		fi
-	done < <(git diff --cached --name-only 2>/dev/null)
-fi
-
-# Dedupe + drop modules with no Go payload in the touched set.
-declare -A go_touched=()
-if [[ "$verify_all" == true || ${#paths[@]} -gt 0 ]]; then
-	for m in "${touched[@]:-}"; do
-		[[ -n "$m" ]] && go_touched["$m"]=1
 	done
-else
-	for m in "${touched[@]:-}"; do
-		[[ -n "$m" ]] || continue
-		go_touched["$m"]="${go_touched[$m]:-}"
-	done
-	while IFS= read -r f; do
-		[[ -n "$f" ]] || continue
-		dir="${f%%/*}"
-		[[ "$dir" == "${f}" ]] && dir="."
-		case "$f" in
-		*.go | *.mod | *.sum) [[ -n "${go_touched[$dir]:-}" ]] && go_touched["$dir"]=1 ;;
-		esac
-	done < <(git diff --cached --name-only 2>/dev/null)
-fi
-
-# Second pass sets 0-sentinels above; flip to 1 only for modules with Go files.
-declare -A final=()
-if [[ "$verify_all" == true || ${#paths[@]} > 0 ]]; then
-	for m in "${!go_touched[@]}"; do final["$m"]=1; done
 else
 	while IFS= read -r f; do
 		[[ -n "$f" ]] || continue
-		dir="${f%%/*}"
-		[[ "$dir" == "${f}" ]] && dir="."
-		case "$f" in
-		*.go | *.mod | *.sum) final["$dir"]=1 ;;
-		esac
+		record "$f"
 	done < <(git diff --cached --name-only 2>/dev/null)
 fi
 
 status=0
 verified=0
 skipped=0
-for m in "${!final[@]}"; do
+for m in "${!pending[@]}"; do
+	if [[ "$verify_all" == false && ${#paths[@]} -eq 0 && -z "${payload[$m]:-}" ]]; then
+		label="$m"
+		[[ "$label" == "." ]] && label="core"
+		echo "SKIP: $label touched without Go payload (doc/config-only)"
+		skipped=$((skipped + 1))
+		continue
+	fi
 	label="$m"
 	[[ "$label" == "." ]] && label="core"
 	echo "== $label (build+vet$( [[ "$run_tests" == true ]] && echo '+test -race' )) =="
@@ -139,6 +127,6 @@ for m in "${!final[@]}"; do
 done
 
 if ((status == 0)); then
-	echo "TOUCHED MODULES: $verified module(s) verified ($touched_source; doc-only modules skipped)"
+	echo "TOUCHED MODULES: $verified module(s) verified, $skipped doc-only skip(s)"
 fi
 exit "$status"

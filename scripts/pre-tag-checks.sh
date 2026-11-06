@@ -42,6 +42,13 @@
 #      go directive == the go.work floor, no `toolchain` directive, and no
 #      filesystem `replace` (tag hygiene: working-tree replaces used for
 #      cross-repo debugging must never ship).
+#   3. Each TAGGED ARTIFACT's CHANGELOG (its own tree) carries a
+#      `## [<version>] - <tag date>` section — the release-ritual dating
+#      rule as code (check-tagged-changelogs.sh, issue54 §f31).
+#      2026-11-06 additions: module-licenses + features-claims join the
+#      FAST+OFFLINE standing-guard set; the release-window rule in
+#      check-pin-drift makes the tag→push window green (loud NOTEs, not
+#      reds).
 
 set -euo pipefail
 
@@ -61,7 +68,7 @@ fail() {
 }
 
 # --- 1) Standing guards -----------------------------------------------------
-for guard in check-go-directives.sh check-agents-deps.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-routed-destinations.sh check-status-index.sh check-golangci-configs.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh check-art-dupl.sh; do
+for guard in check-go-directives.sh check-agents-deps.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-routed-destinations.sh check-status-index.sh check-golangci-configs.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh check-art-dupl.sh check-module-licenses.sh check-features-claims.sh; do
 	echo "== $guard =="
 	if ! "./scripts/$guard"; then
 		fail "$guard failed — fix before pushing ${tags[*]}"
@@ -105,6 +112,12 @@ for tag in "${tags[@]}"; do
 		fail "$tag:$gomod_path carries a filesystem replace: $tagged_replace_fs — remove before tagging (tag hygiene)"
 	fi
 done
+
+# --- 3) Tagged CHANGELOGs (issue54 §f31): each tagged artifact's own tree
+#        must carry a CHANGELOG section dated for the release.
+if ! ./scripts/check-tagged-changelogs.sh "${tags[@]}"; then
+	fail "tagged-changelogs failed — date the module CHANGELOG before pushing ${tags[*]}"
+fi
 
 if ((status == 0)); then
 	echo "PRE-TAG GATE GREEN: ${tags[*]} safe to push"

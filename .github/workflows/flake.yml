@@ -1,0 +1,32 @@
+# Nightly flake hunter (2026-11-06, issue54 session §f11): the integration
+# suite runs ONCE per push in the main CI matrix; a load-flake that appears
+# once in five runs stays invisible. This workflow re-runs the integration
+# suite five times a night, hermetically (GOWORK=off — the module is not a
+# workspace member and its TestMain enforces that), through the PUBLISHED
+# tags its go.mod pins. A red here is evidence of a real flake, not a
+# designed state — unlike ci-preflight.
+#
+# Manual trigger: gh workflow run flake.yml
+name: flake
+
+on:
+  schedule:
+    - cron: "17 4 * * *" # nightly 04:17 UTC — off the top-of-hour stampede
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  integration-count5:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Integration suite ×5 (hermetic, published pins)
+        working-directory: integration
+        env:
+          GOWORK: "off"
+        run: go test ./... -race -count=5

@@ -4,7 +4,8 @@
 # previous .git/hooks/pre-commit INERT: no guard has run at commit time
 # since that override landed (found 2026-10-07, SUPERB T06/T07).
 #
-# Fatal: the five OFFLINE standing guards (fast, read-only, no network).
+# Fatal: the seven OFFLINE standing guards (fast, read-only, no network)
+# plus the per-module build+vet for the staged set (check-touched-modules).
 # Warning-only: push-lag watch.
 #
 # Deliberately NOT the full BuildFlow pre-commit block: its dprint step
@@ -18,7 +19,7 @@ set -u
 
 GUARD_FAIL=0
 
-for guard in check-go-directives.sh check-dependabot-parity.sh check-workspace-charter.sh check-sse-protocol.sh check-agents-deps.sh; do
+for guard in check-go-directives.sh check-dependabot-parity.sh check-workspace-charter.sh check-sse-protocol.sh check-agents-deps.sh check-module-licenses.sh check-features-claims.sh; do
 	if ! ./scripts/"$guard" >/dev/null 2>&1; then
 		echo "pre-commit: $guard FAILED (see scripts/$guard output)"
 		GUARD_FAIL=1
@@ -37,6 +38,17 @@ done
 # which would resolve local code instead of the published pins).
 if git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -q '^integration/'; then
 	echo "pre-commit NOTE: integration/ staged — verify hermetically: cd integration && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1"
+fi
+
+# Per-module hermetic build+vet for every module the staged set touches
+# (2026-11-06, 16-13 improvement #1 made mechanical). FATAL: a staged Go
+# change must build and vet before it commits; doc-only staged sets verify
+# zero modules and stay instant. Full test loops stay the session ritual
+# (scripts/verify-all.sh / check-touched-modules.sh --tests) — pre-commit
+# stays seconds, not minutes.
+if ! ./scripts/check-touched-modules.sh; then
+	echo "pre-commit: check-touched-modules.sh FAILED (staged Go changes must build+vet)"
+	GUARD_FAIL=1
 fi
 
 if lag="$(./scripts/check-push-lag.sh 2>/dev/null)"; then
