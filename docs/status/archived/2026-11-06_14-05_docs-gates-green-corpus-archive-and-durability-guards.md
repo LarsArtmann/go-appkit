@@ -1,5 +1,13 @@
 # Status Report — Docs-Gates Green: 12-Report Corpus Archive + Durability Guards
 
+> **SUPERSEDED 2026-11-06 ~21:30** by the full-session report
+> `2026-11-06_21-30_corpus-archive-execution-durability-guards-and-treadmill.md`
+> (this interim covered only the morning half; the afternoon added the 21-53
+> archive, both durability guards, the pre-tag green, and the CI
+> verification). Every §f item here was already routed with fresh:skip at
+> write time — nothing was re-adjudicated for the move.
+>
+
 **2026-11-06 ~14:05 CET · Scope:** executing `docs/planning/2026-11-06_09-37_SUPERB-docs-gates-green-and-corpus-archive.md`
 wave 1 + the 20% systemic tier, plus the concurrent-session drift repairs that
 fell out of it.

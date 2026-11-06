@@ -12,38 +12,42 @@ wave went green.
 
 | Gate        | Verdict | Detail                                                          |
 | ----------- | ------- | --------------------------------------------------------------- |
-| freshness   | **FAIL**| 1 unharvested item in the 14-25 report (NOT mine — see §c-1)    |
-| audit-all   | **FAIL**| same item, pin 0 doing its job                                  |
+| freshness   | PASS    | the 14-25 item was routed in this report's own close-out        |
+| audit-all   | PASS    | pin 0 holds (see §c-1 for the 21:27→21:45 story)                |
 | annotate    | PASS    | 243 findings, pin 255 (was 244 at wave start — net -1)          |
 | routing     | PASS    | STRICT, 0 unrouted, 0 dead, 0 unenforced                        |
-| cadence     | PASS    | 15 unarchived (threshold 15 — ZERO headroom), oldest 4d         |
+| cadence     | PASS    | 15 unarchived (threshold 15 — ZERO headroom), oldest 3d         |
 
 My wave ended 5/5 green at ~20:00; the 14-25 concurrent report re-RED
-freshness/audit-all by 21:27. Cadence holds at exactly the floor. The corpus
-is a treadmill: concurrent sessions write faster than waves archive.
+freshness/audit-all by 21:27, and MY OWN 21-30 report re-tripped cadence
+(16 > 15) the moment I wrote it. Both were fixed in this report's own
+close-out (~21:45): the 14-25 item routed to the machine-ops row and the
+superseded 14-05 interim archived (born-routed, zero re-adjudication).
+Final state on exit: 5/5 PASS. The corpus is a treadmill: concurrent
+sessions write faster than waves archive — see §e-3.
 
 ---
 
 ## a) FULLY DONE (verified, evidence cited)
 
-1. **Twelve reports archived with the full ritual** (spec from `emit-keys`/ **→ TODO P3 — Machine ops (root-owned go-mod cache; the 14-25 report's item 4) **<!-- fresh:skip: routed in TODO_LIST -->**
+1. **Twelve reports archived with the full ritual** (spec from `emit-keys`/
    `dump-items` → `--verify` read in full → apply → `check-rows` → banner →
    `git mv` → index): pma dossier (cleared the 30-day age arm), 01-25,
    01-33, 06-59, 07-50, 12-49, 12-25_superb, 07-14, 12-25_release, 21-35,
    16-13, 21-53. Every archived file carries the `> **Live remainder:**`
    banner naming its owners; ~340 adjudications total (done-at-hash /
    NOT-DO with checkable premises / routed+fresh:skip / superseded-moot).
-2. **The battery went fully green mid-session** (`docs-gates run .` 5/5 PASS, **→ TODO P3 — docs-health corpus waves 3-4 (drift sweep) <!-- fresh:skip: routed in TODO_LIST -->**
+2. **The battery went fully green mid-session** (`docs-gates run .` 5/5 PASS,
    ~20:00) and stayed green through the wave commits; the post-wave red is a
    NEW concurrent report's item, not a wave regression.
-3. **The p9a freshness drift repaired truthfully:** TODO rows 37/38/39 **→ TODO P3 — docs-health corpus waves 3-4 (headroom) <!-- fresh:skip: routed in TODO_LIST -->**
+3. **The p9a freshness drift repaired truthfully:** TODO rows 37/38/39
    (R3/R4a/R5a) were open behind completed work — closed with verified
    evidence (`WrapOnce`/`hook_index` in service.go, the
    `RegisterClassifications` README recipe + example call,
    `hookclassification_test.go` via errorfamilytest, the servertiming README
    recipe, dependabot coverage), after `--explain-item` proved the item's
    tokens generic and unharvestable by prose.
-4. **Real work executed, not just routed:** AGENTS gained four durable rules **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+4. **Real work executed, not just routed:** AGENTS gained four durable rules
    (drain-response-bodies, the spot-check bar, test-parallelism posture,
    rows-vs-live-state session-close line); the P8 preset E2E verified GREEN
    through the PUBLISHED tag (`2de5875`, `integration/preset_e2e_test.go`,
@@ -53,12 +57,12 @@ is a treadmill: concurrent sessions write faster than waves archive.
    flipped to released-state with the audit-errata pointer; the
    `documentedPins` fixture scope note added to `docs/agents/module-details.md`
    §integration.
-5. **The fleet govulncheck sweep actually RAN** (the 16-13 item open since **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+5. **The fleet govulncheck sweep actually RAN** (the 16-13 item open since
    2026-10-13): 13 modules in parallel — ONE stdlib finding (GO-2026-6809,
    `crypto/x509@go1.27.2`, fixed in go1.27.3), ZERO dependency findings →
    minted the floor-train TODO row instead of hijacking a release train
    mid-docs-wave.
-6. **Two new mechanical guards, born-red-proven:** **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+6. **Two new mechanical guards, born-red-proven:**
    `scripts/docs-annotate-pass.sh` (annotate → check-rows → format →
    check-rows as one command, dry-run default — the formatter canon that
    previously existed only as prose and was skipped, once damaging seven
@@ -66,24 +70,24 @@ is a treadmill: concurrent sessions write faster than waves archive.
    disk→index liveness; wired into `pre-tag-checks.sh` + the new CI
    `status-index` job — SUCCESS on its first live run — and it caught two
    truncated manifest filenames I had written minutes earlier).
-7. **Routed-grammar hygiene:** the pre-existing unenforced `Z2-Z7` marker **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+7. **Routed-grammar hygiene:** the pre-existing unenforced `Z2-Z7` marker
    closed to the `TODO P3 — v13 plan Z2-Z7 rows` form; my own three bare-path
    markers in the 14-05 report reworded after the guard flagged them →
    `0 unenforced` at wave end.
-8. **Index truth restored:** 8 missing Current rows added (the four 2026-11-03 **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+8. **Index truth restored:** 8 missing Current rows added (the four 2026-11-03
    sessions + four 2026-11-06 v12 sessions), 5 stale Current rows removed
    (pointing at files the wave moved), 12 archived-manifest rows written,
    archived count 89 → 101; `check-status-index.sh` green in both directions.
-9. **Pre-tag gate GREEN end-to-end:** `./scripts/pre-tag-checks.sh **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+9. **Pre-tag gate GREEN end-to-end:** `./scripts/pre-tag-checks.sh
    health/v0.3.1` exit 0 — all twelve guards (directives, agents-deps,
    pin-drift, dependabot-parity, workspace-charter, routed-destinations,
    status-index, golangci-configs, consumer-claims, sse-protocol,
    gosum-canonical, art-dupl) plus the tagged-artifact assertions.
-10. **Pushed and CI-verified:** `c4779a5..b5bfb33` on origin/master; the wave **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+10. **Pushed and CI-verified:** `c4779a5..b5bfb33` on origin/master; the wave
     commit's CI run has exactly ONE failure — the designed ci-preflight
     SSH-secret watchdog; every real job green (13-module test matrix,
     workspace-charter, and the first-ever `status-index` run).
-11. **Fifteen TODO rows minted** so no archived item is unowned: floor-train **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+11. **Fifteen TODO rows minted** so no archived item is unowned: floor-train
     1.27.3, cqrs-lint tooling debts, integration test-file hygiene,
     check-touched-modules.sh, ci-preflight expected-red visibility, watchlist
     row split, errorpages godoc caveat, audit loose ends (browser-render
@@ -94,116 +98,117 @@ is a treadmill: concurrent sessions write faster than waves archive.
 
 ## b) PARTIALLY DONE
 
-1. **Wave 2 of the plan:** 21-35, 16-13, 21-53 archived (all three done) — **→ TODO P3 — Machine ops (root-owned go-mod cache; the 14-25 report's item 4) **<!-- fresh:skip: routed in TODO_LIST -->**
+1. **Wave 2 of the plan:** 21-35, 16-13, 21-53 archived (all three done) —
    but the plan's "≤13 unarchived" stretch target was missed (15 at wave end,
    15 now): six concurrent-session reports landed during the wave
    (12-46, 13-10, 13-13, 14-05 mine, 14-25, +). The GATE is green; the
    stretch number was overtaken by the treadmill.
-2. **Headroom:** cadence sits at EXACTLY the floor (15/15). One more report **→ TODO P3 — docs-health corpus waves 3-4 (drift sweep) <!-- fresh:skip: routed in TODO_LIST -->**
+2. **Headroom:** cadence sits at EXACTLY the floor (15/15). One more report
    without an archive re-reds it. The waves-3-4 row exists; the archiving has
    not caught up to the writing.
-3. **The 14-05 interim report:** superseded by this one; its three bare-path **→ TODO P3 — docs-health corpus waves 3-4 (headroom) <!-- fresh:skip: routed in TODO_LIST -->**
+3. **The 14-05 interim report:** superseded by this one; its three bare-path
    §f markers were fixed post-push (follow-up commit), which is the honest
    sequence but means the pushed tip went red-guarded for one commit window.
-4. **`annotate_max` drain:** 243 findings tolerated (net -1 this session); **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+4. **`annotate_max` drain:** 243 findings tolerated (net -1 this session);
    the G/uniform per-cell-strike class in the worst archived offenders is
    routed, not fixed.
 
 ## c) NOT STARTED
 
-1. **The live freshness red (NOT my wave's):** the concurrent **→ TODO P3 — Machine ops (root-owned go-mod cache; the 14-25 report's item 4) **<!-- fresh:skip: routed in TODO_LIST -->**
-   `14-25_integration-flake-rootcause-counter-corrections-status.md` carries
-   item 4 ("Root-owned ~/.cache/go-mod → owner machine fix") unharvested —
-   it needs a routed marker into the machine-ops TODO row (venue form), or
-   the ask minted there if the row doesn't carry it. First item for the next
-   session; `audit_max: 0` makes this instantly loud, which is the ratchet
-   working.
-2. **Wave 3 archives:** the five 2026-11-03 reports (16-28, 19-54, 20-35, **→ TODO P3 — docs-health corpus waves 3-4 (drift sweep) <!-- fresh:skip: routed in TODO_LIST -->**
+1. ~~The live freshness red~~ **FIXED in this report's own close-out
+   (~21:45):** the 14-25 report's item 4 ("Root-owned ~/.cache/go-mod →
+   owner machine fix") is routed to the machine-ops row (venue form, the
+   row gained the clause), and the superseded 14-05 interim report was
+   archived (born-routed, zero re-adjudication) to restore cadence 16 → 15.
+   Battery back to 5/5 PASS. Kept here as the honest record of the
+   treadmill firing TWICE in one evening.
+2. **Wave 3 archives:** the five 2026-11-03 reports (16-28, 19-54, 20-35,
    21-25, 22-36; ~245 items) — routed to the waves-3-4 row.
-3. **Wave 4 archives:** the 2026-11-06 session reports + this report — gated **→ TODO P3 — docs-health corpus waves 3-4 (headroom) <!-- fresh:skip: routed in TODO_LIST -->**
+3. **Wave 4 archives:** the 2026-11-06 session reports + this report — gated
    on v13 stopping, per the plan.
-4. **Upstream docs-gates notes:** the routed≠resolved semantic gap between **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+4. **Upstream docs-gates notes:** the routed≠resolved semantic gap between
    freshness and routing, and the prose-matcher compound-item quirk (ids vs
    extractor renumbering) — both documented locally in the AGENTS gotcha
    block, neither filed upstream yet.
-5. **Long-tail from the plan:** dprint stability of the `fresh:skip` suffix **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+5. **Long-tail from the plan:** dprint stability of the `fresh:skip` suffix
    (F-64), the cadence threshold-override rationale doc (F-64), the legacy
    `TODO row N` anchor sweep (F-65).
-6. **The floor-train itself** (go 1.27.2 → 1.27.3) — routed, awaiting the **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+6. **The floor-train itself** (go 1.27.2 → 1.27.3) — routed, awaiting the
    owner's train-timing call (§g-1).
 
 ## d) TOTALLY FUCKED UP (nothing irreversible; all caught by gates)
 
-1. **Three self-inflicted freshness regressions:** my TODO-row verdicts and **→ TODO P3 — Machine ops (root-owned go-mod cache; the 14-25 report's item 4) **<!-- fresh:skip: routed in TODO_LIST -->**
+1. **Three self-inflicted freshness regressions:** my TODO-row verdicts and
    minted rows pushed `backlog`, `sweep`, and `mount` across the DF=8
    genericity boundary, each breaking a live harvest (the 05-03 preset item,
    the 16-13 govulncheck item, the p9a C2R item). Twice caught by
    `--pre-flight` before landing, once by the gate after. Fixed by rewording;
    thresholds never touched. Root cause: I skipped the plan's own pre-flight
    step when moving fast. Twice.
-2. **Truncated manifest filenames in my own index script** — **→ TODO P3 — docs-health corpus waves 3-4 (drift sweep) <!-- fresh:skip: routed in TODO_LIST -->**
+2. **Truncated manifest filenames in my own index script** —
    `archived/2026-11-02_12-25_superb.md` and `…12-25_release.md` (my dict keys
    were the row slugs, not the filenames). The NEW liveness guard caught both
    before commit. Small consolation: the guard paying rent immediately.
-3. **One dead routed marker:** `→ TODO P3 — scripts/check-touched-modules.sh **→ TODO P3 — docs-health corpus waves 3-4 (headroom) <!-- fresh:skip: routed in TODO_LIST -->**
-   …` — the guard stats every path-looking string in a marker and the file
-   doesn't exist (it's the thing to be BUILT). FAILed the whole guard;
-   reworded without the path prefix. The grammar table in AGENTS now records
-   this trap.
-4. **Daemon race mid-commit:** between my `git add` and `git commit`, the **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+3. **One dead routed marker:** the first draft of item 22 below pointed its
+   routed marker at the `scripts/…` PATH of the script-to-be-built — the
+   guard stats every path-looking string in a marker and the file doesn't
+   exist (it's the thing to be BUILT). FAILed the whole guard; reworded
+   without the path prefix. The grammar table in AGENTS now records this
+   trap.
+4. **Daemon race mid-commit:** between my `git add` and `git commit`, the
    auto-committer committed 7 of the 8 staged files — my commit then carried
    only 2. Verified content-complete across the two commits before
    continuing (no rebalancing, no force, no revert of the daemon's commit).
-5. **The 14-05 report was pushed with 3 unenforced markers** (bare-path **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+5. **The 14-05 report was pushed with 3 unenforced markers** (bare-path
    routed forms) — the DoD said ≤1; I ran the guard before push but read the
    pre-reword count. Caught in the post-push verification pass, fixed in a
    follow-up commit (b5bfb33 window). Sequence honest, timing sloppy.
-6. **A mid-wave red window I created:** adjudicating 21-35 broke the 16-13 **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+6. **A mid-wave red window I created:** adjudicating 21-35 broke the 16-13
    govulncheck harvest (the `sweep` token), leaving the battery red for the
    stretch between two archives. The correct order would have been: archive
    16-13 first or pre-flight the 21-35 lines against that item.
-7. **The 07-50 prose apply rolled back once** (id 10 didn't exist — the **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+7. **The 07-50 prose apply rolled back once** (id 10 didn't exist — the
    extractor renumbers compound blocks; the block is addressable as id 22).
    Atomic per file, so zero damage, one wasted cycle. Tooling quirk now noted
    in §e-2 for the upstream note.
-8. **A `go.work.sum` fossil from my own govulncheck run** (one additive hash) **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+8. **A `go.work.sum` fossil from my own govulncheck run** (one additive hash)
    — caught in the final `git status`, reverted per the AGENTS fossil
    protocol instead of committing it.
-9. **Misremembered-my-own-text edit failure:** a reword multiedit failed **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+9. **Misremembered-my-own-text edit failure:** a reword multiedit failed
    wholesale because I reconstructed old_string from memory instead of
    re-reading the file. Cost: one round trip. The read-before-edit rule
    exists for exactly this.
 
 ## e) WHAT WE SHOULD IMPROVE
 
-1. **Pre-flight EVERY living-doc line, no exceptions.** The plan said it; **→ TODO P3 — Machine ops (root-owned go-mod cache; the 14-25 report's item 4) **<!-- fresh:skip: routed in TODO_LIST -->**
+1. **Pre-flight EVERY living-doc line, no exceptions.** The plan said it;
    I skipped it twice under momentum and caused both DF regressions. The
    correct muscle: draft the TODO/AGENTS line → `--pre-flight` → land →
    gate. It is ~10 seconds and it is the difference between green and a
    whack-a-mole afternoon.
-2. **The DF-genericity treadmill needs a tool, not discipline:** every **→ TODO P3 — docs-health corpus waves 3-4 (drift sweep) <!-- fresh:skip: routed in TODO_LIST -->**
+2. **The DF-genericity treadmill needs a tool, not discipline:** every
    session's living-doc writes push tokens toward DF=8 and break old
    harvests. A `--explain-df <token>` mode or a periodic "tokens at DF 6-7"
    report would let sessions avoid the boundary proactively instead of
    tripping it. (Upstream docs-gates ask.)
-3. **The archive ritual should move to session-close cadence.** One **→ TODO P3 — docs-health corpus waves 3-4 (headroom) <!-- fresh:skip: routed in TODO_LIST -->**
+3. **The archive ritual should move to session-close cadence.** One
    session's reports archived by THAT session's end would keep cadence at
    steady-state ~5-8 instead of 22-item mega-waves. The mega-wave worked,
    but the corpus re-filled to the floor within hours.
-4. **Commit + push in ONE command** to shrink the daemon race window **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+4. **Commit + push in ONE command** to shrink the daemon race window
    (`git add … && git commit … && git push`), and verify daemon-commit
    content when the race fires (it will).
-5. **The guard's bare-path marker class should be loud earlier:** bare paths **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+5. **The guard's bare-path marker class should be loud earlier:** bare paths
    in routed markers are silent "unenforced" notes today; a `--strict` mode
    (or counting unenforced >0 as FAIL outside docs/) would have caught my
    14-05 markers at authoring time.
-6. **Manifest naming convention should be uniform** (always `archived/…` **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+6. **Manifest naming convention should be uniform** (always `archived/…`
    prefixed; kill the plain-name ambiguity the bulk manifest introduced —
    the guard resolves it, but the ambiguity is still a trap for humans).
-7. **Keep the AGENTS gotcha block tight:** the wave added 4 lines **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+7. **Keep the AGENTS gotcha block tight:** the wave added 4 lines
    (146/220 cap). The gate-anatomy block earns its lines, but every future
    addition should displace an obsolete one.
-8. **`audit_max: 0` + concurrent sessions = guaranteed mid-session reds.** **→ TODO P3 — docs-health corpus waves 3-4 <!-- fresh:skip: routed in TODO_LIST -->**
+8. **`audit_max: 0` + concurrent sessions = guaranteed mid-session reds.**
    The ratchet is correct (no silent drift), but sessions must now expect
    the battery to red on OTHER sessions' reports and resist "fixing" them
    by threshold edits. The rule goes in §g-2 for the owner to confirm.
@@ -292,16 +297,16 @@ with rows this wave closed — likely fast):**
 
 ## g) QUESTIONS I CANNOT ANSWER MYSELF
 
-1. **Floor-train 1.27.3 timing:** standalone floor train (like 2026-10-12, **→ TODO P3 — Machine ops (root-owned go-mod cache; the 14-25 report's item 4) **<!-- fresh:skip: routed in TODO_LIST -->**
+1. **Floor-train 1.27.3 timing:** standalone floor train (like 2026-10-12,
    which cleared GO-2026-6617) or ride the next release train per the
    member-go.mod ritual? The TODO row works for either; the choice is yours.
-2. **`audit_max: 0` vs concurrent sessions:** the ratchet means ANY other **→ TODO P3 — docs-health corpus waves 3-4 (drift sweep) <!-- fresh:skip: routed in TODO_LIST -->**
+2. **`audit_max: 0` vs concurrent sessions:** the ratchet means ANY other
    session's new report instantly reds freshness+audit-all until its items
    are adjudicated (that is the state at 21:27 — the 14-25 report, not my
    wave). Keep the strict instant-red ratchet, or allow a bounded grace pin
    (e.g. `audit_max: 1`) so waves don't fight live sessions? The strict pin
    is safer; the grace pin is calmer.
-3. **Cadence ritual shape:** should session-close include "archive your own **→ TODO P3 — docs-health corpus waves 3-4 (headroom) <!-- fresh:skip: routed in TODO_LIST -->**
+3. **Cadence ritual shape:** should session-close include "archive your own
    reports before push" (steady-state ~5-8 unarchived, no more mega-waves),
    or do you prefer the periodic mega-wave pattern (archive in dedicated
    docs-health sessions like this one)? The treadmill math favors per-session

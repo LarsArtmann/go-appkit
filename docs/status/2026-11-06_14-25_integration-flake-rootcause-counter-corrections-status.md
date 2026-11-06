@@ -143,7 +143,7 @@ verdicts were checked against a live goroutine dump before being believed.
    (verified repro + version stamped in the issue).
 3. golangci-lint v2.15.0 machine drift → check-golangci-configs.sh + CI pin stay v2.14.0;
    consider pinning the local nix profile.
-4. Root-owned ~/.cache/go-mod → owner machine fix (see a15).
+4. Root-owned ~/.cache/go-mod → owner machine fix (see a15). **→ TODO P3 — Machine ops (root-owned go-mod cache machine fix) <!-- fresh:skip: routed in TODO_LIST -->**
 5. Then the standing §f ledger: A2 dnsblockd swap recipe next (template ready, −~1,600 LOC).
 
 ## g) Questions I cannot answer myself
