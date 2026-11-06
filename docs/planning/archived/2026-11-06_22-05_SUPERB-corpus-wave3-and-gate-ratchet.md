@@ -1,5 +1,18 @@
 # SUPERB — Corpus Wave 3: Drain the Treadmill, Keep the Ratchet
 
+> **EXECUTED 2026-11-06 22:05 → 23:05 — corpus ZERO.** Every wave ran:
+> W0 (21-32 adjudicated, 13-10 + 14-25 archived, gates green), W1 (21-30 +
+> 13-13 archived, the session-close archive rule written into the status
+> README), W2 (all five 2026-11-03 reports archived — 245 items), W3 (the
+> six v12-session reports archived). Final state: **0 unarchived / 118
+> archived**, battery 5/5 PASS, routed guard 0 dead / 0 unenforced, index
+> liveness green, pre-tag gate green, all pushed. Real work en route: the
+> baseline note restored, the E014 + golangci gotchas, the
+> Guard/tooling-improvements row (eleven asks), the guards-count fix.
+> The wave-0 verdict changed once: wave 3 expanded beyond the plan's own
+> wave-1 scope and drained the WHOLE corpus, not just the floor.
+>
+
 **Date:** 2026-11-06 22:05 CET
 **Trigger:** `docs-gates run .` red on freshness+audit-all (the concurrent
 21-32 self-review report's item 9) and cadence (16 > 15) — within 3 hours of
