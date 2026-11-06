@@ -11,7 +11,10 @@ require (
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-appkit/systemd v0.1.0
 	github.com/larsartmann/go-error-family v0.12.0
+	github.com/larsartmann/go-sse v0.6.2
+	github.com/larsartmann/go-sse/ssetest v0.4.0
 	github.com/larsartmann/httputil v1.8.0
+	go.opentelemetry.io/otel/sdk v1.47.0
 )
 
 require (
@@ -46,7 +49,7 @@ require (
 	github.com/larsartmann/go-flightrecorder v0.2.1 // indirect
 	github.com/larsartmann/go-health v0.8.1 // indirect
 	github.com/larsartmann/go-health-dashboard v0.10.2 // indirect
-	github.com/larsartmann/go-sse v0.6.2 // indirect
+	github.com/larsartmann/go-sse/sseparse v0.2.1 // indirect
 	github.com/larsartmann/httputil/server_timing v1.0.3 // indirect
 	github.com/larsartmann/templ-components v1.21.0 // indirect
 	github.com/larsartmann/templ-components/datastar v1.21.0 // indirect
@@ -72,7 +75,6 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.47.0 // indirect
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.47.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.11.1 // indirect

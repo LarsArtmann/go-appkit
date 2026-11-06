@@ -69,9 +69,7 @@ func TestRealtime_StreamsEvents(t *testing.T) {
 	hub.Broadcast(sse.Event{Event: "preset", Data: `{"hello":"events"}`})
 
 	live := ssetest.MustReadNEvents(t, sub.Body, 1)[0]
-	if live.Event != "preset" {
-		t.Errorf("received event = %q, want preset", live.Event)
-	}
+	ssetest.RequireEventType(t, live, "preset")
 
 	if err := ts.Shutdown(t.Context()); err != nil {
 		t.Fatalf("graceful shutdown with an open stream: %v", err)
@@ -88,10 +86,7 @@ func TestRealtime_OffByDefault(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	resp, err := testkit.HTTPGetContext(t, t.Context(), ts+"/events")
-	if err != nil {
-		t.Fatalf("get /events: %v", err)
-	}
+	resp := testkit.HTTPGetContext(t, t.Context(), ts+"/events")
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusNotFound {
@@ -115,10 +110,7 @@ func TestRealtime_CustomPattern(t *testing.T) {
 
 	ts := testkit.Serve(t, svc)
 
-	mounted, err := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/live-stream")
-	if err != nil {
-		t.Fatalf("get /live-stream: %v", err)
-	}
+	mounted := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/live-stream")
 	defer func() { _ = mounted.Body.Close() }()
 
 	if mounted.StatusCode != http.StatusOK {
@@ -126,10 +118,7 @@ func TestRealtime_CustomPattern(t *testing.T) {
 	}
 
 	// The default pattern is gone.
-	absent, err := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/events")
-	if err != nil {
-		t.Fatalf("get /events: %v", err)
-	}
+	absent := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/events")
 	defer func() { _ = absent.Body.Close() }()
 
 	if absent.StatusCode != http.StatusNotFound {
