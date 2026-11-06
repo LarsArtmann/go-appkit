@@ -97,15 +97,18 @@ func inspectFile(path string) []finding {
 		return nil
 	}
 	var findings []finding
-	ast.Inspect(src, func(n ast.Node) bool {
-		switch fn := n.(type) {
-		case *ast.FuncDecl:
-			findings = append(findings, checkFuncBody(fset, src, fn.Name.Name, fn.Body, fn.Doc)...)
-		case *ast.FuncLit:
-			findings = append(findings, checkFuncBody(fset, src, "funcLit", fn.Body, nil)...)
+	// ONE pass per TOP-LEVEL function: closes inside deferred closures
+	// (`defer func() { _ = resp.Body.Close() }()`) attribute to the
+	// enclosing function — the response flows in from the outer scope, so
+	// outer-scope reads count. Split-scoping by FuncLit was the FP class
+	// that flagged every drained caller.
+	for _, decl := range src.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok || fn.Body == nil {
+			continue
 		}
-		return true
-	})
+		findings = append(findings, checkFuncBody(fset, src, fn.Name.Name, fn.Body, fn.Doc)...)
+	}
 	return findings
 }
 
@@ -134,15 +137,34 @@ func checkFuncBody(fset *token.FileSet, file *ast.File, name string, body *ast.B
 	ast.Inspect(body, func(n ast.Node) bool {
 		switch stmt := n.(type) {
 		case *ast.AssignStmt:
-			// resp := testkit.HTTPGetContext(...) → resp trusted.
-			for i, rhs := range stmt.Rhs {
+			// X := testkit.HTTPGetContext(...) or X := httpGet(...) → X
+			// trusted: both helper families drain internally (testkit's
+			// helpers are pinned by their own tests; the repo's
+			// httpGet / getWithHeaders-style helpers drain-then-return
+			// by convention).
+			for _, rhs := range stmt.Rhs {
 				call, ok := rhs.(*ast.CallExpr)
 				if !ok {
 					continue
 				}
-				if sel, ok := call.Fun.(*ast.SelectorExpr); ok && pkgName(sel.X) == "testkit" {
-					if i < len(stmt.Lhs) {
-						if id, ok := stmt.Lhs[i].(*ast.Ident); ok {
+				caller := ""
+				isIdent := false
+				switch fn := call.Fun.(type) {
+				case *ast.Ident:
+					caller, isIdent = fn.Name, true
+				case *ast.SelectorExpr:
+					if fn.Sel != nil {
+						caller = fn.Sel.Name
+					}
+				}
+				// Selector calls trust ONLY testkit (http.Get / client.Do do
+				// NOT drain); plain Ident calls trust the repo's drain-helper
+				// naming convention.
+				trustedCaller := pkgName(call.Fun) == "testkit" ||
+					(isIdent && trustedHelperRe.MatchString(strings.ToLower(caller)))
+				if trustedCaller {
+					for _, lhs := range stmt.Lhs {
+						if id, ok := lhs.(*ast.Ident); ok {
 							trusted[id.Name] = true
 						}
 					}
