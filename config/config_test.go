@@ -12,13 +12,13 @@ import (
 )
 
 type basicConfig struct {
-	Addr     string        `default:":8080"             env:"TEST_ADDR"`
-	LogLevel string        `default:"info"              env:"TEST_LOG_LEVEL"`
-	APIKey   string        `env:"TEST_API_KEY,required"`
-	TTL      time.Duration `default:"60s"               env:"TEST_TTL"`
-	Retries  int           `default:"3"                 env:"TEST_RETRIES"`
-	Verbose  bool          `env:"TEST_VERBOSE"`
-	Hosts    []string      `env:"TEST_HOSTS"`
+	Addr     string        `default:":8080" env:"TEST_ADDR"`
+	LogLevel string        `default:"info"  env:"TEST_LOG_LEVEL"`
+	APIKey   string        `                env:"TEST_API_KEY,required"`
+	TTL      time.Duration `default:"60s"   env:"TEST_TTL"`
+	Retries  int           `default:"3"     env:"TEST_RETRIES"`
+	Verbose  bool          `                env:"TEST_VERBOSE"`
+	Hosts    []string      `                env:"TEST_HOSTS"`
 }
 
 type scalarsConfig struct {

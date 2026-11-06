@@ -175,6 +175,15 @@ linters:
           name: exported
         - disabled: true
           name: package-comments
+    # align:false is deliberate: this module's public tag grammar mixes
+    # present/absent keys (required fields carry no default), where tagalign's
+    # align mode (collapse absent keys) and the golines formatter's
+    # realign-tags (pad absent keys) produce incompatible canonical forms.
+    # Sort order (default before env) stays enforced; spacing belongs to the
+    # formatter. Probed 2026-11-06: align:false accepts the golines form and
+    # still flags env-before-default.
+    tagalign:
+      align: false
     testifylint:
       disable:
         - go-require

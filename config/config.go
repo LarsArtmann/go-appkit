@@ -105,9 +105,9 @@ type loaderConfig struct {
 
 // NewLoader builds a Loader from the given options.
 func NewLoader[T any](opts ...Option) *Loader[T] {
-	cfg := loaderConfig{
+	cfg := loaderConfig{ //nolint:exhaustruct_v5 // optional layers stay zero until their Option runs
 		lookup: os.LookupEnv,
-	} //nolint:exhaustruct_v5 // optional layers stay zero until their Option runs
+	}
 
 	for _, opt := range opts {
 		opt(&cfg)
