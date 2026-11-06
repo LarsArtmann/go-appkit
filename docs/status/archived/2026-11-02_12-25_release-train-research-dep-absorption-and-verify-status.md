@@ -1,5 +1,14 @@
 # Status Report — Release-Train Research, Dependency Absorption, and Verify (Interrupted by Parallel Session)
 
+> **Live remainder:** the interrupted 8-tag wave was OVERTAKEN by the actual
+> trains — the absorbed dependency floors rode later releases, and the real
+> tags shipped per-train (core v0.10.0, config/preset v0.1.0, health v0.3.1,
+> 2026-11-06). The two machine-ops asks carry routed markers into TODO P3.
+> The docs-module corpus ruling is recorded in docs/CHANGELOG.md [Unreleased].
+> Archived 2026-11-06: all 30 §f items carry verdicts; nothing here is
+> unowned.
+>
+
 **Date:** 2026-11-02 12:25 CET
 **Scope of this report:** the single session that answered "Time for some new releases?" — loaded the go-release skill, researched the full pending-release surface, decided the 8-module wave shape, absorbed the pending dependabot bumps in-tree, and ran hermetic verification until the box's environment (load 245, full /tmp, shared-cache races) and a PARALLEL SESSION working the same tree interrupted the run. No tags were cut, nothing was pushed, no CHANGELOG was edited.
 
@@ -97,36 +106,36 @@
 
 ## f) NEXT — ranked list (30 items)
 
-1. Reconcile with the parallel session's uncommitted docs tree (land or park it) — nothing else proceeds on a mixed dirty tree.
-2. Review `a467328` (M3-M14) + `b9bf812` (golangci converge) diffs — the release train must ride read commits; b9bf812 touched all 12 `.golangci.yml` files which CHANGES the lint contract mid-train.
-3. Re-run the three lost suites with the TMPDIR guard, output to files: cqrs `-race`, otel `-race`, realtime build/vet/`-race`; flightrecorder example build.
-4. Verify security (build/vet/`-race` + lint) and systemd (same) — the never-started two.
-5. Lint all 8 changed modules sequentially from their own dirs (NEW configs from b9bf812 are now the contract).
-6. Release Ritual step 1: `go doc -all` old-tag vs tree for all 8 modules; confirm the patch/minor decisions (esp. cqrs v0.9.0 minor).
-7. Health decision: keep dashboard v0.12.2 (suite green) vs fall back to PR44's v0.11.0 — owner question (g-2).
-8. Cut 8 CHANGELOG sections; write cqrs's missing go-cqrs-lite train + GracefulClose + scenario-pin entries; health keeps `docs:`-prefix tag message.
-9. Sync AGENTS `_Release State_` + module bullets (new "Latest per module" line).
-10. Sync FEATURES.md rows for all 8 modules.
-11. Rewrite TODO_LIST header Updated line (release train) + close the P2 dependabot-wave row once PRs resolve.
-12. Run `check-pin-drift.sh` + `check-go-directives.sh` (must be green BEFORE the release commit is final).
-13. Update integration `documentedPins` fixture for the 8 new pins.
-14. Integration re-pin: `git config --global url."…/go-appkit".insteadOf …` trick → tidy integration against LOCAL tags → hermetic integration suite (`GOWORK=off`, verbatim README commands) → unset the rewrite.
-15. Decide and record whether sibling go.mods bump their `go-appkit` require to v0.9.1 this train (recommendation: NO — v0.9.1 is dep-only, MVS covers consumers; only integration's pin moves).
-16. Commit the release prep (single train commit, message states the 8 tags + semantic deltas).
-17. Create 8 local annotated tags with semantic-delta messages (`docs:` prefix for health).
-18. `./scripts/pre-tag-checks.sh <all 8 tags>` — one gate run, all green.
-19. Push `origin master` + all 8 tags in one push.
-20. Post-push: proxy `.info` checks per module; fresh-consumer proxy check recipe; pkg.go.dev fetch triggers (remember flightrecorder's page has never indexed — re-trigger, cosmetic).
-21. Session-close ritual: `gh run view` EVERY job on the FINAL pushed commit; green except designed ci-preflight red; close P1 push row + SUPERB v10 M1/M2.
-22. Confirm dependabot auto-closed #28/#39/#44/#46/#47/#48/#50; manually close any survivor with a superseded-by comment; confirm #37/#38/#42/#51 merges' CI green.
-23. Run `check-consumer-claims.sh` post-tag (setup/PapDashboard claims unaffected by v0.9.1, but the guard is the proof).
-24. Verify the root README "Development" section + AGENTS dependency table (still says httputil v1.4.0 — STALE, caught this session, unfixed) — update to v1.7.0 truth in the train's doc sync.
-25. Update AGENTS core-dependencies table row for go-error-family (v0.10.1 in the table — also stale vs v0.12.0).
-26. /tmp hygiene: owner decision on clearing stale `go-build*` dirs (mixed ownership incl. live BuildFlow scratch) — or add a nightly sweeper; until then every session needs the TMPDIR guard (g-3).
-27. Add /tmp-space + cache-writability gates to `scripts/quiet-run.sh` (improvement e-1 made mechanical).
-28. Check go-health v0.8.1 is still health's newest (PR44 didn't move it; a newer may exist since 10-27) before health v0.3.1 is final.
-29. Post-train: re-run `verify-all.sh` once on the tagged tree as the whole-fleet sweep proof.
-30. Consider a tiny follow-up train note in the docs module CHANGELOG: the docs MODULE was skipped this wave but its directory's status-report corpus grew — decide if docs/v0.3.4 ever ships for corpus-only growth (probably never; record the ruling).
+1. ~~Reconcile with the parallel session's uncommitted docs tree (land or park it) — nothing else proceeds on a mixed dirty tree.~~ done — the parallel tree landed same day (a467328 M3-M14 + b9bf812 are master history; later sessions built on it)
+2. ~~Review `a467328` (M3-M14) + `b9bf812` (golangci converge) diffs — the release train must ride read commits; b9bf812 touched all 12 `.golangci.yml` files which CHANGES the lint contract mid-train.~~ done — /superseded — the configs became the mechanical contract (scripts/check-golangci-configs.sh + the CI golangci-config-verify job, 2026-10-13); a467328's guards are CI-wired and born-red-proven
+3. ~~Re-run the three lost suites with the TMPDIR guard, output to files: cqrs `-race`, otel `-race`, realtime build/vet/`-race`; flightrecorder example build.~~ done — re-run green repeatedly since (the 21-35 pass plus every later train's hermetic -race; the 2026-11-06 sessions all green)
+4. ~~Verify security (build/vet/`-race` + lint) and systemd (same) — the never-started two.~~ done — security+systemd verified across later trains (fleet-lint 0 issues, suites green; the 10-25 wave fixed the latent findings)
+5. ~~Lint all 8 changed modules sequentially from their own dirs (NEW configs from b9bf812 are now the contract).~~ done — the fleet-lint CI job lints every module from its own dir on every push (2026-10-25); local lint 0 across the board
+6. ~~Release Ritual step 1: `go doc -all` old-tag vs tree for all 8 modules; confirm the patch/minor decisions (esp. cqrs v0.9.0 minor).~~ done — superseded — the ritual ran per ACTUAL train instead (core v0.10.0 additions-only diff armed criterion 1; health v0.3.1; config/preset v0.1.0); the planned 8-tag wave never ran
+7. ~~Health decision: keep dashboard v0.12.2 (suite green) vs fall back to PR44's v0.11.0 — owner question (g-2).~~ done — health v0.3.0 shipped 2026-10-27 on dashboard v0.12.2 (suite green; the owner question dissolved)
+8. ~~Cut 8 CHANGELOG sections; write cqrs's missing go-cqrs-lite train + GracefulClose + scenario-pin entries; health keeps `docs:`-prefix tag message.~~ done — superseded — CHANGELOGs dated per actual train (cqrs v0.8.0 dated a28cbf8; health v0.3.1; core v0.10.0); the 8-section wave never cut
+9. ~~Sync AGENTS `_Release State_` + module bullets (new "Latest per module" line).~~ done — AGENTS Release State is current through the 2026-11-06 trains (same-train ritual step 3)
+10. ~~Sync FEATURES.md rows for all 8 modules.~~ done — FEATURES.md version-truth maintained per train (the ritual; the v13 sessions updated rows)
+11. ~~Rewrite TODO_LIST header Updated line (release train) + close the P2 dependabot-wave row once PRs resolve.~~ done — the TODO header is current (Updated 2026-11-06) and the dependabot-wave row was removed (21-35 confirmed gh pr list empty)
+12. ~~Run `check-pin-drift.sh` + `check-go-directives.sh` (must be green BEFORE the release commit is final).~~ done — both guards green on every train since (pre-tag wiring; the 2026-11-06 trains passed)
+13. ~~Update integration `documentedPins` fixture for the 8 new pins.~~ done — superseded — the fixture tracks ACTUAL pins (the module added at 2de5875; guard green); the planned 8 never existed as tags
+14. ~~Integration re-pin: `git config --global url."…/go-appkit".insteadOf …` trick → tidy integration against LOCAL tags → hermetic integration suite (`GOWORK=off`, verbatim README commands) → unset the rewrite.~~ done — the insteadOf ritual rode later trains (release ritual step 4); integration pins published tags and the suite is green (the E2E proven 2026-11-06)
+15. ~~Decide and record whether sibling go.mods bump their `go-appkit` require to v0.9.1 this train (recommendation: NO — v0.9.1 is dep-only, MVS covers consumers; only integration's pin moves).~~ done — moot — core v0.9.1 never existed (v0.10.0 shipped instead); satellites moved on their own trains
+16. ~~Commit the release prep (single train commit, message states the 8 tags + semantic deltas).~~ done — superseded — actual trains committed per-train with semantic-delta messages
+17. ~~Create 8 local annotated tags with semantic-delta messages (`docs:` prefix for health).~~ done — superseded — actual tags cut per-train (v0.10.0 + config/preset v0.1.0 + health v0.3.1 on 2026-11-06)
+18. ~~`./scripts/pre-tag-checks.sh <all 8 tags>` — one gate run, all green.~~ done — superseded — pre-tag-checks ran per actual train (multi-tag wave support proven 2026-10-12)
+19. ~~Push `origin master` + all 8 tags in one push.~~ done — superseded — actual pushes happened (the 2026-11-06 wave pushed master + three tags)
+20. ~~Post-push: proxy `.info` checks per module; fresh-consumer proxy check recipe; pkg.go.dev fetch triggers (remember flightrecorder's page has never indexed — re-trigger, cosmetic).~~ done — (actual trains) — post-push proxy checks ran (the 11-47 session: sumdb hashes matched, consumer-proven through proxy); the newer-tags close-out leg stays routed (v13 plan P9c)
+21. ~~Session-close ritual: `gh run view` EVERY job on the FINAL pushed commit; green except designed ci-preflight red; close P1 push row + SUPERB v10 M1/M2.~~ done — the ritual ran in later sessions (the 11-47 close; the AGENTS session-close ritual)
+22. ~~Confirm dependabot auto-closed #28/#39/#44/#46/#47/#48/#50; manually close any survivor with a superseded-by comment; confirm #37/#38/#42/#51 merges' CI green.~~ done — dependabot closed/auto-regenerated (gh pr list empty, confirmed by the 21-35 pass)
+23. ~~Run `check-consumer-claims.sh` post-tag (setup/PapDashboard claims unaffected by v0.9.1, but the guard is the proof).~~ done — the guard is pre-tag-wired and ran green on later trains (9/9 in the 16-28 consumer session; both consumers covered)
+24. ~~Verify the root README "Development" section + AGENTS dependency table (still says httputil v1.4.0 — STALE, caught this session, unfixed) — update to v1.7.0 truth in the train's doc sync.~~ done — the AGENTS table reads httputil v1.8.0 now (truthed across trains); README truth passes ran
+25. ~~Update AGENTS core-dependencies table row for go-error-family (v0.10.1 in the table — also stale vs v0.12.0).~~ done — the AGENTS table reads go-error-family v0.12.0 now
+26. /tmp hygiene: owner decision on clearing stale `go-build*` dirs (mixed ownership incl. live BuildFlow scratch) — or add a nightly sweeper; until then every session needs the TMPDIR guard (g-3). **→ TODO P3 — Machine ops (go-build cleanup policy; nightly sweeper TMPDIR guard) <!-- fresh:skip: routed in TODO_LIST -->**
+27. Add /tmp-space + cache-writability gates to `scripts/quiet-run.sh` (improvement e-1 made mechanical). **→ TODO P3 — Machine ops (quiet-run.sh /tmp-space + cache-writability gates) <!-- fresh:skip: routed in TODO_LIST -->**
+28. ~~Check go-health v0.8.1 is still health's newest (PR44 didn't move it; a newer may exist since 10-27) before health v0.3.1 is final.~~ done — health v0.3.1 shipped 2026-11-06 with the go-health alignment verified (that alignment gap was the issue54 root cause)
+29. ~~Post-train: re-run `verify-all.sh` once on the tagged tree as the whole-fleet sweep proof.~~ done — verify-all ran on tagged trees across later sessions (the 10-25 wave + the p9a guard runs)
+30. ~~Consider a tiny follow-up train note in the docs module CHANGELOG: the docs MODULE was skipped this wave but its directory's status-report corpus grew — decide if docs/v0.3.4 ever ships for corpus-only growth (probably never; record the ruling).~~ done — the ruling is recorded in docs/CHANGELOG.md [Unreleased] (this archive wave)
 
 ## g) Questions ONLY the owner can answer
 

@@ -7,7 +7,6 @@
 > block, and the demand-gated watches carry routed markers into their owning
 > TODO rows. Archived 2026-11-06: all 30 §f items carry verdicts; nothing
 > here is unowned.
->
 
 **Date:** 2026-11-02 07:14 CET
 **Scope of this report:** the single session that (1) repaired master-tip's red CI (release-state + pin-contract doc drift behind the health v0.3.0 train and a dependabot integration bump), (2) executed the docs-health AUDIT over ALL open `**/2026-0*` files (annotate → check-rows → archive 9 reports → index manifest), (3) rebuilt TODO_LIST per its own charter, (4) truth-synced README/AGENTS/FEATURES/ROADMAP for the health v0.3.0 train and the httputil#41 ship. No other research.

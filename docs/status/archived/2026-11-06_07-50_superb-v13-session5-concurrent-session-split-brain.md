@@ -10,10 +10,10 @@
 > verdicts; nothing here is unowned.
 >
 > **Created:** 2026-11-06 07:50 · **Scope:** the owner's pareto-planning directive
-(comprehensive plan → micro plan → tables → plan doc with graph → commit → push).
-This session did the full planning ritual — and discovered mid-flight that a
-SECOND agent session is LIVE in this repo, executing the same program. The
-session is STOPPED at the point where the next action (split-brain resolution
+> (comprehensive plan → micro plan → tables → plan doc with graph → commit → push).
+> This session did the full planning ritual — and discovered mid-flight that a
+> SECOND agent session is LIVE in this repo, executing the same program. The
+> session is STOPPED at the point where the next action (split-brain resolution
 
 - v0.10.0 push) would collide with the other session's in-flight work.
 

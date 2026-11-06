@@ -6,7 +6,6 @@
 > (`33f1152`); R1b-R1e + R2-R5a closed (agents-deps job, error-family/ST/httpx
 > TODO rows); the S/A/D/H/X/Y/Z program legs carry routed markers into the v13
 > plan + TODO_LIST. Archived 2026-11-06: all 20 §f items carry verdicts.
->
 
 **Created:** 2026-11-06 06:59 · **Scope:** resumed under the owner's "GET
 SHIT DONE — THE WHOLE TODO LIST" directive (read the session-3 report first

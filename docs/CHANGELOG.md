@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+- Ruling (2026-11-06, from the 2026-11-02 release-train report's f30): the
+  docs module does NOT cut releases for corpus-only growth — status reports
+  and plans land continuously under `docs/`; the module version moves only
+  when its CODE (catalog wiring, dependency pins) changes.
+
 ## [0.3.3] - 2026-10-13
 
 ### Changed

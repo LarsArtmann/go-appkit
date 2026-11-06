@@ -7,7 +7,6 @@
 > close-out ritual, cqrs-lint debts, S/A/D/H/X/Y/Z program) carry routed
 > markers into the v13 plan + TODO_LIST. Archived 2026-11-06: all 22 §f items
 > carry verdicts; nothing here is unowned.
->
 
 **Written:** 2026-11-06 12:49 +0100 · **Session window:** 08:00–12:45 (active execution
 ~08:00–08:50, report gap until the 12:45 owner demand) · **Companion:** the concurrent
@@ -85,13 +84,13 @@ leg green; insteadOf git rewrite unset; both consumer heads-ups refreshed.
 
 ## c) NOT STARTED (my lane)
 
-*(Addendum 13:10 — all three c-list items LANDED after this report was
+_(Addendum 13:10 — all three c-list items LANDED after this report was
 written, same session: P8 shipped as `integration/preset_e2e_test.go` + preset
 v0.1.0 pin in `documentedPins` (commit `2de5875`; suite green, lint 0,
 pushed); fresh-consumer proxy checks PASS ×3 — `v0.10.0`, `config/v0.1.0`,
 `preset/v0.1.0` all resolve and build from proxy.golang.org for a cache-less
 consumer; the CI verify on the pushed commit is the standing check — every job
-green except the designed ci-preflight SSH gate.)*
+green except the designed ci-preflight SSH gate.)_
 
 1. **P8: integration E2E through PUBLISHED preset tags** — designed, not written:
    `integration/preset_e2e_test.go` booting a preset-built service with CODE-config

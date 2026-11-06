@@ -6,7 +6,6 @@
 > (`scripts/count-adopters.sh`, `06e9a77`); the scaffold/recipes/battery/
 > process-lesson legs carry routed markers into the v13 plan + TODO_LIST P3.
 > Archived 2026-11-06: all 20 §f items carry verdicts; nothing here is unowned.
->
 
 **Scope line.** This report covers the SECOND segment of the 2026-11-06 session: the
 user-demanded expansion of the v12 plan HTML ("more detailed and just more superb"), and the
