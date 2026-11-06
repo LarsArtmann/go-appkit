@@ -27,6 +27,30 @@ type fieldSpec struct {
 	typ        reflect.Type
 }
 
+// nestedWalk reports whether the field is a struct the collector must walk
+// into, and with which prefixes. Two shapes recurse: an untagged embedded
+// struct (its exported leaves promote as top-level fields, prefixes
+// unchanged) and a tagged nested struct (its child tags carry relative
+// suffixes under the tag prefix). Everything else — untagged named structs,
+// untagged scalars, tagged leaves — is not walked.
+func nestedWalk(
+	field reflect.StructField,
+	envTag string,
+	hasTag, isStruct bool,
+	envPrefix, pathPrefix string,
+) (childEnvPrefix, childPathPrefix string, walk bool) {
+	switch {
+	case field.Anonymous && !hasTag:
+		return envPrefix, pathPrefix, true
+	case isStruct && hasTag:
+		name, _, _ := strings.Cut(envTag, ",")
+
+		return envPrefix + name + "_", joinPath(pathPrefix, field.Name), true
+	default:
+		return "", "", false
+	}
+}
+
 // collectFields walks t and produces one spec per env-tagged leaf field.
 //
 // Rules (frozen in the design note):
@@ -58,47 +82,48 @@ func collectFields(
 
 		idx := append(append([]int{}, index...), i)
 
-		walkChild := func(childType reflect.Type, childEnvPrefix, childPathPrefix string) {
-			childSpecs, childErrs := collectFields(childType, childEnvPrefix, childPathPrefix, idx)
-			specs, errs = append(specs, childSpecs...), append(errs, childErrs...)
-		}
-
 		isStruct := field.Type.Kind() == reflect.Struct && field.Type != reflect.TypeFor[time.Time]()
 
-		switch {
-		case field.Anonymous && !hasTag:
-			// untagged embedded struct: walk it as-is, promoting its exported fields
-			walkChild(field.Type, envPrefix, pathPrefix)
-		case isStruct && hasTag:
-			// tagged nested struct (env:"PREFIX"): child tags carry relative suffixes
-			walkChild(field.Type, envPrefix+name+"_", joinPath(pathPrefix, field.Name))
-		case isStruct || !hasTag:
-			// untagged named struct or untagged scalar: the caller's own wiring — never touch
-		case !supportedType(field.Type):
+		childEnvPrefix, childPathPrefix, walk := nestedWalk(field, envTag, hasTag, isStruct, envPrefix, pathPrefix)
+
+		if walk {
+			childSpecs, childErrs := collectFields(field.Type, childEnvPrefix, childPathPrefix, idx)
+			specs, errs = append(specs, childSpecs...), append(errs, childErrs...)
+
+			continue
+		}
+
+		if isStruct || !hasTag {
+			continue // untagged named struct or untagged scalar: the caller's own wiring — never touch
+		}
+
+		if !supportedType(field.Type) {
 			errs = append(
 				errs,
 				&FieldError{ //nolint:exhaustruct_v5 // Err deliberately nil: the kind carries the failure
-					Field: joinPath(pathPrefix, field.Name), Key: name,
-					Kind: KindUnsupportedType,
-				},
+						Field: joinPath(pathPrefix, field.Name), Key: name,
+						Kind: KindUnsupportedType,
+					},
 			)
-		default:
-			spec := fieldSpec{ //nolint:exhaustruct_v5 // fileKey/default filled just below
-				path:     joinPath(pathPrefix, field.Name),
-				envKey:   envPrefix + name,
-				index:    idx,
-				typ:      field.Type,
-				required: hasOption(opts, "required"),
-			}
 
-			if def, ok := field.Tag.Lookup("default"); ok {
-				spec.defaultVal, spec.hasDefault = def, true
-			}
-
-			spec.fileKey = strings.ToLower(spec.path)
-
-			specs = append(specs, spec)
+			continue
 		}
+
+		spec := fieldSpec{ //nolint:exhaustruct_v5 // fileKey/default filled just below
+			path:     joinPath(pathPrefix, field.Name),
+			envKey:   envPrefix + name,
+			index:    idx,
+			typ:      field.Type,
+			required: hasOption(opts, "required"),
+		}
+
+		if def, ok := field.Tag.Lookup("default"); ok {
+			spec.defaultVal, spec.hasDefault = def, true
+		}
+
+		spec.fileKey = strings.ToLower(spec.path)
+
+		specs = append(specs, spec)
 	}
 
 	return specs, errs
