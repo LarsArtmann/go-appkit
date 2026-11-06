@@ -7,6 +7,11 @@
 // dependencies to any library go.mod. It carries no production code and is
 // never released; consumers never import it.
 //
+// It deliberately carries NO LICENSE file: it is never published, so
+// pkg.go.dev never renders it, and the license scanners that read released
+// module roots do not apply (scripts/check-module-licenses.sh exempts this
+// directory and asserts this note stays in place).
+//
 // # Pin contract
 //
 // go.mod pins PUBLISHED tags only: this module always tests exactly what a
