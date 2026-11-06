@@ -49,8 +49,8 @@ func collectFields(
 	for i := range t.NumField() {
 		field := t.Field(i)
 
-		if field.PkgPath != "" { // unexported
-			continue
+		if field.PkgPath != "" && !field.Anonymous {
+			continue // unexported field; an unexported EMBEDDED type still promotes its exported fields
 		}
 
 		envTag, hasTag := field.Tag.Lookup("env")

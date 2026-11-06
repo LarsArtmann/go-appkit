@@ -321,7 +321,9 @@ func setParsed(rv reflect.Value, spec fieldSpec, raw string, key string, errs *[
 // rejectionFrom folds FieldErrors (and any other error) into the single
 // Rejection every Load failure returns.
 func rejectionFrom(errs []error) error {
-	return errorfamily.WrapRejection(errors.Join(errs...), "config.invalid", errors.Join(errs...).Error())
+	joined := errors.Join(errs...)
+
+	return errorfamily.WrapRejection(joined, "config.invalid", "invalid configuration")
 }
 
 // Keys returns every environment key T declares via `env` tags, sorted. It is
@@ -359,9 +361,7 @@ func FieldErrorsOf(err error) []*FieldError {
 			return
 		}
 
-		var fieldErr *FieldError
-
-		if errors.As(e, &fieldErr) {
+		if fieldErr, ok := e.(*FieldError); ok { //nolint:errorlint // exact-node match; descending here would double-count
 			out = append(out, fieldErr)
 
 			return

@@ -559,8 +559,8 @@ func TestLoad_ValidateHookRunsLast(t *testing.T) {
 	_, err := Load[basicConfig](
 		WithLookup(envMap(map[string]string{"TEST_API_KEY": "k"})),
 		WithValidate(func(c *basicConfig) error {
-			if c.TTL < time.Minute {
-				return errors.New("ttl below one minute")
+			if c.TTL <= time.Minute {
+				return errors.New("ttl at or below one minute")
 			}
 
 			return nil
