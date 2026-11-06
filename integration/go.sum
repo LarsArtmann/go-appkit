@@ -174,6 +174,8 @@ github.com/larsartmann/go-appkit/health v0.3.1 h1:8H4KOz5BxkHcBH74ZtmiDid3MAj2sM
 github.com/larsartmann/go-appkit/health v0.3.1/go.mod h1:ZqE/VxMAbZQiaGBXdIkj/cGhMHxSNLEUl0Rgr8vRpw8=
 github.com/larsartmann/go-appkit/otel v0.3.0 h1:DIqyT3NkgYFJrkek3RzLw9bU4OxrjgUXo7XF0kE3Vbw=
 github.com/larsartmann/go-appkit/otel v0.3.0/go.mod h1:h7hvMTCIevQB9rFmmx/8Pbmtn1Z+ZgK84I+MIzQSYF8=
+github.com/larsartmann/go-appkit/preset v0.1.0 h1:0xxYBkJZFlqHPfOuX3f3fYFyKckgLqx8wahw+raNexU=
+github.com/larsartmann/go-appkit/preset v0.1.0/go.mod h1:cBDjgwjmBB6rxc4Ap+VexFZWSPsG96AYx3EQ+b+Hib4=
 github.com/larsartmann/go-appkit/realtime v0.1.3 h1:UEWK2dBvbhPwK86xHtcfF8/3Z0dwUssXmZN10mODsvo=
 github.com/larsartmann/go-appkit/realtime v0.1.3/go.mod h1:Ec4vfPTH78XwRBlAQRYCJSWqwZbdaVgquv17PzPcgf8=
 github.com/larsartmann/go-appkit/security v0.2.0 h1:vrRRfqN9XMo1xIeq2E07I7vXahyRRqaxJJZbC+kyRpo=
