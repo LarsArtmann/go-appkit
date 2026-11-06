@@ -176,8 +176,8 @@ func TestLoad_MissingRequiredIsRejectionWithFieldPath(t *testing.T) {
 		t.Fatalf("error is not a *errorfamily.Error: %v", err)
 	}
 
-	if rejection.Family != errorfamily.Rejection {
-		t.Errorf("family = %v, want Rejection", rejection.Family)
+	if rejection.Family() != errorfamily.Rejection {
+		t.Errorf("family = %v, want Rejection", rejection.Family())
 	}
 
 	fieldErrs := FieldErrorsOf(err)
