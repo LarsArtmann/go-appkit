@@ -2,6 +2,7 @@ package otel_test
 
 import (
 	"errors"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -39,6 +40,7 @@ func runMiddlewareBenchmark(b *testing.B, mw func(http.Handler) http.Handler) {
 			b.Fatalf("request failed: %v", err)
 		}
 
+		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
 	}
 }
@@ -107,6 +109,7 @@ func BenchmarkRecovery_PanicPath(b *testing.B) {
 			b.Fatalf("request failed: %v", err)
 		}
 
+		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
 	}
 }

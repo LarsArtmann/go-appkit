@@ -42,7 +42,6 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
 
@@ -50,8 +49,6 @@ type finding struct {
 	pos   token.Position
 	ident string
 }
-
-var trustedHelperRe = regexp.MustCompile(`^(drain|readbody|httpget|get|fetch)`)
 
 func main() {
 	if len(os.Args) < 2 {
@@ -107,7 +104,7 @@ func inspectFile(path string) []finding {
 		if !ok || fn.Body == nil {
 			continue
 		}
-		findings = append(findings, checkFuncBody(fset, src, fn.Name.Name, fn.Body, fn.Doc)...)
+		findings = append(findings, checkFuncBody(fset, src, fn.Body, fn.Doc)...)
 	}
 	return findings
 }
@@ -120,11 +117,8 @@ type bodyUse struct {
 	pos     token.Pos
 }
 
-func checkFuncBody(fset *token.FileSet, file *ast.File, name string, body *ast.BlockStmt, doc *ast.CommentGroup) []finding {
+func checkFuncBody(fset *token.FileSet, file *ast.File, body *ast.BlockStmt, doc *ast.CommentGroup) []finding {
 	if body == nil {
-		return nil
-	}
-	if trustedHelperRe.MatchString(strings.ToLower(name)) {
 		return nil
 	}
 	if doc != nil && strings.Contains(doc.Text(), "respdrain:ignore") {
@@ -132,44 +126,15 @@ func checkFuncBody(fset *token.FileSet, file *ast.File, name string, body *ast.B
 	}
 
 	var uses []bodyUse
-	trusted := map[string]bool{} // idents assigned from testkit.* calls
+
+	// NO assignment-source trust: verified 2026-11-06 that EVERY response
+	// helper in the fleet (root httpGet, flightrecorder httpGetURL,
+	// preset getWithHeaders, testkit.HTTPGetContext) returns the RAW
+	// response — the convention is caller-owns-the-body. A close without
+	// a read is a finding wherever it sits.
 
 	ast.Inspect(body, func(n ast.Node) bool {
 		switch stmt := n.(type) {
-		case *ast.AssignStmt:
-			// X := testkit.HTTPGetContext(...) or X := httpGet(...) → X
-			// trusted: both helper families drain internally (testkit's
-			// helpers are pinned by their own tests; the repo's
-			// httpGet / getWithHeaders-style helpers drain-then-return
-			// by convention).
-			for _, rhs := range stmt.Rhs {
-				call, ok := rhs.(*ast.CallExpr)
-				if !ok {
-					continue
-				}
-				caller := ""
-				isIdent := false
-				switch fn := call.Fun.(type) {
-				case *ast.Ident:
-					caller, isIdent = fn.Name, true
-				case *ast.SelectorExpr:
-					if fn.Sel != nil {
-						caller = fn.Sel.Name
-					}
-				}
-				// Selector calls trust ONLY testkit (http.Get / client.Do do
-				// NOT drain); plain Ident calls trust the repo's drain-helper
-				// naming convention.
-				trustedCaller := pkgName(call.Fun) == "testkit" ||
-					(isIdent && trustedHelperRe.MatchString(strings.ToLower(caller)))
-				if trustedCaller {
-					for _, lhs := range stmt.Lhs {
-						if id, ok := lhs.(*ast.Ident); ok {
-							trusted[id.Name] = true
-						}
-					}
-				}
-			}
 		case *ast.CallExpr:
 			// Shape 1: X.Body.Close() (incl. defer) → close.
 			if sel, ok := stmt.Fun.(*ast.SelectorExpr); ok && sel.Sel != nil && sel.Sel.Name == "Close" {
@@ -213,7 +178,7 @@ func checkFuncBody(fset *token.FileSet, file *ast.File, name string, body *ast.B
 		if !u.isClose {
 			continue
 		}
-		if readIdents[u.ident] || trusted[u.ident] || suppressedAt(fset, file, u.pos) {
+		if readIdents[u.ident] || suppressedAt(fset, file, u.pos) {
 			continue
 		}
 		findings = append(findings, finding{pos: fset.Position(u.pos), ident: u.ident})

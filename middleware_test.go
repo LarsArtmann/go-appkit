@@ -1,6 +1,7 @@
 package appkit
 
 import (
+	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -34,6 +35,7 @@ func TestMiddleware_PanicRecovery_Returns500(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/panic")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusInternalServerError {
@@ -68,6 +70,7 @@ func TestMiddleware_DefaultStackHeaders_Present(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/test-reqid")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("X-Request-ID") == "" {
@@ -109,6 +112,7 @@ func TestMiddleware_SecurityHeaders_Present(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/test-sec")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	tests := []struct {
@@ -162,6 +166,7 @@ func TestMiddleware_ReplacedStack(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/test-custom")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	// With replaced stack, default RequestID middleware is gone — no X-Request-Id header.
@@ -233,6 +238,7 @@ func TestMiddleware_OuterMiddlewares_RunOutsideDefaultStack(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/panic")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusInternalServerError {
@@ -290,6 +296,7 @@ func TestMiddleware_OuterMiddlewares_WrapReplacedStack(t *testing.T) {
 	waitForRunning(t, svc)
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/wrapped")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	wantOrder := []string{

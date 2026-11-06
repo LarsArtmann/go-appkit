@@ -1,6 +1,7 @@
 package preset_test
 
 import (
+	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -84,6 +85,7 @@ func TestRealtime_OffByDefault(t *testing.T) {
 	ts := servePreset(t, svc)
 
 	resp := testkit.HTTPGetContext(t, t.Context(), ts+"/events")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusNotFound {
@@ -107,6 +109,7 @@ func TestRealtime_CustomPattern(t *testing.T) {
 	ts := testkit.Serve(t, svc)
 
 	mounted := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/live-stream")
+	_, _ = io.Copy(io.Discard, mounted.Body)
 	defer func() { _ = mounted.Body.Close() }()
 
 	if mounted.StatusCode != http.StatusOK {
@@ -115,6 +118,7 @@ func TestRealtime_CustomPattern(t *testing.T) {
 
 	// The default pattern is gone.
 	absent := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/events")
+	_, _ = io.Copy(io.Discard, absent.Body)
 	defer func() { _ = absent.Body.Close() }()
 
 	if absent.StatusCode != http.StatusNotFound {

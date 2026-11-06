@@ -9,6 +9,7 @@ package integration_test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -139,6 +140,7 @@ func TestRateLimitInFrontOfSSE(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reconnect: %v", err)
 	}
+	_, _ = io.Copy(io.Discard, retryResp.Body)
 	defer func() { _ = retryResp.Body.Close() }()
 
 	if retryResp.StatusCode != http.StatusTooManyRequests {

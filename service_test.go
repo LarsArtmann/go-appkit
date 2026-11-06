@@ -80,6 +80,7 @@ func TestNewService_RegisterHealthFalse(t *testing.T) {
 
 	resp := httpGet(t, t.Context(), "http://"+svc.Addr().String()+"/health")
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusNotFound {

@@ -327,6 +327,7 @@ func TestHandler_CORSHeader(t *testing.T) {
 		t.Fatalf("connect failed: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if got := resp.Header.Get("Access-Control-Allow-Origin"); got != "*" {
@@ -352,6 +353,7 @@ func TestHandler_CustomCORS(t *testing.T) {
 		t.Fatalf("connect failed: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if got := resp.Header.Get("Access-Control-Allow-Origin"); got != "https://app.example.com" {
@@ -574,6 +576,7 @@ func TestHandler_ReturnsHTTPHandler(t *testing.T) {
 		t.Fatalf("connect: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
@@ -638,6 +641,7 @@ func connectReplayClient(t *testing.T) (*realtime.Hub, *http.Response, chan stru
 		t.Fatalf("connect: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	t.Cleanup(func() { _ = resp.Body.Close() })
 
 	return hub, resp, store.release
@@ -729,6 +733,7 @@ func TestHandler_AccelBufferingHeader(t *testing.T) {
 		t.Fatalf("GET /events: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	t.Cleanup(func() { _ = resp.Body.Close() })
 
 	if got := resp.Header.Get("X-Accel-Buffering"); got != "no" {

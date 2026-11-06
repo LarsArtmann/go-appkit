@@ -1,6 +1,7 @@
 package otel
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -88,6 +89,7 @@ func TestMiddleware_EmitsRouteAttributedDurationMetric(t *testing.T) {
 			t.Fatalf("GET /users/%s: %v", userID, err)
 		}
 
+		_, _ = io.Copy(io.Discard, resp.Body)
 		_ = resp.Body.Close()
 	}
 

@@ -128,6 +128,7 @@ func TestTransport_BaseTransportReceivesRequest(t *testing.T) {
 
 	resp := mustDo(t, client, "http://example.invalid/downstream")
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if !baseCalled {

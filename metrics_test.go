@@ -132,6 +132,7 @@ func TestMetrics_BasicAuthEnforced(t *testing.T) {
 
 	resp := getURL(t, baseURL+"/metrics")
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusUnauthorized {
@@ -154,6 +155,7 @@ func TestMetrics_BasicAuthEnforced(t *testing.T) {
 		t.Fatalf("GET with wrong creds: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp2.Body)
 	defer resp2.Body.Close()
 
 	if resp2.StatusCode != http.StatusUnauthorized {
@@ -179,6 +181,7 @@ func TestMetrics_ExpositionContract(t *testing.T) {
 
 	resp := getURL(t, baseURL+"/users/42")
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer resp.Body.Close()
 
 	body := scrapeMetrics(t, baseURL)
@@ -222,6 +225,7 @@ func TestMetrics_UnmatchedPathBounded(t *testing.T) {
 
 	resp := getURL(t, baseURL+"/no/such/path")
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer resp.Body.Close()
 
 	if body := scrapeMetrics(t, baseURL); !strings.Contains(body, `route="unmatched"`) {
@@ -249,6 +253,7 @@ func TestMetrics_SSEStillFlushes(t *testing.T) {
 
 	resp := getURL(t, baseURL+"/stream")
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {

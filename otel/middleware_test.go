@@ -1,6 +1,7 @@
 package otel
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -82,6 +83,7 @@ func fetch(t *testing.T, url string) fetchResult {
 	}
 
 	// No test reads the body; status and headers stay valid after Close.
+	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 
 	return fetchResult{status: resp.StatusCode, header: resp.Header}
@@ -224,6 +226,7 @@ func TestMiddleware_ContinuesIncomingTraceContext(t *testing.T) {
 		t.Fatalf("GET: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 	parent.End()
 
@@ -267,6 +270,7 @@ func TestMiddleware_PublicEndpointDistrustsRemoteParent(t *testing.T) {
 		t.Fatalf("GET: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 
 	span := singleSpan(t, exporter)

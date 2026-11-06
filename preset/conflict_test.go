@@ -1,6 +1,7 @@
 package preset_test
 
 import (
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -94,6 +95,7 @@ func hstsPresent(t *testing.T, ts string) {
 	t.Helper()
 
 	resp := getWithHeaders(t, ts+"/healthz")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("Strict-Transport-Security") == "" {
@@ -106,6 +108,7 @@ func hstsAbsent(t *testing.T, ts string) {
 	t.Helper()
 
 	resp := getWithHeaders(t, ts+"/healthz")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("Strict-Transport-Security") != "" {
@@ -174,6 +177,7 @@ func TestConflictMatrix_Realtime(t *testing.T) {
 		t.Helper()
 
 		resp := getWithHeaders(t, ts+"/events")
+		_, _ = io.Copy(io.Discard, resp.Body)
 		defer func() { _ = resp.Body.Close() }()
 
 		if resp.StatusCode != http.StatusOK {
@@ -185,6 +189,7 @@ func TestConflictMatrix_Realtime(t *testing.T) {
 		t.Helper()
 
 		resp := getWithHeaders(t, ts+"/events")
+		_, _ = io.Copy(io.Discard, resp.Body)
 		defer func() { _ = resp.Body.Close() }()
 
 		if resp.StatusCode != http.StatusNotFound {

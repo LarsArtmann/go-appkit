@@ -62,6 +62,7 @@ func TestHTTPGetContextHonorsCancellation(t *testing.T) {
 		return
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	t.Error("request with canceled context succeeded, want error")

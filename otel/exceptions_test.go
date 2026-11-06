@@ -2,6 +2,7 @@ package otel
 
 import (
 	"errors"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -63,6 +64,7 @@ func TestRecovery_RecordsExceptionEventForErrorPanic(t *testing.T) {
 		t.Fatalf("GET: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 
 	if resp.StatusCode != http.StatusInternalServerError {
@@ -118,6 +120,7 @@ func TestRecovery_NonErrorPanicRecordsTypedEvent(t *testing.T) {
 		t.Fatalf("GET: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 
 	spans := exporter.GetSpans()
@@ -185,6 +188,7 @@ func TestRecovery_DegradesWithoutRecordingSpan(t *testing.T) {
 		t.Fatalf("GET: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusInternalServerError {
@@ -210,6 +214,7 @@ func TestRecovery_NilLoggerFallsBackToDefault(t *testing.T) {
 		t.Fatalf("GET: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 
 	if resp.StatusCode != http.StatusInternalServerError {

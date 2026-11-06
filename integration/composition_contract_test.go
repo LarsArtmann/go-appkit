@@ -242,6 +242,7 @@ func TestDrainWindowContract(t *testing.T) {
 
 	pingResp, pingErr := (&http.Client{Timeout: 2 * time.Second}).Do(pingReq)
 	if pingResp != nil {
+		_, _ = io.Copy(io.Discard, pingResp.Body)
 		_ = pingResp.Body.Close()
 	}
 

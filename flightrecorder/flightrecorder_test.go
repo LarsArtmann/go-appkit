@@ -830,6 +830,7 @@ func TestMiddleware_ThenHandler_ManualSnapshotAfterAutoCapture(t *testing.T) {
 	// Trigger automatic capture via middleware
 	resp1 := httpGetURL(t, ts.URL+"/api/fail")
 
+	_, _ = io.Copy(io.Discard, resp1.Body)
 	_ = resp1.Body.Close()
 
 	// The async capture must land BEFORE the manual snapshot: the handler
@@ -841,6 +842,7 @@ func TestMiddleware_ThenHandler_ManualSnapshotAfterAutoCapture(t *testing.T) {
 
 	// Now manually snapshot — handler resets the latch, should capture again
 	resp2 := httpPostJSON(t, ts.URL+"/debug/snapshot")
+	_, _ = io.Copy(io.Discard, resp2.Body)
 	defer func() { _ = resp2.Body.Close() }()
 
 	if resp2.StatusCode != http.StatusOK {

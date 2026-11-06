@@ -41,6 +41,7 @@ func requestOnce(b *testing.B, server *httptest.Server) {
 		b.Fatalf("request failed: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, res.Body)
 	_ = res.Body.Close()
 }
 

@@ -135,9 +135,10 @@ func connect(
 		t.Fatalf("connect: %v", err)
 	}
 
-	t.Cleanup(func() { _ = resp.Body.Close() })
+	t.Cleanup(func() { _ = resp.Body.Close() }) // respdrain:ignore SSE stream — the CALLER consumes resp.Body
 
 	if resp.StatusCode != http.StatusOK {
+		_, _ = io.Copy(io.Discard, resp.Body)
 		_ = resp.Body.Close()
 		t.Fatalf("status = %d, want 200", resp.StatusCode)
 	}

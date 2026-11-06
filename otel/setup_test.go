@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -142,6 +143,7 @@ func TestSetup_RegistersGlobalsForMiddleware(t *testing.T) {
 		t.Fatalf("GET: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 
 	// The server span ends when the response finishes streaming, which can

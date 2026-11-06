@@ -46,6 +46,7 @@ func TestServe_FullChainServesDefaultStack(t *testing.T) {
 		t.Fatalf("GET: %v", err)
 	}
 
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -126,6 +127,7 @@ func TestServe_ExplicitShutdownIsIdempotentAndUnreachable(t *testing.T) {
 
 	doResp, doErr := http.DefaultClient.Do(req)
 	if doErr == nil {
+		_, _ = io.Copy(io.Discard, doResp.Body)
 		_ = doResp.Body.Close()
 
 		t.Error("request after Shutdown succeeded — server still reachable")

@@ -79,6 +79,7 @@ func TestSecurity_None_DefaultAddsNothing(t *testing.T) {
 	ts := servePreset(t, svc)
 
 	resp := getWithHeaders(t, ts+"/healthz")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("Strict-Transport-Security") != "" {
@@ -86,6 +87,7 @@ func TestSecurity_None_DefaultAddsNothing(t *testing.T) {
 	}
 
 	oversize := postBody(t, ts+"/echo", "", bytes.Repeat([]byte("x"), 2<<20))
+	_, _ = io.Copy(io.Discard, oversize.Body)
 	defer func() { _ = oversize.Body.Close() }()
 
 	if oversize.StatusCode == http.StatusRequestEntityTooLarge {
@@ -109,6 +111,7 @@ func TestSecurity_Standard_ProductionHeadersAndBodyLimit(t *testing.T) {
 	ts := servePreset(t, svc)
 
 	page := getWithHeaders(t, ts+"/healthz")
+	_, _ = io.Copy(io.Discard, page.Body)
 	defer func() { _ = page.Body.Close() }()
 
 	if page.Header.Get("Strict-Transport-Security") == "" {
@@ -120,6 +123,7 @@ func TestSecurity_Standard_ProductionHeadersAndBodyLimit(t *testing.T) {
 	}
 
 	oversize := postBody(t, ts+"/echo", "", bytes.Repeat([]byte("x"), 2<<20))
+	_, _ = io.Copy(io.Discard, oversize.Body)
 	defer func() { _ = oversize.Body.Close() }()
 
 	if oversize.StatusCode != http.StatusRequestEntityTooLarge {
@@ -128,6 +132,7 @@ func TestSecurity_Standard_ProductionHeadersAndBodyLimit(t *testing.T) {
 
 	// The default limit is 1 MiB: a 64 KiB body passes.
 	ok := postBody(t, ts+"/echo", "", bytes.Repeat([]byte("x"), 64<<10))
+	_, _ = io.Copy(io.Discard, ok.Body)
 	defer func() { _ = ok.Body.Close() }()
 
 	if ok.StatusCode != http.StatusOK {
@@ -155,6 +160,7 @@ func TestSecurity_Strict_OriginCheck(t *testing.T) {
 	ts := servePreset(t, svc)
 
 	evildoer := postBody(t, ts+"/echo", "https://evil.example", []byte("{}"))
+	_, _ = io.Copy(io.Discard, evildoer.Body)
 	defer func() { _ = evildoer.Body.Close() }()
 
 	if evildoer.StatusCode != http.StatusForbidden {
@@ -162,6 +168,7 @@ func TestSecurity_Strict_OriginCheck(t *testing.T) {
 	}
 
 	friend := postBody(t, ts+"/echo", "https://app.example", []byte("{}"))
+	_, _ = io.Copy(io.Discard, friend.Body)
 	defer func() { _ = friend.Body.Close() }()
 
 	if friend.StatusCode != http.StatusOK {
@@ -204,6 +211,7 @@ func TestSecurity_EnvStandard(t *testing.T) {
 	ts := servePreset(t, svc)
 
 	resp := getWithHeaders(t, ts+"/healthz")
+	_, _ = io.Copy(io.Discard, resp.Body)
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("Strict-Transport-Security") == "" {
