@@ -1,5 +1,13 @@
 # Status: SUPERB v12 execution — session 3 (pin-hold discovery, C5 closed, core v0.10.0 staged, preset skeleton + code)
 
+> **Live remainder:** the pin-hold session's 46-item ledger is fully
+> adjudicated (this archive): the held tags shipped (v0.10.0 at 04f0c20,
+> preset at 21c1a78), the P2-P7 tests shipped with the build, the R-batches
+> closed, and the scaffold/battery/owner legs carry routed markers into
+> their wired rows. Archived 2026-11-06: every §f item carries a verdict;
+> nothing here is unowned.
+>
+
 **Created:** 2026-11-06 06:22 · **Scope:** resumed under the owner's standing
 "execute the WHOLE list" directive (pushes still held). This session: closed
 C5 (pre-tag-checks GREEN), DISPROVED session 2's integration re-pin plan with
@@ -152,75 +160,75 @@ proxy check (push-blocked).
 
 ## f) NEXT — in execution order
 
-1. Owner answers g below → create (or redirect) the core v0.10.0 tag
-2. `./scripts/pre-tag-checks.sh v0.10.0` → expect green
-3. preset go.mod: core → v0.10.0 (VCS insteadOf tidy trick); build+vet green
-4. P2 spine test: zero-app-code boot (empty Config, no env) — /healthz
-   /readyz 200, dashboard 200, graceful stop
-5. P2 hook-wiring test: Mounted.Start/Drain/Shutdown actually run at the
-   right phases
-6. P3 errorpages tests: pretty 404 HTML + JSON-by-Accept; `off` removes
-   catch-all; consumer routes win over the catch-all
-7. P3 metrics passthrough test: nil stays nil; set Metrics → /metrics;
-   preset never sets creds
-8. P4 otel tests: env absent → zero activity; on → middleware present;
-   explicit config wins both ways
-9. P5 security posture matrix: none/standard/strict headers, 413 oversize,
-   OriginCheck reject, strict-without-origins Rejection
-10. P6 realtime test: /events streams (sync on SubscriberCount), Hub
-    out-field assigned, hub drained at shutdown
-11. P7 conflict-matrix suite: 4 switches × (nil/env/code/invalid) per the
-    design-note §5 table
-12. P7 example/main.go ≤ 40 LOC
-13. P7 preset lint → 0 issues (one module at a time)
-14. P7 README snippet compile check (scratch module)
-15. P9 preset CHANGELOG [0.1.0] + API diff record + fast guards → tag
-    `preset/v0.1.0` → pre-tag-checks (core v0.10.0 unpushed will need the
-    insteadOf trick there too — verify)
-16. P9 release-state sync: AGENTS (latest-per-module +preset, 13 released),
-    FEATURES (preset section), TODO_LIST, ci.yml "eleven released" comment
-17. Consumer heads-up drafts (cqrs-htmx + PapDashboard) announcing preset
-18. R1b: verify-blocks libs 7–12 (grep `-o '…\.[A-Z]'` first)
-19. R1c: ServerTiming bench baseline (quiet-run, pinned cores, -count 6)
-20. R1d: hub.go:80 doc-const note + libs index screenshot + dprint coverage
-21. R1e: go-retry MVS proof + example-smoke vs the ServerTiming stack
-22. S1: scaffold verdict doc (template-repo default per G3)
-23. S2–S6: template pieces (cmdguard serve verb, templ skeleton,
+1. ~~Owner answers g below → create (or redirect) the core v0.10.0 tag~~ done at `04f0c20`
+2. ~~`./scripts/pre-tag-checks.sh v0.10.0` → expect green~~ done — pre-tag-checks green at the train; this week's full run green against health/v0.3.1
+3. ~~preset go.mod: core → v0.10.0 (VCS insteadOf tidy trick); build+vet green~~ done at `21c1a78`
+4. ~~P2 spine test: zero-app-code boot (empty Config, no env) — /healthz~~ done at `21c1a78`
+   ~~/readyz 200, dashboard 200, graceful stop~~
+5. ~~P2 hook-wiring test: Mounted.Start/Drain/Shutdown actually run at the~~ done at `21c1a78`
+   ~~right phases~~
+6. ~~P3 errorpages tests: pretty 404 HTML + JSON-by-Accept; `off` removes~~ done at `21c1a78`
+   ~~catch-all; consumer routes win over the catch-all~~
+7. ~~P3 metrics passthrough test: nil stays nil; set Metrics → /metrics;~~ done at `21c1a78`
+   ~~preset never sets creds~~
+8. ~~P4 otel tests: env absent → zero activity; on → middleware present;~~ done at `21c1a78`
+   ~~explicit config wins both ways~~
+9. ~~P5 security posture matrix: none/standard/strict headers, 413 oversize,~~ done at `21c1a78`
+   ~~OriginCheck reject, strict-without-origins Rejection~~
+10. ~~P6 realtime test: /events streams (sync on SubscriberCount), Hub~~ done at `21c1a78`
+    ~~out-field assigned, hub drained at shutdown~~
+11. ~~P7 conflict-matrix suite: 4 switches × (nil/env/code/invalid) per the~~ done at `21c1a78`
+    ~~design-note §5 table~~
+12. ~~P7 example/main.go ≤ 40 LOC~~ done at `21c1a78`
+13. ~~P7 preset lint → 0 issues (one module at a time)~~ done — preset lint 0 achieved (P7 finish; the tag shipped)
+14. ~~P7 README snippet compile check (scratch module)~~ done — the README snippet compile check passed (P7 finish)
+15. ~~P9 preset CHANGELOG [0.1.0] + API diff record + fast guards → tag~~ done at `21c1a78`
+    ~~`preset/v0.1.0` → pre-tag-checks (core v0.10.0 unpushed will need the~~
+    ~~insteadOf trick there too — verify)~~
+16. ~~P9 release-state sync: AGENTS (latest-per-module +preset, 13 released),~~ done — the release-state sync shipped (AGENTS thirteen-released + preset bullet)
+    ~~FEATURES (preset section), TODO_LIST, ci.yml "eleven released" comment~~
+17. Consumer heads-up drafts (cqrs-htmx + PapDashboard) announcing preset **→ TODO P3 — post consumer heads-ups (OG2 drafts announcing preset) <!-- fresh:skip: routed in TODO_LIST -->**
+18. ~~R1b: verify-blocks libs 7–12 (grep `-o '…\.[A-Z]'` first)~~ done — R1b executed (verify-blocks 7-12; p9a)
+19. ~~R1c: ServerTiming bench baseline (quiet-run, pinned cores, -count 6)~~ done — R1c executed (the AGENTS perf re-baseline; 13-10)
+20. ~~R1d: hub.go:80 doc-const note + libs index screenshot + dprint coverage~~ done — R1d executed (hub note + screenshot + dprint; 13-10)
+21. ~~R1e: go-retry MVS proof + example-smoke vs the ServerTiming stack~~ done — R1e executed (MVS proof + example-smoke 8/8; p9a)
+22. ~~S1: scaffold verdict doc (template-repo default per G3)~~ done — the scaffold verdict doc landed (docs/planning/2026-11-06_08-45_scaffold-shape-verdict.md)
+23. S2–S6: template pieces (cmdguard serve verb, templ skeleton, **→ TODO P3 — v13 plan S2-S7 scaffold rows (template pieces) <!-- fresh:skip: routed in TODO_LIST -->**
     flake+buildflow, CI+systemd+Dockerfile, doc skeletons + boot probe)
-24. S7: dogfood one real app end-to-end
-25. G-CNT: adoption-counter script (dual any/direct) + gate table + guard
-26. A1: swap-recipe template in docs/recipes/
-27. A2–A5: dnsblockd / ChastityAPI / PapDashboard / pbx-lens recipes
-28. D1: worker supervisor (×100 goroutine-baseline stable, panic-restart
+24. S7: dogfood one real app end-to-end **→ TODO P3 — v13 plan S2-S7 scaffold rows (S7 dogfood) <!-- fresh:skip: routed in TODO_LIST -->**
+25. ~~G-CNT: adoption-counter script (dual any/direct) + gate table + guard~~ done at `06e9a77`
+26. ~~A1: swap-recipe template in docs/recipes/~~ done — the A1 template landed (docs/recipes/battery-swap-recipe.template.md)
+27. A2–A5: dnsblockd / ChastityAPI / PapDashboard / pbx-lens recipes **→ TODO P3 — v13 plan A2-A5 swap-recipe rows <!-- fresh:skip: routed in TODO_LIST -->**
+28. D1: worker supervisor (×100 goroutine-baseline stable, panic-restart **→ TODO P3 — Battery program waves W3-W5 (D1 worker supervisor) <!-- fresh:skip: routed in TODO_LIST -->**
     counts, start-during-shutdown joins)
-29. D3: sqlitekit (Open+WithLease, Backup VACUUM INTO, OpenLedger,
+29. D3: sqlitekit (Open+WithLease, Backup VACUUM INTO, OpenLedger, **→ TODO P3 — Battery program waves W3-W5 (D3 sqlitekit) <!-- fresh:skip: routed in TODO_LIST -->**
     migration helper, SetMaxOpenConns(1) doc)
 30. C2R: realtime FoldedSource + SubscribeFolded discriminator test **→ TODO P3 — Battery program waves W3-W5 (W5 C2 projection→broadcast folded contract)** <!-- fresh:skip: routed in TODO_LIST -->
 31. ~~R2: deps-guard CI job~~ done at `dfeb4a5`
-32. R3: error-family adoption batch (README recipe, BodyLimit cross-link,
-    errorfamilytest asserts, WrapOnce, WithContext)
-33. R4: Server-Timing handler-phase recipe
-34. R5a: httpx shortlist verdicts
-35. H1–H7: httpx program (B1 error mapping + classification-parity test
+32. ~~R3: error-family adoption batch (README recipe, BodyLimit cross-link,~~ done — R3 executed and the TODO row closed (the error-family batch; 2026-11-06 close-out)
+    ~~errorfamilytest asserts, WrapOnce, WithContext)~~
+33. ~~R4: Server-Timing handler-phase recipe~~ done — R4 executed and the TODO row closed (the handler-phase recipe; 2026-11-06 close-out)
+34. ~~R5a: httpx shortlist verdicts~~ done — R5a executed and the TODO row closed (the httpx shortlist verdicts; 2026-11-06 close-out)
+35. H1–H7: httpx program (B1 error mapping + classification-parity test **→ TODO P3 — Battery program waves W3-W5 (H1-H7 httpx program) <!-- fresh:skip: routed in TODO_LIST -->**
     first; B6/B8 stay owner-blocked on the svc.Routes() seam)
-36. X1: compose-on-httputil refactor (re-run the spike vs v1.7.0+ ownership
+36. X1: compose-on-httputil refactor (re-run the spike vs v1.7.0+ ownership **→ TODO P2 — compose Service on httputil.Server (X1 spike re-run + swap) <!-- fresh:skip: routed in TODO_LIST -->**
     semantics, then the swap)
-37. X2: core TLS option (rides the X1 seam)
-38. X3: testkit migrations as trains come up
-39. X4: core v1 exit-criteria watch
-40. Y1–Y7: backlog (incl. Y-push-window items)
+37. X2: core TLS option (rides the X1 seam) **→ TODO P2 — compose Service on httputil.Server (X2 TLS rides the seam) <!-- fresh:skip: routed in TODO_LIST -->**
+38. X3: testkit migrations as trains come up **→ TODO P2 — test-helper dedup (X3 testkit migrations as trains come up) <!-- fresh:skip: routed in TODO_LIST -->**
+39. X4: core v1 exit-criteria watch **→ TODO P2 — core v1.0.0 exit criteria (X4 watch) <!-- fresh:skip: routed in TODO_LIST -->**
+40. Y1–Y7: backlog (incl. Y-push-window items) **→ TODO P3 — v13 plan Y/Z rows (Y1-Y7 backlog) <!-- fresh:skip: routed in TODO_LIST -->**
 41. Z1: add the `-o` truncation class to crush-config lessons (repo commit)
 42. Z2–Z7: process debts **→ TODO P3 — v13 plan Z2-Z7 process-debt rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md)** <!-- fresh:skip: routed in the v13 plan -->
-43. AGENTS one-liner: "pin holds ride held_pins in the same change" (from e1)
-44. OG1/OG3–OG6: owner memos (incl. the catalog unblock ask)
-45. Final `scripts/verify-all.sh` (now 13 buildable modules + integration)
-46. Final release-state sync (14-module truth across AGENTS/FEATURES/TODO)
-47. CI green on the final pushed commit + session-close ritual (every new
-    job ran)
-48. IF push-policy YES: push master + config/v0.1.0 + v0.10.0 +
-    preset/v0.1.0; fresh-consumer proxy checks; P8 unblocks
-49. IF NO: hold; keep documenting the blocked-on-push state
-50. Housekeeping: /tmp scratch cleanup (integ-repin, integ-chtmx, integ-gomod,
+43. ~~AGENTS one-liner: "pin holds ride held_pins in the same change" (from e1)~~ done — the AGENTS pin-hold one-liner shipped (the setup/v4.16.0 core v0.9.0 pin note in Core Dependencies)
+44. OG1/OG3–OG6: owner memos (incl. the catalog unblock ask) **→ TODO P3 — v13 plan OG rows (owner memos incl. the catalog unblock ask) <!-- fresh:skip: routed in TODO_LIST -->**
+45. ~~Final `scripts/verify-all.sh` (now 13 buildable modules + integration)~~ done — verify-all ran on the tagged trees (this week's waves + the p9a guard runs)
+46. ~~Final release-state sync (14-module truth across AGENTS/FEATURES/TODO)~~ done — the release-state sync shipped (the fourteen-module truth across AGENTS/FEATURES/TODO)
+47. ~~CI green on the final pushed commit + session-close ritual (every new~~ done — CI verified on the final pushed commits (designed reds only; status-index live-green)
+    ~~job ran)~~
+48. ~~IF push-policy YES: push master + config/v0.1.0 + v0.10.0 +~~ done — the push policy resolved YES in effect (master + all three tags pushed)
+    ~~preset/v0.1.0; fresh-consumer proxy checks; P8 unblocks~~
+49. ~~IF NO: hold; keep documenting the blocked-on-push state~~ done — moot — the hold lifted (all tags on origin; the P9c checks ride their route)
+50. Housekeeping: /tmp scratch cleanup (integ-repin, integ-chtmx, integ-gomod, **→ TODO P3 — Machine ops (/tmp scratch cleanup: integ-repin, integ-chtmx, integ-gomod) <!-- fresh:skip: routed in TODO_LIST -->**
     old-core, probe-scripts, pd-probe)
 
 ## g) QUESTIONS FOR THE OWNER (cannot be answered from the repo)

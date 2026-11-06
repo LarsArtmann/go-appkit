@@ -1,5 +1,14 @@
 # Status: SUPERB v12 execution — session 2 (config release closure + R1a + P1 research)
 
+> **Live remainder:** the config-release session's 48-item ledger is fully
+> adjudicated (this archive): the P1-P9 preset build shipped (21c1a78), the
+> P8 E2E proven through the published tag (2de5875), G-CNT shipped
+> (06e9a77), the push-policy hold resolved in effect (all tags pushed), and
+> the scaffold/battery/machine-ops legs carry routed markers into their
+> wired rows. Archived 2026-11-06: every §f item carries a verdict; nothing
+> here is unowned.
+>
+
 **Created:** 2026-11-06 05:03 · **Scope:** session 2 of the "execute the WHOLE list"
 directive (session 1 report: `2026-11-06_03-18_...`). This session: finished the C-train
 lint/CI/README items, ran the C5 release train to a LOCAL tag (push held), executed the
@@ -170,74 +179,74 @@ config/v0.1.0 (needs the push).
 
 ## f) NEXT — up to 50, in execution order
 
-1. Extend check-pin-drift.sh module map with `./config` (tag_pattern `config/v`)
-2. Integration re-pin train: cqrs-htmx v4.16.0 + go-sse v0.7.0 (+ documentedPins
-   fixture, GOWORK=off suite, ssetest call-site check — expect NO changes, ssetest
-   stays v0.5.0)
-3. Re-run pre-tag-checks config/v0.1.0 → expect all-green (then C5 is fully closed,
-   push still held)
-4. P1: write the preset design note (grammar table freeze + posture table +
-   conflict matrix) — research is done
-5. P1: skeleton module `preset/` (go.mod floor 1.27.2, LICENSE, satellite
-   .golangci.yml — WITHOUT tagalign-align tweak unless tags appear, charter --fix,
-   dependabot, ci.yml matrix slots BOTH)
-6. P2: preset.New spine: ServiceConfig passthrough + systemd.Install +
-   RegisterClassifications + Version stamp
-7. P2: health leg: NewProbe(empty checks default) + Mount(WithDashboard) +
-   StartHook-wired Mounted.Start + Drain/Shutdown hooks via nil-guard closures
-8. P2: spine boot test: /healthz+/readyz 200, dashboard route 200, graceful stop
-9. P3: errorpages leg (spine-ON by default, APPKIT_ERRORPAGES=off opts out)
-10. P3: metrics passthrough documented (preset never invents creds; Version stamps)
+1. ~~Extend check-pin-drift.sh module map with `./config` (tag_pattern `config/v`)~~ done — the pin-drift guard covers config (the release ritual ran it green at the train)
+2. ~~Integration re-pin train: cqrs-htmx v4.16.0 + go-sse v0.7.0 (+ documentedPins~~ done — integration re-pinned across the later trains (documentedPins grew; the preset pin added at 2de5875)
+   ~~fixture, GOWORK=off suite, ssetest call-site check — expect NO changes, ssetest~~
+   ~~stays v0.5.0)~~
+3. ~~Re-run pre-tag-checks config/v0.1.0 → expect all-green (then C5 is fully closed,~~ done — pre-tag-checks green at the config train (the tag pushed 614cc2f; this week's full run green against health/v0.3.1)
+   ~~push still held)~~
+4. ~~P1: write the preset design note (grammar table freeze + posture table +~~ done at `21c1a78`
+   ~~conflict matrix) — research is done~~
+5. ~~P1: skeleton module `preset/` (go.mod floor 1.27.2, LICENSE, satellite~~ done at `21c1a78`
+   ~~.golangci.yml — WITHOUT tagalign-align tweak unless tags appear, charter --fix,~~
+   ~~dependabot, ci.yml matrix slots BOTH)~~
+6. ~~P2: preset.New spine: ServiceConfig passthrough + systemd.Install +~~ done at `21c1a78`
+   ~~RegisterClassifications + Version stamp~~
+7. ~~P2: health leg: NewProbe(empty checks default) + Mount(WithDashboard) +~~ done at `21c1a78`
+   ~~StartHook-wired Mounted.Start + Drain/Shutdown hooks via nil-guard closures~~
+8. ~~P2: spine boot test: /healthz+/readyz 200, dashboard route 200, graceful stop~~ done at `21c1a78`
+9. ~~P3: errorpages leg (spine-ON by default, APPKIT_ERRORPAGES=off opts out)~~ done at `21c1a78`
+10. ~~P3: metrics passthrough documented (preset never invents creds; Version stamps)~~ done at `21c1a78`
 11. ~~P3: full-spine-boots-with-zero-app-code test~~ done at `e26b7e5`
-12. P4: otel leg (APPKIT_OTEL trool; Setup+WithService(Name,Version)+Middleware→
-    OuterMiddlewares+ShutdownHook; env-absent → zero otel activity)
-13. P4: conflict test: explicit OTEL config wins over env both ways
-14. P5: security profiles: none/standard(SecurityHeaders+BodyLimit)/strict(+
-    OriginCheck with required origins); APPKIT_SECURITY enum parse
-15. P5: posture-matrix test (headers present per profile; opt-out removes cleanly)
-16. P6: realtime leg: NewHub + Mount(mux, path or "/events") + Hub.Shutdown→
-    ShutdownHook; APPKIT_REALTIME trool
-17. P7: example app main ≤40 LOC through preset
-18. P7: conflict-matrix suite (code-vs-env for all four switches + invalid values →
-    Rejection fail-fast)
-19. P8: integration E2E through PUBLISHED tags (needs preset v0.1.0 tagged AND
-    config pushed — blocked on push policy)
-20. P9: preset CHANGELOG + release ritual + tag (HOLD push per policy)
-21. P9: consumer heads-up drafts (cqrs-htmx + PapDashboard)
-22. R1b: verify-blocks libs 7–12 (go-retry, go-atomic-write, go-filewatcher,
-    go-daemon, go-output, server_timing) — grep for the `-o` bug class first
-23. R1c: ServerTiming bench baseline (quiet-run, pinned cores, -benchtime 1s
-    -count 6) + AGENTS perf update
-24. R1d: hub.go:80 doc-const note + libs index mobile screenshot + dprint coverage
-25. R1e: integration go-retry MVS proof + example-smoke vs the ServerTiming stack
-26. S1: scaffold verdict doc (template repo recommended; G3 default if unanswered)
-27. S2–S6: template pieces (cmdguard serve verb, templ skeleton, flake+buildflow,
+12. ~~P4: otel leg (APPKIT_OTEL trool; Setup+WithService(Name,Version)+Middleware→~~ done at `21c1a78`
+    ~~OuterMiddlewares+ShutdownHook; env-absent → zero otel activity)~~
+13. ~~P4: conflict test: explicit OTEL config wins over env both ways~~ done at `21c1a78`
+14. ~~P5: security profiles: none/standard(SecurityHeaders+BodyLimit)/strict(+~~ done at `21c1a78`
+    ~~OriginCheck with required origins); APPKIT_SECURITY enum parse~~
+15. ~~P5: posture-matrix test (headers present per profile; opt-out removes cleanly)~~ done at `21c1a78`
+16. ~~P6: realtime leg: NewHub + Mount(mux, path or "/events") + Hub.Shutdown→~~ done at `21c1a78`
+    ~~ShutdownHook; APPKIT_REALTIME trool~~
+17. ~~P7: example app main ≤40 LOC through preset~~ done at `21c1a78`
+18. ~~P7: conflict-matrix suite (code-vs-env for all four switches + invalid values →~~ done at `21c1a78`
+    ~~Rejection fail-fast)~~
+19. ~~P8: integration E2E through PUBLISHED tags (needs preset v0.1.0 tagged AND~~ done at `2de5875`
+    ~~config pushed — blocked on push policy)~~
+20. ~~P9: preset CHANGELOG + release ritual + tag (HOLD push per policy)~~ done at `21c1a78`
+21. P9: consumer heads-up drafts (cqrs-htmx + PapDashboard) **→ TODO P3 — post consumer heads-ups (OG2 drafts) <!-- fresh:skip: routed in TODO_LIST -->**
+22. ~~R1b: verify-blocks libs 7–12 (go-retry, go-atomic-write, go-filewatcher,~~ done — R1b executed (verify-blocks 7-12; the p9a session)
+    ~~go-daemon, go-output, server_timing) — grep for the `-o` bug class first~~
+23. ~~R1c: ServerTiming bench baseline (quiet-run, pinned cores, -benchtime 1s~~ done — R1c executed (the AGENTS perf re-baseline; the 13-10 closeout)
+    ~~-count 6) + AGENTS perf update~~
+24. ~~R1d: hub.go:80 doc-const note + libs index mobile screenshot + dprint coverage~~ done — R1d executed (hub note + screenshot + dprint record; the 13-10 closeout)
+25. ~~R1e: integration go-retry MVS proof + example-smoke vs the ServerTiming stack~~ done — R1e executed (the MVS proof + example-smoke 8/8; p9a)
+26. ~~S1: scaffold verdict doc (template repo recommended; G3 default if unanswered)~~ done — the scaffold verdict doc landed (docs/planning/2026-11-06_08-45_scaffold-shape-verdict.md)
+27. S2–S6: template pieces (cmdguard serve verb, templ skeleton, flake+buildflow, **→ TODO P3 — v13 plan S2-S7 scaffold rows (template pieces) <!-- fresh:skip: routed in TODO_LIST -->**
     CI+systemd+Dockerfile, doc skeletons + boot probe)
-28. S7: dogfood one real app end-to-end
-29. G-CNT: adoption-counter script (dual any/direct) + gate table + guard wiring
-30. A1: swap-recipe template in docs/recipes/
-31. A2: dnsblockd recipe (−~1,600 LOC)
-32. A3: ChastityAPI recipe (−~4,800 LOC class; JWT→usermgmt flagged)
-33. A4: PapDashboard security swap recipe
-34. A5: pbx-lens cmdguard migration recipe
-35. D1: worker supervisor + pools (acceptance per battery spec)
-36. D3: sqlitekit design + lease + backup + ledger + migration helper
+28. S7: dogfood one real app end-to-end **→ TODO P3 — v13 plan S2-S7 scaffold rows (S7 dogfood) <!-- fresh:skip: routed in TODO_LIST -->**
+29. ~~G-CNT: adoption-counter script (dual any/direct) + gate table + guard wiring~~ done at `06e9a77`
+30. ~~A1: swap-recipe template in docs/recipes/~~ done — the A1 template landed (docs/recipes/battery-swap-recipe.template.md + index row)
+31. A2: dnsblockd recipe (−~1,600 LOC) **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (dnsblockd) <!-- fresh:skip: routed in TODO_LIST -->**
+32. A3: ChastityAPI recipe (−~4,800 LOC class; JWT→usermgmt flagged) **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (ChastityAPI) <!-- fresh:skip: routed in TODO_LIST -->**
+33. A4: PapDashboard security swap recipe **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (PapDashboard) <!-- fresh:skip: routed in TODO_LIST -->**
+34. A5: pbx-lens cmdguard migration recipe **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (pbx-lens) <!-- fresh:skip: routed in TODO_LIST -->**
+35. D1: worker supervisor + pools (acceptance per battery spec) **→ TODO P3 — Battery program waves W3-W5 (D1 worker supervisor) <!-- fresh:skip: routed in TODO_LIST -->**
+36. D3: sqlitekit design + lease + backup + ledger + migration helper **→ TODO P3 — Battery program waves W3-W5 (D3 sqlitekit) <!-- fresh:skip: routed in TODO_LIST -->**
 37. C2R: realtime FoldedSource + SubscribeFolded discriminator test **→ TODO P3 — Battery program waves W3-W5 (W5 C2 projection→broadcast folded contract)** <!-- fresh:skip: routed in TODO_LIST -->
-38. R2–R5a: deps-guard CI, error-family batch, ST recipe, httpx shortlist verdicts
-39. H1–H7: httpx module program (B1 first; classification-parity test)
-40. X1: compose-on-httputil refactor (the v1.7.0-seam swap plan)
-41. X2/X3: TLS option + testkit migration as their trains come up
-42. X4: core v1 exit-criteria watch (additions-empty anchor)
-43. Y1–Y7 + Z1–Z7 backlog/process debts (incl. Z1: add the `-o` truncation class to
+38. ~~R2–R5a: deps-guard CI, error-family batch, ST recipe, httpx shortlist verdicts~~ done — R2-R5a executed (agents-deps dfeb4a5; the R3/R4a/R5a rows closed 2026-11-06)
+39. H1–H7: httpx module program (B1 first; classification-parity test) **→ TODO P3 — Battery program waves W3-W5 (H1-H7 httpx program) <!-- fresh:skip: routed in TODO_LIST -->**
+40. X1: compose-on-httputil refactor (the v1.7.0-seam swap plan) **→ TODO P2 — compose Service on httputil.Server (X1 the v1.7.0-seam swap) <!-- fresh:skip: routed in TODO_LIST -->**
+41. X2/X3: TLS option + testkit migration as their trains come up **→ TODO P2 — compose Service on httputil.Server (X2 TLS + X3 testkit migrations ride the trains) <!-- fresh:skip: routed in TODO_LIST -->**
+42. X4: core v1 exit-criteria watch (additions-empty anchor) **→ TODO P2 — core v1.0.0 exit criteria (X4 the additions-empty anchor watch) <!-- fresh:skip: routed in TODO_LIST -->**
+43. Y1–Y7 + Z1–Z7 backlog/process debts (incl. Z1: add the `-o` truncation class to **→ TODO P3 — v13 plan Y/Z rows (backlog + process debts; Z1 the -o truncation class) <!-- fresh:skip: routed in TODO_LIST -->**
     the crush-config lessons entry)
-44. OG1/OG3–OG6 owner memos; OG2 heads-ups when core tags
-45. Final `scripts/verify-all.sh` (13 modules) + full guard suite
-46. Final release-state sync (AGENTS/FEATURES/TODO_LIST headers; 13-module truth)
-47. CI green on the final pushed commit + session-close ritual (every new job ran)
-48. IF owner answers push-policy YES: push master + config/v0.1.0 together, then
-    fresh-consumer proxy check, then P8 unblocks
-49. IF NO: hold; the proxy check + preset's published-tag requires stay documented
-50. Housekeeping: /tmp scratch dirs (readmecheck, rt-repin, tagprobe, glcfg) are
+44. OG1/OG3–OG6 owner memos; OG2 heads-ups when core tags **→ TODO P3 — v13 plan OG rows (memos; OG2 drafts ready) <!-- fresh:skip: routed in TODO_LIST -->**
+45. ~~Final `scripts/verify-all.sh` (13 modules) + full guard suite~~ done — verify-all ran on the tagged trees (this week's waves + the p9a guard runs)
+46. ~~Final release-state sync (AGENTS/FEATURES/TODO_LIST headers; 13-module truth)~~ done — the release-state sync shipped (AGENTS thirteen-released truth; FEATURES synced)
+47. ~~CI green on the final pushed commit + session-close ritual (every new job ran)~~ done — CI verified on the final pushed commits (designed reds only; the status-index job live-green)
+48. ~~IF owner answers push-policy YES: push master + config/v0.1.0 together, then~~ done — the push policy resolved YES in effect: master + config/v0.1.0 + preset/v0.1.0 + v0.10.0 all pushed
+    ~~fresh-consumer proxy check, then P8 unblocks~~
+49. ~~IF NO: hold; the proxy check + preset's published-tag requires stay documented~~ done — moot — the hold lifted (the proxy checks ride the P9c close-out route)
+50. Housekeeping: /tmp scratch dirs (readmecheck, rt-repin, tagprobe, glcfg) are **→ TODO P3 — Machine ops (/tmp scratch dirs: readmecheck, rt-repin, tagprobe, glcfg) <!-- fresh:skip: routed in TODO_LIST -->**
     throwaway — leave or clean, no repo impact
 
 ## g) QUESTIONS FOR THE OWNER (cannot be answered from the repo)
