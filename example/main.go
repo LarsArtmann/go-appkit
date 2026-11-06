@@ -28,6 +28,8 @@ import (
 const demoDrainDelay = 3 * time.Second
 
 func main() {
+	appkit.RegisterClassifications() // fleet-default registry: once, idempotent
+
 	cfg := appkit.DefaultServiceConfig()
 	cfg.Addr = ":8080"
 

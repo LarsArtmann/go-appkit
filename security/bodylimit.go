@@ -10,6 +10,11 @@ import "net/http"
 // Unlike a Content-Length header check, this enforces the limit on the
 // actual byte stream, so a client cannot stream an unbounded body past a
 // forged or absent Content-Length.
+//
+// Classification: call the core module's appkit.RegisterClassifications()
+// once at boot — it maps *http.MaxBytesError → Rejection, so the typed 413
+// surfaces through error-family consumers (HTTPHandler, errorpages) instead
+// of a generic 500.
 func BodyLimit(maxBytes int64) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

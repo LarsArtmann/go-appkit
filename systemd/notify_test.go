@@ -11,6 +11,7 @@ import (
 	"time"
 
 	errorfamily "github.com/larsartmann/go-error-family"
+	"github.com/larsartmann/go-error-family/errorfamilytest"
 )
 
 // envMu serializes tests that touch NOTIFY_SOCKET / WATCHDOG_USEC: the
@@ -170,9 +171,8 @@ func TestNotify_SendFailureIsClassified(t *testing.T) {
 		t.Error("notify must report sent=false on failure")
 	}
 
-	if code := errorfamily.Code(err); code != "systemd.notify_failed" {
-		t.Errorf("error code = %q, want systemd.notify_failed", code)
-	}
+	errorfamilytest.AssertCode(t, err, "systemd.notify_failed")
+	errorfamilytest.AssertFamily(t, err, errorfamily.Infrastructure)
 
 	if !errors.Is(err, syscall.ENOENT) {
 		t.Errorf("the transport errno must stay reachable through the wrapper: %v", err)

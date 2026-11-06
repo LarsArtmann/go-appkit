@@ -210,6 +210,26 @@ svc, _ := appkit.NewService(appkit.ServiceConfig{
 })
 ```
 
+### Server-Timing handler phases (sub-metrics beyond `total`)
+
+The default stack's outermost middleware stamps `Server-Timing: total;dur=…` at
+first write. Handlers can add their own named phases through the
+[httputil/server_timing](https://github.com/LarsArtmann/httputil/tree/main/server_timing)
+context helpers — nil-safe no-ops without the middleware, so handlers need no
+branching. Measure BEFORE your first write: the header is committed at
+response start, so a deferred measure that fires after the first write misses
+the header (the phase is still recorded, it just cannot ship).
+
+```go
+import "github.com/larsartmann/httputil/server_timing"
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+	defer server_timing.MeasureServerTiming(r.Context(), "db_fetch")() // "db_fetch;dur=…"
+	fetchUser(r.Context())
+	w.WriteHeader(http.StatusOK)
+}
+```
+
 ## Health endpoints
 
 Three endpoints registered by default (via [httputil](https://github.com/LarsArtmann/httputil)):
@@ -280,6 +300,22 @@ svc.Mux.Handle("POST /users", errorfamily.HTTPHandler(func(w http.ResponseWriter
     // Return a classified error — HTTPHandler maps family→status, writes safe JSON.
     return errorfamily.NewRejection("user.invalid", "name is required")
 }))
+```
+
+### Fleet-default error classification (opt-in, once per binary)
+
+`appkit.RegisterClassifications()` seeds the process-wide registry with the
+fleet defaults: go-error-family's documented stdlib classifications plus
+`*http.MaxBytesError` → Rejection (a body over the limit is the client's
+fault — 413, not a 500; the `security` module's BodyLimit relies on it).
+Call it once at boot, before serving — idempotent, and deliberately not
+auto-called (global-state hygiene: your binary owns the registry):
+
+```go
+func main() {
+	appkit.RegisterClassifications() // once per binary; re-calls are no-ops
+	// ... NewService, Run
+}
 ```
 
 ### SSE and other long-lived responses
