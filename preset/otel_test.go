@@ -51,7 +51,6 @@ func (e *recordingExporter) wasShutdown() bool {
 // the middleware (spans appear at the exporter), and the provider Shutdown
 // joins ShutdownHooks (the exporter is shut down and spans flushed).
 func TestOTEL_CodeEnabled_RecordsSpans(t *testing.T) {
-	t.Parallel()
 
 	exporter := &recordingExporter{}
 

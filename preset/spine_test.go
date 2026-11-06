@@ -19,7 +19,6 @@ import (
 // default /health family is opted out to avoid the mux panic), the K8s
 // probe endpoints serve, and teardown is a graceful shutdown.
 func TestNew_ZeroAppCodeBoots(t *testing.T) {
-	t.Parallel()
 
 	svc, err := preset.New(testConfig())
 	if err != nil {
@@ -68,7 +67,6 @@ func TestNew_ZeroAppCodeBoots(t *testing.T) {
 // Mounted starts with the service (its checks run), and consumer hooks
 // pass through and run in phase order (start, then drain, then shutdown).
 func TestNew_HookWiring(t *testing.T) {
-	t.Parallel()
 
 	var (
 		checkRuns atomic.Int64
@@ -124,7 +122,6 @@ func TestNew_HookWiring(t *testing.T) {
 
 // TestNew_VersionPassthrough stamps ServiceConfig.Version.
 func TestNew_VersionPassthrough(t *testing.T) {
-	t.Parallel()
 
 	cfg := testConfig()
 	cfg.Version = "preset-test-1.2.3"
@@ -159,7 +156,6 @@ func TestNew_VersionPassthrough(t *testing.T) {
 // TestNew_NoDashboard keeps core's own /health family: the probe endpoints
 // still mount and coexist (no pattern collision).
 func TestNew_NoDashboard(t *testing.T) {
-	t.Parallel()
 
 	cfg := testConfig()
 	cfg.NoDashboard = true

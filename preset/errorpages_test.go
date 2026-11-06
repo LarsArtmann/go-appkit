@@ -38,7 +38,6 @@ func getNotFound(t *testing.T, url, accept string) (*http.Response, string) {
 // TestErrorPages_Pretty404Default: the leg is ON by default (spine member) —
 // unknown paths serve the pretty HTML page.
 func TestErrorPages_Pretty404Default(t *testing.T) {
-	t.Parallel()
 
 	svc, err := preset.New(testConfig())
 	if err != nil {
@@ -64,7 +63,6 @@ func TestErrorPages_Pretty404Default(t *testing.T) {
 // TestErrorPages_JSONByAccept: the default JSONWhen serves the JSON contract
 // when the request accepts application/json.
 func TestErrorPages_JSONByAccept(t *testing.T) {
-	t.Parallel()
 
 	svc, err := preset.New(testConfig())
 	if err != nil {
@@ -90,7 +88,6 @@ func TestErrorPages_JSONByAccept(t *testing.T) {
 // TestErrorPages_CodeDisabled: Enabled=false removes the catch-all — the
 // stdlib mux's plain 404 serves instead.
 func TestErrorPages_CodeDisabled(t *testing.T) {
-	t.Parallel()
 
 	cfg := testConfig()
 	cfg.ErrorPages = &preset.ErrorPagesConfig{Enabled: false}
@@ -141,7 +138,6 @@ func TestErrorPages_EnvOff(t *testing.T) {
 // TestErrorPages_ConsumerRouteWins: routes registered after New are more
 // specific than the catch-all "/" and win per stdlib ServeMux precedence.
 func TestErrorPages_ConsumerRouteWins(t *testing.T) {
-	t.Parallel()
 
 	svc, err := preset.New(testConfig())
 	if err != nil {
