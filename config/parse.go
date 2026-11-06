@@ -41,10 +41,10 @@ func parseValue(ty reflect.Type, raw string) (reflect.Value, error) {
 	if ty == durationType {
 		d, err := time.ParseDuration(raw)
 		if err != nil {
-			return reflect.Value{}, parseErr(ty, raw, err)
+			return reflect.Value{}, parseErr(raw, err)
 		}
 
-		return reflect.ValueOf(d), nil
+		return reflect.ValueOf(d).Convert(ty), nil
 	}
 
 	if ty.Kind() == reflect.Slice {
@@ -54,7 +54,7 @@ func parseValue(ty reflect.Type, raw string) (reflect.Value, error) {
 			parts[i] = strings.TrimSpace(part)
 		}
 
-		return reflect.ValueOf(parts), nil
+		return reflect.ValueOf(parts).Convert(ty), nil
 	}
 
 	switch ty.Kind() { //nolint:exhaustive // scalar kinds enumerated; default is the error
@@ -63,28 +63,28 @@ func parseValue(ty reflect.Type, raw string) (reflect.Value, error) {
 	case reflect.Bool:
 		v, err := strconv.ParseBool(raw)
 		if err != nil {
-			return reflect.Value{}, parseErr(ty, raw, err)
+			return reflect.Value{}, parseErr(raw, err)
 		}
 
 		return reflect.ValueOf(v).Convert(ty), nil
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		v, err := strconv.ParseInt(raw, 10, ty.Bits())
 		if err != nil {
-			return reflect.Value{}, parseErr(ty, raw, err)
+			return reflect.Value{}, parseErr(raw, err)
 		}
 
 		return reflect.ValueOf(v).Convert(ty), nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		v, err := strconv.ParseUint(raw, 10, ty.Bits())
 		if err != nil {
-			return reflect.Value{}, parseErr(ty, raw, err)
+			return reflect.Value{}, parseErr(raw, err)
 		}
 
 		return reflect.ValueOf(v).Convert(ty), nil
 	case reflect.Float32, reflect.Float64:
 		v, err := strconv.ParseFloat(raw, ty.Bits())
 		if err != nil {
-			return reflect.Value{}, parseErr(ty, raw, err)
+			return reflect.Value{}, parseErr(raw, err)
 		}
 
 		return reflect.ValueOf(v).Convert(ty), nil
@@ -95,6 +95,6 @@ func parseValue(ty reflect.Type, raw string) (reflect.Value, error) {
 
 // parseErr adds the raw value to the parser's message so the FieldError line
 // is actionable without re-running the load.
-func parseErr(_ reflect.Type, raw string, err error) error {
+func parseErr(raw string, err error) error {
 	return fmt.Errorf("cannot parse %q: %w", raw, err)
 }

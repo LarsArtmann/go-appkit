@@ -345,3 +345,39 @@ func Keys[T any]() ([]string, error) {
 
 	return keys, nil
 }
+
+// FieldErrorsOf collects every FieldError inside an error returned by Load
+// (or Keys), walking the whole wrap/join tree. Nil for errors from other
+// sources.
+func FieldErrorsOf(err error) []*FieldError {
+	var out []*FieldError
+
+	var walk func(error)
+
+	walk = func(e error) {
+		if e == nil {
+			return
+		}
+
+		var fieldErr *FieldError
+
+		if errors.As(e, &fieldErr) {
+			out = append(out, fieldErr)
+
+			return
+		}
+
+		switch unwrapper := e.(type) {
+		case interface{ Unwrap() error }:
+			walk(unwrapper.Unwrap())
+		case interface{ Unwrap() []error }:
+			for _, child := range unwrapper.Unwrap() {
+				walk(child)
+			}
+		}
+	}
+
+	walk(err)
+
+	return out
+}
