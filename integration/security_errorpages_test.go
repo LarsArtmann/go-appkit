@@ -26,8 +26,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"os"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -71,13 +69,17 @@ func newSecuredErrorpagesService(t *testing.T) (*testkit.TestServer, string) {
 	ts := testkit.Serve(t, svc)
 
 	t.Cleanup(func() {
+		// Close client pools BEFORE the server waits: a spare conn dialed by
+		// a shared Transport under parallel-burst contention leaves a
+		// StateNew server conn, and net/http's Shutdown refuses to close a
+		// StateNew conn until it is 5s old (issue 22682 grace) — the exact
+		// budget of this ctx.
+		http.DefaultClient.CloseIdleConnections()
+
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		if shutdownErr := ts.Shutdown(ctx); shutdownErr != nil {
-			buf := make([]byte, 4<<20) //nolint:mnd // TEMP diagnostics
-			n := runtime.Stack(buf, true)
-			_ = os.WriteFile("/tmp/shutdown-stacks.txt", buf[:n], 0o644) //nolint:noctx // TEMP diagnostics
 			t.Errorf("shutdown: %v", shutdownErr)
 		}
 	})

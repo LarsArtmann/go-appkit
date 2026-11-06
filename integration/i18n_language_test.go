@@ -50,6 +50,13 @@ func newLanguageService(t *testing.T) *testkit.TestServer {
 	ts := testkit.Serve(t, svc)
 
 	t.Cleanup(func() {
+		// Close client pools BEFORE the server waits: a spare conn dialed by
+		// a shared Transport under parallel-burst contention leaves a
+		// StateNew server conn, and net/http's Shutdown refuses to close a
+		// StateNew conn until it is 5s old (issue 22682 grace) — the exact
+		// budget of this ctx (the 2026-11-06 moving shutdown-flake class).
+		http.DefaultClient.CloseIdleConnections()
+
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
