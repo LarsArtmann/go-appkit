@@ -89,21 +89,16 @@ fell out of it.
 ## f) NEXT (impact-ordered; remaining = wave 3 + long tail)
 
 1. Wave-3 archives: the 03-18/05-03/06-22 v12 session reports (~146 items;
-   most route to the v13 plan rows this wave already wired). **→ routed —
-   docs/planning/2026-11-06_09-37_SUPERB-docs-gates-green-and-corpus-archive.md
-   (F-62 tier)** <!-- fresh:skip: routed in the standing archive plan -->
+   most route to the v13 plan rows this wave already wired). **→ TODO P3 — docs-health corpus waves 3-4 (wave-3 tier) <!-- fresh:skip: routed in TODO_LIST -->**
 2. Floor-train go 1.27.3 (GO-2026-6809). **→ TODO P2 — Floor-train go 1.27.2
    → 1.27.3** <!-- fresh:skip: routed in TODO_LIST -->
 3. `annotate_max` drain (G/uniform per-cell strikes in the worst archived
-   offenders). **→ routed — the standing archive plan (W4-1 tier)** <!--
-   fresh:skip: routed in the standing archive plan -->
+   offenders). **→ TODO P3 — docs-health corpus waves 3-4 (the annotate_max drain rides the same passes) <!-- fresh:skip: routed in TODO_LIST -->**
 4. Upstream docs-gates note: routed≠resolved between freshness and routing.
    **→ TODO P3 — SUPERB v12 micro-backlog (process lesson to crush-config)** <!--
    fresh:skip: routed in TODO_LIST -->
 5. The nine remaining unarchived reports (19-54, 20-35, 21-25, 22-36, 03-18,
-   05-03, 06-22, 09-32, 11-47, 12-46, 13-13) ride waves 3-4. **→ routed — the
-   standing archive plan (F-62/F-66 tiers)** <!-- fresh:skip: routed in the
-   standing archive plan -->
+   05-03, 06-22, 09-32, 11-47, 12-46, 13-13) ride waves 3-4. **→ TODO P3 — docs-health corpus waves 3-4 (F-62/F-66 tiers) <!-- fresh:skip: routed in TODO_LIST -->**
 
 ## g) QUESTIONS I CANNOT ANSWER MYSELF
 
