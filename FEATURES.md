@@ -31,16 +31,20 @@ aspirations.
 | `Version` + `GET /version` build info             | FULLY_FUNCTIONAL                                               | `version.go`, `metrics_test.go`                   |
 | `testkit.Serve` full-chain test harness           | FULLY_FUNCTIONAL                                               | `testkit/testkit.go`, `testkit/testkit_test.go`   |
 | `testkit.NewService` test-safe defaults           | FULLY_FUNCTIONAL                                               | `testkit/testkit.go`, `testkit_test.go` (v0.9.0)  |
-| `testkit.HTTPGetURL`/`HTTPGetContext` GET helpers | FULLY_FUNCTIONAL (UNRELEASED — staged for the next core train) | `testkit/httptest.go`, `testkit/httptest_test.go` |
-| `testkit.WaitForRunning`/`WaitForRunningWithin`   | FULLY_FUNCTIONAL (UNRELEASED — staged for the next core train) | `testkit/httptest.go`, `testkit/httptest_test.go` |
-| `testkit.FreeAddr` rebind-verified port reserve   | FULLY_FUNCTIONAL (UNRELEASED — staged for the next core train) | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| `testkit.HTTPGetURL`/`HTTPGetContext` GET helpers | FULLY_FUNCTIONAL (v0.10.0)                                       | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| `testkit.WaitForRunning`/`WaitForRunningWithin`   | FULLY_FUNCTIONAL (v0.10.0)                                       | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| `testkit.FreeAddr` rebind-verified port reserve   | FULLY_FUNCTIONAL (v0.10.0)                                       | `testkit/httptest.go`, `testkit/httptest_test.go` |
+| Server-Timing outermost on the default stack      | FULLY_FUNCTIONAL (v0.10.0; `ServerTiming *bool` knob, default on) | `middleware.go`, `servertiming_bench_test.go`     |
+| `RegisterClassifications` fleet error registry    | FULLY_FUNCTIONAL (v0.10.0; idempotent, not auto-called)          | `errors.go`, `errors_test.go`                     |
 
-Shipped through core **v0.9.0** (2026-10-12; lifecycle hooks in v0.4.0,
+Shipped through core **v0.10.0** (2026-11-06; lifecycle hooks in v0.4.0,
 metrics/version/testkit in v0.5.0, `appkit.Hook` alias +
 `testkit.DrainWindowProbe` in v0.7.0, `ServiceConfig.StartHooks` in v0.8.0,
 `testkit.NewService(tb, cfg)` — the config-taking constructor with test-safe
 defaults (ephemeral loopback addr + `NoDrainDelay`), closing issue #26's
-5s-per-test teardown trap — in v0.9.0; additions-only API diffs,
+5s-per-test teardown trap — in v0.9.0; Server-Timing outermost +
+`RegisterClassifications()` + the testkit GET/wait/FreeAddr helpers in
+v0.10.0, released for the preset module's spine; additions-only API diffs,
 proxy-tested).
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)

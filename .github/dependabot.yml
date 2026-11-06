@@ -101,6 +101,16 @@ updates:
           - minor
           - patch
   - package-ecosystem: gomod
+    directory: /preset
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+  - package-ecosystem: gomod
     directory: /realtime
     schedule:
       interval: weekly

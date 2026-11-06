@@ -16,6 +16,7 @@ use (
 	./flightrecorderhealth
 	./health
 	./otel
+	./preset
 	./realtime
 	./security
 	./systemd

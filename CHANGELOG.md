@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-06
+
 ### Added
 
 - Fleet-default error classifications: `appkit.RegisterClassifications()` installs the stdlib

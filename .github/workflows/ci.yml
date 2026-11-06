@@ -78,6 +78,7 @@ jobs:
           ./flightrecorderhealth,
           ./errorpages,
           ./config,
+          ./preset,
           ./docs,
           ./integration,
         ]
@@ -129,6 +130,7 @@ jobs:
           github.com/larsartmann/go-appkit/flightrecorderhealth,
           github.com/larsartmann/go-appkit/errorpages,
           github.com/larsartmann/go-appkit/config,
+          github.com/larsartmann/go-appkit/preset,
           github.com/larsartmann/go-appkit/docs,
           github.com/larsartmann/go-appkit/systemd,
         ]
