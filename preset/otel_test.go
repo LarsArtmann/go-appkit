@@ -6,11 +6,10 @@ import (
 	"sync"
 	"testing"
 
-	"go.opentelemetry.io/otel/sdk/trace"
-
 	appkitotel "github.com/larsartmann/go-appkit/otel"
 	"github.com/larsartmann/go-appkit/preset"
 	"github.com/larsartmann/go-appkit/testkit"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 // recordingExporter captures exported spans so tests can observe whether the
@@ -25,6 +24,7 @@ func (e *recordingExporter) ExportSpans(_ context.Context, spans []trace.ReadOnl
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.spans += len(spans)
+
 	return nil
 }
 
@@ -32,18 +32,21 @@ func (e *recordingExporter) Shutdown(context.Context) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.shutDo = true
+
 	return nil
 }
 
 func (e *recordingExporter) count() int {
 	e.mu.Lock()
 	defer e.mu.Unlock()
+
 	return e.spans
 }
 
 func (e *recordingExporter) wasShutdown() bool {
 	e.mu.Lock()
 	defer e.mu.Unlock()
+
 	return e.shutDo
 }
 
@@ -51,7 +54,6 @@ func (e *recordingExporter) wasShutdown() bool {
 // the middleware (spans appear at the exporter), and the provider Shutdown
 // joins ShutdownHooks (the exporter is shut down and spans flushed).
 func TestOTEL_CodeEnabled_RecordsSpans(t *testing.T) {
-
 	exporter := &recordingExporter{}
 
 	cfg := testConfig()

@@ -13,7 +13,6 @@ import (
 // legs DO) lives in the *_test.go integration files.
 
 func TestResolveLegs_AllAbsent(t *testing.T) {
-
 	legs, err := resolveLegs(Config{})
 	if err != nil {
 		t.Fatalf("resolveLegs: %v", err)
@@ -81,7 +80,12 @@ func TestResolveLegs_EnvDecidesWhenCodeNil(t *testing.T) {
 	}
 
 	if !legs.otel || !legs.realtime || legs.errorPages {
-		t.Errorf("tri-bool legs = otel:%t realtime:%t errorPages:%t, want on/on/off", legs.otel, legs.realtime, legs.errorPages)
+		t.Errorf(
+			"tri-bool legs = otel:%t realtime:%t errorPages:%t, want on/on/off",
+			legs.otel,
+			legs.realtime,
+			legs.errorPages,
+		)
 	}
 
 	if legs.security != SecurityStandard || !legs.hasSecurity {
@@ -90,7 +94,6 @@ func TestResolveLegs_EnvDecidesWhenCodeNil(t *testing.T) {
 }
 
 func TestResolveLegs_EmptyProfileDefaultsToStandard(t *testing.T) {
-
 	legs, err := resolveLegs(Config{Security: &SecurityConfig{Enabled: true}})
 	if err != nil {
 		t.Fatalf("resolveLegs: %v", err)

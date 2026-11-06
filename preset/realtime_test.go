@@ -5,12 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/larsartmann/go-sse"
-	"github.com/larsartmann/go-sse/ssetest"
-
 	"github.com/larsartmann/go-appkit/preset"
 	"github.com/larsartmann/go-appkit/realtime"
 	"github.com/larsartmann/go-appkit/testkit"
+	"github.com/larsartmann/go-sse"
+	"github.com/larsartmann/go-sse/ssetest"
 )
 
 // TestRealtime_StreamsEvents: the enabled leg mounts GET /events, hands the
@@ -18,7 +17,6 @@ import (
 // established subscribers. Sync on SubscriberCount before broadcasting (the
 // SSE house rule), and the hub drains at graceful shutdown.
 func TestRealtime_StreamsEvents(t *testing.T) {
-
 	var hub *realtime.Hub
 
 	cfg := testConfig()
@@ -79,7 +77,6 @@ func TestRealtime_StreamsEvents(t *testing.T) {
 // TestRealtime_OffByDefault: no env, nil leg — GET /events is not mounted
 // (the errorpages catch-all answers).
 func TestRealtime_OffByDefault(t *testing.T) {
-
 	svc, err := preset.New(testConfig())
 	if err != nil {
 		t.Fatalf("New: %v", err)
@@ -96,7 +93,6 @@ func TestRealtime_OffByDefault(t *testing.T) {
 
 // TestRealtime_CustomPattern: Pattern overrides the default mount point.
 func TestRealtime_CustomPattern(t *testing.T) {
-
 	cfg := testConfig()
 	cfg.Realtime = &preset.RealtimeConfig{
 		Enabled: true,

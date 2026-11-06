@@ -61,8 +61,8 @@ type Config struct {
 	// hooks run FIRST in every phase; the preset's spine closures (health
 	// Mounted, realtime hub, otel provider flush) run after, so otel spans
 	// cover app shutdown work.
-	StartHooks   []appkit.Hook
-	DrainHooks   []appkit.Hook
+	StartHooks    []appkit.Hook
+	DrainHooks    []appkit.Hook
 	ShutdownHooks []appkit.Hook
 
 	// Legs — nil means the env switch decides.

@@ -3,9 +3,8 @@ package preset
 import (
 	"log/slog"
 
-	errorfamily "github.com/larsartmann/go-error-family"
-
 	"github.com/larsartmann/go-appkit/security"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/httputil"
 )
 
@@ -17,14 +16,18 @@ import (
 func securityMiddlewares(cfg *SecurityConfig) ([]httputil.Middleware, error) {
 	profile := SecurityStandard
 	bodyLimit := defaultBodyLimitBytes
+
 	var origins []string
+
 	if cfg != nil {
 		if cfg.Profile != "" {
 			profile = cfg.Profile
 		}
+
 		if cfg.BodyLimitBytes > 0 {
 			bodyLimit = cfg.BodyLimitBytes
 		}
+
 		origins = cfg.Origins
 	}
 

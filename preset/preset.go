@@ -38,8 +38,10 @@ func New(cfg Config) (*appkit.Service, error) {
 	// ShutdownHooks via a closure, and startup-error paths below flush it
 	// (the core never runs hooks for a service that never started).
 	var provider *appkitotel.Provider
+
 	if legs.otel {
 		opts := cfg.OTEL.setupOptions(cfg.Version)
+
 		provider, err = appkitotel.Setup(opts...)
 		if err != nil {
 			return nil, err
@@ -75,13 +77,16 @@ func New(cfg Config) (*appkit.Service, error) {
 			if mounted == nil {
 				return nil
 			}
+
 			return mounted.Start(ctx)
 		}),
 		DrainHooks: append(slices.Clone(cfg.DrainHooks), func(context.Context) error {
 			if mounted == nil {
 				return nil
 			}
+
 			mounted.Drain()
+
 			return nil
 		}),
 		ShutdownHooks: append(slices.Clone(cfg.ShutdownHooks), func(ctx context.Context) error {
@@ -90,9 +95,11 @@ func New(cfg Config) (*appkit.Service, error) {
 					return err
 				}
 			}
+
 			if provider != nil {
 				return provider.Shutdown(ctx)
 			}
+
 			return nil
 		}),
 	}
@@ -111,6 +118,7 @@ func New(cfg Config) (*appkit.Service, error) {
 		middlewares, secErr := securityMiddlewares(cfg.Security)
 		if secErr != nil {
 			flushProvider(provider)
+
 			return nil, secErr
 		}
 		// ExtraMiddlewares run inside the default stack; httputil's header
@@ -125,17 +133,21 @@ func New(cfg Config) (*appkit.Service, error) {
 	svc, err := appkit.NewService(sc)
 	if err != nil {
 		flushProvider(provider)
+
 		return nil, err
 	}
 
 	probe := health.NewProbe(cfg.HealthChecks)
+
 	mountOpts := make([]health.MountOption, 0, 1)
 	if !cfg.NoDashboard {
 		mountOpts = append(mountOpts, health.WithDashboard())
 	}
+
 	mounted, err = health.Mount(svc.Mux, probe, mountOpts...)
 	if err != nil {
 		flushProvider(provider)
+
 		return nil, err
 	}
 
@@ -144,20 +156,25 @@ func New(cfg Config) (*appkit.Service, error) {
 		if cfg.ErrorPages != nil {
 			pages = cfg.ErrorPages.Config
 		}
+
 		errorpages.Mount(svc.Mux, pages)
 	}
 
 	if legs.realtime {
 		hub = realtime.NewHub()
+
 		pattern := defaultRealtimePattern
 		if cfg.Realtime != nil && cfg.Realtime.Pattern != "" {
 			pattern = cfg.Realtime.Pattern
 		}
+
 		var mountOpts []realtime.MountOption
 		if cfg.Realtime != nil {
 			mountOpts = cfg.Realtime.Options
 		}
+
 		realtime.Mount(svc.Mux, pattern, hub, mountOpts...)
+
 		if cfg.Realtime != nil && cfg.Realtime.Hub != nil {
 			*cfg.Realtime.Hub = hub
 		}
@@ -172,6 +189,7 @@ func flushProvider(provider *appkitotel.Provider) {
 	if provider == nil {
 		return
 	}
+
 	if err := provider.Shutdown(context.Background()); err != nil {
 		slog.Error("preset: otel provider flush failed", "error", err)
 	}
@@ -183,13 +201,17 @@ func (c *OTELConfig) setupOptions(version string) []appkitotel.SetupOption {
 	if c == nil {
 		return nil
 	}
+
 	opts := make([]appkitotel.SetupOption, 0, 1+len(c.Options))
+
 	svcVersion := c.ServiceVersion
 	if svcVersion == "" {
 		svcVersion = version
 	}
+
 	if c.ServiceName != "" || svcVersion != "" {
 		opts = append(opts, appkitotel.WithService(c.ServiceName, svcVersion, c.InstanceID))
 	}
+
 	return append(opts, c.Options...)
 }

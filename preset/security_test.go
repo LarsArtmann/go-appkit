@@ -7,9 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	errorfamily "github.com/larsartmann/go-error-family"
-
 	"github.com/larsartmann/go-appkit/preset"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // getWithHeaders fetches url through the full chain with extra headers.
@@ -56,7 +55,8 @@ func postBody(t *testing.T, url, origin string, payload []byte) *http.Response {
 // middleware only triggers when a handler reads the request body.
 func registerEcho(mux interface {
 	HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request))
-}) {
+},
+) {
 	mux.HandleFunc("POST /echo", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := io.Copy(io.Discard, r.Body); err != nil {
 			http.Error(w, "body too large", http.StatusRequestEntityTooLarge)
@@ -72,7 +72,6 @@ func registerEcho(mux interface {
 // profile's production headers (HSTS) and the body limit never join the
 // stack. Core's own basic security headers still apply (nosniff et al).
 func TestSecurity_None_DefaultAddsNothing(t *testing.T) {
-
 	svc, err := preset.New(testConfig())
 	if err != nil {
 		t.Fatalf("New: %v", err)
@@ -100,7 +99,6 @@ func TestSecurity_None_DefaultAddsNothing(t *testing.T) {
 // TestSecurity_Standard_ProductionHeadersAndBodyLimit: the standard profile
 // adds SecurityHeaders (production posture → HSTS) and the 1 MiB body limit.
 func TestSecurity_Standard_ProductionHeadersAndBodyLimit(t *testing.T) {
-
 	cfg := testConfig()
 	cfg.Security = &preset.SecurityConfig{Enabled: true}
 
@@ -143,7 +141,6 @@ func TestSecurity_Standard_ProductionHeadersAndBodyLimit(t *testing.T) {
 // TestSecurity_Strict_OriginCheck: strict adds OriginCheck — cross-origin
 // browser requests are rejected with 403, allowlisted origins pass.
 func TestSecurity_Strict_OriginCheck(t *testing.T) {
-
 	cfg := testConfig()
 	cfg.Security = &preset.SecurityConfig{
 		Enabled: true,
@@ -178,7 +175,6 @@ func TestSecurity_Strict_OriginCheck(t *testing.T) {
 // TestSecurity_StrictWithoutOrigins_Rejects: strict with an empty allowlist
 // would reject every browser request — New fails fast instead.
 func TestSecurity_StrictWithoutOrigins_Rejects(t *testing.T) {
-
 	cfg := testConfig()
 	cfg.Security = &preset.SecurityConfig{
 		Enabled: true,

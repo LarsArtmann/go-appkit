@@ -13,7 +13,6 @@ import (
 // never invents credentials, so no /metrics route exists (the errorpages
 // catch-all answers instead).
 func TestMetrics_NilStaysNil(t *testing.T) {
-
 	svc, err := preset.New(testConfig())
 	if err != nil {
 		t.Fatalf("New: %v", err)
@@ -34,12 +33,11 @@ func TestMetrics_NilStaysNil(t *testing.T) {
 // TestMetrics_Passthrough: a set MetricsConfig flows to the core untouched —
 // auth-enforced scrape endpoint, 401 without credentials.
 func TestMetrics_Passthrough(t *testing.T) {
-
 	cfg := testConfig()
 	cfg.Metrics = &appkit.MetricsConfig{
-		Path:           "/metrics",
-		BasicAuthUser:  "scrape",
-		BasicAuthPass:  "secret",
+		Path:          "/metrics",
+		BasicAuthUser: "scrape",
+		BasicAuthPass: "secret",
 	}
 
 	svc, err := preset.New(cfg)

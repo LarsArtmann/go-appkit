@@ -23,6 +23,7 @@ func triBool(name string, absentVal bool) (bool, error) {
 	if !ok || value == "" {
 		return absentVal, nil
 	}
+
 	switch value {
 	case "on":
 		return true, nil
@@ -42,6 +43,7 @@ func parseSecurityProfile() (SecurityProfile, error) {
 	if !ok || value == "" {
 		return SecurityNone, nil
 	}
+
 	switch SecurityProfile(value) {
 	case SecurityNone, SecurityStandard, SecurityStrict:
 		return SecurityProfile(value), nil
@@ -72,6 +74,7 @@ func resolveLegs(cfg Config) (resolvedLegs, error) {
 	if legs.otel, err = triBool(envOTEL, false); err != nil {
 		return legs, err
 	}
+
 	if cfg.OTEL != nil {
 		legs.otel = cfg.OTEL.Enabled
 	}
@@ -79,6 +82,7 @@ func resolveLegs(cfg Config) (resolvedLegs, error) {
 	if legs.realtime, err = triBool(envRealtime, false); err != nil {
 		return legs, err
 	}
+
 	if cfg.Realtime != nil {
 		legs.realtime = cfg.Realtime.Enabled
 	}
@@ -86,6 +90,7 @@ func resolveLegs(cfg Config) (resolvedLegs, error) {
 	if legs.errorPages, err = triBool(envErrorPages, true); err != nil {
 		return legs, err
 	}
+
 	if cfg.ErrorPages != nil {
 		legs.errorPages = cfg.ErrorPages.Enabled
 	}
@@ -93,12 +98,15 @@ func resolveLegs(cfg Config) (resolvedLegs, error) {
 	if legs.security, err = parseSecurityProfile(); err != nil {
 		return legs, err
 	}
+
 	legs.hasSecurity = legs.security != SecurityNone
+
 	if cfg.Security != nil {
 		profile := cfg.Security.Profile
 		if profile == "" {
 			profile = SecurityStandard
 		}
+
 		legs.security = profile
 		legs.hasSecurity = cfg.Security.Enabled && profile != SecurityNone
 	}
