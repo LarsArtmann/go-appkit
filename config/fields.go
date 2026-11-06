@@ -53,7 +53,8 @@ func collectFields(
 			continue
 		}
 
-		name, opts, hasTag := strings.Cut(field.Tag.Get("env"), ",")
+		envTag, hasTag := field.Tag.Lookup("env")
+		name, opts, _ := strings.Cut(envTag, ",")
 		idx := append(append([]int{}, index...), i)
 
 		if field.Anonymous && !hasTag {

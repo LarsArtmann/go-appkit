@@ -32,7 +32,7 @@ type scalarsConfig struct {
 
 type nestedConfig struct {
 	Sub struct {
-		Addr string `env:"NESTED_ADDR"`
+		Addr string `env:"ADDR"`
 	} `env:"NESTED"`
 	Top string `env:"NESTED_TOP"`
 }
