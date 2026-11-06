@@ -110,7 +110,7 @@ func New(cfg Config) (*appkit.Service, error) {
 
 	mounted, err = health.Mount(svc.Mux, probe, dashboardOpts(cfg.NoDashboard)...)
 	if err != nil {
-		return nil, bootFail(provider, err) //nolint:wrapcheck // mount Rejection propagates untouched
+		return nil, bootFail(provider, err)
 	}
 
 	if legs.errorPages {
