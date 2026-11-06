@@ -38,10 +38,17 @@ var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit/systemd":              "v0.1.0",
 
 	"github.com/larsartmann/cqrs-htmx/v4": "v4.15.0",
-	// go-sse stays on v0.6.2 deliberately: v0.7.0 requires a-h/templ v0.3.1100
-	// (its regenerated examples use the new runtime API), which removed
-	// ResolveAttributeValue and breaks templ-components v1.22.0's generated
-	// code. Bump both together after the templ-components v0.3.1100 migration.
+	// cqrs-htmx AND go-sse are HELD (mirrored by held_pins in
+	// scripts/check-pin-drift.sh, which stays green only while these pins
+	// are exact — update both in one change). Empirically proven 2026-11-06
+	// in scratch fresh-cache runs: go-sse v0.7.0 and cqrs-htmx v4.16.0
+	// (which requires go-sse v0.7.0) pull a-h/templ v0.3.1100, whose removed
+	// templ.ResolveAttributeValue breaks generated code in templ-components
+	// <= v1.26.0 AND go-cqrs-lite catalog <= v4.12.0 (latest at proof time;
+	// templ-components v1.27.0 shipped the migration, catalog has not).
+	// Unblock: catalog ships a migrated tag AND cqrs-htmx requires
+	// templ-components >= v1.27.0 — then bump cqrs-htmx + go-sse +
+	// templ-components together.
 	"github.com/larsartmann/go-sse":         "v0.6.2",
 	"github.com/larsartmann/go-sse/ssetest": "v0.5.0",
 	"github.com/larsartmann/httputil":       "v1.8.0",

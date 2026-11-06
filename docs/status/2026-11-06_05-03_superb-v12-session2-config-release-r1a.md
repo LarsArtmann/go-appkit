@@ -265,3 +265,24 @@ agents-deps, art-dupl; pre-tag-checks(config/v0.1.0): 108 OK, 3 FAIL (pin-drift:
 module-map extension + integration re-pin v4.16.0/v0.7.0 — external drift, fix
 queued as f1/f2); tag config/v0.1.0 exists locally on the current commit, PUSH
 HELD; working tree auto-committed by pma throughout.
+
+---
+
+## ERRATA 2026-11-06 (session 3)
+
+1. **§a6 + §b1's "go-sse leg de-risked (scratch green)" was WRONG for the
+   integration graph.** The scratch verified the REALTIME module only (no
+   templ in its graph). Fresh scratch runs against integration's actual graph
+   (2026-11-06): go-sse v0.7.0 AND cqrs-htmx v4.16.0 both fail to build —
+   templ v0.3.1100's removed `templ.ResolveAttributeValue` breaks
+   templ-components ≤ v1.26.0 (`utils/svg`) and go-cqrs-lite catalog ≤ v4.12.0
+   (`docserver/specview_templ.go`); templ-components v1.27.0 shipped the
+   migration but catalog (latest v4.12.0) has not, and cqrs-htmx v4.16.0 still
+   requires templ-components v1.22.0. Both pins are now RECORDED HOLDS
+   (`held_pins` in scripts/check-pin-drift.sh, exact-match + born-red proven),
+   not drift. Unblock trigger recorded in the guard + the documentedPins
+   comment.
+2. **§d/§b's "the '(local)' suffix BROKE the guard parser" was backwards:**
+   the suffix's `)` was accidentally the parser's list terminator. Removing
+   the suffix left the trailing prose glued to the last entry (12 entries /
+   11 parse). Fixed by restoring the `)` after `config v0.1.0` in AGENTS.md.

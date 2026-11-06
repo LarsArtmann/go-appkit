@@ -157,6 +157,23 @@ done <<<"$pins"
 #     so integration was NOT testing what a fresh consumer resolves. These
 #     live in other repos, so the newest version comes from the module proxy
 #     (needs network; CI and dev machines have it).
+#
+#     held_pins: DELIBERATE holds, not drift — a recorded decision with an
+#     unblock trigger. Green only while the pin is EXACTLY the held version:
+#     bumping the pin without removing the hold (or vice versa) goes red, so
+#     the two can never drift apart silently. 2026-11-06 hold, empirically
+#     proven in scratch runs: go-sse v0.7.0 (and cqrs-htmx v4.16.0, which
+#     requires it) pull a-h/templ v0.3.1100, whose removed
+#     templ.ResolveAttributeValue breaks generated code in templ-components
+#     <= v1.26.0 AND go-cqrs-lite catalog <= v4.12.0 (latest). templ-components
+#     v1.27.0 shipped the migration; catalog has not. Unblock trigger: catalog
+#     ships a migrated tag AND cqrs-htmx requires templ-components >= v1.27.0 —
+#     then bump cqrs-htmx + go-sse + templ-components together and delete the
+#     hold entries here (keep the documentedPins comment in sync).
+declare -A held_pins=(
+	[github.com/larsartmann/cqrs-htmx/v4]=v4.15.0
+	[github.com/larsartmann/go-sse]=v0.6.2
+)
 for mod in github.com/larsartmann/cqrs-htmx/v4 github.com/larsartmann/go-sse github.com/larsartmann/go-sse/ssetest github.com/larsartmann/httputil; do
 	want="$(awk '/^require \(/,/^\)/' "$go_mod" | awk -v m="$mod" '$1 == m && $0 !~ /\/\/ indirect/ {print $2}')"
 	if [[ -z "$want" ]]; then
@@ -175,6 +192,10 @@ for mod in github.com/larsartmann/cqrs-htmx/v4 github.com/larsartmann/go-sse git
 		fail "$mod: could not query the module proxy for published versions"
 	elif [[ "$want" == "$latest" ]]; then
 		ok "$mod pinned at latest published version $latest"
+	elif [[ "${held_pins[$mod]:-}" == "$want" ]]; then
+		ok "$mod HELD at $want (recorded decision; latest $latest — see held_pins comment)"
+	elif [[ -n "${held_pins[$mod]:-}" ]]; then
+		fail "$mod pinned at $want but the recorded hold is ${held_pins[$mod]} (pin and hold drifted apart — update both in one change)"
 	else
 		fail "$mod pinned at $want but latest published version is $latest (bump integration/go.mod + the documentedPins fixture together)"
 	fi
