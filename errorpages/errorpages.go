@@ -47,7 +47,11 @@ func (c Config) wantsJSON(r *http.Request) bool {
 // Mount registers a catch-all handler on mux that renders the pretty 404 page
 // (or JSON contract) for any path no other route matched. Method mismatches
 // on registered patterns still produce the stdlib mux's plain 405 with the
-// Allow header; use Wrap for pretty 405s as well.
+// Allow header — but ONLY while no catch-all is registered: once this
+// Mount (or any "/") handler exists, the catch-all swallows those
+// mismatches as pretty 404s instead (pinned by
+// integration/security_errorpages_test.go). Use Wrap for pretty 405s as
+// well.
 //
 // It panics like http.ServeMux.Handle when "/" is already registered.
 func Mount(mux *http.ServeMux, cfg Config) {
