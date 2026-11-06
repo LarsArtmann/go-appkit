@@ -58,7 +58,12 @@ func registerEcho(mux interface {
 	HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request))
 }) {
 	mux.HandleFunc("POST /echo", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = io.Copy(io.Discard, r.Body)
+		if _, err := io.Copy(io.Discard, r.Body); err != nil {
+			http.Error(w, "body too large", http.StatusRequestEntityTooLarge)
+
+			return
+		}
+
 		w.WriteHeader(http.StatusOK)
 	})
 }

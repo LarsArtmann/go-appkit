@@ -55,7 +55,7 @@ func TestErrorPages_Pretty404Default(t *testing.T) {
 		t.Errorf("Content-Type = %q, want text/html", resp.Header.Get("Content-Type"))
 	}
 
-	if !strings.Contains(body, "<!DOCTYPE html>") {
+	if !strings.Contains(strings.ToLower(body), "<!doctype html") {
 		t.Error("404 body is not the pretty HTML page")
 	}
 }
@@ -80,8 +80,8 @@ func TestErrorPages_JSONByAccept(t *testing.T) {
 		t.Errorf("Content-Type = %q, want application/json", resp.Header.Get("Content-Type"))
 	}
 
-	if !strings.Contains(body, "404") {
-		t.Errorf("JSON body %q does not mention the status", body)
+	if !strings.Contains(body, "not_found") {
+		t.Errorf("JSON body %q has no not_found code", body)
 	}
 }
 

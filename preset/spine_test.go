@@ -58,7 +58,7 @@ func TestNew_ZeroAppCodeBoots(t *testing.T) {
 		t.Errorf("dashboard Content-Type = %q, want text/html", dash.Header.Get("Content-Type"))
 	}
 
-	if !strings.Contains(string(body), "<!DOCTYPE html>") {
+	if !strings.Contains(strings.ToLower(string(body)), "<!doctype html") {
 		t.Error("dashboard body is not an HTML document")
 	}
 }
