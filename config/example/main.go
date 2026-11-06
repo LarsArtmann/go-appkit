@@ -9,6 +9,7 @@
 package main
 
 import (
+	"os"
 	"fmt"
 	"log"
 	"time"
@@ -33,6 +34,6 @@ func main() {
 
 	keys, _ := config.Keys[Config]()
 
-	fmt.Printf("loaded: %+v\n", cfg)
-	fmt.Printf("declared env keys: %v\n", keys)
+	fmt.Fprintf(os.Stdout, "loaded: %+v\n", cfg)
+	fmt.Fprintf(os.Stdout, "declared env keys: %v\n", keys)
 }

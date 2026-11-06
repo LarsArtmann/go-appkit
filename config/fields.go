@@ -83,7 +83,7 @@ func collectFields(
 		}
 
 		if !supportedType(field.Type) {
-			errs = append(errs, &FieldError{
+			errs = append(errs, &FieldError{ //nolint:exhaustruct_v5 // Err deliberately nil: the kind carries the failure
 				Field: joinPath(pathPrefix, field.Name), Key: name,
 				Kind: KindUnsupportedType,
 			})
@@ -91,7 +91,7 @@ func collectFields(
 			continue
 		}
 
-		spec := fieldSpec{
+		spec := fieldSpec{ //nolint:exhaustruct_v5 // fileKey/default filled just below
 			path:     joinPath(pathPrefix, field.Name),
 			envKey:   envPrefix + name,
 			index:    idx,
