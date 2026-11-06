@@ -74,3 +74,9 @@ rg -n 'go-atomic-write|atomicwrite' --glob '*.go' --glob 'go*.sum'   # empty →
 rg -n 'go-atomic-write' TODO_LIST.md docs/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md
 git -C /home/lars/projects/go-atomic-write tag --sort=-v:refname | head -1   # v0.6.0
 ```
+
+## Errata (2026-11-06, verify-block replay)
+
+- Upstream moved: latest tag is **v0.6.2** (block said v0.6.0). No consumer
+  impact — go-appkit does not require the module (first verify line still
+  empty); battery D4's floor ("≥ v0.5.1") is unaffected.

@@ -74,3 +74,13 @@ rg -n 'filewatcher' --glob '*.go' --glob 'go*.sum' --glob 'go*.mod'   # empty â†
 rg -n 'hot.reload|watcher|inotify' TODO_LIST.md ROADMAP.md docs/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md   # no battery names it
 head -1 /home/lars/projects/go-filewatcher/go.mod                     # /v2 module path
 ```
+
+## Errata (2026-11-06, verify-block replay)
+
+- The second verify line's pattern (`hot.reload|watcher|inotify`) over-matches
+  prose: the battery spec's F4 "Config hot-reload" row, ROADMAP's fsnotify
+  note, and the pma-dossier row's "watcher" word all hit without naming this
+  library. The report's CLAIM (category mismatch, zero adoption) is verified
+  by the FIRST line instead: no go.mod/go.sum anywhere in go-appkit requires
+  filewatcher. Battery F4's hot-reload remains a config-module feature, not a
+  filewatcher adoption.
