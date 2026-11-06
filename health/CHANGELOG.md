@@ -2,7 +2,11 @@
 
 ### Added
 
-- Nothing yet.
+- `LICENSE`: the module root was the only released one without the
+  proprietary license file every sibling module carries, so license
+  scanners read it as unknown. File-only change (no code, no go.mod);
+  it ships with the next health tag — v0.3.1 was already published when
+  the gap was found.
 
 ### Changed
 
