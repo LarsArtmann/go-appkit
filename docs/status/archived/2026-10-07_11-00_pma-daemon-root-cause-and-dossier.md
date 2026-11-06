@@ -1,5 +1,12 @@
 # pma Daemon — Root Cause Located, Evidence Dossier, Owner Triage
 
+> **Live remainder:** the four owner decisions live in
+> `docs/planning/2026-10-13_pma-owner-decision-memo.md` (recommendations 1-3; decision 4
+> was answered by the 2026-10-13 journalctl evidence pass — pma logs no file names, the
+> mutator stays unnamed, cadence accepted). Standing owners: TODO_LIST pma rows
+> (root-cause row + the owner-gated working-file-class row). Archived 2026-11-06: every
+> §6 checklist item is struck or routed; nothing here is unowned.
+>
 > 2026-10-07 11:00 CEST · SUPERB plan T09 (docs/status snapshot; release
 > facts live in AGENTS, task state in TODO_LIST).
 > **Open question 6 is ANSWERED.** The daemon is located, its config read,
