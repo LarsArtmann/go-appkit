@@ -68,7 +68,7 @@ fail() {
 }
 
 # --- 1) Standing guards -----------------------------------------------------
-for guard in check-go-directives.sh check-agents-deps.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-routed-destinations.sh check-status-index.sh check-golangci-configs.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh check-art-dupl.sh check-module-licenses.sh check-features-claims.sh; do
+for guard in check-go-directives.sh check-agents-deps.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-routed-destinations.sh check-status-index.sh check-golangci-configs.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh check-art-dupl.sh check-module-licenses.sh check-features-claims.sh check-response-drain.sh; do
 	echo "== $guard =="
 	if ! "./scripts/$guard"; then
 		fail "$guard failed — fix before pushing ${tags[*]}"

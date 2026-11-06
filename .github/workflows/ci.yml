@@ -220,6 +220,8 @@ jobs:
         run: ./scripts/check-module-licenses.sh
       - name: FEATURES Shipped-through claims == newest tags
         run: ./scripts/check-features-claims.sh
+      - name: Response bodies closed without being read (test files)
+        run: ./scripts/check-response-drain.sh
 
   # Go-directive parity (plan 2026-09-20 T05): every module's go.mod must
   # declare the same go directive as go.work. Cheap, history-free guard for

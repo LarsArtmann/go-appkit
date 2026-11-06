@@ -4,7 +4,7 @@
 # previous .git/hooks/pre-commit INERT: no guard has run at commit time
 # since that override landed (found 2026-10-07, SUPERB T06/T07).
 #
-# Fatal: the seven OFFLINE standing guards (fast, read-only, no network)
+# Fatal: the eight OFFLINE standing guards (fast, read-only, no network)
 # plus the per-module build+vet for the staged set (check-touched-modules).
 # Warning-only: push-lag watch.
 #
@@ -19,7 +19,7 @@ set -u
 
 GUARD_FAIL=0
 
-for guard in check-go-directives.sh check-dependabot-parity.sh check-workspace-charter.sh check-sse-protocol.sh check-agents-deps.sh check-module-licenses.sh check-features-claims.sh; do
+for guard in check-go-directives.sh check-dependabot-parity.sh check-workspace-charter.sh check-sse-protocol.sh check-agents-deps.sh check-module-licenses.sh check-features-claims.sh check-response-drain.sh; do
 	if ! ./scripts/"$guard" >/dev/null 2>&1; then
 		echo "pre-commit: $guard FAILED (see scripts/$guard output)"
 		GUARD_FAIL=1

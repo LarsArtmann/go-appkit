@@ -327,8 +327,7 @@ func TestHandler_CORSHeader(t *testing.T) {
 		t.Fatalf("connect failed: %v", err)
 	}
 
-	_, _ = io.Copy(io.Discard, resp.Body)
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _ = resp.Body.Close() }() // respdrain:ignore SSE stream — Close IS the disconnect
 
 	if got := resp.Header.Get("Access-Control-Allow-Origin"); got != "*" {
 		t.Fatalf("CORS: want *, got %q", got)
@@ -353,8 +352,7 @@ func TestHandler_CustomCORS(t *testing.T) {
 		t.Fatalf("connect failed: %v", err)
 	}
 
-	_, _ = io.Copy(io.Discard, resp.Body)
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _ = resp.Body.Close() }() // respdrain:ignore SSE stream — Close IS the disconnect
 
 	if got := resp.Header.Get("Access-Control-Allow-Origin"); got != "https://app.example.com" {
 		t.Fatalf("CORS: want https://app.example.com, got %q", got)
@@ -576,8 +574,7 @@ func TestHandler_ReturnsHTTPHandler(t *testing.T) {
 		t.Fatalf("connect: %v", err)
 	}
 
-	_, _ = io.Copy(io.Discard, resp.Body)
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _ = resp.Body.Close() }() // respdrain:ignore SSE stream — Close IS the disconnect
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("want 200, got %d", resp.StatusCode)
@@ -641,8 +638,7 @@ func connectReplayClient(t *testing.T) (*realtime.Hub, *http.Response, chan stru
 		t.Fatalf("connect: %v", err)
 	}
 
-	_, _ = io.Copy(io.Discard, resp.Body)
-	t.Cleanup(func() { _ = resp.Body.Close() })
+	t.Cleanup(func() { _ = resp.Body.Close() }) // respdrain:ignore SSE stream — Close IS the disconnect
 
 	return hub, resp, store.release
 }
@@ -733,8 +729,7 @@ func TestHandler_AccelBufferingHeader(t *testing.T) {
 		t.Fatalf("GET /events: %v", err)
 	}
 
-	_, _ = io.Copy(io.Discard, resp.Body)
-	t.Cleanup(func() { _ = resp.Body.Close() })
+	t.Cleanup(func() { _ = resp.Body.Close() }) // respdrain:ignore SSE stream — Close IS the disconnect
 
 	if got := resp.Header.Get("X-Accel-Buffering"); got != "no" {
 		t.Errorf("X-Accel-Buffering = %q, want %q (nginx buffers SSE without it)", got, "no")

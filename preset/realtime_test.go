@@ -85,8 +85,7 @@ func TestRealtime_OffByDefault(t *testing.T) {
 	ts := servePreset(t, svc)
 
 	resp := testkit.HTTPGetContext(t, t.Context(), ts+"/events")
-	_, _ = io.Copy(io.Discard, resp.Body)
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _ = resp.Body.Close() }() // respdrain:ignore SSE stream — Close IS the disconnect
 
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("/events = %d, want 404 (realtime off by default)", resp.StatusCode)
@@ -109,8 +108,7 @@ func TestRealtime_CustomPattern(t *testing.T) {
 	ts := testkit.Serve(t, svc)
 
 	mounted := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/live-stream")
-	_, _ = io.Copy(io.Discard, mounted.Body)
-	defer func() { _ = mounted.Body.Close() }()
+	defer func() { _ = mounted.Body.Close() }() // respdrain:ignore SSE stream — Close IS the disconnect
 
 	if mounted.StatusCode != http.StatusOK {
 		t.Errorf("/live-stream = %d, want 200", mounted.StatusCode)
@@ -118,8 +116,7 @@ func TestRealtime_CustomPattern(t *testing.T) {
 
 	// The default pattern is gone.
 	absent := testkit.HTTPGetContext(t, t.Context(), ts.FullChainURL+"/events")
-	_, _ = io.Copy(io.Discard, absent.Body)
-	defer func() { _ = absent.Body.Close() }()
+	defer func() { _ = absent.Body.Close() }() // respdrain:ignore SSE stream — Close IS the disconnect
 
 	if absent.StatusCode != http.StatusNotFound {
 		t.Errorf("/events = %d, want 404 (replaced by the custom pattern)", absent.StatusCode)

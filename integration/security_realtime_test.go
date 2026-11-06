@@ -140,8 +140,7 @@ func TestRateLimitInFrontOfSSE(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reconnect: %v", err)
 	}
-	_, _ = io.Copy(io.Discard, retryResp.Body)
-	defer func() { _ = retryResp.Body.Close() }()
+	defer func() { _ = retryResp.Body.Close() }() // respdrain:ignore SSE stream — Close IS the disconnect
 
 	if retryResp.StatusCode != http.StatusTooManyRequests {
 		t.Errorf("reconnect = %d, want 429", retryResp.StatusCode)
