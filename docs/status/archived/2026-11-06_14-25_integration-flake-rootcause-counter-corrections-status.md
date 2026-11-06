@@ -7,7 +7,6 @@
 > standing battery asks carry routed markers into their TODO rows.
 > Archived 2026-11-06: every §f item carries a verdict; nothing here is
 > unowned.
->
 
 **Written:** 2026-11-06 ~14:25 +0100 · **Session window:** ~13:28–14:25 ·
 **Trigger:** owner instruction to execute the 13-13 report's §f NEXT list (42 items, impact-ordered).

@@ -7,7 +7,6 @@
 > routed to their minted rows with the loss recorded, and everything else
 > carries routed markers into the wired TODO rows. Archived 2026-11-06:
 > every §f item carries a verdict; nothing here is unowned.
->
 
 **Written:** 2026-11-06 21:32 +0100 · **Work window:** 13:28–14:45 (burst) · this file adds the
 demanded self-review on top of `2026-11-06_14-25_integration-flake-rootcause-counter-corrections-status.md`

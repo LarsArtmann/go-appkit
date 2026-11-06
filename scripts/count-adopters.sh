@@ -96,7 +96,7 @@ for module in "${modules[@]}"; do
 						direct_hit=1
 					fi
 				fi
-			done < "$gomod"
+			done <"$gomod"
 		done < <(find "$dir" -name go.mod -not -path '*/vendor/*' -not -path '*/node_modules/*' \
 			-not -path '*/.direnv/*' -not -path '*/result*' 2>/dev/null)
 		any_count=$((any_count + any_hit))

@@ -28,42 +28,58 @@ FORMATTER="${FORMATTER:-dprint}"
 mode="dry"
 files=()
 for arg in "$@"; do
-  case "$arg" in
-    --apply) mode="apply" ;;
-    --check) mode="check" ;;
-    -*) echo "unknown flag: $arg" >&2; exit 2 ;;
-    *) files+=("$arg") ;;
-  esac
+	case "$arg" in
+	--apply) mode="apply" ;;
+	--check) mode="check" ;;
+	-*)
+		echo "unknown flag: $arg" >&2
+		exit 2
+		;;
+	*) files+=("$arg") ;;
+	esac
 done
 
 if [ "${#files[@]}" -eq 0 ]; then
-  echo "usage: $0 [--apply|--check] <file.md> [<file.md>...]" >&2
-  exit 2
+	echo "usage: $0 [--apply|--check] <file.md> [<file.md>...]" >&2
+	exit 2
 fi
 
 for f in "${files[@]}"; do
-  [ -f "$f" ] || { echo "not a file: $f" >&2; exit 2; }
+	[ -f "$f" ] || {
+		echo "not a file: $f" >&2
+		exit 2
+	}
 done
 
 fail=0
 for f in "${files[@]}"; do
-  if ! "$ANNOTATE_BIN" check-rows "$f" > /tmp/dap-rows-1.log 2>&1; then
-    echo "GATE-FAIL (pre-format) $f"; cat /tmp/dap-rows-1.log; fail=1; continue
-  fi
-  if [ "$mode" = "check" ]; then
-    echo "OK (check-only) $f"; continue
-  fi
-  if [ "$mode" = "apply" ]; then
-    if ! "$FORMATTER" fmt "$f" > /tmp/dap-fmt.log 2>&1; then
-      echo "FORMAT-FAIL $f"; cat /tmp/dap-fmt.log; fail=1; continue
-    fi
-  else
-    echo "DRY-RUN (no format) $f — rerun with --apply to format"
-  fi
-  if ! "$ANNOTATE_BIN" check-rows "$f" > /tmp/dap-rows-2.log 2>&1; then
-    echo "GATE-FAIL (post-format) $f"; cat /tmp/dap-rows-2.log; fail=1; continue
-  fi
-  echo "OK $f"
+	if ! "$ANNOTATE_BIN" check-rows "$f" >/tmp/dap-rows-1.log 2>&1; then
+		echo "GATE-FAIL (pre-format) $f"
+		cat /tmp/dap-rows-1.log
+		fail=1
+		continue
+	fi
+	if [ "$mode" = "check" ]; then
+		echo "OK (check-only) $f"
+		continue
+	fi
+	if [ "$mode" = "apply" ]; then
+		if ! "$FORMATTER" fmt "$f" >/tmp/dap-fmt.log 2>&1; then
+			echo "FORMAT-FAIL $f"
+			cat /tmp/dap-fmt.log
+			fail=1
+			continue
+		fi
+	else
+		echo "DRY-RUN (no format) $f — rerun with --apply to format"
+	fi
+	if ! "$ANNOTATE_BIN" check-rows "$f" >/tmp/dap-rows-2.log 2>&1; then
+		echo "GATE-FAIL (post-format) $f"
+		cat /tmp/dap-rows-2.log
+		fail=1
+		continue
+	fi
+	echo "OK $f"
 done
 
 exit "$fail"

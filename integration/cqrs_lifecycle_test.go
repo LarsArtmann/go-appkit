@@ -20,7 +20,7 @@ package integration_test
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"io"
 	"net/http"
 	"sync/atomic"
@@ -104,7 +104,7 @@ func countHandler(es *cqrs.EventService) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]int{"count": n})
+		_ = json.MarshalWrite(w, map[string]int{"count": n})
 	}
 }
 

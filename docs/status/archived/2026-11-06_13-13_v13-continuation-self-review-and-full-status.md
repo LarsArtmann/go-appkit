@@ -6,7 +6,6 @@
 > reads total=0, FEATURES preset truth verified), and the program/watch/
 > owner legs carry routed markers into their wired TODO rows. Archived
 > 2026-11-06: every §f item carries a verdict; nothing here is unowned.
->
 
 **Written:** 2026-11-06 13:13 +0100 · **Session window:** 13:00–13:13 (this file) ·
 **Prior files this session:** `2026-11-06_13-10_v13-continuation-r1c-r1d-closeout.md` (the work log) —
