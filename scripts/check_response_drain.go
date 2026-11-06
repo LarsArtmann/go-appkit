@@ -207,8 +207,5 @@ func identText(e ast.Expr) string {
 }
 
 func pkgName(e ast.Expr) string {
-	if id, ok := e.(*ast.Ident); ok {
-		return id.Name
-	}
-	return ""
+	return identText(e)
 }
