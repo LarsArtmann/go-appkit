@@ -184,6 +184,13 @@ jobs:
   # family module it requires, and go.mod/go.work must agree on the go
   # directive. Needs full tag history — fetch-depth: 0. The go.mod-side half
   # of the guard runs as integration/pin_drift_test.go in the test matrix.
+  status-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Status-index liveness (every listed report exists; every report indexed)
+        run: ./scripts/check-status-index.sh
+
   pin-drift:
     runs-on: ubuntu-latest
     steps:

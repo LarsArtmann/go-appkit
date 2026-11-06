@@ -210,7 +210,7 @@ proxy check (push-blocked).
 39. X4: core v1 exit-criteria watch
 40. Y1–Y7: backlog (incl. Y-push-window items)
 41. Z1: add the `-o` truncation class to crush-config lessons (repo commit)
-42. Z2–Z7: process debts **→ routed — docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md (Z2-Z7 rows)** <!-- fresh:skip: routed in the v13 plan -->
+42. Z2–Z7: process debts **→ TODO P3 — v13 plan Z2-Z7 process-debt rows (docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md)** <!-- fresh:skip: routed in the v13 plan -->
 43. AGENTS one-liner: "pin holds ride held_pins in the same change" (from e1)
 44. OG1/OG3–OG6: owner memos (incl. the catalog unblock ask)
 45. Final `scripts/verify-all.sh` (now 13 buildable modules + integration)
