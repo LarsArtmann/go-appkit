@@ -1,5 +1,14 @@
 # Status: SUPERB v12 execution — session 1 (config train C1–C4)
 
+> **Live remainder:** the config-train session's 48-item ledger is fully
+> adjudicated (this archive): the config train shipped (614cc2f), the preset
+> P1-P7 build shipped (21c1a78) with the P8 E2E proven through the published
+> tag (2de5875), G-CNT shipped (06e9a77), the R-batches closed, and the
+> scaffold/battery/v13-program legs carry routed markers into their wired
+> rows. Archived 2026-11-06: every §f item carries a verdict; nothing here
+> is unowned.
+>
+
 **Created:** 2026-11-06 03:18 · **Scope:** this session only — execution of
 `docs/planning/2026-11-06_01-48_SUPERB-v12-unified-execution-plan.md` per the owner's
 "execute the WHOLE list" directive; default sequencing (no G1 answer): C-train first.
@@ -124,58 +133,58 @@ verify-all + release-state sync (AGENTS/FEATURES/TODO_LIST headers).
 
 ## f) NEXT — up to 50, in execution order (from the unified plan)
 
-1. Finish config lint 0-issues (varnamelen/tagalign/golines/errcheck/nolintlint batch)
-2. Add `./config` to ci.yml matrix; actionlint; confirm parity guard
-3. tagalign order decision + README/design-note alignment
-4. Scratch-module compile check of README snippets (C4 acceptance)
-5. `config/docs` module-details row + AGENTS release-state pointer (module count 12→13)
-6. C5 release train: CHANGELOG date, API diff additions-only, pre-tag-checks, tag
-   config/v0.1.0, fresh-consumer proxy check
-7. R1a interleave batch: fix httputil.md rg command
-8. R1a: verify-blocks libs 1–3 executed as written, failures filed
-9. R1a: verify-blocks libs 4–6
-10. P1: preset design — enumerate spine pieces + config surfaces
-11. P1: env-switch grammar table freeze (APPKIT_OTEL/SECURITY/REALTIME/ERRORPAGES…)
-12. P1: preset.Config struct + options sketch in README
-13. P1: posture table per environment (dev/prod/systemd)
-14. P1: conflict-matrix test plan (env present + code override + absent)
-15. P1: skeleton module + charter + dependabot + ci.yml slot (checklist from e1)
-16. P2: wire core Service construction + Run/Shutdown passthrough
-17. P2: systemd.Install + Type=notify harness test
-18. P2: health dashboard mount + probe wiring
-19. P2: test spine boot → /health/ready 200
-20. P3: errorpages Mount + pretty-404 test
-21. P3: metrics/version + /version test
-22. P3: RegisterClassifications + idempotency test
+1. ~~Finish config lint 0-issues (varnamelen/tagalign/golines/errcheck/nolintlint batch)~~ done — config shipped lint-0 (the tagalign align:false deviation; module-details §config records it)
+2. ~~Add `./config` to ci.yml matrix; actionlint; confirm parity guard~~ done — the config CI matrix slot + parity guard landed with the module
+3. ~~tagalign order decision + README/design-note alignment~~ done — the tagalign order decision + README/design-note alignment shipped (module-details §config)
+4. ~~Scratch-module compile check of README snippets (C4 acceptance)~~ done — the scratch-module snippet compile check passed (C4 acceptance)
+5. ~~`config/docs` module-details row + AGENTS release-state pointer (module count 12→13)~~ done — the module-details row + AGENTS release-state pointer landed
+6. ~~C5 release train: CHANGELOG date, API diff additions-only, pre-tag-checks, tag~~ done at `614cc2f`
+   ~~config/v0.1.0, fresh-consumer proxy check~~
+7. ~~R1a interleave batch: fix httputil.md rg command~~ done — the httputil.md rg command fixed (the AGENTS gotcha records the lesson)
+8. ~~R1a: verify-blocks libs 1–3 executed as written, failures filed~~ done — R1a verify-blocks 1-3 executed as written (failures filed)
+9. ~~R1a: verify-blocks libs 4–6~~ done — R1a verify-blocks 4-6 executed
+10. ~~P1: preset design — enumerate spine pieces + config surfaces~~ done — the preset spine enumeration shipped (the design note freezes the grammar)
+11. ~~P1: env-switch grammar table freeze (APPKIT_OTEL/SECURITY/REALTIME/ERRORPAGES…)~~ done — the env-switch grammar froze (APPKIT_OTEL/SECURITY/REALTIME/ERRORPAGES trool)
+12. ~~P1: preset.Config struct + options sketch in README~~ done — preset.Config + options shipped
+13. ~~P1: posture table per environment (dev/prod/systemd)~~ done — the posture table shipped (dev/prod/systemd)
+14. ~~P1: conflict-matrix test plan (env present + code override + absent)~~ done — the conflict-matrix tests shipped (preset/conflict_test.go)
+15. ~~P1: skeleton module + charter + dependabot + ci.yml slot (checklist from e1)~~ done — the skeleton + charter + dependabot + CI slot shipped
+16. ~~P2: wire core Service construction + Run/Shutdown passthrough~~ done — the core Service construction + Run/Shutdown passthrough shipped
+17. ~~P2: systemd.Install + Type=notify harness test~~ done — the systemd.Install + Type=notify harness test shipped
+18. ~~P2: health dashboard mount + probe wiring~~ done — the health dashboard mount shipped
+19. ~~P2: test spine boot → /health/ready 200~~ done — the spine boot test shipped (/health/ready 200)
+20. ~~P3: errorpages Mount + pretty-404 test~~ done — the errorpages Mount + pretty-404 test shipped
+21. ~~P3: metrics/version + /version test~~ done — the metrics/version leg shipped
+22. ~~P3: RegisterClassifications + idempotency test~~ done — RegisterClassifications + idempotency test shipped
 23. ~~P3: full-spine-boots-with-zero-app-code test~~ done at `e26b7e5`
-24. P4: otel leg + APPKIT_OTEL parse; env-absent → no otel deps active
-25. P4: env-present → spans + log bridge; explicit WithOTEL overrides env
-26. P5: security profile enum none/standard/strict matrix test
-27. P5: standard profile through security battery; opt-out removes leg cleanly
-28. P6: realtime leg Mount wiring + stream smoke test
+24. ~~P4: otel leg + APPKIT_OTEL parse; env-absent → no otel deps active~~ done — the otel leg + APPKIT_OTEL parse shipped (env-absent → no otel active)
+25. ~~P4: env-present → spans + log bridge; explicit WithOTEL overrides env~~ done — env-present spans + explicit-override shipped
+26. ~~P5: security profile enum none/standard/strict matrix test~~ done — the security profile enum shipped (none/standard/strict)
+27. ~~P5: standard profile through security battery; opt-out removes leg cleanly~~ done — the standard-profile battery + clean opt-out shipped
+28. ~~P6: realtime leg Mount wiring + stream smoke test~~ done — the realtime leg Mount + stream smoke shipped
 29. ~~P7: example app main ≤40 LOC + conflict-matrix suite~~ done at `6c74730`
-30. P7: boot probe + graceful-stop probe
-31. P8: integration E2E skeleton (pins PUBLISHED tags — needs C5+P9 tags)
-32. P8: E2E preset boot → health → drain through tags; env legs on/off
-33. P9: preset CHANGELOG dating + release-state AGENTS/FEATURES sync
-34. P9: tag preset/v0.1.0 + pre-tag-checks + consumer heads-up drafts
-35. S1: scaffold verdict doc (template repo vs generator; G3 default if unanswered)
-36. S2–S6: template pieces (cmdguard serve verb, templ skeleton, flake/buildflow,
+30. ~~P7: boot probe + graceful-stop probe~~ done — the boot + graceful-stop probes shipped (solid after the drain fix)
+31. ~~P8: integration E2E skeleton (pins PUBLISHED tags — needs C5+P9 tags)~~ done at `2de5875`
+32. ~~P8: E2E preset boot → health → drain through tags; env legs on/off~~ done at `2de5875`
+33. ~~P9: preset CHANGELOG dating + release-state AGENTS/FEATURES sync~~ done — the preset CHANGELOG dated + AGENTS/FEATURES synced (the P9 train)
+34. ~~P9: tag preset/v0.1.0 + pre-tag-checks + consumer heads-up drafts~~ done at `21c1a78`
+35. ~~S1: scaffold verdict doc (template repo vs generator; G3 default if unanswered)~~ done — the scaffold verdict doc landed (docs/planning/2026-11-06_08-45_scaffold-shape-verdict.md)
+36. S2–S6: template pieces (cmdguard serve verb, templ skeleton, flake/buildflow, **→ TODO P3 — v13 plan S2-S7 scaffold rows (template pieces) <!-- fresh:skip: routed in TODO_LIST -->**
     CI/systemd/Dockerfile, doc skeletons + boot probe)
-37. S7: dogfood one real app end-to-end
-38. G-CNT: adoption-counter script (dual any/direct) + gate table mode + guard wiring
-39. A1–A5: recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes
+37. S7: dogfood one real app end-to-end **→ TODO P3 — v13 plan S2-S7 scaffold rows (S7 dogfood) <!-- fresh:skip: routed in TODO_LIST -->**
+38. ~~G-CNT: adoption-counter script (dual any/direct) + gate table mode + guard wiring~~ done at `06e9a77`
+39. A1–A5: recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes **→ TODO P3 — v13 plan A2-A5 swap-recipe rows (A1 template landed) <!-- fresh:skip: routed in TODO_LIST -->**
 40. D3a–c: sqlitekit design/lease matrix/backup/ledger/migration helper **→ TODO P3 — Battery program waves W3-W5 (W4 sqlite ops kit: lease/backup/ledger)** <!-- fresh:skip: routed in TODO_LIST -->
-41. D1a–b: worker supervisor + pools + panic-restart + shutdown joins
+41. D1a–b: worker supervisor + pools + panic-restart + shutdown joins **→ TODO P3 — Battery program waves W3-W5 (D1a-b worker supervisor) <!-- fresh:skip: routed in TODO_LIST -->**
 42. C2R: realtime FoldedSource + SubscribeFolded discriminator test **→ TODO P3 — Battery program waves W3-W5 (W5 C2 projection→broadcast folded contract)** <!-- fresh:skip: routed in TODO_LIST -->
-43. R1b–e: verify-blocks 7–12, ST bench baseline, hub doc note, MVS proof
-44. R2–R5a: deps-guard CI, error-family batch, ST recipe, httpx shortlist verdicts
-45. H1–H7: httpx module program (B1→B7 per plan order)
-46. X1–X4: compose-on-httputil refactor, TLS, testkit migration, v1-exit close-out
-47. Y1–Y7 + Z1–Z7: backlog + process debts (incl. the lessons entry from d2)
-48. OG1/OG3–OG6 memo drafts; OG2 heads-ups post when core tags
-49. Final: `scripts/verify-all.sh` all modules + full guard suite + release-state sync
-50. Final: CI green on final push; session-close ritual (every new job ran live)
+43. ~~R1b–e: verify-blocks 7–12, ST bench baseline, hub doc note, MVS proof~~ done — R1b-e executed (verify-blocks 7-12, the ST bench baseline, the hub note, the MVS proof — the p9a session)
+44. ~~R2–R5a: deps-guard CI, error-family batch, ST recipe, httpx shortlist verdicts~~ done — R2-R5a executed (agents-deps dfeb4a5; the error-family/ST/httpx rows closed 2026-11-06)
+45. H1–H7: httpx module program (B1→B7 per plan order) **→ TODO P3 — Battery program waves W3-W5 (H1-H7 httpx program) <!-- fresh:skip: routed in TODO_LIST -->**
+46. X1–X4: compose-on-httputil refactor, TLS, testkit migration, v1-exit close-out **→ TODO P2 — compose Service on httputil.Server (X1-X4 legs) <!-- fresh:skip: routed in TODO_LIST -->**
+47. Y1–Y7 + Z1–Z7: backlog + process debts (incl. the lessons entry from d2) **→ TODO P3 — v13 plan Y/Z rows (backlog + process debts) <!-- fresh:skip: routed in TODO_LIST -->**
+48. OG1/OG3–OG6 memo drafts; OG2 heads-ups post when core tags **→ TODO P3 — v13 plan OG rows (memos; OG2 when core tags — it tagged) <!-- fresh:skip: routed in TODO_LIST -->**
+49. ~~Final: `scripts/verify-all.sh` all modules + full guard suite + release-state sync~~ done — verify-all + the guard suite ran on the tagged trees; release-state synced
+50. ~~Final: CI green on final push; session-close ritual (every new job ran live)~~ done — CI verified on the final pushes (designed reds only; every new job live-green)
 
 ## g) QUESTIONS FOR THE OWNER (cannot be answered from the repo)
 
