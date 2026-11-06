@@ -11,16 +11,13 @@ import (
 	errorfamily "github.com/larsartmann/go-error-family"
 )
 
-// getWithHeaders fetches url through the full chain with extra headers.
-func getWithHeaders(t *testing.T, url string, header map[string]string) *http.Response {
+// getWithHeaders fetches url through the full chain (context-aware).
+func getWithHeaders(t *testing.T, url string) *http.Response {
 	t.Helper()
 
 	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, nil)
 	if err != nil {
 		t.Fatalf("build request: %v", err)
-	}
-	for key, value := range header {
-		req.Header.Set(key, value)
 	}
 
 	resp, err := (&http.Client{Timeout: httpTimeout}).Do(req)
@@ -81,7 +78,7 @@ func TestSecurity_None_DefaultAddsNothing(t *testing.T) {
 
 	ts := servePreset(t, svc)
 
-	resp := getWithHeaders(t, ts+"/healthz", nil)
+	resp := getWithHeaders(t, ts+"/healthz")
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("Strict-Transport-Security") != "" {
@@ -111,7 +108,7 @@ func TestSecurity_Standard_ProductionHeadersAndBodyLimit(t *testing.T) {
 
 	ts := servePreset(t, svc)
 
-	page := getWithHeaders(t, ts+"/healthz", nil)
+	page := getWithHeaders(t, ts+"/healthz")
 	defer func() { _ = page.Body.Close() }()
 
 	if page.Header.Get("Strict-Transport-Security") == "" {
@@ -206,7 +203,7 @@ func TestSecurity_EnvStandard(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	resp := getWithHeaders(t, ts+"/healthz", nil)
+	resp := getWithHeaders(t, ts+"/healthz")
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("Strict-Transport-Security") == "" {

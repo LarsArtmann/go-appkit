@@ -8,7 +8,6 @@ import (
 	"github.com/larsartmann/go-appkit"
 	"github.com/larsartmann/go-appkit/preset"
 )
-
 // TestMetrics_NilStaysNil: nil Metrics passes through verbatim — the preset
 // never invents credentials, so no /metrics route exists (the errorpages
 // catch-all answers instead).
@@ -19,14 +18,10 @@ func TestMetrics_NilStaysNil(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	resp, err := http.Get(ts + "/metrics")
-	if err != nil {
-		t.Fatalf("get /metrics: %v", err)
-	}
-	defer resp.Body.Close()
+	status, _ := getURL(t, ts+"/metrics")
 
-	if resp.StatusCode != http.StatusNotFound {
-		t.Errorf("/metrics = %d, want 404 (nil must stay nil)", resp.StatusCode)
+	if status != http.StatusNotFound {
+		t.Errorf("/metrics = %d, want 404 (nil must stay nil)", status)
 	}
 }
 
@@ -46,17 +41,13 @@ func TestMetrics_Passthrough(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	unauthenticated, err := http.Get(ts + "/metrics")
-	if err != nil {
-		t.Fatalf("get /metrics (no auth): %v", err)
-	}
-	defer unauthenticated.Body.Close()
+	status, _ := getURL(t, ts+"/metrics")
 
-	if unauthenticated.StatusCode != http.StatusUnauthorized {
-		t.Errorf("/metrics without auth = %d, want 401", unauthenticated.StatusCode)
+	if status != http.StatusUnauthorized {
+		t.Errorf("/metrics without auth = %d, want 401", status)
 	}
 
-	req, err := http.NewRequest(http.MethodGet, ts+"/metrics", nil)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts+"/metrics", nil)
 	if err != nil {
 		t.Fatalf("build request: %v", err)
 	}
@@ -66,7 +57,7 @@ func TestMetrics_Passthrough(t *testing.T) {
 	if err != nil {
 		t.Fatalf("get /metrics (auth): %v", err)
 	}
-	defer authenticated.Body.Close()
+	defer func() { _ = authenticated.Body.Close() }()
 
 	body, err := io.ReadAll(authenticated.Body)
 	if err != nil {

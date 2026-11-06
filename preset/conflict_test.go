@@ -67,10 +67,10 @@ func runMatrix(t *testing.T, rows []matrixRow) {
 func pretty404(t *testing.T, ts string) {
 	t.Helper()
 
-	resp, body := getNotFound(t, ts, "")
+	_, contentType, body := getNotFound(t, ts, "")
 
-	if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
-		t.Errorf("unknown path Content-Type = %q, want the pretty HTML 404", resp.Header.Get("Content-Type"))
+	if !strings.Contains(contentType, "text/html") {
+		t.Errorf("unknown path Content-Type = %q, want the pretty HTML 404", contentType)
 	}
 
 	if strings.Contains(body, "404 page not found") {
@@ -82,7 +82,7 @@ func pretty404(t *testing.T, ts string) {
 func plain404(t *testing.T, ts string) {
 	t.Helper()
 
-	_, body := getNotFound(t, ts, "")
+	_, _, body := getNotFound(t, ts, "")
 
 	if !strings.Contains(body, "404 page not found") {
 		t.Errorf("unknown path body %q — the catch-all is still mounted", body)
@@ -93,7 +93,7 @@ func plain404(t *testing.T, ts string) {
 func hstsPresent(t *testing.T, ts string) {
 	t.Helper()
 
-	resp := getWithHeaders(t, ts+"/healthz", nil)
+	resp := getWithHeaders(t, ts+"/healthz")
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("Strict-Transport-Security") == "" {
@@ -105,7 +105,7 @@ func hstsPresent(t *testing.T, ts string) {
 func hstsAbsent(t *testing.T, ts string) {
 	t.Helper()
 
-	resp := getWithHeaders(t, ts+"/healthz", nil)
+	resp := getWithHeaders(t, ts+"/healthz")
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get("Strict-Transport-Security") != "" {
@@ -113,7 +113,7 @@ func hstsAbsent(t *testing.T, ts string) {
 	}
 }
 
-func TestConflictMatrix_ErrorPages(t *testing.T) {
+func TestConflictMatrix_ErrorPages(t *testing.T) { //nolint:dupl // six-row grammar is uniform across legs by design (design note §5)
 	runMatrix(t, []matrixRow{
 		{name: "absent-defaults-on", assert: pretty404},
 		{name: "env-on", env: map[string]string{"APPKIT_ERRORPAGES": "on"}, assert: pretty404},
@@ -138,7 +138,7 @@ func TestConflictMatrix_ErrorPages(t *testing.T) {
 	})
 }
 
-func TestConflictMatrix_Security(t *testing.T) {
+func TestConflictMatrix_Security(t *testing.T) { //nolint:dupl // six-row grammar is uniform across legs by design (design note §5)
 	runMatrix(t, []matrixRow{
 		{name: "absent-defaults-none", assert: hstsAbsent},
 		{name: "env-none", env: map[string]string{"APPKIT_SECURITY": "none"}, assert: hstsAbsent},
@@ -171,7 +171,7 @@ func TestConflictMatrix_Realtime(t *testing.T) {
 	eventsMounted := func(t *testing.T, ts string) {
 		t.Helper()
 
-		resp := getWithHeaders(t, ts+"/events", nil)
+		resp := getWithHeaders(t, ts+"/events")
 		defer func() { _ = resp.Body.Close() }()
 
 		if resp.StatusCode != http.StatusOK {
@@ -182,7 +182,7 @@ func TestConflictMatrix_Realtime(t *testing.T) {
 	eventsAbsent := func(t *testing.T, ts string) {
 		t.Helper()
 
-		resp := getWithHeaders(t, ts+"/events", nil)
+		resp := getWithHeaders(t, ts+"/events")
 		defer func() { _ = resp.Body.Close() }()
 
 		if resp.StatusCode != http.StatusNotFound {

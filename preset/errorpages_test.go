@@ -9,11 +9,13 @@ import (
 	"github.com/larsartmann/go-appkit/preset"
 )
 
-// getNotFound fetches an unregistered path through the full chain.
-func getNotFound(t *testing.T, url, accept string) (*http.Response, string) {
+// getNotFound fetches an unregistered path through the full chain and
+// returns status, Content-Type, and body — no *http.Response crosses the
+// boundary, so nothing needs closing at call sites.
+func getNotFound(t *testing.T, url, accept string) (int, string, string) {
 	t.Helper()
 
-	req, err := http.NewRequest(http.MethodGet, url+"/definitely-not-registered", nil)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url+"/definitely-not-registered", nil)
 	if err != nil {
 		t.Fatalf("build request: %v", err)
 	}
@@ -25,14 +27,14 @@ func getNotFound(t *testing.T, url, accept string) (*http.Response, string) {
 	if err != nil {
 		t.Fatalf("get: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatalf("read body: %v", err)
 	}
 
-	return resp, string(body)
+	return resp.StatusCode, resp.Header.Get("Content-Type"), string(body)
 }
 
 // TestErrorPages_Pretty404Default: the leg is ON by default (spine member) —
@@ -44,14 +46,14 @@ func TestErrorPages_Pretty404Default(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	resp, body := getNotFound(t, ts, "")
+	status, contentType, body := getNotFound(t, ts, "")
 
-	if resp.StatusCode != http.StatusNotFound {
-		t.Errorf("status = %d, want 404", resp.StatusCode)
+	if status != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", status)
 	}
 
-	if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
-		t.Errorf("Content-Type = %q, want text/html", resp.Header.Get("Content-Type"))
+	if !strings.Contains(contentType, "text/html") {
+		t.Errorf("Content-Type = %q, want text/html", contentType)
 	}
 
 	if !strings.Contains(body, "Page not found") {
@@ -68,14 +70,14 @@ func TestErrorPages_JSONByAccept(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	resp, body := getNotFound(t, ts, "application/json")
+	status, contentType, body := getNotFound(t, ts, "application/json")
 
-	if resp.StatusCode != http.StatusNotFound {
-		t.Errorf("status = %d, want 404", resp.StatusCode)
+	if status != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", status)
 	}
 
-	if !strings.Contains(resp.Header.Get("Content-Type"), "application/json") {
-		t.Errorf("Content-Type = %q, want application/json", resp.Header.Get("Content-Type"))
+	if !strings.Contains(contentType, "application/json") {
+		t.Errorf("Content-Type = %q, want application/json", contentType)
 	}
 
 	if !strings.Contains(body, "not_found") {
@@ -95,14 +97,14 @@ func TestErrorPages_CodeDisabled(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	resp, body := getNotFound(t, ts, "")
+	status, contentType, body := getNotFound(t, ts, "")
 
-	if resp.StatusCode != http.StatusNotFound {
-		t.Errorf("status = %d, want 404", resp.StatusCode)
+	if status != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", status)
 	}
 
-	if strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
-		t.Errorf("Content-Type = %q, want the stdlib plain 404", resp.Header.Get("Content-Type"))
+	if strings.Contains(contentType, "text/html") {
+		t.Errorf("Content-Type = %q, want the stdlib plain 404", contentType)
 	}
 
 	if !strings.Contains(body, "404 page not found") {
@@ -121,10 +123,10 @@ func TestErrorPages_EnvOff(t *testing.T) {
 	}
 	ts := servePreset(t, svc)
 
-	resp, body := getNotFound(t, ts, "")
+	status, _, body := getNotFound(t, ts, "")
 
-	if resp.StatusCode != http.StatusNotFound {
-		t.Errorf("status = %d, want 404", resp.StatusCode)
+	if status != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", status)
 	}
 
 	if !strings.Contains(body, "404 page not found") {
@@ -146,18 +148,9 @@ func TestErrorPages_ConsumerRouteWins(t *testing.T) {
 
 	ts := servePreset(t, svc)
 
-	resp, err := http.Get(ts + "/hello")
-	if err != nil {
-		t.Fatalf("get /hello: %v", err)
-	}
-	defer resp.Body.Close()
+	status, body := getURL(t, ts+"/hello")
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatalf("read: %v", err)
-	}
-
-	if resp.StatusCode != http.StatusOK || string(body) != "consumer route" {
-		t.Errorf("/hello = %d %q, want 200 %q", resp.StatusCode, body, "consumer route")
+	if status != http.StatusOK || body != "consumer route" {
+		t.Errorf("/hello = %d %q, want 200 %q", status, body, "consumer route")
 	}
 }
