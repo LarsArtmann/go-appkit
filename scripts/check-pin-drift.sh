@@ -133,7 +133,7 @@ else
 		else
 			offenders+="  '$entry' (expected 'name vX.Y.Z')"$'\n'
 		fi
-	done < <(printf '%s' "$claims" | tr ',' '\n')
+	done < <(printf '%s\n' "$claims" | tr ',' '\n')
 	if [[ -n "$offenders" ]]; then
 		fail "Latest-per-module line carries unparseable entries (strict list):"
 		printf '%s' "$offenders"

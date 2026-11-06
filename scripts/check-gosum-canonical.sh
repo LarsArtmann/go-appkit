@@ -66,12 +66,52 @@ cleanup() {
 trap cleanup EXIT
 
 status=0
+deferred=0
+
+# Release-window deferral (2026-11-06, issue54 session §e2): a family pin on
+# a tag that exists LOCALLY but not on origin cannot resolve from the proxy —
+# probing it turns the release window into a 45-minute red. Deferral is the
+# loud, honest answer ("deferred until publish"), not a silent skip. Only
+# go-appkit's OWN tags are checked: sibling-repo requires (cqrs-htmx, go-sse,
+# httputil) are published by their own repos and resolve normally.
+origin_tags="$(git ls-remote --tags origin 2>/dev/null | sed -n 's|.*refs/tags/\([^^]*\)$|\1|p' || true)"
+if [[ -z "$origin_tags" ]]; then
+	echo "NOTE: origin unreachable — release-window deferral disabled (downloads will fail loudly on local-only pins)" >&2
+fi
+
+local_only_family_pin() {
+	# Prints the local-only tag name if any go-appkit family require in
+	# $1/go.mod resolves to a local-only tag; empty otherwise.
+	local gomod="$1" mod_path tag
+	while IFS=' ' read -r mod_path version; do
+		[[ -n "$mod_path" ]] || continue
+		case "$mod_path" in
+		github.com/larsartmann/go-appkit) tag="$version" ;;
+		github.com/larsartmann/go-appkit/*) tag="${mod_path#github.com/larsartmann/go-appkit/}/$version" ;;
+		*) continue ;;
+		esac
+		if git cat-file -e "${tag}^{commit}" 2>/dev/null && ! grep -qxF "$tag" <<<"$origin_tags"; then
+			echo "$tag"
+			return 0
+		fi
+	done < <(awk '/^require \(/,/^\)/' "$gomod" | awk '$1 ~ /^github\.com\/larsartmann\/go-appkit/ {print $1 " " $2}')
+	return 1
+}
+
 for mod in "${modules[@]}"; do
 	label="${mod#./}"
 	if [[ -z "$label" ]]; then label="core"; fi
 	if [[ ! -f "$mod/go.mod" || ! -f "$mod/go.sum" ]]; then
 		echo "FAIL: $label has no go.mod/go.sum pair"
 		status=1
+		continue
+	fi
+
+	if [[ -n "$origin_tags" ]] && stuck_tag="$(local_only_family_pin "$mod/go.mod")"; then
+		echo "== $label =="
+		echo "DEFERRED: $label — family pin resolves to LOCAL-ONLY tag $stuck_tag (not on origin yet)"
+		echo "          deferred until publish: run this guard AFTER `git push origin master $stuck_tag`"
+		deferred=$((deferred + 1))
 		continue
 	fi
 
@@ -94,7 +134,9 @@ for mod in "${modules[@]}"; do
 	fi
 done
 
-if ((status == 0)); then
+if ((deferred > 0)); then
+	echo "GOSUM CANONICAL: $deferred module(s) DEFERRED (local-only family pins — release window); verified module(s) green against proxy + sumdb"
+elif ((status == 0)); then
 	echo "GOSUM CANONICAL: ${#modules[@]} module(s) green against proxy + sumdb"
 fi
 run_status=$status
