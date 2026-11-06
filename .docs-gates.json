@@ -1,10 +1,10 @@
 {
+  "annotate_max": 0,
   "audit_max": 0,
-  "rule_f": false,
   "cadence": {
-    "struck_rows": 20,
     "max_unarchived": 15,
-    "oldest_days": 29
+    "oldest_days": 29,
+    "struck_rows": 20
   },
-  "annotate_max": 255
+  "rule_f": false
 }

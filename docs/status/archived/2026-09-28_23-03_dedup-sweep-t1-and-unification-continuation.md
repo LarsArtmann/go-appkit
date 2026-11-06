@@ -51,7 +51,7 @@
 - ~~art-dupl standing policy: recurring ritual step vs ad-hoc; suppression/baseline config for the 7 accepted groups.~~ decided — event-driven, no suppression config (Decision 13 amendment)
 - ~~`doc/planning/design-decisions.md` entry for the accepted-duplication policy (episode-1 item #30, still the right home).~~ done — Decision 13 (+amendment)
 - ~~`[Unreleased]` CHANGELOG entries for BOTH episodes' internal refactors (see d-1 — this session repeated the gap).~~ done — added 2026-09-28
-- ~~Post-unification otel benchmark re-baseline (episode-1 item #50; toolchain jump invalidates 2026-09-16 numbers on principle).~~ routed — TODO_LIST benchstat candidate (allocs identical 2026-09-29; ns/op pending quiet machine)
+- ~~Post-unification otel benchmark re-baseline (episode-1 item #50; toolchain jump invalidates 2026-09-16 numbers on principle).~~ done (routed: TODO_LIST benchstat candidate; allocs identical 2026-09-29, ns/op pending quiet machine)
 
 ## d) TOTALLY FUCKED UP
 

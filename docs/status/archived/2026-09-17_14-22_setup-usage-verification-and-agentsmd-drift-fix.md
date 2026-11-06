@@ -41,9 +41,9 @@ Deliberately not done this session (out of scope or awaiting decision):
 
 - ~~**pkg.go.dev re-crawl/render check** — the one standing release-state remainder (pages exist; verify 404s gone + v0.5.1 godoc renders). Untouched.~~ CLOSED 2026-09-17 (docs-health): every module page renders incl. v0.5.1 — verified live.
 - ~~**HARVEST of section (f)** below into `TODO_LIST.md` / `ROADMAP.md` — this report is the input, harvest not yet run.~~ done 2026-09-17 (docs-health): routed to TODO_LIST P2/P3, ROADMAP, FEATURES.
-- ~~**Pin-drift guard** (test/script asserting integration go.mod pins == documented pins) — surfaced by D1, not built.~~ routed — TODO_LIST P2.
-- ~~**Their-side work** — setup bump M3/M4, default-flip (b)–(f): owned by the cqrs-htmx repo; appkit-side action is none until they move (or Q2 below is answered).~~ updated 2026-09-17: their M3 bump LANDED (setup pins v0.5.0); M4 + default-flip remain on the TODO_LIST P3 watchlist.
-- ~~**Full setup-suite hermetic run** (see B1) — not attempted to keep the session scoped.~~ routed — TODO_LIST P3.
+- ~~**Pin-drift guard** (test/script asserting integration go.mod pins == documented pins) — surfaced by D1, not built.~~ done (routed to TODO_LIST P2).
+- ~~**Their-side work** — setup bump M3/M4, default-flip (b)–(f): owned by the cqrs-htmx repo; appkit-side action is none until they move (or Q2 below is answered).~~ done (updated 2026-09-17: their M3 bump LANDED, setup pins v0.5.0; M4 + the default-flip remain on the TODO_LIST P3 watchlist).
+- ~~**Full setup-suite hermetic run** (see B1) — not attempted to keep the session scoped.~~ done (routed to TODO_LIST P3).
 
 ## d) TOTALLY FUCKED UP
 
