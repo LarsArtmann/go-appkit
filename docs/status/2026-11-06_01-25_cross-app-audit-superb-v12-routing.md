@@ -106,31 +106,31 @@ were run green.
 
 **The v12 program (routed, owner-sequence pending):**
 
-1. ★ T2.1–T2.4 `appkit/config` design → implement → docs → tag v0.1.0 (4 tasks).
-2. ★ T1.1–T1.6 `appkit/preset` skeleton → spine wiring → otel leg → security/realtime legs →
-   example+E2E → tag v0.1.0 (6 tasks).
-3. ★ T3.1–T3.5 scaffold verdict → cmdguard+preset template → infra files → docs skeleton →
+1. ~~★ T2.1–T2.4 `appkit/config` design → implement → docs → tag v0.1.0 (4 tasks).~~ done at `614cc2f`
+2. ~~★ T1.1–T1.6 `appkit/preset` skeleton → spine wiring → otel leg → security/realtime legs →~~ done at `21c1a78`
+   ~~example+E2E → tag v0.1.0 (6 tasks).~~
+3. ★ T3.1–T3.5 scaffold verdict → cmdguard+preset template → infra files → docs skeleton → **→ routed — docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md (S2-S7 rows; S1 verdict landed as docs/planning/2026-11-06_08-45_scaffold-shape-verdict.md) <!-- fresh:skip: routed in the v13 plan -->**
    dogfood (5 tasks).
-4. ★ T4.1–T4.5 swap-recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes (5).
-5. ★ T5.4 auth-bridge decision memo (owner gate).
-6. ★ T5.1–T5.3 D1 worker supervisor, D3 sqlite+migrations, C2 realtime Mount (existing
+4. ★ T4.1–T4.5 swap-recipe template + dnsblockd/ChastityAPI/PapDashboard/pbx-lens recipes (5). **→ routed — docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md (A2-A5 rows; A1 template landed as docs/recipes/battery-swap-recipe.template.md) <!-- fresh:skip: routed in the v13 plan -->**
+5. ★ T5.4 auth-bridge decision memo (owner gate). **→ TODO P3 — Auth-bridge DECISION memo (owner gate) <!-- fresh:skip: routed in TODO_LIST -->**
+6. ★ T5.1–T5.3 D1 worker supervisor, D3 sqlite+migrations, C2 realtime Mount (existing **→ routed — docs/planning/2026-11-06_07-10_SUPERB-v13-ship-the-spine-refresh-plan.md (D1a-b, D3a-c, C2R rows) <!-- fresh:skip: routed in the v13 plan -->**
    battery rows, demand now quantified).
 
 **From this review (not yet routed):**
-7. ◆ Preserve the adoption sweep as a script; dual-column output; wire as pre-tag or CI
-metric so the six-month gate is mechanical.
-8. ◆ Sequential-retry the deep-reads: CV first (13 modules), then KeyHolderAI, crm, webphone.
-9. ◆ Add a dated errata cross-link from TODO_LIST's preset-spine row to the audit errata
-(the row quotes any-require numbers).
-10. ◆ Fine-breakdown (≤15 min) for T1.1/T1.2 before the preset sprint starts.
-11. ◆ Browser-render check of the v12 plan (owner item class; or a headless probe script).
-12. ◆ Depth-audit the 22 config packages (read the 5 largest; correct the class claim if any
+7. ~~◆ Preserve the adoption sweep as a script; dual-column output; wire as pre-tag or CI~~ done at `06e9a77`
+~~metric so the six-month gate is mechanical.~~
+8. ◆ Sequential-retry the deep-reads: CV first (13 modules), then KeyHolderAI, crm, webphone. **→ TODO P3 — SUPERB v12 micro-backlog (CV deep-read + archetype matrix) <!-- fresh:skip: routed in TODO_LIST -->**
+9. ~~◆ Add a dated errata cross-link from TODO_LIST's preset-spine row to the audit errata~~ done — TODO preset-spine row now cites the audit's §Errata 2026-11-06 01:25 + addendum 01:33
+~~(the row quotes any-require numbers).~~
+10. ~~◆ Fine-breakdown (≤15 min) for T1.1/T1.2 before the preset sprint starts.~~ done — moot — the preset sprint executed same day: config v0.1.0 (614cc2f) + preset v0.1.0 (21c1a78) both tagged; planning breakdown overtaken by shipped modules
+11. ◆ Browser-render check of the v12 plan (owner item class; or a headless probe script). **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (browser-render probe) <!-- fresh:skip: routed in TODO_LIST -->**
+12. ◆ Depth-audit the 22 config packages (read the 5 largest; correct the class claim if any **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (config depth-audit) <!-- fresh:skip: routed in TODO_LIST -->**
 are thin wrappers).
-13. ◆ Extend the audit's appendix with the exact sweep script text (cheap, kills the /tmp
-dependency until #7 lands).
-14. ◆ Consider a `meta`-side tag: apps by appkit-adoption would make the gate a one-liner.
-15. ◆ Questionnaire follow-up: the 2026-11-03 "next workstream = repair backlog" decision now
-conflicts with v12 — needs the owner's sequencing call (see g1).
+13. ~~◆ Extend the audit's appendix with the exact sweep script text (cheap, kills the /tmp~~ done — moot — the sweep script is IN the repo: scripts/count-adopters.sh (06e9a77) + docs/review/apps/adoption-baseline.txt; the /tmp dependency is dead
+~~dependency until #7 lands).~~
+14. ◆ Consider a `meta`-side tag: apps by appkit-adoption would make the gate a one-liner. **→ TODO P3 — Audit loose ends from the 01-25 cross-app audit (meta-side adoption tag) <!-- fresh:skip: routed in TODO_LIST -->**
+15. ~~◆ Questionnaire follow-up: the 2026-11-03 "next workstream = repair backlog" decision now~~ done — superseded — the sequencing call happened: the v13 plan reconciles both tracks (owner-picked repair backlog keeps guards/docs beside the preset program; preset v0.1.0 tagged 21c1a78)
+~~conflicts with v12 — needs the owner's sequencing call (see g1).~~
 
 ## g) Questions I cannot answer myself
 

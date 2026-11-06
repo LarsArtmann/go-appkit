@@ -128,7 +128,7 @@ Per-module code-organization tables, dependency tables, and gotchas for core, sy
 ## Performance Baselines (2026-09-04, go 1.26.7 linux/amd64)
 
 - **Per-request logging cost** (`logging_bench_test.go`, output to io.Discard): bare handler ~17.2µs; Logging-at-WARN (suppressed) ~18.0µs (+0.8µs); Logging-at-INFO (emits) ~47.3µs (+30µs, +174%, 162 allocs). This fully explains the 2.8x cqrs-htmx comparison delta — the cost is charmbracelet formatting of the emitted line, not the middleware. The production default-level decision stays USER-GATED (options: default WARN, sampling, consumer-provided logger). (otel middleware numbers: otel README + `docs/agents/module-details.md` §otel.)
-- **Per-request Server-Timing cost** (`servertiming_bench_test.go`, real round-trips via the Logging bench harness, NOT io.Discard — the header write is part of the measured work): ~47-56µs/op, ~6.2KB, 71 allocs (2026-11-03, `-benchtime 1s -count 3`, pinned 4 cores via quiet-run under fleet load ~116 — treat as an upper bound; re-baseline on a quiet box). The middleware rides every response by default; opt out via the `ServerTiming` knob.
+- **Per-request Server-Timing cost** (`servertiming_bench_test.go`, real round-trips via the Logging bench harness, NOT io.Discard — the header write is part of the measured work): ~14.7-16.6µs/op, 6165 B/op, 71 allocs (2026-11-06 re-baseline, `-benchtime 1s -count 6`, pinned 4 cores via quiet-run at fleet load ~14 — tight spread; the first 2026-11-03 pass read 47-56µs under load ~116 and was load-contaminated: perf claims get baselined under quiet-run only). The middleware rides every response by default; opt out via the `ServerTiming` knob.
 
 ## Deferred Register (deliberately NOT built — trigger conditions only)
 
