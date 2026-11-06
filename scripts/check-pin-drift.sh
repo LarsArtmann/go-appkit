@@ -60,7 +60,7 @@ fi
 tag_pattern() {
 	case "$1" in
 	core) echo "v*" ;;
-	cqrs | otel | flightrecorder | health | realtime | docs | errorpages | security | systemd | config) echo "$1/v*" ;;
+	cqrs | otel | flightrecorder | health | realtime | docs | errorpages | security | systemd | config | preset) echo "$1/v*" ;;
 	frh) echo "flightrecorderhealth/v*" ;;
 	*) return 1 ;;
 	esac

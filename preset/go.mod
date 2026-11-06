@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/preset
 go 1.27.2
 
 require (
-	github.com/larsartmann/go-appkit v0.9.0
+	github.com/larsartmann/go-appkit v0.10.0
 	github.com/larsartmann/go-appkit/errorpages v0.1.2
 	github.com/larsartmann/go-appkit/health v0.3.0
 	github.com/larsartmann/go-appkit/otel v0.3.0
@@ -47,6 +47,7 @@ require (
 	github.com/larsartmann/go-health v0.8.1 // indirect
 	github.com/larsartmann/go-health-dashboard v0.10.2 // indirect
 	github.com/larsartmann/go-sse v0.6.2 // indirect
+	github.com/larsartmann/httputil/server_timing v1.0.3 // indirect
 	github.com/larsartmann/templ-components v1.21.0 // indirect
 	github.com/larsartmann/templ-components/datastar v1.21.0 // indirect
 	github.com/larsartmann/templ-components/errorpage v1.21.0 // indirect
@@ -61,7 +62,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/samber/do/v2 v2.1.0 // indirect
 	github.com/samber/go-type-to-string v1.8.0 // indirect
-	github.com/xo/terminfo v1.2.0 // indirect
+	github.com/xo/terminfo v1.3.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.72.0 // indirect
 	go.opentelemetry.io/otel v1.47.0 // indirect
@@ -75,7 +76,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.11.1 // indirect
-	golang.org/x/exp v0.0.0-20261009195045-ca0d7ba23607 // indirect
+	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
 	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
