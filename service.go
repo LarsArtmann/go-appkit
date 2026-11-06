@@ -291,14 +291,18 @@ func (s *Service) runShutdownHooks(ctx context.Context) error {
 
 // runHooks invokes each hook in order, letting every hook run even when an
 // earlier one fails, and joins each failure as an Infrastructure error under
-// the phase-specific code consumers match on.
+// the phase-specific code consumers match on. A hook that already returns an
+// errorfamily error keeps its own classification (WrapOnce — no re-wrap
+// nesting); foreign errors gain the phase code, and every failure carries
+// its hook position in the error context.
 func (s *Service) runHooks(ctx context.Context, hooks []Hook, code, message string) error {
 	var errs []error
 
-	for _, hook := range hooks {
+	for i, hook := range hooks {
 		err := hook(ctx)
 		if err != nil {
-			errs = append(errs, errorfamily.WrapInfrastructure(err, code, message))
+			errs = append(errs, errorfamily.WrapOnce(err, errorfamily.Infrastructure, code, message).
+				WithContextf("hook_index", "%d", i))
 		}
 	}
 
