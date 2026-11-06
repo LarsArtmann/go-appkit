@@ -1,5 +1,14 @@
 # Status Report — Sibling-Library Fleet Audit Session
 
+> **Live remainder:** the fleet-audit session's 50-item ledger is fully
+> adjudicated (this archive): the one actionable code finding closed (the
+> Recovery delegation), the registry SHIPPED (RegisterClassifications), the
+> R3/R4a/R5a verification batches landed, the three NOT-DO rulings are
+> recorded with checkable evidence, and the audit-tooling asks carry routed
+> markers into the micro-backlog row. Archived 2026-11-06: every §f item
+> carries a verdict; nothing here is unowned.
+>
+
 > **2026-11-03 19:54 CET · go-appkit @ master · docs/status/2026-11-03_19-54_sibling-library-fleet-audit-session-status.md**
 > Scope of this report: the 12-library fleet-audit session that produced
 > `docs/review/libs/` (12 per-lib reports + index.html). Nothing else re-researched.
@@ -179,68 +188,68 @@ not in this file. (I: impact, E: effort S<30m / M≤2h / L>2h, C: category)
 
 **Code (the audit's actionable outputs)**
 
-1. Refactor `appkitotel.Recovery` onto `httputil.RecoveryWithConfig` + `OnPanic`; extend exceptions tests to pin the delegation. I:High E:M C:Quality
-2. Fix `realtime/hub.go:80` doc comment (unexported `sse.defaultSubscriberBuffer` → concept reference). I:Low E:S C:Documentation
-3. Add `WrapOnce` at the idempotent `Shutdown` re-wrap sites in core (double-wrap is cosmetic today). I:Low E:S C:Quality
-4. Prototype the error-family fleet-classification bootstrap (`RegisterStdlibDefaults` + `http.MaxBytesError`→Rejection + `context.Canceled`→Infrastructure) behind a decision record. I:Medium E:M C:Feature (demand-gated)
-5. Adopt `errorfamilytest` asserts in otel/systemd tests (replace hand-rolled family assertions). I:Low E:S C:Quality
-6. Adopt `errorfamily.WithContext` at 2-3 high-value sites (drain hook errors) so LogError fields carry context. I:Low E:S C:Quality
-7. `go list -m all | grep go-retry` in integration to prove/fix the MVS floor claim. I:Low E:S C:Documentation
+1. ~~Refactor `appkitotel.Recovery` onto `httputil.RecoveryWithConfig` + `OnPanic`; extend exceptions tests to pin the delegation. I:High E:M C:Quality~~ done — the Recovery delegation landed (RecoveryWithConfig + OnPanic; the hand-rolled body deleted; AGENTS records it)
+2. ~~Fix `realtime/hub.go:80` doc comment (unexported `sse.defaultSubscriberBuffer` → concept reference). I:Low E:S C:Documentation~~ done — the hub.go doc-const note landed (13-10, R1d)
+3. ~~Add `WrapOnce` at the idempotent `Shutdown` re-wrap sites in core (double-wrap is cosmetic today). I:Low E:S C:Quality~~ done — WrapOnce landed at the runHooks re-wrap sites (R3)
+4. ~~Prototype the error-family fleet-classification bootstrap (`RegisterStdlibDefaults` + `http.MaxBytesError`→Rejection + `context.Canceled`→Infrastructure) behind a decision record. I:Medium E:M C:Feature (demand-gated)~~ done — the registry SHIPPED (RegisterClassifications: stdlib defaults + MaxBytesError→Rejection)
+5. ~~Adopt `errorfamilytest` asserts in otel/systemd tests (replace hand-rolled family assertions). I:Low E:S C:Quality~~ done — errorfamilytest asserts landed (R3; systemd test)
+6. ~~Adopt `errorfamily.WithContext` at 2-3 high-value sites (drain hook errors) so LogError fields carry context. I:Low E:S C:Quality~~ done — the hook_index context landed (R3)
+7. ~~`go list -m all | grep go-retry` in integration to prove/fix the MVS floor claim. I:Low E:S C:Documentation~~ done — the go-retry MVS proof green (R1e)
 
 **Truth-sync / docs routing**
-8. Extend `check-pin-drift.sh` (or new guard) to assert the AGENTS Core-Dependencies table versions == go.mod versions — makes the drift I found mechanically impossible. I:High E:M C:Quality
-9. HARVEST this report: route (f) into TODO_LIST.md / ROADMAP.md via docs-health. I:High E:S C:Documentation
-10. Annotate battery B4 row: go-etag is now FIVE modules (client+metrics relevant to W4 polite). I:Medium E:S C:Documentation
-11. Annotate W4 `polite` row: built on go-retry + evaluate `etagclient.NewTransport` (pre-answers adopt-vs-port). I:Medium E:S C:Documentation
-12. Record the error-family registry DECISION row (adopt-now / demand-gated) so F2 doesn't rot. I:Medium E:S C:Documentation
-13. Add a go-sse next-release watch row (breaking `ssetest.WithLastEventID`, `DefaultSubscriberBuffer` export, realtime doc-reference update). I:Medium E:S C:Documentation
-14. docs/research/README.md: state the per-lib-audit home convention once g/1 is answered. I:Medium E:S C:Documentation
-15. docs/agents/README.md (docs map): add `docs/review/libs/` pointer so fresh sessions find the fleet audit. I:Low E:S C:Documentation
-16. Update `docs/reviews/README.md` house note: HTML dashboards vs the new md report series (which index owns what). I:Low E:S C:Documentation
+8. ~~Extend `check-pin-drift.sh` (or new guard) to assert the AGENTS Core-Dependencies table versions == go.mod versions — makes the drift I found mechanically impossible. I:High E:M C:Quality~~ done at `dfeb4a5`
+9. ~~HARVEST this report: route (f) into TODO_LIST.md / ROADMAP.md via docs-health. I:High E:S C:Documentation~~ done — the harvest is this week's archive waves
+10. ~~Annotate battery B4 row: go-etag is now FIVE modules (client+metrics relevant to W4 polite). I:Medium E:S C:Documentation~~ done — the battery B4/W4 rows carry the go-etag/polite annotations (the audit errata + row text)
+11. ~~Annotate W4 `polite` row: built on go-retry + evaluate `etagclient.NewTransport` (pre-answers adopt-vs-port). I:Medium E:S C:Documentation~~ done — the W4 polite row carries the go-retry + etagclient note
+12. ~~Record the error-family registry DECISION row (adopt-now / demand-gated) so F2 doesn't rot. I:Medium E:S C:Documentation~~ done — the registry DECISION shipped (RegisterClassifications; not demand-gated anymore)
+13. ~~Add a go-sse next-release watch row (breaking `ssetest.WithLastEventID`, `DefaultSubscriberBuffer` export, realtime doc-reference update). I:Medium E:S C:Documentation~~ done — the upstream watchlist row exists (consolidated 2026-11-03: ssetest breaking + DefaultSubscriberBuffer)
+14. ~~docs/research/README.md: state the per-lib-audit home convention once g/1 is answered. I:Medium E:S C:Documentation~~ done — docs/reviews/README.md states the canonical libs home (verified 2026-11-06)
+15. docs/agents/README.md (docs map): add `docs/review/libs/` pointer so fresh sessions find the fleet audit. I:Low E:S C:Documentation **→ TODO P3 — SUPERB v12 micro-backlog (docs-map pointer to docs/review/libs in docs/agents/README.md) <!-- fresh:skip: routed in TODO_LIST -->**
+16. ~~Update `docs/reviews/README.md` house note: HTML dashboards vs the new md report series (which index owns what). I:Low E:S C:Documentation~~ done — the docs/reviews/README house note landed (HTML dashboards vs the md series; verified 2026-11-06)
 
 **Report-quality repairs (this session's own deliverables)**
-17. Execute all 12 "How to verify" blocks as written; fix failures (httputil.md rg syntax first). I:High E:S C:Quality
-18. Re-check `docs/research/README.md` house rule "annotate, never rewrite" applies to my supersede notes (they name the superseded sections — verify phrasing is non-destructive). I:Low E:S C:Documentation
-19. Mobile-width screenshot of index.html (done-bar completion). I:Low E:S C:Quality
-20. dprint/format check over the 13 new files (confirm whether dprint covers md/html in this repo). I:Low E:S C:Quality
-21. Pin exact lines for the go-error-family.md citations currently file-level only (cqrs/eventservice.go, commands.go, flightrecorder/middleware.go, flightrecorderhealth/adapter.go). I:Low E:S C:Documentation
-22. Convert the three used-lib scorecards into a tiny reproducible script (counts → score) checked into docs/review/libs/ or scripts/. I:Low E:M C:Quality
-23. Cross-link each per-lib report back to index.html (currently one-directional). I:Low E:S C:Documentation
-24. Add "[Unreleased]-noise filter" note to the fleet-audit method section (ahead-counts caveat). I:Low E:S C:Documentation
-25. Re-run the three scores after #1 lands; add supersede note in docs/research/README.md. I:Low E:S C:Documentation
+17. ~~Execute all 12 "How to verify" blocks as written; fix failures (httputil.md rg syntax first). I:High E:S C:Quality~~ done — the verify-block rule is in the AGENTS gotcha and the batches ran (the rg fix landed in the follow-up)
+18. ~~Re-check `docs/research/README.md` house rule "annotate, never rewrite" applies to my supersede notes (they name the superseded sections — verify phrasing is non-destructive). I:Low E:S C:Documentation~~ done — the supersede notes used dated banners (the annotate-never-rewrite rule held; the 16-28 repair proved it)
+19. ~~Mobile-width screenshot of index.html (done-bar completion). I:Low E:S C:Quality~~ done — the mobile screenshot landed (13-10)
+20. ~~dprint/format check over the 13 new files (confirm whether dprint covers md/html in this repo). I:Low E:S C:Quality~~ done — the dprint coverage recorded (R1d; html UNCOVERED — the decision rides the micro-backlog)
+21. Pin exact lines for the go-error-family.md citations currently file-level only (cqrs/eventservice.go, commands.go, flightrecorder/middleware.go, flightrecorderhealth/adapter.go). I:Low E:S C:Documentation **→ TODO P3 — SUPERB v12 micro-backlog (pin exact lines for the go-error-family citations) <!-- fresh:skip: routed in TODO_LIST -->**
+22. Convert the three used-lib scorecards into a tiny reproducible script (counts → score) checked into docs/review/libs/ or scripts/. I:Low E:M C:Quality **→ TODO P3 — SUPERB v12 micro-backlog (reproducible scorecard script checked into docs/review/libs) <!-- fresh:skip: routed in TODO_LIST -->**
+23. Cross-link each per-lib report back to index.html (currently one-directional). I:Low E:S C:Documentation **→ TODO P3 — SUPERB v12 micro-backlog (cross-link each per-lib report back to index.html) <!-- fresh:skip: routed in TODO_LIST -->**
+24. Add "[Unreleased]-noise filter" note to the fleet-audit method section (ahead-counts caveat). I:Low E:S C:Documentation **→ TODO P3 — SUPERB v12 micro-backlog (Unreleased-noise filter note in the audit method section) <!-- fresh:skip: routed in TODO_LIST -->**
+25. Re-run the three scores after #1 lands; add supersede note in docs/research/README.md. I:Low E:S C:Documentation **→ TODO P3 — SUPERB v12 micro-backlog (error-family score supersede note now that the registry shipped) <!-- fresh:skip: routed in TODO_LIST -->**
 
 **Adoption candidates (demand-gated, keep routed)**
-26. CORS: check battery spec for existing coverage; if absent, add W3-httpx shortlist row (browser-API gap, F3). I:Medium E:S C:Documentation
-27. Trusted-proxy keying (`KeyExtractorFromTrustedClientIP`): add W3/W4 note "wire when proxy deployments appear". I:Medium E:S C:Documentation
-28. Compression/decompression: record an explicit decline-or-defer note so the httputil gap row has a verdict like the others. I:Low E:S C:Documentation
-29. `LoggingFromContext`: either wire it (per-request logger resolution) or record N/A verdict. I:Low E:S C:Documentation
-30. `httputil.MaxBodySize` vs `security.BodyLimit` consolidation note → attach to W3-httpx B2/B9 planning. I:Low E:S C:Documentation
-31. `httputil.Nonce` vs `security.GenerateNonce/BuildCSP` overlap note → attach to W3 httpx design. I:Low E:S C:Documentation
-32. server_timing wiring sketch: one paragraph in the battery F2 annotation (middleware slot vs WrapServerTiming inside core response path). I:Low E:S C:Documentation
-33. go-idempotency README recipe paragraph (import path, Store backend, contract.RunTests, EventConfig.CommandMiddleware) — write WHEN idempotency demand lands, per posture. I:Low E:S C:Documentation (trigger-gated)
-34. go-codec: link the B5 "on go-codec" decision from the W3 battery row (currently only in the go-daemon planning doc). I:Low E:S C:Documentation
-35. go-atomic-write: when D4 activates, bump the documented floor to ≥ v0.6.0 (go-1.27 alignment). I:Low E:S C:Documentation (trigger-gated)
-36. go-filewatcher/go-output: ROADMAP rows ONLY (fleet CLI → go-output; config hot-reload → opt-in module). I:Low E:S C:Documentation
-37. go-daemon: at B5 planning, read its `negotiation.go` + `[Unreleased]` codec-injection API as reference (not dependency). I:Low E:S C:Documentation (trigger-gated)
+26. ~~CORS: check battery spec for existing coverage; if absent, add W3-httpx shortlist row (browser-API gap, F3). I:Medium E:S C:Documentation~~ done — the CORS verdict recorded as a W3 row (R5a; the battery row carries it)
+27. ~~Trusted-proxy keying (`KeyExtractorFromTrustedClientIP`): add W3/W4 note "wire when proxy deployments appear". I:Medium E:S C:Documentation~~ done — the trusted-proxy note recorded (R5a)
+28. ~~Compression/decompression: record an explicit decline-or-defer note so the httputil gap row has a verdict like the others. I:Low E:S C:Documentation~~ done — the compression decline recorded (R5a)
+29. ~~`LoggingFromContext`: either wire it (per-request logger resolution) or record N/A verdict. I:Low E:S C:Documentation~~ done — the LoggingFromContext verdict recorded (R5a)
+30. ~~`httputil.MaxBodySize` vs `security.BodyLimit` consolidation note → attach to W3-httpx B2/B9 planning. I:Low E:S C:Documentation~~ done — the MaxBodySize consolidation notes stand (R5a item 5; recorded F5)
+31. ~~`httputil.Nonce` vs `security.GenerateNonce/BuildCSP` overlap note → attach to W3 httpx design. I:Low E:S C:Documentation~~ done — the Nonce consolidation notes stand (R5a item 5)
+32. ~~server_timing wiring sketch: one paragraph in the battery F2 annotation (middleware slot vs WrapServerTiming inside core response path). I:Low E:S C:Documentation~~ done — the server_timing wiring sketch landed (the audit errata in docs/review/libs/server_timing.md)
+33. go-idempotency README recipe paragraph (import path, Store backend, contract.RunTests, EventConfig.CommandMiddleware) — write WHEN idempotency demand lands, per posture. I:Low E:S C:Documentation (trigger-gated) **→ TODO P3 — Battery program waves W3-W5 (D7 go-idempotency README recipe first when demand lands) <!-- fresh:skip: routed in TODO_LIST -->**
+34. ~~go-codec: link the B5 "on go-codec" decision from the W3 battery row (currently only in the go-daemon planning doc). I:Low E:S C:Documentation~~ done — the B5-on-go-codec decision is linked from the battery row (the promotion + the go-codec.md errata)
+35. ~~go-atomic-write: when D4 activates, bump the documented floor to ≥ v0.6.0 (go-1.27 alignment). I:Low E:S C:Documentation (trigger-gated)~~ done — the go-atomic-write floor note recorded (the D4 battery row notes >= v0.6.0 when activated)
+36. ~~go-filewatcher/go-output: ROADMAP rows ONLY (fleet CLI → go-output; config hot-reload → opt-in module). I:Low E:S C:Documentation~~ done — go-filewatcher/go-output stay ROADMAP-only (the AGENTS ruling: category mismatch, NOT flipped)
+37. go-daemon: at B5 planning, read its `negotiation.go` + `[Unreleased]` codec-injection API as reference (not dependency). I:Low E:S C:Documentation (trigger-gated) **→ TODO P3 — Battery program waves W3-W5 (go-daemon negotiation.go reference read at B5 planning) <!-- fresh:skip: routed in TODO_LIST -->**
 
 **Upstream/release watches**
-38. Next go-sse release: absorb breaking ssetest change via the integration re-pin ritual; update realtime doc reference (pairs with #13). I:Medium E:M C:Quality
-39. Next go-etag release: verify root-shim removal plan (v1.0.0) doesn't touch integration's exclude block. I:Low E:S C:Quality
-40. Next go-idempotency release: confirm their CHANGELOG hygiene before ever promoting the dep to direct. I:Low E:S C:Quality
-41. Next httputil release train: re-check server_timing version pairing + apidiff frozen-API gate. I:Low E:S C:Quality
+38. Next go-sse release: absorb breaking ssetest change via the integration re-pin ritual; update realtime doc reference (pairs with #13). I:Medium E:M C:Quality **→ TODO P3 — Upstream watchlist (go-sse re-pin ritual + realtime doc refs) <!-- fresh:skip: routed in TODO_LIST -->**
+39. Next go-etag release: verify root-shim removal plan (v1.0.0) doesn't touch integration's exclude block. I:Low E:S C:Quality **→ TODO P3 — Upstream watchlist (go-etag root-shim removal vs integration excludes) <!-- fresh:skip: routed in TODO_LIST -->**
+40. Next go-idempotency release: confirm their CHANGELOG hygiene before ever promoting the dep to direct. I:Low E:S C:Quality **→ TODO P3 — Upstream watchlist (go-idempotency CHANGELOG hygiene before promotion) <!-- fresh:skip: routed in TODO_LIST -->**
+41. Next httputil release train: re-check server_timing version pairing + apidiff frozen-API gate. I:Low E:S C:Quality **→ TODO P3 — Upstream watchlist (httputil server_timing pairing + apidiff gate) <!-- fresh:skip: routed in TODO_LIST -->**
 
 **Process fixes (from the self-review)**
-42. Standardize comment-stripped symbol scans for future audits (skill-note or scripts/ helper). I:Medium E:S C:Quality
-43. Standardize "executable appendix" rule for future reports (run-before-ship or label). I:Medium E:S C:Quality
-44. Filter `chore: auto-commit` noise in future ahead-counts. I:Low E:S C:Quality
-45. Standing rule: run the two docs guards + (when any .go changes) hermetic suite before declaring docs sessions done. I:Low E:S C:Quality
-46. When a user-specified path diverges from repo convention, resolve it loudly in the handoff (lesson from docs/review/libs vs docs/research). I:Low E:S C:Quality
+42. Standardize comment-stripped symbol scans for future audits (skill-note or scripts/ helper). I:Medium E:S C:Quality **→ TODO P3 — SUPERB v12 micro-backlog (comment-stripped symbol-scan standard) <!-- fresh:skip: routed in TODO_LIST -->**
+43. ~~Standardize "executable appendix" rule for future reports (run-before-ship or label). I:Medium E:S C:Quality~~ done — the executable-appendix rule is in the AGENTS contract-string gotcha (How to verify appendices are RUN)
+44. Filter `chore: auto-commit` noise in future ahead-counts. I:Low E:S C:Quality **→ TODO P3 — SUPERB v12 micro-backlog (filter chore auto-commit noise in ahead-counts) <!-- fresh:skip: routed in TODO_LIST -->**
+45. ~~Standing rule: run the two docs guards + (when any .go changes) hermetic suite before declaring docs sessions done. I:Low E:S C:Quality~~ done — the docs guards + hermetic suites are wired and ran every wave this week
+46. When a user-specified path diverges from repo convention, resolve it loudly in the handoff (lesson from docs/review/libs vs docs/research). I:Low E:S C:Quality **→ TODO P3 — SUPERB v12 micro-backlog (loud path-divergence handoff lesson to crush-config) <!-- fresh:skip: routed in TODO_LIST -->**
 
 **Explicitly declined this session (recorded so they stay declined)**
-47. Do NOT port CV's idempotency store (battery D7 adopt-wire stands) or CV's X-Response-Time handler (server_timing wins). I:— E:— C:Decision
-48. Do NOT import go-daemon (2026-10-01 ruling holds; sd_notify already shipped as /systemd). I:— E:— C:Decision
-49. Do NOT add go-output/go-filewatcher to any go.mod today (no demand signal). I:— E:— C:Decision
-50. Do NOT promote go-etag/go-idempotency/go-retry/go-codec to direct requires (indirects are structural via httputil/go-cqrs-lite). I:— E:— C:Decision
+47. ~~Do NOT port CV's idempotency store (battery D7 adopt-wire stands) or CV's X-Response-Time handler (server_timing wins). I:— E:— C:Decision~~ **NOT-DO — **NOT-DO — the D7 adopt-wire battery row and the server_timing default-stack adoption cover both CV ideas; porting CV's idempotency store or X-Response-Time handler would duplicate family wheels (the composition-mission ruling). Checkable: the battery row + AGENTS Core Dependencies (server_timing v1.0.3).**.**
+48. ~~Do NOT import go-daemon (2026-10-01 ruling holds; sd_notify already shipped as /systemd). I:— E:— C:Decision~~ **NOT-DO — **NOT-DO — the 2026-10-01 ruling holds: go-daemon competes with the host layer appkit already owns; sd_notify shipped as /systemd. Checkable: AGENTS Deferred Register (go-daemon row).**.**
+49. ~~Do NOT add go-output/go-filewatcher to any go.mod today (no demand signal). I:— E:— C:Decision~~ **NOT-DO — **NOT-DO — no demand signal; category mismatch (AGENTS: go-output/go-filewatcher NOT flipped by the composition ruling). Checkable: AGENTS fleet-audit section.**.**
+50. ~~Do NOT promote go-etag/go-idempotency/go-retry/go-codec to direct requires (indirects are structural via httputil/go-cqrs-lite). I:— E:— C:Decision~~ **NOT-DO — **NOT-DO — the go-etag/go-idempotency/go-retry/go-codec indirects are structural via httputil/ cqrs; promotion without a direct import would be dependency noise. Checkable: the verdict text in docs/review/libs (recorded adoption paths).**.**
 
 ## g) Three questions I cannot figure out myself
 
