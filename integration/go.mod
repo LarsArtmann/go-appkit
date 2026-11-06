@@ -105,17 +105,17 @@ require (
 	github.com/larsartmann/go-datastar/static v0.6.1 // indirect
 	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
 	github.com/larsartmann/go-etag/server v0.6.1 // indirect
-	github.com/larsartmann/go-health-dashboard v0.10.2 // indirect
+	github.com/larsartmann/go-health-dashboard v0.12.2 // indirect
 	github.com/larsartmann/go-idempotency v0.3.1 // indirect
 	github.com/larsartmann/go-retry v0.8.0 // indirect
 	github.com/larsartmann/go-sse/sseparse v0.2.1 // indirect
 	github.com/larsartmann/httputil/server_timing v1.0.3 // indirect
-	github.com/larsartmann/templ-components v1.22.0 // indirect
-	github.com/larsartmann/templ-components/datastar v1.22.0 // indirect
-	github.com/larsartmann/templ-components/errorpage v1.22.0 // indirect
-	github.com/larsartmann/templ-components/htmx v1.22.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.22.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.22.0 // indirect
+	github.com/larsartmann/templ-components v1.26.0 // indirect
+	github.com/larsartmann/templ-components/datastar v1.26.0 // indirect
+	github.com/larsartmann/templ-components/errorpage v1.26.0 // indirect
+	github.com/larsartmann/templ-components/htmx v1.26.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.26.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.26.0 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/maruel/natural v1.3.0 // indirect
@@ -156,7 +156,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
-	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
