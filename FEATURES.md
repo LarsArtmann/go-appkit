@@ -265,6 +265,19 @@ which carries the `StartHooks` seam it depends on):
 | `Counters()` notify-activity snapshot (ReadySent/StoppingSent/WatchdogPings/NotifyFailures) | FULLY_FUNCTIONAL | `notify.go:48`, `TestNotify_CountersTrackSuccessfulSends`  |
 | Full lifecycle through a live `appkit.Service`                                              | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService`                |
 
+## httpx (`github.com/larsartmann/go-appkit/httpx`)
+Shipped through httpx **v0.1.0** (2026-11-07, SUPERB v14 C2-C4; the
+handler-DX battery — B1 ResultHandler, B2 bind + validation, B9 no-leak
+errors, and the test-pinned classification-parity oracle vs errorpages).
+
+| Feature | Status | Evidence |
+| --- | --- | --- |
+| `ResultHandler` return-(T, error) seam | FULLY_FUNCTIONAL | `result.go`, `result_test.go` |
+| Direct-write ownership + ResponseController reachability | FULLY_FUNCTIONAL | `resultWriter` (`Unwrap`), `TestResultHandler_DirectWriteTakesOwnership` |
+| `ResultHandlerWithValidation` bind battery (`bind.*` codes, 1 MiB cap, `Validate` hook) | FULLY_FUNCTIONAL | `bind.go`, `bind_test.go` |
+| No-leak error contract (family gate + leak-pattern scrub + `Public()` opt-out) | FULLY_FUNCTIONAL | `sanitize.go`, `sanitize_test.go` (leaked-detail matrix) |
+| Classification parity vs errorpages (same status + JSON contract shape per family) | FULLY_FUNCTIONAL (test-pinned oracle) | `parity_test.go` (test-only dep on errorpages) |
+
 ## config (`github.com/larsartmann/go-appkit/config`)
 
 Shipped through config **v0.1.1** (2026-11-07; x/sys v0.1.0 → v0.49.0
