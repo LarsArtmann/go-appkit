@@ -45,7 +45,10 @@ defaults (ephemeral loopback addr + `NoDrainDelay`), closing issue #26's
 5s-per-test teardown trap — in v0.9.0; Server-Timing outermost +
 `RegisterClassifications()` + the testkit GET/wait/FreeAddr helpers in
 v0.10.0, released for the preset module's spine; additions-only API diffs,
-proxy-tested).
+proxy-tested). Cut note: **v0.11.0** (2026-11-07) is behavior/docs-only —
+hook failures classify through `errorfamily.WrapOnce` (own family/code
+preserved, `hook_index` in context), floor 1.27.3, README recipes — zero
+public API delta (`go doc -all` diff empty at root and testkit).
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
@@ -111,6 +114,11 @@ edge stays demo-only and the package itself stays appkit-free).
 | JSON contract negotiation          | FULLY_FUNCTIONAL | `errorpages_test.go:57`              |
 | Render-failure plain-text fallback | FULLY_FUNCTIONAL | `errorpages_test.go` (failingWriter) |
 | stdlib redirect parity in `Wrap`   | FULLY_FUNCTIONAL | `errorpages_test.go:246`             |
+
+Shipped through errorpages **v0.1.3** (2026-11-07: `Mount` 405-swallow
+godoc fix — a registered catch-all turns stdlib 405s into pretty 404s,
+pinned by integration — plus a dependabot sweep and floor 1.27.3;
+doc-only, zero API delta).
 
 ## realtime (`github.com/larsartmann/go-appkit/realtime`)
 
@@ -179,7 +187,10 @@ excess events are dropped and healed by client Last-Event-ID reconnect.
 | `WithHealthRecorder` on the function path fails at boot (`ErrRecorderNotApplicable`)     | FULLY_FUNCTIONAL | `TestNewProbe_RecorderOptionFailsAtBoot` (v0.3.0, 2026-10-27 — the silent zero-trace cliff is gone upstream)                          |
 | Dashboard rides go-health-dashboard v0.12.2 (markup a11y, byte-identical CSV export)     | FULLY_FUNCTIONAL | `mount_test.go`, `TestMount_WithDashboardServesHTMLJSONAndProbes` (v0.3.1, 2026-11-06 — dependency alignment, no library API change)  |
 
-Shipped through health **v0.3.1** (2026-11-06 dependency alignment so
+Shipped through health **v0.3.2** (2026-11-07: the LICENSE file finally
+ships on the module page — every released module root now carries it —
+plus floor 1.27.3; file/toolchain only, zero API delta). Prior cut:
+**v0.3.1** (2026-11-06 dependency alignment so
 consumers can pin a real tag instead of a pseudo-version — go-appkit#54:
 go-health-dashboard v0.12.2, go-error-family v0.12.0, templ-components
 v1.26.0, httputil v1.8.0, samber/lo direct require; zero API delta).
@@ -221,7 +232,10 @@ line without request context, so only handler-level logs correlate with spans
 
 ## systemd (`github.com/larsartmann/go-appkit/systemd`)
 
-Shipped as **systemd v0.1.0** (2026-10-07, the same train as core v0.8.0
+Shipped as **systemd v0.1.1** (2026-11-07: runnable godoc Examples
+`ExampleInstall`/`ExampleNew` pinning the append-only Install contract,
+README release-state/Install/deps truth pass, floor 1.27.3; zero API
+delta). Initial: **systemd v0.1.0** (2026-10-07, the same train as core v0.8.0
 which carries the `StartHooks` seam it depends on):
 
 | Feature                                                                                     | Status           | Evidence                                                   |
