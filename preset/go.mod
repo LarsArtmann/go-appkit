@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/preset
 
-go 1.27.2
+go 1.27.3
 
 require (
 	github.com/larsartmann/go-appkit v0.10.0

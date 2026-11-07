@@ -87,7 +87,7 @@ An event-payload codec SDK (`~/projects/go-codec/`, single package):
 cd /home/lars/projects/go-appkit
 rg -n 'larsartmann/go-codec' --glob '*.go'                # empty → zero imports
 grep 'go-codec' cqrs/go.mod docs/go.mod integration/go.mod
-cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.2 go mod why -m github.com/larsartmann/go-codec
+cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.3 go mod why -m github.com/larsartmann/go-codec
 rg -n 'go-codec' docs/planning/2026-10-01_go-daemon-and-go-aichat-integration.md | head -3
 git -C /home/lars/projects/go-codec tag --sort=-v:refname | head -1   # v0.3.3
 ```

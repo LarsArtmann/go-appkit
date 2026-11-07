@@ -14,7 +14,7 @@ version: "2"
 #     (GOEXPERIMENT=jsonv2: go-health's json/v2 serialization + go-sse)
 run:
   timeout: 5m
-  go: "1.27.2"
+  go: "1.27.3"
   allow-parallel-runners: true
   allow-serial-runners: true
   issues-exit-code: 1

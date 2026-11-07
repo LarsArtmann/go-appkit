@@ -31,7 +31,7 @@ if err != nil {
 }
 ```
 
-Run the runnable version: `cd example && GOWORK=off GOTOOLCHAIN=go1.27.2 go run .`
+Run the runnable version: `cd example && GOWORK=off GOTOOLCHAIN=go1.27.3 go run .`
 
 ## Precedence
 
@@ -112,7 +112,7 @@ multi-file merge, dotenv loading, tree-shaped provider registries. Compose
 ## Build & verify
 
 ```bash
-cd config && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
+cd config && GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
 # vet/build with the same prefix; lint: cd config && golangci-lint run ./...
 ```
 

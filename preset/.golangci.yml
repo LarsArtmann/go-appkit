@@ -16,7 +16,7 @@ version: "2"
 # implicitly — t.Setenv forbids parallel tests); process-global environment.
 run:
   timeout: 5m
-  go: "1.27.2"
+  go: "1.27.3"
   allow-parallel-runners: true
   allow-serial-runners: true
   issues-exit-code: 1

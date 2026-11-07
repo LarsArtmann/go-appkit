@@ -75,6 +75,6 @@ A dependency-light retry loop over go-error-family (`~/projects/go-retry/`, sing
 cd /home/lars/projects/go-appkit
 rg -n 'larsartmann/go-retry' --glob '*.go'                # empty → zero imports
 grep 'go-retry' cqrs/go.mod integration/go.mod            # v0.9.0 / v0.8.0 indirect
-cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.2 go mod why -m github.com/larsartmann/go-retry
+cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.3 go mod why -m github.com/larsartmann/go-retry
 git -C /home/lars/projects/go-retry tag --sort=-v:refname | head -1   # v0.9.0
 ```

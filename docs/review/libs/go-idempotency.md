@@ -80,7 +80,7 @@ A focused at-most-once SDK (`~/projects/go-idempotency/`):
 cd /home/lars/projects/go-appkit
 rg -n 'go-idempotency' --glob '*.go'                     # empty → zero imports
 grep 'go-idempotency' cqrs/go.mod integration/go.mod     # v0.3.2 / v0.3.1 indirect
-cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.2 go mod why -m github.com/larsartmann/go-idempotency
+cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.3 go mod why -m github.com/larsartmann/go-idempotency
 sed -n '22,26p' cqrs/commands.go; sed -n '616,620p' cqrs/README.md
 git -C /home/lars/projects/go-idempotency tag --sort=-v:refname | head -1   # v0.3.2
 ```

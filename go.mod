@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit
 
-go 1.27.2
+go 1.27.3
 
 require (
 	github.com/charmbracelet/log v1.0.0

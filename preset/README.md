@@ -76,7 +76,7 @@ The preset never invents credentials: `Config.Metrics` passes through to
 ## Build & verify
 
 ```bash
-cd preset && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
+cd preset && GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
 ```
 
 vet/build with the same prefix; lint from this directory

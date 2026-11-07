@@ -448,15 +448,15 @@ Compose snippets, the off-switch, and the tuning-knob table live in
 
 ```bash
 cd otel
-GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
-GOWORK=off GOTOOLCHAIN=go1.27.2 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.2 go build ./...
-GOWORK=off GOTOOLCHAIN=go1.27.2 go test -bench . -benchmem -run '^$' ./...
+GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.3 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.3 go build ./...
+GOWORK=off GOTOOLCHAIN=go1.27.3 go test -bench . -benchmem -run '^$' ./...
 golangci-lint run ./...        # from this directory
 ```
 
-`GOTOOLCHAIN=go1.27.2` is required for every command below on
+`GOTOOLCHAIN=go1.27.3` is required for every command below on
 machines whose default toolchain is older (this repo pins
-`go 1.27.2` in every go.mod). `GOWORK=off` makes the run
+`go 1.27.3` in every go.mod). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,
 via the module proxy — how consumers resolve it.
 

@@ -53,7 +53,7 @@ That gives you:
 go get github.com/larsartmann/go-appkit
 ```
 
-Requires Go 1.27.2 or later (the unified toolchain floor every module's
+Requires Go 1.27.3 or later (the unified toolchain floor every module's
 go.mod declares; `encoding/json/v2` is default-on there, see below).
 
 ## Modules in this repository
@@ -80,7 +80,7 @@ Each module is independently versioned and usable on its own:
 
 > **JSON v2 requirement:** the dependency stack (go-cqrs-lite,
 > templ-components, go-health, go-sse) uses `encoding/json/v2`, which the
-> 1.27.2 floor enables **by default** — no configuration, no experiment
+> 1.27.3 floor enables **by default** — no configuration, no experiment
 > prefix (the per-module `GOEXPERIMENT=jsonv2` notes were retired
 > 2026-09-29).
 
@@ -346,17 +346,17 @@ middleware, health, logging, and shutdown wired in one import.
 
 ## Development
 
-Go >= 1.27.2 (every module's go.mod declares `go 1.27.2`; on older default
-toolchains prefix commands with `GOTOOLCHAIN=go1.27.2`):
+Go >= 1.27.3 (every module's go.mod declares `go 1.27.3`; on older default
+toolchains prefix commands with `GOTOOLCHAIN=go1.27.3`):
 
 ```bash
 go test ./...            # workspace: builds + tests the 11 member modules
-GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1
+GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
 ```
 
 The `integration` module (cross-module E2E) is deliberately NOT a workspace
 member — it pins PUBLISHED tags only, so its suite runs hermetic from its own
-directory: `cd integration && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./...`.
+directory: `cd integration && GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./...`.
 
 Per-module verify (hermetic, resolves like a consumer via the proxy) and
 per-module lint commands live in each module README under
