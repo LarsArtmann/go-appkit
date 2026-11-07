@@ -311,8 +311,8 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
   bundle's domain chain. Verified equivalences live in their
   `setup/run_appkit_test.go` (SSE header flush through the full stack, drain
   readiness transitions, response parity, hardened adoption benchmark).
-- Consumed version: **`go-appkit v0.9.0`** — verified in the PUBLISHED `setup/v4.16.0` tag (and v4.15.0 before it — same pin)
-  (2026-11-02; `setup/go.mod`; guard-checked by `scripts/check-consumer-claims.sh`).
+- Consumed version: **`go-appkit v0.10.0`** — verified in the PUBLISHED `setup/v4.17.0` tag (2026-11-07; they adopted core v0.10.0 same-day; prior pin was v0.9.0 through setup/v4.16.0)
+  (`setup/go.mod`; guard-checked by `scripts/check-consumer-claims.sh`).
   **M4 is SHIPPED in that tag**:
   `Config.Metrics`/`Config.Version` thread into `appkit.ServiceConfig` on the
   `RunWithAppkit` path (`run_appkit.go:78-79`). Still theirs: the
