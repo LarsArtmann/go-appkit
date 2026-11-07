@@ -4,6 +4,14 @@
 
 ### Changed
 
+- Toolchain: floor train go 1.27.2 → 1.27.3 across all 14 go.mods +
+  go.work (clears stdlib GO-2026-6809 `crypto/x509`; zero called
+  dependency findings on the post-bump govulncheck spot-checks). The 13
+  satellite `.golangci.yml` pins moved to 1.27.3, the integration
+  `documentedGoDirective` fixture + workspace-guard message were
+  re-pointed, and every living-doc `GOTOOLCHAIN=go1.27.2` prefix +
+  script pin (`example-smoke.sh`, `check-workspace-charter.sh`)
+  followed. Machine default verified at go1.27.2 with `GOTOOLCHAIN=auto`.
 - Runtime: `runHooks` now classifies hook failures with
   `errorfamily.WrapOnce` — a hook that already returns an errorfamily error
   keeps its own family and code (no re-wrap nesting under the phase code);
