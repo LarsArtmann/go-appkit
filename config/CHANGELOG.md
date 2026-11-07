@@ -4,10 +4,17 @@ All notable changes to this module are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the module follows
 semantic versioning.
 
-## [Unreleased]
+## [0.1.1] - 2026-11-07
 
 ### Changed
 
+- `golang.org/x/sys` v0.1.0 → v0.49.0 (indirect via
+  go-faster/yaml→segmentio/asm), clearing the module-level govulncheck
+  finding GO-2026-5024 (windows-only integer overflow in
+  `x/sys/windows.NewNTUnicodeString`, fixed in v0.44.0 — UN-CALLED by this
+  module, but the informational finding is gone from the scan record
+  entirely). Fleet-consistent with the otel module's v0.49.0 pin. Zero API
+  delta (`go doc -all` proof vs v0.1.0).
 - `collectFields` restructured to guard-clause style with a `nestedWalk`
   helper — behavior-identical, but the function drops from cyclomatic
   complexity 14 to under the module's cyclop limit of 12. The complexity
