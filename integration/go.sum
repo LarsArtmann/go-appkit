@@ -164,11 +164,13 @@ github.com/larsartmann/go-appkit/cqrs v0.8.0 h1:P7bZxxZZ9wtYI8h21TPYFbPsNTkCV2sv
 github.com/larsartmann/go-appkit/cqrs v0.8.0/go.mod h1:IWmk93l/6GIsLNwJJBClx1TdcL4I5KziMyaKu/fFfrk=
 github.com/larsartmann/go-appkit/docs v0.3.3 h1:8GikRBbbRSOsL/a+rA+R2nF/J83TxVwuF2i7xrB/XuY=
 github.com/larsartmann/go-appkit/docs v0.3.3/go.mod h1:QthWqEq46bLTyzO0xl5jI35n/sEbDduh2XbM5sEAfuc=
+github.com/larsartmann/go-appkit/errorpages v0.1.3 h1:BPrCMl9qpCUpjVHDI/o/WqivZkdnGXj/xEi3anzY+Wc=
 github.com/larsartmann/go-appkit/errorpages v0.1.3/go.mod h1:75Ciw3aOCKD+thWb0ryUNHU5fOSIGtcuA3FkTYoPATc=
 github.com/larsartmann/go-appkit/flightrecorder v0.2.0 h1:lpHhKF6U2Rx7LHuYF300dALRzZvS9eJsxaPaW3gM1BI=
 github.com/larsartmann/go-appkit/flightrecorder v0.2.0/go.mod h1:zcLYA5ub4fC0eKKKvYM/ke3NWfc53HAQ8tDSTFQ9Nu4=
 github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7 h1:xPoRgaySWyqYx16BFXTb8Fd9rXjyJ9QpEw319abChpQ=
 github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7/go.mod h1:YzLpoGDGTVXOrZeNhqpYyIdpwjJUWwVRknivcAbBWZ0=
+github.com/larsartmann/go-appkit/health v0.3.2 h1:2Chq3LCoRqWUA5UaPlwHeGXhdOceB0XS+cankaCcVas=
 github.com/larsartmann/go-appkit/health v0.3.2/go.mod h1:AqvyVPKuFLAqU313QLXOfvVZvi7ebIFbodA8Ygr0jKY=
 github.com/larsartmann/go-appkit/otel v0.3.0 h1:DIqyT3NkgYFJrkek3RzLw9bU4OxrjgUXo7XF0kE3Vbw=
 github.com/larsartmann/go-appkit/otel v0.3.0/go.mod h1:h7hvMTCIevQB9rFmmx/8Pbmtn1Z+ZgK84I+MIzQSYF8=
@@ -178,6 +180,7 @@ github.com/larsartmann/go-appkit/realtime v0.1.3 h1:UEWK2dBvbhPwK86xHtcfF8/3Z0dw
 github.com/larsartmann/go-appkit/realtime v0.1.3/go.mod h1:Ec4vfPTH78XwRBlAQRYCJSWqwZbdaVgquv17PzPcgf8=
 github.com/larsartmann/go-appkit/security v0.2.0 h1:vrRRfqN9XMo1xIeq2E07I7vXahyRRqaxJJZbC+kyRpo=
 github.com/larsartmann/go-appkit/security v0.2.0/go.mod h1:3YaJgChFhKB10DsrYViV0vpfuMn4n5ItYm6xMIYhncI=
+github.com/larsartmann/go-appkit/systemd v0.1.1 h1:ireo192as+xTp28XtcoETTaJn6iStAeonQne+oPRsck=
 github.com/larsartmann/go-appkit/systemd v0.1.1/go.mod h1:CI1kikUyCEf5mYb+0m1ST7t9jN8n2SYIvgdanM2KJdg=
 github.com/larsartmann/go-branded-id v0.7.0 h1:k5KT50Kh0WmeniH0rQ3Gvm2RdSAQFZtuRhXWDtQkWhU=
 github.com/larsartmann/go-branded-id v0.7.0/go.mod h1:gM5FhB6d23qZO8hIU/rHpUnm/6dwKy9UGMhgvXDqNsc=
