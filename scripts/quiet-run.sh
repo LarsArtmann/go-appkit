@@ -15,9 +15,15 @@
 #   3. EVIDENCE  — load before/after and chosen cores go to stderr and to
 #      $QUIET_RUN_LOG (one line each, if set), so a deferral or a poisoned
 #      run can be proven after the fact.
+#   4. RESOURCE GATES — /tmp free space (--tmp-min-mb, default 2048 MB)
+#      and GOCACHE/GOMODCACHE writability probes, checked once before the
+#      load loop: tmp exhaustion and a root-owned/read-only cache are the
+#      2026-11-02 incident class (builds die with stdlib-internals errors
+#      that masquerade as dependency breakage).
 #
 # Usage:
-#   scripts/quiet-run.sh [--load-max N] [--wait SECONDS] [--pin-cores K] -- <cmd...>
+#   scripts/quiet-run.sh [--load-max N] [--wait SECONDS] [--pin-cores K]
+#       [--tmp-min-mb N] -- <cmd...>
 #
 # Examples:
 #   scripts/quiet-run.sh --load-max 16 --pin-cores 8 -- \
@@ -31,6 +37,7 @@ set -euo pipefail
 load_max=""
 pin_cores=0
 wait_secs=0
+tmp_min_mb=2048
 cmd=()
 
 while [ $# -gt 0 ]; do
@@ -41,6 +48,10 @@ while [ $# -gt 0 ]; do
 		;;
 	--pin-cores)
 		pin_cores="${2:?--pin-cores needs a value}"
+		shift 2
+		;;
+	--tmp-min-mb)
+		tmp_min_mb="${2:?--tmp-min-mb needs a value}"
 		shift 2
 		;;
 	--wait)
@@ -79,6 +90,26 @@ gate_open() { awk -v a="$1" -v b="$2" 'BEGIN { exit !(a <= b) }'; }
 if [ -z "$load_max" ]; then
 	load_max=$(($(nproc) / 2))
 fi
+
+# --- Resource gates (static, once, before the load loop) ---------------------
+tmp_avail_mb="$(df -Pm /tmp | awk 'NR==2 {print $4}')"
+if [ "${tmp_avail_mb:-0}" -lt "$tmp_min_mb" ]; then
+	log "GATE CLOSED: /tmp has ${tmp_avail_mb}MB free (< --tmp-min-mb=$tmp_min_mb) — go builds fail on exhausted tmp: not starting: ${cmd[*]}"
+	exit 2
+fi
+log "RESOURCE GATE OK: /tmp ${tmp_avail_mb}MB free (min ${tmp_min_mb}MB)"
+
+cache_dirs="$(go env GOCACHE GOMODCACHE 2>/dev/null || echo "$HOME/.cache/go-build $HOME/go/pkg/mod")"
+for d in $cache_dirs; do
+	if ! mktemp "$d/.quiet-run-probe.XXXXXX" >/dev/null 2>&1; then
+		if ! mkdir -p "$d" 2>/dev/null || ! mktemp "$d/.quiet-run-probe.XXXXXX" >/dev/null 2>&1; then
+			log "GATE CLOSED: cache NOT writable: $d (root-owned/read-only cache is the 2026-11-02 a15 incident class) — fix ownership or point GOCACHE/GOMODCACHE elsewhere: not starting: ${cmd[*]}"
+			exit 2
+		fi
+	fi
+	find "$d" -maxdepth 1 -name '.quiet-run-probe.*' -newermt '-1 minute' -delete 2>/dev/null
+	log "RESOURCE GATE OK: cache writable: $d"
+done
 
 # --- Gate loop ---------------------------------------------------------------
 deadline=$(($(date +%s) + wait_secs))
