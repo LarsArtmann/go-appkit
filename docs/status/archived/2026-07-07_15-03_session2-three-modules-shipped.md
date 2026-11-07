@@ -68,43 +68,43 @@ sub-module wraps catalog/docserver for AsyncAPI/OpenAPI/D2 auto-documentation.
 
 ## b) PARTIALLY DONE
 
-| Item | What works                            | What's missing                                                                |
-| ---- | ------------------------------------- | ----------------------------------------------------------------------------- |
-|  | ~~**CQRS E2E**~~ | ~~EventService creates, bundle accessors work, DB pings, shutdown is idempotent~~ |
-|  | ~~**Docs E2E**~~ | ~~Routes serve JSON, builder returns non-nil~~ |
-|  | ~~**Service.Run integration with CQRS**~~ | ~~Service.Run handles its own graceful drain/shutdown~~ |
-|  | ~~**Error-family in CQRS**~~ | ~~EventService uses NewRejection and WrapInfrastructuref for errors~~ |
+| Item | What works                                | What's missing                                                                    |
+| ---- | ----------------------------------------- | --------------------------------------------------------------------------------- |
+|      | ~~**CQRS E2E**~~                          | ~~EventService creates, bundle accessors work, DB pings, shutdown is idempotent~~ |
+|      | ~~**Docs E2E**~~                          | ~~Routes serve JSON, builder returns non-nil~~                                    |
+|      | ~~**Service.Run integration with CQRS**~~ | ~~Service.Run handles its own graceful drain/shutdown~~                           |
+|      | ~~**Error-family in CQRS**~~              | ~~EventService uses NewRejection and WrapInfrastructuref for errors~~             |
 
 ---
 
 ## c) NOT STARTED
 
-| Item | Impact                             | Notes    |
-| ---- | ---------------------------------- | -------- |
-|  | ~~**Tag v1.0.0**~~ | ~~Critical~~ |
-|  | ~~**Tag cqrs v0.1.0**~~ | ~~Medium~~ |
-|  | ~~**Tag docs v0.1.0**~~ | ~~Low~~ |
-|  | ~~**CQRS README section**~~ | ~~Medium~~ |
-|  | ~~**Docs README section**~~ | ~~Low~~ |
-|  | ~~**docs-mod → docs rename**~~ | ~~High~~ |
-|  | ~~**CQRS + Service.Run integration**~~ | ~~Medium~~ |
-|  | ~~**flake.nix**~~ | ~~Low~~ |
-|  | ~~**CHANGELOG.md**~~ | ~~Low~~ |
-|  | ~~**golangci-lint for sub-modules**~~ | ~~Medium~~ |
+| Item | Impact                                 | Notes        |
+| ---- | -------------------------------------- | ------------ |
+|      | ~~**Tag v1.0.0**~~                     | ~~Critical~~ |
+|      | ~~**Tag cqrs v0.1.0**~~                | ~~Medium~~   |
+|      | ~~**Tag docs v0.1.0**~~                | ~~Low~~      |
+|      | ~~**CQRS README section**~~            | ~~Medium~~   |
+|      | ~~**Docs README section**~~            | ~~Low~~      |
+|      | ~~**docs-mod → docs rename**~~         | ~~High~~     |
+|      | ~~**CQRS + Service.Run integration**~~ | ~~Medium~~   |
+|      | ~~**flake.nix**~~                      | ~~Low~~      |
+|      | ~~**CHANGELOG.md**~~                   | ~~Low~~      |
+|      | ~~**golangci-lint for sub-modules**~~  | ~~Medium~~   |
 
 ---
 
 ## d) TOTALLY FUCKED UP / BROKEN / RISKY
 
-| Issue | Severity                                                   | Detail    |
-| ----- | ---------------------------------------------------------- | --------- |
-|  | ~~**`docs-mod/` directory name vs `docs/` module path**~~ | ~~**HIGH**~~ |
-|  | ~~**README mentions `os` import but example doesn't use it**~~ | ~~Low~~ |
-|  | ~~**LSP stale typecheck warnings**~~ | ~~Cosmetic~~ |
-|  | ~~**Test runtime 5-6s**~~ | ~~Low~~ |
-|  | ~~**`httpspec_test.go` uses `init()` hack**~~ | ~~Low~~ |
-|  | ~~**No `ServiceConfig.CQRS` integration**~~ | ~~Medium~~ |
-|  | ~~**Uncommitted go.sum changes**~~ | ~~**FIXED**~~ |
+| Issue | Severity                                                       | Detail        |
+| ----- | -------------------------------------------------------------- | ------------- |
+|       | ~~**`docs-mod/` directory name vs `docs/` module path**~~      | ~~**HIGH**~~  |
+|       | ~~**README mentions `os` import but example doesn't use it**~~ | ~~Low~~       |
+|       | ~~**LSP stale typecheck warnings**~~                           | ~~Cosmetic~~  |
+|       | ~~**Test runtime 5-6s**~~                                      | ~~Low~~       |
+|       | ~~**`httpspec_test.go` uses `init()` hack**~~                  | ~~Low~~       |
+|       | ~~**No `ServiceConfig.CQRS` integration**~~                    | ~~Medium~~    |
+|       | ~~**Uncommitted go.sum changes**~~                             | ~~**FIXED**~~ |
 
 ---
 
@@ -135,58 +135,58 @@ sub-module wraps catalog/docserver for AsyncAPI/OpenAPI/D2 auto-documentation.
 
 ## f) Next 50 Tasks (Sorted by Impact ÷ Effort)
 
-| #  | Task | Impact                                          | Effort   | Priority |
-| -- | ---- | ----------------------------------------------- | -------- | -------- |
-|  | ~~1~~ | ~~Fix docs-mod → docs directory problem~~ | ~~Critical~~ | ~~15m~~ |
-|  | ~~2~~ | ~~Tag core v1.0.0~~ | ~~Critical~~ | ~~5m~~ |
-|  | ~~3~~ | ~~Tag cqrs v0.1.0~~ | ~~Medium~~ | ~~5m~~ |
-|  | ~~4~~ | ~~Tag docs v0.1.0~~ | ~~Low~~ | ~~5m~~ |
-|  | ~~5~~ | ~~Fix README imports (os, errorfamily)~~ | ~~Medium~~ | ~~5m~~ |
-|  | ~~6~~ | ~~Remove init() hack in httpspec_test.go~~ | ~~Low~~ | ~~5m~~ |
-|  | ~~7~~ | ~~Add CQRS README section~~ | ~~Medium~~ | ~~20m~~ |
-|  | ~~8~~ | ~~Add docs README section~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~9~~ | ~~Wire Service.Run + EventService.Shutdown~~ | ~~High~~ | ~~30m~~ |
-|  | ~~10~~ | ~~CQRS E2E: command dispatch → event stored~~ | ~~High~~ | ~~45m~~ |
-|  | ~~11~~ | ~~CQRS E2E: projection read model~~ | ~~Medium~~ | ~~30m~~ |
-|  | ~~12~~ | ~~CQRS E2E: health check integration~~ | ~~Medium~~ | ~~15m~~ |
-|  | ~~13~~ | ~~Docs E2E: AddCommand → OpenAPI schema verify~~ | ~~Medium~~ | ~~20m~~ |
-|  | ~~14~~ | ~~Docs E2E: AddEvent → AsyncAPI schema verify~~ | ~~Medium~~ | ~~20m~~ |
-|  | ~~15~~ | ~~CHANGELOG.md for v1.0.0 rewrite~~ | ~~Medium~~ | ~~15m~~ |
-|  | ~~16~~ | ~~golangci-lint config for cqrs sub-module~~ | ~~Medium~~ | ~~15m~~ |
-|  | ~~17~~ | ~~golangci-lint config for docs sub-module~~ | ~~Low~~ | ~~10m~~ |
-|  | ~~18~~ | ~~Fix test DrainDelay helper (near-zero default)~~ | ~~Low~~ | ~~10m~~ |
-|  | ~~19~~ | ~~Add `WithLogger(logger)` option~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~20~~ | ~~Add structured shutdown logging~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~21~~ | ~~Document httputil.Server non-delegation~~ | ~~Medium~~ | ~~10m~~ |
-|  | ~~22~~ | ~~Test errorfamily.HTTPHandler through middleware~~ | ~~Medium~~ | ~~15m~~ |
-|  | ~~23~~ | ~~Add `svc.HealthCheck(fn)` convenience~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~24~~ | ~~Consolidate planning docs (DRY)~~ | ~~Low~~ | ~~20m~~ |
-|  | ~~25~~ | ~~Add CI config (GitHub Actions)~~ | ~~Medium~~ | ~~30m~~ |
-|  | ~~26~~ | ~~Add `DisableHealth bool` consideration~~ | ~~Low~~ | ~~10m~~ |
-|  | ~~27~~ | ~~Add flake.nix (optional, AGENTS.md says no)~~ | ~~Low~~ | ~~30m~~ |
-|  | ~~28~~ | ~~Huma integration example in README~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~29~~ | ~~Error-family bridge pattern docs~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~30~~ | ~~CQRS: Bus exposure docs (Publisher/Subscriber)~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~31~~ | ~~CQRS: Repository builder example~~ | ~~Medium~~ | ~~20m~~ |
-|  | ~~32~~ | ~~Docs: D2 diagram endpoint test~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~33~~ | ~~Docs: EventCatalog MDX export~~ | ~~Low~~ | ~~30m~~ |
-|  | ~~34~~ | ~~Docs: Huma + catalog side-by-side example~~ | ~~Low~~ | ~~20m~~ |
-|  | ~~35~~ | ~~Benchmark: Service startup time~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~36~~ | ~~Benchmark: middleware overhead~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~37~~ | ~~Add `-tags integration` for slow E2E tests~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~38~~ | ~~CQRS: Snapshot store integration~~ | ~~Low~~ | ~~20m~~ |
-|  | ~~39~~ | ~~CQRS: Idempotency integration~~ | ~~Low~~ | ~~20m~~ |
-|  | ~~40~~ | ~~Docs: OpenAPI YAML endpoint test~~ | ~~Low~~ | ~~10m~~ |
-|  | ~~41~~ | ~~Add Go doc examples (testable examples)~~ | ~~Low~~ | ~~20m~~ |
-|  | ~~42~~ | ~~Add version string constant~~ | ~~Low~~ | ~~5m~~ |
-|  | ~~43~~ | ~~Add `svc.Mount(pattern, handler)` convenience~~ | ~~Low~~ | ~~10m~~ |
-|  | ~~44~~ | ~~Consider metrics middleware integration~~ | ~~Low~~ | ~~30m~~ |
-|  | ~~45~~ | ~~Consider request rate limiting~~ | ~~Low~~ | ~~20m~~ |
-|  | ~~46~~ | ~~Consider CORS middleware~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~47~~ | ~~Add graceful shutdown timeout test~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~48~~ | ~~Add signal delivery test for Run()~~ | ~~Medium~~ | ~~15m~~ |
-|  | ~~49~~ | ~~Document drain sequence with diagram~~ | ~~Low~~ | ~~15m~~ |
-|  | ~~50~~ | ~~Final brutal-self-review skill run~~ | ~~Medium~~ | ~~30m~~ |
+| # | Task   | Impact                                              | Effort       | Priority |
+| - | ------ | --------------------------------------------------- | ------------ | -------- |
+|   | ~~1~~  | ~~Fix docs-mod → docs directory problem~~           | ~~Critical~~ | ~~15m~~  |
+|   | ~~2~~  | ~~Tag core v1.0.0~~                                 | ~~Critical~~ | ~~5m~~   |
+|   | ~~3~~  | ~~Tag cqrs v0.1.0~~                                 | ~~Medium~~   | ~~5m~~   |
+|   | ~~4~~  | ~~Tag docs v0.1.0~~                                 | ~~Low~~      | ~~5m~~   |
+|   | ~~5~~  | ~~Fix README imports (os, errorfamily)~~            | ~~Medium~~   | ~~5m~~   |
+|   | ~~6~~  | ~~Remove init() hack in httpspec_test.go~~          | ~~Low~~      | ~~5m~~   |
+|   | ~~7~~  | ~~Add CQRS README section~~                         | ~~Medium~~   | ~~20m~~  |
+|   | ~~8~~  | ~~Add docs README section~~                         | ~~Low~~      | ~~15m~~  |
+|   | ~~9~~  | ~~Wire Service.Run + EventService.Shutdown~~        | ~~High~~     | ~~30m~~  |
+|   | ~~10~~ | ~~CQRS E2E: command dispatch → event stored~~       | ~~High~~     | ~~45m~~  |
+|   | ~~11~~ | ~~CQRS E2E: projection read model~~                 | ~~Medium~~   | ~~30m~~  |
+|   | ~~12~~ | ~~CQRS E2E: health check integration~~              | ~~Medium~~   | ~~15m~~  |
+|   | ~~13~~ | ~~Docs E2E: AddCommand → OpenAPI schema verify~~    | ~~Medium~~   | ~~20m~~  |
+|   | ~~14~~ | ~~Docs E2E: AddEvent → AsyncAPI schema verify~~     | ~~Medium~~   | ~~20m~~  |
+|   | ~~15~~ | ~~CHANGELOG.md for v1.0.0 rewrite~~                 | ~~Medium~~   | ~~15m~~  |
+|   | ~~16~~ | ~~golangci-lint config for cqrs sub-module~~        | ~~Medium~~   | ~~15m~~  |
+|   | ~~17~~ | ~~golangci-lint config for docs sub-module~~        | ~~Low~~      | ~~10m~~  |
+|   | ~~18~~ | ~~Fix test DrainDelay helper (near-zero default)~~  | ~~Low~~      | ~~10m~~  |
+|   | ~~19~~ | ~~Add `WithLogger(logger)` option~~                 | ~~Low~~      | ~~15m~~  |
+|   | ~~20~~ | ~~Add structured shutdown logging~~                 | ~~Low~~      | ~~15m~~  |
+|   | ~~21~~ | ~~Document httputil.Server non-delegation~~         | ~~Medium~~   | ~~10m~~  |
+|   | ~~22~~ | ~~Test errorfamily.HTTPHandler through middleware~~ | ~~Medium~~   | ~~15m~~  |
+|   | ~~23~~ | ~~Add `svc.HealthCheck(fn)` convenience~~           | ~~Low~~      | ~~15m~~  |
+|   | ~~24~~ | ~~Consolidate planning docs (DRY)~~                 | ~~Low~~      | ~~20m~~  |
+|   | ~~25~~ | ~~Add CI config (GitHub Actions)~~                  | ~~Medium~~   | ~~30m~~  |
+|   | ~~26~~ | ~~Add `DisableHealth bool` consideration~~          | ~~Low~~      | ~~10m~~  |
+|   | ~~27~~ | ~~Add flake.nix (optional, AGENTS.md says no)~~     | ~~Low~~      | ~~30m~~  |
+|   | ~~28~~ | ~~Huma integration example in README~~              | ~~Low~~      | ~~15m~~  |
+|   | ~~29~~ | ~~Error-family bridge pattern docs~~                | ~~Low~~      | ~~15m~~  |
+|   | ~~30~~ | ~~CQRS: Bus exposure docs (Publisher/Subscriber)~~  | ~~Low~~      | ~~15m~~  |
+|   | ~~31~~ | ~~CQRS: Repository builder example~~                | ~~Medium~~   | ~~20m~~  |
+|   | ~~32~~ | ~~Docs: D2 diagram endpoint test~~                  | ~~Low~~      | ~~15m~~  |
+|   | ~~33~~ | ~~Docs: EventCatalog MDX export~~                   | ~~Low~~      | ~~30m~~  |
+|   | ~~34~~ | ~~Docs: Huma + catalog side-by-side example~~       | ~~Low~~      | ~~20m~~  |
+|   | ~~35~~ | ~~Benchmark: Service startup time~~                 | ~~Low~~      | ~~15m~~  |
+|   | ~~36~~ | ~~Benchmark: middleware overhead~~                  | ~~Low~~      | ~~15m~~  |
+|   | ~~37~~ | ~~Add `-tags integration` for slow E2E tests~~      | ~~Low~~      | ~~15m~~  |
+|   | ~~38~~ | ~~CQRS: Snapshot store integration~~                | ~~Low~~      | ~~20m~~  |
+|   | ~~39~~ | ~~CQRS: Idempotency integration~~                   | ~~Low~~      | ~~20m~~  |
+|   | ~~40~~ | ~~Docs: OpenAPI YAML endpoint test~~                | ~~Low~~      | ~~10m~~  |
+|   | ~~41~~ | ~~Add Go doc examples (testable examples)~~         | ~~Low~~      | ~~20m~~  |
+|   | ~~42~~ | ~~Add version string constant~~                     | ~~Low~~      | ~~5m~~   |
+|   | ~~43~~ | ~~Add `svc.Mount(pattern, handler)` convenience~~   | ~~Low~~      | ~~10m~~  |
+|   | ~~44~~ | ~~Consider metrics middleware integration~~         | ~~Low~~      | ~~30m~~  |
+|   | ~~45~~ | ~~Consider request rate limiting~~                  | ~~Low~~      | ~~20m~~  |
+|   | ~~46~~ | ~~Consider CORS middleware~~                        | ~~Low~~      | ~~15m~~  |
+|   | ~~47~~ | ~~Add graceful shutdown timeout test~~              | ~~Low~~      | ~~15m~~  |
+|   | ~~48~~ | ~~Add signal delivery test for Run()~~              | ~~Medium~~   | ~~15m~~  |
+|   | ~~49~~ | ~~Document drain sequence with diagram~~            | ~~Low~~      | ~~15m~~  |
+|   | ~~50~~ | ~~Final brutal-self-review skill run~~              | ~~Medium~~   | ~~30m~~  |
 
 ---
 

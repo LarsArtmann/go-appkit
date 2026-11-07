@@ -47,8 +47,14 @@ while (($# > 0)); do
 		message="${2:?--message needs a value}"
 		shift 2
 		;;
-	--no-push) push=false; shift ;;
-	--tidy-integration) tidy_integration=true; shift ;;
+	--no-push)
+		push=false
+		shift
+		;;
+	--tidy-integration)
+		tidy_integration=true
+		shift
+		;;
 	-h* | --help)
 		sed -n '2,32p' "$0"
 		exit 0

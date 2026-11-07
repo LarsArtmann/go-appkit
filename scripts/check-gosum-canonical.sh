@@ -110,7 +110,7 @@ for mod in "${modules[@]}"; do
 	if [[ -n "$origin_tags" ]] && stuck_tag="$(local_only_family_pin "$mod/go.mod")"; then
 		echo "== $label =="
 		echo "DEFERRED: $label — family pin resolves to LOCAL-ONLY tag $stuck_tag (not on origin yet)"
-		echo "          deferred until publish: run this guard AFTER `git push origin master $stuck_tag`"
+		echo "          deferred until publish: run this guard AFTER $(git push origin master $stuck_tag)"
 		deferred=$((deferred + 1))
 		continue
 	fi

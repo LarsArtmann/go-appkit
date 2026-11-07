@@ -113,7 +113,7 @@ for m in "${!pending[@]}"; do
 	fi
 	label="$m"
 	[[ "$label" == "." ]] && label="core"
-	echo "== $label (build+vet$( [[ "$run_tests" == true ]] && echo '+test -race' )) =="
+	echo "== $label (build+vet$([[ "$run_tests" == true ]] && echo '+test -race')) =="
 	if (cd "$m" &&
 		GOWORK=off GOTOOLCHAIN="go$floor" go build ./... &&
 		GOWORK=off GOTOOLCHAIN="go$floor" go vet ./... &&

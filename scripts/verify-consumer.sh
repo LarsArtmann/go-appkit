@@ -51,7 +51,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-printf 'module verifyconsumer\n\ngo %s\n\nrequire %s %s\n' "$floor" "$module" "$version" > "$scratch/go.mod"
+printf 'module verifyconsumer\n\ngo %s\n\nrequire %s %s\n' "$floor" "$module" "$version" >"$scratch/go.mod"
 
 if [[ -n "$snippet" ]]; then
 	{
@@ -60,7 +60,7 @@ if [[ -n "$snippet" ]]; then
 		echo "import consumer \"$module\""
 		echo
 		cat "$snippet"
-	} > "$scratch/main.go"
+	} >"$scratch/main.go"
 else
 	{
 		echo "package main"
@@ -68,7 +68,7 @@ else
 		echo "import _ \"$module\""
 		echo
 		echo "func main() {}"
-	} > "$scratch/main.go"
+	} >"$scratch/main.go"
 fi
 
 echo "== fresh consumer: $module@$version (snippet: ${snippet:-blank import}) =="
