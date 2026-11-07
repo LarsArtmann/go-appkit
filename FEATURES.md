@@ -37,11 +37,18 @@ aspirations.
 | Server-Timing outermost on the default stack      | FULLY_FUNCTIONAL (v0.10.0; `ServerTiming *bool` knob, default on) | `middleware.go`, `servertiming_bench_test.go`     |
 | `RegisterClassifications` fleet error registry    | FULLY_FUNCTIONAL (v0.10.0; idempotent, not auto-called)           | `errors.go`, `errors_test.go`                     |
 
-Shipped through core **v0.11.0** (2026-11-07; behavior/docs-only — hook
+Shipped through core **v0.12.0** (2026-11-07; the composition swap — `Service`
+now delegates the server loop to a fresh `httputil.Server` per `Start` via
+`NewServerListener`: bind + sync `listen_failed` + `Addr()`/`Running()` views
++ six phase lines stay appkit-owned, restart-after-full-shutdown now serves
+again, configs the delegated server rejects surface as `server.config_invalid`
+at `Start`, deadline-less `Close()` inherits `ShutdownTimeout` as its bound;
+ZERO public API delta, `go doc -all` diff empty at root and testkit).
+Prior cut: **v0.11.0** (2026-11-07; behavior/docs-only — hook
 failures classify through `errorfamily.WrapOnce` (own family/code
 preserved, `hook_index` in context), floor 1.27.3, README
 RegisterClassifications/Server-Timing-phase recipes; zero public API
-delta, `go doc -all` diff empty at root and testkit). Prior cut:
+delta, `go doc -all` diff empty at root and testkit).
 **v0.10.0** (2026-11-06; lifecycle hooks in v0.4.0,
 metrics/version/testkit in v0.5.0, `appkit.Hook` alias +
 `testkit.DrainWindowProbe` in v0.7.0, `ServiceConfig.StartHooks` in v0.8.0,
@@ -228,9 +235,16 @@ panic-fails-closed flip; additions-only API diff).
 | Baggage correlation helpers (`CorrelationID`/`WithCorrelationID`/`CorrelationIDKey` — read-or-empty, set-never-invent)                                      | FULLY_FUNCTIONAL                                         | `baggage.go`, `baggage_test.go` incl. W3C round-trip (shipped v0.3.0)                                                                                                                                                                                    |
 | Deploy guide + SigNoz alert example (`otel/deploy.md` k8s/Compose snippets; `dashboards/appkit-5xx-alert.example.json` v2alpha1, OpenAPI-verified grammar)  | FULLY_FUNCTIONAL (alert unvalidated against live SigNoz) | `deploy.md`, `dashboards/` (v0.3.0)                                                                                                                                                                                                                      |
 
-Known limitation: httputil's `Logging` middleware emits the request-completion
-line without request context, so only handler-level logs correlate with spans
-(documented in `doc.go`).
+Shipped through otel **v0.4.0** (2026-11-07; semconv re-pin v1.26.0 →
+v1.43.0 WITH the `deployment.environment` → `deployment.environment.name`
+rename shipped together — the watch row's rule; SigNoz main dual-reads the
+old spelling so saved filters keep resolving; doc-only godoc diff,
+wire-behavior change → minor).
+
+Known limitation RESOLVED in v0.4.0: httputil v1.6.0 shipped
+`LoggingFromContext`, so the request-completion line now carries
+trace context (doc.go's note points at the fix; README carries the
+Logging → LoggingFromContext recipe).
 
 ## systemd (`github.com/larsartmann/go-appkit/systemd`)
 
@@ -253,7 +267,11 @@ which carries the `StartHooks` seam it depends on):
 
 ## config (`github.com/larsartmann/go-appkit/config`)
 
-Shipped as **config v0.1.0** (2026-11-06, SUPERB v12 C-train, battery F1; tag
+Shipped through config **v0.1.1** (2026-11-07; x/sys v0.1.0 → v0.49.0
+clears GO-2026-5024 from the module-level scan record entirely + the
+collectFields complexity refactor that v0.1.0 shipped lint-red; zero API
+delta).
+Prior cut: **config v0.1.0** (2026-11-06, SUPERB v12 C-train, battery F1; tag
 on origin, pushed 06:59):
 
 | Feature                                                                                                  | Status           | Evidence                                          |
