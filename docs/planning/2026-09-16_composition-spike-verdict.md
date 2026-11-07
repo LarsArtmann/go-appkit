@@ -119,3 +119,35 @@ per serve and never cache one on the Service. With all three pins answered,
 the refactor is now positive-value (deletes ~30 lines of server plumbing,
 gains the TLS seam). The swap itself remains a separately planned core
 train; see the TODO_LIST composition row for the plan-of-record.
+
+## 6. Update 2026-11-07 — the swap SHIPPED; the TLS seam is open (G1 sketch)
+
+Service now composes on httputil.Server exactly per §5: appkit binds
+(`server.listen_failed`, synchronous), constructs `NewServerListener` before
+the hooks (pure construction, config rejections surface as
+`server.config_invalid` Rejections before any lifecycle state exists), and
+delegates ONLY the server loop. `Addr()`/`Running()` remain appkit's
+mutex-guarded `s.ln` view; the six shutdown phase lines stay appkit-side with
+the `listener_close` phase wrapping the delegated Shutdown failure as
+`server.shutdown_failed`; `ServerConfig.ShutdownTimeout` carries the SAME
+`ServiceConfig.ShutdownTimeout` field that `Run` uses for its context
+deadline (one source of truth, no double-apply; a deadline-less ctx such as
+`Close()` now inherits the same bound, which is the deliberate
+single-source change). Fresh `httputil.Server` per Start honors the upstream
+single-serve ownership (`server.listener_consumed` is unreachable in the
+framework flow) and, as a side effect, restart-after-full-shutdown now
+serves again (pinned by `delegatedserver_test.go`).
+
+G1 SKETCH (Core TLS option, the prize this seam buys): add
+`ServiceConfig.TLS *TLSOptions` (`CertFile`, `KeyFile string` or
+`GetCertificate func(*tls.ClientHelloInfo) (*tls.Certificate, error)` for
+in-memory certs; validated at `NewService` when set). In `Start`, after the
+hooks pass, branch on `s.cfg.TLS != nil`:
+`rawCh := delegated.StartTLS(s.cfg.TLS.CertFile, s.cfg.TLS.KeyFile)`
+instead of `delegated.Start()`. httputil's `StartTLS` on an injected
+listener wraps and serves TLS on it (no rebind), the graceful/drain
+sequence is untouched (the delegated Shutdown is TLS-agnostic), and
+`ServerConfig.TLSConfig` (min-version enforced at TLS 1.2 upstream) flows
+through `serverConfig` for policy knobs. The `:0` ephemeral resolution,
+StartHooks mirror, and errCh contract are shared code paths. Effort: one
+config block + one branch + tests; no lifecycle rework.

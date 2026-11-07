@@ -114,7 +114,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 // carries the SAME config field that Shutdown uses for its context deadline
 // so the effective drain deadline has exactly one source of truth.
 func (s *Service) serverConfig(addr string) httputil.ServerConfig {
-	return httputil.ServerConfig{
+	return httputil.ServerConfig{ //nolint:exhaustruct_v5 // TLSConfig stays nil until the Core TLS option (G1) ships on this seam
 		Addr:              addr,
 		ReadTimeout:       serverTimeout(s.cfg.ReadTimeout),
 		ReadHeaderTimeout: s.cfg.ReadHeaderTimeout,
@@ -247,13 +247,13 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	totalStart := time.Now()
 
 	s.mu.Lock()
-	ln := s.ln
+	listener := s.ln
 	serve := s.serve
 	s.ln = nil
 	s.serve = nil
 	s.mu.Unlock()
 
-	if ln == nil {
+	if listener == nil {
 		return nil
 	}
 
