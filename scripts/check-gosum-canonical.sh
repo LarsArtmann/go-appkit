@@ -32,7 +32,7 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 
 default_modules=(
-	"." cqrs realtime security systemd otel health
+	"." cqrs realtime security systemd otel health httpx
 	flightrecorder flightrecorderhealth errorpages docs integration
 )
 if (($# > 0)); then
