@@ -20,6 +20,13 @@
 #      load loop: tmp exhaustion and a root-owned/read-only cache are the
 #      2026-11-02 incident class (builds die with stdlib-internals errors
 #      that masquerade as dependency breakage).
+#      Default provenance (2026-11-07): 2048 MB ≈ one single-module cold
+#      GOMODCACHE materialization in /tmp — the go-scripts (verify-consumer,
+#      check-gosum-canonical) mktemp caches there and the shared fleet
+#      cache measures 9.6 GB across 14 modules, so a cold single-module
+#      download lands 0.5–2 GB — plus headroom over /tmp's tmpfs total
+#      (48 GB on this machine). Raise --tmp-min-mb for full-fleet cold
+#      runs.
 #
 # Usage:
 #   scripts/quiet-run.sh [--load-max N] [--wait SECONDS] [--pin-cores K]
@@ -101,13 +108,18 @@ log "RESOURCE GATE OK: /tmp ${tmp_avail_mb}MB free (min ${tmp_min_mb}MB)"
 
 cache_dirs="$(go env GOCACHE GOMODCACHE 2>/dev/null || echo "$HOME/.cache/go-build $HOME/go/pkg/mod")"
 for d in $cache_dirs; do
-	if ! mktemp "$d/.quiet-run-probe.XXXXXX" >/dev/null 2>&1; then
-		if ! mkdir -p "$d" 2>/dev/null || ! mktemp "$d/.quiet-run-probe.XXXXXX" >/dev/null 2>&1; then
-			log "GATE CLOSED: cache NOT writable: $d (root-owned/read-only cache is the 2026-11-02 a15 incident class) — fix ownership or point GOCACHE/GOMODCACHE elsewhere: not starting: ${cmd[*]}"
-			exit 2
-		fi
+	probe="$(mktemp "$d/.quiet-run-probe.XXXXXX" 2>/dev/null)" || probe=""
+	if [ -z "$probe" ]; then
+		mkdir -p "$d" 2>/dev/null
+		probe="$(mktemp "$d/.quiet-run-probe.XXXXXX" 2>/dev/null)" || probe=""
 	fi
-	find "$d" -maxdepth 1 -name '.quiet-run-probe.*' -newermt '-1 minute' -delete 2>/dev/null
+	if [ -z "$probe" ]; then
+		log "GATE CLOSED: cache NOT writable: $d (root-owned/read-only cache is the 2026-11-02 a15 incident class) — fix ownership or point GOCACHE/GOMODCACHE elsewhere: not starting: ${cmd[*]}"
+		exit 2
+	fi
+	# Exact-name cleanup: a window sweep (find -newermt) can delete a
+	# concurrent invocation's fresh probe file.
+	trash "$probe" 2>/dev/null || rm -f "$probe"
 	log "RESOURCE GATE OK: cache writable: $d"
 done
 
