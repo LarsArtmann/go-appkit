@@ -4,14 +4,14 @@ go 1.27.3
 
 require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.15.0
-	github.com/larsartmann/go-appkit v0.11.0
+	github.com/larsartmann/go-appkit v0.12.0
 	github.com/larsartmann/go-appkit/cqrs v0.8.0
 	github.com/larsartmann/go-appkit/docs v0.3.3
 	github.com/larsartmann/go-appkit/errorpages v0.1.3
 	github.com/larsartmann/go-appkit/flightrecorder v0.2.0
 	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7
 	github.com/larsartmann/go-appkit/health v0.3.2
-	github.com/larsartmann/go-appkit/otel v0.3.0
+	github.com/larsartmann/go-appkit/otel v0.4.0
 	github.com/larsartmann/go-appkit/preset v0.1.0
 	github.com/larsartmann/go-appkit/realtime v0.1.3
 	github.com/larsartmann/go-appkit/security v0.2.0
@@ -75,7 +75,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.31.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.33.0 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/knadh/koanf/maps v0.1.3 // indirect
 	github.com/knadh/koanf/parsers/yaml v1.1.1 // indirect
@@ -162,9 +162,9 @@ require (
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20261005182115-fad411399dd8 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
-	google.golang.org/grpc v1.84.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20261026165753-2ffab32bce7e // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261026165753-2ffab32bce7e // indirect
+	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	modernc.org/libc v1.77.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
