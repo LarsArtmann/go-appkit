@@ -1,5 +1,31 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Architecture: `Service` now composes on `httputil.Server` (the
+  composition-spike plan-of-record, `NewServerListener` seam). The public
+  API, bind-error contract (`server.listen_failed`, synchronous),
+  `Addr()`/`Running()` lifecycle views, and the six
+  `shutdown phase complete` lines are unchanged; appkit keeps the bind and
+  delegates only the server loop. Fresh `httputil.Server` per `Start`
+  (upstream single-serve ownership): a full shutdown no longer poisons a
+  restart — serving again works (pinned). Behavior notes: (a) configs the
+  delegated server rejects (e.g. `ReadHeaderTimeout > ReadTimeout > 0`,
+  previously applied independently by the stdlib) now fail `Start` with a
+  `server.config_invalid` Rejection; (b) a deadline-less shutdown context
+  (`Close()`) now inherits `ShutdownTimeout` as its bound — the SAME config
+  field `Run` already used for its deadline, one source of truth.
+
+### Added
+
+- Tests: `delegatedserver_test.go` pins the delegated semantics —
+  construction-rejection surfaces before any lifecycle state,
+  restart-after-full-shutdown serves again, and `serverConfig` maps every
+  timeout with the `NoTimeout` sentinel and the single-source
+  `ShutdownTimeout`.
+
 ## [0.11.0] - 2026-11-07
 
 ### Changed

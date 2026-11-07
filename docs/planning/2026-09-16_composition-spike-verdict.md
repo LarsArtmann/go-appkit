@@ -11,6 +11,10 @@
 > spike against v1.7.0's single-serve ownership semantics, re-pin the
 > `Addr()`/`Running()` + shutdown phase-log contract, then swap — tracked in
 > the TODO_LIST P2 composition row). Core TLS (G1) unblocks with the same seam.
+>
+> **2026-11-07 UPDATE — the swap SHIPPED** (§6 below): Service composes on
+> httputil.Server, all pins preserved, restart-after-shutdown gained, G1
+> TLS sketch recorded.
 
 The architecture-lever TODO proposed composing `Service` on `httputil.Server`
 (its v1.1.x `ListenerAddr`/`StartTLS`/double-start guard removed the original
