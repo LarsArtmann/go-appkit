@@ -2,7 +2,7 @@ package httpx_test
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -17,8 +17,8 @@ import (
 // goroutine header. The no-leak contract says its TEXT never reaches the
 // wire: server-side families render the family default message.
 func leakingDetail() error {
-	return fmt.Errorf("open /home/lars/secret/creds.json: C:\\Users\\admin\\keys.pem query " +
-		"SELECT * FROM users WHERE password='hunter2' failed (goroutine 1, sanitize.go:59)")
+	return errors.New("open /home/lars/secret/creds.json: C:\\Users\\admin\\keys.pem query " +
+		"SELECT name FROM users WHERE password='hunter2' failed (goroutine 1, sanitize.go:59)")
 }
 
 func TestSanitize_ServerFamiliesNeverEchoRawText(t *testing.T) {
@@ -124,7 +124,7 @@ func TestWriteError_NoLeakOnTheWire(t *testing.T) {
 	})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/things", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/things", nil))
 
 	body := rec.Body.String()
 

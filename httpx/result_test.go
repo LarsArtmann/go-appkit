@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/larsartmann/go-appkit/httpx"
-	"github.com/larsartmann/go-error-family"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 type thing struct {
@@ -23,7 +23,7 @@ func TestResultHandler_HappyPath(t *testing.T) {
 	})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/things/42", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/things/42", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
@@ -49,11 +49,11 @@ func TestResultHandler_NilResultIs204(t *testing.T) {
 	t.Parallel()
 
 	handler := httpx.ResultHandler(func(_ *httpx.Context) (*thing, error) {
-		return nil, nil
+		return nil, nil //nolint:nilnil // the nil result IS the test: it must render 204
 	})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/things/none", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/things/none", nil))
 
 	if rec.Code != http.StatusNoContent {
 		t.Fatalf("status = %d, want 204", rec.Code)
@@ -83,7 +83,7 @@ func TestResultHandler_DirectWriteTakesOwnership(t *testing.T) {
 	})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/stream", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/stream", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
@@ -104,7 +104,7 @@ func TestResultHandler_ClassifiedErrorMapsStatus(t *testing.T) {
 	})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/things/42", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/things/42", nil))
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400 for the classified Rejection", rec.Code)

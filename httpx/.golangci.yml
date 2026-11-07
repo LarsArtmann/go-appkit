@@ -184,6 +184,13 @@ linters:
     # still flags env-before-default.
     tagalign:
       align: false
+    # The battery's documented wire stance (B2): wire tags are snake_case
+    # ("wire tags snake_case (tagliatelle stance)" in the battery spec).
+    # The json default (camel) is diverged deliberately.
+    tagliatelle:
+      case:
+        rules:
+          json: snake
     testifylint:
       disable:
         - go-require
@@ -267,3 +274,4 @@ formatters:
 issues:
   max-issues-per-linter: 50
   max-same-issues: 10
+

@@ -36,7 +36,8 @@ func TestResultHandlerWithValidation_HappyPath(t *testing.T) {
 			return &in, nil
 		})
 
-	req := httptest.NewRequest(http.MethodPost, "/things", strings.NewReader(`{"app_id":"a1","count":3}`))
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/things",
+		strings.NewReader(`{"app_id":"a1","count":3}`))
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -60,7 +61,8 @@ func TestResultHandlerWithValidation_CaseSensitiveBind(t *testing.T) {
 			return &in, nil
 		})
 
-	req := httptest.NewRequest(http.MethodPost, "/things", strings.NewReader(`{"appId":"a1","COUNT":3}`))
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/things",
+		strings.NewReader(`{"appId":"a1","COUNT":3}`))
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -88,7 +90,8 @@ func TestResultHandlerWithValidation_BindErrorContract(t *testing.T) {
 		})
 
 		rec := httptest.NewRecorder()
-		handler.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/things", strings.NewReader(tt.body)))
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/things", strings.NewReader(tt.body))
+		handler.ServeHTTP(rec, req)
 
 		if rec.Code != tt.status {
 			t.Errorf("%s: status = %d, want %d", tt.name, rec.Code, tt.status)
@@ -111,7 +114,9 @@ func TestResultHandlerWithValidation_BodyTooLarge(t *testing.T) {
 
 	big := `{"app_id":"` + strings.Repeat("x", 2<<20) + `"}`
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/things", strings.NewReader(big)))
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/things", strings.NewReader(big))
+
+	handler.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400", rec.Code)
@@ -132,7 +137,7 @@ func TestResultHandlerWithValidation_ValidatorRejection(t *testing.T) {
 	})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/things", strings.NewReader(`{"count":3}`)))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/things", strings.NewReader(`{"count":3}`)))
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400 (validator Rejection)", rec.Code)

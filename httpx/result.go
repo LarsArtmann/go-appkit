@@ -46,40 +46,40 @@ func (w *resultWriter) Unwrap() http.ResponseWriter {
 // skips its own serialization once any write has gone through.
 func ResultHandler[T any](fn func(c *Context) (T, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rw := &resultWriter{ResponseWriter: w, didWrite: false}
-		c := &Context{ResponseWriter: rw, Request: r}
+		recWriter := &resultWriter{ResponseWriter: w, didWrite: false}
+		ctx := &Context{ResponseWriter: recWriter, Request: r}
 
-		result, err := fn(c)
+		result, err := fn(ctx)
 		if err != nil {
 			WriteError(w, r, err)
 
 			return
 		}
 
-		if rw.didWrite {
+		if recWriter.didWrite {
 			return
 		}
 
-		writeResult(c, result)
+		writeResult(ctx, result)
 	})
 }
 
 // writeResult serializes the happy path: 204 for nil-pointer payloads,
 // JSON 200 otherwise. Called only when the handler function has not
 // written its own response (the caller checks the recording writer).
-func writeResult(c *Context, result any) {
+func writeResult(ctx *Context, result any) {
 	if isNilValue(result) {
-		c.ResponseWriter.WriteHeader(http.StatusNoContent)
+		ctx.ResponseWriter.WriteHeader(http.StatusNoContent)
 
 		return
 	}
 
-	c.ResponseWriter.Header().Set("Content-Type", "application/json")
+	ctx.ResponseWriter.Header().Set("Content-Type", "application/json")
 
 	// Serialization of an in-memory value cannot fail on valid input; a
 	// failure means the client is gone or the connection broke mid-write.
 	// The status is already committed, so the only honest move is to stop.
-	_ = json.NewEncoder(c.ResponseWriter).Encode(result) //nolint:errchkjson // the contract types are plain strings; failure is connection death
+	_ = json.NewEncoder(ctx.ResponseWriter).Encode(result) //nolint:errchkjson // failure is connection death
 }
 
 // isNilValue reports whether the happy path carries no payload: an

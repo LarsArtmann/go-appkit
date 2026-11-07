@@ -57,16 +57,16 @@ func (e *bindError) ErrorCode() string { return e.code }
 // bind.empty_body. Handlers that take no input use ResultHandler instead.
 func ResultHandlerWithValidation[B any, T any](fn func(c *Context, in B) (T, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var in B
+		var bound B
 
-		bindErr := bindJSON(r, &in)
+		bindErr := bindJSON(r, &bound)
 		if bindErr != nil {
 			WriteError(w, r, bindErr)
 
 			return
 		}
 
-		if validator, ok := any(&in).(Validator); ok {
+		if validator, ok := any(&bound).(Validator); ok {
 			if err := validator.Validate(); err != nil {
 				WriteError(w, r, err)
 
@@ -74,16 +74,16 @@ func ResultHandlerWithValidation[B any, T any](fn func(c *Context, in B) (T, err
 			}
 		}
 
-		c := &Context{ResponseWriter: w, Request: r}
+		ctx := &Context{ResponseWriter: w, Request: r}
 
-		result, err := fn(c, in)
+		result, err := fn(ctx, bound)
 		if err != nil {
 			WriteError(w, r, err)
 
 			return
 		}
 
-		writeResult(c, result)
+		writeResult(ctx, result)
 	})
 }
 

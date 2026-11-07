@@ -46,13 +46,14 @@ func TestClassificationParityWithErrorpages(t *testing.T) {
 		httpxHandler := httpx.ResultHandler(func(_ *httpx.Context) (*thing, error) {
 			return nil, err
 		})
-		httpxHandler.ServeHTTP(httpxRec, httptest.NewRequest(http.MethodGet, "/api/x", nil))
+		httpxHandler.ServeHTTP(httpxRec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/x", nil))
 
 		pagesRec := httptest.NewRecorder()
 		pagesCfg := errorpages.Config{
 			JSONWhen: func(_ *http.Request) bool { return true },
 		}
-		errorpages.Handler(err, pagesCfg).ServeHTTP(pagesRec, httptest.NewRequest(http.MethodGet, "/x", nil))
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/x", nil)
+		errorpages.Handler(err, pagesCfg).ServeHTTP(pagesRec, req)
 
 		if httpxRec.Code != wantStatus {
 			t.Errorf("%s: httpx status = %d, want %d (errorfamily.HTTPStatus)", name, httpxRec.Code, wantStatus)
