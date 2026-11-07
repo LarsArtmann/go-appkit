@@ -17,8 +17,7 @@ go get github.com/larsartmann/go-appkit/systemd
 ```
 
 Requires a go-appkit core tag carrying `ServiceConfig.StartHooks`
-(v0.8.0+; until that tag exists the module's go.mod carries a dev-only
-filesystem `replace` onto the repo root — see _Release state_ below).
+(v0.8.0+ — shipped; the module pins core v0.10.0).
 
 ## Quick start
 
@@ -61,6 +60,14 @@ the whole drain and shutdown: whether the manager still enforces the
 timeout after `STOPPING=1` is version-dependent — pinging is safe either
 way, stopping early is not.
 
+The first ping fires one full interval (`WatchdogSec/2`) after `READY=1`,
+never immediately: the manager arms the deadline at readiness, and the
+half-deadline cadence is the `sd_notify(3)` convention precisely because
+it carries a full missed-datagram margin — one lost keepalive still leaves
+half the deadline before expiry. A failing ping is logged and retried on
+the next tick (one lost datagram must not kill a healthy service; the
+manager is the arbiter of when the service is truly stuck).
+
 `Install` appends to the config's hook slices (never replaces), so consumer
 hooks compose before and after. `New(opts...)` returns the three hooks as
 plain values for manual wiring; each is independently usable.
@@ -101,14 +108,11 @@ serialized via a package mutex — the environment is process-global.
 
 ## Release state
 
-**Unreleased.** The module requires the core `StartHooks` seam, which has
-no published tag yet, so `go.mod` carries a dev-only
-`replace github.com/larsartmann/go-appkit => ../`. Release train order:
-tag core first, then remove the replace, bump the require to that tag,
-and tag `systemd/v0.1.0` (`scripts/pre-tag-checks.sh` rejects any tag
-whose go.mod still carries a filesystem replace). After the first tag:
-add the module to `integration/go.mod` + the `documentedPins` fixture and
-the CI proxy-smoke matrix.
+**Released: systemd v0.1.0** (tagged 2026-10-07, on origin + pkg.go.dev).
+The module requires core v0.10.0's published `ServiceConfig.StartHooks`
+seam — no filesystem `replace`. Consumer setup: `go get` the module and
+call `Install` before `NewService`. After your first install, the
+integration module can pin it via the `documentedPins` ritual.
 
 ## Build & verify
 
@@ -128,8 +132,7 @@ never concurrently with other modules' lint runs.
 | Module                             | Version | Role                                     |
 | ---------------------------------- | ------- | ---------------------------------------- |
 | `github.com/coreos/go-systemd/v22` | v22.7.0 | sd_notify protocol (unixgram transport)  |
-| `github.com/larsartmann/go-appkit` | v0.7.0* | `ServiceConfig` hook slices, `Hook` type |
+| `github.com/larsartmann/go-appkit` | v0.10.0 | `ServiceConfig` hook slices, `Hook` type |
 
-\* dev: replaced onto `../` until the first core tag with `StartHooks`
-ships; the reference implementation for the notify/watchdog sequence is
+The reference implementation for the notify/watchdog sequence is
 `go-daemon`'s `socket.go` (verified 2026-10-01, no go-daemon dependency).

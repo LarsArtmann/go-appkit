@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Added
+
+- Docs: runnable godoc Examples (`ExampleInstall`, `ExampleNew` in
+  `example_test.go`, the flightrecorderhealth convention) — Install's
+  append-only contract and New's three independently usable hooks are
+  now compile-checked and output-pinned; the examples double as the
+  scratch-compile proof for the README quick-start snippet.
+
+### Fixed
+
+- Docs: the README's _Release state_, _Install_, and dependencies
+  sections still described the pre-release posture (dev-only filesystem
+  `replace`, "no published tag yet") — rewritten to the shipped reality
+  (systemd v0.1.0, core v0.10.0 published require, no replace). The
+  watchdog section gains the first-ping rationale (first tick one full
+  `WatchdogSec/2` after `READY=1`, never immediately — the manager arms
+  the deadline at readiness and the half-deadline cadence carries a full
+  missed-datagram margin).
+
 ### Changed
 
 - Tests: `TestNotify_SendFailureIsClassified` now asserts through
