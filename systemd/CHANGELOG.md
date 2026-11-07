@@ -23,6 +23,8 @@
 
 ### Changed
 
+- Toolchain: floor train go 1.27.2 → 1.27.3 (go.mod directive; repo-wide
+  stdlib-vuln clearance train).
 - Tests: `TestNotify_SendFailureIsClassified` now asserts through
   `errorfamilytest` (AssertCode + AssertFamily) instead of a manual code
   comparison — the module's classified-error contract is pinned by the

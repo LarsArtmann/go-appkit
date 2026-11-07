@@ -10,7 +10,8 @@
 
 ### Changed
 
-- Nothing yet.
+- Toolchain: floor train go 1.27.2 → 1.27.3 (go.mod directive; repo-wide
+  stdlib-vuln clearance train).
 
 ### Fixed
 

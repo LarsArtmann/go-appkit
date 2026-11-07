@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Toolchain: floor train go 1.27.2 → 1.27.3 (go.mod directive; repo-wide
+  stdlib-vuln clearance train).
+- Dependencies: routine dependabot sweep (templ-components v1.26.0
+  family, go-error-family v0.12.0, httputil v1.8.0 indirect; the example
+  consumes go-appkit v0.10.0).
+
+### Fixed
+
+- Docs: `Mount`'s godoc now states the 405 swallow-through explicitly —
+  once a catch-all is registered, stdlib mux method mismatches render as
+  the pretty 404 (or JSON contract) instead of the plain 405 + Allow
+  header; the behavior was always this way and is pinned by
+  integration's `security_errorpages_test.go`, but the doc claimed
+  otherwise.
+
 ## [0.1.2] - 2026-10-13
 
 ### Changed
