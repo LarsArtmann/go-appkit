@@ -38,7 +38,7 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 ## Build & Verify
 
-Each module README's **Build & verify** section is the per-module source of truth (commands, lint, module-specific notes). The universal hermetic pattern — plus `nix shell nixpkgs#govulncheck --command govulncheck ./...` works here (12/12 modules clean as of 2026-10-13 — the sweep predates the config/preset modules; run it on dependency trains):
+Each module README's **Build & verify** section is the per-module source of truth (commands, lint, module-specific notes). The universal hermetic pattern — plus `nix shell nixpkgs#govulncheck --command govulncheck ./...` works here (14/14 module dirs clean as of 2026-11-07 with scanner 1.9.0; config carries one informational UN-CALLED windows-only x/sys module-level finding, deferred to its next train; the nightly CI leg `.github/workflows/govulncheck.yml` mechanizes the rule):
 
 ```bash
 cd <module> && GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1

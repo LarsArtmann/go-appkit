@@ -1,0 +1,55 @@
+# Nightly govulncheck over every module (the "run it on dependency trains"
+# rule, mechanized — 2026-11-07, SUPERB v14 L5). Lives in its own workflow
+# so the schedule cannot drag the push-triggered jobs (and the designed-red
+# ci-preflight) onto the nightly run.
+#
+# The matrix mirrors the test matrix (14 module dirs; integration included —
+# it is a real go.mod even though it never releases, and its go.sum carries
+# the family pins a fresh consumer resolves).
+#
+# The scanner version is pinned to the same version the local record used
+# (nixpkgs govulncheck 1.9.0, DB 2026-11-05) so CI verdicts and local
+# verdicts stay comparable; bump both together.
+name: govulncheck
+
+on:
+  schedule:
+    - cron: "17 3 * * *" # nightly 03:17 UTC — off the hour to dodge runner contention
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  govulncheck:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [
+          ".",
+          ./cqrs,
+          ./realtime,
+          ./security,
+          ./systemd,
+          ./otel,
+          ./health,
+          ./flightrecorder,
+          ./flightrecorderhealth,
+          ./errorpages,
+          ./config,
+          ./preset,
+          ./docs,
+          ./integration,
+        ]
+    name: govulncheck ${{ matrix.module }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Install govulncheck (pinned)
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
+      - name: Scan
+        working-directory: ${{ matrix.module }}
+        run: GOWORK=off govulncheck ./...
