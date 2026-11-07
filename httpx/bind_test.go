@@ -6,9 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	errorfamily "github.com/larsartmann/go-error-family"
-
 	"github.com/larsartmann/go-appkit/httpx"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // bindThing is the canonical tagged adapter type: json tags on every

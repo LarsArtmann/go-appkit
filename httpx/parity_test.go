@@ -1,16 +1,15 @@
 package httpx_test
 
 import (
-	"errors"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	errorfamily "github.com/larsartmann/go-error-family"
-
 	"github.com/larsartmann/go-appkit/errorpages"
 	"github.com/larsartmann/go-appkit/httpx"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // parityErrors is the classification set both renderings must agree on:
@@ -19,12 +18,12 @@ func parityErrors(t *testing.T) map[string]error {
 	t.Helper()
 
 	return map[string]error{
-		"Rejection":       errorfamily.Newf(errorfamily.Rejection, "p.rejected", "the request was rejected"),
-		"Conflict":        errorfamily.Newf(errorfamily.Conflict, "p.conflict", "the resource is in conflict"),
-		"Transient":       errorfamily.Newf(errorfamily.Transient, "p.transient", "the dependency is unavailable"),
-		"Corruption":      errorfamily.Newf(errorfamily.Corruption, "p.corruption", "the data is corrupted"),
-		"Infrastructure":  errorfamily.WrapInfrastructure(errors.New("disk gone"), "p.infra", "infrastructure failure"),
-		"Orchestration":   errorfamily.Newf(errorfamily.Orchestration, "p.orchestration", "coordination failed"),
+		"Rejection":      errorfamily.Newf(errorfamily.Rejection, "p.rejected", "the request was rejected"),
+		"Conflict":       errorfamily.Newf(errorfamily.Conflict, "p.conflict", "the resource is in conflict"),
+		"Transient":      errorfamily.Newf(errorfamily.Transient, "p.transient", "the dependency is unavailable"),
+		"Corruption":     errorfamily.Newf(errorfamily.Corruption, "p.corruption", "the data is corrupted"),
+		"Infrastructure": errorfamily.WrapInfrastructure(errors.New("disk gone"), "p.infra", "infrastructure failure"),
+		"Orchestration":  errorfamily.Newf(errorfamily.Orchestration, "p.orchestration", "coordination failed"),
 		"WrappedRejection": errorfamily.WrapRejection(
 			errorfamily.Newf(errorfamily.Rejection, "p.inner", "inner cause"),
 			"p.outer", "outer cause",

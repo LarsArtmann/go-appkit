@@ -1,0 +1,269 @@
+version: "2"
+# Module-local lint config — the repo-wide standard for satellite modules
+# (reference implementation: flightrecorderhealth/.golangci.yml).
+#
+# Why module-local: the ROOT config's depguard allowlist is structurally
+# wrong for non-root modules (family deps like go-flightrecorder, go-sse,
+# templ-components, go-cqrs-lite are not in its allow list). Each module
+# lints itself with `cd <module> && golangci-lint run ./...`.
+#
+# Deliberate divergences from the root config:
+#   - depguard (deny-only): cqrs-htmx/setup/v4 must never be imported —
+#     setup consumes appkit, never the reverse (SUPERB v4 C3)
+#   - no arangolint / clickhouselint: no database driver code in this module
+run:
+  timeout: 5m
+  go: "1.27.3"
+  allow-parallel-runners: true
+  allow-serial-runners: true
+  issues-exit-code: 1
+output:
+  formats: {}
+linters:
+  default: standard
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - canonicalheader
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - decorder
+    - depguard
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - embeddedstructfieldcheck
+    - err113
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exhaustruct_v5
+    - exptostd
+    - fatcontext
+    - forbidigo
+    - forcetypeassert
+    - funlen
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecknoglobals
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godoclint
+    - godot
+    - godox
+    - goheader
+    - gomoddirectives
+    - gomodguard_v2
+    - goprintffuncname
+    - gosec
+    - gosmopolitan
+    - govet
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - ineffassign
+    - interfacebloat
+    - intrange
+    - iotamixing
+    - ireturn
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - misspell
+    - mnd
+    - modernize
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - nlreturn
+    - noctx
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - sqlclosecheck
+    - staticcheck
+    - tagalign
+    - tagliatelle
+    - testableexamples
+    - testifylint
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - unqueryvet
+    - unused
+    - usestdlibvars
+    - usetesting
+    - varnamelen
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - wsl_v5
+    - zerologlint
+  disable:
+    - noinlineerr
+  settings:
+    depguard:
+      rules:
+        no-cqrs-htmx-setup:
+          deny:
+            - pkg: github\.com/larsartmann/cqrs-htmx/setup/v4
+              desc: setup is NEVER a dependency of appkit — the direction is setup → appkit (SUPERB v4 C3)
+    cyclop:
+      max-complexity: 12
+    funlen:
+      lines: 200
+      statements: 100
+    ginkgolinter:
+      forbid-focus-container: true
+      forbid-spec-pollution: true
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+    gomoddirectives:
+      replace-local: true
+    gosec:
+      excludes:
+        - G304
+        - G115
+    ireturn:
+      allow:
+        - error
+        - empty
+        - anon
+        - stdlib
+        - generic
+    makezero:
+      always: true
+    mnd:
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "100"
+    revive:
+      rules:
+        - disabled: true
+          name: exported
+        - disabled: true
+          name: package-comments
+    # align:false is deliberate: this module's public tag grammar mixes
+    # present/absent keys (required fields carry no default), where tagalign's
+    # align mode (collapse absent keys) and the golines formatter's
+    # realign-tags (pad absent keys) produce incompatible canonical forms.
+    # Sort order (default before env) stays enforced; spacing belongs to the
+    # formatter. Probed 2026-11-06: align:false accepts the golines form and
+    # still flags env-before-default.
+    tagalign:
+      align: false
+    testifylint:
+      disable:
+        - go-require
+      enable-all: true
+    varnamelen:
+      ignore-map-index-ok: true
+      ignore-names:
+        - err
+        - ok
+        - tt
+        - fn
+        - t
+        - i
+        - m
+        - g
+        - a
+        - b
+        - v
+        - w
+        - r
+        - f
+        - p
+        - tc
+      ignore-type-assert-ok: true
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
+        # go-error-family IS the wrapping layer — its constructors are the
+        # sanctioned terminal forms (v2.15.0 wrapcheck drift, 2026-11-07).
+        - Newf(
+        - NewRejection(
+        - WrapInfrastructuref(
+        - WrapInfrastructure(
+        - WrapRejection(
+        - WrapRejectionf(
+  exclusions:
+    generated: lax
+    rules:
+      - path: _test\.go
+        linters:
+          - mnd
+          - exhaustruct_v5
+          - err113
+          - paralleltest
+          - gochecknoglobals
+          - goconst
+          - varnamelen
+          - wsl_v5
+          - funlen
+          - cyclop
+          - testpackage
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - \.gen\.go$
+      - _templ\.go$
+      - vendor/
+formatters:
+  enable:
+    - gci
+    - goimports
+    - gofumpt
+    - golines
+  settings:
+    golines:
+      max-len: 120
+  exclusions:
+    generated: lax
+    paths:
+      - _templ\.go$
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10

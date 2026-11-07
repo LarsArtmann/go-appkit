@@ -38,6 +38,7 @@ jobs:
           ./flightrecorderhealth,
           ./errorpages,
           ./config,
+          ./httpx,
           ./preset,
           ./docs,
           ./integration,

@@ -8,9 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	errorfamily "github.com/larsartmann/go-error-family"
-
 	"github.com/larsartmann/go-appkit/httpx"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // leakingInfra is a raw server-side error carrying every standing leak
@@ -88,7 +87,7 @@ func TestSanitize_ClientFacingTextScrubbed(t *testing.T) {
 func TestSanitize_ExplicitOptOuts(t *testing.T) {
 	t.Parallel()
 
-	vouched := publicVoucher{
+	vouched := publicMessageError{
 		err:    leakingDetail(),
 		public: "the export is not ready yet",
 	}
@@ -100,20 +99,20 @@ func TestSanitize_ExplicitOptOuts(t *testing.T) {
 	// The same raw error without the vouch defaults by family: the
 	// Message() method on classified errors must not smuggle text past
 	// the gate.
-	cleaned := cleanVoucher{err: leakingDetail(), message: "export queued"}
+	cleaned := cleanMessageError{err: leakingDetail(), message: "export queued"}
 
 	if got := httpx.SanitizeErrorMessage(cleaned); got == "export queued" {
 		t.Error("Message() must not bypass the family gate")
 	}
 }
 
-func (c cleanVoucher) Error() string { return c.err.Error() }
+func (c cleanMessageError) Error() string { return c.err.Error() }
 
-func (c cleanVoucher) Message() string { return c.message }
+func (c cleanMessageError) Message() string { return c.message }
 
-func (p publicVoucher) Error() string { return p.err.Error() }
+func (p publicMessageError) Error() string { return p.err.Error() }
 
-func (p publicVoucher) Public() string { return p.public }
+func (p publicMessageError) Public() string { return p.public }
 
 // End to end: the error body on the wire carries the sanitized message
 // and never the raw internals.
@@ -149,12 +148,12 @@ func TestWriteError_NoLeakOnTheWire(t *testing.T) {
 	}
 }
 
-type cleanVoucher struct {
+type cleanMessageError struct {
 	err     error
 	message string
 }
 
-type publicVoucher struct {
+type publicMessageError struct {
 	err    error
 	public string
 }

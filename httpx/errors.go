@@ -36,7 +36,7 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 
 	family := errorfamily.Classify(err)
 
-	resp := errorResponse{
+	resp := errorResponse{ //nolint:exhaustruct_v5 // Why and Fix are set conditionally below, from the classification
 		Family:  family.String(),
 		Code:    errorfamily.Code(err),
 		Message: SanitizeErrorMessage(err),
@@ -51,5 +51,7 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 
 	w.WriteHeader(errorfamily.HTTPStatus(err))
 
-	_ = json.NewEncoder(w).Encode(resp)
+	// The status line is already committed; an encode failure here means
+	// the client is gone, and there is no honest recovery.
+	_ = json.NewEncoder(w).Encode(resp) //nolint:errchkjson // the contract types are plain strings; failure is connection death
 }
