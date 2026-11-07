@@ -191,8 +191,8 @@ func TestWithOTLP_ExportsSpansToEndpoint(t *testing.T) {
 		t.Errorf("exported service.name = %q (found=%v), want otlp-svc", got.AsString(), ok)
 	}
 
-	if got, ok := resAttrs.Value(attribute.Key("deployment.environment")); !ok || got.AsString() != "staging" {
-		t.Errorf("exported deployment.environment = %q (found=%v), want staging", got.AsString(), ok)
+	if got, ok := resAttrs.Value(attribute.Key("deployment.environment.name")); !ok || got.AsString() != "staging" {
+		t.Errorf("exported deployment.environment.name = %q (found=%v), want staging", got.AsString(), ok)
 	}
 
 	err = provider.Shutdown(t.Context())
@@ -468,7 +468,7 @@ func TestSetup_ExplicitMetricReaderBeatsOTLP(t *testing.T) {
 // configuration still wins on conflict.
 func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
 	exporter := &tracetest.InMemoryExporter{}
-	t.Setenv("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment=qa-team,region=eu-1")
+	t.Setenv("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment.name=qa-team,region=eu-1")
 
 	provider, err := Setup(
 		WithService("env-resource-svc", "", ""),
@@ -493,9 +493,9 @@ func TestSetup_ResourceFromEnvFillsGaps(t *testing.T) {
 	}
 
 	resAttrs := attribute.NewSet(spans[0].Resource.Attributes()...)
-	if got, ok := resAttrs.Value(attribute.Key("deployment.environment")); !ok || got.AsString() != "qa-team" {
+	if got, ok := resAttrs.Value(attribute.Key("deployment.environment.name")); !ok || got.AsString() != "qa-team" {
 		t.Errorf(
-			"deployment.environment = %q (found=%v), want qa-team from OTEL_RESOURCE_ATTRIBUTES",
+			"deployment.environment.name = %q (found=%v), want qa-team from OTEL_RESOURCE_ATTRIBUTES",
 			got.AsString(),
 			ok,
 		)

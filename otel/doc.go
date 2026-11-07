@@ -35,7 +35,7 @@
 //	OTEL_SERVICE_NAME=orders-api
 //	OTEL_TRACES_SAMPLER=parentbased_traceidratio   # optional
 //	OTEL_TRACES_SAMPLER_ARG=0.1                    # optional
-//	OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production
+//	OTEL_RESOURCE_ATTRIBUTES=deployment.environment.name=production
 //
 // Explicit code options win per signal, so partial migrations are safe.
 // [WithOTLPHeaders] carries SigNoz Cloud's signoz-ingestion-key. A

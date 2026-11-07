@@ -15,7 +15,7 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.43.0"
 )
 
 // SetupOption configures the provider setup.
@@ -49,8 +49,10 @@ func WithService(name, version, instanceID string) SetupOption {
 }
 
 // WithEnvironment records the deployment environment ("production",
-// "staging", ...) as the deployment.environment resource attribute — the
-// dimension SigNoz filters services and exceptions by.
+// "staging", ...) as the deployment.environment.name resource attribute —
+// the dimension SigNoz filters services and exceptions by. The key follows
+// the semconv 1.27.0 rename from deployment.environment; SigNoz dual-reads
+// both spellings, so saved filters on the old key keep resolving.
 func WithEnvironment(name string) SetupOption {
 	return func(c *setupConfig) {
 		c.environment = name
@@ -400,7 +402,7 @@ func buildResource(cfg *setupConfig) (*resource.Resource, error) {
 	}
 
 	if cfg.environment != "" {
-		attrs = append(attrs, semconv.DeploymentEnvironment(cfg.environment))
+		attrs = append(attrs, semconv.DeploymentEnvironmentNameKey.String(cfg.environment))
 	}
 
 	res, err := resource.New(

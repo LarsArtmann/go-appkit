@@ -214,7 +214,7 @@ See `example/main.go` for the full loop (the `/slow` route fires captures).
 - `Setup(WithSampler(sdktrace.TraceIDRatioBased(0.1)))` — head sampling in
   code; without it, `OTEL_TRACES_SAMPLER`/`_ARG` configure sampling from the
   deployment (default: parent-based always-sample).
-- `Setup(WithEnvironment("production"))` — the `deployment.environment`
+- `Setup(WithEnvironment("production"))` — the `deployment.environment.name`
   resource attribute SigNoz filters by; `OTEL_RESOURCE_ATTRIBUTES` works too.
 - `Setup(WithoutGlobalRegistration())` — isolated providers for tests and
   multi-service processes.
@@ -316,12 +316,17 @@ README's observability section.
   and answers 500; the outer placement of `Middleware` (`OuterMiddlewares`)
   means both sit inside the span. The `http.ErrAbortHandler` sentinel
   re-panics untouched, matching httputil.Recovery.
-- **Semantic conventions pin**: semconv **v1.26.0**, imported explicitly
-  (`setup.go`) — one version behind upstream (v1.43.0 shipped) ON PURPOSE:
-  SigNoz's default filter key is still the old `deployment.environment` this
-  module emits; the new `deployment.environment.name` key would break the
-  dashboard filter until SigNoz flips its default. Re-pin + rename together
-  when it does (watch tracked in TODO_LIST).
+- **Semantic conventions pin**: semconv **v1.43.0**, imported explicitly
+  (`setup.go`) — the latest published convention set at the time of writing.
+  The `deployment.environment` → `deployment.environment.name` rename
+  (official since semconv 1.27.0) shipped here 2026-11-07: the module now
+  emits the NEW key everywhere (`WithEnvironment` and the
+  `OTEL_RESOURCE_ATTRIBUTES` example), matching SigNoz main, which treats
+  `.name` as current and dual-reads the old spelling through its query
+  merger — saved filters on the old key keep resolving. Consumers pinning a
+  SigNoz release OLDER than the dual-reading merger should migrate their
+  filters to `.name` alongside the bump. Re-pin + rename together remains
+  the rule for future key renames (watch tracked in TODO_LIST).
 - **Exemplars + cardinality** (SDK defaults, called out here so they are
   discoverable): the metric provider ships `exemplar.TraceBasedFilter` —
   spans in the measurement context become exemplars on

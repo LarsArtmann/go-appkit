@@ -25,10 +25,10 @@ spec:
               value: http://signoz-otel-collector.observability:4318
             - name: OTEL_SERVICE_NAME
               value: orders-api
-            # deployment.environment feeds SigNoz's environment filter
+            # deployment.environment.name feeds SigNoz's environment filter
             # (the same attribute appkitotel.WithEnvironment sets in code).
             - name: OTEL_RESOURCE_ATTRIBUTES
-              value: deployment.environment=production
+              value: deployment.environment.name=production
             # Head sampling at 10% (optional — default samples everything):
             - name: OTEL_TRACES_SAMPLER
               value: parentbased_traceidratio
@@ -66,7 +66,7 @@ services:
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://signoz-otel-collector:4318
       OTEL_SERVICE_NAME: orders-api
-      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=staging
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=staging
     ports:
       - "8080:8080"
 
