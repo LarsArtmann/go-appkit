@@ -120,8 +120,8 @@ func TestResultHandler_ClassifiedErrorMapsStatus(t *testing.T) {
 		t.Fatalf("decode error body %q: %v", rec.Body.String(), err)
 	}
 
-	if body.Family != "Rejection" {
-		t.Errorf("family = %q, want Rejection", body.Family)
+	if body.Family != "rejection" {
+		t.Errorf("family = %q, want rejection", body.Family)
 	}
 
 	if body.Code == "" {

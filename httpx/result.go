@@ -68,7 +68,7 @@ func ResultHandler[T any](fn func(c *Context) (T, error)) http.Handler {
 // JSON 200 otherwise. Called only when the handler function has not
 // written its own response (the caller checks the recording writer).
 func writeResult(c *Context, result any) {
-	if isNilResult(result) {
+	if isNilValue(result) {
 		c.ResponseWriter.WriteHeader(http.StatusNoContent)
 
 		return
@@ -82,11 +82,18 @@ func writeResult(c *Context, result any) {
 	_ = json.NewEncoder(c.ResponseWriter).Encode(result)
 }
 
-// isNilResult reports whether the happy path carries no payload: a nil
-// pointer of any type (including typed nils like (*Thing)(nil)). Values of
-// non-pointer kinds always serialize — an empty struct is information.
-func isNilResult[T any](result T) bool {
-	rv := reflect.ValueOf(&result).Elem()
+// isNilValue reports whether the happy path carries no payload: an
+// untyped nil or a nil pointer of any type (including typed nils like
+// (*Thing)(nil)). Values of non-pointer kinds always serialize — an
+// empty struct is information. Takes any (not a generic T) because the
+// writeResult boundary erases the type parameter: a generic would see
+// Kind Interface there and never detect the nil.
+func isNilValue(v any) bool {
+	if v == nil {
+		return true
+	}
+
+	rv := reflect.ValueOf(v)
 
 	return rv.Kind() == reflect.Pointer && rv.IsNil()
 }
