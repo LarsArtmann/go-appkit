@@ -1,0 +1,5 @@
+module github.com/larsartmann/go-appkit/httpx
+
+go 1.27.3
+
+require github.com/larsartmann/go-error-family v0.12.0
