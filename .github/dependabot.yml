@@ -91,6 +91,16 @@ updates:
           - minor
           - patch
   - package-ecosystem: gomod
+    directory: /httpx
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+  - package-ecosystem: gomod
     directory: /otel
     schedule:
       interval: weekly

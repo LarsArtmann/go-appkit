@@ -26,11 +26,12 @@ const redactedMarker = "[redacted]"
 //
 //   - An explicit Public() string wins (the error author vouches for the
 //     text; the same opt-out errorpages honors).
-//   - An explicit Message() string wins next (the error author supplies a
-//     pre-cleaned message).
 //   - Client-facing families (Rejection, Conflict) keep the error's own
 //     text — "field email is required" IS the API response — with the
-//     leak patterns scrubbed.
+//     leak patterns scrubbed. The Message() method classified errors
+//     carry is deliberately NOT honored here: it would let authored text
+//     bypass the scrub, and the Public() escape hatch already covers the
+//     deliberate-exception case.
 //   - Every other family (the server-side families: Transient,
 //     Corruption, Infrastructure, Orchestration, and anything unclassifiable)
 //     gets the family's default message. Raw internal error text (paths,
@@ -48,12 +49,6 @@ func SanitizeErrorMessage(err error) string {
 		if public := m.Public(); public != "" {
 			return public
 		}
-	}
-
-	type cleanMessenger interface{ Message() string }
-
-	if m, ok := err.(cleanMessenger); ok {
-		return m.Message()
 	}
 
 	family := errorfamily.Classify(err)

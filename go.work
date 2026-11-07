@@ -15,6 +15,7 @@ use (
 	./flightrecorder
 	./flightrecorderhealth
 	./health
+	./httpx
 	./otel
 	./preset
 	./realtime

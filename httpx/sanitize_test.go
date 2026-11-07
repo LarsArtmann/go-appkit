@@ -80,9 +80,11 @@ func TestSanitize_ClientFacingTextScrubbed(t *testing.T) {
 	}
 }
 
-// The explicit opt-outs win, mirroring errorpages' ladder: Public() is
-// vouched-for text and reaches the client verbatim; Message() is a
-// pre-cleaned message.
+// The explicit opt-out wins, mirroring errorpages' Public() ladder:
+// vouched-for text reaches the client verbatim. The Message() method
+// classified errors carry is deliberately NOT honored (it would let
+// authored text bypass the scrub; Public() is the deliberate-exception
+// hatch).
 func TestSanitize_ExplicitOptOuts(t *testing.T) {
 	t.Parallel()
 
@@ -95,10 +97,13 @@ func TestSanitize_ExplicitOptOuts(t *testing.T) {
 		t.Errorf("Public() opt-out = %q, want the vouched text verbatim", got)
 	}
 
+	// The same raw error without the vouch defaults by family: the
+	// Message() method on classified errors must not smuggle text past
+	// the gate.
 	cleaned := cleanVoucher{err: leakingDetail(), message: "export queued"}
 
-	if got := httpx.SanitizeErrorMessage(cleaned); got != "export queued" {
-		t.Errorf("Message() opt-out = %q, want the pre-cleaned text", got)
+	if got := httpx.SanitizeErrorMessage(cleaned); got == "export queued" {
+		t.Error("Message() must not bypass the family gate")
 	}
 }
 
