@@ -4,6 +4,18 @@
 
 ### Changed
 
+- semconv re-pin **v1.26.0 → v1.43.0** (latest published convention set)
+  WITH the `deployment.environment` → `deployment.environment.name` rename
+  shipped TOGETHER, per the module's own re-pin rule: the rename has been
+  official since semconv 1.27.0, and SigNoz main treats `.name` as current
+  (frontend `semconvFamilies.gen.ts`, query builder, log pipeline) with a
+  dual-reading merger so saved filters on the old spelling keep resolving
+  (probed 2026-11-07, TODO_LIST watch row). `WithEnvironment` now emits
+  `deployment.environment.name`; `OTEL_RESOURCE_ATTRIBUTES` examples
+  (doc.go, deploy.md, README) use the new key; the wire-level pins in
+  `otlp_test.go` assert the new attribute. Consumers on a SigNoz release
+  OLDER than the dual-reading merger should migrate filters to `.name`
+  alongside the bump (README semconv bullet carries the note).
 - `appkitotel.Recovery` now DELEGATES to `httputil.RecoveryWithConfig`
   (v1.6.0's `OnPanic` hook — built for exactly this integration after the
   custom middleware predates it) with `recordPanic` moved into the hook.
