@@ -16,6 +16,21 @@ import (
 	"github.com/larsartmann/httputil"
 )
 
+// activeServe is the current serve's delegated http.Server ownership: appkit
+// binds and classifies, httputil owns the server loop (timeouts, graceful
+// drain, the future TLS seam). A fresh instance is built for every Start —
+// httputil's single-serve ownership consumes the listener when a serve ends
+// (server.listener_consumed), so a handle is never reused across serves.
+type activeServe struct {
+	srv *httputil.Server
+
+	// graceful is closed by Shutdown once the delegated Shutdown call has
+	// returned: the signal resolves the nil-on-graceful branch of the serve
+	// errCh contract, which httputil's error channel cannot express (it only
+	// delivers failures).
+	graceful chan struct{}
+}
+
 // Service is a production-ready HTTP service with middleware, health checks,
 // structured logging, and graceful shutdown.
 type Service struct {
@@ -24,8 +39,9 @@ type Service struct {
 	Logger *slog.Logger
 	Mux    *http.ServeMux
 
-	server     *http.Server
+	handler    http.Handler
 	ln         net.Listener
+	serve      *activeServe
 	readyProbe atomic.Bool
 	mu         sync.RWMutex
 }
@@ -47,7 +63,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 
 	mux := http.NewServeMux()
 
-	svc := &Service{ //nolint:exhaustruct_v5 // server, ln, readyProbe, mu are deliberate zero values
+	svc := &Service{ //nolint:exhaustruct_v5 // handler, ln, serve, readyProbe, mu are deliberate zero values
 		cfg:    cfg,
 		Logger: logger,
 		Mux:    mux,
@@ -87,16 +103,25 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 	}
 
 	wrapped := httputil.Chain(mux, mws...)
-
-	svc.server = &http.Server{
-		Handler:           wrapped,
-		ReadTimeout:       serverTimeout(cfg.ReadTimeout),
-		ReadHeaderTimeout: cfg.ReadHeaderTimeout,
-		WriteTimeout:      serverTimeout(cfg.WriteTimeout),
-		IdleTimeout:       cfg.IdleTimeout,
-	}
+	svc.handler = wrapped
 
 	return svc, nil
+}
+
+// serverConfig maps the service config onto the delegated server's config:
+// every timeout field passes through unchanged except the NoTimeout sentinel,
+// which becomes 0 (the stdlib's "no deadline"), and ShutdownTimeout, which
+// carries the SAME config field that Shutdown uses for its context deadline
+// so the effective drain deadline has exactly one source of truth.
+func (s *Service) serverConfig(addr string) httputil.ServerConfig {
+	return httputil.ServerConfig{
+		Addr:              addr,
+		ReadTimeout:       serverTimeout(s.cfg.ReadTimeout),
+		ReadHeaderTimeout: s.cfg.ReadHeaderTimeout,
+		WriteTimeout:      serverTimeout(s.cfg.WriteTimeout),
+		IdleTimeout:       s.cfg.IdleTimeout,
+		ShutdownTimeout:   s.cfg.ShutdownTimeout,
+	}
 }
 
 // Start creates the listener, runs the StartHooks (post-listen, pre-serve),
@@ -111,8 +136,26 @@ func (s *Service) Start() (<-chan error, error) {
 		return nil, errorfamily.WrapInfrastructuref(err, "server.listen_failed", "listen on %s", s.cfg.Addr)
 	}
 
+	// The delegated server is constructed before the hooks: NewServerListener
+	// is pure (it validates and wraps, never binds or serves), so a config
+	// the delegated server rejects surfaces synchronously here, before any
+	// observable lifecycle state exists. The listener stays untouched on
+	// error and is closed again below.
+	delegated, err := httputil.NewServerListener(listener, s.serverConfig(listener.Addr().String()), s.handler)
+	if err != nil {
+		_ = listener.Close()
+
+		return nil, errorfamily.Newf(
+			errorfamily.Rejection,
+			"server.config_invalid",
+			"server configuration rejected: %v",
+			err,
+		)
+	}
+
 	s.mu.Lock()
 	s.ln = listener
+	s.serve = &activeServe{srv: delegated, graceful: make(chan struct{})}
 	s.mu.Unlock()
 
 	// Start hooks run after the listener is bound (Addr and Running
@@ -126,6 +169,7 @@ func (s *Service) Start() (<-chan error, error) {
 	if hooksErr != nil {
 		s.mu.Lock()
 		s.ln = nil
+		s.serve = nil
 		s.mu.Unlock()
 
 		_ = listener.Close()
@@ -136,16 +180,30 @@ func (s *Service) Start() (<-chan error, error) {
 	s.logStartupPhase("start_hooks", phaseStart)
 
 	errCh := make(chan error, 1)
+	rawCh := delegated.Start()
+	graceful := s.serve.graceful
 
 	go func() {
-		serveErr := s.server.Serve(listener)
-		if serveErr != nil && !errors.Is(serveErr, http.ErrServerClosed) {
+		// httputil's channel delivers ONLY serve failures (a graceful close
+		// sends nothing), so the graceful branch is driven by Shutdown closing
+		// the graceful channel. The non-blocking peek first gives a failure
+		// that already arrived priority over a graceful signal closing in the
+		// same instant; after the peek, whichever fires first wins, and the
+		// buffered send guarantees exactly one value on errCh.
+		select {
+		case serveErr := <-rawCh:
 			errCh <- errorfamily.WrapInfrastructuref(serveErr, "server.serve_failed", "serve failed")
 
 			return
+		default:
 		}
 
-		errCh <- nil
+		select {
+		case serveErr := <-rawCh:
+			errCh <- errorfamily.WrapInfrastructuref(serveErr, "server.serve_failed", "serve failed")
+		case <-graceful:
+			errCh <- nil
+		}
 	}()
 
 	return errCh, nil
@@ -190,7 +248,9 @@ func (s *Service) Shutdown(ctx context.Context) error {
 
 	s.mu.Lock()
 	ln := s.ln
+	serve := s.serve
 	s.ln = nil
+	s.serve = nil
 	s.mu.Unlock()
 
 	if ln == nil {
@@ -230,10 +290,16 @@ func (s *Service) Shutdown(ctx context.Context) error {
 
 	phaseStart = time.Now()
 
-	err := s.server.Shutdown(ctx)
+	err := serve.srv.Shutdown(ctx)
 	if err != nil {
 		err = errorfamily.WrapInfrastructuref(err, "server.shutdown_failed", "shutdown failed")
 	}
+
+	// Closed regardless of the shutdown result: even a deadline-expired
+	// delegated Shutdown has already closed the listener, so the serve loop
+	// ends with http.ErrServerClosed (which httputil's channel never reports)
+	// and the nil-on-graceful branch must resolve exactly as on a clean stop.
+	close(serve.graceful)
 
 	s.logPhase("listener_close", phaseStart)
 

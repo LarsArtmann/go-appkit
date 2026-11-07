@@ -28,16 +28,16 @@ func TestNoTimeout_DisablesServerDeadline(t *testing.T) {
 
 	defer func() { _ = svc.Close() }()
 
-	if svc.server.ReadTimeout != 0 {
-		t.Errorf("server.ReadTimeout = %v, want 0 (no deadline)", svc.server.ReadTimeout)
+	if got := svc.serverConfig(":8080").ReadTimeout; got != 0 {
+		t.Errorf("serverConfig.ReadTimeout = %v, want 0 (NoTimeout maps to no deadline)", got)
 	}
 
-	if svc.server.WriteTimeout != 0 {
-		t.Errorf("server.WriteTimeout = %v, want 0 (no deadline)", svc.server.WriteTimeout)
+	if got := svc.serverConfig(":8080").WriteTimeout; got != 0 {
+		t.Errorf("serverConfig.WriteTimeout = %v, want 0 (NoTimeout maps to no deadline)", got)
 	}
 
-	if svc.server.ReadHeaderTimeout != 5*time.Second {
-		t.Errorf("server.ReadHeaderTimeout = %v, want 5s (reaping stays on)", svc.server.ReadHeaderTimeout)
+	if got := svc.serverConfig(":8080").ReadHeaderTimeout; got != 5*time.Second {
+		t.Errorf("serverConfig.ReadHeaderTimeout = %v, want 5s (reaping stays on)", got)
 	}
 
 	if svc.cfg.ReadTimeout != NoTimeout || svc.cfg.WriteTimeout != NoTimeout {
@@ -69,7 +69,7 @@ func TestNoTimeout_NoRequestContextDeadline(t *testing.T) {
 
 	rec := httptestNewRecorder()
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/deadline", nil)
-	svc.server.Handler.ServeHTTP(rec, req)
+	svc.handler.ServeHTTP(rec, req)
 	assertStatus(t, rec, http.StatusOK)
 }
 
