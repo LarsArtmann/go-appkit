@@ -137,7 +137,9 @@ func TestResultHandlerWithValidation_ValidatorRejection(t *testing.T) {
 	})
 
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/things", strings.NewReader(`{"count":3}`)))
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/things", strings.NewReader(`{"count":3}`))
+
+	handler.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400 (validator Rejection)", rec.Code)

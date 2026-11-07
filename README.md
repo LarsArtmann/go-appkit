@@ -350,7 +350,7 @@ Go >= 1.27.3 (every module's go.mod declares `go 1.27.3`; on older default
 toolchains prefix commands with `GOTOOLCHAIN=go1.27.3`):
 
 ```bash
-go test ./...            # workspace: builds + tests the 13 member modules
+go test ./...            # workspace: builds + tests the 14 member modules
 GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
 ```
 

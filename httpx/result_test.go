@@ -73,8 +73,9 @@ func TestResultHandler_DirectWriteTakesOwnership(t *testing.T) {
 	handler := httpx.ResultHandler(func(c *httpx.Context) (string, error) {
 		flusher := http.NewResponseController(c.ResponseWriter)
 
-		if err := flusher.Flush(); err != nil {
-			return "", err
+		flushErr := flusher.Flush()
+		if flushErr != nil {
+			return "", flushErr //nolint:wrapcheck // test passthrough
 		}
 
 		_, _ = c.ResponseWriter.Write([]byte("streamed"))

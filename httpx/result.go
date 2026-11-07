@@ -21,6 +21,7 @@ type resultWriter struct {
 func (w *resultWriter) Write(b []byte) (int, error) {
 	w.didWrite = true
 
+	//nolint:wrapcheck // the wrapper IS the pass-through by design; the handler decides on errors
 	return w.ResponseWriter.Write(b)
 }
 
