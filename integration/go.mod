@@ -4,18 +4,18 @@ go 1.27.3
 
 require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.15.0
-	github.com/larsartmann/go-appkit v0.10.0
+	github.com/larsartmann/go-appkit v0.11.0
 	github.com/larsartmann/go-appkit/cqrs v0.8.0
 	github.com/larsartmann/go-appkit/docs v0.3.3
-	github.com/larsartmann/go-appkit/errorpages v0.1.2
+	github.com/larsartmann/go-appkit/errorpages v0.1.3
 	github.com/larsartmann/go-appkit/flightrecorder v0.2.0
 	github.com/larsartmann/go-appkit/flightrecorderhealth v0.1.7
-	github.com/larsartmann/go-appkit/health v0.3.1
+	github.com/larsartmann/go-appkit/health v0.3.2
 	github.com/larsartmann/go-appkit/otel v0.3.0
 	github.com/larsartmann/go-appkit/preset v0.1.0
 	github.com/larsartmann/go-appkit/realtime v0.1.3
 	github.com/larsartmann/go-appkit/security v0.2.0
-	github.com/larsartmann/go-appkit/systemd v0.1.0
+	github.com/larsartmann/go-appkit/systemd v0.1.1
 	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.11.0
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.14.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.8.0
