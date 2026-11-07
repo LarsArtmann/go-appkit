@@ -72,11 +72,16 @@ else
 fi
 
 echo "== fresh consumer: $module@$version (snippet: ${snippet:-blank import}) =="
-(cd "$scratch" &&
-	GOWORK=off \
-		GOTOOLCHAIN="go$floor" \
-		GOPROXY=https://proxy.golang.org \
-		GOMODCACHE="$(mktemp -d /tmp/verify-consumer-cache-XXXXXX)" \
-		go mod tidy >/dev/null &&
-	GOWORK=off GOTOOLCHAIN="go$floor" go build ./...)
+# tidy and build MUST share one env: one GOPROXY, one FRESH GOMODCACHE.
+# A split (build inheriting machine defaults) resolves the tag twice
+# through different paths — and when a tag ever moves between resolution
+# and build, or the shared cache holds a stale zip, you get a phantom
+# SECURITY ERROR: checksum mismatch (the 2026-11-07 four-tag wave hit).
+# GOPRIVATE stays machine-default on purpose: the fleet resolves via VCS.
+consumer_cache="$(mktemp -d /tmp/verify-consumer-cache-XXXXXX)"
+export GOWORK=off
+export GOTOOLCHAIN="go$floor"
+export GOPROXY=https://proxy.golang.org
+export GOMODCACHE="$consumer_cache"
+(cd "$scratch" && go mod tidy >/dev/null && go build ./...)
 echo "OK: $module@$version serves the consumer surface as published"
