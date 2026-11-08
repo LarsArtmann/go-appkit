@@ -50,7 +50,7 @@ func WriteDeadline(d time.Duration, prefixes ...string) func(http.Handler) http.
 					"httpx.write_deadline_unreachable",
 					"extending the write deadline failed: the ResponseWriter chain hides the connection "+
 						"(a wrapper above this middleware neither forwards the deadline controls nor Unwrap)",
-				))
+				).WithHTTPStatus(http.StatusInternalServerError)) // wiring bug, not an outage: 500, not the family's 503
 
 				return
 			}

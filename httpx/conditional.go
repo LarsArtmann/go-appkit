@@ -115,8 +115,8 @@ func SetLastModified(w http.ResponseWriter, t time.Time) {
 type imsWriter struct {
 	http.ResponseWriter
 
-	req    *http.Request
-	decided bool
+	req      *http.Request
+	decided  bool
 	suppress bool
 }
 

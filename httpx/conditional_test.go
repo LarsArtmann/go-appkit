@@ -118,7 +118,7 @@ func TestConditional_IfModifiedSince(t *testing.T) {
 	t.Cleanup(srv.Close)
 
 	cases := []struct {
-		name string
+		name  string
 		since time.Time
 		want  int
 	}{
