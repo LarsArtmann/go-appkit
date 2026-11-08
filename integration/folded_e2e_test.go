@@ -116,7 +116,7 @@ func dispatchAddThing(es *cqrs.EventService) http.HandlerFunc {
 			return
 		}
 
-		if dispErr := es.Dispatch(context.WithoutCancel(r.Context()), cmd); dispErr != nil {
+		if dispErr := es.Dispatch(r.Context(), cmd); dispErr != nil {
 			http.Error(w, dispErr.Error(), http.StatusInternalServerError)
 
 			return
@@ -170,10 +170,11 @@ func newFoldedHarness(t *testing.T, proj projection.Projection) *foldedHarness {
 		t.Fatalf("host.Register(marker projection): %v", err)
 	}
 
-	startCtx, startCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer startCancel()
-
-	if err = es.StartProjections(startCtx); err != nil {
+	// The Start context OUTLIVES this helper: the projection host derives its
+	// run context from it, so a deferred cancel here would kill the workers
+	// the moment the harness returns. es.Shutdown (a service ShutdownHook,
+	// run by testkit.Serve's cleanup) stops the host.
+	if err = es.StartProjections(context.Background()); err != nil {
 		t.Fatalf("StartProjections: %v", err)
 	}
 
