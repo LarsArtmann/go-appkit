@@ -95,6 +95,25 @@ integration, E2E through published tags per the pin charter):
 - Negative control: a naive notify-before-fold wiring must FAIL the same
   assertion (the test only discriminates if the wrong wiring fails it).
 
+> **ERRATUM 2026-11-08 (control mechanism superseded):** the originally
+> envisioned control held the fold open with a BLOCKING gate inside Handle.
+> That mechanism is unimplementable on the live engine: watermill's
+> `GoChannel.Publish` is synchronous — it waits for the projection worker
+> to take the message — so an indefinitely-blocking `Handle`
+> back-pressures the entire command dispatch path (proven by goroutine
+> dump during the 2026-11-08 integration bring-up; `Dispatch` itself
+> deadlocked). The shipped control
+> (`integration/folded_e2e_test.go`, `TestFoldedContract_PreFold…`) keeps
+> the same discrimination with a NON-BLOCKING deferred marker: the naive
+> wrapper signals pre-fold, then defers its marker write until the test
+> has observed the stale broadcast (plus a 2s hard fallback so the fold
+> can never strand the engine). Determinism is preserved because
+> FoldedSource snapshots at signal receipt and the asserted SSE payload is
+> that frozen copy — the ordering chain snapshot → broadcast → read →
+> marker-write is total. The positive test is unchanged in spirit: the
+> payload of the broadcast for event E must contain the marker written by
+> E's fold.
+
 ## 5. Train plan (20.2)
 
 1. `cqrs` next train: `NotifyFolded` + `FoldedEvent` + the wrapper's

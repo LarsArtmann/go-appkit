@@ -65,7 +65,8 @@ func TestWriteDeadline_UncoveredRouteKeepsServerDeadline(t *testing.T) {
 
 	resp, err := postProbe(t, srv.URL+"/api/fast/run")
 	if err == nil {
-		func() { _ = resp.Body.Close() }()
+		_, _ = io.Copy(io.Discard, resp.Body)
+		_ = resp.Body.Close()
 		t.Fatal("the slow uncovered write SUCCEEDED — the server WriteTimeout never applied (control broken)")
 	}
 }

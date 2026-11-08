@@ -204,7 +204,7 @@ func newFoldedHarness(t *testing.T, proj projection.Projection) *foldedHarness {
 	}
 
 	if ct := stream.Header.Get("Content-Type"); ct != "text/event-stream" {
-		_ = stream.Body.Close()
+		_ = stream.Body.Close() //respdrain:ignore SSE stream — Close IS the disconnect
 		t.Fatalf("stream content-type = %q, want text/event-stream", ct)
 	}
 
@@ -224,7 +224,7 @@ func newFoldedHarness(t *testing.T, proj projection.Projection) *foldedHarness {
 	}
 
 	if !subscribed {
-		_ = stream.Body.Close()
+		_ = stream.Body.Close() //respdrain:ignore SSE stream — Close IS the disconnect
 		t.Fatal("SSE handler never subscribed to the hub")
 	}
 
