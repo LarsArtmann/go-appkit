@@ -45,7 +45,7 @@ func (w *probeWriter) Header() http.Header { return w.header }
 func (w *probeWriter) Write(b []byte) (int, error) {
 	w.writes = append(w.writes, b...)
 
-	return len(b), nil //nolint:wrapcheck // test probe
+	return len(b), nil
 }
 
 func (w *probeWriter) WriteHeader(status int) {
@@ -61,13 +61,13 @@ func (w *probeWriter) Flush() { w.flushes++ }
 func (w *probeWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	w.hijacked = true
 
-	return nil, nil, errNotAConnection //nolint:wrapcheck // test probe
+	return nil, nil, errNotAConnection
 }
 
 func (w *probeWriter) EnableFullDuplex() error {
 	w.fullDuplexAttempts++
 
-	return errNotAConnection //nolint:wrapcheck // test probe
+	return errNotAConnection
 }
 
 // AssertForwardsInterfaces fails the test when a ResponseWriter wrapper
@@ -91,11 +91,11 @@ func (w *probeWriter) EnableFullDuplex() error {
 // battery was cut for — the plain-embedding wrapper shape (the
 // notFoundInterceptor class) compiles clean, passes Recorder-based tests,
 // and fails here.
-func AssertForwardsInterfaces(t testing.TB, wrap func(base http.ResponseWriter) http.ResponseWriter) {
-	t.Helper()
+func AssertForwardsInterfaces(tb testing.TB, wrap func(base http.ResponseWriter) http.ResponseWriter) {
+	tb.Helper()
 
 	for _, finding := range ForwardingFindings(wrap) {
-		t.Error(finding)
+		tb.Error(finding)
 	}
 }
 
@@ -129,6 +129,7 @@ func ForwardingFindings(wrap func(base http.ResponseWriter) http.ResponseWriter)
 	}
 
 	wrapped.Header().Set("X-Probe", "1")
+
 	if base.header.Get("X-Probe") != "1" {
 		findings = append(findings, describe(wrapped)+" does not share the header map with the base")
 	}
@@ -140,12 +141,23 @@ func ForwardingFindings(wrap func(base http.ResponseWriter) http.ResponseWriter)
 	}
 
 	wrapped.WriteHeader(http.StatusTeapot)
+
 	if !base.wroteHeader || base.status != http.StatusTeapot {
 		findings = append(findings, describe(wrapped)+" swallowed WriteHeader (the base never saw the status)")
 	}
 
+	return append(findings, forwardingFindings(wrapped, base)...)
+}
+
+// forwardingFindings checks that the wrapper's own capability assertions
+// are honest — forwarding the calls, not just satisfying the types — and
+// that http.ResponseController can reach the base.
+func forwardingFindings(wrapped http.ResponseWriter, base *probeWriter) []string {
+	var findings []string
+
 	if flusher, ok := wrapped.(http.Flusher); ok {
 		flusher.Flush()
+
 		if base.flushes == 0 {
 			findings = append(
 				findings,
@@ -158,13 +170,15 @@ func ForwardingFindings(wrap func(base http.ResponseWriter) http.ResponseWriter)
 
 	if hijacker, ok := wrapped.(http.Hijacker); ok {
 		_, _, _ = hijacker.Hijack()
+
 		if !base.hijacked {
 			findings = append(findings, describe(wrapped)+" satisfies http.Hijacker but does not forward Hijack")
 		}
 	}
 
-	rc := http.NewResponseController(wrapped)
-	_ = rc.EnableFullDuplex()
+	controller := http.NewResponseController(wrapped)
+	_ = controller.EnableFullDuplex()
+
 	if base.fullDuplexAttempts == 0 {
 		findings = append(
 			findings,

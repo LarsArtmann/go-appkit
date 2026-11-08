@@ -39,7 +39,7 @@ func Negotiate(r *http.Request, offers ...string) string {
 
 	accept := r.Header.Get("Accept")
 
-	best := negotiationCandidate{index: -1}
+	best := negotiationCandidate{index: -1, quality: 0, specificity: 0}
 
 	for i, offer := range offers {
 		candidate := negotiationCandidate{

@@ -130,12 +130,12 @@ func (w honestWrapper) Flush() {
 }
 
 func (w honestWrapper) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	h, ok := w.ResponseWriter.(http.Hijacker)
+	hijacker, ok := w.ResponseWriter.(http.Hijacker)
 	if !ok {
 		return nil, nil, http.ErrNotSupported
 	}
 
-	return h.Hijack()
+	return hijacker.Hijack() //nolint:wrapcheck // pure delegation is the honest wrapper's contract
 }
 
 func (w honestWrapper) Unwrap() http.ResponseWriter { return w.ResponseWriter }

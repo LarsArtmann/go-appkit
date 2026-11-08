@@ -161,6 +161,7 @@ linters:
         - anon
         - stdlib
         - generic
+        - github.com/larsartmann/go-codec.Codec # the family codec contract — returning it IS the negotiation battery's interface (otel OTel-API precedent)
     makezero:
       always: true
     mnd:

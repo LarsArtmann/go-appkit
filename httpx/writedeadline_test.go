@@ -33,11 +33,7 @@ func TestWriteDeadline_ExtendsDeadlineForMatchingPrefixes(t *testing.T) {
 
 	srv.Start()
 
-	resp, err := http.Post(
-		srv.URL+"/api/agent/run",
-		"text/plain",
-		strings.NewReader("go"),
-	) //nolint:noctx // test server probe
+	resp, err := postProbe(t, srv.URL+"/api/agent/run")
 	if err != nil {
 		t.Fatalf("POST: %v", err)
 	}
@@ -67,11 +63,7 @@ func TestWriteDeadline_UncoveredRouteKeepsServerDeadline(t *testing.T) {
 
 	srv.Start()
 
-	resp, err := http.Post(
-		srv.URL+"/api/fast/run",
-		"text/plain",
-		strings.NewReader("go"),
-	) //nolint:noctx // test server probe
+	resp, err := postProbe(t, srv.URL+"/api/fast/run")
 	if err == nil {
 		func() { _ = resp.Body.Close() }()
 		t.Fatal("the slow uncovered write SUCCEEDED — the server WriteTimeout never applied (control broken)")
@@ -129,4 +121,16 @@ func TestWriteDeadline_NonMatchingPrefixPassesThrough(t *testing.T) {
 	if rec.Code != http.StatusTeapot {
 		t.Fatalf("status = %d, want the handler's untouched 418", rec.Code)
 	}
+}
+
+// postProbe is the noctx-safe POST helper for these deadline tests.
+func postProbe(t *testing.T, url string) (*http.Response, error) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, url, strings.NewReader("go"))
+	if err != nil {
+		t.Fatalf("build POST %s: %v", url, err)
+	}
+
+	return http.DefaultClient.Do(req) //nolint:wrapcheck // test helper
 }
