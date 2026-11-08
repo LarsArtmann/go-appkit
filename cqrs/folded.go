@@ -77,7 +77,7 @@ type FoldedNotifier struct {
 // hub's per-subscriber default); projection rebuilds fold many events in
 // bursts and drops are the documented behavior, not an error.
 func NotifyFolded(p projection.Projection, folded chan<- FoldedEvent) *FoldedNotifier {
-	return &FoldedNotifier{inner: p, folded: folded}
+	return &FoldedNotifier{inner: p, folded: folded, dropped: atomic.Uint64{}}
 }
 
 // Name forwards the wrapped projection's name.
@@ -90,6 +90,10 @@ func (n *FoldedNotifier) Name() string { return n.inner.Name() }
 func (n *FoldedNotifier) Handle(ctx context.Context, evt event.Event) error {
 	if err := n.inner.Handle(ctx, evt); err != nil {
 		return err //nolint:wrapcheck // the projection's own error is the honest pass-through
+	}
+
+	if n.folded == nil {
+		return nil // recording is off (the documented disable switch)
 	}
 
 	select {
