@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- `Install` now returns the `Hooks` value it wired into the config.
+  Signature change, source-compatible in practice: existing
+  `Install(&cfg)` call sites compile unchanged (Go discards added
+  return values in statement context). Rationale: a start path that
+  fails AFTER StartHooks already ran never reaches ShutdownHooks, so
+  nothing would stop the watchdog keepalive — keep the returned value
+  and call its `Shutdown` (the identical, idempotent hook already wired
+  into `cfg.ShutdownHooks`) on that path. Pinned by
+  `TestInstall_ReturnsTheWiredHooks`.
+
 ## [0.1.1] - 2026-11-07
 
 ### Added

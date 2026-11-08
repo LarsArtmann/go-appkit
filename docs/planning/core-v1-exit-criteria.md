@@ -117,3 +117,22 @@ criterion 1 is now ARMED (tree verified additions-empty vs v0.9.0; one
 quiet doc-only-or-no-op core tag starts the cycle); criterion 5 waits on
 PapDashboard's version refresh (external clock, guarded). This repo still
 needs nothing except restraint.
+
+## Graduation status — 2026-11-08 (post-v0.12.0: criterion 1 MET)
+
+Assessed against master (2026-11-08), both blockers re-checked against the
+released tag chain:
+
+| # | Criterion                                         | Status             | Evidence / gap                                                                                                                                                                                                                                                                                |
+| - | ------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | API frozen one minor cycle                        | MET                | The ARMED window reset once — v0.9.0→v0.10.0 was additions-only (RegisterClassifications + five testkit funcs), restarting the clock. Since then TWO consecutive additions-EMPTY diffs: v0.10.0→v0.11.0 (WrapOnce train, `go doc -all` proof, zero delta) and v0.11.0→v0.12.0 (the C1 httputil.Server composition swap, zero delta). That is one full frozen minor cycle — the anchor semantics hold, and any future core tag keeps the criterion only by staying additions-empty (or resets it). |
+| 5 | Two independent consumers, full cycle, no replace | NOT MET, UNCHANGED | setup/v4.17.0 (newest setup tag, published-tag verified) pins core v0.10.0 — which is API-IDENTICAL to latest (both v0.11.0 and v0.12.0 were zero-diff), so the surface overlap holds; PapDashboard v0.3.0 still pins core v0.4.0 (their refresh is their call; consumer-claims guard green). No observed joint release cycle yet — the sole remaining blocker. |
+
+All other criteria unchanged from the 2026-10-13 table (now 6/7 met; soft
+bar fully met).
+
+**Bottom line (2026-11-08):** criterion 1 is MET — the repo's half of
+v1.0.0 is done; criterion 5 (PapDashboard overlap + one observed joint
+release cycle) is the only remaining blocker, and it is external-clock.
+Restraint note: core tags between now and v1.0.0 must stay additions-empty
+to keep criterion 1, by the table's own semantics.

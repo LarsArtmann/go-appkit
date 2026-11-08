@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+
+- Folded notifications (W5-C2, the folded-contract train; design note:
+  `docs/planning/2026-11-07_w5-c2-folded-contract-design-note.md`):
+  `NotifyFolded(p, folded)` wraps any `projection.Projection` so every
+  successful fold emits a `FoldedEvent` to the channel immediately after
+  the inner `Handle` returns — the broadcast-strictly-after-fold
+  contract, made impossible to get wrong at the call site. The send is
+  non-blocking: a full channel drops the notification and counts it in
+  `FoldedNotifier.DroppedNotifications()` (the single drop counter by
+  the design note's C1-dedupe ruling — realtime's pump grows none); a
+  nil channel is the documented off-switch (guarded explicitly, never
+  counted as a drop); a failed fold does not notify. `FoldedEvent`
+  carries `ProjectionName()`, `EventName()`, `EventID()`, `OccurredAt()`
+  and is consumed structurally by realtime's `FoldedSignal` with zero
+  cross-imports between the modules.
+
 ### Changed
 
 - cqrs-lint F032 (catalog-mandate, upstream owner policy 2026-11-03; rule

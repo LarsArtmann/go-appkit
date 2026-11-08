@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Added
+
+- `FoldedSource[S FoldedSignal]` (W5-C2, the realtime half of the
+  folded-contract train): owns the broadcast-strictly-after-fold
+  ordering so consumers cannot get it wrong — for every signal received
+  it calls `snapshot()` only after the signal, marshals, and broadcasts
+  a full-state SSE event (`event` = the signal's `EventName()`, `id` =
+  its `EventID()` when parseable). Full-state broadcasts are the
+  drop-safety invariant of the design note: a reconnecting client
+  always sees current state, never a stale delta. The generic
+  `FoldedSignal` interface (`EventName() string; EventID() string`) is
+  satisfied structurally by cqrs's `FoldedEvent` — zero cross-module
+  imports, the decoupling the design note requires. The pump exits on
+  ctx.Done or channel close; a marshal failure skips one broadcast and
+  self-heals on the next signal; an unparseable EventID omits the SSE
+  id but still broadcasts. The module grows no drop counter of its own:
+  cqrs's `FoldedNotifier.DroppedNotifications()` is the single counter
+  (C1-dedupe ruling).
+
 ### Changed
 
 - Adopted `samber/lo` (v1.53.0, direct require) beyond the test-only
