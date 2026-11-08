@@ -34,6 +34,18 @@
 // without the two disagreeing on what a Rejection looks like. The parity
 // contract is pinned by this module's tests, not by convention.
 //
+// # The rest of the battery
+//
+//   - [WrapWriter] + httpxtest.AssertForwardsInterfaces — the
+//     ResponseWriter wrapper contract as code (B3): hidden Flusher or
+//     Hijacker is the production SSE-stall class.
+//   - [Conditional] — RFC 9110 conditional GET (B4): strong sha256 ETag
+//     via go-etag plus Last-Modified/If-Modified-Since, real 304s.
+//   - [Negotiate] / [RequestCodec] / [ResponseCodec] — content
+//     negotiation (B5), the encode seam built on the family go-codec.
+//   - [WriteDeadline] — per-route write-deadline extension (B7), the
+//     scalpel next to core's NoTimeout sledgehammer.
+//
 // All batteries are opt-in: registering a httpx handler changes nothing
 // about the default middleware stack or any other route.
 package httpx

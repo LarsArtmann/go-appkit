@@ -90,6 +90,71 @@ locations, SQL statements, goroutine headers). An error type with a
 ladder errorpages honors. The diagnostic extras (cause chains, timestamps,
 error context maps) are deliberately NOT serialized.
 
+## The ResponseWriter contract (B3)
+
+A wrapper that hides `http.Flusher`/`http.Hijacker` compiles clean, passes
+Recorder tests, and stalls production SSE. `WrapWriter` is the blessed
+pass-through wrapper (forwards Flusher, Hijacker, and `Unwrap` for
+`http.ResponseController`), and `httpxtest.AssertForwardsInterfaces` pins
+your own wrappers: it builds a probe base, applies your wrapper factory,
+and fails on hidden interfaces, swallowed writes, no-op stubs, and
+controller-opaque chains — the buggy plain-embedding shape that Recorder
+tests miss fails here.
+
+```go
+httpxtest.AssertForwardsInterfaces(t, func(base http.ResponseWriter) http.ResponseWriter {
+	return myWrapper{base}
+})
+```
+
+## Conditional GET (B4)
+
+`Conditional` serves a handler with RFC 9110 conditional semantics: a
+strong sha256 ETag over the response body (via the family's go-etag —
+weak `W/` forms, comma lists, and `*` in If-None-Match all answer real
+304s) plus Last-Modified/If-Modified-Since when the handler stamps
+`SetLastModified`. If-None-Match takes precedence per the RFC.
+
+```go
+mux.Handle("GET /feed.ics", httpx.Conditional(feedHandler))
+```
+
+Byte-determinism is the prerequisite (the ETag hashes response bytes);
+responses over 1 MiB stream through untagged; `SkipConditional` excludes
+endpoints where buffering is wrong (SSE, large downloads).
+
+## Content negotiation (B5)
+
+`Negotiate` answers "which representation?" in one line — q-values,
+wildcards, refusal (`q=0`), and the offers' own order as server
+preference; `""` means the client accepts none of them (answer 406 or
+your default):
+
+```go
+switch httpx.Negotiate(r, "text/html", "application/json") { ... }
+```
+
+The go-codec seam (the composition-mission ruling: build the encode
+boundary on the family codec): `RequestCodec` resolves the decode codec
+from Content-Type (JSON/CBOR, structured `+json`/`+cbor` suffixes; 415
+through `WriteError` on anything else) and `ResponseCodec` resolves the
+encode codec from Accept (q ranking, tie prefers CBOR, q=0 refuses,
+falls back to the request codec when no preference is expressed).
+
+## Per-route write deadlines (B7)
+
+`WriteDeadline` extends the connection's write deadline for matching
+prefixes only — the scalpel next to core's `NoTimeout` sledgehammer:
+
+```go
+svc.Handler = httpx.WriteDeadline(3*time.Minute, "/api/agent/")(svc.Mux)
+```
+
+It must sit OUTSIDE wrappers that neither forward the deadline controls
+nor `Unwrap`; through such a wrapper the deadline cannot be set, and the
+request fails LOUDLY with a classified Infrastructure error (500) —
+never a silent hang (pinned by the ordering-regression test).
+
 ## Build & verify
 
 ```bash
@@ -99,8 +164,10 @@ cd httpx && golangci-lint run ./...
 
 ## Scope
 
-The handler-DX batteries land in waves; v0.1.0 ships B1 (ResultHandler),
-B2 (bind + validation), and B9 (no-leak errors) plus the errorpages parity
-pin. Later waves: B3 ResponseWriter contract, B4 conditional GET,
-B5 content negotiation, B7 per-route write deadlines, B6/B8 route
-introspection (owner-gated on the H8 seam decision).
+The handler-DX batteries land in waves; v0.1.0 shipped B1
+(ResultHandler), B2 (bind + validation), and B9 (no-leak errors) plus the
+errorpages parity pin. v0.2.0 ships B3 (ResponseWriter contract +
+`httpxtest`), B4 (conditional GET on go-etag), B5 (content negotiation +
+the go-codec seam), and B7 (per-route write deadlines). Remaining: B6/B8
+route introspection (owner-gated on the H8 seam decision — if adopted,
+httpx consumes `httputil/endpoints`, it never grows a second registry).
