@@ -67,6 +67,7 @@ The template repo is NOT done until one real app passed.
 ## Declined alternative + re-entry triggers
 
 `cmd/appkit-new` generator — revisit when BOTH hold:
+
 1. Template drift bites: two real scaffoldings between refreshes hit a
    stale pin/API (the refresh ritual failed to keep up).
 2. go-wizard-sdk ships its template engine (then the generator is a thin

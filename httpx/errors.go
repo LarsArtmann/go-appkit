@@ -1,7 +1,7 @@
 package httpx
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"net/http"
 
@@ -53,5 +53,5 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 
 	// The status line is already committed; an encode failure here means
 	// the client is gone, and there is no honest recovery.
-	_ = json.NewEncoder(w).Encode(resp) //nolint:errchkjson // failure is connection death
+	_ = json.MarshalWrite(w, resp)
 }

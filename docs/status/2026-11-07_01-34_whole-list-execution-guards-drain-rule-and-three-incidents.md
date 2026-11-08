@@ -123,12 +123,12 @@ the annotated designed red).
 7. Per-lib errata for dashboard v0.12.2 / templ-components a11y
    (issue54 item 18, routed to micro-backlog) — untouched this session.
 8. Everything demand-gated and untouched by design: the scaffold decision
-   + template, adoption-wave swap recipes, the W3-W5 battery program
-   (httpx/worker/polite/realtime completions), the `httputil.Server`
-   composition refactor (unblocked, unplanned), core v1.0.0 exit-criteria
-   graduation, the pkg.go.dev flightrecorder render watch, the satellite
-   test-helper migrations (next core train), the preset six-month
-   adoption re-sweep, AuthBridge/SigNoz/cross-repo posture gates.
+   - template, adoption-wave swap recipes, the W3-W5 battery program
+     (httpx/worker/polite/realtime completions), the `httputil.Server`
+     composition refactor (unblocked, unplanned), core v1.0.0 exit-criteria
+     graduation, the pkg.go.dev flightrecorder render watch, the satellite
+     test-helper migrations (next core train), the preset six-month
+     adoption re-sweep, AuthBridge/SigNoz/cross-repo posture gates.
 
 ## d) TOTALLY FUCKED UP (own goals, in order of severity)
 

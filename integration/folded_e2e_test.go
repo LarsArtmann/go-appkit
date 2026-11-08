@@ -247,8 +247,7 @@ func TestFoldedContract_BroadcastReflectsTheFold(t *testing.T) {
 	h := newFoldedHarness(t, cqrs.NotifyFolded(&markerProjection{store: store}, folded))
 	defer func() { _ = h.stream.Body.Close() }() //respdrain:ignore SSE stream — Close IS the disconnect
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	realtime.FoldedSource(ctx, folded, store.snapshot, h.hub)
 
@@ -334,8 +333,7 @@ func TestFoldedContract_PreFoldWiringFailsTheSameAssertion(t *testing.T) {
 		&naivePreFoldProjection{inner: &markerProjection{store: store}, out: naive, observed: observed})
 	defer func() { _ = h.stream.Body.Close() }() //respdrain:ignore SSE stream — Close IS the disconnect
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	realtime.FoldedSource(ctx, naive, store.snapshot, h.hub)
 

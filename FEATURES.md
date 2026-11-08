@@ -40,24 +40,25 @@ aspirations.
 Shipped through core **v0.12.0** (2026-11-07; the composition swap — `Service`
 now delegates the server loop to a fresh `httputil.Server` per `Start` via
 `NewServerListener`: bind + sync `listen_failed` + `Addr()`/`Running()` views
-+ six phase lines stay appkit-owned, restart-after-full-shutdown now serves
-again, configs the delegated server rejects surface as `server.config_invalid`
-at `Start`, deadline-less `Close()` inherits `ShutdownTimeout` as its bound;
-ZERO public API delta, `go doc -all` diff empty at root and testkit).
-Prior cut: **v0.11.0** (2026-11-07; behavior/docs-only — hook
-failures classify through `errorfamily.WrapOnce` (own family/code
-preserved, `hook_index` in context), floor 1.27.3, README
-RegisterClassifications/Server-Timing-phase recipes; zero public API
-delta, `go doc -all` diff empty at root and testkit).
-**v0.10.0** (2026-11-06; lifecycle hooks in v0.4.0,
-metrics/version/testkit in v0.5.0, `appkit.Hook` alias +
-`testkit.DrainWindowProbe` in v0.7.0, `ServiceConfig.StartHooks` in v0.8.0,
-`testkit.NewService(tb, cfg)` — the config-taking constructor with test-safe
-defaults (ephemeral loopback addr + `NoDrainDelay`), closing issue #26's
-5s-per-test teardown trap — in v0.9.0; Server-Timing outermost +
-`RegisterClassifications()` + the testkit GET/wait/FreeAddr helpers in
-v0.10.0, released for the preset module's spine; additions-only API diffs,
-proxy-tested).
+
+- six phase lines stay appkit-owned, restart-after-full-shutdown now serves
+  again, configs the delegated server rejects surface as `server.config_invalid`
+  at `Start`, deadline-less `Close()` inherits `ShutdownTimeout` as its bound;
+  ZERO public API delta, `go doc -all` diff empty at root and testkit).
+  Prior cut: **v0.11.0** (2026-11-07; behavior/docs-only — hook
+  failures classify through `errorfamily.WrapOnce` (own family/code
+  preserved, `hook_index` in context), floor 1.27.3, README
+  RegisterClassifications/Server-Timing-phase recipes; zero public API
+  delta, `go doc -all` diff empty at root and testkit).
+  **v0.10.0** (2026-11-06; lifecycle hooks in v0.4.0,
+  metrics/version/testkit in v0.5.0, `appkit.Hook` alias +
+  `testkit.DrainWindowProbe` in v0.7.0, `ServiceConfig.StartHooks` in v0.8.0,
+  `testkit.NewService(tb, cfg)` — the config-taking constructor with test-safe
+  defaults (ephemeral loopback addr + `NoDrainDelay`), closing issue #26's
+  5s-per-test teardown trap — in v0.9.0; Server-Timing outermost +
+  `RegisterClassifications()` + the testkit GET/wait/FreeAddr helpers in
+  v0.10.0, released for the preset module's spine; additions-only API diffs,
+  proxy-tested).
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
@@ -83,7 +84,7 @@ v0.8.0).
 | Engine-backed default projection checkpoints (aux DB now DLQ-only; ADR-0142)                                                                                                                                                      | FULLY_FUNCTIONAL | `domain_test.go` checkpoint tests (shipped v0.7.0)                                                                                                                      |
 | `Shutdown` drains via the system drainer seam and ALWAYS closes (drain + close errors joined)                                                                                                                                     | FULLY_FUNCTIONAL | `eventservice_test.go` (shipped v0.7.0)                                                                                                                                 |
 | README recipes pinned to module code + Examples (invented/dangling API refs fail the suite)                                                                                                                                       | FULLY_FUNCTIONAL | `readme_sync_test.go` (shipped v0.7.0 train)                                                                                                                            |
-| Folded notifications: `NotifyFolded` wrapper (non-blocking send, drop counter, nil-channel off-switch, failed fold never notifies) + `FoldedEvent` consumed structurally by realtime's `FoldedSignal` | FULLY_FUNCTIONAL | `folded.go`, `folded_test.go` (6 tests); E2E discriminator pinned by `integration/folded_e2e_test.go`                                                                   |
+| Folded notifications: `NotifyFolded` wrapper (non-blocking send, drop counter, nil-channel off-switch, failed fold never notifies) + `FoldedEvent` consumed structurally by realtime's `FoldedSignal`                             | FULLY_FUNCTIONAL | `folded.go`, `folded_test.go` (6 tests); E2E discriminator pinned by `integration/folded_e2e_test.go`                                                                   |
 
 ## docs (`github.com/larsartmann/go-appkit/docs`)
 
@@ -140,12 +141,12 @@ Shipped through realtime **v0.2.0** (2026-11-08: `FoldedSource`/`FoldedSignal`
 — folded signals to full-state hub broadcasts, the realtime half of the
 W5-C2 folded contract; additions-only API diff vs v0.1.3).
 
-| Feature                               | Status           | Evidence                         |
-| ------------------------------------- | ---------------- | -------------------------------- |
-| SSE hub (broadcast, patch, shutdown)  | FULLY_FUNCTIONAL | `hub.go`                         |
-| SSE handler (replay, heartbeat, CORS) | FULLY_FUNCTIONAL | `handler.go`                     |
-| Subscribe-before-replay + live dedup  | FULLY_FUNCTIONAL | `handler.go`, `realtime_test.go` |
-| Last-Event-ID resume                  | FULLY_FUNCTIONAL | `handler.go`                     |
+| Feature                                                                                                     | Status           | Evidence                                |
+| ----------------------------------------------------------------------------------------------------------- | ---------------- | --------------------------------------- |
+| SSE hub (broadcast, patch, shutdown)                                                                        | FULLY_FUNCTIONAL | `hub.go`                                |
+| SSE handler (replay, heartbeat, CORS)                                                                       | FULLY_FUNCTIONAL | `handler.go`                            |
+| Subscribe-before-replay + live dedup                                                                        | FULLY_FUNCTIONAL | `handler.go`, `realtime_test.go`        |
+| Last-Event-ID resume                                                                                        | FULLY_FUNCTIONAL | `handler.go`                            |
 | `FoldedSource[S FoldedSignal]` pump (snapshot-after-signal, full-state drop safety, no second drop counter) | FULLY_FUNCTIONAL | `folded.go`, `folded_test.go` (7 tests) |
 
 Known limitation: on event bursts larger than the broadcaster buffer (64),
@@ -267,19 +268,20 @@ README release-state/Install/deps truth pass, floor 1.27.3; zero API
 delta). Prior cut: **systemd v0.1.0** (2026-10-07, the same train as core v0.8.0
 which carries the `StartHooks` seam it depends on):
 
-| Feature                                                                                     | Status           | Evidence                                                   |
-| ------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------- |
-| `Install(&cfg)` one-call sd_notify lifecycle (append-only)                                  | FULLY_FUNCTIONAL | `hooks.go`, `hooks_test.go`                                |
-| `New(opts...)` manual wiring (`Start`/`Drain`/`Shutdown` hooks)                             | FULLY_FUNCTIONAL | `hooks.go`                                                 |
-| `READY=1` post-listen via `StartHooks` (send failure fails the start)                       | FULLY_FUNCTIONAL | `hooks_test.go` — first datagram on a real unixgram socket |
-| `STOPPING=1` at drain start via `DrainHooks`                                                | FULLY_FUNCTIONAL | `hooks_test.go`                                            |
-| Watchdog keepalive at `WatchdogSec/2`, pinging to the final phase                           | FULLY_FUNCTIONAL | `notify.go`, `TestRunWatchdog_PingsUntilStopped`           |
-| No-op outside systemd (`NOTIFY_SOCKET` unset)                                               | FULLY_FUNCTIONAL | `TestInstall_NoSocketOutsideSystemd`                       |
-| `Counters()` notify-activity snapshot (ReadySent/StoppingSent/WatchdogPings/NotifyFailures) | FULLY_FUNCTIONAL | `notify.go:48`, `TestNotify_CountersTrackSuccessfulSends`  |
-| Full lifecycle through a live `appkit.Service`                                              | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService`                |
-| `Install` returns the wired `Hooks` (failed-start watchdog stop; idempotent, identical to the wired Shutdown) | FULLY_FUNCTIONAL | `hooks.go`, `TestInstall_ReturnsTheWiredHooks`              |
+| Feature                                                                                                       | Status           | Evidence                                                   |
+| ------------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------- |
+| `Install(&cfg)` one-call sd_notify lifecycle (append-only)                                                    | FULLY_FUNCTIONAL | `hooks.go`, `hooks_test.go`                                |
+| `New(opts...)` manual wiring (`Start`/`Drain`/`Shutdown` hooks)                                               | FULLY_FUNCTIONAL | `hooks.go`                                                 |
+| `READY=1` post-listen via `StartHooks` (send failure fails the start)                                         | FULLY_FUNCTIONAL | `hooks_test.go` — first datagram on a real unixgram socket |
+| `STOPPING=1` at drain start via `DrainHooks`                                                                  | FULLY_FUNCTIONAL | `hooks_test.go`                                            |
+| Watchdog keepalive at `WatchdogSec/2`, pinging to the final phase                                             | FULLY_FUNCTIONAL | `notify.go`, `TestRunWatchdog_PingsUntilStopped`           |
+| No-op outside systemd (`NOTIFY_SOCKET` unset)                                                                 | FULLY_FUNCTIONAL | `TestInstall_NoSocketOutsideSystemd`                       |
+| `Counters()` notify-activity snapshot (ReadySent/StoppingSent/WatchdogPings/NotifyFailures)                   | FULLY_FUNCTIONAL | `notify.go:48`, `TestNotify_CountersTrackSuccessfulSends`  |
+| Full lifecycle through a live `appkit.Service`                                                                | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService`                |
+| `Install` returns the wired `Hooks` (failed-start watchdog stop; idempotent, identical to the wired Shutdown) | FULLY_FUNCTIONAL | `hooks.go`, `TestInstall_ReturnsTheWiredHooks`             |
 
 ## httpx (`github.com/larsartmann/go-appkit/httpx`)
+
 Shipped through httpx **v0.2.0** (2026-11-08: the W3 remainder batteries
 B3/B4/B5/B7 + the module LICENSE riding the tag + go-etag/server and
 go-codec as direct requires; additions-only API diff). Prior cut: **v0.1.0**
@@ -287,17 +289,17 @@ go-codec as direct requires; additions-only API diff). Prior cut: **v0.1.0**
 B2 bind + validation, B9 no-leak errors, and the test-pinned
 classification-parity oracle vs errorpages).
 
-| Feature | Status | Evidence |
-| --- | --- | --- |
-| `ResultHandler` return-(T, error) seam | FULLY_FUNCTIONAL | `result.go`, `result_test.go` |
-| Direct-write ownership + ResponseController reachability | FULLY_FUNCTIONAL | `resultWriter` (`Unwrap`), `TestResultHandler_DirectWriteTakesOwnership` |
-| `ResultHandlerWithValidation` bind battery (`bind.*` codes, 1 MiB cap, `Validate` hook) | FULLY_FUNCTIONAL | `bind.go`, `bind_test.go` |
-| No-leak error contract (family gate + leak-pattern scrub + `Public()` opt-out) | FULLY_FUNCTIONAL | `sanitize.go`, `sanitize_test.go` (leaked-detail matrix) |
-| Classification parity vs errorpages (same status + JSON contract shape per family) | FULLY_FUNCTIONAL (test-pinned oracle) | `parity_test.go` (test-only dep on errorpages) |
-| B3 `WrapWriter` ResponseWriter contract (Flush/Hijack forward, `Unwrap` always) + `httpxtest` forwarding probe | FULLY_FUNCTIONAL | `writer.go`, `httpxtest/assert.go` (3 buggy archetypes pinned failing) |
-| B4 `Conditional` (go-etag/server strong sha256 + IMS-only-when-INM-absent, RFC 9110 precedence; `ETagFunc`, `SkipConditional`, `SetLastModified`) | FULLY_FUNCTIONAL | `conditional.go`, `conditional_test.go` (CV matrix); E2E through the default stack in `integration/httpx_e2e_test.go` |
-| B5 content negotiation on go-codec (`Negotiate`, `RequestCodec` 415, `ResponseCodec`) | FULLY_FUNCTIONAL | `negotiate.go`, `negotiate_test.go` |
-| B7 `WriteDeadline(extension, prefixes...)` per-route deadline extension (loud failure on opaque chains) | FULLY_FUNCTIONAL | `writedeadline.go`, `writedeadline_test.go` (real-server E2E) |
+| Feature                                                                                                                                           | Status                                | Evidence                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `ResultHandler` return-(T, error) seam                                                                                                            | FULLY_FUNCTIONAL                      | `result.go`, `result_test.go`                                                                                         |
+| Direct-write ownership + ResponseController reachability                                                                                          | FULLY_FUNCTIONAL                      | `resultWriter` (`Unwrap`), `TestResultHandler_DirectWriteTakesOwnership`                                              |
+| `ResultHandlerWithValidation` bind battery (`bind.*` codes, 1 MiB cap, `Validate` hook)                                                           | FULLY_FUNCTIONAL                      | `bind.go`, `bind_test.go`                                                                                             |
+| No-leak error contract (family gate + leak-pattern scrub + `Public()` opt-out)                                                                    | FULLY_FUNCTIONAL                      | `sanitize.go`, `sanitize_test.go` (leaked-detail matrix)                                                              |
+| Classification parity vs errorpages (same status + JSON contract shape per family)                                                                | FULLY_FUNCTIONAL (test-pinned oracle) | `parity_test.go` (test-only dep on errorpages)                                                                        |
+| B3 `WrapWriter` ResponseWriter contract (Flush/Hijack forward, `Unwrap` always) + `httpxtest` forwarding probe                                    | FULLY_FUNCTIONAL                      | `writer.go`, `httpxtest/assert.go` (3 buggy archetypes pinned failing)                                                |
+| B4 `Conditional` (go-etag/server strong sha256 + IMS-only-when-INM-absent, RFC 9110 precedence; `ETagFunc`, `SkipConditional`, `SetLastModified`) | FULLY_FUNCTIONAL                      | `conditional.go`, `conditional_test.go` (CV matrix); E2E through the default stack in `integration/httpx_e2e_test.go` |
+| B5 content negotiation on go-codec (`Negotiate`, `RequestCodec` 415, `ResponseCodec`)                                                             | FULLY_FUNCTIONAL                      | `negotiate.go`, `negotiate_test.go`                                                                                   |
+| B7 `WriteDeadline(extension, prefixes...)` per-route deadline extension (loud failure on opaque chains)                                           | FULLY_FUNCTIONAL                      | `writedeadline.go`, `writedeadline_test.go` (real-server E2E)                                                         |
 
 ## config (`github.com/larsartmann/go-appkit/config`)
 
@@ -339,20 +341,20 @@ composition module):
 
 Cross-module + cross-repo E2E contracts against PUBLISHED tags only:
 
-| Contract                                                                                  | Status           | Evidence                       |
-| ----------------------------------------------------------------------------------------- | ---------------- | ------------------------------ |
-| SSE header flush through the appkit default stack                                         | FULLY_FUNCTIONAL | `integration_test.go`          |
-| Journal replay via cqrs-htmx `transport.JournalSSEStore`                                  | FULLY_FUNCTIONAL | `integration_test.go`          |
-| Span name + `http.route` through `OuterMiddlewares` (pins the 2026-09-16 fix)             | FULLY_FUNCTIONAL | `otel_pattern_test.go`         |
-| Metrics/version/testkit compose + drain-window ordering (`Addr()` nil inside DrainHooks)  | FULLY_FUNCTIONAL | `composition_contract_test.go` |
-| Rate-limit in front of SSE (429 + Retry-After aborts the chain)                           | FULLY_FUNCTIONAL | `security_realtime_test.go`    |
-| One-`Setup`-per-process + errorpages family→status parity                                 | FULLY_FUNCTIONAL | `contract_parity_test.go`      |
-| SSE×health drain choreography (hub close frees Shutdown, /readyz 503, clean EOF)          | FULLY_FUNCTIONAL | `sse_health_drain_test.go`     |
-| cqrs domain SSE through a live Service (Domain passthrough + journal replay)              | FULLY_FUNCTIONAL | `domain_sse_test.go`           |
-| systemd lifecycle through a live Service (unixgram socket transport)                      | FULLY_FUNCTIONAL | `systemd_lifecycle_test.go`    |
-| docs docserver composition through the full default chain (openapi/asyncapi/catalog.json) | FULLY_FUNCTIONAL | `docs_composition_test.go`     |
-| Folded-contract discriminator: post-fold broadcast carries the mid-fold marker; naive pre-fold wiring fails the same assertion (W5-C2) | FULLY_FUNCTIONAL | `folded_e2e_test.go` |
-| httpx B4 Conditional through the default stack (ETag 200 → If-None-Match 304, Server-Timing still present) | FULLY_FUNCTIONAL | `httpx_e2e_test.go` |
+| Contract                                                                                                                               | Status           | Evidence                       |
+| -------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------ |
+| SSE header flush through the appkit default stack                                                                                      | FULLY_FUNCTIONAL | `integration_test.go`          |
+| Journal replay via cqrs-htmx `transport.JournalSSEStore`                                                                               | FULLY_FUNCTIONAL | `integration_test.go`          |
+| Span name + `http.route` through `OuterMiddlewares` (pins the 2026-09-16 fix)                                                          | FULLY_FUNCTIONAL | `otel_pattern_test.go`         |
+| Metrics/version/testkit compose + drain-window ordering (`Addr()` nil inside DrainHooks)                                               | FULLY_FUNCTIONAL | `composition_contract_test.go` |
+| Rate-limit in front of SSE (429 + Retry-After aborts the chain)                                                                        | FULLY_FUNCTIONAL | `security_realtime_test.go`    |
+| One-`Setup`-per-process + errorpages family→status parity                                                                              | FULLY_FUNCTIONAL | `contract_parity_test.go`      |
+| SSE×health drain choreography (hub close frees Shutdown, /readyz 503, clean EOF)                                                       | FULLY_FUNCTIONAL | `sse_health_drain_test.go`     |
+| cqrs domain SSE through a live Service (Domain passthrough + journal replay)                                                           | FULLY_FUNCTIONAL | `domain_sse_test.go`           |
+| systemd lifecycle through a live Service (unixgram socket transport)                                                                   | FULLY_FUNCTIONAL | `systemd_lifecycle_test.go`    |
+| docs docserver composition through the full default chain (openapi/asyncapi/catalog.json)                                              | FULLY_FUNCTIONAL | `docs_composition_test.go`     |
+| Folded-contract discriminator: post-fold broadcast carries the mid-fold marker; naive pre-fold wiring fails the same assertion (W5-C2) | FULLY_FUNCTIONAL | `folded_e2e_test.go`           |
+| httpx B4 Conditional through the default stack (ETag 200 → If-None-Match 304, Server-Timing still present)                             | FULLY_FUNCTIONAL | `httpx_e2e_test.go`            |
 
 ## Consumers
 

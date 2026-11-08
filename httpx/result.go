@@ -1,7 +1,7 @@
 package httpx
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"net/http"
 	"reflect"
 )
@@ -80,7 +80,7 @@ func writeResult(ctx *Context, result any) {
 	// Serialization of an in-memory value cannot fail on valid input; a
 	// failure means the client is gone or the connection broke mid-write.
 	// The status is already committed, so the only honest move is to stop.
-	_ = json.NewEncoder(ctx.ResponseWriter).Encode(result) //nolint:errchkjson // failure is connection death
+	_ = json.MarshalWrite(ctx.ResponseWriter, result)
 }
 
 // isNilValue reports whether the happy path carries no payload: an

@@ -72,13 +72,13 @@ session's green close-out (tip `0ebbb38`, tip-CI verified clean-except-designed-
   cross-module API train through published tags is its own session).
 - **Four tags pushed + consumer-verified** (fresh-consumer behavioral
   snippets, `scripts/verify-consumer.sh`): core v0.12.0 (Service lifecycle
-  + sentinels + RegisterClassifications), otel v0.4.0 (Setup +
-  WithEnvironment + WithoutGlobalRegistration), config v0.1.1 (Load[T]),
-  httpx v0.1.0 (ResultHandler). Gosum-canonical green post-push (the
-  deferred-leg lesson from the tag-move incident APPLIED — verified before
-  master left). Release-state sync (AGENTS `_Release State_` + FEATURES
-  claims + TODO header + claims-guard httpx pattern + gosum-canonical
-  module list) landed in the same trains.
+  - sentinels + RegisterClassifications), otel v0.4.0 (Setup +
+    WithEnvironment + WithoutGlobalRegistration), config v0.1.1 (Load[T]),
+    httpx v0.1.0 (ResultHandler). Gosum-canonical green post-push (the
+    deferred-leg lesson from the tag-move incident APPLIED — verified before
+    master left). Release-state sync (AGENTS `_Release State_` + FEATURES
+    claims + TODO header + claims-guard httpx pattern + gosum-canonical
+    module list) landed in the same trains.
 - **Incident (small, caught + fixed):** the mid-session tip run `42355646085`
   failed pin-drift + module-doc-claims — TAG-VISIBILITY TIMING (the run's
   checkout preceded the otel/config tag pushes by ~3 minutes; v0.12.0

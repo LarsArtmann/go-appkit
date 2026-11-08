@@ -66,17 +66,23 @@ Errors map through go-error-family exactly like the
 pretty HTML surface and httpx for the API surface — the two cannot disagree;
 the parity contract is pinned by this module's tests.
 
-| Family         | Status | Message on the wire                              |
-| -------------- | ------ | ------------------------------------------------ |
-| Rejection      | 400    | the error's own text, leak patterns scrubbed     |
-| Conflict       | 409    | the error's own text, leak patterns scrubbed     |
-| Transient      | 503    | the family default — raw text never leaves       |
-| Corruption     | 500    | the family default — raw text never leaves       |
-| Infrastructure | 503    | the family default — raw text never leaves       |
-| Orchestration  | 500    | the family default — raw text never leaves       |
+| Family         | Status | Message on the wire                          |
+| -------------- | ------ | -------------------------------------------- |
+| Rejection      | 400    | the error's own text, leak patterns scrubbed |
+| Conflict       | 409    | the error's own text, leak patterns scrubbed |
+| Transient      | 503    | the family default — raw text never leaves   |
+| Corruption     | 500    | the family default — raw text never leaves   |
+| Infrastructure | 503    | the family default — raw text never leaves   |
+| Orchestration  | 500    | the family default — raw text never leaves   |
 
 ```json
-{"family":"infrastructure","code":"db.creds_unreadable","message":"An infrastructure failure interrupted the request.","why":"...","fix":"..."}
+{
+  "family": "infrastructure",
+  "code": "db.creds_unreadable",
+  "message": "An infrastructure failure interrupted the request.",
+  "why": "...",
+  "fix": "..."
+}
 ```
 
 ## No-leak guarantee (B9)

@@ -13,11 +13,11 @@ seam?" but "who exposes it?"
 
 ## Options
 
-| # | Option | Work | Consequence |
-| --- | ------ | ---- | ----------- |
-| a | **Core exposes**: `Service` grows an optional `Registry` — routes registered through `svc.Routes.Handle(...)` land on `svc.Mux` AND the registry; listing opt-in via config | ~1 field + 1 config knob + docs; zero default-stack change | appkit owns the adoption contract; B6/B8 read `Registry.Routes()` |
-| b | **Preset/httpx leg**: preset's spine (or the future httpx module) wires `endpoints.Register` + `Registry.Handle` for consumers who opt in | a new opt-in leg, no core surface | consumers using plain `svc.Mux` (the majority pattern) get no registry |
-| c | **Decline, keep direct `svc.Mux`**: consumers adopt endpoints themselves | zero | summary metadata lives outside appkit's contract; B6/B8 lose their mechanical input |
+| # | Option                                                                                                                                                                      | Work                                                       | Consequence                                                                         |
+| - | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| a | **Core exposes**: `Service` grows an optional `Registry` — routes registered through `svc.Routes.Handle(...)` land on `svc.Mux` AND the registry; listing opt-in via config | ~1 field + 1 config knob + docs; zero default-stack change | appkit owns the adoption contract; B6/B8 read `Registry.Routes()`                   |
+| b | **Preset/httpx leg**: preset's spine (or the future httpx module) wires `endpoints.Register` + `Registry.Handle` for consumers who opt in                                   | a new opt-in leg, no core surface                          | consumers using plain `svc.Mux` (the majority pattern) get no registry              |
+| c | **Decline, keep direct `svc.Mux`**: consumers adopt endpoints themselves                                                                                                    | zero                                                       | summary metadata lives outside appkit's contract; B6/B8 lose their mechanical input |
 
 **Recommendation: (a).** It is the smallest surface that makes B6 (route
 introspection golden test) and B8 (docs feed — the anti-drift promise:

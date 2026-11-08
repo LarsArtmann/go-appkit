@@ -172,9 +172,9 @@ wave is ON ORIGIN and consumer-verified.
 
 ---
 
-*Verification trail: offline guard suite green at close (directives,
+_Verification trail: offline guard suite green at close (directives,
 dependabot-parity, workspace-charter, golangci-configs, routed-destinations,
 sse-protocol, status-index); pin-drift 32 OK / 0 NOTEs post-push;
 consumer-claims 9 OK; docs-gates FRESH; fleet lint ALL GREEN; govulncheck
 14/14; example-smoke GREEN; fresh-consumer 4/4; integration `-race` green
-at the repaired go.sum; tip-CI verified after the close-out push.*
+at the repaired go.sum; tip-CI verified after the close-out push._

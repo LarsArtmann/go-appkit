@@ -2,7 +2,7 @@ package realtime
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 
 	"github.com/larsartmann/go-sse"
 )

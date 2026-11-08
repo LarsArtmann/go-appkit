@@ -4,7 +4,7 @@ go 1.27.3
 
 require (
 	github.com/coreos/go-systemd/v22 v22.7.0
-	github.com/larsartmann/go-appkit v0.10.0
+	github.com/larsartmann/go-appkit v0.12.0
 	github.com/larsartmann/go-error-family v0.12.0
 )
 

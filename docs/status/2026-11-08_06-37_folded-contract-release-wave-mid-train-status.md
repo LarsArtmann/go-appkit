@@ -15,6 +15,7 @@ authorized, (2) realtime test-helper deviation stands (no overrule), (3)
 systemd ships in this session (implemented, tagged v0.2.0).
 
 ## a) FULLY DONE (this session, all verified by CLI — LSP diagnostics were
+
 stale/false again, CLI disproved all 23 warnings)
 
 - **Four-module verification, green:** cqrs / realtime / httpx / systemd
@@ -148,7 +149,7 @@ stale/false again, CLI disproved all 23 warnings)
   check needs a documented exemption class for engine tests, or engine
   tests drop `t.Parallel()`. Decision needed (question 2).
 - **The StartProjections ctx-lifetime trap is a real API footgun:**
- cqrs/`projectionhost` derives the host run context from the Start ctx;
+  cqrs/`projectionhost` derives the host run context from the Start ctx;
   a short-lived Start ctx silently kills all workers later. Worth a cqrs
   godoc warning + README note (consumer-facing, next cqrs train or an
   upstream ask to go-cqrs-lite).

@@ -3,13 +3,13 @@ module github.com/larsartmann/go-appkit/preset
 go 1.27.3
 
 require (
-	github.com/larsartmann/go-appkit v0.10.0
-	github.com/larsartmann/go-appkit/errorpages v0.1.2
-	github.com/larsartmann/go-appkit/health v0.3.1
-	github.com/larsartmann/go-appkit/otel v0.3.0
-	github.com/larsartmann/go-appkit/realtime v0.1.3
+	github.com/larsartmann/go-appkit v0.12.0
+	github.com/larsartmann/go-appkit/errorpages v0.1.3
+	github.com/larsartmann/go-appkit/health v0.3.2
+	github.com/larsartmann/go-appkit/otel v0.4.0
+	github.com/larsartmann/go-appkit/realtime v0.2.0
 	github.com/larsartmann/go-appkit/security v0.2.0
-	github.com/larsartmann/go-appkit/systemd v0.1.0
+	github.com/larsartmann/go-appkit/systemd v0.2.0
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-sse v0.6.2
 	github.com/larsartmann/go-sse/ssetest v0.5.0
@@ -40,7 +40,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.31.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.33.0 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/larsartmann/go-branded-id v0.7.0 // indirect
 	github.com/larsartmann/go-datastar v0.6.2 // indirect
@@ -85,8 +85,8 @@ require (
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20261005182115-fad411399dd8 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
-	google.golang.org/grpc v1.84.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20261026165753-2ffab32bce7e // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261026165753-2ffab32bce7e // indirect
+	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )

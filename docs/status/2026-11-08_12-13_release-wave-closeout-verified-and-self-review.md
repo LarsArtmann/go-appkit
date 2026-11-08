@@ -172,6 +172,7 @@ failure fixes, and the close-out. Tip: `f96c0be`, tree clean.
    use is the cheap insurance.
 
 ## f) NEXT (ranked; honest 28, not padded to 50 — the remainder of a
+
 forced 50 would be re-listing parked rows)
 
 1. golangci version unification decision + train (CI pin ↔ local nix
