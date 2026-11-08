@@ -79,7 +79,10 @@ func broadcastFoldedSnapshot[S FoldedSignal](hub *Hub, sig S, payload any) {
 		return
 	}
 
-	evt := sse.Event{Event: sig.EventName(), Data: string(data)} //nolint:exhaustruct_v5 // ID is attached conditionally below; Retry is deliberately unset
+	evt := sse.Event{ //nolint:exhaustruct_v5 // ID is attached conditionally below; Retry is deliberately unset
+		Event: sig.EventName(),
+		Data:  string(data),
+	}
 
 	if id, err := sse.ParseEventID(sig.EventID()); err == nil {
 		evt.ID = id

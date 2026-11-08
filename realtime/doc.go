@@ -31,6 +31,15 @@
 //
 //	hub := realtime.NewHub(realtime.WithStore(myStore))
 //
+// # The folded-contract source
+//
+// When the announced state comes from an event-sourced projection, wire the
+// broadcast through [FoldedSource]: it pulls the snapshot only AFTER the
+// fold signal arrives, so subscribers can never observe pre-fold state (the
+// naive notify-on-append wiring races the projection's fold and never
+// re-announces). See the README's folded-contract section for the full
+// contract and the drop-safety invariant.
+//
 // # SSE only
 //
 // This module supports Server-Sent Events exclusively. No WebSocket support

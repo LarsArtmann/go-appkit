@@ -369,6 +369,29 @@ engines, joining any errors instead of swallowing them. Even when the drain
 context expires on a stuck command, the close still runs — engines never
 leak.
 
+### Folded notifications (broadcast-strictly-after-fold)
+
+When a projection's state is announced over SSE, notify AFTER the fold, not
+on journal append: a naive wiring broadcasts pre-fold state and never
+re-announces, so clients sit stale until the next unrelated event (the W5-C2
+race — the design note in `docs/planning/` carries the timeline).
+`NotifyFolded` wraps any projection so the signal fires exactly when
+`Handle` returns successfully:
+
+```go
+folded := make(chan cqrs.FoldedEvent, 64)
+proj := cqrs.NotifyFolded(myProjection, folded)
+// register proj where myProjection would have gone, then:
+// realtime.FoldedSource(ctx, folded, func() any { return readModel.Snapshot() }, hub)
+```
+
+The send is non-blocking (a slow hub must never stall the fold); a full
+buffer drops the signal and counts it — `DroppedNotifications()` is the
+observability seam. Drops only delay re-sync: broadcasts carry full-state
+payloads, so the next delivered signal heals every client. A `nil` channel
+disables recording. The E2E discriminator (a mid-fold marker that a pre-fold
+broadcast would miss) is pinned by the integration module.
+
 ### Wiring health into go-health / appkithealth
 
 `HealthCheck` composes cleanly with the `appkithealth` module — one probe,

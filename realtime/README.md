@@ -81,6 +81,40 @@ _ = svc.Shutdown(ctx) // then the server
 Wire `hub.Shutdown` into `ServiceConfig.DrainHooks` or call it ahead of
 `svc.Shutdown` in your composition root.
 
+## The folded-contract source (projection → broadcast)
+
+When a read model is fed from an event journal AND announced over SSE, the
+naive wiring — notify the hub when the journal appends — races the
+projection's own fold: subscribers receive PRE-fold state and the event is
+never re-announced, so clients show stale data until the next unrelated
+event. The fix is an ordering contract, and realtime ships the broadcast
+half of it as code ([FoldedSource]):
+
+```go
+folded := make(chan cqrs.FoldedEvent, 64)
+proj := cqrs.NotifyFolded(myProjection, folded) // register proj, not myProjection
+realtime.FoldedSource(ctx, folded, func() any { return readModel.Snapshot() }, hub)
+```
+
+The pump calls `snapshot()` only AFTER receiving the folded signal (the
+signal is the happens-after edge) and broadcasts a full-state event named
+after the trigger (`cqrs.FoldedEvent` satisfies `realtime.FoldedSignal`
+structurally — neither module imports the other). Per-projection order is
+preserved: one goroutine per channel; with several projections on one hub,
+give each its own channel and FoldedSource.
+
+**Full-state payloads are the invariant that makes drops safe:** a folded
+signal dropped by the notifier's bounded buffer, or a broadcast dropped on
+a slow subscriber, only delays re-sync — the next delivered broadcast
+carries the whole state, not a delta. That is also why realtime keeps no
+drop counter of its own: the notifier's `DroppedNotifications()` is the
+single observability seam for the folded side (the W5-C1 drop-counter
+battery dedupes there rather than growing a second counter here). The
+contract and its acceptance discriminator (a mid-fold marker that a
+pre-fold broadcast would miss) are specified in the W5-C2 design note and
+pinned end-to-end by the integration module's
+`TestProjectionIntegration_SubscribeFoldedReflectsEvent`.
+
 ## Known limitations
 
 - Burst losses larger than the subscriber buffer (default 64) during a slow

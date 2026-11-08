@@ -2,7 +2,6 @@ package realtime
 
 import (
 	"context"
-	"runtime"
 	"sync"
 	"testing"
 	"time"
@@ -130,20 +129,12 @@ func TestFoldedSource_ClosedChannelStopsPump(t *testing.T) {
 	hub := NewHub()
 	folded := make(chan foldedTestSignal, 1)
 
-	before := runtime.NumGoroutine()
-
 	FoldedSource(t.Context(), folded, func() any { return struct{}{} }, hub)
 	close(folded)
 
-	deadline := time.Now().Add(2 * time.Second)
-
-	for runtime.NumGoroutine() < before && time.Now().Before(deadline) {
-		time.Sleep(time.Millisecond)
-	}
-
-	// The pump goroutine exiting on close may race NumGoroutine sampling of
-	// unrelated tests in the same binary; the broadcast silence below is
-	// the behavioral assertion, this loop is best-effort hygiene.
+	// Goroutine-exit sampling races the parallel test binary; the
+	// broadcast silence is the behavioral assertion: after the source
+	// channel closes, nothing may ever be announced.
 	ch := hub.Broadcaster.Subscribe()
 	defer hub.Broadcaster.Unsubscribe(ch)
 
@@ -228,5 +219,5 @@ func TestFoldedSignal_StructuralCompat(t *testing.T) {
 	t.Parallel()
 
 	var _ FoldedSignal = foldedTestSignal{name: "ThingRenamed", id: "evt-1"}
-	var _ = sse.Event{} // keep the sse import honest for future assertions
+	_ = sse.Event{} // keep the sse import honest for future assertions
 }
