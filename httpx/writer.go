@@ -48,10 +48,7 @@ func (w *Writer) Flush() {
 func (w *Writer) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	hijacker, ok := w.ResponseWriter.(http.Hijacker)
 	if !ok {
-		return nil, nil, errors.Join( //nolint:wrapcheck // sentinel + context, not a wrapped call
-			http.ErrHijackerNotSupported,
-			errors.New("httpx: the underlying ResponseWriter does not support hijacking"),
-		)
+		return nil, nil, errors.New("httpx: the underlying ResponseWriter does not support hijacking")
 	}
 
 	return hijacker.Hijack() //nolint:wrapcheck // pure delegation to the real hijacker
