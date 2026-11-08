@@ -22,7 +22,7 @@ type conditionalConfig struct {
 // (the wire form gains the quotes and any weakness prefix). The default
 // is a strong sha256 of the body — byte-deterministic and collision-proof,
 // the right default for feeds and calendars that pollers re-fetch.
-type ETagFunc(f func(body []byte) string) ConditionalOption {
+func ETagFunc(f func(body []byte) string) ConditionalOption {
 	return func(c *conditionalConfig) { c.etag.HashFunc = f }
 }
 
