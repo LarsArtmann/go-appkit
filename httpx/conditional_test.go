@@ -177,7 +177,7 @@ func TestConditional_IfNoneMatchTakesPrecedenceOverIMS(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, resp.Body); _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusNotModified {
 		t.Fatalf("status = %d, want 304 (If-None-Match decides, IMS ignored)", resp.StatusCode)
@@ -202,7 +202,7 @@ func TestConditional_MismatchedETagBeatsCurrentIMS(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, resp.Body); _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d, want 200 (mismatched If-None-Match decides: modified)", resp.StatusCode)
@@ -220,7 +220,7 @@ func TestConditional_HeadKeepsValidatorsNoBody(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
-	defer func() { _ = get.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, get.Body); _ = get.Body.Close() }()
 
 	etag := get.Header.Get("ETag")
 
@@ -235,7 +235,7 @@ func TestConditional_HeadKeepsValidatorsNoBody(t *testing.T) {
 	if err != nil {
 		t.Fatalf("HEAD: %v", err)
 	}
-	defer func() { _ = headResp.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, headResp.Body); _ = headResp.Body.Close() }()
 
 	if headResp.StatusCode != http.StatusNotModified {
 		t.Fatalf("HEAD status = %d, want 304", headResp.StatusCode)
@@ -260,7 +260,7 @@ func TestConditional_SkipBypassesValidators(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET /stream: %v", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, resp.Body); _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("skipped request status = %d, want an untouched 200", resp.StatusCode)
@@ -286,7 +286,7 @@ func TestConditional_ETagFuncOverride(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, resp.Body); _ = resp.Body.Close() }()
 
 	if got := resp.Header.Get("ETag"); got != `"custom-opaque"` {
 		t.Fatalf("ETag = %q, want the custom opaque tag quoted", got)
@@ -311,7 +311,7 @@ func TestConditional_NoValidatorsSentPlain200(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, resp.Body); _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d, want 200 (unparseable IMS is ignored)", resp.StatusCode)
