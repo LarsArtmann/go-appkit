@@ -168,20 +168,23 @@ func (w *imsWriter) notModifiedSince() bool {
 	return !modifiedAt.After(clientTime)
 }
 
-func (w *imsWriter) WriteHeader(status int) {
+// active decides once and reports whether the inner writer should still
+// receive this call — a suppressed response swallows every forwarded
+// method.
+func (w *imsWriter) active() bool {
 	w.decide()
 
-	if w.suppress {
-		return
-	}
+	return !w.suppress
+}
 
-	w.ResponseWriter.WriteHeader(status)
+func (w *imsWriter) WriteHeader(status int) {
+	if w.active() {
+		w.ResponseWriter.WriteHeader(status)
+	}
 }
 
 func (w *imsWriter) Write(b []byte) (int, error) {
-	w.decide()
-
-	if w.suppress {
+	if !w.active() {
 		return len(b), nil // pretend success: the inner layer must not error
 	}
 
@@ -191,9 +194,7 @@ func (w *imsWriter) Write(b []byte) (int, error) {
 // Flush forwards the flush unless the response is being suppressed — a
 // suppressed response has nothing to stream.
 func (w *imsWriter) Flush() {
-	w.decide()
-
-	if w.suppress {
+	if !w.active() {
 		return
 	}
 
