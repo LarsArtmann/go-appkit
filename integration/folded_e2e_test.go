@@ -116,7 +116,7 @@ func dispatchAddThing(es *cqrs.EventService) http.HandlerFunc {
 			return
 		}
 
-		if dispErr := es.Dispatch(r.Context(), cmd); dispErr != nil {
+		if dispErr := es.Dispatch(context.WithoutCancel(r.Context()), cmd); dispErr != nil {
 			http.Error(w, dispErr.Error(), http.StatusInternalServerError)
 
 			return

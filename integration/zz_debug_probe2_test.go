@@ -7,10 +7,8 @@ import (
 	"testing"
 	"time"
 
-	appkit "github.com/larsartmann/go-appkit"
 	"github.com/larsartmann/go-appkit/cqrs"
 	"github.com/larsartmann/go-appkit/realtime"
-	"github.com/larsartmann/go-appkit/testkit"
 	"github.com/larsartmann/go-sse/ssetest"
 )
 
