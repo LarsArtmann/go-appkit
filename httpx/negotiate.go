@@ -55,6 +55,10 @@ func Negotiate(r *http.Request, offers ...string) string {
 
 			c.quality = q
 			c.specificity = s
+		} else if accept != "" {
+			// The header names types but none of them (nor any wildcard)
+			// accepts this offer — it is not acceptable, not a default.
+			continue
 		}
 
 		if best.index == -1 || c.beats(best) {
@@ -92,11 +96,13 @@ func (c negotiationCandidate) beats(other negotiationCandidate) bool {
 }
 
 // negotiateMatch finds how the Accept header values a given bare media
-// type: the best (q, specificity) among all entries that accept it.
-// specificity: 2 = exact type, 1 = subtype wildcard (type/*), 0 = */*.
+// type: the best (q, specificity) among all entries that accept it. An
+// absent header accepts everything at wildcard level (RFC: absent Accept
+// = */*). specificity: 2 = exact type, 1 = subtype wildcard (type/*),
+// 0 = */*.
 func negotiateMatch(bareOffer, accept string) (quality float64, specificity int, mentioned bool) {
 	if accept == "" {
-		return 1, 0, false // absent header: everything acceptable, no preference
+		return 1, 0, true // absent header: everything acceptable at wildcard preference
 	}
 
 	best := negotiationCandidate{index: -1}
@@ -111,7 +117,10 @@ func negotiateMatch(bareOffer, accept string) (quality float64, specificity int,
 
 		q := qualityParam(params)
 
-		if best.index == -1 || q > best.quality || (q == best.quality && s > best.specificity) {
+		// The MOST SPECIFIC matching range governs (RFC: a specific
+		// reference takes precedence over a less specific one) — a q=0 on
+		// the exact type is a refusal a wildcard cannot resurrect.
+		if best.index == -1 || s > best.specificity || (s == best.specificity && q > best.quality) {
 			best = negotiationCandidate{quality: q, specificity: s, index: 0}
 		}
 	}
@@ -211,7 +220,7 @@ func RequestCodec(r *http.Request) (codec.Codec, error) {
 			ErrUnsupportedMediaType, errorfamily.Rejection,
 			"negotiate.unsupported_media_type",
 			"Content-Type %q is not decodable (want JSON or CBOR)", contentType,
-		)
+		).WithHTTPStatus(http.StatusUnsupportedMediaType)
 	}
 }
 
@@ -229,8 +238,8 @@ func RequestCodec(r *http.Request) (codec.Codec, error) {
 func ResponseCodec(r *http.Request, reqCodec codec.Codec) codec.Codec {
 	accept := r.Header.Get("Accept")
 
-	cborQ, _, cborWanted := negotiateMatch("application/cbor", accept)
-	jsonQ, _, jsonWanted := negotiateMatch("application/json", accept)
+	cborQ, cborWanted := codecQuality(accept, codec.EncodingCBOR)
+	jsonQ, jsonWanted := codecQuality(accept, codec.EncodingJSON)
 
 	jsonCodec := codecForEncoding(codec.EncodingJSON)
 	cborCodec := codecForEncoding(codec.EncodingCBOR)
@@ -268,6 +277,39 @@ func ResponseCodec(r *http.Request, reqCodec codec.Codec) codec.Codec {
 	default:
 		return reqCodec
 	}
+}
+
+// codecQuality reports the highest q the Accept header assigns to any
+// media type representing enc (bare type or structured-suffix variant,
+// RFC 6839), and whether such a type is mentioned at all. Wildcards do
+// not count as a mention: they express no preference between JSON and
+// CBOR, so callers fall back to the request codec when only wildcards
+// match (the recorded negotiation contract).
+func codecQuality(accept string, enc codec.Encoding) (float64, bool) {
+	base, suffix := "application/json", "+json"
+	if enc == codec.EncodingCBOR {
+		base, suffix = "application/cbor", "+cbor"
+	}
+
+	var (
+		quality   float64
+		mentioned bool
+	)
+
+	for entry := range strings.SplitSeq(accept, ",") {
+		mediaRange, params, _ := strings.Cut(entry, ";")
+
+		bare := bareMediaType(mediaRange)
+		if bare != base && !strings.HasSuffix(bare, suffix) {
+			continue
+		}
+
+		if q := qualityParam(params); !mentioned || q > quality {
+			quality, mentioned = q, true
+		}
+	}
+
+	return quality, mentioned
 }
 
 func codecForEncoding(enc codec.Encoding) codec.Codec {
