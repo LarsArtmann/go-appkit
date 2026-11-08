@@ -110,6 +110,35 @@ func TestInstall_ComposesWithConsumerHooks(t *testing.T) {
 	}
 }
 
+// TestInstall_ReturnsTheWiredHooks pins the failed-start escape hatch:
+// Install returns the Hooks value it appended, and its Shutdown is the
+// idempotent watchdog-stop already wired into cfg — a start path that
+// fails after StartHooks ran (ShutdownHooks never run there) can stop
+// the keepalive by calling it, as often as it likes.
+func TestInstall_ReturnsTheWiredHooks(t *testing.T) {
+	t.Parallel()
+
+	cfg := appkit.DefaultServiceConfig()
+
+	hooks := Install(&cfg, WithLogger(discardLogger()))
+
+	if hooks.Start == nil || hooks.Drain == nil || hooks.Shutdown == nil {
+		t.Fatal("Install returned a nil hook")
+	}
+
+	if len(cfg.ShutdownHooks) != 1 {
+		t.Fatalf("ShutdownHooks = %d hooks, want 1", len(cfg.ShutdownHooks))
+	}
+
+	if err := hooks.Shutdown(context.Background()); err != nil {
+		t.Fatalf("returned Shutdown hook failed: %v", err)
+	}
+
+	if err := cfg.ShutdownHooks[0](context.Background()); err != nil {
+		t.Fatalf("wired Shutdown hook failed after the returned one ran: %v", err)
+	}
+}
+
 // TestInstall_NoSocketOutsideSystemd proves the development story: without
 // NOTIFY_SOCKET the whole lifecycle is a no-op — the service starts,
 // serves, and shuts down with zero hook errors.

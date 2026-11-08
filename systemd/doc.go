@@ -49,7 +49,9 @@
 //     not.
 //
 // Install appends to the config's hook slices — consumer hooks compose
-// before and after.
+// before and after — and returns the Hooks value it wired in, so a start
+// path that fails after StartHooks ran can stop the watchdog keepalive
+// (its Shutdown is the identical, idempotent hook already appended).
 //
 // # Observability
 //

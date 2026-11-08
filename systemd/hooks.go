@@ -47,12 +47,21 @@ type Hooks struct {
 // that order. It appends — never replaces — so consumer hooks compose
 // around it. Call it once, before [appkit.NewService]; there is nothing
 // to uninstall (the hooks are plain config values).
-func Install(cfg *appkit.ServiceConfig, opts ...Option) {
+//
+// It returns the same [Hooks] value it wired into cfg. Keep it when the
+// start path can fail after StartHooks already ran (a later hook error, a
+// post-hook setup failure): appkit runs ShutdownHooks only for services
+// that reached shutdown, so on a failed start nothing would stop the
+// watchdog keepalive — calling the returned Shutdown does (it is the
+// identical, idempotent hook already wired into cfg.ShutdownHooks).
+func Install(cfg *appkit.ServiceConfig, opts ...Option) Hooks {
 	hooks := New(opts...)
 
 	cfg.StartHooks = append(cfg.StartHooks, hooks.Start)
 	cfg.DrainHooks = append(cfg.DrainHooks, hooks.Drain)
 	cfg.ShutdownHooks = append(cfg.ShutdownHooks, hooks.Shutdown)
+
+	return hooks
 }
 
 // hooksConfig carries the New/Install options.

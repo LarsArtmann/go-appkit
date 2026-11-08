@@ -69,8 +69,13 @@ the next tick (one lost datagram must not kill a healthy service; the
 manager is the arbiter of when the service is truly stuck).
 
 `Install` appends to the config's hook slices (never replaces), so consumer
-hooks compose before and after. `New(opts...)` returns the three hooks as
-plain values for manual wiring; each is independently usable.
+hooks compose before and after. It returns the `Hooks` value it wired in —
+keep it when your start path can fail after `StartHooks` already ran (appkit
+runs `ShutdownHooks` only for services that reached shutdown): calling the
+returned `Shutdown` stops the watchdog keepalive on that path. It is the
+identical, idempotent hook already wired into `ShutdownHooks`. `New(opts...)`
+returns the three hooks as plain values for manual wiring; each is
+independently usable.
 
 ## Options
 
