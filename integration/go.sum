@@ -182,7 +182,7 @@ github.com/larsartmann/go-appkit/realtime v0.2.0 h1:DTAPBjIYZK+0e9eIA2rUTK00KfdO
 github.com/larsartmann/go-appkit/realtime v0.2.0/go.mod h1:Hy2Anmbo8YtcOKiQInyop2G9YS9KE0apJXqbpZaiG2o=
 github.com/larsartmann/go-appkit/security v0.2.0 h1:vrRRfqN9XMo1xIeq2E07I7vXahyRRqaxJJZbC+kyRpo=
 github.com/larsartmann/go-appkit/security v0.2.0/go.mod h1:3YaJgChFhKB10DsrYViV0vpfuMn4n5ItYm6xMIYhncI=
-github.com/larsartmann/go-appkit/systemd v0.2.0 h1:M+NKYS35swFvRLv/j/YmwNmHzETaImObH4FGlErVnro=
+github.com/larsartmann/go-appkit/systemd v0.2.0 h1:WzJgu9effmr2JFAMsIQ6LLZRm69cjgKg9H4kSZFtx+4=
 github.com/larsartmann/go-appkit/systemd v0.2.0/go.mod h1:CI1kikUyCEf5mYb+0m1ST7t9jN8n2SYIvgdanM2KJdg=
 github.com/larsartmann/go-branded-id v0.7.0 h1:k5KT50Kh0WmeniH0rQ3Gvm2RdSAQFZtuRhXWDtQkWhU=
 github.com/larsartmann/go-branded-id v0.7.0/go.mod h1:gM5FhB6d23qZO8hIU/rHpUnm/6dwKy9UGMhgvXDqNsc=
