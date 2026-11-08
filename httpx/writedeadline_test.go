@@ -33,7 +33,11 @@ func TestWriteDeadline_ExtendsDeadlineForMatchingPrefixes(t *testing.T) {
 
 	srv.Start()
 
-	resp, err := http.Post(srv.URL+"/api/agent/run", "text/plain", strings.NewReader("go")) //nolint:noctx // test server probe
+	resp, err := http.Post(
+		srv.URL+"/api/agent/run",
+		"text/plain",
+		strings.NewReader("go"),
+	) //nolint:noctx // test server probe
 	if err != nil {
 		t.Fatalf("POST: %v", err)
 	}
@@ -63,9 +67,13 @@ func TestWriteDeadline_UncoveredRouteKeepsServerDeadline(t *testing.T) {
 
 	srv.Start()
 
-	resp, err := http.Post(srv.URL+"/api/fast/run", "text/plain", strings.NewReader("go")) //nolint:noctx // test server probe
+	resp, err := http.Post(
+		srv.URL+"/api/fast/run",
+		"text/plain",
+		strings.NewReader("go"),
+	) //nolint:noctx // test server probe
 	if err == nil {
-		_ = resp.Body.Close()
+		func() { _ = resp.Body.Close() }()
 		t.Fatal("the slow uncovered write SUCCEEDED — the server WriteTimeout never applied (control broken)")
 	}
 }

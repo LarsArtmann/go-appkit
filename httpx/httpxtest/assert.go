@@ -115,11 +115,17 @@ func ForwardingFindings(wrap func(base http.ResponseWriter) http.ResponseWriter)
 	var findings []string
 
 	if _, ok := wrapped.(http.Flusher); !ok {
-		findings = append(findings, describe(wrapped)+" hides http.Flusher — SSE and streaming handlers through it stall in production")
+		findings = append(
+			findings,
+			describe(wrapped)+" hides http.Flusher — SSE and streaming handlers through it stall in production",
+		)
 	}
 
 	if _, ok := wrapped.(http.Hijacker); !ok {
-		findings = append(findings, describe(wrapped)+" hides http.Hijacker — connection upgrades through it fail at runtime")
+		findings = append(
+			findings,
+			describe(wrapped)+" hides http.Hijacker — connection upgrades through it fail at runtime",
+		)
 	}
 
 	wrapped.Header().Set("X-Probe", "1")
@@ -141,7 +147,12 @@ func ForwardingFindings(wrap func(base http.ResponseWriter) http.ResponseWriter)
 	if flusher, ok := wrapped.(http.Flusher); ok {
 		flusher.Flush()
 		if base.flushes == 0 {
-			findings = append(findings, describe(wrapped)+" satisfies http.Flusher but does not forward Flush — a no-op stub that only passes the type assertion")
+			findings = append(
+				findings,
+				describe(
+					wrapped,
+				)+" satisfies http.Flusher but does not forward Flush — a no-op stub that only passes the type assertion",
+			)
 		}
 	}
 
@@ -155,7 +166,12 @@ func ForwardingFindings(wrap func(base http.ResponseWriter) http.ResponseWriter)
 	rc := http.NewResponseController(wrapped)
 	_ = rc.EnableFullDuplex()
 	if base.fullDuplexAttempts == 0 {
-		findings = append(findings, describe(wrapped)+" is opaque to http.ResponseController — neither Unwrap nor a full-duplex capability lets the controller reach the base")
+		findings = append(
+			findings,
+			describe(
+				wrapped,
+			)+" is opaque to http.ResponseController — neither Unwrap nor a full-duplex capability lets the controller reach the base",
+		)
 	}
 
 	return findings

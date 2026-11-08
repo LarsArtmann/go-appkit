@@ -42,27 +42,27 @@ func Negotiate(r *http.Request, offers ...string) string {
 	best := negotiationCandidate{index: -1}
 
 	for i, offer := range offers {
-		c := negotiationCandidate{
+		candidate := negotiationCandidate{
 			index:       i,
 			quality:     0,
 			specificity: -1,
 		}
 
-		if q, s, mentioned := negotiateMatch(bareMediaType(offer), accept); mentioned {
-			if q == 0 {
+		if quality, specificity, mentioned := negotiateMatch(bareMediaType(offer), accept); mentioned {
+			if quality == 0 {
 				continue // explicit refusal can never win
 			}
 
-			c.quality = q
-			c.specificity = s
+			candidate.quality = quality
+			candidate.specificity = specificity
 		} else if accept != "" {
 			// The header names types but none of them (nor any wildcard)
 			// accepts this offer — it is not acceptable, not a default.
 			continue
 		}
 
-		if best.index == -1 || c.beats(best) {
-			best = c
+		if best.index == -1 || candidate.beats(best) {
+			best = candidate
 		}
 	}
 
@@ -100,28 +100,29 @@ func (c negotiationCandidate) beats(other negotiationCandidate) bool {
 // absent header accepts everything at wildcard level (RFC: absent Accept
 // = */*). specificity: 2 = exact type, 1 = subtype wildcard (type/*),
 // 0 = */*.
-func negotiateMatch(bareOffer, accept string) (quality float64, specificity int, mentioned bool) {
+func negotiateMatch(bareOffer, accept string) (float64, int, bool) {
 	if accept == "" {
 		return 1, 0, true // absent header: everything acceptable at wildcard preference
 	}
 
-	best := negotiationCandidate{index: -1}
+	best := negotiationCandidate{index: -1, quality: 0, specificity: 0}
 
 	for entry := range strings.SplitSeq(accept, ",") {
 		mediaRange, params, _ := strings.Cut(entry, ";")
 
-		s, ok := rangeMatches(bareOffer, bareMediaType(mediaRange))
+		specificity, ok := rangeMatches(bareOffer, bareMediaType(mediaRange))
 		if !ok {
 			continue
 		}
 
-		q := qualityParam(params)
+		quality := qualityParam(params)
 
 		// The MOST SPECIFIC matching range governs (RFC: a specific
 		// reference takes precedence over a less specific one) — a q=0 on
 		// the exact type is a refusal a wildcard cannot resurrect.
-		if best.index == -1 || s > best.specificity || (s == best.specificity && q > best.quality) {
-			best = negotiationCandidate{quality: q, specificity: s, index: 0}
+		if best.index == -1 || specificity > best.specificity ||
+			(specificity == best.specificity && quality > best.quality) {
+			best = negotiationCandidate{quality: quality, specificity: specificity, index: 0}
 		}
 	}
 
@@ -244,16 +245,11 @@ func ResponseCodec(r *http.Request, reqCodec codec.Codec) codec.Codec {
 	jsonCodec := codecForEncoding(codec.EncodingJSON)
 	cborCodec := codecForEncoding(codec.EncodingCBOR)
 
+	if cborWanted && jsonWanted {
+		return pickBetweenCodecs(jsonQ, cborQ, jsonCodec, cborCodec, reqCodec)
+	}
+
 	switch {
-	case cborWanted && jsonWanted:
-		switch {
-		case jsonQ > cborQ:
-			return jsonCodec
-		case cborQ > jsonQ, cborQ > 0:
-			return cborCodec
-		default:
-			return reqCodec
-		}
 	case cborWanted:
 		if cborQ > 0 {
 			return cborCodec
@@ -312,15 +308,28 @@ func codecQuality(accept string, enc codec.Encoding) (float64, bool) {
 	return quality, mentioned
 }
 
+// pickBetweenCodecs resolves the both-mentioned branch: higher q wins,
+// tie prefers CBOR (denser), both refused falls back to the request codec.
+func pickBetweenCodecs(jsonQ, cborQ float64, jsonCodec, cborCodec, reqCodec codec.Codec) codec.Codec {
+	switch {
+	case jsonQ > cborQ:
+		return jsonCodec
+	case cborQ > jsonQ, cborQ > 0:
+		return cborCodec
+	default:
+		return reqCodec
+	}
+}
+
 func codecForEncoding(enc codec.Encoding) codec.Codec {
-	c, err := codec.ForEncoding(enc)
+	resolved, err := codec.ForEncoding(enc)
 	if err != nil {
 		// Unreachable for the two built-in encodings above; ForEncoding
 		// only fails for unknown encodings, which these are not.
 		panic(err)
 	}
 
-	return c
+	return resolved
 }
 
 // encodingForContentType maps a Content-Type value to its codec

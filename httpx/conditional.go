@@ -59,8 +59,9 @@ func SkipConditional(pred func(*http.Request) bool) ConditionalOption {
 // GET and HEAD only — conditional semantics for unsafe methods
 // (If-Match/412) are a different battery and deliberately not smuggled
 // in here.
-func Conditional(h http.Handler, opts ...ConditionalOption) http.Handler {
-	cfg := conditionalConfig{etag: etagServerConfig()}
+func Conditional(handler http.Handler, opts ...ConditionalOption) http.Handler {
+	cfg := conditionalConfig{etag: etagServerConfig(), skip: nil}
+
 	for _, opt := range opts {
 		if opt != nil {
 			opt(&cfg)
@@ -71,13 +72,13 @@ func Conditional(h http.Handler, opts ...ConditionalOption) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if cfg.skip != nil && cfg.skip(r) {
-			h.ServeHTTP(w, r)
+			handler.ServeHTTP(w, r)
 
 			return
 		}
 
-		ims := &imsWriter{ResponseWriter: w, req: r}
-		etagLayer(h).ServeHTTP(ims, r)
+		ims := &imsWriter{ResponseWriter: w, req: r, decided: false, suppress: false}
+		etagLayer(handler).ServeHTTP(ims, r)
 		ims.finish()
 	})
 }

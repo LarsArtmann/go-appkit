@@ -38,18 +38,53 @@ func TestNegotiate(t *testing.T) {
 	}{
 		{"absent header serves first offer", "", []string{"text/html", "application/json"}, "text/html"},
 		{"exact match", "application/json", []string{"text/html", "application/json"}, "application/json"},
-		{"q ranking", "text/html;q=0.3, application/json;q=0.9", []string{"text/html", "application/json"}, "application/json"},
-		{"tie keeps offer order", "text/html, application/json", []string{"text/html", "application/json"}, "text/html"},
-		{"reordered offers keep preference order", "application/json, text/html", []string{"text/html", "application/json"}, "text/html"},
+		{
+			"q ranking",
+			"text/html;q=0.3, application/json;q=0.9",
+			[]string{"text/html", "application/json"},
+			"application/json",
+		},
+		{
+			"tie keeps offer order",
+			"text/html, application/json",
+			[]string{"text/html", "application/json"},
+			"text/html",
+		},
+		{
+			"reordered offers keep preference order",
+			"application/json, text/html",
+			[]string{"text/html", "application/json"},
+			"text/html",
+		},
 		{"full wildcard serves first offer", "*/*", []string{"text/html", "application/json"}, "text/html"},
 		{"subtype wildcard beats unmentioned", "text/*", []string{"application/json", "text/html"}, "text/html"},
-		{"subtype wildcard loses on q", "text/*;q=0.8, application/json;q=0.9", []string{"text/html", "application/json"}, "application/json"},
-		{"parameters ignored in matching", "TEXT/HTML; charset=utf-8", []string{"text/html", "application/json"}, "text/html"},
-		{"q zero refuses the offer", "text/html;q=0, */*", []string{"text/html", "application/json"}, "application/json"},
+		{
+			"subtype wildcard loses on q",
+			"text/*;q=0.8, application/json;q=0.9",
+			[]string{"text/html", "application/json"},
+			"application/json",
+		},
+		{
+			"parameters ignored in matching",
+			"TEXT/HTML; charset=utf-8",
+			[]string{"text/html", "application/json"},
+			"text/html",
+		},
+		{
+			"q zero refuses the offer",
+			"text/html;q=0, */*",
+			[]string{"text/html", "application/json"},
+			"application/json",
+		},
 		{"all offers refused", "text/html;q=0", []string{"text/html"}, ""},
 		{"unrelated types only", "image/png", []string{"text/html", "application/json"}, ""},
 		{"empty offers", "text/html", nil, ""},
-		{"malformed q falls back to default 1", "text/html;q=banana, application/json;q=0.5", []string{"text/html", "application/json"}, "text/html"},
+		{
+			"malformed q falls back to default 1",
+			"text/html;q=banana, application/json;q=0.5",
+			[]string{"text/html", "application/json"},
+			"text/html",
+		},
 	}
 
 	for _, tc := range cases {

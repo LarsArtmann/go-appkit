@@ -42,13 +42,17 @@ func (w *Writer) Flush() {
 	}
 }
 
+// errHijackUnsupported is static (the err113 contract): the writer
+// chain cannot hijack — a wiring fact, not a dynamic condition.
+var errHijackUnsupported = errors.New("httpx: the underlying ResponseWriter does not support hijacking")
+
 // Hijack forwards to the underlying writer when it implements
 // http.Hijacker; otherwise it returns an explicit error rather than
 // pretending the connection was taken over.
 func (w *Writer) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	hijacker, ok := w.ResponseWriter.(http.Hijacker)
 	if !ok {
-		return nil, nil, errors.New("httpx: the underlying ResponseWriter does not support hijacking")
+		return nil, nil, errHijackUnsupported
 	}
 
 	return hijacker.Hijack() //nolint:wrapcheck // pure delegation to the real hijacker

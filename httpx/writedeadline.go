@@ -35,7 +35,7 @@ import (
 // Prefixes match literally, including any trailing slash — pass
 // "/api/agent/" to cover the subtree, "/api/agent/report" to cover a
 // single route and everything under it.
-func WriteDeadline(d time.Duration, prefixes ...string) func(http.Handler) http.Handler {
+func WriteDeadline(extension time.Duration, prefixes ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if !matchesAnyPrefix(r.URL.Path, prefixes) {
@@ -45,7 +45,7 @@ func WriteDeadline(d time.Duration, prefixes ...string) func(http.Handler) http.
 			}
 
 			rc := http.NewResponseController(w)
-			if err := rc.SetWriteDeadline(time.Now().Add(d)); err != nil {
+			if err := rc.SetWriteDeadline(time.Now().Add(extension)); err != nil {
 				WriteError(w, r, errorfamily.NewInfrastructure(
 					"httpx.write_deadline_unreachable",
 					"extending the write deadline failed: the ResponseWriter chain hides the connection "+
