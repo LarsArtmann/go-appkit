@@ -229,12 +229,17 @@ linters:
         - .WithStack(
         # go-error-family IS the wrapping layer — its constructors are the
         # sanctioned terminal forms (v2.15.0 wrapcheck drift, 2026-11-07).
+        # .WithHTTPStatus( covers the CHAINED builder method: v2.15.0 flags
+        # the chain, v2.14.0 does not — a config sig is version-inert, an
+        # inline nolint would trip nolintlint as unused under v2.14.0 (the
+        # CI fleet-lint red of 2026-11-08).
         - Newf(
         - NewRejection(
         - WrapInfrastructuref(
         - WrapInfrastructure(
         - WrapRejection(
         - WrapRejectionf(
+        - .WithHTTPStatus(
   exclusions:
     generated: lax
     rules:
