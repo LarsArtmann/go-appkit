@@ -217,4 +217,21 @@ stale/false again, CLI disproved all 23 warnings)
    or is the deterministic mid-fold gate a hard requirement from the CV
    discriminator spec?
 
-— Session paused here per instruction. Waiting for answers.
+## h) CLOSE-OUT (2026-11-08 ~10:0x, annotated post-completion)
+
+All of §f 6-15 executed; the wave SHIPPED (cqrs v0.9.0, realtime v0.2.0,
+httpx v0.2.0, systemd v0.2.0 — pushed, proxy-verified, fresh-consumer
+×4, verify-all + example-smoke green, CI green on the final code commit
+`6c6c9e6` modulo the designed ci-preflight secret gate). Full narrative:
+the 08-38 report §h close-out (hang fix → re-tags → pre-tag-checks →
+push → gosum repair → CI fixes). Question answers: (1) push authorized
+(owner paste instruction 8) and done; (2) goroutine-leak policy — MOOT
+(see the 08-38 root-cause: the trip was the hung test's engine leaking;
+tests that complete coexist cleanly with the detector, no policy change
+needed); (3) negative-control redesign — YES, restructured (observed
+signal + 2s fallback), the design note §4 carries the ERRATUM. Item 16
+(cqrs StartProjections ctx-lifetime godoc) and the upstream
+sync-publish/blocking-handler ask are PARKED as TODO_LIST rows awaiting
+owner input.
+
+— Session closed out.

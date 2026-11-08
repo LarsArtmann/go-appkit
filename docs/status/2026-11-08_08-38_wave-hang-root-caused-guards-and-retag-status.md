@@ -147,4 +147,45 @@ question 2 below.
    as superseded (I will annotate the note), or do you want the spec
    revisited differently?
 
-— Paused per instruction. Waiting.
+## h) CLOSE-OUT (2026-11-08 ~10:0x, annotated post-completion)
+
+Everything in §f executed to green; the wave is SHIPPED and verified:
+
+1. Drain findings fixed (2 markers + 1 drain) — drain guard green across
+   all 14 module dirs at pre-tag-checks.
+2. systemd/v0.2.0 re-cut clean (binary gone from the tagged tree; the
+   other three tags never carried it) — `git ls-tree` proofs taken.
+3. pre-tag-checks GREEN (exit 0, 157 OKs, gosum-canonical the expected
+   DEFER on local-only tags).
+4. All four tags PUSHED (cqrs/v0.9.0, realtime/v0.2.0, systemd/v0.2.0 →
+   `b4ff7b7`; httpx/v0.2.0 → `2cb44aa`); proxy `.zip` 200 ×4.
+5. gosum-canonical REPAIRED, not deferred-around: integration/go.sum had
+   FIRST-CUT zip hashes for httpx AND systemd (the insteadOf tidy ran
+   before the re-cuts). Fixed per the stale-VCS-cache recipe — strip the
+   wave-pin lines, purge the poisoned download-cache entries + the stale
+   VCS bare clone, re-tidy via proxy resolution. Only those two hash
+   lines changed (cqrs/realtime were already canonical). Guard GREEN
+   post-push (`08f487d`). NO tag was moved — origin+proxy are final.
+6. Master pushed; fresh-consumer ×4 GREEN (scratch module, fresh
+   GOMODCACHE, compile-level usage of every new API incl. the
+   cross-module `FoldedSource[cqrs.FoldedEvent]` instantiation);
+   verify-all ALL GREEN; example-smoke GREEN; structure-linter +
+   status-index + agents-deps green.
+7. CI on the final code-bearing commit (`6c6c9e6`): 43/44 green — the
+   only red is the DESIGNED ci-preflight SSH-secret gate. Two real CI
+   failures were root-caused and fixed on the way: (a) fleet-lint died
+   SILENTLY at httpx — verify-all.sh's lint loop lacked the test loop's
+   `if` guard, so `set -e` aborted before printing the verdict/findings
+   (fixed, born-red proven with a stub linter); the hidden finding was
+   golangci v2.14.0-vs-v2.15.0 wrapcheck drift (inline nolint unused
+   under 2.14, needed under 2.15) — replaced with a version-inert
+   `.WithHTTPStatus(` ignore-sig, verified green under BOTH binaries;
+   (b) the otel `test (./otel)` `CloseIdleConnections` transport race —
+   single-occurrence flake of the documented shared-DefaultTransport
+   class, did NOT recur on the fresh run.
+
+Questions resolved: (1) push — authorized by the owner's standing paste
+instruction 8; executed. (2) upstream ask vs doc-only — STILL OPEN,
+parked as a TODO_LIST row (owner answer pending). (3) control redesign —
+treated as superseded; the design note §4 ERRATUM records why (engine
+delivery mechanics forbid a mid-fold blocking gate).
