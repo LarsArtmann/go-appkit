@@ -8,6 +8,10 @@ github.com/larsartmann/go-appkit/errorpages v0.1.3 h1:BPrCMl9qpCUpjVHDI/o/WqivZk
 github.com/larsartmann/go-appkit/errorpages v0.1.3/go.mod h1:75Ciw3aOCKD+thWb0ryUNHU5fOSIGtcuA3FkTYoPATc=
 github.com/larsartmann/go-error-family v0.12.0 h1:HEtocvwaPe9udDusqDqV0pxN9Wx98KHQBK0MEHZupzg=
 github.com/larsartmann/go-error-family v0.12.0/go.mod h1:gB43rKC69SoPilihuze43OFqKYMGQxDNUi/25PF9MgE=
+github.com/larsartmann/go-etag/entitytag v0.6.1 h1:tBr+hR4dqks75SY+pqmUNHUajzOG6qUfT8gE9H+Pbws=
+github.com/larsartmann/go-etag/entitytag v0.6.1/go.mod h1:e09zrSYF6RS8c0IzxZnI1HZQw15gIgwlyp3zerGv+bI=
+github.com/larsartmann/go-etag/server v0.6.1 h1:JVguufBCoLSj83bHM1FqgfSEYc2x1E31kL/Gt1pESHY=
+github.com/larsartmann/go-etag/server v0.6.1/go.mod h1:o3VNBhO58/5rIm0qaU3jLsgRPyjTcaMBtfbHm0lphJk=
 github.com/larsartmann/templ-components/errorpage v1.26.0 h1:Vxt+lzS5/rtXGCEoP6PmfjLIBzT11duXxlAqGWrqIv4=
 github.com/larsartmann/templ-components/errorpage v1.26.0/go.mod h1:skrXUZZyGIfpDI8vROhv8VMJXh7W9Qtq0yBnP0DpibM=
 github.com/larsartmann/templ-components/icons v1.26.0 h1:lPG2vAAK3tahIExmnaFvGv/9yZ+3atcVjwDJPFu/2uc=

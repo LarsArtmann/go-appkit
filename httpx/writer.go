@@ -58,3 +58,10 @@ func (w *Writer) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 func (w *Writer) Unwrap() http.ResponseWriter {
 	return w.ResponseWriter
 }
+
+// compile-time contracts: the wrapper never hides the optional interfaces.
+var (
+	_ http.Flusher                              = (*Writer)(nil)
+	_ http.Hijacker                             = (*Writer)(nil)
+	_ interface{ Unwrap() http.ResponseWriter } = (*Writer)(nil)
+)
