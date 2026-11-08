@@ -217,7 +217,7 @@ func RequestCodec(r *http.Request) (codec.Codec, error) {
 	case ok:
 		return codec.ForEncoding(enc) //nolint:wrapcheck // ForEncoding's classified error is the honest return
 	default:
-		return nil, errorfamily.Wrapf( //nolint:wrapcheck // constructor is the sanctioned terminal form
+		return nil, errorfamily.Wrapf(
 			ErrUnsupportedMediaType, errorfamily.Rejection,
 			"negotiate.unsupported_media_type",
 			"Content-Type %q is not decodable (want JSON or CBOR)", contentType,

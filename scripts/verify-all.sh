@@ -99,12 +99,23 @@ if [[ $SKIP_LINT == false ]]; then
 	for mod in "${MODULES[@]}"; do
 		log="$LOG_DIR/$(echo "$mod" | tr '/' '_')_lint.log"
 		echo "--- lint $mod ---"
+		# Guarded like the test loop: a bare nonzero lint exit under set -e
+		# aborts the script BEFORE the verdict line, swallowing the findings
+		# into the per-module log (CI's fleet-lint died this way on httpx,
+		# 2026-11-08 — exit 1 at "--- lint httpx ---", zero findings shown).
 		if [[ "$mod" == "integration" ]]; then
-			(cd "$mod" && GOWORK=off golangci-lint run ./...) >"$log" 2>&1
+			if (cd "$mod" && GOWORK=off golangci-lint run ./...) >"$log" 2>&1; then
+				verdict "$mod lint" 0 "$log"
+			else
+				verdict "$mod lint" $? "$log"
+			fi
 		else
-			(cd "$mod" && golangci-lint run ./...) >"$log" 2>&1
+			if (cd "$mod" && golangci-lint run ./...) >"$log" 2>&1; then
+				verdict "$mod lint" 0 "$log"
+			else
+				verdict "$mod lint" $? "$log"
+			fi
 		fi
-		verdict "$mod lint" $? "$log"
 	done
 fi
 
