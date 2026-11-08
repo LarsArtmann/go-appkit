@@ -280,25 +280,19 @@ func resolveStorage(cfg EventConfig) (string, string, []string, error) {
 	return driver, dsn, pragmas, nil
 }
 
-// defaultDeployment builds the single-engine deployment mirroring the
-// reference consumer pattern: one engine, one source-of-truth instance and
-// one projections instance.
+// defaultDeployment fills the canonical three-tier topology (ADR-0165) via
+// system.Standard: a source-of-truth instance and a dedicated query-audit
+// instance on the declared engine, projections pooled over every declared
+// engine (one here, so the pool is that engine). The engine itself — driver,
+// DSN, pragmas — stays operator-owned; Standard only fills instances.
 func defaultDeployment(driver, dsn string, pragmas []string) system.DeploymentConfig {
-	return system.DeploymentConfig{ //nolint:exhaustruct_v5 // optional operator fields intentionally zero
+	return system.Standard(system.DeploymentConfig{ //nolint:exhaustruct_v5 // optional operator fields intentionally zero
 		Engines: map[string]system.EngineConfig{
 			defaultEngineName: { //nolint:exhaustruct_v5 // priority and views intentionally default
 				Driver: driver, DSN: dsn, Pragmas: pragmas,
 			},
 		},
-		Instances: []system.InstanceConfig{
-			{ //nolint:exhaustruct_v5 // optional instance fields intentionally zero
-				Role: system.RoleSourceOfTruth, Engine: defaultEngineName,
-			},
-			{ //nolint:exhaustruct_v5 // optional instance fields intentionally zero
-				Role: system.RoleProjections, Engine: defaultEngineName,
-			},
-		},
-	}
+	})
 }
 
 // openAuxResources opens the auxiliary *sql.DB backing the default DLQ

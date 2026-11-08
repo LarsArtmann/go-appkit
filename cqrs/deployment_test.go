@@ -10,6 +10,39 @@ import (
 // they are round-trip-verified against system.LoadConfig — the same parser
 // EventConfig.ConfigPath uses. A snippet that stops parsing fails here, not
 // in an operator's editor.
+// TestDefaultDeployment_StandardTopology pins the ADR-0165 adoption: the
+// Driver/DSN default path fills the canonical three-tier topology via
+// system.Standard (source-of-truth + dedicated query-audit instance +
+// projections pool), while the engine passes operator values through
+// verbatim.
+func TestDefaultDeployment_StandardTopology(t *testing.T) {
+	t.Parallel()
+
+	cfg := defaultDeployment(defaultSQLiteDriver, "file:test.db", []string{"journal_mode=WAL"})
+
+	if len(cfg.Instances) != 3 {
+		t.Fatalf("expected the Standard three-instance topology, got %d: %+v", len(cfg.Instances), cfg.Instances)
+	}
+
+	if cfg.Instances[0].Role != system.RoleSourceOfTruth || cfg.Instances[0].Engine != defaultEngineName {
+		t.Fatalf("unexpected source-of-truth instance: %+v", cfg.Instances[0])
+	}
+
+	if cfg.Instances[1].Role != system.RoleQueries || cfg.Instances[1].Engine != defaultEngineName {
+		t.Fatalf("unexpected query-audit instance: %+v", cfg.Instances[1])
+	}
+
+	proj := cfg.Instances[2]
+	if proj.Role != system.RoleProjections || len(proj.Engines) != 1 || proj.Engines[0] != defaultEngineName {
+		t.Fatalf("unexpected projections pool: %+v", proj)
+	}
+
+	engine := cfg.Engines[defaultEngineName]
+	if engine.Driver != defaultSQLiteDriver || engine.DSN != "file:test.db" || len(engine.Pragmas) != 1 {
+		t.Fatalf("engine must pass operator values through verbatim: %+v", engine)
+	}
+}
+
 func TestDeploymentShapeYAML_RoundTripsThroughLoadConfig(t *testing.T) {
 	t.Parallel()
 
