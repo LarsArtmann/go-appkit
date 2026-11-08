@@ -61,6 +61,10 @@ proxy-tested).
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
+Shipped through cqrs **v0.9.0** (2026-11-08: folded notifications — the
+broadcast-strictly-after-fold contract, W5-C2; additions-only API diff vs
+v0.8.0).
+
 | Feature                                                                                                                                                                                                                           | Status           | Evidence                                                                                                                                                                |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `EventService` over go-cqrs-lite `system` engine (v0.5.0)                                                                                                                                                                         | FULLY_FUNCTIONAL | `eventservice.go`                                                                                                                                                       |
@@ -79,6 +83,7 @@ proxy-tested).
 | Engine-backed default projection checkpoints (aux DB now DLQ-only; ADR-0142)                                                                                                                                                      | FULLY_FUNCTIONAL | `domain_test.go` checkpoint tests (shipped v0.7.0)                                                                                                                      |
 | `Shutdown` drains via the system drainer seam and ALWAYS closes (drain + close errors joined)                                                                                                                                     | FULLY_FUNCTIONAL | `eventservice_test.go` (shipped v0.7.0)                                                                                                                                 |
 | README recipes pinned to module code + Examples (invented/dangling API refs fail the suite)                                                                                                                                       | FULLY_FUNCTIONAL | `readme_sync_test.go` (shipped v0.7.0 train)                                                                                                                            |
+| Folded notifications: `NotifyFolded` wrapper (non-blocking send, drop counter, nil-channel off-switch, failed fold never notifies) + `FoldedEvent` consumed structurally by realtime's `FoldedSignal` | FULLY_FUNCTIONAL | `folded.go`, `folded_test.go` (6 tests); E2E discriminator pinned by `integration/folded_e2e_test.go`                                                                   |
 
 ## docs (`github.com/larsartmann/go-appkit/docs`)
 
@@ -131,12 +136,17 @@ doc-only, zero API delta).
 
 ## realtime (`github.com/larsartmann/go-appkit/realtime`)
 
+Shipped through realtime **v0.2.0** (2026-11-08: `FoldedSource`/`FoldedSignal`
+— folded signals to full-state hub broadcasts, the realtime half of the
+W5-C2 folded contract; additions-only API diff vs v0.1.3).
+
 | Feature                               | Status           | Evidence                         |
 | ------------------------------------- | ---------------- | -------------------------------- |
 | SSE hub (broadcast, patch, shutdown)  | FULLY_FUNCTIONAL | `hub.go`                         |
 | SSE handler (replay, heartbeat, CORS) | FULLY_FUNCTIONAL | `handler.go`                     |
 | Subscribe-before-replay + live dedup  | FULLY_FUNCTIONAL | `handler.go`, `realtime_test.go` |
 | Last-Event-ID resume                  | FULLY_FUNCTIONAL | `handler.go`                     |
+| `FoldedSource[S FoldedSignal]` pump (snapshot-after-signal, full-state drop safety, no second drop counter) | FULLY_FUNCTIONAL | `folded.go`, `folded_test.go` (7 tests) |
 
 Known limitation: on event bursts larger than the broadcaster buffer (64),
 excess events are dropped and healed by client Last-Event-ID reconnect.
@@ -248,7 +258,10 @@ Logging → LoggingFromContext recipe).
 
 ## systemd (`github.com/larsartmann/go-appkit/systemd`)
 
-Shipped through systemd **v0.1.1** (2026-11-07: runnable godoc Examples
+Shipped through systemd **v0.2.0** (2026-11-08: `Install` returns the wired
+`Hooks` — the failed-start watchdog-stop escape hatch; signature change,
+source-compatible in practice, migration note in the CHANGELOG). Prior cut:
+**systemd v0.1.1** (2026-11-07: runnable godoc Examples
 `ExampleInstall`/`ExampleNew` pinning the append-only Install contract,
 README release-state/Install/deps truth pass, floor 1.27.3; zero API
 delta). Prior cut: **systemd v0.1.0** (2026-10-07, the same train as core v0.8.0
@@ -264,11 +277,15 @@ which carries the `StartHooks` seam it depends on):
 | No-op outside systemd (`NOTIFY_SOCKET` unset)                                               | FULLY_FUNCTIONAL | `TestInstall_NoSocketOutsideSystemd`                       |
 | `Counters()` notify-activity snapshot (ReadySent/StoppingSent/WatchdogPings/NotifyFailures) | FULLY_FUNCTIONAL | `notify.go:48`, `TestNotify_CountersTrackSuccessfulSends`  |
 | Full lifecycle through a live `appkit.Service`                                              | FULLY_FUNCTIONAL | `TestInstall_LifecycleThroughAppkitService`                |
+| `Install` returns the wired `Hooks` (failed-start watchdog stop; idempotent, identical to the wired Shutdown) | FULLY_FUNCTIONAL | `hooks.go`, `TestInstall_ReturnsTheWiredHooks`              |
 
 ## httpx (`github.com/larsartmann/go-appkit/httpx`)
-Shipped through httpx **v0.1.0** (2026-11-07, SUPERB v14 C2-C4; the
-handler-DX battery — B1 ResultHandler, B2 bind + validation, B9 no-leak
-errors, and the test-pinned classification-parity oracle vs errorpages).
+Shipped through httpx **v0.2.0** (2026-11-08: the W3 remainder batteries
+B3/B4/B5/B7 + the module LICENSE riding the tag + go-etag/server and
+go-codec as direct requires; additions-only API diff). Prior cut: **v0.1.0**
+(2026-11-07, SUPERB v14 C2-C4; the handler-DX battery — B1 ResultHandler,
+B2 bind + validation, B9 no-leak errors, and the test-pinned
+classification-parity oracle vs errorpages).
 
 | Feature | Status | Evidence |
 | --- | --- | --- |
@@ -277,6 +294,10 @@ errors, and the test-pinned classification-parity oracle vs errorpages).
 | `ResultHandlerWithValidation` bind battery (`bind.*` codes, 1 MiB cap, `Validate` hook) | FULLY_FUNCTIONAL | `bind.go`, `bind_test.go` |
 | No-leak error contract (family gate + leak-pattern scrub + `Public()` opt-out) | FULLY_FUNCTIONAL | `sanitize.go`, `sanitize_test.go` (leaked-detail matrix) |
 | Classification parity vs errorpages (same status + JSON contract shape per family) | FULLY_FUNCTIONAL (test-pinned oracle) | `parity_test.go` (test-only dep on errorpages) |
+| B3 `WrapWriter` ResponseWriter contract (Flush/Hijack forward, `Unwrap` always) + `httpxtest` forwarding probe | FULLY_FUNCTIONAL | `writer.go`, `httpxtest/assert.go` (3 buggy archetypes pinned failing) |
+| B4 `Conditional` (go-etag/server strong sha256 + IMS-only-when-INM-absent, RFC 9110 precedence; `ETagFunc`, `SkipConditional`, `SetLastModified`) | FULLY_FUNCTIONAL | `conditional.go`, `conditional_test.go` (CV matrix); E2E through the default stack in `integration/httpx_e2e_test.go` |
+| B5 content negotiation on go-codec (`Negotiate`, `RequestCodec` 415, `ResponseCodec`) | FULLY_FUNCTIONAL | `negotiate.go`, `negotiate_test.go` |
+| B7 `WriteDeadline(extension, prefixes...)` per-route deadline extension (loud failure on opaque chains) | FULLY_FUNCTIONAL | `writedeadline.go`, `writedeadline_test.go` (real-server E2E) |
 
 ## config (`github.com/larsartmann/go-appkit/config`)
 
@@ -330,6 +351,8 @@ Cross-module + cross-repo E2E contracts against PUBLISHED tags only:
 | cqrs domain SSE through a live Service (Domain passthrough + journal replay)              | FULLY_FUNCTIONAL | `domain_sse_test.go`           |
 | systemd lifecycle through a live Service (unixgram socket transport)                      | FULLY_FUNCTIONAL | `systemd_lifecycle_test.go`    |
 | docs docserver composition through the full default chain (openapi/asyncapi/catalog.json) | FULLY_FUNCTIONAL | `docs_composition_test.go`     |
+| Folded-contract discriminator: post-fold broadcast carries the mid-fold marker; naive pre-fold wiring fails the same assertion (W5-C2) | FULLY_FUNCTIONAL | `folded_e2e_test.go` |
+| httpx B4 Conditional through the default stack (ETag 200 → If-None-Match 304, Server-Timing still present) | FULLY_FUNCTIONAL | `httpx_e2e_test.go` |
 
 ## Consumers
 

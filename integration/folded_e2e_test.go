@@ -22,6 +22,7 @@ package integration_test
 
 import (
 	"context"
+	"maps"
 	"net/http"
 	"strings"
 	"sync"
@@ -75,9 +76,7 @@ func (s *markerStore) snapshot() any {
 	defer s.mu.Unlock()
 
 	out := make(map[string]string, len(s.markers))
-	for id, marker := range s.markers {
-		out[id] = marker
-	}
+	maps.Copy(out, s.markers)
 
 	return out
 }
