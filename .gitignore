@@ -74,3 +74,6 @@ go.work.sum
 # `buildflow --fix` regenerates that block).
 !go.work
 !go.work.sum
+
+# compiled example binaries (built by local go build runs)
+systemd/example/example

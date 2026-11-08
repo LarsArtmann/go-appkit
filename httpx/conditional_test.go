@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -29,7 +30,7 @@ func TestConditional_StrongETagAndRevalidation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first GET: %v", err)
 	}
-	defer func() { _ = first.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, first.Body); _ = first.Body.Close() }()
 
 	if first.StatusCode != http.StatusOK {
 		t.Fatalf("first GET status = %d, want 200", first.StatusCode)
@@ -52,7 +53,7 @@ func TestConditional_StrongETagAndRevalidation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("revalidation GET: %v", err)
 	}
-	defer func() { _ = second.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, second.Body); _ = second.Body.Close() }()
 
 	if second.StatusCode != http.StatusNotModified {
 		t.Fatalf("revalidation status = %d, want 304", second.StatusCode)
@@ -76,7 +77,7 @@ func TestConditional_IfNoneMatchMatrix(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
-	defer func() { _ = first.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, first.Body); _ = first.Body.Close() }()
 
 	etag := first.Header.Get("ETag")
 
@@ -101,7 +102,7 @@ func TestConditional_IfNoneMatchMatrix(t *testing.T) {
 			if err != nil {
 				t.Fatalf("GET: %v", err)
 			}
-			defer func() { _ = resp.Body.Close() }()
+			defer func() { _, _ = io.Copy(io.Discard, resp.Body); _ = resp.Body.Close() }()
 
 			if resp.StatusCode != http.StatusNotModified {
 				t.Fatalf("If-None-Match %q status = %d, want 304", tc.value, resp.StatusCode)
@@ -138,7 +139,7 @@ func TestConditional_IfModifiedSince(t *testing.T) {
 			if err != nil {
 				t.Fatalf("GET: %v", err)
 			}
-			defer func() { _ = resp.Body.Close() }()
+			defer func() { _, _ = io.Copy(io.Discard, resp.Body); _ = resp.Body.Close() }()
 
 			if resp.StatusCode != tc.want {
 				t.Fatalf("status = %d, want %d", resp.StatusCode, tc.want)
@@ -162,7 +163,7 @@ func TestConditional_IfNoneMatchTakesPrecedenceOverIMS(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
-	defer func() { _ = first.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, first.Body); _ = first.Body.Close() }()
 
 	etag := first.Header.Get("ETag")
 
