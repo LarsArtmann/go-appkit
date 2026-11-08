@@ -1,6 +1,8 @@
 package httpxtest_test
 
 import (
+	"bufio"
+	"net"
 	"net/http"
 	"strings"
 	"testing"
@@ -16,42 +18,70 @@ type buggyEmbeddingWrapper struct {
 	http.ResponseWriter
 }
 
-func (buggyEmbeddingWrapper) Write(b []byte) (int, error) { return len(b), nil }
-
 // noopLiarWrapper satisfies the type assertions but forwards nothing —
-// the assertion must catch a stub that only passes capability checks.
+// the findings must catch a stub that only passes capability checks.
 type noopLiarWrapper struct {
 	http.ResponseWriter
 }
 
-func (noopLiarWrapper) Flush()               {}
-func (noopLiarWrapper) Hijack() (any, any, error) { return nil, nil, nil }
+func (noopLiarWrapper) Flush() {}
 
-// The discrimination acceptance (battery B3): the assertion must FAIL on
-// the buggy shapes. Run with a stub testing.T that records failures.
-func TestAssertForwardsInterfaces_FailsOnBuggyShapes(t *testing.T) {
+func (noopLiarWrapper) Hijack() (net.Conn, *bufio.ReadWriter, error) { return nil, nil, nil }
+
+// opaqueControllerWrapper forwards nothing and answers the controller
+// with its own capability — the controller talks to a stranger, never the
+// base.
+type opaqueControllerWrapper struct {
+	http.ResponseWriter
+}
+
+func (opaqueControllerWrapper) Flush() {}
+
+func (opaqueControllerWrapper) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return nil, nil, nil
+}
+
+func (opaqueControllerWrapper) EnableFullDuplex() error { return nil }
+
+// The discrimination acceptance (battery B3): the findings must be EMPTY
+// for an honest wrapper and NON-EMPTY, with the right reasons, for the
+// buggy shapes.
+func TestForwardingFindings_Discriminates(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
 		name string
 		wrap func(http.ResponseWriter) http.ResponseWriter
-		want []string{
-			"hides http.Flusher",
-		}
+		want []string
 	}{
 		{
 			name: "plain embedding hides optional interfaces",
 			wrap: func(base http.ResponseWriter) http.ResponseWriter {
 				return buggyEmbeddingWrapper{base}
 			},
-			want: []string{"hides http.Flusher", "hides http.Hijacker"},
+			want: []string{
+				"hides http.Flusher",
+				"hides http.Hijacker",
+			},
 		},
 		{
 			name: "no-op stub satisfies assertions but forwards nothing",
 			wrap: func(base http.ResponseWriter) http.ResponseWriter {
 				return noopLiarWrapper{base}
 			},
-			want: []string{"does not forward Flush", "does not forward Hijack", "swallowed"},
+			want: []string{
+				"does not forward Flush",
+				"does not forward Hijack",
+			},
+		},
+		{
+			name: "controller-opaque wrapper answers with its own capability",
+			wrap: func(base http.ResponseWriter) http.ResponseWriter {
+				return opaqueControllerWrapper{base}
+			},
+			want: []string{
+				"opaque to http.ResponseController",
+			},
 		},
 	}
 
@@ -59,19 +89,53 @@ func TestAssertForwardsInterfaces_FailsOnBuggyShapes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			rec := &recordingTB{TB: t}
-			AssertOn(rec, tc.wrap)
+			findings := httpxtest.ForwardingFindings(tc.wrap)
+			joined := strings.Join(findings, "\n")
 
-			joined := strings.Join(rec.failures, "\n")
 			for _, want := range tc.want {
 				if !strings.Contains(joined, want) {
-					t.Errorf("assertion did not flag %q on the buggy shape; recorded failures:\n%s", want, joined)
+					t.Errorf("findings did not flag %q; recorded:\n%s", want, joined)
 				}
 			}
 
-			if len(rec.failures) == 0 {
-				t.Error("assertion PASSED on a buggy wrapper — the discriminator is broken")
+			if len(findings) == 0 {
+				t.Error("findings were EMPTY on a buggy wrapper — the discriminator is broken")
 			}
 		})
 	}
 }
+
+func TestForwardingFindings_HonestWrapperIsClean(t *testing.T) {
+	t.Parallel()
+
+	// An honest explicit-forwarding wrapper (the shape WrapWriter ships):
+	// forwards everything, unwraps for the controller.
+	findings := httpxtest.ForwardingFindings(func(base http.ResponseWriter) http.ResponseWriter {
+		return honestWrapper{base}
+	})
+
+	for _, f := range findings {
+		t.Errorf("honest wrapper flagged: %s", f)
+	}
+}
+
+type honestWrapper struct {
+	http.ResponseWriter
+}
+
+func (w honestWrapper) Flush() {
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+func (w honestWrapper) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	h, ok := w.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, http.ErrNotSupported
+	}
+
+	return h.Hijack()
+}
+
+func (w honestWrapper) Unwrap() http.ResponseWriter { return w.ResponseWriter }

@@ -7,7 +7,10 @@
 package httpxtest
 
 import (
+	"bufio"
 	"errors"
+	"fmt"
+	"net"
 	"net/http"
 	"testing"
 )
@@ -52,7 +55,14 @@ func (w *probeWriter) WriteHeader(status int) {
 
 func (w *probeWriter) Flush() { w.flushes++ }
 
-func (w *probeWriter) Hijack() { w.hijacked = true }
+// Hijack matches http.Hijacker exactly: the probe "fails" the hijack
+// (there is no connection), but records the ATTEMPT — what the findings
+// check is that the wrapper forwarded the call, not that it succeeded.
+func (w *probeWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	w.hijacked = true
+
+	return nil, nil, errNotAConnection //nolint:wrapcheck // test probe
+}
 
 func (w *probeWriter) EnableFullDuplex() error {
 	w.fullDuplexAttempts++
@@ -152,5 +162,5 @@ func ForwardingFindings(wrap func(base http.ResponseWriter) http.ResponseWriter)
 }
 
 func describe(w http.ResponseWriter) string {
-	return "wrapper " + http.ResponseController{}.noAddrType(w)
+	return fmt.Sprintf("wrapper %T", w)
 }
