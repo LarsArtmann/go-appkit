@@ -29,7 +29,7 @@ func newTimingService(t *testing.T, knob *bool) *testkit.TestServer {
 	t.Helper()
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:         freeAddr(t),
+		Addr:         testkit.FreeAddr(t),
 		DrainDelay:   time.Millisecond,
 		ServerTiming: knob,
 	})
@@ -51,7 +51,7 @@ func TestServerTimingDefaultStackHeader(t *testing.T) {
 
 	ts := newTimingService(t, nil)
 
-	resp := e2eGet(t, ts.FullChainURL+"/ping")
+	resp := testkit.HTTPGetURL(t, ts.FullChainURL+"/ping")
 	defer func() {
 		_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 		_ = resp.Body.Close()
@@ -78,7 +78,7 @@ func TestServerTimingKnobOmits(t *testing.T) {
 
 	ts := newTimingService(t, &[]bool{false}[0])
 
-	resp := e2eGet(t, ts.FullChainURL+"/ping")
+	resp := testkit.HTTPGetURL(t, ts.FullChainURL+"/ping")
 	defer func() {
 		_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 		_ = resp.Body.Close()
@@ -103,7 +103,7 @@ func TestServerTimingThroughShutdown(t *testing.T) {
 
 	ts := newTimingService(t, nil)
 
-	resp := e2eGet(t, ts.FullChainURL+"/ping")
+	resp := testkit.HTTPGetURL(t, ts.FullChainURL+"/ping")
 	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 

@@ -70,7 +70,7 @@ func TestVersionAndMetricsComposeWithDefaultHealth(t *testing.T) {
 	)
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:       freeAddr(t),
+		Addr:       testkit.FreeAddr(t),
 		DrainDelay: appkit.NoDrainDelay,
 		Version:    buildVersion,
 		Metrics: &appkit.MetricsConfig{
@@ -170,7 +170,7 @@ func TestDrainWindowContract(t *testing.T) {
 	var err error
 
 	svc, err = appkit.NewService(appkit.ServiceConfig{
-		Addr:       freeAddr(t),
+		Addr:       testkit.FreeAddr(t),
 		DrainDelay: 250 * time.Millisecond,
 		DrainHooks: []appkit.Hook{
 			testkit.DrainWindowProbe(func() string { return baseURL }, "/health/ready", &readyDuringDrain),

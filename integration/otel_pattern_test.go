@@ -10,6 +10,7 @@ import (
 
 	appkit "github.com/larsartmann/go-appkit"
 	appkitotel "github.com/larsartmann/go-appkit/otel"
+	"github.com/larsartmann/go-appkit/testkit"
 	"github.com/larsartmann/httputil"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel/attribute"
@@ -41,7 +42,7 @@ func TestSpanNameAndRouteThroughAppkitOuterMiddlewares(t *testing.T) {
 
 	registerHealthOff := false
 	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
+	cfg.Addr = testkit.FreeAddr(t)
 	cfg.RegisterHealth = &registerHealthOff
 	cfg.DrainDelay = appkit.NoDrainDelay
 	cfg.OuterMiddlewares = []httputil.Middleware{

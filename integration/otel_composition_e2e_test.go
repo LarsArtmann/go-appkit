@@ -28,24 +28,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
-// e2eGet issues a GET against the service under test with a request
-// context — the noctx-safe shape for these E2Es. Fails the test on error.
-func e2eGet(t *testing.T, url string) *http.Response {
-	t.Helper()
-
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
-	if err != nil {
-		t.Fatalf("build request %s: %v", url, err)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		t.Fatalf("do %s: %v", url, err)
-	}
-
-	return resp
-}
-
 // exceptionEvent returns the span's exception event, or nil.'s exception event, or nil.
 func exceptionEvent(span sdktrace.ReadOnlySpan) *sdktrace.Event {
 	for i, event := range span.Events() {
@@ -135,7 +117,7 @@ func TestBothExceptionFlavorsThroughAppkitChain(t *testing.T) {
 
 	base := "http://" + svc.Addr().String()
 
-	resp := e2eGet(t, base+"/panic")
+	resp := testkit.HTTPGetURL(t, base+"/panic")
 	if err != nil {
 		t.Fatalf("panic request: %v", err)
 	}
@@ -147,7 +129,7 @@ func TestBothExceptionFlavorsThroughAppkitChain(t *testing.T) {
 		t.Fatalf("panic status = %d, want 500", resp.StatusCode)
 	}
 
-	resp = e2eGet(t, base+"/handled")
+	resp = testkit.HTTPGetURL(t, base+"/handled")
 	if err != nil {
 		t.Fatalf("handled request: %v", err)
 	}
@@ -236,7 +218,7 @@ func TestSSEStreamSpanThroughAppkitOuterMiddlewares(t *testing.T) {
 	hub := realtime.NewHub()
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:         freeAddr(t),
+		Addr:         testkit.FreeAddr(t),
 		ReadTimeout:  appkit.NoTimeout,
 		WriteTimeout: appkit.NoTimeout,
 		DrainDelay:   time.Millisecond,
@@ -343,7 +325,7 @@ func TestDashboardRoutesTracedVsFiltered(t *testing.T) {
 
 	registerHealthOff := false
 	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
+	cfg.Addr = testkit.FreeAddr(t)
 	cfg.RegisterHealth = &registerHealthOff
 	cfg.DrainDelay = appkit.NoDrainDelay
 	cfg.OuterMiddlewares = []httputil.Middleware{
@@ -406,7 +388,7 @@ func TestDashboardRoutesTracedVsFiltered(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		resp := e2eGet(t, base+tc.path)
+		resp := testkit.HTTPGetURL(t, base+tc.path)
 		if err != nil {
 			t.Fatalf("GET %s: %v", tc.path, err)
 		}
@@ -504,7 +486,7 @@ func TestErrorpagesBehindOtelMiddleware(t *testing.T) {
 
 	base := "http://" + svc.Addr().String()
 
-	resp := e2eGet(t, base+"/panic")
+	resp := testkit.HTTPGetURL(t, base+"/panic")
 	if err != nil {
 		t.Fatalf("GET /panic: %v", err)
 	}
@@ -531,7 +513,7 @@ func TestErrorpagesBehindOtelMiddleware(t *testing.T) {
 		t.Error("GET /panic: span carries no exception event")
 	}
 
-	resp = e2eGet(t, base+"/handled")
+	resp = testkit.HTTPGetURL(t, base+"/handled")
 	if err != nil {
 		t.Fatalf("GET /handled: %v", err)
 	}
@@ -562,7 +544,7 @@ func TestErrorpagesBehindOtelMiddleware(t *testing.T) {
 		)
 	}
 
-	resp = e2eGet(t, base+"/definitely-not-a-route")
+	resp = testkit.HTTPGetURL(t, base+"/definitely-not-a-route")
 	if err != nil {
 		t.Fatalf("GET /definitely-not-a-route: %v", err)
 	}

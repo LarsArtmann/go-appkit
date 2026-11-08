@@ -16,26 +16,9 @@ import (
 	"time"
 
 	appkitfr "github.com/larsartmann/go-appkit/flightrecorder"
+	"github.com/larsartmann/go-appkit/testkit"
 	fr "github.com/larsartmann/go-flightrecorder"
 )
-
-// httpGetURL issues a context-aware GET against a test server (noctx forbids
-// http.Get in tests).
-func httpGetURL(t *testing.T, url string) *http.Response {
-	t.Helper()
-
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
-	if err != nil {
-		t.Fatalf("building GET %s: %v", url, err)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		t.Fatalf("GET %s: %v", url, err)
-	}
-
-	return resp
-}
 
 // httpPostJSON issues a context-aware JSON POST against a test server (noctx
 // forbids http.Post in tests).
@@ -828,7 +811,7 @@ func TestMiddleware_ThenHandler_ManualSnapshotAfterAutoCapture(t *testing.T) {
 	defer ts.Close()
 
 	// Trigger automatic capture via middleware
-	resp1 := httpGetURL(t, ts.URL+"/api/fail")
+	resp1 := testkit.HTTPGetURL(t, ts.URL+"/api/fail")
 
 	_, _ = io.Copy(io.Discard, resp1.Body)
 	_ = resp1.Body.Close()

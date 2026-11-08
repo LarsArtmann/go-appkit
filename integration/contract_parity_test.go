@@ -11,6 +11,7 @@ import (
 	appkit "github.com/larsartmann/go-appkit"
 	"github.com/larsartmann/go-appkit/errorpages"
 	appkitotel "github.com/larsartmann/go-appkit/otel"
+	"github.com/larsartmann/go-appkit/testkit"
 	errorfamily "github.com/larsartmann/go-error-family"
 	"go.opentelemetry.io/otel"
 )
@@ -123,7 +124,7 @@ func TestErrorpagesUnclassifiedThroughLiveService(t *testing.T) {
 
 	registerHealthOff := false
 	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
+	cfg.Addr = testkit.FreeAddr(t)
 	cfg.RegisterHealth = &registerHealthOff
 	cfg.DrainDelay = appkit.NoDrainDelay
 

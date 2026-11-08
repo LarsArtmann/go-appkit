@@ -11,6 +11,7 @@ import (
 	"github.com/larsartmann/go-appkit"
 	appkithealth "github.com/larsartmann/go-appkit/health"
 	"github.com/larsartmann/go-appkit/security"
+	"github.com/larsartmann/go-appkit/testkit"
 	health "github.com/larsartmann/go-health"
 )
 
@@ -44,7 +45,7 @@ func TestHardenedDashboardBehindCSP(t *testing.T) {
 	}
 
 	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
+	cfg.Addr = testkit.FreeAddr(t)
 	cfg.DrainDelay = time.Millisecond
 	cfg.OuterMiddlewares = []func(http.Handler) http.Handler{hardenedCSP(t)}
 

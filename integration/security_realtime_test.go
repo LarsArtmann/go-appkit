@@ -34,7 +34,7 @@ func newRateLimitedSSEService(t *testing.T) (*testkit.TestServer, *realtime.Hub)
 	hub := realtime.NewHub()
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:         freeAddr(t),
+		Addr:         testkit.FreeAddr(t),
 		ReadTimeout:  appkit.NoTimeout,
 		WriteTimeout: appkit.NoTimeout,
 		DrainDelay:   time.Millisecond,

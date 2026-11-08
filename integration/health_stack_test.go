@@ -14,6 +14,7 @@ import (
 	"github.com/larsartmann/go-appkit"
 	frhealth "github.com/larsartmann/go-appkit/flightrecorderhealth"
 	appkithealth "github.com/larsartmann/go-appkit/health"
+	"github.com/larsartmann/go-appkit/testkit"
 	fr "github.com/larsartmann/go-flightrecorder"
 	health "github.com/larsartmann/go-health"
 	"github.com/samber/do/v2"
@@ -89,7 +90,7 @@ func newHealthStackService(
 	}
 
 	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
+	cfg.Addr = testkit.FreeAddr(t)
 	cfg.DrainDelay = 250 * time.Millisecond
 	cfg.DrainHooks = append(cfg.DrainHooks, func(context.Context) error {
 		mounted.Drain()

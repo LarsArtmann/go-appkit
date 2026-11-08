@@ -167,7 +167,7 @@ func TestCQRSDomainSSEThroughAppkitService(t *testing.T) {
 	defer watcher.Close()
 
 	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
+	cfg.Addr = testkit.FreeAddr(t)
 	cfg.DrainDelay = 1 * time.Millisecond
 	cfg.ReadyCheck = es.ReadyCheck
 	cfg.ShutdownHooks = []func(context.Context) error{es.Shutdown}

@@ -61,7 +61,7 @@ func TestPresetE2E_SpineLegsAndGracefulStop(t *testing.T) {
 
 	// The E2E exercises the default spine plus two legs; zero values are the point.
 	cfg := preset.Config{
-		Addr:     freeAddr(t),
+		Addr:     testkit.FreeAddr(t),
 		Version:  "preset-e2e-0.1.0",
 		Timeouts: preset.TimeoutsConfig{DrainDelay: appkit.NoDrainDelay},
 		Security: &preset.SecurityConfig{

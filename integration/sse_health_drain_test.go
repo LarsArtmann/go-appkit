@@ -45,7 +45,7 @@ func TestSSEStreamClosesInLockstepWithHealthDrain(t *testing.T) {
 	drainHooksRan := make(chan struct{})
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:           freeAddr(t),
+		Addr:           testkit.FreeAddr(t),
 		ReadTimeout:    appkit.NoTimeout,
 		WriteTimeout:   appkit.NoTimeout,
 		DrainDelay:     150 * time.Millisecond,

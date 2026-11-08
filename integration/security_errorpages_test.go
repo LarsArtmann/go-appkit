@@ -41,7 +41,7 @@ func newSecuredErrorpagesService(t *testing.T) (*testkit.TestServer, string) {
 	t.Helper()
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:       freeAddr(t),
+		Addr:       testkit.FreeAddr(t),
 		DrainDelay: time.Millisecond,
 	})
 	if err != nil {
@@ -174,7 +174,7 @@ func secErrAuthedRoute(t *testing.T, base, apiKey string) {
 func secErrPlain401(t *testing.T, base string) {
 	t.Helper()
 
-	resp := e2eGet(t, base+"/api")
+	resp := testkit.HTTPGetURL(t, base+"/api")
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusUnauthorized {
@@ -197,7 +197,7 @@ func secErrPlain401(t *testing.T, base string) {
 func secErrPretty404(t *testing.T, base string) {
 	t.Helper()
 
-	resp := e2eGet(t, base+"/definitely-missing")
+	resp := testkit.HTTPGetURL(t, base+"/definitely-missing")
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusNotFound {
@@ -279,7 +279,7 @@ func secErrMethodMismatch(t *testing.T, base string) {
 func secErrClassifiedError(t *testing.T, base string) {
 	t.Helper()
 
-	resp := e2eGet(t, base+"/boom")
+	resp := testkit.HTTPGetURL(t, base+"/boom")
 	defer func() { _ = resp.Body.Close() }()
 
 	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body blocks Shutdown's listener close

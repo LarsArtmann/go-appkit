@@ -109,7 +109,7 @@ func TestFlightrecorderMiddlewareThroughService(t *testing.T) {
 	})
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:       freeAddr(t),
+		Addr:       testkit.FreeAddr(t),
 		DrainDelay: time.Millisecond,
 	})
 	if err != nil {
@@ -159,7 +159,7 @@ func TestFlightrecorderMiddlewareThroughService(t *testing.T) {
 func frE2EFirstCapture(t *testing.T, base, snapDir string) {
 	t.Helper()
 
-	resp := e2eGet(t, base+"/work")
+	resp := testkit.HTTPGetURL(t, base+"/work")
 	defer func() { _ = resp.Body.Close() }()
 	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 
@@ -201,7 +201,7 @@ func frE2EFirstCapture(t *testing.T, base, snapDir string) {
 func frE2ESecondCapture(t *testing.T, base, snapDir string) {
 	t.Helper()
 
-	resp := e2eGet(t, base+"/work")
+	resp := testkit.HTTPGetURL(t, base+"/work")
 	defer func() { _ = resp.Body.Close() }()
 	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 
@@ -215,7 +215,7 @@ func frE2ESecondCapture(t *testing.T, base, snapDir string) {
 func frE2ETriggerFiltering(t *testing.T, base, snapDir string) {
 	t.Helper()
 
-	resp := e2eGet(t, base+"/other")
+	resp := testkit.HTTPGetURL(t, base+"/other")
 	defer func() { _ = resp.Body.Close() }()
 	_, _ = io.Copy(io.Discard, resp.Body) // drain: an unread body is an RST generator
 

@@ -32,7 +32,7 @@ func newLanguageService(t *testing.T) *testkit.TestServer {
 	t.Helper()
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:       freeAddr(t),
+		Addr:       testkit.FreeAddr(t),
 		DrainDelay: time.Millisecond,
 	})
 	if err != nil {

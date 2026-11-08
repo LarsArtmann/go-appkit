@@ -102,7 +102,7 @@ func TestHarnessPilot_HTTPActsHarnessAssertions(t *testing.T) {
 	}
 
 	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
+	cfg.Addr = testkit.FreeAddr(t)
 	cfg.ReadyCheck = es.ReadyCheck
 
 	svc, err := appkit.NewService(cfg)

@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
-	"sync"
 	"testing"
 	"time"
 
@@ -36,7 +34,7 @@ func newSSEService(t *testing.T, hub *realtime.Hub) *appkit.Service {
 	t.Helper()
 
 	svc, err := appkit.NewService(appkit.ServiceConfig{
-		Addr:         freeAddr(t),
+		Addr:         testkit.FreeAddr(t),
 		ReadTimeout:  appkit.NoTimeout,
 		WriteTimeout: appkit.NoTimeout,
 		DrainDelay:   time.Millisecond,
@@ -50,62 +48,6 @@ func newSSEService(t *testing.T, hub *realtime.Hub) *appkit.Service {
 	testkit.Serve(t, svc)
 
 	return svc
-}
-
-// freeAddr picks a loopback address for a Service to bind. Two hardenings
-// against the 2026-10-24 runner flake (TestVersionAndMetricsCompose...:
-// listen_failed EADDRINUSE in testkit.Serve):
-//
-//  1. a process-wide issued-registry — the OS reuses a just-closed probe
-//     port for the NEXT :0 pick, so two parallel tests could draw the same
-//     addr before either Service bound; a repeat addr is now redrawn.
-//  2. an instant rebind probe — the port must be bindable at a SECOND
-//     moment, so a steal between close and rebind redraws instead of
-//     failing the test minutes later inside Service start.
-var (
-	freeAddrMu     sync.Mutex
-	freeAddrIssued = map[string]struct{}{}
-)
-
-func freeAddr(t *testing.T) string {
-	t.Helper()
-
-	cfg := &net.ListenConfig{}
-
-	for range 25 {
-		listener, err := cfg.Listen(context.Background(), "tcp", "localhost:0")
-		if err != nil {
-			t.Fatalf("reserve port: %v", err)
-		}
-
-		addr := listener.Addr().String()
-
-		_ = listener.Close()
-
-		freeAddrMu.Lock()
-
-		_, alreadyIssued := freeAddrIssued[addr]
-		freeAddrIssued[addr] = struct{}{}
-
-		freeAddrMu.Unlock()
-
-		if alreadyIssued {
-			continue
-		}
-
-		probe, err := cfg.Listen(context.Background(), "tcp", addr)
-		if err != nil {
-			continue
-		}
-
-		_ = probe.Close()
-
-		return addr
-	}
-
-	t.Fatal("freeAddr: no verifiable free port after 25 attempts")
-
-	return ""
 }
 
 // connect opens an SSE connection to the service, optionally carrying a

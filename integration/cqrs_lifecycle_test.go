@@ -217,7 +217,7 @@ func TestCQRSLifecycleThroughAppkitService(t *testing.T) {
 	}
 
 	cfg := appkit.DefaultServiceConfig()
-	cfg.Addr = freeAddr(t)
+	cfg.Addr = testkit.FreeAddr(t)
 	cfg.DrainDelay = 1 * time.Millisecond
 	cfg.ReadyCheck = es.ReadyCheck
 	// The drain hook is the ONLY releaser of the parked command: once it has
