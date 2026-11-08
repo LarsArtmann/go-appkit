@@ -81,13 +81,9 @@ func (s *markerStore) snapshot() any {
 	return out
 }
 
-// markerProjection folds one event type into the marker store. gate, when
-// non-nil, blocks Handle until closed — the negative control's determinism
-// device (the fold is provably still running when the stale broadcast
-// lands).
+// markerProjection folds one event type into the marker store.
 type markerProjection struct {
 	store *markerStore
-	gate  <-chan struct{}
 }
 
 func (p *markerProjection) Name() string { return "folded-markers" }
@@ -97,10 +93,6 @@ func (p *markerProjection) EventTypes() []event.Type {
 }
 
 func (p *markerProjection) Handle(_ context.Context, evt event.Event) error {
-	if p.gate != nil {
-		<-p.gate
-	}
-
 	p.store.set(evt.ID().String())
 
 	return nil
@@ -294,12 +286,20 @@ type naiveSignal struct {
 func (s naiveSignal) EventName() string { return s.name }
 func (s naiveSignal) EventID() string   { return s.id }
 
-// naivePreFoldProjection emits the signal before folding — and its inner
-// fold blocks on gate until the test has observed the broadcast, making the
-// staleness deterministic rather than a race.
+// naivePreFoldProjection emits the signal before folding (the wrong
+// wiring) and defers its marker write until the test has OBSERVED the
+// stale broadcast — with a hard 2s fallback, because a fold that blocks
+// indefinitely would deadlock the engine itself: watermill's
+// GoChannel.Publish waits for the worker to take the message, so a
+// gated fold back-pressures the whole command dispatch path (found the
+// hard way — the first control design hung the suite for 10m). The
+// ordering is still deterministic: FoldedSource snapshots at signal
+// receipt (before the marker write can happen), and the SSE payload the
+// test asserts on is the frozen copy from that snapshot.
 type naivePreFoldProjection struct {
-	inner *markerProjection
-	out   chan<- naiveSignal
+	inner    *markerProjection
+	out      chan<- naiveSignal
+	observed chan struct{}
 }
 
 func (p *naivePreFoldProjection) Name() string { return p.inner.Name() }
@@ -309,25 +309,29 @@ func (p *naivePreFoldProjection) EventTypes() []event.Type { return p.inner.Even
 func (p *naivePreFoldProjection) Handle(ctx context.Context, evt event.Event) error {
 	p.out <- naiveSignal{name: string(evt.Type()), id: evt.ID().String()}
 
+	select {
+	case <-p.observed:
+	case <-time.After(2 * time.Second):
+	}
+
 	return p.inner.Handle(ctx, evt)
 }
 
 // TestFoldedContract_PreFoldWiringFailsTheSameAssertion is the negative
 // control: the SAME assertion shape must FAIL for a naive pre-fold wiring,
-// or the discriminator discriminates nothing.
+// or the discriminator discriminates nothing. The marker write is deferred
+// (non-blockingly) until this test has read the stale broadcast, so the
+// snapshot FoldedSource took provably predates the fold.
 func TestFoldedContract_PreFoldWiringFailsTheSameAssertion(t *testing.T) {
 	t.Parallel()
 
 	store := newMarkerStore()
-
-	gate := make(chan struct{})
-	release := sync.Once{}
-	t.Cleanup(func() { release.Do(func() { close(gate) }) }) // never strand the host worker
+	observed := make(chan struct{})
 
 	naive := make(chan naiveSignal, 1)
 
 	h := newFoldedHarness(t,
-		&naivePreFoldProjection{inner: &markerProjection{store: store, gate: gate}, out: naive})
+		&naivePreFoldProjection{inner: &markerProjection{store: store}, out: naive, observed: observed})
 	defer func() { _ = h.stream.Body.Close() }() //respdrain:ignore SSE stream — Close IS the disconnect
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -339,8 +343,9 @@ func TestFoldedContract_PreFoldWiringFailsTheSameAssertion(t *testing.T) {
 		t.Fatalf("POST /things status = %d, want 204", status)
 	}
 
-	// The fold is still blocked on the gate: any broadcast arriving now is
-	// provably pre-fold.
+	// The marker write is still deferred: any broadcast arriving now is
+	// provably pre-fold, and its payload is the frozen snapshot from
+	// signal time.
 	events := ssetest.MustReadNEvents(t, h.stream.Body, 1)
 	evt := events[0]
 
@@ -355,8 +360,8 @@ func TestFoldedContract_PreFoldWiringFailsTheSameAssertion(t *testing.T) {
 		)
 	}
 
-	// Release the fold; the marker lands (provably) after the stale
-	// broadcast, which is exactly the client-visible staleness the real
-	// contract exists to prevent.
-	release.Do(func() { close(gate) })
+	// Let the deferred fold complete; the marker lands after the stale
+	// broadcast was already received — exactly the client-visible
+	// staleness the real contract exists to prevent.
+	close(observed)
 }
