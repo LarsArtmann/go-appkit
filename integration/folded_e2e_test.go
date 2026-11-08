@@ -198,10 +198,10 @@ func newFoldedHarness(t *testing.T, proj projection.Projection) *foldedHarness {
 	ts := testkit.Serve(t, svc)
 	base := ts.FullChainURL
 
-	sseCtx, sseCancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer sseCancel()
-
-	req, reqErr := http.NewRequestWithContext(sseCtx, http.MethodGet, base+"/sse", nil)
+	// The stream's lifetime is the TEST's, not this helper's: no deferred
+	// cancel here (it would fire when the harness returns and kill the
+	// stream mid-read). The client timeout below bounds a stuck stream.
+	req, reqErr := http.NewRequestWithContext(context.Background(), http.MethodGet, base+"/sse", nil)
 	if reqErr != nil {
 		t.Fatalf("build SSE request: %v", reqErr)
 	}
