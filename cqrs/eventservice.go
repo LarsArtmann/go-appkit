@@ -286,13 +286,15 @@ func resolveStorage(cfg EventConfig) (string, string, []string, error) {
 // engine (one here, so the pool is that engine). The engine itself — driver,
 // DSN, pragmas — stays operator-owned; Standard only fills instances.
 func defaultDeployment(driver, dsn string, pragmas []string) system.DeploymentConfig {
-	return system.Standard(system.DeploymentConfig{ //nolint:exhaustruct_v5 // optional operator fields intentionally zero
-		Engines: map[string]system.EngineConfig{
-			defaultEngineName: { //nolint:exhaustruct_v5 // priority and views intentionally default
-				Driver: driver, DSN: dsn, Pragmas: pragmas,
+	return system.Standard(
+		system.DeploymentConfig{ //nolint:exhaustruct_v5 // optional operator fields intentionally zero
+			Engines: map[string]system.EngineConfig{
+				defaultEngineName: { //nolint:exhaustruct_v5 // priority and views intentionally default
+					Driver: driver, DSN: dsn, Pragmas: pragmas,
+				},
 			},
 		},
-	})
+	)
 }
 
 // openAuxResources opens the auxiliary *sql.DB backing the default DLQ
