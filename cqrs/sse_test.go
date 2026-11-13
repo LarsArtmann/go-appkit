@@ -47,7 +47,7 @@ func registerTaskCommand(t *testing.T, eventSvc *EventService) {
 		t.Fatalf("RegisterDecider: %v", err)
 	}
 
-	err = RegisterCommand[*command.BasicCommand, taskCommandState](eventSvc, "task.create",
+	err = RegisterCommand(eventSvc, "task.create",
 		func(ctx context.Context, cmd *command.BasicCommand) system.Op[taskCommandState] {
 			return system.Execute(ctx, cmd.StreamID(), "Tasks",
 				func(_ taskCommandState, ver event.Version) ([]event.Event, error) {

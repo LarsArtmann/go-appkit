@@ -78,7 +78,7 @@ func newFacadeServiceCfg(t *testing.T, cfg EventConfig) *EventService {
 		t.Fatalf("RegisterDecider: %v", err)
 	}
 
-	err = RegisterCommand[*command.BasicCommand, facadeState](eventSvc, "facade.bump",
+	err = RegisterCommand(eventSvc, "facade.bump",
 		func(ctx context.Context, cmd *command.BasicCommand) system.Op[facadeState] {
 			return system.Execute(ctx, cmd.StreamID(), "Facade",
 				func(state facadeState, ver event.Version) ([]event.Event, error) {
@@ -95,7 +95,7 @@ func newFacadeServiceCfg(t *testing.T, cfg EventConfig) *EventService {
 		t.Fatalf("RegisterCommand: %v", err)
 	}
 
-	err = RegisterQuery[facadeQuery, int](eventSvc, "facade.count",
+	err = RegisterQuery(eventSvc, "facade.count",
 		func(_ context.Context, _ facadeQuery) (int, error) {
 			return 42, nil
 		})
@@ -192,7 +192,7 @@ func TestEventService_CommandMiddleware_WrapsDispatch(t *testing.T) {
 		t.Fatalf("RegisterDecider: %v", err)
 	}
 
-	err = RegisterCommand[*command.BasicCommand, facadeState](eventSvc, "facade.bump",
+	err = RegisterCommand(eventSvc, "facade.bump",
 		func(ctx context.Context, cmd *command.BasicCommand) system.Op[facadeState] {
 			return system.Execute(ctx, cmd.StreamID(), "Facade",
 				func(state facadeState, ver event.Version) ([]event.Event, error) {
@@ -250,7 +250,7 @@ func TestEventService_Shutdown_DrainsInFlightCommands(t *testing.T) {
 		t.Fatalf("RegisterDecider: %v", err)
 	}
 
-	err = RegisterCommand[*command.BasicCommand, facadeState](eventSvc, "facade.bump",
+	err = RegisterCommand(eventSvc, "facade.bump",
 		func(ctx context.Context, cmd *command.BasicCommand) system.Op[facadeState] {
 			return system.Execute(ctx, cmd.StreamID(), "Facade",
 				func(state facadeState, ver event.Version) ([]event.Event, error) {

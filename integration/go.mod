@@ -21,12 +21,12 @@ require (
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.14.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.8.0
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.2
-	github.com/larsartmann/go-cqrs-lite/id/v4 v4.7.4
-	github.com/larsartmann/go-cqrs-lite/metaengine/v4 v4.20.0
+	github.com/larsartmann/go-cqrs-lite/id/v4 v4.7.5
+	github.com/larsartmann/go-cqrs-lite/metaengine/v4 v4.23.0
 	github.com/larsartmann/go-cqrs-lite/projection/v4 v4.4.2
 	github.com/larsartmann/go-cqrs-lite/query/v4 v4.10.1
 	github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2
-	github.com/larsartmann/go-cqrs-lite/system/v4 v4.16.0
+	github.com/larsartmann/go-cqrs-lite/system/v4 v4.18.0
 	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.2.1
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
@@ -66,7 +66,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.10.0 // indirect
 	github.com/gkampitakis/ciinfo v0.3.4 // indirect
-	github.com/gkampitakis/go-snaps v0.5.24 // indirect
+	github.com/gkampitakis/go-snaps v0.5.25 // indirect
 	github.com/go-faster/errors v0.8.0 // indirect
 	github.com/go-faster/jx v1.2.0 // indirect
 	github.com/go-faster/yaml v0.4.6 // indirect
@@ -95,7 +95,7 @@ require (
 	github.com/larsartmann/go-cqrs-lite/dispatcher/v4 v4.5.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/metadata/v4 v4.7.3 // indirect
 	github.com/larsartmann/go-cqrs-lite/metaengine/projectionadapter/v4 v4.6.2 // indirect
-	github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4 v4.6.0 // indirect
+	github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4 v4.7.1 // indirect
 	github.com/larsartmann/go-cqrs-lite/middleware/v4 v4.7.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/otel/v4 v4.5.3 // indirect
 	github.com/larsartmann/go-cqrs-lite/projectionhost/v4 v4.7.1 // indirect
