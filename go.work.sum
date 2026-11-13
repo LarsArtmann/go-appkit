@@ -222,6 +222,7 @@ github.com/larsartmann/templ-components/charts/echarts v1.20.1/go.mod h1:GlfA/0o
 github.com/larsartmann/templ-components/charts/echarts v1.21.0/go.mod h1:bnU/OOFEFYn9xU9Z2G3MYhUKNvBE1lCf5o85Tr8jMEw=
 github.com/larsartmann/templ-components/charts/echarts v1.24.0/go.mod h1:Lb8XHczLrrmSCMXWDLO4c9d8xu8F6TcuXiIlWYwEl/Y=
 github.com/larsartmann/templ-components/charts/echarts v1.26.0/go.mod h1:BxuoyBPt67IgPXY73EmdjvW3Jhba5Oy5wbEpLoLre1c=
+github.com/larsartmann/templ-components/charts/echarts v1.27.0/go.mod h1:MX72P5O4y+C19/TCn6mL3AxVWS4LdVxV57CHX6UKFOo=
 github.com/larsartmann/templ-components/datastar v1.24.0/go.mod h1:DwBK5kTpJtURX5B9OU5qtM8vLPhHdeEDNowXkNrQyw8=
 github.com/larsartmann/templ-components/errorpage v1.24.0 h1:2PL6n8CfXgLFGNDnHIR9R49prTFww2WsPXlxeApIs8A=
 github.com/larsartmann/templ-components/errorpage v1.24.0/go.mod h1:KPygTKMXTmffz7CsoIZ9LP1gA2vKPxXcrE5RbR6Q8pQ=
@@ -434,6 +435,7 @@ google.golang.org/protobuf v1.36.11/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c/go.mod h1:JHkPIbrfpd72SG/EVd6muEfDQjcINNoR0C8j2r3qZ4Q=
 gopkg.in/ini.v1 v1.67.0/go.mod h1:pNLf8WUiyNEtQjuu5G5vTm06TEv9tsIgeAvK8hOrP4k=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gotest.tools/v3 v3.5.2/go.mod h1:LtdLGcnqToBH83WByAAi/wiwSFCArdFIUV/xxN4pcjA=
 honnef.co/go/tools v0.8.1/go.mod h1:XA+OnlRA9EDh/ukGvXMNSZNKGwFQJ+5dER0ioUkOxks=
 honnef.co/go/tools v0.8.2/go.mod h1:xG1Q4n+mg3bKZrO6RWFA9jFlkqplflmDRHGeuexiLDs=
