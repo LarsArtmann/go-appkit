@@ -106,7 +106,7 @@
 41. **L19** — watch batch: otel v1.48 (removes OTEL_GO_X_CARDINALITY_LIMIT), OTLP-logs gate, SigNoz live validation, cordis trigger, SSE-hub convergence, nixpkgs pull re-check. 30m batch.
 42. **L20** — six-month adoption re-sweep (`scripts/count-adopters.sh` + archetype matrix delta). 60m, scheduled.
 43. **CI structure-linter on PRs** — verify the designed secret-less red posture is documented where contributors will see it (ci.yml comment). 10m.
-44. **example-smoke** — consider an httpx example leg (8th). 30m.
+44. ~~**example-smoke** — consider an httpx example leg (8th). 30m.~~ **Won't implement (considered 2026-11-13, SUPERB v16 M6):** the httpx example is DELIBERATELY a standalone raw-`http.Server` battery demo (its documented point: `ResultHandler`/`ResultHandlerWithValidation` work on any net/http server, no appkit lifecycle), while every smoke leg asserts the appkit `graceful shutdown complete` contract — the assertion shape does not apply. An appkit-hosted httpx variant would duplicate the httpx README's appkit-integration snippet; re-open only if a consumer asks for the composed demo.
 45. **Root README module table** — confirm httpx has a row (the member count was bumped; verify the table itself). 10m.
 46. **Fleet verify-all with lint** — run the full 13-module lint sweep once post-httpx (the CI fleet-lint covers it, but the local ritual proof is the recorded bar). 5m (it ran for httpx only so far).
 47. **SSH secret restore (owner)** — ci-preflight stays designed-red; structure-linter fails on secret-less PR runs until restored. OWNER ACTION.
