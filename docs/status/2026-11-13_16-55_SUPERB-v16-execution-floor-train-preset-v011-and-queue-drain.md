@@ -97,7 +97,7 @@
 22. Adoption-recipe instances in the consumer repos (dnsblockd, ChastityAPI, PapDashboard, pbx-lens — their repos, their sessions).
 23. Cordis bridge: awaits consumer statement + core v1.0.0 exit (trigger 2/3 and 3/3).
 24. Core TLS G1: awaits the PapDashboard `PAP_TLS_CERT/KEY` trigger.
-25. W5 batteries: demand-gated.
+25. W5 batteries demand-gated: W5-C1 is the go-sse `WithOnDrop` TODO in realtime's hub (the fleet audit's go-sse 81/100 row carries it) — opens when a consumer needs drop callbacks.
 26. go-error-family engagement (46/100): demand-gated.
 27. httputil server-seam refactor: upstream repo.
 28. Six-month preset adoption re-sweep (due 2027-05; `count-adopters.sh` re-run).
