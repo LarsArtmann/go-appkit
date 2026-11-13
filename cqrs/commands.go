@@ -1,7 +1,7 @@
-// cqrs-lint:ignore(E014) async-by-design wrapper: read-your-writes is a
-// read-time guard (CheckStaleness/CheckProjectionStaleness, see README),
-// not a post-command drain
-
+// cqrs-lint:ignore(E009,E014,F007) delivery is realtime/cqrs-htmx's job; read-your-writes
+// is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a
+// post-command drain; idempotency needs a consumer-owned durable store
+// (DefaultCommandMiddleware policy below)
 package cqrs
 
 import (
