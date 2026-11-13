@@ -176,8 +176,8 @@ github.com/larsartmann/go-appkit/httpx v0.2.0 h1:RBbYjtlPBBIexwA+aPn9RVkVBJpYHZ/
 github.com/larsartmann/go-appkit/httpx v0.2.0/go.mod h1:rtf2UeLaDglYGkRIYpy5FE+XpH/9abjzbT39s1jppv0=
 github.com/larsartmann/go-appkit/otel v0.4.0 h1:Ta9ZTcHPNG+ME17f5N1IohSLmTm+iCuM28fZjZepyOw=
 github.com/larsartmann/go-appkit/otel v0.4.0/go.mod h1:RBRC0ryi60CSa0K9QoZOl/nNoaxUOMmxnsH4ZbDdoLo=
-github.com/larsartmann/go-appkit/preset v0.1.0 h1:0xxYBkJZFlqHPfOuX3f3fYFyKckgLqx8wahw+raNexU=
-github.com/larsartmann/go-appkit/preset v0.1.0/go.mod h1:cBDjgwjmBB6rxc4Ap+VexFZWSPsG96AYx3EQ+b+Hib4=
+github.com/larsartmann/go-appkit/preset v0.1.1 h1:TQQnJKShQnhGFiRdZV9mdzLkGtX/DIgU4ioqRZFRFeY=
+github.com/larsartmann/go-appkit/preset v0.1.1/go.mod h1:pKN6ow6J8uwUsw5IAw5HaesusFz3ccLyecRYfblKPfg=
 github.com/larsartmann/go-appkit/realtime v0.2.0 h1:DTAPBjIYZK+0e9eIA2rUTK00KfdO2qnUpvXvYUpJxRo=
 github.com/larsartmann/go-appkit/realtime v0.2.0/go.mod h1:Hy2Anmbo8YtcOKiQInyop2G9YS9KE0apJXqbpZaiG2o=
 github.com/larsartmann/go-appkit/security v0.2.0 h1:vrRRfqN9XMo1xIeq2E07I7vXahyRRqaxJJZbC+kyRpo=
