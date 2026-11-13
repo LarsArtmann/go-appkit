@@ -1,5 +1,10 @@
 # Consumer heads-up — PapDashboard: core v0.10.0 ships `Server-Timing`; preset is your upgrade path
 
+> **POSTED 2026-11-06 late as [PapDashboard#6](https://github.com/LarsArtmann/PapDashboard/issues/6)
+> (claims re-verified at source level before posting — TODO_LIST P3 row DONE 2026-11-06). A
+> concurrent session's duplicate #7 was closed as duplicate of #6. This draft is the
+> posting record.**
+>
 > **Refreshed 2026-11-06 (drafted 2026-11-03) · target: PapDashboard (your repo) · the core
 > train is now TAGGED (`v0.10.0`, pushed 2026-11-06); preset `preset/v0.1.0` tags with it ·
 > voice: github-voice, AI-drafted (Crush/GLM) — review before posting.**

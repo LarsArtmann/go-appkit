@@ -1,5 +1,10 @@
 # Consumer heads-up — cqrs-htmx: core v0.10.0 ships `Server-Timing`; `appkit/preset` v0.1.0 announced
 
+> **POSTED 2026-11-06 late as [cqrs-htmx#43](https://github.com/LarsArtmann/cqrs-htmx/issues/43)
+> (claims re-verified at source level before posting — TODO_LIST P3 row DONE 2026-11-06). A
+> concurrent session's duplicate #44 was closed as duplicate of #43. This draft is the
+> posting record.**
+>
 > **Refreshed 2026-11-06 (drafted 2026-11-03) · target: cqrs-htmx (your repo) · the core train
 > is now TAGGED (`v0.10.0`, pushed 2026-11-06); preset `preset/v0.1.0` tags with it · voice:
 > github-voice, AI-drafted (Crush/GLM) — review before posting.**

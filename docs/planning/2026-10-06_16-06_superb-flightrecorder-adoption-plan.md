@@ -176,5 +176,5 @@ Parallel lanes: T2 ∥ T3 ∥ T5 scaffold after M07; T4 after M11+M16; all relea
 - Audit findings F1–F7 + reverse finding F8: `docs/research/2026-10-06_go-flightrecorder-deep-dive.html`
 - Release ritual + tag hygiene: `AGENTS.md` → _Release Ritual_, _Release State_
 - Fresh-consumer recipe: `doc/recipes/fresh-consumer-proxy-check.md`
-- Upstream-ask template precedent: `doc/feedback/outgoing/2026-09-20_upstream-ask-gohealth-recorder-sentinel.md`
+- Upstream-ask template precedent: `doc/feedback/outgoing/archived/2026-09-20_upstream-ask-gohealth-recorder-sentinel.md` (archived 2026-11-13 — the ask shipped as go-health#7/v0.8.x)
 - Library source of truth: `/home/lars/projects/go-flightrecorder` (v0.2.0 = latest tag; HEAD 86a1cb5 internal-only)

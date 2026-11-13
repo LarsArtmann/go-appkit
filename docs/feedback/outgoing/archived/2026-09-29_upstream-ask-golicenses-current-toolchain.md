@@ -1,10 +1,14 @@
 # Upstream draft: go-licenses — publish builds that track a current Go toolchain (load go.mod floors ≥ 1.27)
 
-**Status:** DRAFT — filing is USER-gated (T15 batch). Re-verify the
+**Status:** RESOLVED-WONT 2026-11-13 — ask DROPPED per its own drop rule: no reproduction
+exists anymore (BuildFlow `license-check` passes 13/13 since the 2026-10-07 probe — the
+nix-run go-licenses loads 1.27.x-floor modules; the reversal is recorded in AGENTS.md's
+BuildFlow gotcha and the 2026-10-12 status update below). The historical draft is provenance.
+~~DRAFT — filing is USER-gated (T15 batch). Re-verify the
 reproduction below on the target machine before filing; the evidence was
 recorded locally during go-appkit's BuildFlow configuration on
 2026-09-29 and the exact embedded-toolchain version should be quoted
-from a fresh run.
+from a fresh run.~~
 
 > **Status update 2026-10-12 (docs-health pass): the premise BROKE.** BuildFlow's
 > `license-check` step passes 13/13 on this repo again (probed 2026-10-07; the
