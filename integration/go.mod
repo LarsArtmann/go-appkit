@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/integration
 go 1.27.4
 
 require (
-	github.com/larsartmann/cqrs-htmx/v4 v4.15.0
+	github.com/larsartmann/cqrs-htmx/v4 v4.18.1
 	github.com/larsartmann/go-appkit v0.12.0
 	github.com/larsartmann/go-appkit/cqrs v0.9.0
 	github.com/larsartmann/go-appkit/docs v0.3.3
@@ -17,7 +17,7 @@ require (
 	github.com/larsartmann/go-appkit/realtime v0.2.0
 	github.com/larsartmann/go-appkit/security v0.2.0
 	github.com/larsartmann/go-appkit/systemd v0.2.0
-	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.12.0
+	github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.14.0
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.14.1
 	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.8.0
 	github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.2
@@ -27,11 +27,11 @@ require (
 	github.com/larsartmann/go-cqrs-lite/query/v4 v4.10.1
 	github.com/larsartmann/go-cqrs-lite/storage/memory/v4 v4.6.2
 	github.com/larsartmann/go-cqrs-lite/system/v4 v4.18.0
-	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.2.1
+	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.3.0
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
-	github.com/larsartmann/go-health v0.8.1
-	github.com/larsartmann/go-sse v0.6.2
+	github.com/larsartmann/go-health v0.10.0
+	github.com/larsartmann/go-sse v0.7.0
 	github.com/larsartmann/go-sse/ssetest v0.5.0
 	github.com/larsartmann/httputil v1.8.0
 	github.com/oklog/ulid/v2 v2.1.2
@@ -45,7 +45,7 @@ require (
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
 	github.com/ThreeDotsLabs/watermill v1.5.3 // indirect
-	github.com/a-h/templ v0.3.1070 // indirect; pinned: templ-components v1.22.0's generated code needs ResolveAttributeValue (removed in v0.3.1100)
+	github.com/a-h/templ v0.3.1100 // indirect; pinned: templ-components v1.22.0's generated code needs ResolveAttributeValue (removed in v0.3.1100)
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.29.0 // indirect
@@ -86,7 +86,7 @@ require (
 	github.com/knadh/koanf/v2 v2.4.1 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/larsartmann/go-branded-id v0.7.0 // indirect
+	github.com/larsartmann/go-branded-id v0.7.1 // indirect
 	github.com/larsartmann/go-codec v0.3.3 // indirect
 	github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4 v4.2.3 // indirect
@@ -112,12 +112,12 @@ require (
 	github.com/larsartmann/go-retry v0.9.0 // indirect
 	github.com/larsartmann/go-sse/sseparse v0.2.1 // indirect
 	github.com/larsartmann/httputil/server_timing v1.0.3 // indirect
-	github.com/larsartmann/templ-components v1.26.0 // indirect
-	github.com/larsartmann/templ-components/datastar v1.26.0 // indirect
-	github.com/larsartmann/templ-components/errorpage v1.26.0 // indirect
-	github.com/larsartmann/templ-components/htmx v1.26.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.26.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.26.0 // indirect
+	github.com/larsartmann/templ-components v1.27.0 // indirect
+	github.com/larsartmann/templ-components/datastar v1.27.0 // indirect
+	github.com/larsartmann/templ-components/errorpage v1.27.0 // indirect
+	github.com/larsartmann/templ-components/htmx v1.27.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.27.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.27.0 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/maruel/natural v1.3.0 // indirect
