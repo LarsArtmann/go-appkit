@@ -2,9 +2,14 @@ package cqrs
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"sync/atomic"
 	"testing"
+	"time"
 
+	"github.com/larsartmann/go-cqrs-lite/event/v4"
+	"github.com/larsartmann/go-cqrs-lite/id/v4"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
 )
 
@@ -52,6 +57,7 @@ func newTestEventService(t *testing.T, cfg EventConfig) *EventService {
 
 	return svc
 }
+
 // testEventSeq makes appendTestEvent streams unique across calls.
 var testEventSeq atomic.Uint64
 
@@ -100,4 +106,6 @@ func waitFor(t *testing.T, what string, fn func() bool) {
 		time.Sleep(10 * time.Millisecond)
 		time.Sleep(10 * time.Millisecond)
 	}
+
+	t.Fatalf("timed out waiting for %s", what)
 }
