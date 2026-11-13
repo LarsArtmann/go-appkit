@@ -11,11 +11,14 @@ require (
 
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
-	github.com/a-h/templ v0.3.1070 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.6 // indirect
+	github.com/a-h/templ v0.3.1100 // indirect
+	github.com/fxamacker/cbor/v2 v2.10.0 // indirect
+	github.com/gkampitakis/go-snaps v0.5.25 // indirect
 	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
-	github.com/larsartmann/templ-components/errorpage v1.26.0 // indirect
-	github.com/larsartmann/templ-components/icons v1.26.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.26.0 // indirect
+	github.com/larsartmann/templ-components/errorpage v1.27.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.27.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.27.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
+	golang.org/x/net v0.62.0 // indirect
 )
