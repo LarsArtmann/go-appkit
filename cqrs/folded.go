@@ -23,10 +23,15 @@ import (
 // FoldedEvent satisfies realtime.FoldedSignal structurally — neither
 // module imports the other; the composition is the consumer's one line.
 type FoldedEvent struct {
+	//cqrs-lint:ignore-start(C013,D014) in-memory notification struct: the fields are
+	// unexported and getter-fed (realtime.FoldedSignal consumes EventName/EventID
+	// getters), never CBOR/JSON-encoded — an event.Instant field or json tags here
+	// would be inert ceremony on a value that crosses a Go channel, not a wire
 	projectionName string
 	eventType      string
 	eventID        string
 	occurredAt     time.Time
+	//cqrs-lint:ignore-end
 }
 
 // ProjectionName is the name of the projection whose fold completed.

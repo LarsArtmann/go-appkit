@@ -124,7 +124,9 @@ type SecurityConfig struct {
 }
 
 // RealtimeConfig controls the SSE leg: a hub mounted at Pattern (default
-// "GET /events"); the hub's graceful Shutdown joins ShutdownHooks.
+// "GET /events"); the hub's graceful Shutdown joins DrainHooks (streams must
+// terminate BEFORE server.Shutdown waits on connections — Hub.Shutdown's own
+// contract).
 type RealtimeConfig struct {
 	Enabled bool
 

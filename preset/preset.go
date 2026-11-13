@@ -72,13 +72,13 @@ func New(cfg Config) (*appkit.Service, error) {
 		StartHooks: append(slices.Clone(cfg.StartHooks), func(ctx context.Context) error {
 			return startMounted(ctx, mounted)
 		}),
-		DrainHooks: append(slices.Clone(cfg.DrainHooks), func(context.Context) error {
+		DrainHooks: append(slices.Clone(cfg.DrainHooks), func(ctx context.Context) error {
 			drainMounted(mounted)
 
-			return nil
+			return drainHub(ctx, hub)
 		}),
 		ShutdownHooks: append(slices.Clone(cfg.ShutdownHooks), func(ctx context.Context) error {
-			return shutdownLegs(ctx, hub, provider)
+			return shutdownProvider(ctx, provider)
 		}),
 	}
 
@@ -143,20 +143,35 @@ func drainMounted(mounted *health.Mounted) {
 	mounted.Drain()
 }
 
-// shutdownLegs tears the legs down in reverse dependency order: the realtime
-// hub first (stops streams), then the otel provider (flushes spans last).
-func shutdownLegs(ctx context.Context, hub *realtime.Hub, provider *appkitotel.Provider) error {
-	if hub != nil {
-		if err := hub.Shutdown(ctx); err != nil {
-			return errorfamily.WrapInfrastructuref(err, "preset.realtime_shutdown_failed", "shutdown realtime hub")
-		}
+// drainHub drains the realtime hub while the server still serves: Hub.Shutdown
+// closes the subscriber channels so open SSE streams terminate and
+// server.Shutdown sees idle connections instead of waiting on them (its
+// contract: run BEFORE the HTTP server stops, so browsers auto-reconnect to
+// another instance). The ShutdownHooks placement deadlocked every graceful
+// drain with an open stream: the bounded server wait expired before the hub
+// ever ran, since core runs ShutdownHooks only after the server released its
+// connections.
+func drainHub(ctx context.Context, hub *realtime.Hub) error {
+	if hub == nil {
+		return nil
 	}
 
-	if provider != nil {
-		return provider.Shutdown(ctx) //nolint:wrapcheck // flush errors propagate to core's classified join
+	if err := hub.Shutdown(ctx); err != nil {
+		return errorfamily.WrapInfrastructuref(err, "preset.realtime_shutdown_failed", "shutdown realtime hub")
 	}
 
 	return nil
+}
+
+// shutdownProvider flushes the otel provider last (core runs ShutdownHooks
+// after the server released its connections, so spans cover the final
+// in-flight requests).
+func shutdownProvider(ctx context.Context, provider *appkitotel.Provider) error {
+	if provider == nil {
+		return nil
+	}
+
+	return provider.Shutdown(ctx) //nolint:wrapcheck // flush errors propagate to core's classified join
 }
 
 // setupProvider builds and starts the otel provider when the leg resolved

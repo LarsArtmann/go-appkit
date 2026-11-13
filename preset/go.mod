@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/preset
 go 1.27.3
 
 require (
-	github.com/larsartmann/go-appkit v0.11.0
+	github.com/larsartmann/go-appkit v0.12.0
 	github.com/larsartmann/go-appkit/errorpages v0.1.3
 	github.com/larsartmann/go-appkit/health v0.3.2
 	github.com/larsartmann/go-appkit/otel v0.4.0

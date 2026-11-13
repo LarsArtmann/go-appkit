@@ -1,7 +1,3 @@
-// cqrs-lint:ignore(E009,E014,F007) delivery is realtime/cqrs-htmx's job; read-your-writes
-// is a read-time guard (CheckStaleness/CheckProjectionStaleness, see README), not a
-// post-command drain; idempotency needs a consumer-owned durable store
-// (DefaultCommandMiddleware policy below)
 package cqrs
 
 import (
@@ -171,6 +167,9 @@ func (t *inFlightTracker) pendingCount() int {
 // expires. It never aborts running commands — that is the engines' job via
 // context cancellation during close. Satisfies system.Drainer.
 func (t *inFlightTracker) Drain(ctx context.Context) error {
+	// cqrs-lint:ignore(F009) shutdown drain poll of an in-process counter, not a
+	// domain timer: there are no deadlines to schedule. Durable, crash-safe
+	// deadline management is the consumer's DomainConfig.Timers concern.
 	ticker := time.NewTicker(2 * time.Millisecond)
 	defer ticker.Stop()
 

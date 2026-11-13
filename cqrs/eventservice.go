@@ -12,7 +12,10 @@ package cqrs
 
 import (
 	"context"
-	"database/sql"
+	"database/sql" // cqrs-lint:ignore(E023) aux *sql.DB backs the default DLQ and checkpoint store
+	// (projectionhost.DeadLetterStore — host plumbing, not a CQRS table; the rule
+	// itself dismisses non-CQRS tables). CQRS state rides the metaengine engines
+	// via system.New.
 	"errors"
 	"io"
 	"log/slog"
@@ -449,6 +452,10 @@ func buildSystem(
 	sys.RegisterDrainer(inFile)
 
 	if len(cfg.QueryMiddleware) > 0 {
+		// cqrs-lint:ignore(A016) idempotency is deliberately not a framework default
+		// (DefaultCommandMiddleware policy): duplicate-command semantics belong to the
+		// consumer, who appends middleware.CommandIdempotency over their own durable
+		// store. This line wires the QUERY dispatcher — no side effects to dedupe.
 		sys.QueryDispatcher().Use(cfg.QueryMiddleware...)
 	}
 
