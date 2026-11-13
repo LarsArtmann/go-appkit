@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/config
 
-go 1.27.4
+go 1.27
 
 require (
 	github.com/go-faster/yaml v0.4.6
