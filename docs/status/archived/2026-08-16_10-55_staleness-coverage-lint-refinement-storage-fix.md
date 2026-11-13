@@ -264,7 +264,7 @@ The session 5 report says "go test ./... -race -count=1 — ok (3.5s)" and "lint
 
 ### Test refinement
 
-42. Consider merging `TestEventService_CheckStaleness_FreshWithoutProcessedEvents` and `TestEventService_CheckStaleness_FreshProjectionWithinBudget` — they test similar things (fresh = nil). The first has no projection, the second has one. Both are valuable but could be table-driven.
+42. ~~Consider merging `TestEventService_CheckStaleness_FreshWithoutProcessedEvents` and `TestEventService_CheckStaleness_FreshProjectionWithinBudget` — they test similar things (fresh = nil). The first has no projection, the second has one. Both are valuable but could be table-driven.~~ **Won't implement — the two tests stay separate deliberately — FreshWithoutProcessedEvents pins the zero-projection lag-0 path, FreshProjectionWithinBudget pins the processed-event path; a 2-case table adds indirection without dedup payoff (still present at cqrs/staleness_test.go:16,39, verified 2026-11-13).**
 43. Consider adding a test that verifies `CheckStaleness` returns nil when the budget exactly equals the lag (boundary condition — `lag > maxStaleness` is strict greater-than).
 44. Consider adding a test that verifies `CheckProjectionStaleness` on a registered projection with lag == 0 (no events processed) returns nil (not Rejection).
 

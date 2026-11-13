@@ -291,7 +291,7 @@ proxy test PASS for core v0.5.0.**
 ~~refactor for real.~~
 12. ~~Then: Core TLS option (`ServiceConfig.TLS{CertFile, KeyFile}`) —~~ **Won't implement — gated on 10 — Core TLS in the AGENTS Deferred Register.**
 ~~PapDashboard's first demand.~~
-13. ~~statusRecorder USER GATE (open since 2026-09-16): swap or close it.~~ done (STILL OPEN — TODO_LIST P2 USER GATE (statusRecorder))
+13. ~~statusRecorder USER GATE (open since 2026-09-16): swap or close it.~~ done (DECIDED 2026-10-13 — declined at source level: httputil's recorder is pass-through, `Wrap` needs body-discarding capture; record in errorpages CHANGELOG v0.1.2)
 
 **Finish the partials**
 14. ~~**govulncheck** on health + security from a networked machine.~~ **Won't implement — env-blocked — TODO_LIST P2 govulncheck.**
