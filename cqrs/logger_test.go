@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -15,9 +14,6 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
 	"github.com/larsartmann/go-cqrs-lite/projection/v4"
 )
-
-// testEventSeq makes appendTestEvent streams unique across calls.
-var testEventSeq atomic.Uint64
 
 // capturingHandler is a slog.Handler that records every record it receives.
 type capturingHandler struct {
@@ -71,53 +67,6 @@ func (h *capturingHandler) contains(substr string) bool {
 	return false
 }
 
-// appendTestEvent writes a single event of eventType to a fresh stream.
-// Each call uses a new stream so saves never conflict on version.
-func appendTestEvent(t *testing.T, eventSvc *EventService, eventType event.Type) {
-	t.Helper()
-
-	static := testEventSeq.Add(1)
-
-	streamID, err := id.ParseStreamID(fmt.Sprintf("stream-%d", static))
-	if err != nil {
-		t.Fatalf("parse stream id: %v", err)
-	}
-
-	evt, err := event.New(
-		eventType,
-		streamID,
-		"test-stream",
-		1,
-		map[string]string{"hello": "world"},
-	)
-	if err != nil {
-		t.Fatalf("create event: %v", err)
-	}
-
-	ref := id.NewStreamRef("test-stream", streamID)
-
-	err = eventSvc.System().EventStore().Save(context.Background(), ref, []event.Event{evt}, 0)
-	if err != nil {
-		t.Fatalf("save event: %v", err)
-	}
-}
-
-// waitFor polls fn until it returns true or the deadline passes.
-func waitFor(t *testing.T, what string, fn func() bool) {
-	t.Helper()
-
-	deadline := time.Now().Add(5 * time.Second)
-
-	for time.Now().Before(deadline) {
-		if fn() {
-			return
-		}
-
-		time.Sleep(10 * time.Millisecond)
-	}
-
-	t.Fatalf("timed out waiting for %s", what)
-}
 
 func TestEventConfig_Logger_FlowsToProjectionWorkers(t *testing.T) {
 	t.Parallel()
