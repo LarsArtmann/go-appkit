@@ -4,7 +4,7 @@
 > Bounded, short-to-mid-term work lives in [TODO_LIST.md](TODO_LIST.md).
 > Point-in-time plans and research live in `docs/planning/`.
 
-**Updated:** 2026-11-02 (httputil#41 `NewServerListener` SHIPPED upstream — composition + Core TLS unblocked; see the v1.0.0 section)
+**Updated:** 2026-11-13 (docs-health pass — module-bay list current at 14 released modules; httpx shipped B1-B9 minus the H8-gated pair; W3 complete, W4-W5 routed) — prior: 2026-11-02 (httputil#41 `NewServerListener` SHIPPED upstream — composition + Core TLS unblocked; see the v1.0.0 section)
 
 ## North star
 
@@ -16,18 +16,21 @@ stays a thin, stable HTTP service lifecycle; capability arrives as opt-in,
 independently versioned satellite modules.
 
 The module bay is built (cqrs, realtime, otel, health, flightrecorder,
-flightrecorderhealth, errorpages, docs, security). Filling it is
-demand-driven — the canonical demand analysis and per-battery specs live in
-`docs/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
-(waves W1–W2 shipped; W3–W5 are routed into TODO_LIST; this file holds the
-direction, not the tasks).
+flightrecorderhealth, errorpages, docs, security, httpx, config, systemd,
+preset — 14 released modules plus the unreleased integration suite).
+Filling it is demand-driven — the canonical demand analysis and per-battery
+specs live in `docs/feedback/processed/2026-09-04_batteries-included-sdk-gap-analysis.md`
+(waves W1–W3 shipped — B6/B8 remain H8-owner-gated; W4–W5 are routed into
+TODO_LIST; this file holds the direction, not the tasks).
 
 **Composition-mission program (OWNER RULING 2026-11-03):** the mission is
 "make it easy for my apps to smartly use all my libs together" — family-lib
 batteries are IN-SCOPE, demand-gating them contradicts the repo's purpose.
 All W3-W5 batteries are blanket-promoted to planned work (sequencing lives
-in TODO_LIST). The next structural step is the `httpx` handler-DX module
-(B1-B9 family; B5 content negotiation is built on go-codec). Server-Timing
+in TODO_LIST). The `httpx` handler-DX module SHIPPED (B1-B9 except the
+H8-gated B6/B8; B5 content negotiation built on go-codec) — the remaining
+structural ideas are the W4/W5 batteries and the auth-bridge decision (both
+owner-gated, TODO_LIST). Server-Timing
 now ships in core's default stack with a `ServerTiming *bool` knob —
 framework-measured app phases are unservable (stamp-on-commit contract);
 sub-phases are handler-side via the request collector.

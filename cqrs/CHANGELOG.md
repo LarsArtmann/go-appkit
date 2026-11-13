@@ -10,6 +10,55 @@
   `startNoOpProjection` in `staleness_test.go` — the one harmful clone of
   the 2026-11-13 art-dupl sweep (5×45-token copy-paste; the detector's
   shared-test-utility suggestion). Test-only: zero API or behavior delta.
+- cqrs-lint hygiene pass (2026-11-13, 16 findings → 0 in both scan scopes;
+  comments/config/pins only — zero API or behavior delta):
+  - Suppressions moved to their TRUE anchors: F009 inline above the
+    `inFlightTracker.Drain` ticker (a shutdown drain poll of an in-process
+    counter, not a domain timer), A016 inline above the query-middleware
+    wiring (idempotency stays consumer-owned per the
+    DefaultCommandMiddleware policy; the flagged line wires the QUERY
+    dispatcher), E023 inline above the `database/sql` import (the aux DB
+    backs the default DLQ/checkpoint store — projectionhost plumbing, not
+    a CQRS table). The FoldedEvent struct carries a block suppression for
+    C013 + 4×D014: it is an in-memory notification (Go channel →
+    realtime.FoldedSignal getters), never CBOR/JSON-encoded, so
+    `event.Instant` and json tags would be inert ceremony.
+  - E009/E014/F007/A024 moved to rule-level disables: cqrs-lint accepts
+    only the package clause as anchor for the first three, and a directive
+    there trips go-structure-linter's package-naming rule (it parses the
+    whole package line including comments and flags the uppercase rule
+    IDs — proven 2026-10-13, re-proven 2026-11-13), so the old
+    preamble/clause directive dance is retired; A024 ("decorative event
+    sourcing") can never be the right verdict for a framework wrapper
+    whose consumers own event creation (same class as A018/F032). BOTH
+    `.cqrs-lint.json` files now carry the disables with reasons: the new
+    repo-root config exists because BuildFlow's cqrs-lint step runs
+    `cqrs-lint .` from the repo ROOT and never loaded
+    `cqrs/.cqrs-lint.json` (the module-scoped ritual keeps its own file;
+    keep them in lockstep). The inert preamble E014 directive on
+    commands.go is removed — it had silently suppressed nothing since the
+    daemon relocated it off the package clause (aa9dd60, 2026-11-06).
+  - V006 pins ALIGNED, not just silenced: integration bumped onto cqrs's
+    unreleased go-cqrs-lite set (system v4.18.0, metaengine v4.23.0,
+    sqliteengine v4.7.1, id v4.7.5) — the E2E composition is -race green
+    against the published cqrs v0.9.0 under that set, so the next cqrs
+    train inherits a proven composition; docs id/v4 → v4.7.5. The V006
+    disable's rationale is refreshed: workspace pin consistency is a
+    release-train ritual (integration re-pins in the wave that bumps
+    cqrs); between trains, dependabot bumps the modules independently, so
+    mid-train drift is contractual.
+- golangci-lint v2.15.0 wrapcheck drift (second wave): the generic
+  signatures `system/v4.RegisterCommand` / `system/v4.RegisterQuery` are
+  now flagged on the typed facade's delegation returns — absorbed via
+  `wrapcheck.ignore-sigs` in this module's config (fleet rule: never fix
+  these sites in code; RegisterDecider/Dispatch carry the same intent
+  inline).
+- Known scan-scope artifacts, documented not fixable: each scope reports
+  the other scope's suppressions as "stale suppression" warnings — F032
+  (import-level rule) cannot fire in the root-scope run because its
+  package loading is partial, while F009/A016 directives cannot fire in
+  the module-scoped run because the library-framework preset already
+  silences those rules there. Warnings only; zero findings either way.
 
 ## [0.9.0] - 2026-11-08
 

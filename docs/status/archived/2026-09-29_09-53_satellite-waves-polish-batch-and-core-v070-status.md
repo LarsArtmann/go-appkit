@@ -70,7 +70,7 @@ BuildFlow full-mode validation (#16), T29 watchlist (#17), T30 consumer ritual (
 8. T30 external-consumer proxy ritual decision + recipe paragraph. **→ routed — Decision 14 (verify-on-touch + quarterly)**
 9. T32 rituals re-arm (cqrs cookbook re-verify trigger, core v1 exit-criteria graduation, battery demand re-check). **→ routed — rituals are standing rows (TODO_LIST P3 + AGENTS cqrs section)**
 10. T20 AGENTS slim batch 1 (per-module build commands → module READMEs; cap headroom). **→ routed — TODO_LIST P3 AGENTS slim-down**
-11. T20b/c gotcha-group slim batches 2-3. **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
+11. ~~T20b/c gotcha-group slim batches 2-3.~~ done — shipped via the 2026-10-12 module-details extraction (per-module deep content moved to `docs/agents/module-details.md` for exactly the 220-line cap); AGENTS.md sits at 154/220 lines with headroom kept ever since (verified 2026-11-13). **→ routed — TODO_LIST P3 AGENTS slim-down batches 2-3**
 12. ~~T21 art-dupl suppression audit (~431 groups) + standing policy + Decision 13 cross-link.~~ done — audited 2026-09-29 — 477 groups, one harmful clone fixed
 13. ~~T31 lessons.md entry (crush-config repo, committed): verify-distinguishing-output / topology-before-tooling / sync-on-observability / mechanical delta enumeration.~~ done — the caller-wins-toolchain lesson class lives in crush-config references/lessons.md (2026-09-22 entry)
 14. ~~Upstream draft: BuildFlow go-licenses ≥1.27 runner.~~ **Won't implement — moot — the premise broke: license-check passes 13/13 since the 2026-10-07 probes.**
