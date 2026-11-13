@@ -325,7 +325,9 @@ on origin, pushed 06:59):
 ## preset (`github.com/larsartmann/go-appkit/preset`)
 
 Shipped as **preset v0.1.0** (2026-11-06, SUPERB v12/v13 P-train — the one-call
-composition module):
+composition module); **v0.1.1** (2026-11-13) moves the realtime hub drain to
+`DrainHooks` — graceful shutdown with an open SSE stream no longer times out
+(zero API delta, `TestRealtime_StreamsEvents` pins the ~2ms drain):
 
 | Feature                                                                                                                                                                                                                          | Status           | Evidence                                    |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------- |
