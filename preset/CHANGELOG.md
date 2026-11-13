@@ -4,7 +4,7 @@ All notable changes to this module are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.1] - 2026-11-13
 
 ### Fixed — realtime hub drains in DrainHooks, not ShutdownHooks (graceful-shutdown deadlock with open SSE streams)
 
@@ -56,4 +56,4 @@ All notable changes to this module are documented here. The format follows
 - Test suite pins the whole contract (spine, hooks, env grammar, leg
   matrix, metrics passthrough, graceful SSE shutdown); example app = 35 LOC.
 
-## [Unreleased]
+## [0.1.1] - 2026-11-13
