@@ -55,5 +55,3 @@ All notable changes to this module are documented here. The format follows
   credentials (nil = no metrics surface).
 - Test suite pins the whole contract (spine, hooks, env grammar, leg
   matrix, metrics passthrough, graceful SSE shutdown); example app = 35 LOC.
-
-## [0.1.1] - 2026-11-13
