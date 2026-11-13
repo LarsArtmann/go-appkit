@@ -1,0 +1,29 @@
+found 3 clones:
+  errorpages/example/main.go:27-32  | cfg := appkit.DefaultServiceConfig()
+  example/main.go:33-38  | cfg := appkit.DefaultServiceConfig()
+  systemd/example/main.go:28-33  | cfg := appkit.DefaultServiceConfig()
+found 2 clones:
+  flightrecorder/example/main.go:47-57  | cfg := appkit.DefaultServiceConfig()
+  otel/example/main.go:53-63  | cfg := appkit.DefaultServiceConfig()
+found 2 clones:
+  otel/exceptions.go:63-66  | span := trace.SpanFromContext(ctx)
+  otel/exceptions.go:77-80  | span := trace.SpanFromContext(ctx)
+found 2 clones:
+  flightrecorder/example/main.go:40-41  | demoMaxSnapshots   = 5
+  otel/example/main.go:46-47  | demoMaxSnapshots   = 5
+found 4 clones:
+  otel/setup.go:189-191  | if err != nil {
+  otel/setup.go:194-196  | if err != nil {
+  otel/setup.go:199-201  | if err != nil {
+  otel/setup.go:204-206  | if err != nil {
+found 2 clones:
+  flightrecorder/middleware.go:19-19  | MiddlewareOption func(*middlewareConfig)
+  otel/middleware.go:19-19  | MiddlewareOption func(*middlewareConfig)
+found 2 clones:
+  health/mount.go:14-14  | MountOption func(*mountConfig)
+  realtime/handler.go:30-30  | MountOption func(*mountConfig)
+found 2 clones:
+  otel/client.go:34-36  | for _, opt := range opts {
+  otel/middleware.go:127-129  | for _, opt := range opts {
+
+Detected 822 clone groups, 8 shown (553 non-actionable, 261 filtered suppressed).

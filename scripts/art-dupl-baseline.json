@@ -52,17 +52,6 @@
       "tokens": 2
     },
     {
-      "hash": "93a9b09aaa101148",
-      "files": [
-        "cqrs/staleness_test.go",
-        "cqrs/staleness_test.go",
-        "cqrs/staleness_test.go",
-        "cqrs/staleness_test.go",
-        "cqrs/staleness_test.go"
-      ],
-      "tokens": 45
-    },
-    {
       "hash": "b55107c4e5cd74f8",
       "files": [
         "otel/setup.go",

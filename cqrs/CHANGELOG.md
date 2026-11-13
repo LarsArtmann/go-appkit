@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Tests: the five staleness tests' duplicated projection bootstrap
+  (register a no-op projection over one event type, append one event,
+  start the workers, wait until caught up) extracted into
+  `startNoOpProjection` in `staleness_test.go` — the one harmful clone of
+  the 2026-11-13 art-dupl sweep (5×45-token copy-paste; the detector's
+  shared-test-utility suggestion). Test-only: zero API or behavior delta.
+
 ## [0.9.0] - 2026-11-08
 
 ### Added
