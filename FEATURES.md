@@ -116,8 +116,9 @@ ALL opt-in — nothing joins the default stack (anti-recommendation held).
 Ported from the CV production stack per the canonical battery spec (W2).
 Shipped through security **v0.2.0** (2026-09-29: `example/` hardened-chain
 demo, `THREAT_MODEL.md`, example-only core dependency). The example dep
-tracks the latest core it needs (pinned v0.10.0, swept by the 2026-11-06
-dependency train; core v0.10.0's delta is additions-only, so the example
+tracks the latest core it needs (pinned v0.12.0 — swept forward from the
+2026-11-06 v0.10.0 pin by the daemon's dependency sweeps; every core delta
+since v0.10.0 is additions-only, so the example
 edge stays demo-only and the package itself stays appkit-free).
 
 ## errorpages (`github.com/larsartmann/go-appkit/errorpages`)
