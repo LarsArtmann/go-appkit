@@ -361,7 +361,7 @@ eventSvc, err := cqrs.NewEventService(cqrs.EventConfig{
 | `LagPerProjection()`                     | `map[string]time.Duration`       | Event-age lag per projection.                                                               |
 | `CheckStaleness(budget)`                 | `error`                          | Read-time guard: Transient error when max lag exceeds budget.                               |
 | `CheckProjectionStaleness(name, budget)` | `error`                          | Per-projection read-time guard; Rejection for unknown names.                                |
-| `StartProjections(ctx)`                  | `error`                          | Starts projection workers.                                                                  |
+| `StartProjections(ctx)`                  | `error`                          | Starts projection workers. **Pass a long-lived context** (the app's run context): upstream, the workers' run context derives from THIS ctx — a helper-scoped `defer cancel()` silently kills every worker at scope exit, long after `StartProjections` returned (goroutine-dump-proven 2026-11-08). |
 | `Shutdown(ctx)`                          | `error`                          | Stops workers and closes the store. Idempotent.                                             |
 
 `Shutdown` drains in-flight commands first, then stops workers and closes
