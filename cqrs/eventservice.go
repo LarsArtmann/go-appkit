@@ -452,10 +452,12 @@ func buildSystem(
 	sys.RegisterDrainer(inFile)
 
 	if len(cfg.QueryMiddleware) > 0 {
-		// cqrs-lint:ignore(A016) idempotency is deliberately not a framework default
-		// (DefaultCommandMiddleware policy): duplicate-command semantics belong to the
-		// consumer, who appends middleware.CommandIdempotency over their own durable
-		// store. This line wires the QUERY dispatcher — no side effects to dedupe.
+		// Idempotency is deliberately not a framework default
+		// (DefaultCommandMiddleware policy): duplicate-command semantics belong
+		// to the consumer, who appends middleware.CommandIdempotency over their
+		// own durable store. This line wires the QUERY dispatcher — no side
+		// effects to dedupe.
+		//cqrs-lint:ignore(A016)
 		sys.QueryDispatcher().Use(cfg.QueryMiddleware...)
 	}
 

@@ -1,3 +1,7 @@
+# Generator command (2026-11-13, dedup-to-zero session):
+#   art-dupl . --type-aware -t 1 --rich-text   (gate mode; default test-threshold 30)
+#   art-dupl --sort total-tokens -t 1 .        (user mode; wider set, 14 groups)
+# Re-generate with the SAME binary the gate pins: v0.9.1-0.20261017225421-93432fd910fb.
 found 3 clones:
   errorpages/example/main.go:27-32  | cfg := appkit.DefaultServiceConfig()
   example/main.go:33-38  | cfg := appkit.DefaultServiceConfig()

@@ -167,9 +167,10 @@ func (t *inFlightTracker) pendingCount() int {
 // expires. It never aborts running commands — that is the engines' job via
 // context cancellation during close. Satisfies system.Drainer.
 func (t *inFlightTracker) Drain(ctx context.Context) error {
-	// cqrs-lint:ignore(F009) shutdown drain poll of an in-process counter, not a
-	// domain timer: there are no deadlines to schedule. Durable, crash-safe
-	// deadline management is the consumer's DomainConfig.Timers concern.
+	// Shutdown drain poll of an in-process counter, not a domain timer: there
+	// are no deadlines to schedule. Durable, crash-safe deadline management is
+	// the consumer's DomainConfig.Timers concern.
+	//cqrs-lint:ignore(F009)
 	ticker := time.NewTicker(2 * time.Millisecond)
 	defer ticker.Stop()
 

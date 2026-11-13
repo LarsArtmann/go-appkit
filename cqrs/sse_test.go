@@ -191,6 +191,10 @@ func readSSEStream(t *testing.T, serverURL, lastEventID string, want int) ([]str
 		t.Fatalf("expected %d SSE data lines, got %d", want, len(dataLines))
 	}
 
+	if err := scanner.Err(); err != nil {
+		t.Fatalf("SSE stream read failed: %v", err)
+	}
+
 	if lastID == "" {
 		t.Fatal("the replay stream must carry id: fields for reconnection")
 	}

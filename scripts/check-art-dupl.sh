@@ -20,6 +20,15 @@
 # settings deliberately mirror go-etag's pre-release check (scripts/
 # pre-release-check.sh §OQ8), the family precedent.
 #
+# Mode note (2026-11-13, dedup-to-zero session): the USER-mode pass (no
+# --type-aware, `art-dupl --sort total-tokens -t 1`) reports a WIDER set
+# (14 groups vs the gate's 8). A sweep must reconcile BOTH passes before
+# re-baselining — a group visible only in user mode is still a real clone.
+# Verify the local binary matches the CI pin
+# (v0.9.1-0.20261017225421-93432fd910fb) before any re-baseline: a tag
+# build lags commits and false-flags accepted groups (the 2026-10-19
+# art-dupl-gate incident).
+#
 # Re-baselining (extract-or-accept): if a new group is INTENTIONAL, rerun
 #   art-dupl baseline . --type-aware -t 1 \
 #     --baseline-path scripts/art-dupl-baseline.json

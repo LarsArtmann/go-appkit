@@ -20,12 +20,31 @@
     "disable": [
       // Framework wrapper by design: consumers get Bundle() and call Save/Publish/Dispatch themselves.
       "A018",
+      // Same framework-wrapper class: the module wires the full pipeline via
+      // system.New (store, bus, projections); event creation belongs to the
+      // consumer's deciders, so "decorative event sourcing" can never be the
+      // right verdict for this module.
+      "A024",
       // False positive: flightrecorder/v4 has exactly one tag (v4.0.0) — no v4.3.x exists.
       // Verified via `git tag | grep flightrecorder` in go-cqrs-lite on 2026-08-16.
       "V003",
-      // Real but unactionable: flightrecorder/v4 v4.0.0 is the only published tag; other v4 modules
-      // are v4.3–v4.7. go-cqrs-lite has not re-tagged flightrecorder/v4. Suppress until a new tag ships.
-      "V006"
+      // Workspace pin consistency is a release-train ritual (integration
+      // re-pins go-cqrs-lite in the wave that bumps cqrs; AGENTS.md release
+      // ritual). Between trains, dependabot bumps cqrs and integration
+      // independently, so mid-train drift is contractual. Align at each train.
+      "V006",
+      // Package-clause anchors (the only anchor cqrs-lint accepts for these
+      // rules) trip go-structure-linter's package-naming rule, which parses
+      // the whole package line including comments (proven 2026-10-13, re-proven
+      // 2026-11-13) — so these suppressions live here instead:
+      // E009 — delivery is realtime's job (SSE) plus cqrs-htmx; transport-free wrapper by design.
+      // E014 — read-your-writes is a read-time staleness guard
+      //        (CheckStaleness/DispatchQueryChecked), not a post-command drain; async by design.
+      // F007 — idempotency needs a durable consumer-owned store (memory.MemoryStore
+      //        deprecated upstream); appended by consumers via EventConfig.CommandMiddleware.
+      "E009",
+      "E014",
+      "F007"
     ]
   }
 }

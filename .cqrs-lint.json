@@ -1,0 +1,45 @@
+{
+  // Repo-level config: BuildFlow's cqrs-lint step runs `cqrs-lint .` from the
+  // repo ROOT (not from cqrs/), so cqrs/.cqrs-lint.json is never loaded there.
+  // Keep this file's disable set in lockstep with cqrs/.cqrs-lint.json.
+  //
+  // No preset and no feature pin here on purpose: this scan spans the whole
+  // fleet (core has no go-cqrs-lite at all; integration DISPATCHES commands in
+  // its E2Es), so the cqrs module's feature profile must not be applied
+  // repo-wide. Only permanent framework-wrapper properties are disabled.
+  "rules": {
+    "disable": [
+      // appkit/cqrs is a framework wrapper: consumers get Bundle()/dispatch
+      // seams and wire their own domain. No module in this repo is a
+      // go-cqrs-lite domain app, so "decorative event sourcing" can never be
+      // the right verdict here (same class as the F032 suppression at the
+      // command/v4 import and the A018 disable in cqrs/.cqrs-lint.json).
+      "A024",
+      // Delivery is realtime's job (SSE) plus consumer wiring (cqrs-htmx);
+      // the cqrs module is transport-free by design (WebSocket removed
+      // fleet-wide; ADR-0046 lineage).
+      "E009",
+      // Read-your-writes is a READ-time guard (CheckStaleness /
+      // DispatchQueryChecked / CheckProjectionStaleness, see README), not a
+      // post-command drain: the wrapper is async by design. A trailing
+      // package-clause directive (the only anchor cqrs-lint accepts) trips
+      // go-structure-linter's package-naming rule, which parses the whole
+      // package line including comments (proven 2026-10-13 and re-proven
+      // 2026-11-13), so the suppression lives here instead.
+      "E014",
+      // Idempotency changes command semantics and needs a DURABLE, consumer-
+      // owned store (memory.MemoryStore is deprecated upstream; go-idempotency
+      // ADR-001 ships no production backend). Deliberately appended by
+      // consumers via EventConfig.CommandMiddleware — see
+      // DefaultCommandMiddleware. Package-clause anchor: same
+      // go-structure-linter conflict as E014.
+      "F007",
+      // Workspace pin consistency is a RELEASE-TRAIN ritual (integration
+      // re-pins go-cqrs-lite in the same wave that bumps cqrs; see AGENTS.md
+      // release ritual). Between trains, dependabot bumps cqrs and
+      // integration independently, so mid-train drift is contractual, not a
+      // bug. Align pins at each train; the guard would nag weekly otherwise.
+      "V006"
+    ]
+  }
+}
