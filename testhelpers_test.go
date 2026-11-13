@@ -73,6 +73,11 @@ func newMockShutdown(called chan struct{}) func(context.Context) error {
 	}
 }
 
+// waitForRunning and httpGet deliberately duplicate the published testkit
+// helpers (testkit.WaitForRunning/HTTPGetContext): testkit imports appkit, so
+// these in-package `appkit` tests cannot import testkit without an import
+// cycle. Keep the twins in lockstep by shape, not by a shared dependency
+// (adjudicated ACCEPT in the 2026-11-13 dedup-to-zero sweep).
 func waitForRunning(t *testing.T, svc *Service) {
 	t.Helper()
 

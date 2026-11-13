@@ -12,10 +12,12 @@ package cqrs
 
 import (
 	"context"
-	"database/sql" // cqrs-lint:ignore(E023) aux *sql.DB backs the default DLQ and checkpoint store
-	// (projectionhost.DeadLetterStore — host plumbing, not a CQRS table; the rule
-	// itself dismisses non-CQRS tables). CQRS state rides the metaengine engines
-	// via system.New.
+	// aux *sql.DB backs the default DLQ and checkpoint store
+	// (projectionhost.DeadLetterStore — host plumbing, not a CQRS table;
+	// the rule itself dismisses non-CQRS tables). CQRS state rides the
+	// metaengine engines via system.New.
+	//cqrs-lint:ignore(E023)
+	"database/sql"
 	"errors"
 	"io"
 	"log/slog"

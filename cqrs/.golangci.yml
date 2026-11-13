@@ -216,6 +216,11 @@ linters:
         - NewRejection(
         - WrapInfrastructuref(
         - WrapInfrastructure(
+        # system passthroughs are deliberate delegation (typed facades over
+        # system.System; RegisterDecider/Dispatch carry the same intent inline).
+        # The v2.15.0 binary re-flags the generic signatures (2026-11-13).
+        - system/v4.RegisterCommand
+        - system/v4.RegisterQuery
   exclusions:
     generated: lax
     rules:

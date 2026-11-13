@@ -57,7 +57,7 @@ func RegisterCommand[Cmd command.Command, State any](
 	name command.Type,
 	handler func(ctx context.Context, cmd Cmd) system.Op[State],
 ) error {
-	return system.RegisterCommand[Cmd, State](svc.sys, name, handler) //nolint:wrapcheck // delegation
+	return system.RegisterCommand[Cmd, State](svc.sys, name, handler)
 }
 
 // RegisterQuery registers a typed query handler (typed passthrough to
@@ -67,7 +67,7 @@ func RegisterQuery[Q any, R any](
 	name string,
 	handler func(ctx context.Context, query Q) (R, error),
 ) error {
-	return system.RegisterQuery[Q, R](svc.sys, name, handler) //nolint:wrapcheck // delegation
+	return system.RegisterQuery[Q, R](svc.sys, name, handler)
 }
 
 // Dispatch sends a command through the service's command dispatcher

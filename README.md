@@ -363,7 +363,8 @@ per-module lint commands live in each module README under
 **Build & verify**.
 
 The whole loop as one command — hermetic build + vet + `go test -race`
-plus sequential per-module lint across all twelve modules, with per-module
+plus sequential per-module lint across all fourteen module directories
+(root + the 13 satellites, `scripts/verify-all.sh`), with per-module
 log files and explicit PASS/FAIL EXIT verdict lines — is
 `scripts/verify-all.sh` (toolchain derived from the root go.mod). On
 shared machines, `--quiet[=LOADMAX]` re-execs the loop through
