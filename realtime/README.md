@@ -155,12 +155,12 @@ PROPRIETARY — see [LICENSE](LICENSE).
 
 ```bash
 cd realtime
-GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
-GOWORK=off GOTOOLCHAIN=go1.27.3 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.3 go build ./...
+GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.4 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.4 go build ./...
 golangci-lint run ./...        # from this directory
 ```
 
-`GOTOOLCHAIN=go1.27.3` is required for every command below on
+`GOTOOLCHAIN=go1.27.4` is required for every command below on
 machines whose default toolchain is older (this repo pins
 `go 1.27.3` in every go.mod). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,

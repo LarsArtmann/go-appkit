@@ -34,7 +34,7 @@
 #
 # Examples:
 #   scripts/quiet-run.sh --load-max 16 --pin-cores 8 -- \
-#       env GOWORK=off GOTOOLCHAIN=go1.27.3 go test -bench . -benchmem -count=10
+#       env GOWORK=off GOTOOLCHAIN=go1.27.4 go test -bench . -benchmem -count=10
 #   scripts/quiet-run.sh --wait 3600 -- ./scripts/verify-all.sh
 #
 # Exit codes: 0 = the command ran and exited 0 (other command exit codes

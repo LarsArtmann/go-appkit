@@ -24,10 +24,10 @@ chain (caught 2026-10-12).
 
 ```bash
 cd docs
-GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
-GOWORK=off GOTOOLCHAIN=go1.27.3 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.3 go build ./...
+GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1
+GOWORK=off GOTOOLCHAIN=go1.27.4 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.4 go build ./...
 golangci-lint run ./...        # from this directory
 ```
 
-`GOTOOLCHAIN=go1.27.3` is required (catalog/v4 uses
+`GOTOOLCHAIN=go1.27.4` is required (catalog/v4 uses
 `encoding/json/v2`); `GOWORK=off` makes the run hermetic.

@@ -57,7 +57,7 @@ fi
 if [[ "$declared" == "$expected" ]]; then
 	echo "OK: go.work membership matches the charter (root + $(grep -vc '^\.$' <<<"$expected") modules, ./integration excluded)"
 elif [[ "$fix" == 1 ]]; then
-	toolchain="${GOTOOLCHAIN:-go1.27.3}"
+	toolchain="${GOTOOLCHAIN:-go1.27.4}"
 	while IFS= read -r stray; do
 		[[ -z "$stray" ]] && continue
 		echo "FIX: dropping '$stray' from go.work (not in the charter)"

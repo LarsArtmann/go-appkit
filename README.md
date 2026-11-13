@@ -347,16 +347,16 @@ middleware, health, logging, and shutdown wired in one import.
 ## Development
 
 Go >= 1.27.3 (every module's go.mod declares `go 1.27.3`; on older default
-toolchains prefix commands with `GOTOOLCHAIN=go1.27.3`):
+toolchains prefix commands with `GOTOOLCHAIN=go1.27.4`):
 
 ```bash
 go test ./...            # workspace: builds + tests the 14 member modules
-GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
+GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1
 ```
 
 The `integration` module (cross-module E2E) is deliberately NOT a workspace
 member — it pins PUBLISHED tags only, so its suite runs hermetic from its own
-directory: `cd integration && GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./...`.
+directory: `cd integration && GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./...`.
 
 Per-module verify (hermetic, resolves like a consumer via the proxy) and
 per-module lint commands live in each module README under

@@ -47,7 +47,7 @@ func run(m *testing.M) int {
 				"(pin charter, doc.go): workspace members resolve the family pins to LOCAL code instead of\n"+
 				"the published tags consumers actually get. If ./integration leaked into go.work again, run\n"+
 				"scripts/check-workspace-charter.sh --fix . Otherwise verify hermetically:\n"+
-				"  cd integration && GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1\n", resolved)
+				"  cd integration && GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1\n", resolved)
 
 		return 2
 	}

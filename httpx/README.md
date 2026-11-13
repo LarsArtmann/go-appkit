@@ -164,7 +164,7 @@ never a silent hang (pinned by the ordering-regression test).
 ## Build & verify
 
 ```bash
-cd httpx && GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
+cd httpx && GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1
 cd httpx && golangci-lint run ./...
 ```
 

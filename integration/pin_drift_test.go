@@ -80,9 +80,9 @@ var documentedPins = map[string]string{
 // unification (go mod tidy); 2026-09-29: all 11 modules unified at 1.27.1;
 // 2026-10-12: floor-trained to 1.27.2 (cqrs-htmx v4.14.0 requires >=1.27.2;
 // also clears GO-2026-6617) across all 12 go.mods + go.work.
-// 2026-11-07: floor-trained to 1.27.3 (clears stdlib GO-2026-6809
+// 2026-11-07: floor-trained to 1.27.4 (clears stdlib GO-2026-6859
 // crypto/x509) across all 14 go.mods + go.work.
-const documentedGoDirective = "1.27.3"
+const documentedGoDirective = "1.27.4"
 
 func TestGoModPinsMatchDocumentedPins(t *testing.T) {
 	t.Parallel()

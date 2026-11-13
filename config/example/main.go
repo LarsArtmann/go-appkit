@@ -3,8 +3,8 @@
 //
 // Try it:
 //
-//	GOWORK=off GOTOOLCHAIN=go1.27.3 go run .                       # missing required → Rejection
-//	APP_API_KEY=secret GOWORK=off GOTOOLCHAIN=go1.27.3 go run .   # defaults
+//	GOWORK=off GOTOOLCHAIN=go1.27.4 go run .                       # missing required → Rejection
+//	APP_API_KEY=secret GOWORK=off GOTOOLCHAIN=go1.27.4 go run .   # defaults
 //	APP_API_KEY=s APP_TTL=5m APP_ADDR=:9000 go run .              # env overrides
 package main
 

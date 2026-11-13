@@ -124,7 +124,7 @@ integration module can pin it via the `documentedPins` ritual.
 Hermetic per-module commands (how consumers resolve via the proxy):
 
 ```bash
-cd systemd && GOWORK=off GOTOOLCHAIN=go1.27.3 go test ./... -race -count=1
+cd systemd && GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1
 ```
 
 (vet/build with the same prefix). Lint from inside the module:

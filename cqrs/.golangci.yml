@@ -13,7 +13,7 @@ version: "2"
 #   - no arangolint / clickhouselint: no database driver code in this module
 run:
   timeout: 5m
-  go: "1.27.3"
+  go: "1.27.4"
   allow-parallel-runners: true
   allow-serial-runners: true
   issues-exit-code: 1

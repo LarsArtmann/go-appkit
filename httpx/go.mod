@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/httpx
 
-go 1.27.3
+go 1.27.4
 
 require (
 	github.com/larsartmann/go-appkit/errorpages v0.1.3
