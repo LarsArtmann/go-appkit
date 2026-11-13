@@ -5,12 +5,12 @@ go 1.27.4
 require (
 	github.com/larsartmann/go-appkit v0.12.0
 	github.com/larsartmann/go-error-family v0.12.0
-	github.com/larsartmann/templ-components/errorpage v1.26.0
+	github.com/larsartmann/templ-components/errorpage v1.27.0
 )
 
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
-	github.com/a-h/templ v0.3.1070 // indirect
+	github.com/a-h/templ v0.3.1100 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
 	github.com/charmbracelet/lipgloss v1.1.0 // indirect
@@ -26,8 +26,8 @@ require (
 	github.com/larsartmann/go-etag/server v0.6.1 // indirect
 	github.com/larsartmann/httputil v1.8.0 // indirect
 	github.com/larsartmann/httputil/server_timing v1.0.3 // indirect
-	github.com/larsartmann/templ-components/icons v1.26.0 // indirect
-	github.com/larsartmann/templ-components/utils v1.26.0 // indirect
+	github.com/larsartmann/templ-components/icons v1.27.0 // indirect
+	github.com/larsartmann/templ-components/utils v1.27.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
