@@ -39,7 +39,7 @@ Production-ready HTTP service framework composing httputil, charmbracelet/log, a
 
 ## Build & Verify
 
-Each module README's **Build & verify** section is the per-module source of truth (commands, lint, module-specific notes). The universal hermetic pattern — plus `nix shell nixpkgs#govulncheck --command govulncheck ./...` works here (fleet was 14/14 clean at the 2026-11-07 floor train, scanner 1.9.0; the 2026-11-13 nightly surfaced **GO-2026-6859** — `net/http@go1.27.3`, fixed in `go1.27.4`, CALLABLE from otel/OTLP paths — so the clean record is STALE until the next floor train, tracked TODO_LIST P1; config carries one informational UN-CALLED windows-only x/sys module-level finding, deferred to its next train; the nightly CI leg `.github/workflows/govulncheck.yml` mechanizes the rule):
+Each module README's **Build & verify** section is the per-module source of truth (commands, lint, module-specific notes). The universal hermetic pattern — plus `nix shell nixpkgs#govulncheck --command govulncheck ./...` works here (fleet 14/14 CLEAN at the 2026-11-13 floor train — go1.27.4 clears **GO-2026-6859** (`net/http@go1.27.3`, which the 11-11..11-13 nightlies flagged as callable from otel/OTLP paths; spot-verified root/otel/preset/cqrs/integration); config carries one informational UN-CALLED windows-only x/sys module-level finding, deferred to its next train; the nightly CI leg `.github/workflows/govulncheck.yml` mechanizes the rule):
 
 ```bash
 cd <module> && GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1
