@@ -40,28 +40,10 @@ func TestEventService_CheckStaleness_FreshProjectionWithinBudget(t *testing.T) {
 	t.Parallel()
 
 	eventSvc := newTestEventService(t, EventConfig{})
-	proj := projection.NewProjection(
-		"fresh-projection",
-		func(_ context.Context, _ event.Event) error { return nil },
-		[]event.Type{"test.fresh"},
-	)
-
-	err := eventSvc.Host().Register(proj)
-	if err != nil {
-		t.Fatalf("register projection: %v", err)
-	}
-
-	appendTestEvent(t, eventSvc, "test.fresh")
-
-	err = eventSvc.StartProjections(context.Background())
-	if err != nil {
-		t.Fatalf("start projections: %v", err)
-	}
-
-	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+	startNoOpProjection(t, eventSvc, "fresh-projection", "test.fresh")
 
 	// The projection has processed an event and is well within a 1-hour budget.
-	err = eventSvc.CheckStaleness(time.Hour)
+	err := eventSvc.CheckStaleness(time.Hour)
 	if err != nil {
 		t.Errorf("expected nil within generous budget after processing, got: %v", err)
 	}
@@ -71,29 +53,11 @@ func TestEventService_CheckStaleness_StaleProjectionIsTransient(t *testing.T) {
 	t.Parallel()
 
 	eventSvc := newTestEventService(t, EventConfig{})
-	proj := projection.NewProjection(
-		"stale-projection",
-		func(_ context.Context, _ event.Event) error { return nil },
-		[]event.Type{"test.stale"},
-	)
-
-	err := eventSvc.Host().Register(proj)
-	if err != nil {
-		t.Fatalf("register projection: %v", err)
-	}
-
-	appendTestEvent(t, eventSvc, "test.stale")
-
-	err = eventSvc.StartProjections(context.Background())
-	if err != nil {
-		t.Fatalf("start projections: %v", err)
-	}
-
-	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+	startNoOpProjection(t, eventSvc, "stale-projection", "test.stale")
 
 	// After the worker processes the event, lag = time.Since(lastProcessedAt).
 	// A nanosecond budget is already exceeded — the projection is stale.
-	err = eventSvc.CheckStaleness(time.Nanosecond)
+	err := eventSvc.CheckStaleness(time.Nanosecond)
 	if err == nil {
 		t.Fatal("expected staleness error with nanosecond budget after processing an event")
 	}
@@ -111,27 +75,9 @@ func TestEventService_CheckProjectionStaleness_FreshProjectionWithinBudget(t *te
 	t.Parallel()
 
 	eventSvc := newTestEventService(t, EventConfig{})
-	proj := projection.NewProjection(
-		"named-fresh",
-		func(_ context.Context, _ event.Event) error { return nil },
-		[]event.Type{"test.named-fresh"},
-	)
+	startNoOpProjection(t, eventSvc, "named-fresh", "test.named-fresh")
 
-	err := eventSvc.Host().Register(proj)
-	if err != nil {
-		t.Fatalf("register projection: %v", err)
-	}
-
-	appendTestEvent(t, eventSvc, "test.named-fresh")
-
-	err = eventSvc.StartProjections(context.Background())
-	if err != nil {
-		t.Fatalf("start projections: %v", err)
-	}
-
-	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
-
-	err = eventSvc.CheckProjectionStaleness("named-fresh", time.Hour)
+	err := eventSvc.CheckProjectionStaleness("named-fresh", time.Hour)
 	if err != nil {
 		t.Errorf("expected nil within generous budget, got: %v", err)
 	}
@@ -141,27 +87,9 @@ func TestEventService_CheckProjectionStaleness_StaleProjectionIsTransient(t *tes
 	t.Parallel()
 
 	eventSvc := newTestEventService(t, EventConfig{})
-	proj := projection.NewProjection(
-		"named-stale",
-		func(_ context.Context, _ event.Event) error { return nil },
-		[]event.Type{"test.named-stale"},
-	)
+	startNoOpProjection(t, eventSvc, "named-stale", "test.named-stale")
 
-	err := eventSvc.Host().Register(proj)
-	if err != nil {
-		t.Fatalf("register projection: %v", err)
-	}
-
-	appendTestEvent(t, eventSvc, "test.named-stale")
-
-	err = eventSvc.StartProjections(context.Background())
-	if err != nil {
-		t.Fatalf("start projections: %v", err)
-	}
-
-	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
-
-	err = eventSvc.CheckProjectionStaleness("named-stale", time.Nanosecond)
+	err := eventSvc.CheckProjectionStaleness("named-stale", time.Nanosecond)
 	if err == nil {
 		t.Fatal("expected staleness error with nanosecond budget after processing an event")
 	}
@@ -215,25 +143,7 @@ func TestEventService_CheckStaleness_BudgetMonotonicity(t *testing.T) {
 	t.Parallel()
 
 	eventSvc := newTestEventService(t, EventConfig{})
-	proj := projection.NewProjection(
-		"mono-projection",
-		func(_ context.Context, _ event.Event) error { return nil },
-		[]event.Type{"test.mono"},
-	)
-
-	err := eventSvc.Host().Register(proj)
-	if err != nil {
-		t.Fatalf("register projection: %v", err)
-	}
-
-	appendTestEvent(t, eventSvc, "test.mono")
-
-	err = eventSvc.StartProjections(context.Background())
-	if err != nil {
-		t.Fatalf("start projections: %v", err)
-	}
-
-	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
+	startNoOpProjection(t, eventSvc, "mono-projection", "test.mono")
 
 	// Sample budgets from nanoseconds to hours; outcomes must be monotone
 	// (once passing, always passing as the budget grows).
@@ -259,4 +169,32 @@ func TestEventService_CheckStaleness_BudgetMonotonicity(t *testing.T) {
 			t.Errorf("budget %v: expected ErrProjectionStale, got: %v", budget, err)
 		}
 	}
+}
+
+// startNoOpProjection drives an EventService to the state every staleness
+// test needs: a named no-op projection over eventType is registered, one
+// event of that type is appended, the projection workers are started, and
+// the service has caught up (ReadyCheck green).
+func startNoOpProjection(t *testing.T, eventSvc *EventService, name string, eventType event.Type) {
+	t.Helper()
+
+	proj := projection.NewProjection(
+		name,
+		func(_ context.Context, _ event.Event) error { return nil },
+		[]event.Type{eventType},
+	)
+
+	err := eventSvc.Host().Register(proj)
+	if err != nil {
+		t.Fatalf("register projection: %v", err)
+	}
+
+	appendTestEvent(t, eventSvc, eventType)
+
+	err = eventSvc.StartProjections(context.Background())
+	if err != nil {
+		t.Fatalf("start projections: %v", err)
+	}
+
+	waitFor(t, "projection caught up", eventSvc.ReadyCheck)
 }
