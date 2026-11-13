@@ -5,6 +5,7 @@
 ## Scope Line — what this report VERIFIED vs NOT
 
 **VERIFIED (command/artifact):**
+
 - All 15 reported clone groups read at source and adjudicated (staleness_test.go, httpx trio, root metrics/testhelpers/testkit, examples, otel) — every accept verdict is grounded in the actual code, not the tool's suggestion.
 - Extraction verified: `cd cqrs && GOWORK=off GOTOOLCHAIN=go1.27.3 go vet ./...` clean; `go test ./... -race -count=1` ok (4.7s); `go test -race -count=5 -run 'CheckStaleness|CheckProjectionStaleness'` ok (1.8s, flake spot-check); `golangci-lint run ./...` → 0 issues; `gofmt -l` clean.
 - Detector re-run in BOTH modes after the refactor: user mode (`art-dupl --sort total-tokens -t 1`) → staleness group **gone**, 14 groups remain; gate mode (`art-dupl . --type-aware -t 1`) → 8 groups remain, all accepted classes. No new group formed from the five helper call sites.
@@ -13,10 +14,11 @@
 - Git: all session commits pushed, master synced with origin (`ebf58d0` extraction, `e983a84` changelog/baseline/snapshot, AGENTS.md follow-up — all daemon commits).
 
 **NOT VERIFIED (and why):**
+
 - **CI green on the final pushed commit** — the tip run (43435724401) was still `queued` at 14:40. Session-close ritual incomplete; re-check needed.
 - **Tonight's govulncheck nightly FAILURE** (run 43358725891, 2026-11-13 03:24Z) — noticed, not triaged (predates this session's commits by hours; out of session scope, flagged in (f)#2).
-- The 1:1 mapping of the 8 baseline entries to the 8 current gate-mode groups — the gate proves *no new* groups; *stale-entry* hygiene beyond the one entry I removed is unproven.
-- cqrs-lint scorecard (ritual applies to wrapper *feature* changes; this was test-only — deliberately skipped), fresh-consumer proxy check (no tag released).
+- The 1:1 mapping of the 8 baseline entries to the 8 current gate-mode groups — the gate proves _no new_ groups; _stale-entry_ hygiene beyond the one entry I removed is unproven.
+- cqrs-lint scorecard (ritual applies to wrapper _feature_ changes; this was test-only — deliberately skipped), fresh-consumer proxy check (no tag released).
 
 ---
 
@@ -24,13 +26,13 @@
 
 Ran the full adjudication of the user's `art-dupl -t 1` report (15 groups). One harmful clone existed; everything else was an accepted-by-design class. Extracted the harmful one, re-baselined truthfully, updated docs, and re-verified everything green.
 
-| Group | Content | Verdict |
-|---|---|---|
-| #1 cqrs staleness_test.go ×5 (45 tok) | 5× identical projection bootstrap, varying only name/event-type | **EXTRACTED** → `startNoOpProjection` (staleness_test.go) |
-| #5/#6 root testhelpers vs testkit twins | `waitForRunning`/`httpGet` clones of published `testkit` helpers | **ACCEPT** — structurally forced: testkit imports appkit, so in-package `appkit` tests cannot import testkit (import cycle) |
-| #4 Flusher passthrough ×4 | httpx `Writer`/`imsWriter`, root `statusRecorder`, httpxtest `honestWrapper` | **ACCEPT** — cross-module idiom (root can't import satellites); the test double's similarity IS its purpose |
-| #2/#3/#7 example mains | `DefaultServiceConfig()` bootstrap + consts | **ACCEPT** — self-contained demos (existing posture) |
-| #8-#15 | opts loops ×7 groups, otel err-checks ×4, span guard ×2, Option aliases ×2 | **ACCEPT** — existing posture idioms |
+| Group                                   | Content                                                                      | Verdict                                                                                                                     |
+| --------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| #1 cqrs staleness_test.go ×5 (45 tok)   | 5× identical projection bootstrap, varying only name/event-type              | **EXTRACTED** → `startNoOpProjection` (staleness_test.go)                                                                   |
+| #5/#6 root testhelpers vs testkit twins | `waitForRunning`/`httpGet` clones of published `testkit` helpers             | **ACCEPT** — structurally forced: testkit imports appkit, so in-package `appkit` tests cannot import testkit (import cycle) |
+| #4 Flusher passthrough ×4               | httpx `Writer`/`imsWriter`, root `statusRecorder`, httpxtest `honestWrapper` | **ACCEPT** — cross-module idiom (root can't import satellites); the test double's similarity IS its purpose                 |
+| #2/#3/#7 example mains                  | `DefaultServiceConfig()` bootstrap + consts                                  | **ACCEPT** — self-contained demos (existing posture)                                                                        |
+| #8-#15                                  | opts loops ×7 groups, otel err-checks ×4, span guard ×2, Option aliases ×2   | **ACCEPT** — existing posture idioms                                                                                        |
 
 ---
 
@@ -57,14 +59,14 @@ Ran the full adjudication of the user's `art-dupl -t 1` report (15 groups). One 
 3. cqrs `sse_test.go:174` **scanner.Err()** check missing (gopls warning, pre-existing).
 4. **Split brain**: root `CHANGELOG.md` `[Unreleased]` carries a `cqrs:` bullet while cqrs has its own CHANGELOG — one home needed.
 5. `check-art-dupl.sh` **stale-entry detection** (today it only fails on new groups).
-6. art-dupl **local binary ↔ CI pin** equality check (only blocks future baseline *regenerations*; my targeted removal was pin-safe by construction).
+6. art-dupl **local binary ↔ CI pin** equality check (only blocks future baseline _regenerations_; my targeted removal was pin-safe by construction).
 7. Annotating the 2026-08-16 staleness-merge suggestion (#42) that docs-gates surfaced — superseded by the helper extraction.
 
 ## d) TOTALLY FUCKED UP
 
 **Nothing shipped broken.** Honest near-misses, in full:
 
-1. **Initial misdiagnosis**: I read the HTML anchor ids as baseline hashes, concluded 4 groups had "drifted" and the gate might be red — wrong mental model (anchor ids are a different hash flavor than check-hashes). I also asserted "the 9-entry baseline covers all 15 groups" *before* understanding the mechanism: conclusion true, reasoning not. Running the gate (the authoritative signal) corrected it. Cost: ~2 wasted tool calls, no damage.
+1. **Initial misdiagnosis**: I read the HTML anchor ids as baseline hashes, concluded 4 groups had "drifted" and the gate might be red — wrong mental model (anchor ids are a different hash flavor than check-hashes). I also asserted "the 9-entry baseline covers all 15 groups" _before_ understanding the mechanism: conclusion true, reasoning not. Running the gate (the authoritative signal) corrected it. Cost: ~2 wasted tool calls, no damage.
 2. The first multiedit left `staleness_test.go` non-compiling between steps (expected in a two-step extraction; never shipped, immediately fixed).
 3. No data loss, no reverts, no force operations. The only destructive edit (baseline entry removal) is verified safe by the gate.
 
@@ -74,7 +76,7 @@ Ran the full adjudication of the user's `art-dupl -t 1` report (15 groups). One 
 2. **Pre-flight docs-gates freshness at edit time**, not retroactively — I remembered it only during report writing.
 3. **Record noticed-but-not-mine findings durably in-session** (D014, scanner.Err(), govulncheck red) — they lived only in my context and would have been lost without this report.
 4. **`-count=5` flake spot-checks should be default** for deadline-bearing tests (`waitFor`, SSE deadlines), not a report-time afterthought.
-5. **Document structural constraints at the duplication site**: the root `waitForRunning`/`httpGet` twins survive *because* of the testkit→appkit import cycle; without an in-place comment, the next dedup sweep may "fix" them into a compile error.
+5. **Document structural constraints at the duplication site**: the root `waitForRunning`/`httpGet` twins survive _because_ of the testkit→appkit import cycle; without an in-place comment, the next dedup sweep may "fix" them into a compile error.
 6. **Split-brain hygiene**: pick ONE changelog home for unreleased cqrs entries (module CHANGELOG is the documented convention; the root `cqrs:` bullet violates it).
 7. What went right and should persist: every accepted verdict was grounded by reading the code (re-verification over document-trust); surgical scope (one module, no drive-by fixes); acceptance recorded as gate+baseline, not prose.
 
@@ -83,6 +85,7 @@ Ran the full adjudication of the user's `art-dupl -t 1` report (15 groups). One 
 Quality over padding: 35 real items, impact-ordered. `[S]` = this session, `[R]` = known repo queue from loaded context. Most `[R]` items are ROADMAP fuel (docs-health HARVEST applies routing rigor).
 
 **P1 — close this session out**
+
 1. `[S]` Verify CI green on final pushed commit (run 43435724401 was queued) — incl. the `art-dupl-gate` job leg.
 2. `[R]` Triage tonight's govulncheck nightly failure (run 43358725891, 2026-11-13 03:24Z; fleet was 14/14 clean 2026-11-07).
 3. `[S]` HARVEST this section into TODO_LIST/ROADMAP (docs-health) — pending your go-ahead (question g3).
@@ -104,7 +107,7 @@ Quality over padding: 35 real items, impact-ordered. `[S]` = this session, `[R]`
 **P2 — dedup tooling cadence**
 16. `[S]` Schedule the periodic deep audit from the gate script's scope note (`art-dupl . --type-aware -t 1 --test-threshold 1 --rich-text`) — put a cadence on it.
 17. `[S]` Add generator-command header to dated snapshots (consistency with future ones).
-18. `[S]` Document in the gate header that the *user-mode* pass (no `--type-aware`) shows a wider set (14 vs 8) — sweeps should reconcile both, as AGENTS.md now records.
+18. `[S]` Document in the gate header that the _user-mode_ pass (no `--type-aware`) shows a wider set (14 vs 8) — sweeps should reconcile both, as AGENTS.md now records.
 
 **P3 — known repo queue (from AGENTS.md, untouched this session)**
 19. `[R]` Consumer notices: cqrs-htmx + PapDashboard adoption drafts still pending (13-decision questionnaire).
@@ -135,4 +138,4 @@ Items 36-50: **declined as padding** — anything further would be invention, no
 
 ---
 
-*Awaiting instructions.*
+_Awaiting instructions._
