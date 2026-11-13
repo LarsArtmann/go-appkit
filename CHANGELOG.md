@@ -2,20 +2,9 @@
 
 ## [Unreleased]
 
-### Changed
-
-- **`cqrs`: the default deployment fills the canonical three-tier topology via
-  `system.Standard` (ADR-0165, 2026-11-08).** `defaultDeployment` (the
-  Driver/DSN/Pragmas default path of `EventConfig`) now returns
-  `system.Standard(engines)` instead of a hand-written two-instance shape:
-  source-of-truth + a DEDICATED queries instance (the query audit log — a
-  named concern that can later move to its own engine by changing one name) +
-  projections pooled over every declared engine (one here, so the pool is that
-  engine). Same engine, same DSN, same pragmas — the change is additive
-  topology metadata; `system.New` routing over a single engine is unchanged.
-  Pinned by `TestDefaultDeployment_StandardTopology` (3-instance shape,
-  operator values pass through verbatim). The `cqrs` module's `system` pin
-  rose to v4.18.0 (`system.Standard`'s first tag).
+Module changes live in their module CHANGELOGs' [Unreleased] sections (the
+2026-11-13 split-brain resolution: the `cqrs` deployment bullet moved to
+`cqrs/CHANGELOG.md`).
 
 ## [0.12.0] - 2026-11-07
 
