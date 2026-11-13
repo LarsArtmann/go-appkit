@@ -159,14 +159,14 @@ Registration/invocation/health/shutdown observability hooks exist in the family 
 
 ## 7. Action Roadmap (impact × effort, ordered)
 
-1. **F1 appkit-side now:** `NewProbe` godoc warning + injector-path Trigger example (hours, removes the silent cliff for consumers without waiting on upstream).
-2. **F1 upstream ask (draft, USER-gated filing):** go-health `NewWithHealthCheck` should reject `WithHealthRecorder` with a sentinel error.
-3. **F2:** integration test `TestHealthStackThroughAppkitService` against published tags (needs health/frh releases first → depends on 5).
-4. **F6 decision** (USER): revert root go directive vs deliberate floor bump — either way, make `go.work`, AGENTS, and CI agree in one commit.
-5. **F3:** frh → go-health v0.2.0; health module dep-bump release (v0.1.1 → v0.1.2) so published consumers stop resolving v0.1.3/v0.8.1.
-6. **F5:** lazy-healthy gotcha in frh doc.go/README (minutes).
-7. **F4:** `Mounted` shutdown adapter (or frh-side adapter to preserve health's injector-free stance).
-8. **F7/F8:** polish + auditlog example (demand-gated).
+1. ~~**F1 appkit-side now:** `NewProbe` godoc warning + injector-path Trigger example (hours, removes the silent cliff for consumers without waiting on upstream).~~ done — the cliff is documented at health/doc.go:56-58 + probe.go:35 (sentinel named), example_recorder_test.go pins the injector-path wiring (verified 2026-11-13)
+2. ~~**F1 upstream ask (draft, USER-gated filing):** go-health `NewWithHealthCheck` should reject `WithHealthRecorder` with a sentinel error.~~ done — FILED as go-health#7, CLOSED COMPLETED upstream (ErrRecorderNotApplicable fails at boot, go-health v0.8.x); adopted + pinned by appkit health v0.3.0 (2026-10-27)
+3. ~~**F2:** integration test `TestHealthStackThroughAppkitService` against published tags (needs health/frh releases first → depends on 5).~~ done — TestHealthStackThroughAppkitService live at integration/health_stack_test.go:211 (readiness 503 lockstep, recorder row, trace bytes > 0)
+4. ~~**F6 decision** (USER): revert root go directive vs deliberate floor bump — either way, make `go.work`, AGENTS, and CI agree in one commit.~~ done — resolved as the deliberate-floor path: unified trains took the repo to go 1.27.3 (2026-11-07) across all 14 go.mods + go.work + CI; scripts/check-go-directives.sh + the pre-commit guard enforce uniformity
+5. ~~**F3:** frh → go-health v0.2.0; health module dep-bump release (v0.1.1 → v0.1.2) so published consumers stop resolving v0.1.3/v0.8.1.~~ done — frh pins go-health v0.8.1 directly since 2026-11-02 (frh = health = integration all v0.8.1, pin and MVS agree fleet-wide); health module released through v0.3.2
+6. ~~**F5:** lazy-healthy gotcha in frh doc.go/README (minutes).~~ done — flightrecorderhealth/doc.go:45-48 carries the Unbuilt-lazy-services-report-healthy gotcha section; eager invoke kept
+7. ~~**F4:** `Mounted` shutdown adapter (or frh-side adapter to preserve health's injector-free stance).~~ done — shipped as the health/doadapter subpackage: doadapter.AsShutdowner adapts Mounted to do.Shutdowner (health/doadapter/doadapter.go:52), preserving health core-free stance
+8. ~~**F7/F8:** polish + auditlog example (demand-gated).~~ done — F7 half DONE — Register now registers eager via do.ProvideNamedValue and documents the duplicate-name panic (flightrecorderhealth/adapter.go Register doc, verified 2026-11-13); F8 half NOT-DO — still demand-gated, zero DI-level audit-trail consumers exist, wire samber-do-auditlog only on a real consumer ask
 
 Items 1-6 harvested into `TODO_LIST.md` this pass.
 
