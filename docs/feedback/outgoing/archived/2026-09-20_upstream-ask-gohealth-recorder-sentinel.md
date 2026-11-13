@@ -12,11 +12,11 @@ decision note, not an external ask)
 
 ## The ask
 
-`NewWithHealthCheck` (and `NewWithDetailedCheck`) currently accept a
-`WithHealthRecorder` option and then silently nil it. Make them reject the
-option instead — return a probe-level error or panic with a sentinel such as
-`ErrRecorderNotApplicable` — so a caller who wires trace capture through the
-wrong constructor finds out at construction time instead of never.
+~~`NewWithHealthCheck` (and `NewWithDetailedCheck`) currently accept a
+`WithHealthRecorder` option and then silently nil it.~~ SHIPPED upstream:
+they now reject the option with `ErrRecorderNotApplicable` (go-health v0.8.x),
+so a caller who wires trace capture through the wrong constructor finds out
+at construction time instead of never.
 
 ## Evidence
 

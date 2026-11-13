@@ -2,7 +2,7 @@
 
 **Status:** RESOLVED 2026-10-25 — upstream shipped httputil v1.7.0 with a replace-free go.mod; [#43](https://github.com/LarsArtmann/httputil/issues/43) CLOSED COMPLETED. Consumer-side verification: `go doc github.com/larsartmann/httputil@v1.7.0` resolves through the proxy (the v1.6.0 "contains one or more replace directives" refusal is gone); go-appkit integration + otel swept to v1.7.0 same day (suites `-race`, lint, pin-drift all green). Originally FILED 2026-10-25 as [#43](https://github.com/LarsArtmann/httputil/issues/43) (posted body: `docs/drafts/2026-10-25_httputil-v160-replace-issue.md`, voice-check 0 FAIL / 0 WARN). This memo is the verification record; the issue is the live tracker.
 **Target repo:** github.com/larsartmann/httputil (own repo — decision note, not an external ask)
-**Evidence versions:** httputil v1.6.0 (published latest, tagged 2026-10-23 window; pin-drift flagged it 2026-10-24); replace confirmed STILL PRESENT on master go.mod at filing time (2026-10-25).
+**Evidence versions:** ~~httputil v1.6.0 (published latest, tagged 2026-10-23 window; pin-drift flagged it 2026-10-24)~~ superseded by v1.7.0 (replace-free, RESOLVED above); replace confirmed STILL PRESENT on master go.mod at filing time (2026-10-25).
 
 ## The ask
 

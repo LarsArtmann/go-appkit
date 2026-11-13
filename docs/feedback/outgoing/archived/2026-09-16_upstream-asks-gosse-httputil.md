@@ -1,6 +1,8 @@
 # Outgoing upstream feedback — drafts ready to file (FILING IS USER-GATED)
 
-**Created:** 2026-09-16 · **Status:** drafted, verified against pinned sources, NOT filed. **RESOLVED 2026-10-13/25 without filing:** Draft 1 moot (go-sse `ReplayFiltered` EXISTS upstream — the dedup composition stays pinned appkit-side in realtime); Draft 2 SHIPPED upstream (`LoggingFromContext`, published in httputil v1.6.0 — appkit otel v0.3.0 wired the completion-line recipe); Draft 3 stays appkit-side (F2 timing battery, demand-sequenced).
+> **2026-11-13: ARCHIVED to `outgoing/archived/` — all three drafts RESOLVED (see the archive README manifest); the filing gate is closed for this file.**
+
+**Created:** 2026-09-16 · **Status:** ~~drafted, verified against pinned sources, NOT filed.~~ **RESOLVED 2026-10-13/25 without filing:** Draft 1 moot (go-sse `ReplayFiltered` EXISTS upstream — the dedup composition stays pinned appkit-side in realtime); Draft 2 SHIPPED upstream (`LoggingFromContext`, published in httputil v1.6.0 — appkit otel v0.3.0 wired the completion-line recipe); Draft 3 stays appkit-side (F2 timing battery, demand-sequenced).
 **Rule:** verify-before-filing + github-voice apply; each draft cites the verified source it is built on.
 
 ---

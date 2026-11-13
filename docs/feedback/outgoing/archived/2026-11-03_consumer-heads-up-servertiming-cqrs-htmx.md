@@ -7,7 +7,7 @@
 >
 > **Refreshed 2026-11-06 (drafted 2026-11-03) · target: cqrs-htmx (your repo) · the core train
 > is now TAGGED (`v0.10.0`, pushed 2026-11-06); preset `preset/v0.1.0` tags with it · voice:
-> github-voice, AI-drafted (Crush/GLM) — review before posting.**
+> github-voice, AI-drafted (Crush/GLM) — ~~review before posting~~ POSTED (see banner above).**
 
 ## Proposed title
 

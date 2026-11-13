@@ -2,6 +2,7 @@
 
 **Date:** 2026-09-20 10:58 | **Scope:** samber/do v2 utilization across go-appkit + the health/self-health architecture (core `Service`, `/health`, health, flightrecorderhealth, go-health SDK bridge)
 **Method:** source-level audit of every `samber/do` call site, go-health v0.1.3/v0.2.0/v0.3.0 module sources, do-v2 v2.1.0 internals, live test runs. Every claim cites `file:line`.
+**Resolution (annotated 2026-11-13, docs-health pass):** every §7 Action-Roadmap item is struck inline below — F1-F7 shipped (F1 upstream = go-health#7 closed completed; F2 = the integration health-stack E2E; F4 = `health/doadapter.AsShutdowner`; F6 = the deliberate 1.27.3 floor), F8 auditlog stays demand-gated. The audit/rubric tables are point-in-time analysis and stand as evidence.
 
 ---
 
