@@ -1,6 +1,7 @@
 # Integration Research — cordis and go-plugin-mvp → go-appkit
 
 > **Date:** 2026-09-04. **Type:** Point-in-time research (re-verify before acting).
+> **Trigger status (2026-11-13):** cordis `go/v0.1.0` IS TAGGED (re-entry trigger 1/3 met — the verdict table's "untagged" cell below is stale point-in-time wording; the live triggers live in AGENTS.md's Deferred Register: still awaiting a stated consumer requirement AND the core v1.0.0 exit-criteria graduation).
 > **Question:** Can and should go-appkit integrate [`/home/lars/forks/cordis`](../../../../forks/cordis) (Go port of the Cordis meta-framework) and/or [`github.com/LarsArtmann/go-plugin-mvp`](https://github.com/LarsArtmann/go-plugin-mvp) (Kernovia plugin marketplace)?
 >
 > **Verdicts:**
