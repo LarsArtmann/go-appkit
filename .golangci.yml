@@ -256,6 +256,11 @@ linters:
         - .WithMessage(
         - .WithMessagef(
         - .WithStack(
+        # go-error-family constructors ARE the classified, wrapped errors
+        # (fleet convention, mr-sync 2026-11); v2.15's wrapcheck otherwise
+        # flags them as unwrapped externals. Matches the import path, so
+        # every errorfamily API function is covered.
+        - go-error-family.
         # go-error-family IS the wrapping layer — its constructors are the
         # sanctioned terminal forms (v2.15.0 wrapcheck drift, 2026-11-07).
         - Newf(
