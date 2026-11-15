@@ -17,13 +17,33 @@
 # named in the output are the offenders — per-cell strikes only, never a
 # strike across pipes; repair with the annotate tooling, not by hand).
 #
-# The annotate binary lives in the docs-health skill's assets dir (path
-# pinned like AGENTS pins its tool paths; override with $ANNOTATE_BIN).
+# The annotate helper is the docs-health skill's SINGLE-FILE Go source, run
+# with `go run` (the prebuilt assets/annotate binary was deleted 2026-11-15:
+# it sat 12 days behind its source and missed four subcommands). Override the
+# home with $DOCS_HEALTH_SKILL_DIR or the source path with $ANNOTATE_GO.
 
 set -uo pipefail
 
-ANNOTATE_BIN="${ANNOTATE_BIN:-/home/lars/.config/crush/skills/docs-health/assets/annotate}"
+SKILL_DIR="${DOCS_HEALTH_SKILL_DIR:-/home/lars/.config/crush/skills/docs-health}"
+ANNOTATE_GO="${ANNOTATE_GO:-$SKILL_DIR/assets/annotate.go}"
 FORMATTER="${FORMATTER:-dprint}"
+
+if [ -n "${ANNOTATE_BIN:-}" ]; then
+	echo "docs-annotate-pass: ANNOTATE_BIN is retired (the prebuilt binary is gone, 2026-11-15) — set ANNOTATE_GO to the source path instead" >&2
+	exit 2
+fi
+
+annotate() {
+	if [ ! -f "$ANNOTATE_GO" ]; then
+		echo "docs-annotate-pass: helper missing at $ANNOTATE_GO — the gate did NOT run (install the docs-health skill or set ANNOTATE_GO)" >&2
+		exit 2
+	fi
+	if ! command -v go >/dev/null 2>&1; then
+		echo "docs-annotate-pass: go not on PATH — the helper runs as 'go run'" >&2
+		exit 2
+	fi
+	go run "$ANNOTATE_GO" "$@"
+}
 
 mode="dry"
 files=()
@@ -53,7 +73,7 @@ done
 
 fail=0
 for f in "${files[@]}"; do
-	if ! "$ANNOTATE_BIN" check-rows "$f" >/tmp/dap-rows-1.log 2>&1; then
+	if ! annotate check-rows "$f" >/tmp/dap-rows-1.log 2>&1; then
 		echo "GATE-FAIL (pre-format) $f"
 		cat /tmp/dap-rows-1.log
 		fail=1
@@ -73,7 +93,7 @@ for f in "${files[@]}"; do
 	else
 		echo "DRY-RUN (no format) $f — rerun with --apply to format"
 	fi
-	if ! "$ANNOTATE_BIN" check-rows "$f" >/tmp/dap-rows-2.log 2>&1; then
+	if ! annotate check-rows "$f" >/tmp/dap-rows-2.log 2>&1; then
 		echo "GATE-FAIL (post-format) $f"
 		cat /tmp/dap-rows-2.log
 		fail=1
