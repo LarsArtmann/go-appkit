@@ -881,15 +881,15 @@
             <div class="tri"></div>
           </div>
           <div class="eyebrow">FLEET ADOPTION REVIEW &middot; 2026-11-17</div>
-          <h1>go-appkit adoption: the 23-review fleet verdict</h1>
+          <h1>go-appkit adoption: the 28-review fleet verdict</h1>
           <p class="subtitle">
-            Every consumer repo carries a <code>docs/review/libs/go-appkit.md</code>. All 23
-            were read in full by four parallel readers. This report is the resulting adoption
-            picture: who adopted and how deep, who is one trigger away, what blocks the rest,
-            and what would convert them.
+            Every consumer repo carries a <code>docs/review/libs/go-appkit.md</code>. All 28
+            were read in full &mdash; 23 by four parallel readers, five that landed mid-review
+            by a fifth. This report is the resulting adoption picture: who adopted and how
+            deep, who is one trigger away, what blocks the rest, and what would convert them.
           </p>
           <div class="meta">
-            <span class="tag amber">Evidence: 23 fleet reviews</span>
+            <span class="tag amber">Evidence: 28 fleet reviews</span>
             <span class="tag">Subject: go-appkit core v0.12.0 train</span>
             <span class="tag teal">Method: corpus read, verdicts quoted verbatim</span>
           </div>
@@ -899,10 +899,10 @@
         <section id="scorecard" class="scorecard">
           <div class="score-card score-good">
             <div class="score">7</div>
-            <div class="label">Direct adopters (of 22 projects)</div>
+            <div class="label">Direct adopters (of 27 projects)</div>
           </div>
           <div class="score-card score-warn">
-            <div class="score">7</div>
+            <div class="score">9</div>
             <div class="label">Warm &mdash; one trigger away</div>
           </div>
           <div class="score-card">
@@ -922,7 +922,7 @@
             Adoption is real but shallow, and the shape is consistent. Seven projects adopted
             the core &mdash; spanning every score band (cqrs-htmx 100/100, Code-To-CV-Agent
             90/100, pbx-lens 73/100, media-atlas 61/100, index 53/100, quotaboard 50/100,
-            PapDashboard 31/100). Seven more declined the framework but named a concrete
+            PapDashboard 31/100). Nine more declined the framework but named a concrete
             module, trigger, or &ldquo;next service&rdquo; condition. The flat declines are
             fit- and dependency-based, never doc-based: the corpus records
             &ldquo;rejection is fit, not quality&rdquo; as the standard decline &mdash; which
@@ -938,7 +938,7 @@
             dependency doctrine &mdash; exactly what a framework wants. The growth is not in
             converting decliners; it is in <em>deepening the seven adopters</em> (median score
             61 means the core is used and the ecosystem is not) and in
-            <em>owning the greenfield lane</em> that five separate decliners already point at.
+            <em>owning the greenfield lane</em> that seven separate decliners already point at.
           </div>
         </section>
 
@@ -946,7 +946,7 @@
         <section id="map">
           <h2><span class="num">01</span>The adoption map</h2>
           <p>
-            All 23 review files, deduplicated to 22 projects (CV and <code>cv/</code> hold two
+            All 28 review files, deduplicated to 27 projects (CV and <code>cv/</code> hold two
             snapshots of one audit). Verdicts and scores are quoted from the reviews; scores
             are the reviewers&rsquo; own utilization numbers, not quality grades.
           </p>
@@ -982,6 +982,11 @@
               <tr><td>nsfw-classifier</td><td class="no">DECLINED</td><td>0/100</td><td>four blockers stand (listener injection, error model, metrics posture, logger major) &mdash; all unaddressed-in-docs</td></tr>
               <tr><td>business-networking</td><td class="no">SKIP</td><td>&mdash;</td><td>run-and-exit CLI; the decline &ldquo;strengthens rather than weakens&rdquo; appkit&rsquo;s server-standard role</td></tr>
               <tr><td>google-domain-detector</td><td class="no">DECLINE</td><td>&mdash;</td><td>&ldquo;Rejection is fit, not quality&rdquo;; one-shot CLI binds no port</td></tr>
+              <tr><td>go-compliance</td><td class="no">DECLINED &middot; closest to flip</td><td>93 (their fit score)</td><td>&ldquo;appkit core binds TCP only&rdquo; vs the hub&rsquo;s load-bearing unix-socket bind; flip = a listener-injection seam</td></tr>
+              <tr><td>nextd</td><td class="no">DECLINED</td><td>0/100</td><td>&ldquo;appkit&rsquo;s unit of adoption is the service&hellip; not a component&rdquo;; realtime + systemd named as flip triggers</td></tr>
+              <tr><td>offline-banner</td><td class="no">N/A</td><td>&mdash;</td><td>&ldquo;systemd IS the appkit of this repo&rdquo; &mdash; no Go process; greenfield trigger recorded (preset spine)</td></tr>
+              <tr><td>summit-planner</td><td class="no">SKIP</td><td>&mdash;</td><td>&ldquo;a production service framework&rsquo;s ceremony has no audience on a localhost single-user tool&rdquo;; realtime first if it ships</td></tr>
+              <tr><td>testing</td><td class="warn">PLANNED &middot; staged</td><td>6/100 today</td><td>&ldquo;adopt in stages &mdash; leaf submodules first&rdquo;; cqrs at wave 0, security/realtime/otel during waves</td></tr>
             </tbody>
           </table>
           <div class="callout callout-teal">
@@ -1021,7 +1026,7 @@
               <div class="check">+</div>
               <div class="text">
                 <strong>Per-module independence keeps rejected consumers warm</strong>
-                <span>Four declines name a first module with a trigger and a recipe
+                <span>Most declines name a first module with a trigger and a recipe
                 (&ldquo;each can be judged alone when its trigger fires&rdquo;). The module
                 table in the README is the artifact those disposition maps are built
                 from.</span>
@@ -1157,10 +1162,13 @@
             <h3>4. No roadmap/limits page, so reviewer blocker-lists calcify</h3>
             <div class="where">nsfw-classifier (4 blockers, all &ldquo;Stand&rdquo;) &middot; dnsblockd (flip trigger)</div>
             <p>
-              nsfw-classifier re-verified nine days later and all four blockers &ldquo;Stand&rdquo;
-              &mdash; listener injection (&ldquo;grep WithListener: zero hits&rdquo;),
-              error-model divergence, metrics posture, logger major-behind. Nothing upstream
-              states a position on any of them, so the verdict can only flip when the reviewer
+              nsfw-classifier re-verified nine days later and all four blockers
+              &ldquo;Stand&rdquo; &mdash; listener injection (&ldquo;grep WithListener: zero
+              hits&rdquo;), error-model divergence, metrics posture, logger major-behind.
+              go-compliance lands on the <em>same missing seam from the other side</em>:
+              &ldquo;appkit core binds TCP only&rdquo; against its load-bearing unix-socket
+              bind. Two consumers, one absent capability, zero upstream position. Nothing
+              states a stance on any of these, so verdicts can only flip when a reviewer
               happens to re-sweep. The corpus also proves the converse: cvagent&rsquo;s gaps
               shipped within a day and the score moved 75&rarr;90. Responding converts;
               silence calcifies.
@@ -1200,10 +1208,10 @@
           <!-- B6 -->
           <div class="issue issue-important" id="b6">
             <span class="severity severity-important">Funnel &middot; Medium impact</span>
-            <h3>6. Five decliners independently point at the same conversion condition &mdash; the greenfield lane &mdash; and no doc owns it</h3>
+            <h3>6. Seven decliners independently point at the same conversion condition &mdash; the greenfield lane &mdash; and no doc owns it</h3>
             <div class="where">
               browser-history &middot; invoices &middot; profileagent &middot; audiblesync
-              &middot; journal
+              &middot; journal &middot; offline-banner &middot; nextd
             </div>
             <p>
               browser-history: &ldquo;A greenfield sibling should start there&rdquo;
@@ -1211,9 +1219,12 @@
               fleet should start from go-appkit.&rdquo; profileagent&rsquo;s trigger is a
               future service binary with the EventService recipe as skeleton. audiblesync
               watches systemd for &ldquo;ROADMAP theme 3.&rdquo; journal keeps appkit as the
-              alternative at the T23 decision point. The conversion condition is identical
-              &mdash; the next new service &mdash; and it is currently recorded only inside
-              each consumer&rsquo;s private review.
+              alternative at the T23 decision point. offline-banner&rsquo;s trigger is
+              &ldquo;a Go application joins the fleet &rarr; the appkit preset spine is the
+              obvious host&rdquo;; nextd&rsquo;s is &ldquo;a sibling web service
+              materializes.&rdquo; The conversion condition is identical &mdash; the next new
+              service &mdash; and it is currently recorded only inside each consumer&rsquo;s
+              private review.
             </p>
             <div class="callout callout-teal">
               <strong>Fix</strong>
@@ -1262,9 +1273,9 @@
                                      list the same S-effort wins, undone for months)
 
 3. Own the greenfield lane (preset-first page + scaffold + named recipes)
-   closes: B6                      unlocks: five decliners' shared trigger condition
+   closes: B6                      unlocks: seven decliners' shared trigger condition
                                     (browser-history, invoices, profileagent,
-                                     audiblesync, journal)</code></pre>
+                                     audiblesync, journal, offline-banner, nextd)</code></pre>
           <div class="callout callout-teal">
             <strong>Sequencing</strong>
             Move 1 is mostly release ritual (already practiced in waves) plus one inventory
@@ -1278,19 +1289,21 @@
         <section id="appendix">
           <h2><span class="num">04</span>Appendix &mdash; method, evidence, replay</h2>
           <p>
-            Four parallel readers read all 23 <code>docs/review/libs/go-appkit.md</code> files
-            in full (22 distinct projects; CV and <code>cv/</code> hold two snapshots of one
-            audit). Verdicts, scores, and quotes above are taken verbatim from those reviews.
+            Five readers read all 28 <code>docs/review/libs/go-appkit.md</code> files in full
+            (27 distinct projects; CV and <code>cv/</code> hold two snapshots of one audit;
+            five reviews landed mid-review and were folded in). Verdicts, scores, and quotes
+            above are taken verbatim from those reviews.
             The reviewers are the fleet&rsquo;s own AI agents; scores are their utilization
             measures. Cross-checked against <code>AGENTS.md</code> release state (core v0.12.0
             train, 2026-11-07).
           </p>
           <p>How to verify (run as written, from a fleet checkout):</p>
-          <pre><code>ls /home/lars/projects/*/docs/review/libs/go-appkit.md | wc -l      # 23 files
-rg -l 'ADOPTED|USED' /home/lars/projects/*/docs/review/libs/go-appkit.md   # adopters
+          <pre><code>ls /home/lars/projects/*/docs/review/libs/go-appkit.md | wc -l      # 28 (corpus grows)
 rg -n 'fit, not quality' /home/lars/projects/google-domain-detector/docs/review/libs/go-appkit.md
-rg -n 'core shell at 100%' /home/lars/projects/PapDashboard/docs/review/libs/go-appkit.md
-rg -n 'greenfield' /home/lars/projects/browser-history/docs/review/libs/go-appkit.md</code></pre>
+rg -n 'the core shell is at 100%' /home/lars/projects/PapDashboard/docs/review/libs/go-appkit.md
+rg -n 'greenfield' /home/lars/projects/browser-history/docs/review/libs/go-appkit.md
+rg -n 'binds TCP only' /home/lars/projects/go-compliance/docs/review/libs/go-appkit.md
+rg -n 'unit of adoption' /home/lars/projects/nextd/docs/review/libs/go-appkit.md</code></pre>
           <p>
             Scope note: this report covers adoption of go-appkit only. The same corpus pass
             also produced a cmdguard surfaces report
@@ -1303,7 +1316,7 @@ rg -n 'greenfield' /home/lars/projects/browser-history/docs/review/libs/go-appki
         <footer class="footer">
           <p>
             Generated 2026-11-17 &middot; Reviewed against go-appkit core v0.12.0 train
-            &middot; Evidence: 23 fleet reviews read in full (22 projects) &middot; All
+            &middot; Evidence: 28 fleet reviews read in full (27 projects) &middot; All
             verdicts and scores quoted from the reviews
           </p>
         </footer>
