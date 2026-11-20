@@ -970,7 +970,7 @@
               <tr><td>Cyberdom</td><td class="warn">PLANNED</td><td>&mdash;</td><td>piecemeal defer with written triggers (systemd: unit file lands; httpx: next JSON endpoint; security: non-loopback exposure)</td></tr>
               <tr><td>ChastityAPI</td><td class="warn">DECLINED core</td><td>&mdash;</td><td>ADR-0004 adopts per-module; frh killed by a hidden samber/do-forced interface; two modules on revisit-with-recipes</td></tr>
               <tr><td>invoices</td><td class="warn">DEFER</td><td>&mdash;</td><td>&ldquo;swap would be churn without a capability gain&rdquo;; recommends &ldquo;any NEW service should start from go-appkit&rdquo;</td></tr>
-              <tr><td>profileagent</td><td class="warn">DEFER</td><td>&mdash;</td><td>trigger: standalone service binary &rarr; NewService + the cqrs EventService recipe become the skeleton</td></tr>
+              <tr><td>profileagent</td><td class="warn">DEFER</td><td>&mdash;</td><td>trigger: standalone service binary &rarr; NewService + the cqrs EventService recipe become the skeleton &mdash; discovered entirely via a sibling skill, zero README contact</td></tr>
               <tr><td>audiblesync</td><td class="warn">HOLD + WATCH</td><td>&mdash;</td><td>&ldquo;NO FIT as a whole; two standalone modules map to real future needs&rdquo; (systemd, metrics)</td></tr>
               <tr><td>webphone</td><td class="warn">NO-GO</td><td>&mdash;</td><td>framework layer declined re-ruled with owner; <code>flightrecorderhealth</code> named the first genuine module-level candidate</td></tr>
               <tr><td>browser-history</td><td class="warn">0/100 &middot; greenfield designate</td><td>0/100</td><td>retrofit wrong &mdash; but preset/config/httpx made appkit &ldquo;the designated greenfield alternative&rdquo; for the next service</td></tr>
@@ -1050,6 +1050,21 @@
                 <span>&ldquo;5s &rarr; 0.81s&rdquo; (pbx-lens testkit) and &ldquo;exactly as
                 designed&rdquo; are the corpus&rsquo;s full-adoption proof points. Both are
                 measurable, both shipped in the library.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Agent skills are the funnel for repos that never open the README
+                (profileagent)</strong>
+                <span>The cleanest discovery evidence in the corpus: profileagent is a
+                skeleton repo that never read a go-appkit doc, yet its review carries a
+                precise verdict (&ldquo;REJECT for W2 &mdash; HTTP service framework; no
+                service here&rdquo;), a named conversion path, and a written trigger &mdash;
+                all because &ldquo;the go-cqrs-lite skill points at its <code>cqrs
+                EventService</code> recipe for framework-style lifecycle (health/DLQ/metrics
+                managed for you).&rdquo; A sibling library&rsquo;s SKILL.md did the
+                marketing; a named recipe converted future intent into a plan.</span>
               </div>
             </div>
             <div class="strength">
@@ -1292,7 +1307,10 @@
             Five readers read all 28 <code>docs/review/libs/go-appkit.md</code> files in full
             (27 distinct projects; CV and <code>cv/</code> hold two snapshots of one audit;
             five reviews landed mid-review and were folded in). Verdicts, scores, and quotes
-            above are taken verbatim from those reviews.
+            above are taken verbatim from those reviews. The profileagent review is the
+            source of the skill-funnel lesson; the quotaboard, ChastityAPI, PapDashboard, and
+            webphone reviews carry the drift-tax evidence; go-compliance and nsfw-classifier
+            independently request the same listener-injection seam.
             The reviewers are the fleet&rsquo;s own AI agents; scores are their utilization
             measures. Cross-checked against <code>AGENTS.md</code> release state (core v0.12.0
             train, 2026-11-07).
