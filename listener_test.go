@@ -11,19 +11,6 @@ import (
 	"time"
 )
 
-func dialUnix(t *testing.T, ctx context.Context, socketPath string) net.Conn {
-	t.Helper()
-
-	var d net.Dialer
-
-	conn, err := d.DialContext(ctx, "unix", socketPath)
-	if err != nil {
-		t.Fatalf("unix dial %s: %v", socketPath, err)
-	}
-
-	return conn
-}
-
 func listenerClosed(t *testing.T, ctx context.Context, network, addr string) bool {
 	t.Helper()
 

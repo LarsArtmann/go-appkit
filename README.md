@@ -94,8 +94,10 @@ All config is via `ServiceConfig`. Zero-value fields get production defaults:
 | Field              | Type                    | Default   | Description                                                                                                                                 |
 | ------------------ | ----------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Addr`             | `string`                | `":8080"` | Listen address                                                                                                                              |
+| `Listener`         | `net.Listener`          | `nil`     | Serve on a pre-bound listener (unix socket, socket activation) instead of binding `Addr`; ownership + restart rules in the section below    |
 | `LogLevel`         | `LogLevel`              | `"info"`  | Log level: debug, info, warn, error                                                                                                         |
 | `LogFormat`        | `LogFormat`             | `"auto"`  | Log format: text, json, auto                                                                                                                |
+| `LogHandler`       | `slog.Handler`          | `nil`     | Replace the built-in logger entirely — every line flows through your slog.Handler; `LogLevel`/`LogFormat` ignored (see below)              |
 | `ReadTimeout`      | `time.Duration`         | `10s`     | HTTP read timeout                                                                                                                           |
 | `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                                                                                                                          |
 | `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                                                                                                           |
@@ -188,6 +190,48 @@ output discarded): bare handler ~17µs; log suppressed at WARN ~18µs
 formatting dominates, 162 allocs/emission). High-throughput services
 should set `LogLevel: LogLevelWarn`; the middleware overhead itself is
 negligible either way.
+
+### Bring your own slog handler
+
+The built-in logger is charmbracelet/log (v1 lane). If your service lives on
+another lane — plain `slog`, a v2 logger, a bridged structured logger — supply
+`LogHandler` and the ENTIRE lifecycle emits through it: request lines, startup
+and shutdown phase lines, everything. `LogLevel`/`LogFormat` are ignored in
+that mode (the handler owns level and formatting):
+
+```go
+svc, err := appkit.NewService(appkit.ServiceConfig{
+    Addr:       ":8080",
+    LogHandler: slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+})
+```
+
+The grep-able shutdown contract (`shutdown phase complete` with the phase
+name, `graceful shutdown complete` with the total) holds for ANY handler —
+it is a message contract, not a formatter contract. See
+`docs/planning/2026-11-21_fleet-log-lane-owner-memo.md` for the fleet-lane
+ruling this seam was built for.
+
+### Custom listener (unix sockets, socket activation)
+
+Set `Listener` to a pre-bound `net.Listener` and the service serves on it
+instead of binding `Addr` — unix-socket IPC daemons, systemd socket
+activation, or any listener from another source:
+
+```go
+ln, _ := net.Listen("unix", "/run/mydaemon/app.sock")
+
+svc, err := appkit.NewService(appkit.ServiceConfig{
+    Listener:   ln, // Addr is ignored; Addr() reports the socket path
+    DrainHooks: []appkit.Hook{ /* flip external readiness */ },
+})
+```
+
+Contract: ownership transfers at `Start` (every synchronous failure path and
+graceful shutdown close it, exactly like a self-bound listener); one serve per
+listener — a restart after full shutdown needs a FRESH listener; timeouts,
+sentinels, and the middleware stack apply unchanged. Design note:
+`docs/planning/2026-11-21_listener-injection-seam-design-note.md`.
 
 ## Middleware
 
