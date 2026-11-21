@@ -3,12 +3,12 @@ module github.com/larsartmann/go-appkit/preset
 go 1.27.4
 
 require (
-	github.com/larsartmann/go-appkit v0.12.0
+	github.com/larsartmann/go-appkit v0.13.0
 	github.com/larsartmann/go-appkit/errorpages v0.1.3
 	github.com/larsartmann/go-appkit/health v0.3.2
 	github.com/larsartmann/go-appkit/otel v0.4.0
 	github.com/larsartmann/go-appkit/realtime v0.2.0
-	github.com/larsartmann/go-appkit/security v0.2.0
+	github.com/larsartmann/go-appkit/security v0.3.0
 	github.com/larsartmann/go-appkit/systemd v0.2.0
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-sse v0.6.2

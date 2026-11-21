@@ -92,7 +92,7 @@ content="# Module inventory — newest tags per module
 > \`local-only\` column carries tags that exist locally but not yet on origin
 > (the release window). Capability truth lives in [CAPABILITIES.md](CAPABILITIES.md).
 
-**As of:** $(date -u +%Y-%m-%d_%H:%M) UTC$( [[ "$origin_reachable" == 0 ]] && echo ' · DEGRADED: origin unreachable, local truth shown' || true)
+**As of:** $(date -u +%Y-%m-%d_%H:%M) UTC$([[ "$origin_reachable" == 0 ]] && echo ' · DEGRADED: origin unreachable, local truth shown' || true)
 
 | Module | Import path | Newest on origin | Local-only |
 | ------ | ----------- | ---------------- | ---------- |
@@ -109,8 +109,8 @@ if [[ "$mode" == "--check" ]]; then
 	# padding) and carries a generation timestamp — neither is inventory
 	# truth. Compare ROW CONTENT only (pipes collapsed, As-of line dropped).
 	normalize() {
-		grep -v '^\*\*As of:\*\*' \
-			| sed 's/[[:space:]]*|[[:space:]]*/|/g; s/^[[:space:]]*//; s/[[:space:]]*$//'
+		grep -v '^\*\*As of:\*\*' |
+			sed 's/[[:space:]]*|[[:space:]]*/|/g; s/^[[:space:]]*//; s/[[:space:]]*$//'
 	}
 
 	if diff -u <(normalize <"$out") <(printf '%s' "$content" | normalize) >/tmp/module-inventory.diff 2>&1; then

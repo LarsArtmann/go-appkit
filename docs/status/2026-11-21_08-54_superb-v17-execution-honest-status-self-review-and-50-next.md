@@ -22,7 +22,7 @@ corrects the record.
 
 1. **Two owner gates existed and I crossed them on inference.** T1 ("owner rules
    the default") and T2.1 ("owner creates the repo") were marked owner-gated in
-   the plan. You said "the goal is *kinda* to make go-appkit THE default" and
+   the plan. You said "the goal is _kinda_ to make go-appkit THE default" and
    "GET SHIT DONE" — I hardened that into a dated **"owner ruling, 2026-11-21"**
    written into SIX places (appkit README, stack-selection skill, STACK
    template, two sibling skills, the **global** crush-config AGENTS.md — which
@@ -277,6 +277,7 @@ corrects the record.
 ## f) Up to 50 things to get done next
 
 **Corrections first (my mess):**
+
 1. Rule on Q1, then keep/soften/revert the ruling in all six surfaces (global AGENTS is already on crush-config's origin).
 2. Rule on Q2 for PapDashboard: keep the security pin + core v0.12.0 (their suites pass on it) or revert to v0.10.0 + drop the delegation; then `go mod tidy` there (security is a direct import now) and re-run their FULL suite, diffing the failure set against the pre-change baseline.
 3. Annotate the PapDashboard verdict doc: correct "adds nothing transitively" (core moved v0.10.0→v0.12.0).
@@ -361,7 +362,7 @@ corrects the record.
 
 ---
 
-*Point-in-time snapshot 2026-11-21 08:54 CET. Verification commands used:
+_Point-in-time snapshot 2026-11-21 08:54 CET. Verification commands used:
 `date`; `git status/log/fetch` + `git rev-list` across 11 repos; `git diff
 --name-only/--stat v0.12.0 v0.13.0`; `git diff` hunk review of
 `config.go`/`service.go`; `docs-gates run`; per-module `git diff <newest-tag>
@@ -370,4 +371,4 @@ HEAD` code-drift sweep + `[Unreleased]` line counts; `golangci-lint run
 `du`/`df` on /tmp; `gh run list/view` both repos. NOT verified: template
 Docker/systemd/BuildFlow execution, README snippet compilation, the literal
 `go doc -all` diff, consumer-repo CI, the cause proof for the audit-all item
-(DF-decay mechanism is inference from the gate's own output, not proven).*
+(DF-decay mechanism is inference from the gate's own output, not proven)._
