@@ -42,6 +42,15 @@ service with a curl walkthrough; the security×realtime composition
 (rate limiting in front of SSE) is pinned end-to-end by
 `integration/security_realtime_test.go`.
 
+## Posture stances
+
+Hardened-daemon consumers (nsfw-classifier class) evaluate this module
+against their own posture; the four recorded divergences (error model,
+metrics surface, log lane, and the listener seam that SHIPPED 2026-11-21)
+carry standing stances in the root
+[ROADMAP.md](../ROADMAP.md) "Divergence stances" section — divergences are
+decisions, not accidents.
+
 ## Provenance
 
 Ports of the CV family stack's production middleware

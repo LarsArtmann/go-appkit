@@ -4,7 +4,7 @@
 > Bounded, short-to-mid-term work lives in [TODO_LIST.md](TODO_LIST.md).
 > Point-in-time plans and research live in `docs/planning/`.
 
-**Updated:** 2026-11-21 (docs-health verify pass — Raw ideas de-staled: the shipped `httpx` and `config`/F1 rows reworded to SHIPPED facts; only the B8 route-seam idea and F4 hot-reload remain as ideas) — prior: 2026-11-13 (docs-health pass — module-bay list current at 14 released modules; httpx shipped B1-B9 minus the H8-gated pair; W3 complete, W4-W5 routed) — prior: 2026-11-02 (httputil#41 `NewServerListener` SHIPPED upstream — composition + Core TLS unblocked; see the v1.0.0 section)
+**Updated:** 2026-11-21 (SUPERB v17 T12 — divergence stances for the four nsfw-classifier blockers ruled; T6/T7 shipped the listener + log-handler seams the same day) — prior 2026-11-21 (docs-health verify pass — Raw ideas de-staled: the shipped `httpx` and `config`/F1 rows reworded to SHIPPED facts; only the B8 route-seam idea and F4 hot-reload remain as ideas) — prior: 2026-11-13 (docs-health pass — module-bay list current at 14 released modules; httpx shipped B1-B9 minus the H8-gated pair; W3 complete, W4-W5 routed) — prior: 2026-11-02 (httputil#41 `NewServerListener` SHIPPED upstream — composition + Core TLS unblocked; see the v1.0.0 section)
 
 ## North star
 
@@ -82,6 +82,32 @@ appkit never grows application-shaped code.
 - **cordis bridge module** — trigger-gated NOT NOW (`go/v0.1.0` tagged
   2026-09-16 = trigger 1 of 3 met; zero consumer demand, core v1 criteria
   pending).
+
+## Divergence stances (the four nsfw-classifier blockers, ruled 2026-11-21)
+
+nsfw-classifier's re-verification (`/home/lars/projects/nsfw-classifier/docs/review/libs/go-appkit.md`)
+keeps non-adoption on four blockers; each now has a stance instead of a
+calcified keep-out:
+
+1. **DI-injected listener — SHIPPED 2026-11-21.** `ServiceConfig.Listener`
+   (pre-bound listener: unix sockets, socket activation; design note:
+   `docs/planning/2026-11-21_listener-injection-seam-design-note.md`) closes
+   blocker ① and fires their recorded revisit trigger ("appkit adopting
+   listener injection") — the flip is now TAKEABLE on their side.
+2. **Error model (samber/oops vs go-error-family) — DECLINED with reason.**
+   appkit's classification IS go-error-family everywhere (fleet convention);
+   a second error model inside the framework is a split brain. nsfw-classifier
+   keeps oops as THEIR lane; the lanes do not overlap (appkit never imports
+   oops) and that is the stable end state.
+3. **Metrics posture (zero-dep LAN JSON vs opt-in Prometheus + auth) —
+   ACCEPTED as divergent.** The LAN-JSON shape stays consumer-side; appkit's
+   opt-in Prometheus surface (auth mandatory by default) remains the framework
+   posture. No second metrics surface absent a second consumer asking.
+4. **Logger lane (charm.land/log/v2 vs charmbracelet/log v1) — SEAM SHIPPED,
+   default owner-gated.** `ServiceConfig.LogHandler` (same train) accepts any
+   `slog.Handler`, so a v2-lane or plain-slog service is one line away; the
+   DEFAULT lane flip follows the census trigger in
+   `docs/planning/2026-11-21_fleet-log-lane-owner-memo.md`.
 
 ## Raw ideas (unrefined, no commitment)
 

@@ -4,6 +4,24 @@ Production-ready HTTP service framework for Go. Composes [httputil](https://gith
 [charmbracelet/log](https://github.com/charmbracelet/log), and [go-error-family](https://github.com/LarsArtmann/go-error-family)
 into one coherent service lifecycle.
 
+> **The fleet default.** A NEW fleet service starts on go-appkit — owner
+> ruling, 2026-11-21. The `preset` module is the one-call base; the
+> [go-service-template](https://github.com/LarsArtmann/go-service-template)
+> repo scaffolds everything around it. The "Start here" section below is the
+> front door.
+
+### Verify these claims
+
+Run, don't trust — these blocks execute green before every release:
+
+```bash
+GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1   # the suite (root + testkit)
+PORT=18099 go run ./example &                                   # the live tour (bash)
+curl -s localhost:18099/health; curl -si localhost:18099/ | grep -i server-timing
+kill -TERM %1                                                   # watch the shutdown phase lines
+./scripts/example-smoke.sh                                      # the mechanical version: all examples, boot→probe→graceful-stop
+```
+
 ## Quick start
 
 ```go
@@ -86,6 +104,72 @@ Each module is independently versioned and usable on its own:
 > 1.27.4 floor enables **by default** — no configuration, no experiment
 > prefix (the per-module `GOEXPERIMENT=jsonv2` notes were retired
 > 2026-09-29).
+
+## Start here (a new service)
+
+Three ways in, fastest first. All three get the full lifecycle: graceful
+drain, the default middleware stack, health endpoints, and the classified
+error contract.
+
+**1. The one-call spine — `preset` (recommended default):**
+
+```go
+svc, err := preset.New(preset.Config{
+    Addr:    ":8080",
+    Version: "1.2.3",
+})
+// spine: core Service + systemd sd_notify + health dashboard + pretty error
+// pages + fleet error classifications; legs via APPKIT_* env switches.
+svc.Mux.HandleFunc("GET /hello", func(w http.ResponseWriter, _ *http.Request) {
+    _, _ = w.Write([]byte("hello"))
+})
+_ = svc.Run(context.Background())
+```
+
+**2. The bare core** — the Quick start above, when you want zero composition
+opinion: `appkit.NewService(cfg)` + routes on `svc.Mux` + `svc.Run(ctx)`.
+
+**3. Scaffolding — the [go-service-template](https://github.com/LarsArtmann/go-service-template)
+repo**: preset spine + `cmd/<name>` + internal layers + flake/CI/systemd
+skeletons, so a new service's first hour is one clone. Refresh-stamped
+against the appkit floor by the release ritual.
+
+### The three recipes you'll actually reach for
+
+**HTTP handlers with return-(T, error) — [httpx](httpx/README.md):**
+
+```go
+mux.Handle("GET /api/things/{id}", httpx.ResultHandler(
+    func(c *httpx.Context) (*Thing, error) {
+        return svc.Get(c.Request.Context(), c.PathValue("id"))
+    },
+))
+// nil error → JSON 200 (204 for nil pointer); non-nil → classified error contract.
+```
+
+**Events + projections — [cqrs](cqrs/README.md):**
+
+```go
+es, err := cqrs.NewEventService(cqrs.EventConfig{DSN: "app.db", Logger: svc.Logger})
+_ = es.Host().Register(myProjection)
+_ = cqrs.RegisterQuery[TaskQuery, TaskView](es, "task.view", myQueryHandler)
+_ = es.StartProjections(ctx)
+```
+
+**Config from env/files — [config](config/README.md):** `config.Load[T]()`
+with precedence flag > env > file > default and typed field errors.
+
+### One-line wins (replace your hand-rolled X)
+
+| You hand-rolled                | appkit replaces it with                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| exit-code mapping              | `os.Exit(errorfamily.HandleError(err))` — classified families map to exit codes                                   |
+| a version endpoint             | `Version: "1.2.3"` → `GET /version` (JSON) + `appkit_build_info` metric label                                     |
+| health/diag handlers           | on by default: `GET /health`, `/health/live`, `/health/ready` (drain-aware 503s; `ReadyCheck` adds your gate)      |
+| API description docs           | the [docs](docs/) module: OpenAPI/AsyncAPI/D2 generated from Go types                                              |
+| security middleware battery    | the [security](security/) module: CSRF, keyed rate limits, body limits, sanitization, CSP — all opt-in              |
+| `httptest.NewServer(svc.Mux)`  | `testkit.NewService(t, cfg)` — the REAL chain, test-safe defaults, leak-checked teardown (raw-mux tests miss the bugs) |
+| shutdown orchestration         | nothing to write: SIGINT/SIGTERM → ready-flip → DrainHooks → drain wait → listener close → ShutdownHooks, one grep-able log line each |
 
 ## Configuration
 
@@ -390,6 +474,21 @@ remain enabled either way.
 
 appkit is for services that use Go stdlib `http.ServeMux` (Go 1.22+ method routing) and want
 middleware, health, logging, and shutdown wired in one import.
+
+## Related projects
+
+The family blocks this framework composes, plus the siblings that pair with
+it:
+
+- [cmdguard](https://github.com/LarsArtmann/cmdguard) — the Cobra wrapper the
+  fleet builds ops CLIs on: typed struct-tag flags, per-command config, and a
+  machine-readable surface for agent-driven CLIs. Natural pairing: cmdguard
+  for the control CLI, appkit for the daemon it drives.
+- [go-cqrs-lite](https://github.com/LarsArtmann/go-cqrs-lite) — the CQRS/ES
+  engine under the [cqrs](cqrs/README.md) module.
+- [go-website-template](https://github.com/LarsArtmann/go-website-template) —
+  the web-app sibling template; [go-service-template](https://github.com/LarsArtmann/go-service-template)
+  is the service archetype of the same pattern.
 
 ## Development
 
