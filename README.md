@@ -73,6 +73,9 @@ Each module is independently versioned and usable on its own:
 | [health](health/)                             | `github.com/larsartmann/go-appkit/health`               | go-health probes (critical/non-critical, startup latch) + real-time health dashboard, one wiring call                  |
 | [security](security/)                         | `github.com/larsartmann/go-appkit/security`             | Hardening middleware: CSRF, rate limiting, body limits, sanitization, CSP nonce, security headers                      |
 | [systemd](systemd/)                           | `github.com/larsartmann/go-appkit/systemd`              | sd_notify for `Type=notify` units: READY=1 post-listen, STOPPING=1 at drain start, `WatchdogSec/2` keepalive           |
+| [httpx](httpx/README.md)                      | `github.com/larsartmann/go-appkit/httpx`                | Handler DX: `ResultHandler` return-(T, error), bind + validation, no-leak errors, conditional GET, content negotiation, write deadlines |
+| [config](config/README.md)                    | `github.com/larsartmann/go-appkit/config`               | Env-first struct-tag configuration: `Load[T]`, precedence flag > env > file > default, strict YAML/JSON file layer     |
+| [preset](preset/README.md)                    | `github.com/larsartmann/go-appkit/preset`               | One-call composition: production spine (core + systemd + health dashboard + errorpages) plus env-switched otel/security/realtime legs |
 
 > The `security` module is fully opt-in: NOTHING from it sits in core's
 > default middleware stack — batteries compose explicitly via

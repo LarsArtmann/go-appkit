@@ -33,5 +33,9 @@ go_mod_ignore_dirs:
 # respect_patch_floor makes this repo's deliberate PATCH-level pins
 # (go 1.27.1, strict equality across all 11 go.mods + go.work,
 # scripts/check-go-directives.sh) policy instead of drift — at or below
-# the installed toolchain they are reported by no rule at all, so the
-# v0.1.4-class downgrade cannot recur. Option lives in tool_options.
+# the installed toolchain they are reported by no rule at all. LIMIT
+# (recurrence 2026-11-13, commit b04fc20): with the floor ABOVE the
+# machine default toolchain (1.27.4 > 1.27.2 during a floor-train
+# window) that precondition does not hold — four go.mods were downgraded
+# to `go 1.27` and rode a daemon commit. check-go-directives.sh
+# (pre-commit FATAL + CI) is the standing net; restored 2026-11-21.

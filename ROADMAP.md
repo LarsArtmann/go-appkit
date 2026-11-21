@@ -91,14 +91,15 @@ appkit never grows application-shaped code.
 - Route-cardinality fuzz guard: 10k distinct request paths must produce a
   bounded metric series (double-relevant after the pattern-propagation
   regression).
-- `httpx` handler-DX module (ResultHandler family, bind+validate, no-leak
-  errors) — W3 of the battery program; requires a core route-registration seam
-  (`svc.Routes()`) for introspection that core has not agreed to yet.
 - Route metadata → docs live feed: generated docs that cannot drift from
-  routes (B8; same core seam prerequisite).
-- Config modules (koanf wrapper, hot-reload via fsnotify with
-  validate-gate → atomic swap) — F1/F4; demand-gated on a consumer with
-  runtime config needs.
+  routes (B8; requires the core route-registration seam, owner-gated — the
+  `httputil/endpoints` registry is the in-family candidate noted in
+  AGENTS). The `httpx` module itself SHIPPED (v0.1.0 + v0.2.0: B1/B2/B9,
+  B3/B4/B5/B7); B6/B8 remain H8-owner-gated (tracked in TODO_LIST).
+- Config hot-reload (fsnotify watch with validate-gate → atomic swap) —
+  F4; static loading SHIPPED as the `config` module (`Load[T]`, koanf
+  declined per its design note). Hot-reload stays demand-gated on a
+  consumer with runtime config needs.
 - `worker` supervisor + typed pool, `sqlite` ops kit, `polite` outbound
   client, `do` bridge — W4; each is a standalone-module candidate with a
   port-from source in the battery spec.

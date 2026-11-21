@@ -1,7 +1,9 @@
 # Changelog
 
 ## [Unreleased]
-### Changed- Repo-level CI lint stack raised to v2.15.0 (`golangci-lint@v2.15.0`), with the errorfamily `wrapcheck` exemption added to the root `.golangci.yml` (`- go-error-family.` import-path sig — the fleet convention; v2.15's signature-based wrapcheck otherwise flags errorfamily constructors as unwrapped externals). Verified green locally with the v2.15.0 binary on the root module and 13 sub-modules; the `integration` module's lint invocation fails on its go.work pattern shape independent of this change (pre-existing).
+### Changed
+
+- Repo-level CI lint stack raised to v2.15.0 (`golangci-lint@v2.15.0`), with the errorfamily `wrapcheck` exemption added to the root `.golangci.yml` (`- go-error-family.` import-path sig — the fleet convention; v2.15's signature-based wrapcheck otherwise flags errorfamily constructors as unwrapped externals). Verified green locally with the v2.15.0 binary on the root module and 13 sub-modules; the `integration` module's lint invocation fails on its go.work pattern shape independent of this change (pre-existing).
 Module changes live in their module CHANGELOGs' [Unreleased] sections (the
 2026-11-13 split-brain resolution: the `cqrs` deployment bullet moved to
 `cqrs/CHANGELOG.md`).
