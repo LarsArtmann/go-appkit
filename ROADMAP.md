@@ -4,7 +4,7 @@
 > Bounded, short-to-mid-term work lives in [TODO_LIST.md](TODO_LIST.md).
 > Point-in-time plans and research live in `docs/planning/`.
 
-**Updated:** 2026-11-13 (docs-health pass — module-bay list current at 14 released modules; httpx shipped B1-B9 minus the H8-gated pair; W3 complete, W4-W5 routed) — prior: 2026-11-02 (httputil#41 `NewServerListener` SHIPPED upstream — composition + Core TLS unblocked; see the v1.0.0 section)
+**Updated:** 2026-11-21 (docs-health verify pass — Raw ideas de-staled: the shipped `httpx` and `config`/F1 rows reworded to SHIPPED facts; only the B8 route-seam idea and F4 hot-reload remain as ideas) — prior: 2026-11-13 (docs-health pass — module-bay list current at 14 released modules; httpx shipped B1-B9 minus the H8-gated pair; W3 complete, W4-W5 routed) — prior: 2026-11-02 (httputil#41 `NewServerListener` SHIPPED upstream — composition + Core TLS unblocked; see the v1.0.0 section)
 
 ## North star
 
