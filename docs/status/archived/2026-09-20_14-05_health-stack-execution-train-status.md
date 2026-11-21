@@ -223,7 +223,7 @@ flagged again.
 12. File the go-health `Evaluate` cache-publication godoc ask (in the same pack).
 13. File the go-health restart/rearm ask (tertiary section of the pack).
 14. File the samber/do lazy-healthcheck doc note (external — github-voice pass first).
-15. Fold all four into one upstream PR if you'd rather ship than ask (go-health is yours).
+15. ~~Fold all four into one upstream PR if you'd rather ship than ask (go-health is yours).~~ Superseded — the asks were handled INDIVIDUALLY, not folded into one PR: the go-health recorder-sentinel ask went upstream as go-health#7 (CLOSED COMPLETED, shipped in go-health v0.8.x as `ErrRecorderNotApplicable`); the samber/do lazy-healthcheck ask stayed a separate user-gated draft (`docs/feedback/outgoing/2026-09-20_upstream-ask-samberdo-lazy-healthcheck-docs.md`); no combined PR ever existed to fold (verified 2026-11-21, docs-health audit).
 
 **Health-family depth**
 16. `health/doadapter`: also adapt `Probe.AsShutdowner` for NewProbe-only consumers.

@@ -233,7 +233,7 @@ The session 5 report says "go test ./... -race -count=1 — ok (3.5s)" and "lint
 
 ### Code quality
 
-26. Verify `closeOnConstructionFailure` is the right name — it's a constructor-teardown helper. Consider `closeBundleOnConstructionError` (more explicit). Low priority — the name is clear in context.
+26. ~~Verify `closeOnConstructionFailure` is the right name — it's a constructor-teardown helper. Consider `closeBundleOnConstructionError` (more explicit). Low priority — the name is clear in context.~~ Won't implement — the name KEPT: `closeOnConstructionFailure` survives unchanged (unexported, `cqrs/eventservice.go:504`) through every train since 2026-08 — zero API surface, and no reader has tripped on it since; the rename consideration is moot (verified 2026-11-21, docs-health audit).
 27. Check if `closeOnConstructionFailure` should accept a context (currently hardcoded `context.Background()` — same as original, no ctx available at construction time).
 28. Verify the `//cqrs-lint:ignore` comments are on their own line and correctly formatted (verified via `cqrs-lint doctor` — both suppressions counted correctly).
 29. Verify the `.cqrs-lint.json` JSONC comments are valid (no trailing commas, valid JSON after comment stripping — verified via `cqrs-lint doctor` parsing successfully).
