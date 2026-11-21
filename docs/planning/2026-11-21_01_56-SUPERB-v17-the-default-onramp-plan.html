@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Title</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS DARK — Dashboard template
+         Design language: form follows function. Primary colors on graphite.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         Token architecture: see references/bauhaus-tokens.md
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Dark) --- */
+        --color-graphite: #0e0e10;
+        --color-graphite-2: #18181d;
+        --color-graphite-3: #16161a;
+        --color-bone: #f4f4f0;
+        --color-red: #ff6b6b;
+        --color-blue: #6eb5ff;
+        --color-yellow: #f4d35e;
+        --color-amber: #ffb347;
+        --color-hairline: rgba(244, 244, 240, 0.12);
+        --color-hairline-strong: rgba(244, 244, 240, 0.25);
+
+        /* --- Semantic layer (shared vocabulary with editorial template) --- */
+        --surface: var(--color-graphite);
+        --surface-raised: var(--color-graphite-2);
+        --surface-sunken: var(--color-graphite-3);
+        --text: var(--color-bone);
+        --text-muted: rgba(244, 244, 240, 0.72);
+        --text-faint: rgba(244, 244, 240, 0.45);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-amber);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Backward-compatible aliases (do not break consumer skills) --- */
+        --bg: var(--surface);
+        --bg-elevated: var(--surface-raised);
+        --bg-sunken: var(--surface-sunken);
+        --bg-card: var(--surface-raised);
+        --bg-code: var(--surface-sunken);
+        --ink: var(--text);
+        --ink-secondary: var(--text-muted);
+        --ink-muted: var(--text-faint);
+        --rose: var(--problem);
+        --rose-glow: color-mix(in srgb, var(--problem) 15%, transparent);
+        --emerald: var(--solution);
+        --emerald-glow: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-glow: color-mix(in srgb, var(--warning) 15%, transparent);
+        --coral: var(--problem);
+        --coral-light: color-mix(in srgb, var(--problem) 15%, transparent);
+        --teal: var(--solution);
+        --teal-light: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber-light: color-mix(in srgb, var(--warning) 20%, transparent);
+
+        /* --- Shape --- */
+        --radius: 0px; /* Bauhaus default: sharp corners */
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      /* Sticky-header offset for anchor jumps */
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Accessibility: keyboard focus --- */
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      a:focus-visible {
+        outline-offset: -1px;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout: optional sticky sidebar TOC --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .sidebar a {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.45rem 0.75rem;
+        border-left: 2px solid transparent;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.1;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-strong);
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      h3 {
+        font-size: 1.1rem;
+        margin: 0 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 0.98rem;
+        margin: 0 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-strong);
+      }
+      .hero-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--surface);
+        background: var(--accent);
+        padding: 0.3rem 0.7rem;
+        margin-bottom: 0.9rem;
+      }
+      .hero-subtitle {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        max-width: 70ch;
+        margin: 0;
+      }
+
+      /* Bauhaus signature: geometric shape cluster (optional) */
+      .hero-shapes {
+        position: relative;
+        height: 80px;
+        margin-bottom: 1rem;
+      }
+      .hero-shapes .circle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 56px;
+        height: 56px;
+        background: var(--problem);
+        border-radius: 50%;
+      }
+      .hero-shapes .square {
+        position: absolute;
+        top: 24px;
+        left: 72px;
+        width: 48px;
+        height: 48px;
+        background: var(--solution);
+      }
+      .hero-shapes .tri {
+        position: absolute;
+        top: 8px;
+        left: 140px;
+        width: 0;
+        height: 0;
+        border-left: 28px solid transparent;
+        border-right: 28px solid transparent;
+        border-bottom: 48px solid var(--warning);
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges (used inside issue cards) --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Inline badges (used in tables) --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.18rem 0.5rem;
+        border: 1px solid var(--border-strong);
+        color: var(--text-muted);
+      }
+      .badge-critical {
+        color: var(--problem);
+        border-color: var(--problem);
+      }
+      .badge-high {
+        color: var(--warning);
+        border-color: var(--warning);
+      }
+      .badge-medium {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .badge-low {
+        color: var(--text-muted);
+      }
+      .badge-fixed {
+        color: var(--solution);
+        border-color: var(--solution);
+      }
+
+      /* --- Callouts (used inside issues or standalone) --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.7rem 0.9rem;
+        border-left: 3px solid var(--border-strong);
+        background: color-mix(in srgb, var(--text) 5%, transparent);
+        font-size: 0.9rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 10%, transparent);
+      }
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 10%, transparent);
+      }
+
+      /* --- Stat cards / scorecards (aliased vocabulary) --- */
+      .stat-grid,
+      .scorecard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .stat-card,
+      .score-card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1rem;
+        position: relative;
+      }
+      .stat-card::before,
+      .score-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-strong);
+      }
+      .stat-bad,
+      .score-bad {
+        /* default top bar already set */
+      }
+      .stat-bad::before,
+      .score-bad::before {
+        background: var(--problem);
+      }
+      .stat-good::before,
+      .score-good::before {
+        background: var(--solution);
+      }
+      .stat-warn::before,
+      .score-warn::before {
+        background: var(--warning);
+      }
+      .stat-value,
+      .score {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: var(--text);
+      }
+      .stat-bad .stat-value,
+      .score-bad .score {
+        color: var(--problem);
+      }
+      .stat-good .stat-value,
+      .score-good .score {
+        color: var(--solution);
+      }
+      .stat-warn .stat-value,
+      .score-warn .score {
+        color: var(--warning);
+      }
+      .stat-label,
+      .score-card .label {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-faint);
+        margin-top: 0.5rem;
+      }
+
+      /* --- Strengths list --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--solution);
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* --- Tables --- */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.9rem;
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--surface-raised);
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-strong);
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+      }
+      tr:hover td {
+        background: var(--surface-raised);
+      }
+
+      /* --- Before/After comparison --- */
+      .compare-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+      .compare-before,
+      .compare-after {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 0.7rem;
+        color: var(--surface);
+      }
+      .compare-before {
+        background: var(--problem);
+      }
+      .compare-after {
+        background: var(--solution);
+      }
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .compare-row pre {
+        margin: 0;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+      }
+      code {
+        font-family: var(--font-mono);
+      }
+      p code,
+      li code,
+      td code {
+        font-size: 0.88em;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+      }
+      .tok-keyword {
+        color: var(--accent);
+      } /* func, type, struct, if, return */
+      .tok-type {
+        color: var(--warning);
+      } /* int, string, bool, error */
+      .tok-string {
+        color: var(--solution);
+      } /* "quoted strings" */
+      .tok-comment {
+        color: var(--text-faint);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #74a9ff;
+      } /* function names */
+      .tok-number {
+        color: var(--accent);
+      } /* 42, 3.14 */
+      .tok-generic {
+        color: var(--problem);
+      } /* T, ID in generics */
+      .tok-builtin {
+        color: #4dd9ff;
+      } /* make, len, append */
+      .tok-punct {
+        color: var(--text-muted);
+      } /* { } ( ) ; = : */
+      .tok-attr {
+        color: var(--accent);
+      } /* Nix attribute names */
+
+      /* --- Dependency tree / ASCII diagrams --- */
+      .dep-tree {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .dep-tree .root {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .dep-tree .ok {
+        color: var(--solution);
+      }
+      .dep-tree .unwanted {
+        color: var(--problem);
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.35rem 0.7rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: var(--surface-sunken);
+        border: 1px solid var(--border-strong);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+        border-color: var(--accent);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+        border-color: var(--problem);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+        border-color: var(--solution);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Grids (responsive) --- */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* --- Inline TOC (alternative to sidebar) --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Migration / numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-header,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .stat-grid,
+        .scorecard {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+<body>
+    <div class="top-bar">
+      <span>SUPERB v17 EXECUTION PLAN</span>
+      <span>2026-11-21</span>
+      <span>go-appkit &middot; the default on-ramp</span>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#why">Why this plan</a>
+          <a href="#tiers">Pareto tiers</a>
+          <a href="#graph">Execution graph</a>
+          <a href="#comprehensive">Comprehensive plan</a>
+          <a href="#fine">Fine breakdown</a>
+          <a href="#errata">Errata</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="hero">
+          <div class="eyebrow">PARETO EXECUTION PLAN &middot; 2026-11-21</div>
+          <h1>SUPERB v17: make go-appkit the default, not just the standard</h1>
+          <p class="subtitle">
+            The 28-review adoption corpus shows go-appkit winning every evaluation it is
+            qualified for while 11 of 27 fleet projects decline on fit, doctrine, or timing.
+            The reputation is "the fleet's server standard"; the goal is "the default every
+            project builds on." This plan routes the 1% / 4% / 20% that close that gap.
+          </p>
+          <div class="meta">
+            <span class="tag amber">Evidence: 28-review corpus + TODO_LIST Step-0 pass</span>
+            <span class="tag">Baseline: direct 7/41 (fixed counter) &middot; 7 of 27 reviewed</span>
+            <span class="tag teal">Owner gates: 2 (ruling, repo create)</span>
+          </div>
+        </header>
+
+        <section id="why">
+          <h2><span class="num">00</span>Why appkit is not the default yet</h2>
+          <p>
+            Four structural causes, none of them quality. <strong>(1) Timing:</strong> the
+            fleet's services pre-built appkit from the same primitives &mdash; retrofit never
+            pays, so the only funnel is greenfield, and greenfield moments have been rare
+            since v0.10&ndash;0.12 made appkit credible. <strong>(2) Unit of adoption:</strong>
+            "appkit's unit of adoption is the service, not a component" (nextd) &mdash;
+            one-capability consumers must take the core. <strong>(3) Opinion collisions:</strong>
+            charmbracelet/log v1 vs the fleet's v2 lane, forced samber/do, TCP-only bind
+            &mdash; appkit reads as a different opinion, not the default shape.
+            <strong>(4) No on-ramp:</strong> seven decliners wrote "next service starts from
+            appkit" into private reviews; no template, no start-here page, no scaffold
+            mechanizes that moment. The levers below attack 4 first (cheapest), then 3, then
+            ride 1 and 2 as trains.
+          </p>
+          <div class="callout callout-amber">
+            <strong>The one-sentence strategy</strong>
+            Encode the default by policy, mechanize the first hour, ship the three named
+            seams &mdash; everything else is trains and docs that ride them.
+          </div>
+        </section>
+
+        <section id="tiers">
+          <h2><span class="num">01</span>Pareto tiers</h2>
+          <div class="stat-grid">
+            <div class="stat-card stat-bad">
+              <div class="stat-value">2</div>
+              <div class="stat-label">1% moves &rarr; 51% (policy + template)</div>
+            </div>
+            <div class="stat-card stat-warn">
+              <div class="stat-value">4</div>
+              <div class="stat-label">4% moves &rarr; 64% (seams + start-here)</div>
+            </div>
+            <div class="stat-card stat-good">
+              <div class="stat-value">18</div>
+              <div class="stat-label">20% moves &rarr; 80% (trains, docs, swaps)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">24</div>
+              <div class="stat-label">Comprehensive tasks &middot; 74 fine steps</div>
+            </div>
+          </div>
+          <table class="compare">
+            <thead>
+              <tr><th>Tier</th><th>Moves</th><th>What it unlocks (corpus evidence)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="no">1%</td><td>Default-by-policy ruling + go-service-template</td><td>The seven decliners' shared trigger ("next service starts from appkit") becomes executable; agents follow recorded decisions (cvagent 75&rarr;90 proves policy responsiveness converts)</td></tr>
+              <tr><td class="warn">4%</td><td>Listener seam &middot; logging seam &middot; leaf decoupling &middot; start-here page</td><td>Named flips: go-compliance + nsfw-classifier (listener, independently requested twice), dnsblockd (slog), nextd/audiblesync (standalone systemd); start-here converts the greenfield lane at zero code</td></tr>
+              <tr><td class="yes">20%</td><td>Inventory + one-line-wins + swap instances + roadmap positions + agent page</td><td>Median adopted score 61 deepens (PapDashboard ~400 LOC, index CSP, quotaboard config-depth); drift tax dies; rejections become informed</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="graph">
+          <h2><span class="num">02</span>Execution graph</h2>
+          <div style="overflow-x:auto"><?xml version="1.0" encoding="utf-8"?><svg style="max-width:100%;height:auto" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-d2-version="v0.9.0" preserveAspectRatio="xMinYMin meet" viewBox="0 0 2702 1224"><svg class="d2-1833231362 d2-svg" width="2702" height="1224" viewBox="-101 -101 2702 1224"><rect x="-101" y="-101" width="2702" height="1224" rx="0" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><style type="text/css"><![CDATA[
+.d2-1833231362 .text-bold {
+	font-family: "d2-1833231362-font-bold";
+}
+@font-face {
+	font-family: d2-1833231362-font-bold;
+	src: url("data:application/font-woff;base64,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");
+}
+.d2-1833231362 .text-italic {
+	font-family: "d2-1833231362-font-italic";
+}
+@font-face {
+	font-family: d2-1833231362-font-italic;
+	src: url("data:application/font-woff;base64,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");
+}]]></style><style type="text/css"><![CDATA[.shape {
+  shape-rendering: geometricPrecision;
+  stroke-linejoin: round;
+}
+.connection {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.blend {
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+		.d2-1833231362 .fill-N1{fill:#0A0F25;}
+		.d2-1833231362 .fill-N2{fill:#676C7E;}
+		.d2-1833231362 .fill-N7{fill:#FFFFFF;}
+		.d2-1833231362 .fill-B1{fill:#0D32B2;}
+		.d2-1833231362 .fill-B6{fill:#F7F8FE;}
+		.d2-1833231362 .fill-AB4{fill:#EDF0FD;}
+		.d2-1833231362 .stroke-B1{stroke:#0D32B2;}
+		.d2-1833231362 .stroke-B2{stroke:#0D32B2;}.appendix text.text{fill:#0A0F25}.md{--color-fg-default:#0A0F25;--color-fg-muted:#676C7E;--color-fg-subtle:#9499AB;--color-canvas-default:#FFFFFF;--color-canvas-subtle:#EEF1F8;--color-border-default:#0D32B2;--color-border-muted:#0D32B2;--color-neutral-muted:#EEF1F8;--color-accent-fg:#0D32B2;--color-accent-emphasis:#0D32B2;--color-attention-subtle:#676C7E;--color-danger-fg:red;}.light-code{display: block}.dark-code{display: none}]]></style><g class="UnVsaW5n"><g class="shape" ><path d="M 1 0 H 319 C 320 0 321 0 322 1 L 339 17 C 340 18 340 19 340 20 V 87 C 340 87 340 87 340 87 H 0 C 0 87 0 87 0 87 V 0 C 0 0 0 0 1 0 Z" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-AB4" style="stroke-width:2;" /><path d="M 339 87 H 1 C 0 87 0 87 0 86 V 1 C 0 0 0 0 1 0 H 318 C 319 0 319 0 319 1 V 18 C 319 19 320 20 321 20 H 339 C 340 20 340 20 340 21 V 86 C 339 87 340 87 339 87 Z" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-AB4" style="stroke-width:2;" /></g><text x="170" y="49" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">New fleet services START on appkit preset</text></g><g class="UG9saWN5LWVuY29kZQ=="><g class="shape" ><rect x="543" y="11" width="260" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="673" y="49.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">stack-selection + fleet AGENTS</text></g><g class="VGVtcGxhdGU="><g class="shape" ><rect x="1066" y="11" width="377" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="1254.5" y="49.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">go-service-template repo (owner-gated create)</text></g><g class="RG9nZm9vZA=="><g class="shape" ><rect x="1640" y="11" width="232" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="1756" y="49.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">boot + graceful-stop probe</text></g><g class="Rmlyc3RHcmVlbmZpZWxk"><g class="shape" ><rect x="2226" y="11" width="274" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="2363" y="49.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">first greenfield service on preset</text></g><g class="U2VhbXM="><g class="shape" ><rect x="38" y="268" width="264" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="170" y="306.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">capability trains (ride releases)</text></g><g class="TGlzdGVuZXI="><g class="shape" ><rect x="552" y="452" width="242" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="673" y="490.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">core listener-injection seam</text></g><g class="TG9nZ2luZw=="><g class="shape" ><rect x="562" y="263" width="223" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="673.5" y="301.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">slog-native logger option</text></g><g class="U3RhbmRhbG9uZQ=="><g class="shape" ><rect x="559" y="137" width="229" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="673.5" y="175.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">leaf modules without core</text></g><g class="Z28tY29tcGxpYW5jZQ=="><g class="shape" ><rect x="1180" y="389" width="150" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="1255" y="427.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">go-compliance</text></g><g class="bnNmdw=="><g class="shape" ><rect x="1215" y="515" width="79" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="1254.5" y="553.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">nsfw</text></g><g class="ZG5zYmxvY2tk"><g class="shape" ><rect x="1195" y="263" width="119" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="1254.5" y="301.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">dnsblockd</text></g><g class="RG9jcw=="><g class="shape" ><rect x="84" y="704" width="172" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="170" y="742.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">adoption surfaces</text></g><g class="U3RhcnRIZXJl"><g class="shape" ><rect x="559" y="830" width="228" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="673" y="868.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">preset-first page + recipes</text></g><g class="T25lTGluZQ=="><g class="shape" ><rect x="553" y="704" width="240" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="673" y="742.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">replace-hand-rolled section</text></g><g class="SW52ZW50b3J5"><g class="shape" ><rect x="542" y="578" width="263" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="673.5" y="616.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">module-&gt;tag inventory artifact</text></g><g class="U3dhcHM="><g class="shape" ><rect x="2" y="956" width="337" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="170.5" y="994.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">battery-swap instances (consumer repos)</text></g><g class="RGVlcGVu"><g class="shape" ><rect x="537" y="956" width="272" height="66" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="673" y="994.5" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">7 adopters, median 61 -&gt; deeper</text></g><g class="KFJ1bGluZyAtJmd0OyBQb2xpY3ktZW5jb2RlKVswXQ=="><marker id="mk-d2-1833231362-3488378134" markerWidth="10" markerHeight="12" refX="7" refY="6" viewBox="0 0 10 12" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0,0 10,6 0,12" fill="#0D32B2" class="connection fill-B1" stroke-width="2" /> </marker><path d="M 341.999974 43.989848 C 418.799988 43.599998 459.5 43.5 539.5 43.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><g class="KFBvbGljeS1lbmNvZGUgLSZndDsgVGVtcGxhdGUpWzBd"><path d="M 804.5 43.5 C 910.5 43.5 963.299988 43.5 1062.5 43.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /><text x="935" y="49" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">unblocks</text></g><g class="KFRlbXBsYXRlIC0mZ3Q7IERvZ2Zvb2QpWzBd"><path d="M 1444.5 43.5 C 1521.699951 43.5 1561.300049 43.5 1636.5 43.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><g class="KERvZ2Zvb2QgLSZndDsgRmlyc3RHcmVlbmZpZWxkKVswXQ=="><path d="M 1874 43.5 C 2013.599976 43.5 2084.399902 43.5 2222 43.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /><text x="2049.5" y="49" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">next service starts HERE</text></g><g class="KFNlYW1zIC0mZ3Q7IExpc3RlbmVyKVswXQ=="><path d="M 220.148958 334.631785 C 394.5 454.299988 461.299988 484.5 548.5 484.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><g class="KFNlYW1zIC0mZ3Q7IExvZ2dpbmcpWzBd"><path d="M 303.499521 298.456215 C 411.100006 296.100006 463.100006 295.5 557.5 295.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><g class="KFNlYW1zIC0mZ3Q7IFN0YW5kYWxvbmUpWzBd"><path d="M 239.304804 266.87166 C 398.300995 189.149002 462.5 169.5 554.5 169.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><g class="KExpc3RlbmVyIC0mZ3Q7IGdvLWNvbXBsaWFuY2UpWzBd"><path d="M 795.446479 455.040414 C 908.700012 428.299988 985.900024 421.5 1175.5 421.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /><text x="984.5" y="427" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">flip</text></g><g class="KExpc3RlbmVyIC0mZ3Q7IG5zZncpWzBd"><path d="M 795.446479 513.959586 C 908.700012 540.700012 993.099976 547.5 1211.5 547.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /><text x="1002.5" y="553" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">flip</text></g><g class="KExvZ2dpbmcgLSZndDsgZG5zYmxvY2tkKVswXQ=="><path d="M 787.5 295.5 C 907.099976 295.5 989.099976 295.5 1191.5 295.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /><text x="990.5" y="301" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">flip</text></g><g class="KERvY3MgLSZndDsgU3RhcnRIZXJlKVswXQ=="><path d="M 243.133425 771.345644 C 399.063995 844.099976 462.700012 862.5 555.5 862.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><g class="KERvY3MgLSZndDsgT25lTGluZSlbMF0="><path d="M 257.5 736.5 C 401.899994 736.5 461.5 736.5 549.5 736.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><g class="KERvY3MgLSZndDsgSW52ZW50b3J5KVswXQ=="><path d="M 242.131553 702.650355 C 398.864014 629.099976 459.100006 610.5 537.5 610.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><g class="KFN3YXBzIC0mZ3Q7IERlZXBlbilbMF0="><path d="M 341.5 988.5 C 418.700012 988.5 458.299988 988.5 533.5 988.5" stroke="#0D32B2" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-1833231362-3488378134)" mask="url(#d2-1833231362)" /></g><mask id="d2-1833231362" maskUnits="userSpaceOnUse" x="-101" y="-101" width="2702" height="1224">
+<rect x="-101" y="-101" width="2702" height="1224" fill="white"></rect>
+<rect x="903" y="33" width="64" height="21" fill="black"></rect>
+<rect x="1969" y="33" width="161" height="21" fill="black"></rect>
+<rect x="972" y="411" width="25" height="21" fill="black"></rect>
+<rect x="990" y="537" width="25" height="21" fill="black"></rect>
+<rect x="978" y="285" width="25" height="21" fill="black"></rect>
+</mask></svg></svg>
+</div>
+        </section>
+
+        <section id="comprehensive">
+          <h2><span class="num">03</span>Comprehensive plan (30&ndash;100 min tasks)</h2>
+          <table class="compare">
+            <thead>
+              <tr><th>#</th><th>Task</th><th>Tier</th><th>Effort</th><th>Owner gate</th><th>Unlocks</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>T1</td><td><strong>The Default ruling</strong>: "every NEW fleet service starts on go-appkit preset" &mdash; owner rules, then encoded into the stack-selection skill, fleet AGENTS policy line, and appkit README claim</td><td class="no">1%</td><td>45m</td><td class="no">YES (ruling)</td><td>Entire 1% tier; agents encode defaults from recorded decisions</td></tr>
+              <tr><td>T2</td><td><strong>go-service-template repo</strong> per the 2026-11-07 verdict spec (preset.New spine, cmd/&lt;name&gt; + internal layers, flake, AGENTS/CHANGELOG skeletons, version stamp + refresh ritual)</td><td class="no">1%</td><td>3&ndash;4h</td><td class="no">YES (repo create)</td><td>The mechanized first hour; seven decliners' trigger becomes one command</td></tr>
+              <tr><td>T3</td><td>Template dogfood probe: spin one real app from the template, boot + graceful-stop check (example-smoke pattern)</td><td class="no">1%</td><td>45m</td><td>&mdash;</td><td>Template credibility; refresh ritual proven</td></tr>
+              <tr><td>T4</td><td>Policy wiring verification: stack-selection consult lands appkit preset as the greenfield default; fan-out guard green</td><td class="no">1%</td><td>30m</td><td>&mdash;</td><td>Agents actually see the ruling</td></tr>
+              <tr><td>T5</td><td><strong>Listener-injection seam</strong> design note: ServiceConfig listener option + unix-socket bind; contract pins; spike &sect;6 G1-adjacent</td><td class="warn">4%</td><td>60m</td><td>&mdash;</td><td>go-compliance + nsfw-classifier flip conditions (same seam, asked twice)</td></tr>
+              <tr><td>T6</td><td>Listener seam implementation train: core option + tests + integration E2E + README; rides next core minor</td><td class="warn">4%</td><td>90m</td><td>&mdash;</td><td>The two flips become takeable</td></tr>
+              <tr><td>T7</td><td><strong>Logging seam</strong>: pluggable slog-native handler option (charmbracelet/log stays default; the handler IS an slog.Handler) + fleet v2-lane owner memo</td><td class="warn">4%</td><td>2&ndash;3h</td><td>half (v2 ruling)</td><td>dnsblockd blocker dissolves; go-compliance/testing friction named</td></tr>
+              <tr><td>T8</td><td>Leaf decoupling spike: systemd (sd_notify) adoptable without core hooks; options memo</td><td class="warn">4%</td><td>60m</td><td>&mdash;</td><td>nextd + audiblesync wedge; "component not service" answer begins</td></tr>
+              <tr><td>T9</td><td><strong>Start-here page</strong> (website + README): preset-first, three named recipes (NewService spine, EventService skeleton, httpx handler), links the template</td><td class="warn">4%</td><td>60m</td><td>&mdash;</td><td>The greenfield lane gets an owned front door</td></tr>
+              <tr><td>T10</td><td>One-line-wins README section: "replace your hand-rolled X" (error/exit, version, doctor, describe, security, testkit) with before/after</td><td class="warn">4%</td><td>45m</td><td>&mdash;</td><td>Deepens the 7 adopters; the corpus's highest-conversion pitch</td></tr>
+              <tr><td>T11</td><td>Module inventory artifact: machine-checkable module&rarr;newest-tag index (expose what pin-drift already computes)</td><td class="warn">4%</td><td>45m</td><td>&mdash;</td><td>Kills the drift tax (webphone's "inventory drifts in days")</td></tr>
+              <tr><td>T12</td><td>ROADMAP/limits positions: a stance per nsfw blocker (planned / declined-with-reason / accepted)</td><td class="yes">20%</td><td>45m</td><td>half</td><td>Calcified keep-outs become informed revisit-laters</td></tr>
+              <tr><td>T13</td><td>Battery-swap instance: dnsblockd (&minus;~1,600 LOC target; consumer repo runs the recipe)</td><td class="yes">20%</td><td>2&ndash;3h</td><td>&mdash;</td><td>First deletion proof on the hardest blocker repo</td></tr>
+              <tr><td>T14</td><td>Battery-swap instance: ChastityAPI (&minus;~4,800 LOC target)</td><td class="yes">20%</td><td>3&ndash;4h</td><td>&mdash;</td><td>Largest deletion proof; usermgmt+security legs</td></tr>
+              <tr><td>T15</td><td>PapDashboard security swap (~400 hand-rolled lines onto security/) &mdash; requires T22 tags</td><td class="yes">20%</td><td>2h</td><td>&mdash;</td><td>The corpus's flagship duplication deleted</td></tr>
+              <tr><td>T16</td><td>pbx-lens cmdguard migration leg (their recorded follow-up; consumer-side)</td><td class="yes">20%</td><td>1h</td><td>&mdash;</td><td>Consumer-#1 deepening</td></tr>
+              <tr><td>T17</td><td>Agent-driving page: describe &rarr; invoke &rarr; error_code+hint &rarr; recover walkthrough + schema.FromCLI cross-link</td><td class="yes">20%</td><td>45m</td><td>&mdash;</td><td>The agent funnel demonstrated, not just marketed</td></tr>
+              <tr><td>T18</td><td>Verify-recipes block under the README positioning/trinity claims</td><td class="yes">20%</td><td>30m</td><td>&mdash;</td><td>Claims ship their own replay commands (the corpus's trust standard)</td></tr>
+              <tr><td>T19</td><td>Adoption instrumentation refresh: count-adopters baseline + corpus census cadence (2026-11-21 corpus = baseline; feeds the six-month re-sweep)</td><td class="yes">20%</td><td>30m</td><td>&mdash;</td><td>The success metric becomes measurable per quarter</td></tr>
+              <tr><td>T20</td><td>Drift-tax ritual: lockstep-tag note in the release ritual + [Unreleased] loudness check per train</td><td class="yes">20%</td><td>30m</td><td>&mdash;</td><td>Four burned audits' root cause closed</td></tr>
+              <tr><td>T21</td><td>Per-capability capability map: module &rarr; "replaces your hand-rolled X" &rarr; dep surface &rarr; since-version columns</td><td class="yes">20%</td><td>60m</td><td>&mdash;</td><td>Capability-level marketing; pre-answers overlap audits</td></tr>
+              <tr><td>T22</td><td>security/ tag train so PapDashboard can pin it (release train; unblocks T15)</td><td class="yes">20%</td><td>train</td><td>&mdash;</td><td>Unreleased-blocked adoption becomes possible</td></tr>
+              <tr><td>T23</td><td>Template refresh ritual row (standing): version stamp bump on every preset/core-touching train</td><td class="yes">20%</td><td>15m/train</td><td>&mdash;</td><td>Template never rots</td></tr>
+              <tr><td>T24</td><td>Cross-skill reciprocity: cmdguard named in appkit README related-projects; appkit preset named in sibling skills' recipe sections</td><td class="yes">20%</td><td>30m</td><td>&mdash;</td><td>The profileagent funnel pointed both directions</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="fine">
+          <h2><span class="num">04</span>Fine breakdown (&le;15 min steps)</h2>
+          <p>Tier 1&ndash;2 fully broken down; tier 3 breaks down at execution time per task.</p>
+
+          <h3>T1 &mdash; The Default ruling</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T1.1</td><td>Owner rules the default (one sentence in the decision log)</td></tr>
+              <tr><td>T1.2</td><td>stack-selection skill: greenfield Go service &rarr; appkit preset default; STACK.md emitter carries it</td></tr>
+              <tr><td>T1.3</td><td>Fleet AGENTS policy line + appkit README claim ("the default base for new fleet services &mdash; decided 2026-11-21")</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T2 &mdash; go-service-template</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T2.1</td><td>Owner creates the sibling repo (gate; 5m)</td></tr>
+              <tr><td>T2.2</td><td>Skeleton from the verdict spec: cmd/&lt;name&gt;, internal layers, go.work membership decision</td></tr>
+              <tr><td>T2.3</td><td>preset.New spine wiring + env legs (otel/security/realtime) as commented switches</td></tr>
+              <tr><td>T2.4</td><td>httpx handler example + cqrs EventService skeleton stub</td></tr>
+              <tr><td>T2.5</td><td>flake.nix + BuildFlow config + CI (copy fleet pattern)</td></tr>
+              <tr><td>T2.6</td><td>AGENTS/CHANGELOG/FEATURES skeletons + version stamp</td></tr>
+              <tr><td>T2.7</td><td>Refresh ritual doc (drift control per the verdict)</td></tr>
+              <tr><td>T2.8</td><td>README: how to start from the template (one command, then rename)</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T3 &mdash; Dogfood probe</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T3.1</td><td>Clone template &rarr; rename module &rarr; build</td></tr>
+              <tr><td>T3.2</td><td>Boot probe: /health + /health/ready + version endpoint</td></tr>
+              <tr><td>T3.3</td><td>Graceful-stop probe (SIGTERM drain lines sequence)</td></tr>
+              <tr><td>T3.4</td><td>Record friction in the template CHANGELOG; fix or file</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T4 &mdash; Policy wiring verification</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T4.1</td><td>stack-selection consult: fresh session question "new Go service?" resolves to preset default</td></tr>
+              <tr><td>T4.2</td><td>Fan-out guard + skills-no-store checks green</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T5 &mdash; Listener seam design note</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T5.1</td><td>Read delegatedserver + httputil NewServerListener contract; map the injection point</td></tr>
+              <tr><td>T5.2</td><td>Design ServiceConfig.Listener (net.Listener) + unix-socket addr form; classify listen_failed unchanged</td></tr>
+              <tr><td>T5.3</td><td>Write the note (contract pins, test matrix, G1-adjacent TLS interplay)</td></tr>
+              <tr><td>T5.4</td><td>Route to TODO P2 with the two waiting consumers named</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T6 &mdash; Listener seam train</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T6.1</td><td>Implement the config option + constructor path</td></tr>
+              <tr><td>T6.2</td><td>Unix-socket bind + Addr() semantics tests</td></tr>
+              <tr><td>T6.3</td><td>Integration E2E: hub-style unix-socket consumer shape</td></tr>
+              <tr><td>T6.4</td><td>README + DOMAIN_LANGUAGE rows; additions-only API diff check</td></tr>
+              <tr><td>T6.5</td><td>Tag train + fresh-consumer proxy check</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T7 &mdash; Logging seam</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T7.1</td><td>Confirm Logger IS an slog.Handler; design LoggingFromHandler(slog.Handler) option</td></tr>
+              <tr><td>T7.2</td><td>Owner memo: fleet log lane &mdash; stay charmbracelet/log v1, adopt charm.land/log/v2, or flex via handler</td></tr>
+              <tr><td>T7.3</td><td>Implement the option + a slog-native example (slog.TextHandler)</td></tr>
+              <tr><td>T7.4</td><td>Tests: handler swap keeps the default stack + shutdown lines</td></tr>
+              <tr><td>T7.5</td><td>README row: "your slog backend, our lifecycle"</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T8 &mdash; Leaf decoupling spike</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T8.1</td><td>Map systemd.Install's core couplings (StartHooks/DrainHooks)</td></tr>
+              <tr><td>T8.2</td><td>Options memo: standalone Install(ctx, hooks) surface vs thin hooks interface</td></tr>
+              <tr><td>T8.3</td><td>Route with demand evidence (nextd, audiblesync)</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T9 &mdash; Start-here page</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T9.1</td><td>Write the three recipes from shipped code (compile-check each)</td></tr>
+              <tr><td>T9.2</td><td>Website guide page + README section + template link</td></tr>
+              <tr><td>T9.3</td><td>Verify-recipes block included (runnable per recipe)</td></tr>
+              <tr><td>T9.4</td><td>Link from TODO_LIST preset row's re-sweep metric</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T10 &mdash; One-line-wins section</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T10.1</td><td>Inventory the six wins from the corpus (error/exit, version, doctor, describe, security, testkit)</td></tr>
+              <tr><td>T10.2</td><td>Before/after snippets, compile-checked</td></tr>
+              <tr><td>T10.3</td><td>README section + website mirror via include</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T11 &mdash; Module inventory artifact</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T11.1</td><td>Script: module &rarr; newest tag (ls-remote namespace sweep; reuse pin-drift logic)</td></tr>
+              <tr><td>T11.2</td><td>Docs table (generated, dated) + README "how to compute latest per module"</td></tr>
+              <tr><td>T11.3</td><td>Wire regeneration into pre-tag-checks (stays green by construction)</td></tr>
+            </tbody>
+          </table>
+
+          <h3>T12&ndash;T24 (tier 3)</h3>
+          <table class="compare">
+            <tbody>
+              <tr><td>T12</td><td>One stance row per nsfw blocker in ROADMAP; link from security/README</td></tr>
+              <tr><td>T13</td><td>dnsblockd recipe: copy template &rarr; inventory &rarr; swap order &rarr; LOC ledger &rarr; suite green (consumer repo)</td></tr>
+              <tr><td>T14</td><td>ChastityAPI recipe: same five phases (largest LOC ledger in the corpus)</td></tr>
+              <tr><td>T15</td><td>PapDashboard: swap internal middleware onto security/ tags (after T22)</td></tr>
+              <tr><td>T16</td><td>pbx-lens: cmdguard migration leg per their recorded follow-up</td></tr>
+              <tr><td>T17</td><td>machine-contract.mdx: append the walked agent loop; schema.FromCLI cross-link</td></tr>
+              <tr><td>T18</td><td>README: verify-recipes block under the trinity table (runnable, checked)</td></tr>
+              <tr><td>T19</td><td>count-adopters.sh re-baseline + corpus census note (2026-11-21 = the 28-review baseline)</td></tr>
+              <tr><td>T20</td><td>Release ritual: add lockstep-tag + [Unreleased] loudness checklist lines</td></tr>
+              <tr><td>T21</td><td>Capability map page: generated module table with replaces/dep-surface/since columns</td></tr>
+              <tr><td>T22</td><td>security/ release train (tags PapDashboard can pin; unblocks T15)</td></tr>
+              <tr><td>T23</td><td>Template stamp bump on every preset/core-touching train (standing ritual row)</td></tr>
+              <tr><td>T24.1</td><td>appkit README related-projects: name cmdguard for the ops-CLI leg</td></tr>
+              <tr><td>T24.2</td><td>Sibling skills (cqrs-htmx, go-cqrs-lite, stack-selection): name the appkit preset recipe</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="errata">
+          <h2><span class="num">05</span>Errata (Step-0 corrections, so nothing re-dispatches)</h2>
+          <table class="compare">
+            <tbody>
+              <tr><td>Scaffold</td><td>ALREADY DECIDED (2026-11-07 verdict: template repo, generator declined). This plan routes the REMAINING execution only: repo create (owner gate) + fill + dogfood. No decision re-opened.</td></tr>
+              <tr><td>Preset spine</td><td>SHIPPED (preset v0.1.0/v0.1.1; example 35 LOC; integration E2E through published tags). T9 markets it; nothing re-builds it.</td></tr>
+              <tr><td>Swap recipes</td><td>Template exists (docs/recipes/battery-swap-recipe.template.md); T13&ndash;T16 are the already-routed per-repo instances, sequenced &mdash; not new asks.</td></tr>
+              <tr><td>Numbers</td><td>Adoption baseline: direct 7/41 (fixed counter, 2026-11-06 late); corpus view 7 of 27 reviewed projects (2026-11-21, 28 files, CV deduped). Both quoted where used.</td></tr>
+              <tr><td>Corpus drift</td><td>Five reviews landed mid-census (go-compliance, nextd, offline-banner, summit-planner, testing) and were folded in; the adoption review's counts already reflect 28.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <footer class="footer">
+          <p>
+            Generated 2026-11-21 &middot; SUPERB v17 &middot; Evidence: 28-review adoption
+            corpus (`docs/review/apps/2026-11-17_go-appkit-adoption-review.html`) + Step-0
+            TODO_LIST/ROADMAP pass &middot; Owner gates: T1 ruling, T2.1 repo create
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+</body>
+</html>
