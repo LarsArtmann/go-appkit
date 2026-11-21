@@ -80,7 +80,7 @@
 15. **A2** — dogfood app from the template (<40 LOC acceptance). 60m after A1.
 16. **A3** — dnsblockd battery-swap recipe (−~1,600 LOC exemplar). 60m, in their repo.
 17. **A4** — ChastityAPI recipe (−~4,800 LOC). 90m, in their repo.
-18. **A5** — PapDashboard security swap recipe. 60m, in their repo.
+18. **A5** — PapDashboard security swap recipe. 60m, in their repo. <!-- fresh:skip — OPEN, routed to TODO_LIST P3 "Adoption-wave battery-swap recipes" row ("battery A5, M17 follow-up"); every item token (papdashboard/security/swap/recipe/repo) is DF>=8 generic, so the freshness matcher cannot see the living-doc match -->
 19. **A6** — pbx-lens cmdguard migration recipe. 30m, in their repo.
 20. **C6** — joint go-sse v0.7.0 / cqrs-htmx v4.16.0 / templ-components v1.27.0 absorb (▲ upstream-gated: catalog ships a migrated templ tag; then bump trio + delete hold entries + hub.go doc swap). 30m when unblocked.
 21. **W4 worker** — supervisor + pool battery. 100m.
