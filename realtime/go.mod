@@ -1,15 +1,15 @@
 module github.com/larsartmann/go-appkit/realtime
 
-go 1.27
+go 1.27.2
 
 require (
-	github.com/larsartmann/go-sse v0.6.2
+	github.com/larsartmann/go-sse v0.7.0
 	github.com/larsartmann/go-sse/ssetest v0.5.0
 	github.com/samber/lo v1.53.0
 )
 
 require (
-	github.com/larsartmann/go-branded-id v0.7.0 // indirect
+	github.com/larsartmann/go-branded-id v0.7.1 // indirect
 	github.com/larsartmann/go-error-family v0.12.0 // indirect
 	github.com/larsartmann/go-sse/sseparse v0.2.1 // indirect
 	golang.org/x/text v0.43.0 // indirect
