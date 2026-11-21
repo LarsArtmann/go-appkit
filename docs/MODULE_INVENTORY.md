@@ -7,20 +7,19 @@
 
 **As of:** 2026-11-21_01:59 UTC
 
-| Module | Import path | Newest on origin | Local-only |
-| ------ | ----------- | ---------------- | ---------- |
-| `core` | `github.com/larsartmann/go-appkit` | `v0.12.0` | `—` |
-| `cqrs` | `github.com/larsartmann/go-appkit/cqrs` | `cqrs/v0.9.0` | `—` |
-| `realtime` | `github.com/larsartmann/go-appkit/realtime` | `realtime/v0.2.0` | `—` |
-| `security` | `github.com/larsartmann/go-appkit/security` | `security/v0.2.0` | `—` |
-| `otel` | `github.com/larsartmann/go-appkit/otel` | `otel/v0.4.0` | `—` |
-| `flightrecorder` | `github.com/larsartmann/go-appkit/flightrecorder` | `flightrecorder/v0.2.0` | `—` |
-| `frh` | `github.com/larsartmann/go-appkit/flightrecorderhealth` | `flightrecorderhealth/v0.1.7` | `—` |
-| `health` | `github.com/larsartmann/go-appkit/health` | `health/v0.3.2` | `—` |
-| `httpx` | `github.com/larsartmann/go-appkit/httpx` | `httpx/v0.2.0` | `—` |
-| `docs` | `github.com/larsartmann/go-appkit/docs` | `docs/v0.3.3` | `—` |
-| `errorpages` | `github.com/larsartmann/go-appkit/errorpages` | `errorpages/v0.1.3` | `—` |
-| `systemd` | `github.com/larsartmann/go-appkit/systemd` | `systemd/v0.2.0` | `—` |
-| `config` | `github.com/larsartmann/go-appkit/config` | `config/v0.1.1` | `—` |
-| `preset` | `github.com/larsartmann/go-appkit/preset` | `preset/v0.1.1` | `—` |
-
+| Module           | Import path                                             | Newest on origin              | Local-only |
+| ---------------- | ------------------------------------------------------- | ----------------------------- | ---------- |
+| `core`           | `github.com/larsartmann/go-appkit`                      | `v0.12.0`                     | `—`        |
+| `cqrs`           | `github.com/larsartmann/go-appkit/cqrs`                 | `cqrs/v0.9.0`                 | `—`        |
+| `realtime`       | `github.com/larsartmann/go-appkit/realtime`             | `realtime/v0.2.0`             | `—`        |
+| `security`       | `github.com/larsartmann/go-appkit/security`             | `security/v0.2.0`             | `—`        |
+| `otel`           | `github.com/larsartmann/go-appkit/otel`                 | `otel/v0.4.0`                 | `—`        |
+| `flightrecorder` | `github.com/larsartmann/go-appkit/flightrecorder`       | `flightrecorder/v0.2.0`       | `—`        |
+| `frh`            | `github.com/larsartmann/go-appkit/flightrecorderhealth` | `flightrecorderhealth/v0.1.7` | `—`        |
+| `health`         | `github.com/larsartmann/go-appkit/health`               | `health/v0.3.2`               | `—`        |
+| `httpx`          | `github.com/larsartmann/go-appkit/httpx`                | `httpx/v0.2.0`                | `—`        |
+| `docs`           | `github.com/larsartmann/go-appkit/docs`                 | `docs/v0.3.3`                 | `—`        |
+| `errorpages`     | `github.com/larsartmann/go-appkit/errorpages`           | `errorpages/v0.1.3`           | `—`        |
+| `systemd`        | `github.com/larsartmann/go-appkit/systemd`              | `systemd/v0.2.0`              | `—`        |
+| `config`         | `github.com/larsartmann/go-appkit/config`               | `config/v0.1.1`               | `—`        |
+| `preset`         | `github.com/larsartmann/go-appkit/preset`               | `preset/v0.1.1`               | `—`        |
