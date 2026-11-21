@@ -53,7 +53,7 @@ var documentedPins = map[string]string{
 	// templ-components together.
 	"github.com/larsartmann/go-sse":         "v0.6.2",
 	"github.com/larsartmann/go-sse/ssetest": "v0.5.0",
-	"github.com/larsartmann/httputil":       "v1.8.0",
+	"github.com/larsartmann/httputil":       "v1.9.0",
 
 	// Composition-contract legs (T14, 2026-09-29): the third-party surfaces
 	// the composition tests exercise. These are VERSION-LOCKED to the pins
