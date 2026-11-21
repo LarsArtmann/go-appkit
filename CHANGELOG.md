@@ -8,6 +8,44 @@ Module changes live in their module CHANGELOGs' [Unreleased] sections (the
 2026-11-13 split-brain resolution: the `cqrs` deployment bullet moved to
 `cqrs/CHANGELOG.md`).
 
+## [0.13.0] - 2026-11-21
+
+### Added
+
+- **Listener-injection seam: `ServiceConfig.Listener net.Listener`.** Supply a
+  pre-bound listener and the service serves it instead of binding `Addr` —
+  unix-socket IPC daemons, systemd socket activation, any listener from
+  another source. Ownership transfers at `Start` (every synchronous failure
+  path and graceful shutdown close it, exactly like a self-bound listener);
+  one serve per listener (single-serve ownership carried over — a restart
+  needs a FRESH listener); `Addr()` reports the listener's own address; the
+  `server.listen_failed` / `server.config_invalid` classifications and the
+  six shutdown phase lines are unchanged. Demand: the SAME missing seam
+  named by two independent adoption reviews (go-compliance, nsfw-classifier).
+  Design note: `docs/planning/2026-11-21_listener-injection-seam-design-note.md`;
+  pinned by `listener_test.go` + the integration unix-socket E2E through this
+  published tag.
+- **Log-handler seam: `ServiceConfig.LogHandler slog.Handler`.** Supply any
+  `slog.Handler` and the service (and the default-stack Logging middleware)
+  emits every line through it; `LogLevel`/`LogFormat` are ignored in that
+  mode; the grep-able shutdown-line contract holds for ANY handler (pinned:
+  `loghandler_test.go`). The fleet log-lane decision this seam serves is
+  option 3 (flex) pending the owner census trigger:
+  `docs/planning/2026-11-21_fleet-log-lane-owner-memo.md`.
+- Adoption surfaces (README): the "Start here" preset-first section, the
+  one-line-wins table, the runnable verify-recipes block, and the fleet
+  default claim — the SUPERB v17 default-onramp leg.
+
+### Changed
+
+- Docs: `docs/CAPABILITIES.md` (per-capability map: module → replaces your
+  hand-rolled X → dep surface → since-version) and `docs/MODULE_INVENTORY.md`
+  (generated origin-truth tag index, `scripts/module-inventory.sh`, wired
+  into pre-tag-checks as `check-module-inventory.sh` — SUPERB v17 T11/T21).
+- The drift-tax ritual joined the Release Ritual as step 7 (lockstep-tag
+  notice, `[Unreleased]` loudness, post-push inventory regen — SUPERB v17
+  T20).
+
 ## [0.12.0] - 2026-11-07
 
 ### Changed

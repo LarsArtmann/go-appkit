@@ -36,8 +36,13 @@ aspirations.
 | `testkit.FreeAddr` rebind-verified port reserve   | FULLY_FUNCTIONAL (v0.10.0)                                        | `testkit/httptest.go`, `testkit/httptest_test.go` |
 | Server-Timing outermost on the default stack      | FULLY_FUNCTIONAL (v0.10.0; `ServerTiming *bool` knob, default on) | `middleware.go`, `servertiming_bench_test.go`     |
 | `RegisterClassifications` fleet error registry    | FULLY_FUNCTIONAL (v0.10.0; idempotent, not auto-called)           | `errors.go`, `errors_test.go`                     |
+| Listener seam (`Listener`: unix sockets, socket activation) | FULLY_FUNCTIONAL (v0.13.0; ownership at `Start`, single-serve carried) | `service.go`, `listener_test.go`, integration E2E |
+| Log-handler seam (`LogHandler slog.Handler`)      | FULLY_FUNCTIONAL (v0.13.0; level/format ignored in that mode)     | `config.go`, `loghandler_test.go`                 |
 
-Shipped through core **v0.12.0** (2026-11-07; the composition swap — `Service`
+Shipped through core **v0.13.0** (2026-11-21; the SUPERB v17 seam train —
+`ServiceConfig.Listener` pre-bound-listener injection + `ServiceConfig.LogHandler`
+any-slog-backend; both additions-only, `go doc -all` diff = the two fields).
+Prior cut: **v0.12.0** (2026-11-07; the composition swap — `Service`
 now delegates the server loop to a fresh `httputil.Server` per `Start` via
 `NewServerListener`: bind + sync `listen_failed` + `Addr()`/`Running()` views
 

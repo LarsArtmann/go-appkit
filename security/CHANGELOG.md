@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [0.3.0] - 2026-11-21
 
 ### Changed
 
@@ -11,11 +11,11 @@ All notable changes to this project are documented in this file.
   (`lo.SliceToMap`) — owner-authorized runtime-lo gate exercised
   2026-11-02; behavior identical (order-preserving filter, last-wins
   lowercased keys; `golang.org/x/text` joins as an indirect).
-- Example-only `github.com/larsartmann/go-appkit` dependency
-  v0.6.0 → v0.9.0 (tracks the latest core — v0.8.0 brought
-  `testkit.DrainWindowProbe`, `[]Hook`, and `ServiceConfig.StartHooks`;
-  v0.9.0 `testkit.NewService`; the security package itself
-  still has zero appkit dependencies, so consumers are unaffected).
+- Example-only `github.com/larsartmann/go-appkit` dependency → v0.12.0
+  (tracks the latest core — the daemon's grouped dependabot bumps landed
+  v0.9.0 then v0.12.0 in-tree; this entry records the shipped require;
+  the security package itself still has zero appkit dependencies, so
+  consumers are unaffected).
 
 ## [0.2.0] - 2026-09-29
 
