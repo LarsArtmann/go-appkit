@@ -21,7 +21,7 @@
    - `structure-linter` — skipped (private binary behind the same secret); by design.
    - `pin-drift` — the ONE genuine red, and it was the guard CATCHING something real: **httputil published v1.9.0** upstream while `integration/` pinned v1.8.0 (LATEST-only charter). The release landed during the unwatched red window.
 4. **Re-pin ritual executed:** `integration/pin_drift_test.go` fixture + `integration/go.mod` bumped v1.8.0 → v1.9.0 together (the doc.go pin listing is GONE — the concurrent v17 session restructured that charter doc mid-flight; the fixture + go.mod now carry the pins); `check-pin-drift` GREEN (httputil at latest published v1.9.0, go.mod/go.work agree at 1.27.4); **integration suite `-race` 7.8s GREEN — v1.9.0 breaks no composition contract.**
-5. **Push 2** `abbd36f..6fe45c7` — the re-pin (+ v17 session's continued work as daemon-committed). Final tip-CI state: watched to completion — see the TODO row + §3 for the recorded verdict.
+5. **Push 2** `abbd36f..6fe45c7` — the re-pin (+ v17 session's continued work as daemon-committed). **Final tip-CI verdict (run 44856249713, watched to completion): failure with EXACTLY the two designed legs** — `ci-preflight` (secret, designed red) and `structure-linter` (secret, skipped); EVERY real job GREEN, `pin-drift` included (the re-pin absorbed v1.9.0). Master is back at the fleet's documented healthy posture: red-by-design only.
 6. **Dependabot PRs:** all 10 open PRs `@dependabot rebase`-triggered off the healed base (PRs 74/73/72 are httputil v1.9.0 module bumps — consistent with the release; the 11-20 group PRs 71/75/76/77/65/66/64 re-run on green master).
 
 ## 3. Corpus re-greened twice, live (docs-health continued)
@@ -74,4 +74,4 @@ Everything in `TODO_LIST.md` §P1–P3 not touched above: the SSH secret restore
 
 ---
 
-*Point-in-time snapshot; living truth stays in AGENTS.md (release state), TODO_LIST.md (queue), and the module CHANGELOGs.*
+_Point-in-time snapshot; living truth stays in AGENTS.md (release state), TODO_LIST.md (queue), and the module CHANGELOGs._
