@@ -123,6 +123,16 @@ if [[ "$mode" == "--check" ]]; then
 		exit 1
 	fi
 else
-	printf '%s' "$content" >"$out"
-	echo "OK:   wrote $out ($(wc -l <<<"$rows") modules; origin $([[ "$origin_reachable" == 1 ]] && echo reachable || echo UNREACHABLE))"
+	# Row-unchanged detection: the As-of timestamp alone is NOT a change —
+	# regenerating after a no-tag window must not dirty the file (the daemon
+	# would fossilize timestamp churn forever).
+	if [[ -f "$out" ]] && diff -q \
+		<(grep -v '^\*\*As of:\*\*' "$out" | sed 's/[[:space:]]*|[[:space:]]*/|/g; s/^[[:space:]]*//; s/[[:space:]]*$//') \
+		<(printf '%s' "$content" | grep -v '^\*\*As of:\*\*' | sed 's/[[:space:]]*|[[:space:]]*/|/g; s/^[[:space:]]*//; s/[[:space:]]*$//') \
+		>/dev/null 2>&1; then
+		echo "OK:   $out unchanged (rows identical; timestamp left alone)"
+	else
+		printf '%s' "$content" >"$out"
+		echo "OK:   wrote $out ($(wc -l <<<"$rows") modules; origin $([[ "$origin_reachable" == 1 ]] && echo reachable || echo UNREACHABLE))"
+	fi
 fi
