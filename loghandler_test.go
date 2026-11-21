@@ -14,7 +14,10 @@ func TestLogHandler_ReceivesLifecycleLines(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	handler := slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}) //nolint:exhaustruct_v5 // only level matters
+	handler := slog.NewTextHandler(
+		&buf,
+		&slog.HandlerOptions{Level: slog.LevelInfo},
+	)
 
 	svc, err := NewService(ServiceConfig{
 		Addr:       "localhost:0",
@@ -74,7 +77,10 @@ func TestLogHandler_LogLevelAndFormatIgnored(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	handler := slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}) //nolint:exhaustruct_v5 // only level matters
+	handler := slog.NewTextHandler(
+		&buf,
+		&slog.HandlerOptions{Level: slog.LevelInfo},
+	)
 
 	// Values that would FAIL InitLogger (unsupported level/format) must not
 	// matter when a handler is supplied: the handler owns level+format.

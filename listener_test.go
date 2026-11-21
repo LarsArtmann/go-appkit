@@ -11,13 +11,38 @@ import (
 	"time"
 )
 
+func dialUnix(t *testing.T, ctx context.Context, socketPath string) net.Conn {
+	t.Helper()
+
+	var d net.Dialer
+
+	conn, err := d.DialContext(ctx, "unix", socketPath)
+	if err != nil {
+		t.Fatalf("unix dial %s: %v", socketPath, err)
+	}
+
+	return conn
+}
+
+func listenerClosed(t *testing.T, ctx context.Context, network, addr string) bool {
+	t.Helper()
+
+	var d net.Dialer
+
+	_, err := d.DialContext(ctx, network, addr)
+
+	return err != nil
+}
+
 // unixHTTPClient returns an http.Client dialing a unix socket. The only
 // consumer-side machinery the listener seam leaves to the caller.
 func unixHTTPClient(socketPath string) *http.Client {
-	return &http.Client{ //nolint:exhaustruct_v5 // only the transport matters
-		Transport: &http.Transport{ //nolint:exhaustruct_v5 // only DialContext matters
-			DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
-				return net.Dial("unix", socketPath)
+	return &http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				var d net.Dialer
+
+				return d.DialContext(ctx, "unix", socketPath)
 			},
 		},
 	}
@@ -30,16 +55,26 @@ func drainAndClose(t *testing.T, resp *http.Response) {
 	_ = resp.Body.Close()
 }
 
-func TestListener_PreboundTCP_ServesAndReportsAddr(t *testing.T) {
-	t.Parallel()
+func prebindTCP(t *testing.T) net.Listener {
+	t.Helper()
 
-	ln, err := net.Listen("tcp", "localhost:0")
+	var lc net.ListenConfig
+
+	ln, err := lc.Listen(t.Context(), "tcp", "localhost:0")
 	if err != nil {
 		t.Fatalf("pre-bind: %v", err)
 	}
 
+	return ln
+}
+
+func TestListener_PreboundTCP_ServesAndReportsAddr(t *testing.T) {
+	t.Parallel()
+
+	listener := prebindTCP(t)
+
 	svc, err := NewService(ServiceConfig{
-		Listener:   ln,
+		Listener:   listener,
 		DrainDelay: NoDrainDelay,
 	})
 	if err != nil {
@@ -53,14 +88,14 @@ func TestListener_PreboundTCP_ServesAndReportsAddr(t *testing.T) {
 
 	waitForRunning(t, svc)
 
-	if got, want := svc.Addr().String(), ln.Addr().String(); got != want {
+	if got, want := svc.Addr().String(), listener.Addr().String(); got != want {
 		t.Errorf("Addr() = %q, want the supplied listener's %q", got, want)
 	}
 
 	ctx, cancel := context.WithTimeout(t.Context(), testTimeout)
 	defer cancel()
 
-	resp := httpGet(t, ctx, "http://"+ln.Addr().String()+"/health")
+	resp := httpGet(t, ctx, "http://"+listener.Addr().String()+"/health")
 	drainAndClose(t, resp)
 
 	if resp.StatusCode != http.StatusOK {
@@ -77,7 +112,10 @@ func TestListener_PreboundTCP_ServesAndReportsAddr(t *testing.T) {
 	assertServerStopped(t, errCh)
 
 	// Ownership pin: graceful shutdown closed the supplied listener.
-	if _, err := net.Dial("tcp", ln.Addr().String()); err == nil {
+	dialCtx, cancelDial := context.WithTimeout(t.Context(), testTimeout)
+	defer cancelDial()
+
+	if !listenerClosed(t, dialCtx, "tcp", listener.Addr().String()) {
 		t.Error("supplied listener still accepting after shutdown; want closed")
 	}
 }
@@ -87,13 +125,15 @@ func TestListener_UnixSocket_Serves(t *testing.T) {
 
 	socketPath := filepath.Join(t.TempDir(), "appkit-test.sock")
 
-	ln, err := net.Listen("unix", socketPath)
+	var lc net.ListenConfig
+
+	listener, err := lc.Listen(t.Context(), "unix", socketPath)
 	if err != nil {
 		t.Fatalf("unix bind: %v", err)
 	}
 
 	svc, err := NewService(ServiceConfig{
-		Listener:   ln,
+		Listener:   listener,
 		DrainDelay: NoDrainDelay,
 	})
 	if err != nil {
@@ -105,9 +145,6 @@ func TestListener_UnixSocket_Serves(t *testing.T) {
 		t.Fatalf("start: %v", err)
 	}
 
-	// Poll the socket file because a unix listener's Addr().String() gives a
-	// path, not a dialable host:port — waitForRunning's svc.Running() probe
-	// is the sync point, the client call is the behavioral pin.
 	waitForRunning(t, svc)
 
 	client := unixHTTPClient(socketPath)
@@ -152,15 +189,12 @@ func TestListener_UnixSocket_Serves(t *testing.T) {
 func TestListener_StartHookFailure_ClosesSuppliedListener(t *testing.T) {
 	t.Parallel()
 
-	ln, err := net.Listen("tcp", "localhost:0")
-	if err != nil {
-		t.Fatalf("pre-bind: %v", err)
-	}
+	listener := prebindTCP(t)
 
-	addr := ln.Addr().String()
+	addr := listener.Addr().String()
 
 	svc, err := NewService(ServiceConfig{
-		Listener:   ln,
+		Listener:   listener,
 		DrainDelay: NoDrainDelay,
 		StartHooks: []Hook{
 			func(context.Context) error { return errStartHookFailed },
@@ -178,11 +212,15 @@ func TestListener_StartHookFailure_ClosesSuppliedListener(t *testing.T) {
 	deadline := time.Now().Add(testTimeout)
 
 	for time.Now().Before(deadline) {
-		if _, err := net.Dial("tcp", addr); err != nil {
+		ctx, cancel := context.WithTimeout(t.Context(), 50*time.Millisecond)
+
+		closed := listenerClosed(t, ctx, "tcp", addr)
+
+		cancel()
+
+		if closed {
 			return
 		}
-
-		time.Sleep(time.Millisecond)
 	}
 
 	t.Error("supplied listener still accepting after failed start; want closed")
@@ -191,18 +229,15 @@ func TestListener_StartHookFailure_ClosesSuppliedListener(t *testing.T) {
 func TestListener_ConfigInvalid_ClosesSuppliedListener(t *testing.T) {
 	t.Parallel()
 
-	ln, err := net.Listen("tcp", "localhost:0")
-	if err != nil {
-		t.Fatalf("pre-bind: %v", err)
-	}
+	listener := prebindTCP(t)
 
-	addr := ln.Addr().String()
+	addr := listener.Addr().String()
 
 	// The delegated server rejects ReadHeaderTimeout > ReadTimeout > 0 —
 	// surfaces synchronously as server.config_invalid BEFORE any lifecycle
 	// state, and the supplied listener must be closed again.
 	svc, err := NewService(ServiceConfig{
-		Listener:          ln,
+		Listener:          listener,
 		ReadTimeout:       5 * time.Second,
 		ReadHeaderTimeout: 10 * time.Second,
 	})
@@ -218,11 +253,15 @@ func TestListener_ConfigInvalid_ClosesSuppliedListener(t *testing.T) {
 	deadline := time.Now().Add(testTimeout)
 
 	for time.Now().Before(deadline) {
-		if _, err := net.Dial("tcp", addr); err != nil {
+		ctx, cancel := context.WithTimeout(t.Context(), 50*time.Millisecond)
+
+		closed := listenerClosed(t, ctx, "tcp", addr)
+
+		cancel()
+
+		if closed {
 			return
 		}
-
-		time.Sleep(time.Millisecond)
 	}
 
 	t.Error("supplied listener still accepting after config_invalid; want closed")
