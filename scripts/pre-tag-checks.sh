@@ -21,7 +21,10 @@
 #   1. The TEN standing guards (directives, pin-drift, dependabot parity,
 #      workspace charter, routed-destinations, status-index, golangci-configs,
 #      consumer-claims, SSE-protocol, gosum-canonical,
-#      art-dupl clone-regression vs the committed baseline).
+#      art-dupl clone-regression vs the committed baseline) + the
+#      module-inventory freshness guard (SUPERB v17 T11 — origin-truth
+#      design keeps it green through the tag window; the post-push re-run
+#      lands the updated row).
 #      Venue matrix (SUPERB v10 M14): FAST+OFFLINE guards run in all three
 #      venues (pre-commit where wired, this gate, CI); SLOW/NETWORK guards
 #      (consumer-claims needs the sibling clone, gosum-canonical an isolated
@@ -68,7 +71,7 @@ fail() {
 }
 
 # --- 1) Standing guards -----------------------------------------------------
-for guard in check-go-directives.sh check-agents-deps.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-routed-destinations.sh check-status-index.sh check-golangci-configs.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh check-art-dupl.sh check-module-licenses.sh check-features-claims.sh check-response-drain.sh; do
+for guard in check-go-directives.sh check-agents-deps.sh check-pin-drift.sh check-dependabot-parity.sh check-workspace-charter.sh check-routed-destinations.sh check-status-index.sh check-golangci-configs.sh check-consumer-claims.sh check-sse-protocol.sh check-gosum-canonical.sh check-art-dupl.sh check-module-licenses.sh check-features-claims.sh check-response-drain.sh check-module-inventory.sh; do
 	echo "== $guard =="
 	if ! "./scripts/$guard"; then
 		fail "$guard failed — fix before pushing ${tags[*]}"
