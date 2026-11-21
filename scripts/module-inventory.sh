@@ -105,8 +105,16 @@ if [[ "$mode" == "--check" ]]; then
 		exit 1
 	fi
 
-	if diff -u "$out" <(printf '%s' "$content") >/tmp/module-inventory.diff 2>&1; then
-		echo "OK:   module inventory current ($(wc -l <<<"$rows") modules)"
+	# Normalize before diffing: the committed file is dprint-aligned (table
+	# padding) and carries a generation timestamp — neither is inventory
+	# truth. Compare ROW CONTENT only (pipes collapsed, As-of line dropped).
+	normalize() {
+		grep -v '^\*\*As of:\*\*' \
+			| sed 's/[[:space:]]*|[[:space:]]*/|/g; s/^[[:space:]]*//; s/[[:space:]]*$//'
+	}
+
+	if diff -u <(normalize <"$out") <(printf '%s' "$content" | normalize) >/tmp/module-inventory.diff 2>&1; then
+		echo "OK:   module inventory current ($(grep -c '^| `' "$out") module rows)"
 		rm -f /tmp/module-inventory.diff
 	else
 		echo "FAIL: module inventory is STALE vs origin — fix:"
