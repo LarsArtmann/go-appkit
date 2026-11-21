@@ -77,3 +77,6 @@ go.work.sum
 
 # compiled example binaries (built by local go build runs)
 systemd/example/example
+
+# docs-gates pre-flight land-parity ledger (local editor state, per docs-gates note)
+.docs-gates-preflight.json
