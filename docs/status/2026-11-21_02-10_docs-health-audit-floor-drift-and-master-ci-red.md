@@ -63,6 +63,7 @@
 ## f) Up to 50 things to get done next
 
 **P0 — the red CI (blocked on your word):**
+
 1. Push master (4 commits: floor fix ×1 ride, doc fixes, v17 rows) — heals `go-directives` at the root.
 2. Verify tip CI green; expect `agents-deps` + `art-dupl-gate` to flip green with the base.
 3. Triage every still-red job post-push (pin-drift, fleet-lint, cqrs-lint, proxy-smokes, test jobs) — separate cascade from genuine.
@@ -116,4 +117,4 @@ Asking below — push authorization, the floor-train prevention policy, and the 
 
 ---
 
-*Nothing in this report re-derives the standing backlog (TODO_LIST/ROADMAP remain the canonical queues); everything above a)–e) is from this session's run.*
+_Nothing in this report re-derives the standing backlog (TODO_LIST/ROADMAP remain the canonical queues); everything above a)–e) is from this session's run._
