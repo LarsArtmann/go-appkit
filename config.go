@@ -2,6 +2,8 @@ package appkit
 
 import (
 	"context"
+	"log/slog"
+	"net"
 	"time"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -56,6 +58,17 @@ type ServiceConfig struct {
 	IdleTimeout       time.Duration
 	ShutdownTimeout   time.Duration
 	DrainDelay        time.Duration
+
+	// LogHandler, when set, REPLACES the built-in charmbracelet/log logger:
+	// the service (and its default-stack Logging middleware) emits every
+	// line through this slog.Handler instead. Use it to plug an slog-native
+	// backend — slog.TextHandler/slog.JSONHandler on a custom writer, an
+	// slog framework handler, or a bridged zap/logrus handler — while the
+	// lifecycle, middleware stack, and shutdown-line contract stay
+	// appkit's. LogLevel and LogFormat are ignored when this is set (the
+	// handler owns level and formatting); validation of the two fields is
+	// skipped accordingly. Optional — nil keeps the built-in logger.
+	LogHandler slog.Handler
 
 	// Middlewares replaces the default middleware stack if non-nil.
 	// Default: ServerTiming → Recovery → RequestID → Logging → Timeout → SecurityHeaders.
@@ -148,6 +161,20 @@ type ServiceConfig struct {
 	// caught up) or a dependency ping. It must be safe for concurrent use.
 	// Optional — nil keeps probe-only readiness.
 	ReadyCheck func() bool
+
+	// Listener, when set, is used as-is instead of binding Addr: the service
+	// serves on the pre-bound listener and Addr is ignored. Use it for
+	// unix-socket binds (local-only IPC daemons), systemd socket activation,
+	// or any listener obtained from another source. Ownership transfers to
+	// the service at Start: every synchronous failure path closes it (a
+	// failing StartHook, a config the delegated server rejects) and graceful
+	// shutdown closes it, exactly like a self-bound listener. A listener is
+	// consumed by one serve (single-serve ownership) — a restart after a
+	// full shutdown must supply a FRESH listener. Network semantics
+	// (timeouts, sentinels, the middleware stack) apply unchanged; TLS is a
+	// separate future seam and composes as a wrapper when it ships.
+	// Optional — nil keeps the TCP bind on Addr.
+	Listener net.Listener
 }
 
 // DefaultServiceConfig returns a config with production-ready defaults.

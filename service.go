@@ -56,9 +56,15 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 		return nil, err
 	}
 
-	logger, err := InitLogger(LoggerConfig{Level: cfg.LogLevel, Format: cfg.LogFormat})
-	if err != nil {
-		return nil, err
+	var logger *slog.Logger
+
+	if cfg.LogHandler != nil {
+		logger = slog.New(cfg.LogHandler)
+	} else {
+		logger, err = InitLogger(LoggerConfig{Level: cfg.LogLevel, Format: cfg.LogFormat})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	mux := http.NewServeMux()
@@ -130,10 +136,16 @@ func (s *Service) serverConfig(addr string) httputil.ServerConfig {
 // is closed again and the service never serves. The returned channel
 // receives any serve error (nil on graceful shutdown).
 func (s *Service) Start() (<-chan error, error) {
-	listener, err := (&net.ListenConfig{}).Listen( //nolint:exhaustruct_v5 // zero config is intentional
-		context.Background(), "tcp", s.cfg.Addr)
-	if err != nil {
-		return nil, errorfamily.WrapInfrastructuref(err, "server.listen_failed", "listen on %s", s.cfg.Addr)
+	listener := s.cfg.Listener
+
+	if listener == nil {
+		var err error
+
+		listener, err = (&net.ListenConfig{}).Listen( //nolint:exhaustruct_v5 // zero config is intentional
+			context.Background(), "tcp", s.cfg.Addr)
+		if err != nil {
+			return nil, errorfamily.WrapInfrastructuref(err, "server.listen_failed", "listen on %s", s.cfg.Addr)
+		}
 	}
 
 	// The delegated server is constructed before the hooks: NewServerListener
