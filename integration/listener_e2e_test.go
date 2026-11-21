@@ -56,8 +56,8 @@ func TestListenerUnixSocketThroughPublishedTags(t *testing.T) {
 		t.Errorf("Addr() = %q, want socket path %q", got, socketPath)
 	}
 
-	client := &http.Client{ //nolint:exhaustruct_v5 // only the transport matters
-		Transport: &http.Transport{ //nolint:exhaustruct_v5 // only DialContext matters
+	client := &http.Client{
+		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
 				var d net.Dialer
 
