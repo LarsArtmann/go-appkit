@@ -119,8 +119,10 @@ re-tagged as `docs/v0.3.0`, which is the first fetchable docs release.
 
 ALL opt-in — nothing joins the default stack (anti-recommendation held).
 Ported from the CV production stack per the canonical battery spec (W2).
-Shipped through security **v0.2.0** (2026-09-29: `example/` hardened-chain
-demo, `THREAT_MODEL.md`, example-only core dependency). The example dep
+Shipped through security **v0.3.0** (2026-11-21: the 2026-11-02-authorized
+samber/lo runtime adoption shipped + example dep consolidated at v0.12.0;
+zero package API delta. Prior cut v0.2.0, 2026-09-29: `example/`
+hardened-chain demo, `THREAT_MODEL.md`, example-only core dependency). The example dep
 tracks the latest core it needs (pinned v0.12.0 — swept forward from the
 2026-11-06 v0.10.0 pin by the daemon's dependency sweeps; every core delta
 since v0.10.0 is additions-only, so the example
