@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/flightrecorder
 
-go 1.27.4
+go 1.27
 
 require (
 	github.com/larsartmann/go-appkit v0.13.0

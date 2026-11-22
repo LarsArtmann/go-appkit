@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/cqrs
 
-go 1.27.4
+go 1.27
 
 require (
 	github.com/larsartmann/go-cqrs-lite/command/v4 v4.14.1
