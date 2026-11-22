@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/integration
 go 1.27.4
 
 require (
-	github.com/larsartmann/cqrs-htmx/v4 v4.15.0
+	github.com/larsartmann/cqrs-htmx/v4 v4.18.1
 	github.com/larsartmann/go-appkit v0.13.0
 	github.com/larsartmann/go-appkit/cqrs v0.10.0
 	github.com/larsartmann/go-appkit/docs v0.3.4
@@ -30,8 +30,8 @@ require (
 	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.3.0
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/go-flightrecorder v0.2.1
-	github.com/larsartmann/go-health v0.8.1
-	github.com/larsartmann/go-sse v0.6.2
+	github.com/larsartmann/go-health v0.10.0
+	github.com/larsartmann/go-sse v0.7.0
 	github.com/larsartmann/go-sse/ssetest v0.5.0
 	github.com/larsartmann/httputil v1.9.0
 	github.com/oklog/ulid/v2 v2.1.2
@@ -86,7 +86,7 @@ require (
 	github.com/knadh/koanf/v2 v2.4.1 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/larsartmann/go-branded-id v0.7.0 // indirect
+	github.com/larsartmann/go-branded-id v0.7.1 // indirect
 	github.com/larsartmann/go-codec v0.3.3 // indirect
 	github.com/larsartmann/go-cqrs-lite/claiming/v4 v4.0.2 // indirect
 	github.com/larsartmann/go-cqrs-lite/commandlifecycle/projections/v4 v4.2.3 // indirect
