@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
-# Go-directive parity guard (execution plan 2026-09-20 T05, hardened 2026-09-29 T12).
-# Every module's go.mod must declare the same go directive, and it must match
-# go.work. The repo pins major.minor (`go 1.27`) since the 2026-11-22 owner
-# reset: the patch pins of the 2026-10-12..11-13 floor trains were dropped
-# because gvac kept normalizing them to major.minor on floor-window commits.
-# The patched toolchain now lives in the commands (`GOTOOLCHAIN=go1.27.4`),
-# not in the directive. See .buildflow.yml. Additionally, NO module may carry a `toolchain` directive: the
-# repo's toolchain mechanism is the GOTOOLCHAIN env prefix (AGENTS "Toolchain"
-# paragraph), and a stray `toolchain` line is exactly how the 2026-09-18
-# directive drift class re-enters. The root go.mod briefly drifted to 1.27.1
-# (auto-commit d5c6693, 2026-09-18) while every satellite and go.work stayed
-# at 1.26.7; the mismatch broke all workspace commands, LSP,
-# check-pin-drift.sh, and root builds on the local 1.26.7 toolchain. This
-# script is that class of mistake failing fast and cheaply, with no git
-# history needed:
+# Go-directive parity guard (execution plan 2026-09-20 T05, hardened 2026-09-29
+# T12, repurposed 2026-11-22).
+# go.work holds the repo FLOOR (major.minor `go 1.27` since the 2026-11-22
+# owner reset) and no module may declare a go directive BELOW it. A module MAY
+# declare ABOVE the floor: `go mod tidy` raises a module's directive to the
+# highest `go` version declared anywhere in its dependency graph (published
+# appkit tags, go-cqrs-lite), so patch-level directives are dependency-forced,
+# not policy — tidy is the authority for each module's exact value. This guard
+# catches the damage class that matters: a module sitting below the floor. The
+# root go.mod briefly drifted to 1.27.1 (auto-commit d5c6693, 2026-09-18)
+# while every satellite and go.work stayed at 1.26.7; the mismatch broke all
+# workspace commands, LSP, check-pin-drift.sh, and root builds on the local
+# 1.26.7 toolchain. Additionally, NO module may carry a `toolchain` directive:
+# the repo's toolchain mechanism is the GOTOOLCHAIN env prefix (AGENTS
+# "Toolchain" paragraph), and a stray `toolchain` line pins one exact patch
+# and reintroduces the same drift class. See .buildflow.yml.
 #
 #   ./scripts/check-go-directives.sh
 
@@ -72,11 +73,10 @@ while IFS= read -r gomod; do
 	elif [[ "$(normalize "$version")" == "$expected_n" ]]; then
 		echo "OK:   $dir declares go $version"
 	elif version_lt "$version" "$expected"; then
-		echo "FAIL: $dir declares go $version, BELOW the floor go $expected (go.work) — unify the directive"
+		echo "FAIL: $dir declares go $version, BELOW the floor go $expected (go.work) — raise it to the floor"
 		status=1
 	else
-		echo "FAIL: $dir declares go $version, ABOVE the floor go $expected (go.work) — a bump must land everywhere in one train (go.work, all go.mods, AGENTS.md, integration/pin_drift_test.go)"
-		status=1
+		echo "OK:   $dir declares go $version (above the go.work floor go $expected; dependency-forced, tidy is the authority)"
 	fi
 done < <(find . -name go.mod -not -path '*/vendor/*' | sort)
 

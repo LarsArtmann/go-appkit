@@ -4,8 +4,13 @@
 #
 # Encodes the documented AGENTS.md loop as one command. Every module verifies
 # with GOWORK=off (consumer-style resolution, how published tags are built)
-# and the toolchain derived from the root go.mod directive (the machine
-# default is GOTOOLCHAIN=local, which cannot switch). Lint runs SEQUENTIALLY,
+# and a concrete patched toolchain (the machine default is GOTOOLCHAIN=local,
+# which cannot switch). The go directive is major.minor (`go 1.27`) since the
+# 2026-11-22 reset, and GOTOOLCHAIN rejects a partial name — `go1.27` is
+# "a language version but not a toolchain version" (proven 2026-11-22) — so a
+# patch-level directive derives the toolchain directly while a major.minor
+# directive falls back to TOOLCHAIN_PATCH, bumped with each floor train. Lint
+# runs SEQUENTIALLY,
 # one module at a time: concurrent golangci-lint processes race on the shared
 # build cache (/mnt/buildcache) and under-report findings (verified
 # 2026-08-18). Output per module lands in a log file under LOG_DIR and the
@@ -58,7 +63,12 @@ if [[ -z "$GO_DIRECTIVE" ]]; then
 	echo "FATAL: could not read the go directive from go.mod" >&2
 	exit 2
 fi
-export GOTOOLCHAIN="go$GO_DIRECTIVE"
+TOOLCHAIN_PATCH="${TOOLCHAIN_PATCH:-1.27.4}"
+if [[ "$GO_DIRECTIVE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+	export GOTOOLCHAIN="go$GO_DIRECTIVE"
+else
+	export GOTOOLCHAIN="go$TOOLCHAIN_PATCH"
+fi
 export GOWORK=off
 export CGO_ENABLED=1
 
@@ -67,6 +77,7 @@ FAILED=()
 STARTED=$SECONDS
 
 echo "verify-all: modules=${MODULES[*]}"
+echo "verify-all: go directive=$GO_DIRECTIVE"
 echo "verify-all: GOTOOLCHAIN=$GOTOOLCHAIN logs=$LOG_DIR"
 verdict() {
 	local name="$1" code="$2" log="$3"

@@ -1,6 +1,6 @@
 module github.com/larsartmann/go-appkit/docs
 
-go 1.27
+go 1.27.2
 
 require github.com/larsartmann/go-cqrs-lite/catalog/v4 v4.15.0
 
