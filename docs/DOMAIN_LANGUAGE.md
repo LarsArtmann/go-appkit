@@ -42,8 +42,8 @@ If a word means something different to a developer than to a customer, define it
 | **Probe**                   | A go-health check set with critical/non-critical classification and background caching                                                                                                                    | health module, `NewProbe`                        |
 | **Health dashboard**        | The opt-in go-health-dashboard UI (HTML/JSON/SSE/metrics) mounted by the health module                                                                                                                    | `WithDashboard`                                  |
 | **Integration module**      | The never-released `integration/` module pinning PUBLISHED tags to E2E-test exactly what consumers resolve                                                                                                | Cross-module/cross-repo contracts                |
-| **documentedPins**          | The integration pin contract: every family dependency pinned to its newest PUBLISHED tag, asserted by the `documentedPins` fixture + `check-pin-drift.sh`                                                 | `integration/doc.go`, pin charter                |
-| **Routed verdict**          | A docs-health marker (`→ routed — …`) pointing a resolved item at its LIVE destination; a dead destination fails `check-routed-destinations.sh`                                                           | Status reports; 9th pre-tag guard                |
+| **documentedPins**          | The integration pin contract: every family dependency pinned to its newest PUBLISHED tag, asserted by the `documentedPins` fixture + `scripts/check-pin-drift.sh`                                                 | `integration/doc.go`, pin charter                |
+| **Routed verdict**          | A docs-health marker (`→ routed — …`) pointing a resolved item at its LIVE destination; a dead destination fails `scripts/check-routed-destinations.sh`                                                           | Status reports; 9th pre-tag guard                |
 
 ## Entities
 
