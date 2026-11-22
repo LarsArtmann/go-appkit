@@ -71,8 +71,9 @@ That gives you:
 go get github.com/larsartmann/go-appkit
 ```
 
-Requires Go 1.27.4 or later (the unified toolchain floor every module's
-go.mod declares; `encoding/json/v2` is default-on there, see below).
+Requires Go 1.27 or later (every module's go.mod declares the `go 1.27`
+floor; the repo builds and tests on the patched `go1.27.4` toolchain, and
+tags published before the 2026-11-22 reset still demand 1.27.4 via `go get`).
 
 ## Modules in this repository
 
@@ -101,7 +102,7 @@ Each module is independently versioned and usable on its own:
 
 > **JSON v2 requirement:** the dependency stack (go-cqrs-lite,
 > templ-components, go-health, go-sse) uses `encoding/json/v2`, which the
-> 1.27.4 floor enables **by default** — no configuration, no experiment
+> Go 1.27 floor enables **by default** — no configuration, no experiment
 > prefix (the per-module `GOEXPERIMENT=jsonv2` notes were retired
 > 2026-09-29).
 
@@ -492,8 +493,8 @@ it:
 
 ## Development
 
-Go >= 1.27.4 (every module's go.mod declares `go 1.27.4`; on older default
-toolchains prefix commands with `GOTOOLCHAIN=go1.27.4`):
+Go >= 1.27 (every module's go.mod declares `go 1.27`; the commands below pin
+`GOTOOLCHAIN=go1.27.4`, the patched toolchain this repo tests with):
 
 ```bash
 go test ./...            # workspace: builds + tests the 14 member modules

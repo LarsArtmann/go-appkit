@@ -82,7 +82,9 @@ var documentedPins = map[string]string{
 // also clears GO-2026-6617) across all 12 go.mods + go.work.
 // 2026-11-07: floor-trained to 1.27.4 (clears stdlib GO-2026-6859
 // crypto/x509) across all 14 go.mods + go.work.
-const documentedGoDirective = "1.27.4"
+// 2026-11-22: owner reset the directives to major.minor `go 1.27`; the
+// patched go1.27.4 toolchain rides the GOTOOLCHAIN belts instead.
+const documentedGoDirective = "1.27"
 
 func TestGoModPinsMatchDocumentedPins(t *testing.T) {
 	t.Parallel()

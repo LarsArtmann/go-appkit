@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Go-directive parity guard (execution plan 2026-09-20 T05, hardened 2026-09-29 T12).
-# Every module's go.mod must declare the same go directive (major.minor and
-# PATCH — this repo deliberately pins the patch; the fleet major.minor policy
-# is consciously NOT followed here, see .buildflow.yml), and it must match
-# go.work. Additionally, NO module may carry a `toolchain` directive: the
+# Every module's go.mod must declare the same go directive, and it must match
+# go.work. The repo pins major.minor (`go 1.27`) since the 2026-11-22 owner
+# reset: the patch pins of the 2026-10-12..11-13 floor trains were dropped
+# because gvac kept normalizing them to major.minor on floor-window commits.
+# The patched toolchain now lives in the commands (`GOTOOLCHAIN=go1.27.4`),
+# not in the directive. See .buildflow.yml. Additionally, NO module may carry a `toolchain` directive: the
 # repo's toolchain mechanism is the GOTOOLCHAIN env prefix (AGENTS "Toolchain"
 # paragraph), and a stray `toolchain` line is exactly how the 2026-09-18
 # directive drift class re-enters. The root go.mod briefly drifted to 1.27.1

@@ -29,5 +29,5 @@ GOWORK=off GOTOOLCHAIN=go1.27.4 go vet ./... && GOWORK=off GOTOOLCHAIN=go1.27.4 
 golangci-lint run ./...        # from this directory
 ```
 
-`GOTOOLCHAIN=go1.27.4` is required (catalog/v4 uses
-`encoding/json/v2`); `GOWORK=off` makes the run hermetic.
+`GOTOOLCHAIN=go1.27.4` is pinned as the tested toolchain (go.mod
+declares the `go 1.27` floor); `GOWORK=off` makes the run hermetic.
