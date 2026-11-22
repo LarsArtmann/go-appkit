@@ -2,7 +2,18 @@
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-22
+
 ### Changed
+
+- Dependency sweep onto the 2026-11-22 go-cqrs-lite trains: `metaengine/v4`
+  v4.23.0 -> v4.26.0, `system/v4` v4.18.0 -> v4.19.0, `systemscenario/v4`
+  v4.2.1 -> v4.3.0, `metaengine/sqliteengine/v4` v4.7.1 -> v4.9.1 — the
+  sqliteengine bump carries the `EnforceCap` deadlock fix (concurrent cap
+  enforcement could deadlock the journal writer; the fix rides v4.8.0+), and
+  the metaengine train carries the SSE reconnect-cursor hardening (malformed
+  Last-Event-ID answers 400 instead of silently replaying the whole journal).
+  Module tests + integration (published-tag resolution) green at the new pins.
 
 - Deployment: the default deployment fills the canonical three-tier topology via
   `system.Standard` (ADR-0165, 2026-11-08). `defaultDeployment` (the

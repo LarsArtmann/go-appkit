@@ -2,10 +2,21 @@
 
 ## [Unreleased]
 
+### Changed
+
 - Ruling (2026-11-06, from the 2026-11-02 release-train report's f30): the
   docs module does NOT cut releases for corpus-only growth — status reports
   and plans land continuously under `docs/`; the module version moves only
   when its CODE (catalog wiring, dependency pins) changes.
+
+## [0.3.4] - 2026-11-22
+
+### Changed
+
+- Dependency pin: `catalog/v4` v4.12.0 -> v4.15.0 — the docserver gained
+  conditional-request (304) semantics on its deterministic spec routes and
+  the buffered templ render (clean 500s); version bumped so consumers ride
+  the cache-correct docs surface.
 
 ## [0.3.3] - 2026-10-13
 
