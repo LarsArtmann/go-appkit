@@ -71,9 +71,11 @@ That gives you:
 go get github.com/larsartmann/go-appkit
 ```
 
-Requires Go 1.27 or later (every module's go.mod declares the `go 1.27`
-floor; the repo builds and tests on the patched `go1.27.4` toolchain, and
-tags published before the 2026-11-22 reset still demand 1.27.4 via `go get`).
+Requires Go 1.27 or later (the core module declares the `go 1.27` floor;
+satellite modules declare their dependency-forced `go mod tidy` minimums
+between `go 1.27.2` and `go 1.27.4` — `go get` demands the highest directive
+in the chain until the family re-tags at the floor; the repo builds and tests
+on the patched `go1.27.4` toolchain).
 
 ## Modules in this repository
 
@@ -493,7 +495,8 @@ it:
 
 ## Development
 
-Go >= 1.27 (every module's go.mod declares `go 1.27`; the commands below pin
+Go >= 1.27 (the core module declares the `go 1.27` floor; satellite go.mods
+carry dependency-forced minimums up to `go 1.27.4`; the commands below pin
 `GOTOOLCHAIN=go1.27.4`, the patched toolchain this repo tests with):
 
 ```bash

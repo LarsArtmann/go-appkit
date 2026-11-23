@@ -41,9 +41,14 @@ go_mod_ignore_dirs:
 # (pre-commit FATAL + CI) is the standing net; restored 2026-11-21.
 # OWNER DECISION 2026-11-21: ACCEPT this net — no new machinery (no gvac
 # skip, no toolchain pin, no cron).
-# SUPERSEDED 2026-11-22: the owner chose plain `go 1.27` outright — all 15
-# go.mods + go.work declare major.minor, so gvac has no patch-level pin
-# left to normalize away and respect_patch_floor above is dormant. The
-# patched toolchain survives at the build layer: every README/CI command
-# pins GOTOOLCHAIN=go1.27.4 (the release that cleared GO-2026-6859/6809/
-# 6617). Ritual: re-run check-go-directives after every floor train.
+# SUPERSEDED 2026-11-22, CORRECTED 2026-11-23 (measured): the owner chose
+# `go 1.27` as the floor — it lives in the root go.mod; 11 satellites keep
+# dependency-forced patch directives (1.27.2–1.27.4, `go mod tidy -diff` is
+# the authority), so the b04fc20 window (directives ABOVE the machine default
+# toolchain 1.27.2) is OPEN and respect_patch_floor stays live. go.work is
+# Go-forced to the max member directive (a lower line fails every workspace
+# command); go-work-sync's re-raise of go.work is correct — do not hand-
+# lower it. The patched toolchain survives at the build layer: every
+# README/CI command pins GOTOOLCHAIN=go1.27.4 (the release that cleared
+# GO-2026-6859/6809/6617). Ritual: re-run check-go-directives after every
+# BuildFlow pass / floor train.

@@ -82,9 +82,11 @@ var documentedPins = map[string]string{
 // also clears GO-2026-6617) across all 12 go.mods + go.work.
 // 2026-11-07: floor-trained to 1.27.4 (clears stdlib GO-2026-6859
 // crypto/x509) across all 14 go.mods + go.work.
-// 2026-11-22: owner reset the go.work floor to major.minor `go 1.27`; this
-// module's own directive stays 1.27.4 because `go mod tidy` forces it up to
-// the highest go version in the dependency graph (published appkit tags).
+// 2026-11-22: owner set the published floor to major.minor `go 1.27` (root
+// go.mod); this module's own directive stays 1.27.4 because `go mod tidy`
+// forces it up to the highest go version in the dependency graph (published
+// appkit tags); go.work rides the max member directive (Go rejects a lower
+// workspace line, measured 2026-11-23).
 const documentedGoDirective = "1.27.4"
 
 func TestGoModPinsMatchDocumentedPins(t *testing.T) {

@@ -460,7 +460,7 @@ golangci-lint run ./...        # from this directory
 ```
 
 `GOTOOLCHAIN=go1.27.4` is pinned below as the tested toolchain
-(go.mod declares the `go 1.27` floor). `GOWORK=off` makes the run
+(the repo floor is `go 1.27`; module go.mods carry their dependency-forced tidy minimums). `GOWORK=off` makes the run
 hermetic: the module resolves exactly what its own go.mod pins,
 via the module proxy — how consumers resolve it.
 
