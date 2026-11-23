@@ -244,6 +244,23 @@ jobs:
       - name: Check go.mod directive parity
         run: ./scripts/check-go-directives.sh
 
+  # Tidy stability (2026-11-23): every module's go.mod must be exactly what
+  # `go mod tidy` produces — tidy is the authority for each module's `go`
+  # directive (the dependency-graph maximum; published family tags declare
+  # patches, so most satellites sit above the root's `go 1.27` floor) and for
+  # go.sum. Catches the checked-in-churn class: a dirty tree rewrites itself
+  # on the next agent- or BuildFlow-run tidy (the 2026-11-22/23 floor reset
+  # shipped exactly that until it was measured and re-set per module).
+  go-tidy-stable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: Check go.mod tidy stability
+        run: ./scripts/check-go-tidy-stable.sh
+
   # AGENTS deps-table drift guard (found twice 2026-11-03; script 530d71a,
   # pre-tag-wired same day): every Core Dependencies table row must equal the
   # root go.mod require. Offline grep guard — the table hand-drifted v1.4.0

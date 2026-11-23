@@ -26,6 +26,29 @@ for guard in check-go-directives.sh check-dependabot-parity.sh check-workspace-c
 	fi
 done
 
+# Tidy-stability for staged go.mods only (fleet-wide at pre-tag + CI): a
+# checked-in go.mod that `go mod tidy` would rewrite churns on the next
+# agent/BuildFlow tidy (the 2026-11-22/23 directive-reset class).
+staged_gomods=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep '(^|/)go\.mod$' || true)
+if [[ -n "$staged_gomods" ]]; then
+	mods=()
+	while IFS= read -r f; do mods+=("$(dirname "$f")"); done <<<"$staged_gomods"
+	if ! ./scripts/check-go-tidy-stable.sh "${mods[@]}" >/dev/null 2>&1; then
+		echo "pre-commit: check-go-tidy-stable.sh FAILED (staged go.mod must be tidy-stable — run 'GOWORK=off go mod tidy' in the module)"
+		GUARD_FAIL=1
+	fi
+fi
+
+# Shell-syntax gate for staged scripts (2026-11-23): scripts/lib/toolchain.sh
+# shipped in one commit and the GOTOOLCHAIN=go1.27 invalid-partial class went
+# unnoticed until the fleet sweep — bash -n would have caught it at commit.
+while IFS= read -r sh; do
+	if ! bash -n "$sh" 2>/dev/null; then
+		echo "pre-commit: bash -n FAILED for $sh"
+		GUARD_FAIL=1
+	fi
+done < <(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep '\.sh$' || true)
+
 # check-pin-drift.sh and check-gosum-canonical.sh are deliberately NOT in
 # the fatal set: their legs need the module proxy (network + downloads); an
 # offline commit must not be blocked. pre-tag-checks.sh runs both where
@@ -37,7 +60,7 @@ done
 # non-hermetic invocation, incl. parent-launched `go test ./integration/...`
 # which would resolve local code instead of the published pins).
 if git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -q '^integration/'; then
-	echo "pre-commit NOTE: integration/ staged — verify hermetically: cd integration && GOWORK=off GOTOOLCHAIN=go1.27.2 go test ./... -race -count=1"
+echo "pre-commit NOTE: integration/ staged — verify hermetically: cd integration && GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1"
 fi
 
 # Per-module hermetic build+vet for every module the staged set touches
