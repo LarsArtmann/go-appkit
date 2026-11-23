@@ -1,6 +1,16 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+
+- Go directive lowered to the tidy-stable minimum `go 1.27.2` (was
+  `go 1.27.4`): the 2026-11-22 owner floor reset made `go 1.27` the
+  published floor (root go.mod) and `go mod tidy` is the authority for each
+  module's exact value — the go-cqrs-lite v4 modules declare `go 1.27.2`,
+  which is this module's graph floor (measured with `go mod tidy -diff`;
+  policy record: docs/planning/2026-11-23_go-directive-floor-policy.md).
+  Consumers on go 1.27.2+ can now resolve this module without the 1.27.4
+  demand this tag's predecessor carried.
 
 ## [0.10.0] - 2026-11-22
 

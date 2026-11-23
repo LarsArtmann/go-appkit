@@ -3,6 +3,15 @@
 ## [Unreleased]
 ### Changed
 
+- Go directive lowered to the published floor `go 1.27` (was `go 1.27.4`):
+  the 2026-11-22 owner reset makes the core module carry the repo's
+  published floor; `go mod tidy` is the authority for each module's exact
+  value (satellites settle at their dependency-forced minimums, 1.27.2–1.27.4,
+  until the family re-tags — policy record:
+  docs/planning/2026-11-23_go-directive-floor-policy.md). The patched
+  go1.27.4 toolchain keeps riding the GOTOOLCHAIN build belts (GO-2026-6859/
+  6809/6617 clearance now lives there, not in the directive).
+
 - Repo-level CI lint stack raised to v2.15.0 (`golangci-lint@v2.15.0`), with the errorfamily `wrapcheck` exemption added to the root `.golangci.yml` (`- go-error-family.` import-path sig — the fleet convention; v2.15's signature-based wrapcheck otherwise flags errorfamily constructors as unwrapped externals). Verified green locally with the v2.15.0 binary on the root module and 13 sub-modules; the `integration` module's lint invocation fails on its go.work pattern shape independent of this change (pre-existing).
 Module changes live in their module CHANGELOGs' [Unreleased] sections (the
 2026-11-13 split-brain resolution: the `cqrs` deployment bullet moved to

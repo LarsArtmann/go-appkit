@@ -127,7 +127,7 @@ Shipped through security **v0.3.0** (2026-11-21: the 2026-11-02-authorized
 samber/lo runtime adoption shipped + example dep consolidated at v0.12.0;
 zero package API delta. Prior cut v0.2.0, 2026-09-29: `example/`
 hardened-chain demo, `THREAT_MODEL.md`, example-only core dependency). The example dep
-tracks the latest core it needs (pinned v0.12.0 — swept forward from the
+tracks the latest core it needs (pinned v0.13.0 — swept forward from the
 2026-11-06 v0.10.0 pin by the daemon's dependency sweeps; every core delta
 since v0.10.0 is additions-only, so the example
 edge stays demo-only and the package itself stays appkit-free).
@@ -381,7 +381,7 @@ Reference consumer: **[cqrs-htmx](https://github.com/LarsArtmann/cqrs-htmx)
   bundle's domain chain. Verified equivalences live in their
   `setup/run_appkit_test.go` (SSE header flush through the full stack, drain
   readiness transitions, response parity, hardened adoption benchmark).
-- Consumed version: **`go-appkit v0.10.0`** — verified in the PUBLISHED `setup/v4.17.0` tag (2026-11-07; they adopted core v0.10.0 same-day; prior pin was v0.9.0 through setup/v4.16.0)
+- Consumed version: **`go-appkit v0.12.0`** — verified in the PUBLISHED `setup/v4.18.0` tag (2026-11-23, proxy-verified in their go.mod; prior pin was v0.10.0 through setup/v4.17.0, adopted same-day that core shipped)
   (`setup/go.mod`; guard-checked by `scripts/check-consumer-claims.sh`).
   **M4 is SHIPPED in that tag**:
   `Config.Metrics`/`Config.Version` thread into `appkit.ServiceConfig` on the

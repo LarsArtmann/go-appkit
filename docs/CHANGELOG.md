@@ -4,6 +4,16 @@
 
 ### Changed
 
+- Go directive lowered to the tidy-stable minimum `go 1.27.2` (was
+  `go 1.27.4`): the 2026-11-22 owner floor reset made `go 1.27` the
+  published floor (root go.mod) and `go mod tidy` is the authority for each
+  module's exact value — the go-cqrs-lite catalog/v4 dependency declares
+  `go 1.27.2`, which is this module's graph floor (measured with
+  `go mod tidy -diff`; policy record:
+  docs/planning/2026-11-23_go-directive-floor-policy.md). Consumers on go
+  1.27.2+ can now resolve this module without the 1.27.4 demand this tag's
+  predecessor carried.
+
 - Ruling (2026-11-06, from the 2026-11-02 release-train report's f30): the
   docs module does NOT cut releases for corpus-only growth — status reports
   and plans land continuously under `docs/`; the module version moves only
