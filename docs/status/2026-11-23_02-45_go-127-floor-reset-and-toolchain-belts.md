@@ -19,6 +19,45 @@
 
 ---
 
+## ERRATA (2026-11-23, later the same day — the follow-through session)
+
+This report is a point-in-time snapshot; the follow-through session measured
+two of its assumptions WRONG and finished the backlog. Corrections:
+
+1. **"go.work floor = go 1.27" (table row 1 below) is WRONG.** Go rejects a
+   go.work line below any member's directive — every workspace command dies
+   with `module X listed in go.work file requires go >= 1.27.Y, but go.work
+   lists go 1.27` (reproduced within the hour). go.work is therefore
+   Go-forced to the max member directive (`go 1.27.4` today), and the 02:57
+   daemon re-raise of go.work was CORRECT, not drift. The floor that CAN
+   live at 1.27 is the published root go.mod. The guard was rewritten
+   around that (module BELOW root floor = FATAL; go.work BELOW max member =
+   FATAL; previously the guard derived the floor FROM go.work and could not
+   catch the go.work drift it had just suffered). Policy record:
+   `docs/planning/2026-11-23_go-directive-floor-policy.md`.
+2. **"Integration break predates this session" — root-caused and FIXED
+   same day:** go-health-dashboard v0.12.2 (transitive via health v0.3.2)
+   predates templ v0.3.1100's `ResolveAttributeValue` removal, and the
+   graph is pinned to 1100 by docs v0.3.4 + catalog v4.15.0 +
+   templ-components v1.27.0 (the go.mod pin comment claiming
+   "templ-components v1.22.0 needs it" was stale twice over). Fix: MVS-bump
+   the dashboard to v0.13.3 (built for 1100), absorb its go-health v0.10.0
+   requirement (DefaultRoutes now mounts `GET /version` and panics
+   unstamped — health v0.3.2 predates stamps) via the documented
+   version-less probe-routes escape hatch, and re-align the `documentedPins`
+   fixture (which had ALSO drifted from the window-released cqrs v0.10.0 and
+   docs v0.3.4). Integration suite `-race` GREEN.
+3. **"14/15 PASS" is now 15/15** — `verify-all.sh` full (build+vet+test+
+   SEQUENTIAL lint) ALL GREEN; plus the new `check-go-tidy-stable.sh` guard
+   (pre-tag + CI `go-tidy-stable` job + staged-set pre-commit), the CI
+   `go-tidy-stable` job, the verify-all toolchain preflight, staged-shell
+   `bash -n` in the pre-commit hook, CHANGELOG `[Unreleased]` directive
+   entries on all seven directive-changed modules, and the consumer-claims
+   refreshes (setup/v4.18.0 pins core v0.12.0; security example at core
+   v0.13.0; AGENTS Latest-per-module corrected for the window releases).
+
+---
+
 ## a) FULLY DONE
 
 | #  | Item                                                                                                                                                                                                  | Evidence                                                                                    |
