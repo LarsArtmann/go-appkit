@@ -68,6 +68,15 @@ export GOTOOLCHAIN="$(go_toolchain_for "$GO_DIRECTIVE")"
 export GOWORK=off
 export CGO_ENABLED=1
 
+# Fail-fast toolchain preflight (2026-11-23): prove the resolved toolchain
+# actually exists BEFORE burning a full sweep — 15 modules of red ending in
+# "invalid toolchain" is the failure shape this replaces.
+if ! GOTOOLCHAIN="$GOTOOLCHAIN" go version >/dev/null 2>&1; then
+	echo "FATAL: GOTOOLCHAIN=$GOTOOLCHAIN is not available: $(GOTOOLCHAIN="$GOTOOLCHAIN" go version 2>&1 | head -2)" >&2
+	echo "Hint: this box may be offline and the toolchain uncached; set APPKIT_TOOLCHAIN_PATCH to a cached patch release (scripts/lib/toolchain.sh)." >&2
+	exit 2
+fi
+
 LOG_DIR=$(mktemp -d /tmp/go-appkit-verify-XXXXXX)
 FAILED=()
 STARTED=$SECONDS
