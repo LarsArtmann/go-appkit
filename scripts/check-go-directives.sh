@@ -1,18 +1,32 @@
 #!/usr/bin/env bash
 # Go-directive parity guard (execution plan 2026-09-20 T05, hardened 2026-09-29
-# T12, repurposed 2026-11-22).
-# go.work holds the repo FLOOR (major.minor `go 1.27` since the 2026-11-22
-# owner reset) and no module may declare a go directive BELOW it. A module MAY
-# declare ABOVE the floor: `go mod tidy` raises a module's directive to the
-# highest `go` version declared anywhere in its dependency graph (published
-# appkit tags, go-cqrs-lite), so patch-level directives are dependency-forced,
-# not policy — tidy is the authority for each module's exact value. This guard
-# catches the damage class that matters: a module sitting below the floor. The
-# root go.mod briefly drifted to 1.27.1 (auto-commit d5c6693, 2026-09-18)
-# while every satellite and go.work stayed at 1.26.7; the mismatch broke all
-# workspace commands, LSP, check-pin-drift.sh, and root builds on the local
-# 1.26.7 toolchain. Additionally, NO module may carry a `toolchain` directive:
-# the repo's toolchain mechanism is the GOTOOLCHAIN env prefix (AGENTS
+# T12, repurposed 2026-11-22, floor-source fixed 2026-11-23).
+# TWO contracts, two sources of truth:
+#
+# 1. PUBLISHED floor = the root go.mod `go` directive (`go 1.27` since the
+#    2026-11-22 owner reset). Every module must declare >= it. A module MAY
+#    sit ABOVE the floor: `go mod tidy` raises a module's directive to the
+#    highest `go` version declared anywhere in its dependency graph (published
+#    appkit tags, go-cqrs-lite), so patch-level directives are
+#    dependency-forced, not policy — `go mod tidy -diff` is the authority for
+#    each module's exact value. MEASURED 2026-11-23: go.work at `go 1.27`
+#    with any member above it FAILS every workspace command ("module X listed
+#    in go.work file requires go >= 1.27.Y, but go.work lists go 1.27"), so
+#    the 2026-11-23 02:57 daemon re-raise of go.work to 1.27.4 was CORRECT.
+#
+# 2. LOCAL floor = go.work, which Go itself forces to >= every workspace
+#    member's directive. This guard checks that direction too: a go.work line
+#    BELOW any member is the workspace-build-break class, caught here at
+#    commit time instead of at build time. go.work is tooling-managed
+#    (BuildFlow go-work-sync normalizes it) — do not hand-raise it to "keep
+#    the guard happy"; hand-LOWERING it is the damage this check catches.
+#
+# Historical damage class: the root go.mod briefly drifted to 1.27.1
+# (auto-commit d5c6693, 2026-09-18) while every satellite and go.work stayed
+# at 1.26.7; the mismatch broke all workspace commands, LSP,
+# check-pin-drift.sh, and root builds on the local 1.26.7 toolchain.
+# Additionally, NO module or go.work may carry a `toolchain` directive: the
+# repo's toolchain mechanism is the GOTOOLCHAIN env prefix (AGENTS
 # "Toolchain" paragraph), and a stray `toolchain` line pins one exact patch
 # and reintroduces the same drift class. See .buildflow.yml.
 #
@@ -51,12 +65,25 @@ version_lt() {
 	return 1
 }
 
-expected="$(sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' go.work | head -n1)"
-if [[ -z "$expected" ]]; then
+# Contract 1: the PUBLISHED floor lives in the root go.mod (owner reset
+# 2026-11-22). The root module IS the floor-setting module by charter.
+floor="$(sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' go.mod | head -n1)"
+if [[ -z "$floor" ]]; then
+	echo "FAIL: root go.mod has no parseable 'go <version>' directive (the published floor)"
+	exit 1
+fi
+floor_n="$(normalize "$floor")"
+
+# Contract 2: go.work must be >= every member directive (Go rejects a lower
+# go.work line at build time — measured 2026-11-23).
+workgo="$(sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' go.work | head -n1)"
+if [[ -z "$workgo" ]]; then
 	echo "FAIL: go.work has no parseable 'go <version>' directive"
 	exit 1
 fi
-expected_n="$(normalize "$expected")"
+workgo_n="$(normalize "$workgo")"
+max_member="$floor"
+max_member_dir="root go.mod"
 
 status=0
 while IFS= read -r gomod; do
@@ -70,15 +97,28 @@ while IFS= read -r gomod; do
 	if [[ -z "$version" ]]; then
 		echo "FAIL: $dir has no parseable 'go <version>' directive"
 		status=1
-	elif [[ "$(normalize "$version")" == "$expected_n" ]]; then
+		continue
+	fi
+	if [[ "$(normalize "$version")" == "$floor_n" ]]; then
 		echo "OK:   $dir declares go $version"
-	elif version_lt "$version" "$expected"; then
-		echo "FAIL: $dir declares go $version, BELOW the floor go $expected (go.work) — raise it to the floor"
+	elif version_lt "$version" "$floor"; then
+		echo "FAIL: $dir declares go $version, BELOW the published floor go $floor (root go.mod) — raise it to the floor"
 		status=1
 	else
-		echo "OK:   $dir declares go $version (above the go.work floor go $expected; dependency-forced, tidy is the authority)"
+		echo "OK:   $dir declares go $version (above the published floor go $floor; dependency-forced, go mod tidy -diff is the authority)"
+	fi
+	if version_lt "$max_member" "$version"; then
+		max_member="$version"
+		max_member_dir="$dir"
 	fi
 done < <(find . -name go.mod -not -path '*/vendor/*' | sort)
+
+if version_lt "$workgo" "$max_member"; then
+	echo "FAIL: go.work lists go $workgo but $max_member_dir requires go >= $max_member — every workspace command dies ('module ... requires go >= $max_member, but go.work lists go $workgo'); raise go.work to go $max_member"
+	status=1
+else
+	echo "OK:   go.work lists go $workgo (>= max member directive go $max_member from $max_member_dir)"
+fi
 
 worktoolchain="$(sed -n 's/^toolchain go\([0-9][0-9.]*\)$/\1/p' go.work | head -n1)"
 if [[ -n "$worktoolchain" ]]; then
