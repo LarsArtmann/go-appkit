@@ -29,8 +29,10 @@ if [[ -z "$floor" ]]; then
 	echo "FAIL: could not read the go floor from go.work"
 	exit 2
 fi
+source "$root/scripts/lib/toolchain.sh"
+toolchain="$(go_toolchain_for "$floor")"
 
-out="$(GOWORK=off GOTOOLCHAIN="go$floor" go run scripts/check_response_drain.go . 2>&1)"
+out="$(GOWORK=off GOTOOLCHAIN="$toolchain" go run scripts/check_response_drain.go . 2>&1)"
 status=$?
 if [[ "$status" -eq 0 ]]; then
 	echo "RESPONSE DRAIN: every closed test body is read or explicitly ignored (SSE carve-out via respdrain:ignore)"

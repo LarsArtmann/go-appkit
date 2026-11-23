@@ -52,6 +52,8 @@ if [[ -z "$floor" ]]; then
 	echo "FAIL: could not read the go floor from go.work"
 	exit 1
 fi
+source "$(cd "$(dirname "$0")" && pwd)/lib/toolchain.sh"
+toolchain="$(go_toolchain_for "$floor")"
 
 # Module map from go.work (charter guard keeps this honest).
 declare -A members=()
@@ -115,9 +117,9 @@ for m in "${!pending[@]}"; do
 	[[ "$label" == "." ]] && label="core"
 	echo "== $label (build+vet$([[ "$run_tests" == true ]] && echo '+test -race')) =="
 	if (cd "$m" &&
-		GOWORK=off GOTOOLCHAIN="go$floor" go build ./... &&
-		GOWORK=off GOTOOLCHAIN="go$floor" go vet ./... &&
-		{ [[ "$run_tests" == false ]] || GOWORK=off GOTOOLCHAIN="go$floor" go test ./... -race -count=1; }); then
+		GOWORK=off GOTOOLCHAIN="$toolchain" go build ./... &&
+		GOWORK=off GOTOOLCHAIN="$toolchain" go vet ./... &&
+		{ [[ "$run_tests" == false ]] || GOWORK=off GOTOOLCHAIN="$toolchain" go test ./... -race -count=1; }); then
 		echo "OK:   $label"
 		verified=$((verified + 1))
 	else

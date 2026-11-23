@@ -263,7 +263,8 @@ for mod in github.com/larsartmann/cqrs-htmx/v4 github.com/larsartmann/go-sse git
 	# cross-repo leg reported "could not query"). An ambient GOTOOLCHAIN=local
 	# on the 1.26.7 machine default kills `go list` the same way.
 	repo_floor="$(sed -n 's/^go //p' go.mod | head -n1)"
-	latest="$(GOWORK=off GOTOOLCHAIN="go$repo_floor" go list -m -versions "$mod" 2>/dev/null | tr ' ' '\n' | grep -E '^v[0-9]+\.[0-9]+' | sort -V | tail -n1 || true)"
+	source "$(cd "$(dirname "$0")" && pwd)/lib/toolchain.sh"
+	latest="$(GOWORK=off GOTOOLCHAIN="$(go_toolchain_for "$repo_floor")" go list -m -versions "$mod" 2>/dev/null | tr ' ' '\n' | grep -E '^v[0-9]+\.[0-9]+' | sort -V | tail -n1 || true)"
 	if [[ -z "$latest" ]]; then
 		fail "$mod: could not query the module proxy for published versions"
 	elif [[ "$want" == "$latest" ]]; then

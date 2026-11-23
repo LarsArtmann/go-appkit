@@ -43,6 +43,8 @@ if [[ -n "$snippet" && ! -f "$snippet" ]]; then
 fi
 
 floor="$(sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' "$(dirname "$0")/../go.work" | head -n1)"
+source "$(cd "$(dirname "$0")" && pwd)/lib/toolchain.sh"
+toolchain="$(go_toolchain_for "$floor")"
 
 scratch="$(mktemp -d /tmp/verify-consumer-XXXXXX)"
 cleanup() {
@@ -80,7 +82,7 @@ echo "== fresh consumer: $module@$version (snippet: ${snippet:-blank import}) ==
 # GOPRIVATE stays machine-default on purpose: the fleet resolves via VCS.
 consumer_cache="$(mktemp -d /tmp/verify-consumer-cache-XXXXXX)"
 export GOWORK=off
-export GOTOOLCHAIN="go$floor"
+export GOTOOLCHAIN="$toolchain"
 export GOPROXY=https://proxy.golang.org
 export GOMODCACHE="$consumer_cache"
 (cd "$scratch" && go mod tidy >/dev/null && go build ./...)

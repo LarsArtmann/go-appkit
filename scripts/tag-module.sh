@@ -96,6 +96,8 @@ if [[ -n "$dirty" && "$tidy_integration" != true ]]; then
 fi
 
 floor="$(sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' go.work | head -n1)"
+source "$(cd "$(dirname "$0")" && pwd)/lib/toolchain.sh"
+toolchain="$(go_toolchain_for "$floor")"
 
 if [[ "$tidy_integration" == true ]]; then
 	echo "== tidy integration against the local tag (insteadOf rewrite) =="
@@ -106,7 +108,7 @@ if [[ "$tidy_integration" == true ]]; then
 	trap restore_rewrite EXIT
 	(
 		cd integration
-		GOWORK=off GOTOOLCHAIN="go$floor" GOFLAGS='' GOPRIVATE='' go mod tidy
+		GOWORK=off GOTOOLCHAIN="$toolchain" GOFLAGS='' GOPRIVATE='' go mod tidy
 	)
 	trap - EXIT
 	restore_rewrite

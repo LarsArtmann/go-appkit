@@ -7,9 +7,9 @@
 # and a concrete patched toolchain (the machine default is GOTOOLCHAIN=local,
 # which cannot switch). The go directive is major.minor (`go 1.27`) since the
 # 2026-11-22 reset, and GOTOOLCHAIN rejects a partial name — `go1.27` is
-# "a language version but not a toolchain version" (proven 2026-11-22) — so a
-# patch-level directive derives the toolchain directly while a major.minor
-# directive falls back to TOOLCHAIN_PATCH, bumped with each floor train. Lint
+# "a language version but not a toolchain version" (proven 2026-11-22) — so
+# scripts/lib/toolchain.sh maps the floor to a concrete patched toolchain
+# (patch-level directives are used verbatim). Lint
 # runs SEQUENTIALLY,
 # one module at a time: concurrent golangci-lint processes race on the shared
 # build cache (/mnt/buildcache) and under-report findings (verified
@@ -63,12 +63,8 @@ if [[ -z "$GO_DIRECTIVE" ]]; then
 	echo "FATAL: could not read the go directive from go.mod" >&2
 	exit 2
 fi
-TOOLCHAIN_PATCH="${TOOLCHAIN_PATCH:-1.27.4}"
-if [[ "$GO_DIRECTIVE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-	export GOTOOLCHAIN="go$GO_DIRECTIVE"
-else
-	export GOTOOLCHAIN="go$TOOLCHAIN_PATCH"
-fi
+source "$(cd "$(dirname "$0")" && pwd)/lib/toolchain.sh"
+export GOTOOLCHAIN="$(go_toolchain_for "$GO_DIRECTIVE")"
 export GOWORK=off
 export CGO_ENABLED=1
 

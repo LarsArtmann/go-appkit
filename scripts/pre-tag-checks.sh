@@ -99,10 +99,10 @@ for tag in "${tags[@]}"; do
 	floor="$(sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' go.work | head -n1)"
 	if [[ -z "$tagged_go" ]]; then
 		fail "$tag:$gomod_path has no parseable 'go <version>' directive"
-	elif [[ "$tagged_go" != "$floor" ]]; then
-		fail "$tag:$gomod_path declares go $tagged_go but the floor is go $floor (exact match required — the v0.1.4 class)"
+	elif [[ "$(printf '%s\n%s\n' "$floor" "$tagged_go" | sort -V | head -n1)" != "$floor" ]]; then
+		fail "$tag:$gomod_path declares go $tagged_go, BELOW the floor go $floor — raise it to the floor (above-floor patch levels are dependency-forced by tidy and allowed)"
 	else
-		echo "OK:   $tag:$gomod_path declares go $tagged_go (floor)"
+		echo "OK:   $tag:$gomod_path declares go $tagged_go (floor $floor)"
 	fi
 
 	tagged_toolchain="$(git show "$tag:$gomod_path" 2>/dev/null | sed -n 's/^toolchain go\([0-9][0-9.]*\)$/\1/p' | head -n1 || true)"

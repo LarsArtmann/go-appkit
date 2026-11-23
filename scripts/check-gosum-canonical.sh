@@ -46,6 +46,8 @@ if [[ -z "$floor" ]]; then
 	echo "FAIL: could not read the go floor from go.work" >&2
 	exit 1
 fi
+source "$(cd "$(dirname "$0")" && pwd)/lib/toolchain.sh"
+toolchain="$(go_toolchain_for "$floor")"
 
 cache="$(mktemp -d /tmp/go-appkit-gosum-XXXXXX)"
 work="$(mktemp -d /tmp/go-appkit-gosum-mod-XXXXXX)"
@@ -121,7 +123,7 @@ for mod in "${modules[@]}"; do
 	cp "$mod/go.mod" "$mod/go.sum" "$modcopy/"
 	if (cd "$modcopy" &&
 		GOWORK=off \
-			GOTOOLCHAIN="go$floor" \
+			GOTOOLCHAIN="$toolchain" \
 			GOPRIVATE='' GOFLAGS='' \
 			GOPROXY=https://proxy.golang.org \
 			GOMODCACHE="$cache" \
