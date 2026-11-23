@@ -26,8 +26,8 @@ import (
 // family tag. Nothing else in this file or the script needs to change.
 var documentedPins = map[string]string{
 	"github.com/larsartmann/go-appkit":                      "v0.13.0",
-	"github.com/larsartmann/go-appkit/cqrs":                 "v0.9.0",
-	"github.com/larsartmann/go-appkit/docs":                 "v0.3.3",
+	"github.com/larsartmann/go-appkit/cqrs":                 "v0.10.0",
+	"github.com/larsartmann/go-appkit/docs":                 "v0.3.4",
 	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.3",
 	"github.com/larsartmann/go-appkit/flightrecorder":       "v0.2.0",
 	"github.com/larsartmann/go-appkit/flightrecorderhealth": "v0.1.7",
@@ -57,17 +57,20 @@ var documentedPins = map[string]string{
 
 	// Composition-contract legs (T14, 2026-09-29): the third-party surfaces
 	// the composition tests exercise. These are VERSION-LOCKED to the pins
-	// the published family modules carry (go-health v0.8.1 = the health
-	// module's pin since health v0.3.0 (2026-10-27) adopted go-health v0.8.1;
-	// MVS builds the suite against v0.8.1 even though frh still pins v0.5.1
-	// on its own train; go-flightrecorder v0.2.1 = otel v0.2.0's floor (the
+	// the published family modules carry (go-health v0.10.0 = MVS-raised by
+	// go-health-dashboard v0.13.3 — integration bumps the dashboard for the
+	// templ v0.3.1100 line since health v0.3.2's dashboard v0.12.2 predates
+	// it; appkit/health v0.3.2 itself still pairs go-health v0.8.1 and
+	// predates WithVersion stamps, so the probe mounts stay version-less via
+	// versionlessProbeRoutes — re-aligns when health's next train adopts
+	// dashboard v0.13.x; go-flightrecorder v0.2.1 = otel v0.2.0's floor (the
 	// upstream async-capture race fix) — frh/cqrs still pin v0.2.0 on their
 	// trains, safe: they never combine Reset with async captures;
 	// samber/do v2.1.0 = frh's pin) — deliberately NOT asserted against the
 	// proxy LATEST by scripts/check-pin-drift.sh; re-align by hand when the
 	// owning family module bumps them.
 	"github.com/larsartmann/go-flightrecorder": "v0.2.1",
-	"github.com/larsartmann/go-health":         "v0.8.1",
+	"github.com/larsartmann/go-health":         "v0.10.0",
 	"github.com/samber/do/v2":                  "v2.1.0",
 }
 
