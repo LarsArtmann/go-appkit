@@ -21,52 +21,52 @@
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-|---|---|---|
-| 1 | `go.work` floor = `go 1.27` | `go.work:1` |
-| 2 | 4 modules hold the major.minor floor: root, config, flightrecorderhealth, realtime | `./scripts/check-go-directives.sh` → 4 plain `OK` lines |
-| 3 | 11 modules set to their tidy-stable minimum (dependency-forced): cqrs 1.27.2, docs 1.27.2, httpx 1.27.3, errorpages/flightrecorder/health/integration/otel/preset/security/systemd 1.27.4 | same guard run; each value measured with `go mod tidy -diff` |
-| 4 | Guard repurposed (`scripts/check-go-directives.sh`): BELOW floor = FATAL, ABOVE floor = OK with "dependency-forced, tidy is the authority", `toolchain` directive ban retained, header rewritten | guard exit 0, 15/15 OK |
-| 5 | `scripts/pre-tag-checks.sh` tagged-artifact rule relaxed the same way (was exact-equality, now below-floor-only, `sort -V` compare) | `scripts/pre-tag-checks.sh:100-106` |
-| 6 | 14 satellite `.golangci.yml` `run.go` pins moved 1.27.4 → 1.27 (root already 1.27) | `rg '  go: ' */.golangci.yml .golangci.yml` |
-| 7 | New shared helper `scripts/lib/toolchain.sh` (`go_toolchain_for <directive>`, `APPKIT_TOOLCHAIN_PATCH=1.27.4`) fixes the invalid-partial-toolchain class in one place | file + 8 call sites |
-| 8 | Rewired scripts: `verify-all.sh`, `tag-module.sh`, `verify-consumer.sh`, `check-response-drain.sh`, `check-gosum-canonical.sh`, `check-touched-modules.sh`, `check-pin-drift.sh`, `pre-tag-checks.sh` | 8 files; all `bash -n` clean |
-| 9 | `integration/pin_drift_test.go` `documentedGoDirective` = `1.27.4` with a comment stating it is the dependency-forced tidy-stable value, not policy | `integration/pin_drift_test.go:83-86` |
-| 10 | Module README de-staling: 7 READMEs claimed the repo pins `go 1.27.2`/`1.27.3` in every go.mod (already false before this session); now state the `go 1.27` floor + the `GOTOOLCHAIN=go1.27.4` belt | cqrs, docs, errorpages, flightrecorderhealth, health, otel, realtime, security, root README |
-| 11 | Fleet sweep (build+vet+test -race, hermetic): 14/15 modules PASS | `./scripts/verify-all.sh --skip-lint` → `/tmp/go-appkit-verify-f1TSjK`, 88s |
-| 12 | Answered "why 1.27.4 not 1.27" at code level with the CVE-per-train mapping | session answer |
+| #  | Item                                                                                                                                                                                                  | Evidence                                                                                    |
+| -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1  | `go.work` floor = `go 1.27`                                                                                                                                                                           | `go.work:1`                                                                                 |
+| 2  | 4 modules hold the major.minor floor: root, config, flightrecorderhealth, realtime                                                                                                                    | `./scripts/check-go-directives.sh` → 4 plain `OK` lines                                     |
+| 3  | 11 modules set to their tidy-stable minimum (dependency-forced): cqrs 1.27.2, docs 1.27.2, httpx 1.27.3, errorpages/flightrecorder/health/integration/otel/preset/security/systemd 1.27.4             | same guard run; each value measured with `go mod tidy -diff`                                |
+| 4  | Guard repurposed (`scripts/check-go-directives.sh`): BELOW floor = FATAL, ABOVE floor = OK with "dependency-forced, tidy is the authority", `toolchain` directive ban retained, header rewritten      | guard exit 0, 15/15 OK                                                                      |
+| 5  | `scripts/pre-tag-checks.sh` tagged-artifact rule relaxed the same way (was exact-equality, now below-floor-only, `sort -V` compare)                                                                   | `scripts/pre-tag-checks.sh:100-106`                                                         |
+| 6  | 14 satellite `.golangci.yml` `run.go` pins moved 1.27.4 → 1.27 (root already 1.27)                                                                                                                    | `rg '  go: ' */.golangci.yml .golangci.yml`                                                 |
+| 7  | New shared helper `scripts/lib/toolchain.sh` (`go_toolchain_for <directive>`, `APPKIT_TOOLCHAIN_PATCH=1.27.4`) fixes the invalid-partial-toolchain class in one place                                 | file + 8 call sites                                                                         |
+| 8  | Rewired scripts: `verify-all.sh`, `tag-module.sh`, `verify-consumer.sh`, `check-response-drain.sh`, `check-gosum-canonical.sh`, `check-touched-modules.sh`, `check-pin-drift.sh`, `pre-tag-checks.sh` | 8 files; all `bash -n` clean                                                                |
+| 9  | `integration/pin_drift_test.go` `documentedGoDirective` = `1.27.4` with a comment stating it is the dependency-forced tidy-stable value, not policy                                                   | `integration/pin_drift_test.go:83-86`                                                       |
+| 10 | Module README de-staling: 7 READMEs claimed the repo pins `go 1.27.2`/`1.27.3` in every go.mod (already false before this session); now state the `go 1.27` floor + the `GOTOOLCHAIN=go1.27.4` belt   | cqrs, docs, errorpages, flightrecorderhealth, health, otel, realtime, security, root README |
+| 11 | Fleet sweep (build+vet+test -race, hermetic): 14/15 modules PASS                                                                                                                                      | `./scripts/verify-all.sh --skip-lint` → `/tmp/go-appkit-verify-f1TSjK`, 88s                 |
+| 12 | Answered "why 1.27.4 not 1.27" at code level with the CVE-per-train mapping                                                                                                                           | session answer                                                                              |
 
 ---
 
 ## b) PARTIALLY DONE
 
-| # | Item | What is missing |
-|---|---|---|
+| #  | Item                         | What is missing                                                                                                                                                                                                                                                                                                   |
+| -- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 13 | Doc truth for the NEW policy | Three surfaces still claim "all 15 go.mods declare `go 1.27`", which the tidy measurement disproved: `AGENTS.md:7` (no per-module nuance), `AGENTS.md:50` ("All 15 go.mods … declare `go 1.27`"), `README.md:495-496`, `README.md:74-76`, `TODO_LIST.md:89` ("all 15 go.mods + go.work now declare major.minor"). |
-| 14 | `.buildflow.yml` gvac note | Head of the note was updated, but it now implies the gvac normalize class is retired. It is NOT: 11 modules carry 1.27.4 pins ABOVE the machine default (1.27.2), which is exactly the precondition that caused `b04fc20`. |
-| 15 | Guard strength | Below-floor is still caught; ABOVE-floor is now unchecked. The old strict-equality invariant (which caught the 2026-09-18 class) is gone with no replacement. Nothing verifies "above floor == tidy-stable". |
-| 16 | Verification depth | `verify-all` was run with `--skip-lint` only. No golangci-lint run after changing all 14 `run.go` pins. No govulncheck, no pre-tag guard set, no structure-linter, no example-smoke, no art-dupl, no cqrs-lint. |
-| 17 | Commit history | The change landed as daemon commits (`e151d00` "chore: auto-commit 14 changed file(s) (heuristic)", `af3665a` "chore: sync source and scripts"). No semantic commit message, no CHANGELOG, no design note records WHY the policy flipped. |
-| 18 | Module CHANGELOGs | Policy change touches every module's published contract; none of the 15 CHANGELOGs mention it. |
-| 19 | `integration` module | Not green. Fails on `templ.ResolveAttributeValue` (see d3). Not caused by this session's directive change. |
-| 20 | Lint-pin semantics | Moving `run.go` from 1.27.4 to 1.27 is unverified against golangci-lint's own consistency check (config `go` > module `go` warnings). |
+| 14 | `.buildflow.yml` gvac note   | Head of the note was updated, but it now implies the gvac normalize class is retired. It is NOT: 11 modules carry 1.27.4 pins ABOVE the machine default (1.27.2), which is exactly the precondition that caused `b04fc20`.                                                                                        |
+| 15 | Guard strength               | Below-floor is still caught; ABOVE-floor is now unchecked. The old strict-equality invariant (which caught the 2026-09-18 class) is gone with no replacement. Nothing verifies "above floor == tidy-stable".                                                                                                      |
+| 16 | Verification depth           | `verify-all` was run with `--skip-lint` only. No golangci-lint run after changing all 14 `run.go` pins. No govulncheck, no pre-tag guard set, no structure-linter, no example-smoke, no art-dupl, no cqrs-lint.                                                                                                   |
+| 17 | Commit history               | The change landed as daemon commits (`e151d00` "chore: auto-commit 14 changed file(s) (heuristic)", `af3665a` "chore: sync source and scripts"). No semantic commit message, no CHANGELOG, no design note records WHY the policy flipped.                                                                         |
+| 18 | Module CHANGELOGs            | Policy change touches every module's published contract; none of the 15 CHANGELOGs mention it.                                                                                                                                                                                                                    |
+| 19 | `integration` module         | Not green. Fails on `templ.ResolveAttributeValue` (see d3). Not caused by this session's directive change.                                                                                                                                                                                                        |
+| 20 | Lint-pin semantics           | Moving `run.go` from 1.27.4 to 1.27 is unverified against golangci-lint's own consistency check (config `go` > module `go` warnings).                                                                                                                                                                             |
 
 ---
 
 ## c) NOT STARTED
 
-| # | Item |
-|---|---|
-| 21 | Correcting the 5 stale doc claims listed in b13 and the gvac note in b14. |
-| 22 | A design note (`docs/planning/2026-11-23_*_go-directive-floor-policy.md`) recording the directive policy, the tidy-forced exception, and the toolchain belt. |
-| 23 | `scripts/check-go-tidy-stable.sh` — the missing guard that above-floor values are tidy-stable (pre-tag venue, network). |
-| 24 | Re-running `./scripts/verify-all.sh` WITH lint (sequential, one module at a time). |
-| 25 | `govulncheck` fleet confirmation at the go1.27.4 belt (the 2026-11-13 record is now one directive-generation old). |
+| #  | Item                                                                                                                                                                                                                                                      |
+| -- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 21 | Correcting the 5 stale doc claims listed in b13 and the gvac note in b14.                                                                                                                                                                                 |
+| 22 | A design note (`docs/planning/2026-11-23_*_go-directive-floor-policy.md`) recording the directive policy, the tidy-forced exception, and the toolchain belt.                                                                                              |
+| 23 | `scripts/check-go-tidy-stable.sh` — the missing guard that above-floor values are tidy-stable (pre-tag venue, network).                                                                                                                                   |
+| 24 | Re-running `./scripts/verify-all.sh` WITH lint (sequential, one module at a time).                                                                                                                                                                        |
+| 25 | `govulncheck` fleet confirmation at the go1.27.4 belt (the 2026-11-13 record is now one directive-generation old).                                                                                                                                        |
 | 26 | The standing guard set: `check-pin-drift`, `check-gosum-canonical`, `check-dependabot-parity`, `check-workspace-charter`, `check-sse-protocol`, `check-routed-destinations`, `check-golangci-configs`, `check-art-dupl`, structure-linter, example-smoke. |
-| 27 | Fixing the integration break (dashboard v0.12.2 vs templ v0.3.1100) and the stale `templ v0.3.1100 // indirect; pinned:` comment that still references templ-components v1.22.0. |
-| 28 | Any tag/release work: nothing is publishable until the release ritual runs against the new directives. |
-| 29 | TODO_LIST rows for: the integration break, the "re-tag family at 1.27 then lower dependents" plan, the gvac 1.27.4-pin risk. |
-| 30 | A first-class smoke test for `go_toolchain_for` (both branches). |
+| 27 | Fixing the integration break (dashboard v0.12.2 vs templ v0.3.1100) and the stale `templ v0.3.1100 // indirect; pinned:` comment that still references templ-components v1.22.0.                                                                          |
+| 28 | Any tag/release work: nothing is publishable until the release ritual runs against the new directives.                                                                                                                                                    |
+| 29 | TODO_LIST rows for: the integration break, the "re-tag family at 1.27 then lower dependents" plan, the gvac 1.27.4-pin risk.                                                                                                                              |
+| 30 | A first-class smoke test for `go_toolchain_for` (both branches).                                                                                                                                                                                          |
 
 ---
 
