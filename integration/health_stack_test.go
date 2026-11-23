@@ -84,7 +84,12 @@ func newHealthStackService(
 		health.WithCriticalServices("database"),
 		health.WithRefreshInterval(50*time.Millisecond))
 
-	mounted, err := appkithealth.New(probe)
+	// go-health v0.10.0 escape hatch — see health_durations_test.go for the
+	// pairing note (DefaultRoutes gains GET /version; appkit/health v0.3.2
+	// predates WithVersion stamps, so the version mount stays off here).
+	probeRoutes := health.DefaultRoutes()
+	probeRoutes.Version = ""
+	mounted, err := appkithealth.New(probe, appkithealth.WithProbeRoutes(probeRoutes))
 	if err != nil {
 		t.Fatalf("appkithealth.New: %v", err)
 	}

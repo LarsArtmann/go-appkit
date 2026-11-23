@@ -44,7 +44,15 @@ func TestHealthDurationsThroughAppkitService(t *testing.T) {
 		},
 	}, healthsdk.WithTimeout(250*time.Millisecond))
 
-	mounted, err := appkithealth.New(probe)
+	// go-health v0.10.0 (MVS-raised by go-health-dashboard v0.13.1+, the
+	// templ v0.3.1100 line) adds GET /version to DefaultRoutes and panics
+	// when the probe lacks a WithVersion stamp; appkit/health v0.3.2 predates
+	// stamps. Mount the three probe routes explicitly, version unmounted —
+	// the documented consumer escape hatch. Drops when appkit/health stamps
+	// by default (its next train).
+	probeRoutes := healthsdk.DefaultRoutes()
+	probeRoutes.Version = ""
+	mounted, err := appkithealth.New(probe, appkithealth.WithProbeRoutes(probeRoutes))
 	if err != nil {
 		t.Fatalf("appkithealth.New: %v", err)
 	}
