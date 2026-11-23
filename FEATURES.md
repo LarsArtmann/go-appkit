@@ -67,7 +67,11 @@ now delegates the server loop to a fresh `httputil.Server` per `Start` via
 
 ## cqrs (`github.com/larsartmann/go-appkit/cqrs`)
 
-Shipped through cqrs **v0.9.0** (2026-11-08: folded notifications — the
+Shipped through cqrs **v0.10.0** (2026-11-22: the go-cqrs-lite sweep —
+`metaengine/v4` v4.26.0, `system/v4` v4.19.0, `sqliteengine/v4` v4.9.1 with
+the EnforceCap deadlock fix, `systemscenario/v4` v4.3.0 — plus the default
+deployment moved onto `system.Standard`'s canonical three-tier topology,
+ADR-0165; v0.9.0, 2026-11-08, added folded notifications — the
 broadcast-strictly-after-fold contract, W5-C2; additions-only API diff vs
 v0.8.0).
 

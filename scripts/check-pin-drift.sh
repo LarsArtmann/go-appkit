@@ -278,15 +278,18 @@ for mod in github.com/larsartmann/cqrs-htmx/v4 github.com/larsartmann/go-sse git
 	fi
 done
 
-# 3) root go.mod vs go.work go directive.
+# 3) root go.mod vs go.work go directive. 2026-11-23 floor policy: the
+#    published floor is the root go.mod; go.work rides the MAX member
+#    directive (Go rejects a lower workspace line, measured 2026-11-23), so
+#    the rule is go.work >= root go.mod — equality OR above both pass.
 gomod_go="$(awk '$1 == "go" { print $2; exit }' go.mod 2>/dev/null || true)"
 gowork_go="$(awk '$1 == "go" { print $2; exit }' go.work 2>/dev/null || true)"
 if [[ -z "$gomod_go" || -z "$gowork_go" ]]; then
 	fail "could not read the go directive from go.mod/go.work"
-elif [[ "$gomod_go" == "$gowork_go" ]]; then
-	ok "go.mod and go.work agree on go $gomod_go"
+elif [[ "$(printf '%s\n%s\n' "$gomod_go" "$gowork_go" | sort -V | head -1)" == "$gomod_go" ]]; then
+	ok "go.work go $gowork_go >= published floor go $gomod_go (root go.mod; go.work rides the max member directive)"
 else
-	fail "go.mod says go $gomod_go but go.work says go $gowork_go (workspace mismatch — every local workspace command fails)"
+	fail "go.work says go $gowork_go but the published floor (root go.mod) is go $gomod_go — go.work must be >= every member directive (Go rejects a lower workspace line)"
 fi
 
 # 4) The SigNoz dashboard artifact exists at its documented path and parses
