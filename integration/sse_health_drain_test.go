@@ -24,7 +24,6 @@ import (
 	appkithealth "github.com/larsartmann/go-appkit/health"
 	"github.com/larsartmann/go-appkit/realtime"
 	"github.com/larsartmann/go-appkit/testkit"
-	healthsdk "github.com/larsartmann/go-health"
 	"github.com/larsartmann/go-sse"
 	"github.com/larsartmann/go-sse/ssetest"
 )
@@ -38,7 +37,7 @@ func TestSSEStreamClosesInLockstepWithHealthDrain(t *testing.T) {
 		appkithealth.NewProbe(map[string]appkithealth.CheckFunc{
 			"always-ok": func(context.Context) error { return nil },
 		}),
-		appkithealth.WithProbeRoutes(withoutVersionRoutes()))
+		appkithealth.WithProbeRoutes(versionlessProbeRoutes()))
 	if err != nil {
 		t.Fatalf("health mount: %v", err)
 	}

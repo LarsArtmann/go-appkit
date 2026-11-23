@@ -15,10 +15,25 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/event/v4"
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
 	"github.com/larsartmann/go-cqrs-lite/storage/memory/v4"
+	healthsdk "github.com/larsartmann/go-health"
 	"github.com/larsartmann/go-sse"
 	"github.com/larsartmann/go-sse/ssetest"
 	"github.com/oklog/ulid/v2"
 )
+
+// versionlessProbeRoutes returns the graph's DefaultRoutes with the version
+// mount unset. go-health v0.10.0 (MVS-raised by go-health-dashboard
+// v0.13.1+, the templ v0.3.1100 line) adds GET /version to DefaultRoutes and
+// panics at registration when the probe lacks a WithVersion stamp;
+// appkit/health v0.3.2 predates stamps. Mounting explicit routes with
+// Version "" is the documented consumer escape hatch — drops when
+// appkit/health stamps by default (its next train).
+func versionlessProbeRoutes() healthsdk.Routes {
+	routes := healthsdk.DefaultRoutes()
+	routes.Version = ""
+
+	return routes
+}
 
 // newSSEService starts an appkit.Service with the default middleware stack and
 // the SSE-safe composition the reference consumer (cqrs-htmx setup) uses:
