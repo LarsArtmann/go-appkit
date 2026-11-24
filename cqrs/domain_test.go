@@ -30,14 +30,14 @@ import (
 func TestMergeDomain_NilDomain_KeepsWrapperBehavior(t *testing.T) {
 	t.Parallel()
 
-	merged := mergeDomain(EventConfig{}, newInFlightTracker(), nil)
+	merged := mergeDomain(EventConfig{}, newInFlightTracker(), nil, nil)
 
 	if len(merged.Projections) != 1 {
 		t.Errorf("nil Domain: expected the single bootstrap projection, got %d", len(merged.Projections))
 	}
 
-	if len(merged.Middleware) != 1 {
-		t.Errorf("nil Domain: expected only the in-flight tracker middleware, got %d", len(merged.Middleware))
+	if len(merged.Middleware) != 2 {
+		t.Errorf("nil Domain: expected tracker + default-ON auditor middleware, got %d", len(merged.Middleware))
 	}
 
 	if merged.CheckpointStore != nil {
@@ -78,10 +78,10 @@ func TestMergeDomain_MiddlewareOrder_TrackerThenDomainThenConfig(t *testing.T) {
 	merged := mergeDomain(EventConfig{
 		CommandMiddleware: []command.Middleware{cfgMW},
 		Domain:            &system.DomainConfig{Middleware: []command.Middleware{domainMW}},
-	}, tracker, nil)
+	}, tracker, nil, nil)
 
-	if len(merged.Middleware) != 3 {
-		t.Fatalf("expected 3 middleware (tracker, domain, config), got %d", len(merged.Middleware))
+	if len(merged.Middleware) != 4 {
+		t.Fatalf("expected 4 middleware (tracker, auditor, domain, config), got %d", len(merged.Middleware))
 	}
 
 	handler := command.Handler(func(_ context.Context, _ command.Command) error { return nil })
@@ -124,7 +124,7 @@ func TestMergeDomain_ConsumerProjections_ReplaceBootstrap(t *testing.T) {
 
 	merged := mergeDomain(EventConfig{
 		Domain: &system.DomainConfig{Projections: consumer},
-	}, newInFlightTracker(), nil)
+	}, newInFlightTracker(), nil, nil)
 
 	if len(merged.Projections) != 1 {
 		t.Fatalf("consumer declared 1 projection: expected it verbatim, got %d", len(merged.Projections))
@@ -140,7 +140,7 @@ func TestMergeDomain_EmptyDomainProjections_KeepBootstrap(t *testing.T) {
 
 	merged := mergeDomain(EventConfig{
 		Domain: &system.DomainConfig{},
-	}, newInFlightTracker(), nil)
+	}, newInFlightTracker(), nil, nil)
 
 	if len(merged.Projections) != 1 {
 		t.Errorf("empty Domain projections: expected the bootstrap declaration, got %d", len(merged.Projections))
@@ -155,7 +155,7 @@ func TestMergeDomain_HostOptions_DerivedAppendedLast(t *testing.T) {
 	merged := mergeDomain(EventConfig{
 		Logger: slog.New(slog.DiscardHandler),
 		Domain: &system.DomainConfig{ProjectionHostOptions: []projectionhost.HostOption{marker}},
-	}, newInFlightTracker(), nil)
+	}, newInFlightTracker(), nil, nil)
 
 	// Domain's marker (1) + derived WithLogger (1); derived wiring sits
 	// after consumer options so it wins conflicts (hostOptions contract).
@@ -172,7 +172,7 @@ func TestMergeDomain_CheckpointStore_ConfigWins_ThenDomainFallback(t *testing.T)
 
 	fallback := mergeDomain(EventConfig{
 		Domain: &system.DomainConfig{CheckpointStore: fromDomain},
-	}, newInFlightTracker(), nil)
+	}, newInFlightTracker(), nil, nil)
 	if fallback.CheckpointStore != fromDomain {
 		t.Error("nil EventConfig.CheckpointStore must fall back to Domain.CheckpointStore")
 	}
@@ -180,7 +180,7 @@ func TestMergeDomain_CheckpointStore_ConfigWins_ThenDomainFallback(t *testing.T)
 	override := mergeDomain(EventConfig{
 		CheckpointStore: fromConfig,
 		Domain:          &system.DomainConfig{CheckpointStore: fromDomain},
-	}, newInFlightTracker(), nil)
+	}, newInFlightTracker(), nil, nil)
 	if override.CheckpointStore != fromConfig {
 		t.Error("EventConfig.CheckpointStore must win over Domain.CheckpointStore")
 	}
@@ -207,7 +207,7 @@ func TestMergeDomain_Passthrough_Verbatim(t *testing.T) {
 		},
 	}
 
-	merged := mergeDomain(EventConfig{Domain: consumer}, newInFlightTracker(), nil)
+	merged := mergeDomain(EventConfig{Domain: consumer}, newInFlightTracker(), nil, nil)
 
 	if reflect.ValueOf(merged.Commands).Pointer() != reflect.ValueOf(commands).Pointer() ||
 		reflect.ValueOf(merged.Queries).Pointer() != reflect.ValueOf(queries).Pointer() ||
