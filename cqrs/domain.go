@@ -37,9 +37,10 @@ func bootstrapProjections() []system.ProjectionDeclaration {
 //
 // Merge contract (pinned by domain_merge_test.go):
 //
-//   - Middleware: [in-flight drain tracker] + Domain.Middleware +
-//     CommandMiddleware — the tracker stays outermost so drain times the
-//     whole chain.
+//   - Middleware: [in-flight drain tracker] + [command auditor, default-ON]
+//     + Domain.Middleware + CommandMiddleware — the tracker stays outermost
+//     so drain times the whole chain; the auditor sits directly beneath it
+//     so even downstream-rejected commands are audited.
 //   - Projections: the wrapper's host-bootstrap declaration is appended ONLY
 //     when the consumer declares none (system.New builds the projection host
 //     exclusively when DomainConfig.Projections is non-empty).
@@ -59,12 +60,21 @@ func mergeDomain(
 	cfg EventConfig,
 	inFile *inFlightTracker,
 	dlqStore projectionhost.DeadLetterStore,
+	cmdAudit *commandAuditor,
 ) system.DomainConfig {
 	derivedHostOptions := cfg.hostOptions(dlqStore)
 
+	// Head of every chain: the drain tracker outermost, then the default-ON
+	// command auditor (inert until its store binds) so even downstream-
+	// rejected commands are audited.
+	head := []command.Middleware{inFile.commandMiddleware()}
+	if cmdAudit != nil {
+		head = append(head, cmdAudit.middleware())
+	}
+
 	if cfg.Domain == nil {
 		return system.DomainConfig{ //nolint:exhaustruct_v5 // domain registration is the consumer's job
-			Middleware:            append([]command.Middleware{inFile.commandMiddleware()}, cfg.CommandMiddleware...),
+			Middleware:            append(head, cfg.CommandMiddleware...),
 			Projections:           bootstrapProjections(),
 			ProjectionHostOptions: derivedHostOptions,
 			CheckpointStore:       cfg.CheckpointStore,
@@ -73,8 +83,7 @@ func mergeDomain(
 
 	domain := *cfg.Domain // shallow copy: declarations are immutable once built
 
-	domain.Middleware = concatCommandMiddleware(
-		[]command.Middleware{inFile.commandMiddleware()}, domain.Middleware, cfg.CommandMiddleware)
+	domain.Middleware = concatCommandMiddleware(head, domain.Middleware, cfg.CommandMiddleware)
 	domain.ProjectionHostOptions = append(
 		slices.Clone(domain.ProjectionHostOptions), derivedHostOptions...)
 

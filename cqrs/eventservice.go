@@ -138,6 +138,16 @@ type EventConfig struct {
 	// (see RegisterQuery). Nil (default) installs no middleware.
 	QueryMiddleware []query.Middleware
 
+	// Audit turns the default command/query audit trail off. The audit
+	// middlewares persist every dispatched command and query into the
+	// system's audit stores (with tracing metadata stamped into each
+	// record), which is what feeds the cqrs-htmx /cqrs/commands and
+	// /cqrs/queries panels — upstream ships those stores without writers,
+	// so without this the panels stay empty forever. Nil or &true (default)
+	// audits; &false opts out. Audit is best-effort: persistence failures
+	// log and never fail the operation.
+	Audit *bool
+
 	// HostOptions are passed through to the projection host for advanced
 	// tuning (WithMaxRestarts, WithBackoff, WithBatchSize,
 	// WithShutdownTimeout, ...). Options derived from Logger, Metrics,
@@ -444,7 +454,24 @@ func buildSystem(
 ) (*system.System, error) {
 	inFile := newInFlightTracker()
 
-	sys, err := system.New(context.Background(), mergeDomain(cfg, inFile, dlqStore), deployment)
+	// Default-ON audit trail (EventConfig.Audit opts out): the middlewares
+	// are inert until their stores are bound below, because system.New owns
+	// store construction.
+	logger := cfg.Logger
+	if logger == nil {
+		logger = slog.Default()
+	}
+
+	var cmdAudit *commandAuditor
+
+	var qryAudit *queryAuditor
+
+	if cfg.Audit == nil || *cfg.Audit {
+		cmdAudit = newCommandAuditor(logger)
+		qryAudit = newQueryAuditor(logger)
+	}
+
+	sys, err := system.New(context.Background(), mergeDomain(cfg, inFile, dlqStore, cmdAudit), deployment)
 	if err != nil {
 		return nil, errorfamily.WrapInfrastructuref(
 			err, "cqrs.system_failed", "failed to create CQRS system",
@@ -452,6 +479,17 @@ func buildSystem(
 	}
 
 	sys.RegisterDrainer(inFile)
+
+	if cmdAudit != nil {
+		cmdAudit.bind(sys.CommandStore())
+	}
+
+	if qryAudit != nil {
+		// Use BEFORE the consumer's QueryMiddleware so queries are audited
+		// even when downstream middleware rejects them.
+		qryAudit.bind(sys.QueryStore())
+		sys.QueryDispatcher().Use(qryAudit.middleware())
+	}
 
 	if len(cfg.QueryMiddleware) > 0 {
 		// Idempotency is deliberately not a framework default

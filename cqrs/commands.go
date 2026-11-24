@@ -114,6 +114,20 @@ func (svc *EventService) QueryDispatcher() *query.Dispatcher {
 	return svc.sys.QueryDispatcher()
 }
 
+// CommandStore exposes the system's command audit store (nil on deployments
+// without one). The default-ON audit middlewares write it; consumers may
+// read it to feed journals or the cqrs-htmx /cqrs/commands panel.
+func (svc *EventService) CommandStore() command.Store {
+	return svc.sys.CommandStore()
+}
+
+// QueryStore exposes the system's query audit store (nil on deployments
+// without one). The default-ON audit middlewares write it; consumers may
+// read it to feed journals or the cqrs-htmx /cqrs/queries panel.
+func (svc *EventService) QueryStore() query.QueryStore {
+	return svc.sys.QueryStore()
+}
+
 // inFlightTracker counts commands executing through the outermost
 // middleware slot so shutdown can wait for them before closing engines.
 // It implements system.Drainer and is registered on the system at
