@@ -38,7 +38,7 @@ func newCommandAuditor(logger *slog.Logger) *commandAuditor {
 		logger = slog.Default()
 	}
 
-	out := &commandAuditor{}
+	out := new(commandAuditor)
 	out.logger = logger
 
 	return out
@@ -161,7 +161,7 @@ func newQueryAuditor(logger *slog.Logger) *queryAuditor {
 		logger = slog.Default()
 	}
 
-	out := &queryAuditor{}
+	out := new(queryAuditor)
 	out.logger = logger
 
 	return out

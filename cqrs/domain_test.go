@@ -82,7 +82,10 @@ func TestMergeDomain_MiddlewareOrder_TrackerThenDomainThenConfig(t *testing.T) {
 	}, tracker, nil, nil)
 
 	if len(merged.Middleware) != 3 {
-		t.Fatalf("expected 3 middleware (tracker, domain, config — nil auditor adds nothing), got %d", len(merged.Middleware))
+		t.Fatalf(
+			"expected 3 middleware (tracker, domain, config — nil auditor adds nothing), got %d",
+			len(merged.Middleware),
+		)
 	}
 
 	handler := command.Handler(func(_ context.Context, _ command.Command) error { return nil })

@@ -38,7 +38,7 @@ func bootstrapProjections() []system.ProjectionDeclaration {
 // Merge contract (pinned by domain_merge_test.go):
 //
 //   - Middleware: [in-flight drain tracker] + [command auditor, default-ON]
-//     + Domain.Middleware + CommandMiddleware — the tracker stays outermost
+//   - Domain.Middleware + CommandMiddleware — the tracker stays outermost
 //     so drain times the whole chain; the auditor sits directly beneath it
 //     so even downstream-rejected commands are audited.
 //   - Projections: the wrapper's host-bootstrap declaration is appended ONLY
