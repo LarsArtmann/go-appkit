@@ -37,7 +37,8 @@ func TestMergeDomain_NilDomain_KeepsWrapperBehavior(t *testing.T) {
 	}
 
 	if len(merged.Middleware) != 1 {
-		t.Errorf("nil Domain: expected only the in-flight tracker middleware (nil auditor adds nothing), got %d", len(merged.Middleware))
+		t.Errorf("nil Domain: expected only the tracker (nil auditor adds nothing), got %d",
+			len(merged.Middleware))
 	}
 
 	if merged.CheckpointStore != nil {

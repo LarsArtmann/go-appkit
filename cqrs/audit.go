@@ -38,7 +38,10 @@ func newCommandAuditor(logger *slog.Logger) *commandAuditor {
 		logger = slog.Default()
 	}
 
-	return &commandAuditor{logger: logger}
+	out := &commandAuditor{}
+	out.logger = logger
+
+	return out
 }
 
 // bind attaches the audit sink once the system has constructed it. A nil
@@ -107,7 +110,9 @@ func auditStreamRef(cmd command.Command) (command.StreamRef, bool) {
 
 	ref := command.StreamRef{Type: auditStreamBucket, ID: cmd.StreamID()}
 	if ref.ID.IsZero() {
-		return command.StreamRef{}, false
+		var zero command.StreamRef
+
+		return zero, false
 	}
 
 	return ref, true
@@ -122,7 +127,7 @@ const auditStreamBucket = command.StreamType("appkit")
 // an OTel-context correlation ID wins, existing metadata values are
 // preserved, and correlation/request IDs are minted when still absent.
 func commandAuditMetadata(ctx context.Context, cmd command.Command) command.Metadata {
-	out := command.Metadata{}
+	var out command.Metadata
 	if carrier, ok := cmd.(interface{ Metadata() command.Metadata }); ok {
 		out = carrier.Metadata()
 	}
@@ -156,7 +161,10 @@ func newQueryAuditor(logger *slog.Logger) *queryAuditor {
 		logger = slog.Default()
 	}
 
-	return &queryAuditor{logger: logger}
+	out := &queryAuditor{}
+	out.logger = logger
+
+	return out
 }
 
 func (a *queryAuditor) bind(store query.QueryStore) {
@@ -181,41 +189,18 @@ func (a *queryAuditor) middleware() query.Middleware {
 	}
 }
 
-func (a *queryAuditor) record(ctx context.Context, q query.Query, start time.Time) {
+func (a *queryAuditor) record(ctx context.Context, qry query.Query, start time.Time) {
 	store := a.store.Load()
-	if store == nil || q == nil {
+	if store == nil || qry == nil {
 		return
 	}
 
-	opts := []query.QueryPersistOption{
-		query.WithQueryReceivedAt(start),
-	}
+	opts := queryAuditOptions(ctx, qry, start)
 
-	if carrier, ok := q.(query.MetadataCarrier); ok {
-		md := carrier.Metadata()
-		if !md.RequestID.IsZero() {
-			opts = append(opts, query.WithQueryID(md.RequestID))
-		}
-
-		if md.CorrelationID.IsZero() {
-			if raw := cqrsotel.CorrelationIDFromContext(ctx); raw != "" {
-				if parsed, err := id.ParseCorrelationID(raw); err == nil {
-					md.CorrelationID = parsed
-				}
-			}
-		}
-
-		if md.CorrelationID.IsZero() {
-			md.CorrelationID = id.NewCorrelationID()
-		}
-
-		opts = append(opts, query.WithQueryMetadata(md))
-	}
-
-	persisted, err := query.NewPersistedQuery(q.Type(), nil, opts...)
+	persisted, err := query.NewPersistedQuery(qry.Type(), nil, opts...)
 	if err != nil {
 		a.logger.WarnContext(ctx, "cqrs query audit: build persisted query failed",
-			slog.String("query_type", string(q.Type())), slog.String("error", err.Error()))
+			slog.String("query_type", string(qry.Type())), slog.String("error", err.Error()))
 
 		return
 	}
@@ -225,6 +210,39 @@ func (a *queryAuditor) record(ctx context.Context, q query.Query, start time.Tim
 	// worth auditing.
 	if saveErr := (*store).SaveQuery(context.WithoutCancel(ctx), persisted); saveErr != nil {
 		a.logger.WarnContext(ctx, "cqrs query audit: save failed",
-			slog.String("query_type", string(q.Type())), slog.String("error", saveErr.Error()))
+			slog.String("query_type", string(qry.Type())), slog.String("error", saveErr.Error()))
 	}
+}
+
+// queryAuditOptions assembles the persisted-query options: received-at,
+// the query's own request ID when it carries metadata, and tracing metadata
+// with correlation guaranteed (OTel context wins, else minted).
+func queryAuditOptions(ctx context.Context, qry query.Query, start time.Time) []query.QueryPersistOption {
+	opts := []query.QueryPersistOption{
+		query.WithQueryReceivedAt(start),
+	}
+
+	carrier, ok := qry.(query.MetadataCarrier)
+	if !ok {
+		return opts
+	}
+
+	metadata := carrier.Metadata()
+	if !metadata.RequestID.IsZero() {
+		opts = append(opts, query.WithQueryID(metadata.RequestID))
+	}
+
+	if metadata.CorrelationID.IsZero() {
+		if raw := cqrsotel.CorrelationIDFromContext(ctx); raw != "" {
+			if parsed, err := id.ParseCorrelationID(raw); err == nil {
+				metadata.CorrelationID = parsed
+			}
+		}
+	}
+
+	if metadata.CorrelationID.IsZero() {
+		metadata.CorrelationID = id.NewCorrelationID()
+	}
+
+	return append(opts, query.WithQueryMetadata(metadata))
 }
