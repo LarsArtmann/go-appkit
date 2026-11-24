@@ -36,8 +36,8 @@ func TestMergeDomain_NilDomain_KeepsWrapperBehavior(t *testing.T) {
 		t.Errorf("nil Domain: expected the single bootstrap projection, got %d", len(merged.Projections))
 	}
 
-	if len(merged.Middleware) != 2 {
-		t.Errorf("nil Domain: expected tracker + default-ON auditor middleware, got %d", len(merged.Middleware))
+	if len(merged.Middleware) != 1 {
+		t.Errorf("nil Domain: expected only the in-flight tracker middleware (nil auditor adds nothing), got %d", len(merged.Middleware))
 	}
 
 	if merged.CheckpointStore != nil {
@@ -80,8 +80,8 @@ func TestMergeDomain_MiddlewareOrder_TrackerThenDomainThenConfig(t *testing.T) {
 		Domain:            &system.DomainConfig{Middleware: []command.Middleware{domainMW}},
 	}, tracker, nil, nil)
 
-	if len(merged.Middleware) != 4 {
-		t.Fatalf("expected 4 middleware (tracker, auditor, domain, config), got %d", len(merged.Middleware))
+	if len(merged.Middleware) != 3 {
+		t.Fatalf("expected 3 middleware (tracker, domain, config — nil auditor adds nothing), got %d", len(merged.Middleware))
 	}
 
 	handler := command.Handler(func(_ context.Context, _ command.Command) error { return nil })
