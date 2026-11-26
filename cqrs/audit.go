@@ -149,100 +149,73 @@ func commandAuditMetadata(ctx context.Context, cmd command.Command) command.Meta
 	return out
 }
 
-// queryAuditor records query dispatches into the system's query audit store,
-// type + request ID + timing only (no payload — read-side records stay small).
-type queryAuditor struct {
-	store  atomic.Pointer[query.QueryStore]
-	logger *slog.Logger
-}
-
-func newQueryAuditor(logger *slog.Logger) *queryAuditor {
-	if logger == nil {
-		logger = slog.Default()
-	}
-
-	out := new(queryAuditor)
-	out.logger = logger
-
-	return out
-}
-
-func (a *queryAuditor) bind(store query.QueryStore) {
+// installQueryAudit records every dispatched query into the system's query
+// audit store through go-cqrs-lite's native query.AuditMiddleware: one
+// writer for the query log, here and in every other go-cqrs-lite consumer.
+// The audit middleware is outermost, so a query is recorded even when
+// consumer middleware rejects it; the correlation guard runs directly inside
+// it and stamps a correlation ID onto the query before anything else sees it,
+// so the record always correlates with the request. A deployment without a
+// query store installs nothing.
+func installQueryAudit(sys *system.System, level query.AuditLevel, logger *slog.Logger) {
+	store := sys.QueryStore()
 	if store == nil {
 		return
 	}
 
-	a.store.Store(&store)
+	sys.QueryDispatcher().Use(query.AuditMiddleware(store, level, logger), ensureQueryCorrelation())
 }
 
-func (a *queryAuditor) middleware() query.Middleware {
+// queryAuditLevel maps the config onto the native audit level: metadata only
+// by default, payload included when EventConfig.AuditPayload opts in.
+func queryAuditLevel(cfg EventConfig) query.AuditLevel {
+	if cfg.AuditPayload != nil && *cfg.AuditPayload {
+		return query.AuditFull
+	}
+
+	return query.AuditMetadata
+}
+
+// ensureQueryCorrelation is installed inside the audit middleware. The
+// native middleware carries a query's own metadata verbatim, so this guard
+// guarantees the one field an audit record must never lack: the correlation
+// ID. An OTel baggage correlation ID wins; otherwise one is minted.
+func ensureQueryCorrelation() query.Middleware {
 	return func(next query.Handler) query.Handler {
 		return func(ctx context.Context, q query.Query) (any, error) {
-			start := time.Now()
+			stampQueryCorrelation(ctx, q)
 
-			result, err := next(ctx, q)
-
-			a.record(ctx, q, start)
-
-			return result, err
+			return next(ctx, q)
 		}
 	}
 }
 
-func (a *queryAuditor) record(ctx context.Context, qry query.Query, start time.Time) {
-	store := a.store.Load()
-	if store == nil || qry == nil {
+// stampQueryCorrelation sets a correlation ID on a query that carries none.
+// Only a query that applies options in place (the BasicQuery shape every
+// transport decoder builds) can be stamped; any other shape keeps its own
+// metadata.
+func stampQueryCorrelation(ctx context.Context, q query.Query) {
+	carrier, ok := q.(query.MetadataCarrier)
+	if !ok || !carrier.Metadata().CorrelationID.IsZero() {
 		return
 	}
 
-	opts := queryAuditOptions(ctx, qry, start)
-
-	persisted, err := query.NewPersistedQuery(qry.Type(), nil, opts...)
-	if err != nil {
-		a.logger.WarnContext(ctx, "cqrs query audit: build persisted query failed",
-			slog.String("query_type", string(qry.Type())), slog.String("error", err.Error()))
-
-		return
-	}
-
-	// The record must survive the request lifecycle: a client giving up
-	// between handler completion and this save is exactly the query most
-	// worth auditing.
-	if saveErr := (*store).SaveQuery(context.WithoutCancel(ctx), persisted); saveErr != nil {
-		a.logger.WarnContext(ctx, "cqrs query audit: save failed",
-			slog.String("query_type", string(qry.Type())), slog.String("error", saveErr.Error()))
-	}
-}
-
-// queryAuditOptions assembles the persisted-query options: received-at,
-// the query's own request ID when it carries metadata, and tracing metadata
-// with correlation guaranteed (OTel context wins, else minted).
-func queryAuditOptions(ctx context.Context, qry query.Query, start time.Time) []query.QueryPersistOption {
-	opts := []query.QueryPersistOption{
-		query.WithQueryReceivedAt(start),
-	}
-
-	carrier, ok := qry.(query.MetadataCarrier)
+	applier, ok := q.(interface{ ApplyOptions(...query.Option) })
 	if !ok {
-		return opts
+		return
 	}
 
-	metadata := carrier.Metadata()
-	if !metadata.RequestID.IsZero() {
-		opts = append(opts, query.WithQueryID(metadata.RequestID))
-	}
+	applier.ApplyOptions(query.WithCorrelationID(auditCorrelationID(ctx)))
+}
 
-	if metadata.CorrelationID.IsZero() {
-		if raw := cqrsotel.CorrelationIDFromContext(ctx); raw != "" {
-			if parsed, err := id.ParseCorrelationID(raw); err == nil {
-				metadata.CorrelationID = parsed
-			}
+// auditCorrelationID resolves the correlation ID for an audit record: the
+// OTel context's when it carries a valid one, else a fresh ID.
+func auditCorrelationID(ctx context.Context) id.CorrelationID {
+	if raw := cqrsotel.CorrelationIDFromContext(ctx); raw != "" {
+		if parsed, err := id.ParseCorrelationID(raw); err == nil {
+			return parsed
 		}
 	}
 
-	if metadata.CorrelationID.IsZero() {
-		metadata.CorrelationID = id.NewCorrelationID()
-	}
-
-	return append(opts, query.WithQueryMetadata(metadata))
+	return id.NewCorrelationID()
 }
