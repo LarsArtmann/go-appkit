@@ -312,14 +312,16 @@ func TestEventService_AuditQuerySurvivesConsumerRejection(t *testing.T) {
 func TestEventService_AuditQueryWithoutStore(t *testing.T) {
 	t.Parallel()
 
-	cfg := EventConfig{ //nolint:exhaustruct_v5 // deployment under test: Driver and Deployment are the only inputs
-		Driver: memoryDriver,
-		Deployment: system.DeploymentConfig{ //nolint:exhaustruct_v5 // projection-only deployment: the query-audit role is deliberately absent
-			Engines: map[string]system.EngineConfig{
-				defaultEngineName: {Driver: memoryDriver},
-			},
-			Instances: []system.InstanceConfig{{Role: system.RoleProjections, Engine: defaultEngineName}},
+	projectionOnly := system.DeploymentConfig{ //nolint:exhaustruct_v5 // projection-only deployment: the query-audit role is deliberately absent
+		Engines: map[string]system.EngineConfig{
+			defaultEngineName: {Driver: memoryDriver},
 		},
+		Instances: []system.InstanceConfig{{Role: system.RoleProjections, Engine: defaultEngineName}},
+	}
+
+	cfg := EventConfig{ //nolint:exhaustruct_v5 // deployment under test: Driver and Deployment are the only inputs
+		Driver:     memoryDriver,
+		Deployment: &projectionOnly,
 	}
 
 	eventSvc, err := NewEventService(cfg)

@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -21,6 +23,7 @@ import (
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
 	"github.com/larsartmann/go-cqrs-lite/metaengine/v4"
 	"github.com/larsartmann/go-cqrs-lite/projection/v4"
+	"github.com/larsartmann/go-cqrs-lite/query/v4"
 	"github.com/larsartmann/go-cqrs-lite/system/v4"
 )
 
@@ -498,4 +501,93 @@ func ExampleEventService_System() {
 
 	// Output:
 	// {"ID":"task-1","Title":"Stream tasks","Status":"active","Priority":1}
+}
+
+// catalogSearch is the BasicQuery shape every transport decoder builds. It
+// exposes its payload, so the audit can record it when that is opted in.
+type catalogSearch struct {
+	*query.BasicQuery
+
+	Term string `json:"term"`
+}
+
+func (q *catalogSearch) Payload() []byte { return []byte(strconv.Quote(q.Term)) }
+
+func searchCatalog(_ context.Context, q *catalogSearch) ([]string, error) {
+	return []string{q.Term}, nil
+}
+
+// Every dispatched query is recorded with the user who asked it. The
+// default-ON query audit writes each read into the system's query store
+// through go-cqrs-lite's native audit middleware, so a recommendation or a
+// usage analysis can read "what did this user ask for". AuditPayload opts
+// the payload in, because a payload can hold what a user typed.
+func ExampleNewEventService_queryAudit() {
+	dir, err := os.MkdirTemp("", "cqrs-query-audit")
+	if err != nil {
+		fmt.Println("temp dir:", err)
+
+		return
+	}
+
+	defer func() { _ = os.RemoveAll(dir) }()
+
+	recordPayload := true
+
+	es, err := cqrs.NewEventService(cqrs.EventConfig{
+		DSN:          filepath.Join(dir, "events.db"),
+		Logger:       slog.New(slog.NewTextHandler(io.Discard, nil)),
+		AuditPayload: &recordPayload,
+	})
+	if err != nil {
+		fmt.Println("construct:", err)
+
+		return
+	}
+
+	defer func() { _ = es.Shutdown(context.Background()) }()
+
+	err = cqrs.RegisterQuery(es, "catalog.search", searchCatalog)
+	if err != nil {
+		fmt.Println("register:", err)
+
+		return
+	}
+
+	user := id.NewUserID()
+
+	basic, err := query.New("catalog.search", query.WithUserID(user))
+	if err != nil {
+		fmt.Println("query:", err)
+
+		return
+	}
+
+	results, err := cqrs.DispatchQuery[*catalogSearch, []string](
+		context.Background(), es, &catalogSearch{BasicQuery: basic, Term: "boots"},
+	)
+	if err != nil {
+		fmt.Println("dispatch:", err)
+
+		return
+	}
+
+	fmt.Println("results:", results)
+
+	records, err := es.QueryStore().LoadQueries(context.Background(), time.Time{})
+	if err != nil || len(records) != 1 {
+		fmt.Println("records:", len(records), err)
+
+		return
+	}
+
+	fmt.Println("recorded:", records[0].Type())
+	fmt.Println("mapped to the user:", records[0].Metadata().UserID == user)
+	fmt.Println("payload:", string(records[0].Payload()))
+
+	// Output:
+	// results: [boots]
+	// recorded: catalog.search
+	// mapped to the user: true
+	// payload: "boots"
 }
