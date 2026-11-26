@@ -1,6 +1,34 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+
+- Default-on command and query audit trail (`EventConfig.Audit` opts out with
+  `&false`). Every dispatched command and query is persisted, with its tracing
+  metadata, into the audit stores that go-cqrs-lite builds by default
+  (`system.Standard`'s engine-owned `commands` and `queries` collections): the
+  record's own metadata (user, actor, request, correlation, custom keys) is
+  carried, the correlation ID is taken from the OTel context or minted when
+  absent, and the request ID is minted when absent. A persistence failure is
+  logged and never fails the operation. This is the read-side record a usage
+  analysis or a recommendation builds on ("every query mapped to its user").
+  The query side is go-cqrs-lite's native `query.AuditMiddleware` (published
+  v4.10.1) rather than a second writer; the command side is a local recorder,
+  because no native command audit middleware exists. go-cqrs-lite leaves both
+  stores unwritten in a bare `system.New`, so without this recorder the
+  cqrs-htmx `/cqrs/commands` and `/cqrs/queries` panels stay empty. Read the
+  trail through the new `CommandStore()` and `QueryStore()` accessors (or
+  `System()`); the cqrs-htmx dashboard renders the same records. Pinned by the
+  eight `TestEventService_Audit*` tests in `audit_test.go` and the runnable
+  `ExampleNewEventService_queryAudit`. Known limit at the published
+  go-cqrs-lite pins: an audit row carries no typed timestamp, so the SQLite
+  journal sweeper keeps it (budget disk for the two collections, or opt out).
+- `EventConfig.AuditPayload *bool`: `&true` records each audited query's
+  payload beside its type, request ID and time (go-cqrs-lite's
+  `query.AuditFull` level). Off by default, so a read-side record never holds
+  what a user typed. A query exposes its payload by implementing
+  `query.PayloadCarrier`; every other query is recorded without it.
+
 ### Changed
 
 - Go directive lowered to the tidy-stable minimum `go 1.27.2` (was

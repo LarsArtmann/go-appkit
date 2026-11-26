@@ -56,6 +56,8 @@ Runnable end-to-end as `ExampleNewEventService` in `example_test.go`.
 | `CheckpointStore`       | `event.CheckpointStore`          | system engine-backed | Projection checkpoint store override. Default: system's engine-backed store (ADR-0142, the `system_checkpoints` collection) — persists for sqlite/postgres, volatile for memory. Escape hatch for the legacy SQL table: see "Upgrading from v0.6.x".                         |
 | `CommandMiddleware`     | `[]command.Middleware`           | none                 | Wraps every dispatched command. Compose via `DefaultCommandMiddleware(logger, tracer)` + your own. An in-flight drain tracker is installed outermost automatically.                                                                                                          |
 | `QueryMiddleware`       | `[]query.Middleware`             | none                 | Wraps every dispatched query.                                                                                                                                                                                                                                                |
+| `Audit`                 | `*bool`                          | on                   | Turns the default command/query audit trail off (`&false`). The trail persists every dispatched command and query, with its tracing metadata, into the system's audit stores; `CommandStore()`/`QueryStore()` read it. See "Audit records" below.                           |
+| `AuditPayload`          | `*bool`                          | off                  | `&true` records each audited query's payload beside its type (go-cqrs-lite's `query.AuditFull` level), for a query implementing `query.PayloadCarrier`. Off keeps what a user typed out of the record. No effect while `Audit` is off.                                     |
 | `Logger`                | `*slog.Logger`                   | `slog.Default()`     | Receives projection worker lifecycle events (crashes, restarts, dead-letter captures). Wire the same logger you gave `appkit.Service`.                                                                                                                                       |
 | `DLQ`                   | `*DLQConfig`                     | nil (disabled)       | Enables poison-event capture. Default store: SQLite table in the event database; default threshold: 3.                                                                                                                                                                       |
 | `FlightRecorder`        | `*fr.Recorder`                   | nil (disabled)       | Captures a runtime/trace snapshot when a worker terminally fails (WorkerFailed). Type is `github.com/larsartmann/go-flightrecorder` — the same recorder the appkit `flightrecorder` middleware uses, so ONE shared instance can serve both. One active recorder per process. |
@@ -349,6 +351,8 @@ eventSvc, err := cqrs.NewEventService(cqrs.EventConfig{
 | Method                                   | Returns                          | Purpose                                                                                                                                                                                                                                                                                             |
 | ---------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `System()`                               | `*system.System`                 | Full go-cqrs-lite surface: MetaEngine, Publisher, EventStore, SnapshotStore, introspection.                                                                                                                                                                                                         |
+| `CommandStore()`                         | `command.Store`                  | The command audit store the default trail writes; nil on deployments without one.                                                                                                                                                                                                                   |
+| `QueryStore()`                           | `query.QueryStore`               | The query audit store the default trail writes; nil on deployments without one. `ReadAllQueries` returns the whole trail.                                                                                                                                            |
 | `Host()`                                 | `*projectionhost.Host`           | Register projections before `StartProjections`.                                                                                                                                                                                                                                                     |
 | `DB()`                                   | `(*sql.DB, error)`               | Raw SQLite handle for own queries.                                                                                                                                                                                                                                                                  |
 | `DeadLetterStore()`                      | `projectionhost.DeadLetterStore` | The configured DLQ store, or nil when disabled.                                                                                                                                                                                                                                                     |
@@ -604,6 +608,11 @@ correlation. The payload is recorded only when `EventConfig.AuditPayload`
 opts in, because a payload can hold what a user typed. A query exposes its
 payload by implementing `query.PayloadCarrier`.
 
+A transport can add identity of its own. cqrs-htmx stamps the user and the
+actor onto every dispatched query and, when the browser sent its `X-Client-Id`
+header, the device key under the `client.id` metadata key. An anonymous read
+therefore maps to a device.
+
 ```go
 recordPayload := true
 
@@ -616,6 +625,12 @@ es, err := cqrs.NewEventService(cqrs.EventConfig{
 Read the trail through `es.QueryStore()` and `es.CommandStore()` (both nil on
 deployments without the matching audit role). The cqrs-htmx dashboard
 renders the same records on its command and query audit panels.
+
+Retention has a limit at the published go-cqrs-lite pins: an audit row carries
+no typed timestamp, so the SQLite journal sweeper keeps it. Budget disk for
+the `commands` and `queries` collections, or turn `Audit` off, until
+go-cqrs-lite ships age-based trimming for those collections and this module
+re-pins onto that tag.
 
 This recipe runs verbatim-equivalent as `ExampleNewEventService_queryAudit`
 in `example_test.go`; `readme_sync_test.go` fails if a README recipe and its

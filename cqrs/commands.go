@@ -115,14 +115,14 @@ func (svc *EventService) QueryDispatcher() *query.Dispatcher {
 }
 
 // CommandStore exposes the system's command audit store (nil on deployments
-// without one). The default-ON audit middlewares write it; consumers may
+// without one). The default-ON audit recorders write it; consumers may
 // read it to feed journals or the cqrs-htmx /cqrs/commands panel.
 func (svc *EventService) CommandStore() command.Store { //nolint:ireturn // upstream interface
 	return svc.sys.CommandStore()
 }
 
 // QueryStore exposes the system's query audit store (nil on deployments
-// without one). The default-ON audit middlewares write it; consumers may
+// without one). The default-ON audit recorders write it; consumers may
 // read it to feed journals or the cqrs-htmx /cqrs/queries panel.
 func (svc *EventService) QueryStore() query.QueryStore { //nolint:ireturn // upstream interface
 	return svc.sys.QueryStore()
