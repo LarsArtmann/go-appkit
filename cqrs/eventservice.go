@@ -142,10 +142,10 @@ type EventConfig struct {
 	// recorders persist every dispatched command and query into the
 	// system's audit stores (with tracing metadata stamped into each
 	// record), which is what feeds the cqrs-htmx /cqrs/commands and
-	// /cqrs/queries panels — upstream ships those stores without writers,
-	// so without this the panels stay empty forever. Nil or &true (default)
-	// audits; &false opts out. Audit is best-effort: persistence failures
-	// log and never fail the operation.
+	// /cqrs/queries panels: go-cqrs-lite leaves those stores unwritten by
+	// default, so without this the panels stay empty forever. Nil or
+	// &true (default) audits; &false opts out. Audit is best-effort:
+	// persistence failures log and never fail the operation.
 	Audit *bool
 
 	// AuditPayload records each audited query's payload beside its type.
@@ -464,10 +464,9 @@ func buildSystem(
 ) (*system.System, error) {
 	inFile := newInFlightTracker()
 
-	// Default-ON audit trail (EventConfig.Audit opts out): the command
-	// recorder is inert until its store is bound below, because system.New
-	// owns store construction; the query recorder is installed below for the
-	// same reason.
+	// Default-ON audit trail (EventConfig.Audit opts out): both recorders are
+	// installed only after system.New has built the stores they write to, so
+	// they are assembled first and wired below.
 	logger := cfg.Logger
 	if logger == nil {
 		logger = slog.Default()

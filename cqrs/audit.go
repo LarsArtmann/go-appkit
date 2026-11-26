@@ -14,7 +14,7 @@ import (
 
 // The audit trail persists every dispatched command and query into the
 // system's audit stores. go-cqrs-lite ships CommandStore()/QueryStore() as
-// passive sinks: nothing upstream writes to them, so the cqrs-htmx
+// passive sinks: a bare system.New leaves them unwritten, so the cqrs-htmx
 // /cqrs/commands and /cqrs/queries panels stay permanently empty unless the
 // composition root records dispatches itself (go-appkit#83). Both recorders
 // are default-ON (EventConfig.Audit) and best-effort: a persistence failure
@@ -27,9 +27,12 @@ import (
 // command audit middleware exists yet.
 //
 // Tracing metadata is stamped into every persisted record: the source
-// record's metadata is propagated, correlation and request IDs are minted
-// when absent, and an OTel-baggage correlation ID (cqrsotel) wins when the
-// context carries one. Causation is never fabricated.
+// record's metadata is propagated and request IDs are minted when absent.
+// A correlation ID is resolved per side: on a command the OTel-baggage
+// correlation ID (cqrsotel) wins over the metadata and a missing one is
+// minted; on a query the query's own correlation ID wins, the OTel one is
+// stamped onto a query that carries none, and one is minted as the last
+// resort. Causation is never fabricated.
 
 // commandAuditor records command dispatches into the system's command audit
 // store. The store only exists after system.New builds it, so the middleware
@@ -138,10 +141,8 @@ func commandAuditMetadata(ctx context.Context, cmd command.Command) command.Meta
 		out = carrier.Metadata()
 	}
 
-	if raw := cqrsotel.CorrelationIDFromContext(ctx); raw != "" {
-		if parsed, err := id.ParseCorrelationID(raw); err == nil {
-			out.CorrelationID = parsed
-		}
+	if correlationID, ok := correlationIDFromContext(ctx); ok {
+		out.CorrelationID = correlationID
 	}
 
 	if out.CorrelationID.IsZero() {
@@ -214,13 +215,28 @@ func stampQueryCorrelation(ctx context.Context, qry query.Query) {
 	applier.ApplyOptions(query.WithCorrelationID(auditCorrelationID(ctx)))
 }
 
+// correlationIDFromContext returns the correlation ID the OTel context
+// carries. False when the context carries none or a value that is not a
+// correlation ID.
+func correlationIDFromContext(ctx context.Context) (id.CorrelationID, bool) {
+	raw := cqrsotel.CorrelationIDFromContext(ctx)
+	if raw == "" {
+		return id.CorrelationID{}, false
+	}
+
+	parsed, err := id.ParseCorrelationID(raw)
+	if err != nil {
+		return id.CorrelationID{}, false
+	}
+
+	return parsed, true
+}
+
 // auditCorrelationID resolves the correlation ID for an audit record: the
 // OTel context's when it carries a valid one, else a fresh ID.
 func auditCorrelationID(ctx context.Context) id.CorrelationID {
-	if raw := cqrsotel.CorrelationIDFromContext(ctx); raw != "" {
-		if parsed, err := id.ParseCorrelationID(raw); err == nil {
-			return parsed
-		}
+	if correlationID, ok := correlationIDFromContext(ctx); ok {
+		return correlationID
 	}
 
 	return id.NewCorrelationID()
