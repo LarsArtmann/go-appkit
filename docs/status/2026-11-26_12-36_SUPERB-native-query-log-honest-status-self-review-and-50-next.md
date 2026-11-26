@@ -22,8 +22,9 @@ daemon pushes.
 (v2, 23 tasks, 116 micro-tasks, 1475 minutes estimated). Superseded v1:
 [`../planning/2026-11-26_05-55_SUPERB-user-mapped-queries-and-client-tracking.md`](../planning/2026-11-26_05-55_SUPERB-user-mapped-queries-and-client-tracking.md).
 
-**Position in the plan.** 4 of 23 tasks carry code and tests (T01, T02, T03, T04),
-about 14 percent of the estimated effort. T05 was only read.
+**Position in the plan.** 3 of 23 tasks are fully done (T02, T03, T04), about 11
+percent of the estimated effort. 4 are partially done (T01, T05, T07, T22), 16
+are not started.
 
 ---
 
@@ -137,7 +138,6 @@ and the full suite ran only at the end.
 | ---- | ---- | -------- |
 | Research | The native query log mapped: 23 facts with sources | Plan section 1 |
 | Probe | Audit write 56 to 59 µs per query, about 500 bytes a row; full read 30,000 rows in 594 ms; one subject read 150 values in 489 µs; sweep removed 0 query rows and 1 event row (control) | Plan section 1 and the appendix source |
-| T01 | Plan v2 written, self-checked by script (23 tasks, 1475 minutes, 116 micro-tasks, citations resolve), v1 marked superseded | Commits `1f22467`, `042a542`, `c65b1c4` |
 | T04 | cqrs-htmx: every dispatched query carries the device key under `client.id` (the key events already use); the request log line carries `client_id` | `151f5079`. Root suite with `-race` rc 0, lint 0 issues |
 | T02 | go-appkit `cqrs`: native `query.AuditMiddleware` replaces the hand-rolled `queryAuditor`, correlation guarantee kept | `fbe3eb9`. Suite with `-race` rc 0, lint 0 issues |
 | T03 | go-appkit `cqrs`: `EventConfig.AuditPayload` (opt-in payload), runnable example, README section "Audit records" | Same |
@@ -146,7 +146,7 @@ and the full suite ran only at the end.
 
 | Task | Done | Open |
 | ---- | ---- | ---- |
-| T01 | The plan file | Section 10 log and section 8 table are stale: every row still reads "pending" |
+| T01 | Plan v2 written and self-checked by script (23 tasks, 1475 minutes, 116 micro-tasks, citations resolve), v1 marked superseded (`1f22467`, `042a542`, `c65b1c4`) | Section 10 log and section 8 table are stale: every row still reads "pending" |
 | T05 | Read the dashboard and setup helpers | No edit. User and device on the query detail, and the two audit journals forwarded by `setup`, are not written |
 | T07 | README section | `cqrs/CHANGELOG.md` (the audit trail is undocumented, also before me), `FEATURES.md` row, `module-details.md` line |
 | T22 | The daemon committed everything | No authored commit with a detailed message. Nothing pushed. CI unknown |
