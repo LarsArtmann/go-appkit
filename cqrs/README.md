@@ -590,6 +590,37 @@ This recipe runs verbatim-equivalent as `ExampleNewEventService_domainCommandLif
 in `example_test.go`; `readme_sync_test.go` fails if a README recipe and its
 Example drift apart.
 
+### Audit records: every query and command mapped to its user
+
+Every dispatched command and query is recorded into the system's audit
+stores, default on. The query side installs go-cqrs-lite's native
+`query.AuditMiddleware`; the command side is a local recorder, because
+upstream ships no command audit middleware. A persistence failure is logged
+and never fails the operation. `EventConfig.Audit` turns both off.
+
+By default a query record holds its type, its request ID, the time it was
+received, and the metadata the transport stamped onto it: user, actor, and
+correlation. The payload is recorded only when `EventConfig.AuditPayload`
+opts in, because a payload can hold what a user typed. A query exposes its
+payload by implementing `query.PayloadCarrier`.
+
+```go
+recordPayload := true
+
+es, err := cqrs.NewEventService(cqrs.EventConfig{
+	DSN:          "events.db",
+	AuditPayload: &recordPayload,
+})
+```
+
+Read the trail through `es.QueryStore()` and `es.CommandStore()` (both nil on
+deployments without the matching audit role). The cqrs-htmx dashboard
+renders the same records on its command and query audit panels.
+
+This recipe runs verbatim-equivalent as `ExampleNewEventService_queryAudit`
+in `example_test.go`; `readme_sync_test.go` fails if a README recipe and its
+Example drift apart.
+
 ### Streaming read models
 
 Declared collections are watchable: `metaengine.NewWatcher` over the
