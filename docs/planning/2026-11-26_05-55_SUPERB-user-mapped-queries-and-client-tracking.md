@@ -1,9 +1,15 @@
 # SUPERB: user-mapped queries and client-side tracking
 
+> **SUPERSEDED 2026-11-26 11:19 CET. Do not execute this plan.**
+> The owner review found that it undervalues the native go-cqrs-lite query log: it builds a second
+> activity store beside a durable, user-mapped journal that already exists. The plan of record is
+> [`2026-11-26_11-19_SUPERB-native-query-log-and-client-tracking.md`](2026-11-26_11-19_SUPERB-native-query-log-and-client-tracking.md);
+> its section 2 lists every correction. Nothing in this file was executed.
+>
 > **Filed:** 2026-11-26 05:55 CET, go-appkit session (the repo where the question was asked).
-> **Plan of record:** this file. About 80% of the code lands in `~/projects/cqrs-htmx`; tasks
+> **Was:** the plan of record. About 80% of the code lands in `~/projects/cqrs-htmx`; tasks
 > carry a Repo column. go-appkit itself gets one small slice (T18) plus this plan.
-> **Status:** EXECUTING. The execution log is section 9.
+> **Status:** SUPERSEDED. Section 9 holds only the "Plan written" row.
 
 ## 0. The ask and the verdict
 

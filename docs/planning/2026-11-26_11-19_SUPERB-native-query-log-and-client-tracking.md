@@ -68,8 +68,8 @@ PUBLISHED versions go-appkit pins (`system/v4 v4.19.0`, `metaengine/sqliteengine
 | 8 | The event side has the convention: `event.MetadataKeyClientID = "client.id"`, `event.WithClientID`, `event.RequestScope.ClientID` | `event/v4/options.go:100,151`, `event/v4/request_context.go:26` | The query side should mirror it, not invent a second key. |
 | 9 | The journal reads are `ReadAllQueries` (everything), `ReadQueriesFrom(afterRequestID, limit)` (forward only) and `LoadQueries(after)`. Every stored query is its own stream, keyed by request ID | `query/v4/store.go:99-126`, `system/v4/adapter_query.go:59` | Gap 3: no read by user. |
 | 10 | Probe: `ReadAllQueries` decodes 30,000 rows in 594 ms (about 20 µs per row, linear). A subject-keyed `StreamRead` returns one subject's 150 values in 489 µs | probe, section 8 | A scan-based read by user is fine up to tens of thousands of rows; subject-keyed streams are the scale path and need no engine change. |
-| 11 | `JournalSweeper.TrimJournalBefore` exists on the SQLite engine only (Turso delegates). It deletes rows whose typed `occurred_at` is older than the cutoff and "conservatively" keeps rows without one | `metaengine/v4/stream_trim.go:44`, `sqliteengine/v4/stream_trim.go:52` | Retention is by typed timestamp. |
-| 12 | The typed WAL fills `occurred_at` from EVENT envelopes only; a command or query envelope makes the extractor return "not an event", so the column stays NULL | `sqliteengine/v4/typed_wal.go:37-46` | Gap 4: audit rows are never swept. |
+| 11 | `JournalSweeper.TrimJournalBefore` exists on the SQLite engine only (Turso delegates). It deletes rows whose typed `occurred_at` is older than the cutoff and "conservatively" keeps rows without one | `metaengine/v4/stream_trim.go:44`, `metaengine/sqliteengine/v4/stream_trim.go:52` | Retention is by typed timestamp. |
+| 12 | The typed WAL fills `occurred_at` from EVENT envelopes only; a command or query envelope makes the extractor return "not an event", so the column stays NULL | `metaengine/sqliteengine/v4/typed_wal.go:37-46` | Gap 4: audit rows are never swept. |
 | 13 | Probe: `TrimJournalBefore("queries", cutoff = now + 1 h)` removed 0 of 30,000 query rows. Control in the same database: the same call on `"events"` removed the event row | probe | Gap 4 is measured, not inferred. |
 | 14 | `System.TrimJournalBefore` and `System.TrimStream` resolve the EVENT store only | `system/v4/trim.go:27` | There is no maintenance surface for the audit logs. |
 | 15 | Probe: the audit write costs 56 to 59 µs per query on a file-backed SQLite WAL, about 500 bytes per row | probe | Default-on audit is cheap per query and unbounded over time, which is why gap 4 matters. |
@@ -198,7 +198,7 @@ keeps its default-on posture. The v5 default is an owner question once retention
 | **20%** | T14 to T19, 510 min | 80% | Dwell, logical page views, clicks and impressions arrive attributed, in an engine-owned journal. |
 | **Other 20%** | T20 to T23, 195 min | 100% | Gates green in three repos, skills current, plan closed. |
 
-## 5. Execution graph
+## 5. Execution graph (execution order)
 
 ```mermaid
 flowchart TD
@@ -250,43 +250,48 @@ flowchart LR
 
 ## 6. Comprehensive plan
 
-Sort key: Impact (1 to 5) descending, then customer value descending, then effort ascending.
-Hard dependencies override the sort and are named in the last column. The go-cqrs-lite tasks
-(T08 to T13) run as one batch inside one worktree, so they sit between the two consumer phases.
+Sort key: Impact (1 to 5) descending, then customer value descending, then effort ascending, then
+ID. The table IS in that order; "Rank" is that sort. "Exec" is the order this session runs the
+tasks in. The two differ only where a real constraint exists, named in "Depends on":
+
+- T01 runs first whatever its rank: nothing else may start before the plan of record is fixed.
+- The six go-cqrs-lite tasks (T08 to T13) run as one batch inside one worktree and land in one
+  fast-forward, so they follow the first consumer phase, which needs published pins only.
+- T14, T17 and T11 have no such constraint; they are simply reached later in the run.
+
 Estimates are 30 to 100 minutes each.
 
-| Rank | ID   | Task | Repo | Tier | Impact | Value | Effort | Depends on |
-| ---- | ---- | ---- | ---- | ---- | ------ | ----- | ------ | ---------- |
-| 1 | T01 | Plan v2, superseded banner on v1, probe evidence | go-appkit | 1% | 5 | 4 | 45 | none |
-| 2 | T04 | Device key on every dispatched query (`client.id`); `client_id` on the request log line | cqrs-htmx | 1% | 5 | 5 | 45 | T01 |
-| 3 | T02 | `cqrs`: native `query.AuditMiddleware` replaces the hand-rolled `queryAuditor`, correlation parity kept | go-appkit | 1% | 5 | 5 | 75 | T01 |
-| 4 | T03 | `cqrs`: `EventConfig.AuditPayload` (opt-in payload through `AuditFull`) | go-appkit | 1% | 4 | 4 | 40 | T02 |
-| 5 | T05 | `dashboardui` query detail shows user and device; `setup` forwards the two audit journals | cqrs-htmx | 1% | 4 | 5 | 75 | T04 |
-| 6 | T06 | cqrs-htmx docs: "User-mapped queries" recipe, CHANGELOGs | cqrs-htmx | 1% | 3 | 4 | 45 | T05 |
-| 7 | T07 | go-appkit docs: `cqrs` CHANGELOG entry for the audit trail, FEATURES row | go-appkit | 1% | 3 | 3 | 30 | T03 |
-| 8 | T10 | `system.WithQueryAudit(level, logger)`: the composition root ships the writer; `System.UseQueryMiddleware` | go-cqrs-lite | 4% | 5 | 5 | 75 | T06, T07 |
-| 9 | T11 | WAL retention: `occurred_at` on command and query envelopes; SQLite typed-WAL extraction | go-cqrs-lite | 4% | 5 | 4 | 100 | T10 |
-| 10 | T14 | `tracking.go`: wire contract, validation, same-origin guard, attribution, `TrackHandler`, `TrackingSink` | cqrs-htmx | 20% | 5 | 5 | 100 | T13 |
-| 11 | T17 | `setup`: signals journal on `system.AdapterCore`, subject-keyed streams; paths, mounts, accessor | cqrs-htmx | 20% | 5 | 5 | 100 | T14, T16 |
-| 12 | T08 | `query.MetadataKeyClientID`, `query.WithClientID` (v4 and `core/v5` twin) | go-cqrs-lite | 4% | 4 | 4 | 45 | T10 |
-| 13 | T09 | `query.ForUser`, `query.ForActor` (v4 and `core/v5` twin) | go-cqrs-lite | 4% | 4 | 4 | 60 | T08 |
-| 14 | T12 | `System.TrimQueryLogBefore`, `System.TrimCommandLogBefore` | go-cqrs-lite | 4% | 4 | 4 | 60 | T11 |
-| 15 | T16 | Embed and `TrackerScriptHandler`; JS unit tests in the existing harness | cqrs-htmx | 20% | 4 | 4 | 75 | T15 |
-| 16 | T18 | Playwright e2e: signals arrive attributed; opt-outs are silent | cqrs-htmx | 20% | 4 | 4 | 75 | T17 |
-| 17 | T13 | go-cqrs-lite docs and gates; branch fast-forwarded onto master | go-cqrs-lite | 4% | 4 | 3 | 75 | T09, T12 |
-| 18 | T20 | cqrs-htmx gate battery for every touched module | cqrs-htmx | other | 4 | 3 | 60 | T18, T19 |
-| 19 | T15 | `assets/tracker.js`: four signals, batching, keepalive, opt-outs | cqrs-htmx | 20% | 4 | 5 | 100 | T14 |
-| 20 | T22 | Commits in logical groups with detailed messages; push; CI check | all | other | 4 | 2 | 45 | T20, T21 |
-| 21 | T19 | Example `tracking-demo` with a read-your-signals page; smoke | cqrs-htmx | 20% | 2 | 3 | 60 | T17 |
-| 22 | T21 | Skills: cqrs-htmx section, go-cqrs-lite module row; skill gates | SKILLS | other | 2 | 3 | 45 | T20 |
-| 23 | T23 | Plan close-out: execution log, verification table, TODO rows, status | go-appkit | other | 3 | 2 | 45 | T22 |
+| Rank | ID   | Task | Repo | Tier | Impact | Value | Effort | Depends on | Exec |
+| ---- | ---- | ---- | ---- | ---- | ------ | ----- | ------ | ---------- | ---- |
+| 1 | T04 | Device key on every dispatched query (`client.id`); `client_id` on the request log line | cqrs-htmx | 1% | 5 | 5 | 45 | T01 | 2 |
+| 2 | T02 | `cqrs`: native `query.AuditMiddleware` replaces the hand-rolled `queryAuditor`, correlation parity kept | go-appkit | 1% | 5 | 5 | 75 | T01 | 3 |
+| 3 | T10 | `system.WithQueryAudit(level, logger)`: the composition root ships the writer; `System.UseQueryMiddleware` | go-cqrs-lite | 4% | 5 | 5 | 75 | T07 (batch order) | 9 |
+| 4 | T14 | `tracking.go`: wire contract, validation, same-origin guard, attribution, `TrackHandler`, `TrackingSink` | cqrs-htmx | 20% | 5 | 5 | 100 | T04 | 14 |
+| 5 | T17 | `setup`: signals journal on `system.AdapterCore`, subject-keyed streams; paths, mounts, accessor | cqrs-htmx | 20% | 5 | 5 | 100 | T14, T16 | 17 |
+| 6 | T01 | Plan v2, superseded banner on v1, probe evidence | go-appkit | 1% | 5 | 4 | 45 | none | 1 |
+| 7 | T11 | WAL retention: `occurred_at` on command and query envelopes; SQLite typed-WAL extraction | go-cqrs-lite | 4% | 5 | 4 | 100 | T10 | 11 |
+| 8 | T05 | `dashboardui` query detail shows user and device; `setup` forwards the two audit journals | cqrs-htmx | 1% | 4 | 5 | 75 | T04 | 5 |
+| 9 | T15 | `assets/tracker.js`: four signals, batching, keepalive, opt-outs | cqrs-htmx | 20% | 4 | 5 | 100 | T14 | 15 |
+| 10 | T03 | `cqrs`: `EventConfig.AuditPayload` (opt-in payload through `AuditFull`) | go-appkit | 1% | 4 | 4 | 40 | T02 | 4 |
+| 11 | T08 | `query.MetadataKeyClientID`, `query.WithClientID` (v4 and `core/v5` twin) | go-cqrs-lite | 4% | 4 | 4 | 45 | none | 8 |
+| 12 | T09 | `query.ForUser`, `query.ForActor` (v4 and `core/v5` twin) | go-cqrs-lite | 4% | 4 | 4 | 60 | T08 | 10 |
+| 13 | T12 | `System.TrimQueryLogBefore`, `System.TrimCommandLogBefore` | go-cqrs-lite | 4% | 4 | 4 | 60 | T11 | 12 |
+| 14 | T16 | Embed and `TrackerScriptHandler`; JS unit tests in the existing harness | cqrs-htmx | 20% | 4 | 4 | 75 | T15 | 16 |
+| 15 | T18 | Playwright e2e: signals arrive attributed; opt-outs are silent | cqrs-htmx | 20% | 4 | 4 | 75 | T17 | 18 |
+| 16 | T20 | cqrs-htmx gate battery for every touched module | cqrs-htmx | other | 4 | 3 | 60 | T18, T19 | 20 |
+| 17 | T13 | go-cqrs-lite docs and gates; branch fast-forwarded onto master | go-cqrs-lite | 4% | 4 | 3 | 75 | T09, T12 | 13 |
+| 18 | T22 | Commits in logical groups with detailed messages; push; CI check | all | other | 4 | 2 | 45 | T20, T21 | 22 |
+| 19 | T06 | cqrs-htmx docs: "User-mapped queries" recipe, CHANGELOGs | cqrs-htmx | 1% | 3 | 4 | 45 | T05 | 6 |
+| 20 | T07 | go-appkit docs: `cqrs` CHANGELOG entry for the audit trail, FEATURES row | go-appkit | 1% | 3 | 3 | 30 | T03 | 7 |
+| 21 | T23 | Plan close-out: execution log, verification table, TODO rows, status | go-appkit | other | 3 | 2 | 45 | T22 | 23 |
+| 22 | T21 | Skills: cqrs-htmx section, go-cqrs-lite module row; skill gates | SKILLS | other | 2 | 3 | 45 | T20 | 21 |
+| 23 | T19 | Example `tracking-demo` with a read-your-signals page; smoke | cqrs-htmx | 20% | 2 | 3 | 60 | T17 | 19 |
 
-Total estimate: 1475 minutes across 23 tasks. T14 is listed at rank 10 by its sort key but starts
-after T13 only because the same session executes in order; it has no code dependency on T13.
+Total estimate: 1475 minutes across 23 tasks.
 
 ## 7. Fine breakdown
 
-Micro-tasks are at most 12 minutes each. 117 micro-tasks.
+Micro-tasks are at most 12 minutes each. 116 micro-tasks.
 
 ### T01 Plan v2 (45 min)
 
