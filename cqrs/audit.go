@@ -4,24 +4,30 @@ import (
 	"context"
 	"log/slog"
 	"sync/atomic"
-	"time"
 
 	"github.com/larsartmann/go-cqrs-lite/command/v4"
 	"github.com/larsartmann/go-cqrs-lite/id/v4"
 	cqrsotel "github.com/larsartmann/go-cqrs-lite/otel/v4"
 	"github.com/larsartmann/go-cqrs-lite/query/v4"
+	"github.com/larsartmann/go-cqrs-lite/system/v4"
 )
 
-// The audit middlewares persist every dispatched command/query into the
+// The audit trail persists every dispatched command and query into the
 // system's audit stores. go-cqrs-lite ships CommandStore()/QueryStore() as
-// passive sinks — nothing upstream writes to them, so the cqrs-htmx
+// passive sinks: nothing upstream writes to them, so the cqrs-htmx
 // /cqrs/commands and /cqrs/queries panels stay permanently empty unless the
 // composition root records dispatches itself (go-appkit#83). Both recorders
 // are default-ON (EventConfig.Audit) and best-effort: a persistence failure
 // is logged and never fails the business operation.
 //
+// The two sides are wired differently, because go-cqrs-lite ships only one of
+// the two writers. The query side installs the native query.AuditMiddleware
+// (one writer for the query log everywhere; EventConfig.AuditPayload selects
+// its level). The command side is a local recorder, because no native
+// command audit middleware exists yet.
+//
 // Tracing metadata is stamped into every persisted record: the source
-// command's metadata is propagated, correlation and request IDs are minted
+// record's metadata is propagated, correlation and request IDs are minted
 // when absent, and an OTel-baggage correlation ID (cqrsotel) wins when the
 // context carries one. Causation is never fabricated.
 

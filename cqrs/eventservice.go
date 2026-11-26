@@ -454,21 +454,21 @@ func buildSystem(
 ) (*system.System, error) {
 	inFile := newInFlightTracker()
 
-	// Default-ON audit trail (EventConfig.Audit opts out): the middlewares
-	// are inert until their stores are bound below, because system.New owns
-	// store construction.
+	// Default-ON audit trail (EventConfig.Audit opts out): the command
+	// recorder is inert until its store is bound below, because system.New
+	// owns store construction; the query recorder is installed below for the
+	// same reason.
 	logger := cfg.Logger
 	if logger == nil {
 		logger = slog.Default()
 	}
 
+	auditOn := cfg.Audit == nil || *cfg.Audit
+
 	var cmdAudit *commandAuditor
 
-	var qryAudit *queryAuditor
-
-	if cfg.Audit == nil || *cfg.Audit {
+	if auditOn {
 		cmdAudit = newCommandAuditor(logger)
-		qryAudit = newQueryAuditor(logger)
 	}
 
 	sys, err := system.New(context.Background(), mergeDomain(cfg, inFile, dlqStore, cmdAudit), deployment)
@@ -484,11 +484,10 @@ func buildSystem(
 		cmdAudit.bind(sys.CommandStore())
 	}
 
-	if qryAudit != nil {
-		// Use BEFORE the consumer's QueryMiddleware so queries are audited
-		// even when downstream middleware rejects them.
-		qryAudit.bind(sys.QueryStore())
-		sys.QueryDispatcher().Use(qryAudit.middleware())
+	if auditOn {
+		// Installed BEFORE the consumer's QueryMiddleware so queries are
+		// audited even when downstream middleware rejects them.
+		installQueryAudit(sys, queryAuditLevel(cfg), logger)
 	}
 
 	if len(cfg.QueryMiddleware) > 0 {
