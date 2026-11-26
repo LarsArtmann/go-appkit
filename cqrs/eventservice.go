@@ -139,7 +139,7 @@ type EventConfig struct {
 	QueryMiddleware []query.Middleware
 
 	// Audit turns the default command/query audit trail off. The audit
-	// middlewares persist every dispatched command and query into the
+	// recorders persist every dispatched command and query into the
 	// system's audit stores (with tracing metadata stamped into each
 	// record), which is what feeds the cqrs-htmx /cqrs/commands and
 	// /cqrs/queries panels — upstream ships those stores without writers,
@@ -147,6 +147,16 @@ type EventConfig struct {
 	// audits; &false opts out. Audit is best-effort: persistence failures
 	// log and never fail the operation.
 	Audit *bool
+
+	// AuditPayload records each audited query's payload beside its type.
+	// Nil or &false (default) records type, request ID and timing only, so a
+	// read-side record stays small and never holds what a user typed. &true
+	// records the payload too (go-cqrs-lite's query.AuditFull level), which is
+	// what a recommendation or a usage analysis needs in order to know WHAT
+	// was asked. A query exposes its payload to the audit only by
+	// implementing query.PayloadCarrier; every other query is recorded without
+	// it. No effect when Audit is off.
+	AuditPayload *bool
 
 	// HostOptions are passed through to the projection host for advanced
 	// tuning (WithMaxRestarts, WithBackoff, WithBatchSize,
