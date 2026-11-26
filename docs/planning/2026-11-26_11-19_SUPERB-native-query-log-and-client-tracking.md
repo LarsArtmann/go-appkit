@@ -654,8 +654,8 @@ func check(err error) {
 ## 11. Errata
 
 - v1 was wrong about where the work belongs (section 2) and overstated its own precision: it said
-  "about 1170 minutes" where the effort column summed to 1205, and "118 micro-tasks" where the
-  table held 117.
+  "about 1170 minutes" where its effort column summed to 1205, and its fine breakdown holds 117
+  micro-tasks while the chat report that presented it said 118.
 - v1's errata line called appkit's `queryAuditor` a near-duplicate of `query.AuditMiddleware`. That
   is right for the query side only: go-cqrs-lite ships no command-side audit middleware, so the
   hand-rolled `commandAuditor` has no native twin.
