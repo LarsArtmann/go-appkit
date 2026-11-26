@@ -160,7 +160,7 @@ func newAuditedQuery(t *testing.T, body []byte) *auditedQuery {
 		t.Fatalf("query.New: %v", err)
 	}
 
-	return &auditedQuery{BasicQuery: basic, body: body} //nolint:exhaustruct_v5 // test fixture: only the payload field is optional
+	return &auditedQuery{BasicQuery: basic, body: body}
 }
 
 func registerAuditedQuery(t *testing.T, eventSvc *EventService) {
@@ -312,14 +312,15 @@ func TestEventService_AuditQuerySurvivesConsumerRejection(t *testing.T) {
 func TestEventService_AuditQueryWithoutStore(t *testing.T) {
 	t.Parallel()
 
-	projectionOnly := system.DeploymentConfig{ //nolint:exhaustruct_v5 // projection-only deployment: the query-audit role is deliberately absent
+	// A projection-only deployment: the query-audit role is deliberately absent.
+	projectionOnly := system.DeploymentConfig{
 		Engines: map[string]system.EngineConfig{
 			defaultEngineName: {Driver: memoryDriver},
 		},
 		Instances: []system.InstanceConfig{{Role: system.RoleProjections, Engine: defaultEngineName}},
 	}
 
-	cfg := EventConfig{ //nolint:exhaustruct_v5 // deployment under test: Driver and Deployment are the only inputs
+	cfg := EventConfig{ // Driver and Deployment are the only inputs under test.
 		Driver:     memoryDriver,
 		Deployment: &projectionOnly,
 	}

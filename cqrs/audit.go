@@ -200,13 +200,13 @@ func ensureQueryCorrelation() query.Middleware {
 // Only a query that applies options in place (the BasicQuery shape every
 // transport decoder builds) can be stamped; any other shape keeps its own
 // metadata.
-func stampQueryCorrelation(ctx context.Context, q query.Query) {
-	carrier, ok := q.(query.MetadataCarrier)
+func stampQueryCorrelation(ctx context.Context, qry query.Query) {
+	carrier, ok := qry.(query.MetadataCarrier)
 	if !ok || !carrier.Metadata().CorrelationID.IsZero() {
 		return
 	}
 
-	applier, ok := q.(interface{ ApplyOptions(...query.Option) })
+	applier, ok := qry.(interface{ ApplyOptions(opts ...query.Option) })
 	if !ok {
 		return
 	}

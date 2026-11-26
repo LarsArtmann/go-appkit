@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -536,7 +535,7 @@ func ExampleNewEventService_queryAudit() {
 
 	es, err := cqrs.NewEventService(cqrs.EventConfig{
 		DSN:          filepath.Join(dir, "events.db"),
-		Logger:       slog.New(slog.NewTextHandler(io.Discard, nil)),
+		Logger:       slog.New(slog.DiscardHandler),
 		AuditPayload: &recordPayload,
 	})
 	if err != nil {
