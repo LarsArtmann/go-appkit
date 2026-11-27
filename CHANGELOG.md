@@ -1,6 +1,19 @@
 # Changelog
 
 ## [Unreleased]
+
+Module changes live in their module CHANGELOGs' `[Unreleased]` sections (the
+2026-11-13 split-brain resolution: the `cqrs` deployment bullet moved to
+`cqrs/CHANGELOG.md`).
+
+## [0.13.1] - 2026-11-24
+
+Patch re-tag with zero API delta: the core module differs from v0.13.0 by
+exactly one line, its `go` directive (verified 2026-11-27 with
+`git diff v0.13.0 v0.13.1 -- go.mod '*.go' ':!*/**'`: no Go source moved).
+The lint-stack entry below had been in the tree since 2026-11-14 and is
+therefore already part of v0.13.0; it was recorded after that tag.
+
 ### Changed
 
 - Go directive lowered to the published floor `go 1.27` (was `go 1.27.4`):
@@ -10,12 +23,11 @@
   until the family re-tags — policy record:
   docs/planning/2026-11-23_go-directive-floor-policy.md). The patched
   go1.27.4 toolchain keeps riding the GOTOOLCHAIN build belts (GO-2026-6859/
-  6809/6617 clearance now lives there, not in the directive).
+  6809/6617 clearance now lives there, not in the directive). This is the
+  reason for the re-tag: v0.13.0 carried `go 1.27.4` and forced every
+  consumer's directive up on tidy.
 
 - Repo-level CI lint stack raised to v2.15.0 (`golangci-lint@v2.15.0`), with the errorfamily `wrapcheck` exemption added to the root `.golangci.yml` (`- go-error-family.` import-path sig — the fleet convention; v2.15's signature-based wrapcheck otherwise flags errorfamily constructors as unwrapped externals). Verified green locally with the v2.15.0 binary on the root module and 13 sub-modules; the `integration` module's lint invocation fails on its go.work pattern shape independent of this change (pre-existing).
-Module changes live in their module CHANGELOGs' [Unreleased] sections (the
-2026-11-13 split-brain resolution: the `cqrs` deployment bullet moved to
-`cqrs/CHANGELOG.md`).
 
 ## [0.13.0] - 2026-11-21
 

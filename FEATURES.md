@@ -39,7 +39,10 @@ aspirations.
 | Listener seam (`Listener`: unix sockets, socket activation) | FULLY_FUNCTIONAL (v0.13.0; ownership at `Start`, single-serve carried) | `service.go`, `listener_test.go`, integration E2E |
 | Log-handler seam (`LogHandler slog.Handler`)                | FULLY_FUNCTIONAL (v0.13.0; level/format ignored in that mode)          | `config.go`, `loghandler_test.go`                 |
 
-Shipped through core **v0.13.0** (2026-11-21; the SUPERB v17 seam train —
+Shipped through core **v0.13.1** (2026-11-24; the floor re-tag — the module's
+`go` directive returned to the published `go 1.27` floor, so a consumer's own
+directive is no longer forced up on tidy; zero API delta). The two rows above
+arrived in v0.13.0 (2026-11-21; the SUPERB v17 seam train —
 `ServiceConfig.Listener` pre-bound-listener injection + `ServiceConfig.LogHandler`
 any-slog-backend; both additions-only, `go doc -all` diff = the two fields).
 Prior cut: **v0.12.0** (2026-11-07; the composition swap — `Service`
