@@ -505,7 +505,6 @@ func buildSystem(
 		// to the consumer, who appends middleware.CommandIdempotency over their
 		// own durable store. This line wires the QUERY dispatcher — no side
 		// effects to dedupe.
-		//cqrs-lint:ignore(A016)
 		sys.QueryDispatcher().Use(cfg.QueryMiddleware...)
 	}
 

@@ -9,6 +9,14 @@
   // repo-wide. Only permanent framework-wrapper properties are disabled.
   "rules": {
     "disable": [
+      // Idempotency is deliberately not a framework default
+      // (DefaultCommandMiddleware policy): duplicate-command semantics belong
+      // to the consumer, who appends middleware.CommandIdempotency over their
+      // own durable store — the same policy as F007 below. The rule anchors
+      // on the package's first dispatcher Use call, which moved from
+      // eventservice.go to audit.go when the audit trail landed (2026-11-26
+      // stale-directive warning); a config disable cannot drift.
+      "A016",
       // appkit/cqrs is a framework wrapper: consumers get Bundle()/dispatch
       // seams and wire their own domain. No module in this repo is a
       // go-cqrs-lite domain app, so "decorative event sourcing" can never be

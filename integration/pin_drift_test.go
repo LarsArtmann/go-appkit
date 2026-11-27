@@ -25,7 +25,7 @@ import (
 // scripts/check-pin-drift.sh check 2 at setup/go.mod instead of the newest
 // family tag. Nothing else in this file or the script needs to change.
 var documentedPins = map[string]string{
-	"github.com/larsartmann/go-appkit":                      "v0.13.0",
+	"github.com/larsartmann/go-appkit":                      "v0.13.1",
 	"github.com/larsartmann/go-appkit/cqrs":                 "v0.10.0",
 	"github.com/larsartmann/go-appkit/docs":                 "v0.3.4",
 	"github.com/larsartmann/go-appkit/errorpages":           "v0.1.3",

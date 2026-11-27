@@ -4,7 +4,7 @@ go 1.27.4
 
 require (
 	github.com/larsartmann/cqrs-htmx/v4 v4.15.0
-	github.com/larsartmann/go-appkit v0.13.0
+	github.com/larsartmann/go-appkit v0.13.1
 	github.com/larsartmann/go-appkit/cqrs v0.10.0
 	github.com/larsartmann/go-appkit/docs v0.3.4
 	github.com/larsartmann/go-appkit/errorpages v0.1.3
