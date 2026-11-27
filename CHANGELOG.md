@@ -6,6 +6,39 @@ Module changes live in their module CHANGELOGs' `[Unreleased]` sections (the
 2026-11-13 split-brain resolution: the `cqrs` deployment bullet moved to
 `cqrs/CHANGELOG.md`).
 
+### Added
+
+- **Route registry seam + opt-in endpoint listing (H8 answered, 2026-11-27).**
+  The core service now owns a `httputil/endpoints` registry:
+  `Service.Handle` / `Service.HandleFunc` mount a route on the mux AND record
+  it in one declaration, the framework's own routes (health family, metrics,
+  version) go through the same seam, and `ServiceConfig.Endpoints` mounts
+  `GET /endpoints`: the live route table, JSON for API clients or an HTML
+  table for browsers, so it can never drift from what the service serves.
+  The listing is opt-in and authentication is mandatory by default (Basic
+  Auth, the service's own `Guard`, or an explicit `AllowUnauthenticated`)
+  because it IS the route topology. `Service.Routes` exposes the registry
+  (`Routes()` returns the recorded rows, listing enabled or not). New
+  dependency: `github.com/larsartmann/httputil/endpoints v0.1.0`
+  (stdlib-only). New codes: `appkit.route_rejected` on the Rejection
+  `Handle`/`HandleFunc` return for a pattern the mux refused, and
+  `appkit.endpoints_config_invalid`. Pinned by `endpoints_test.go` (13 tests:
+  listing content including the framework routes, negotiation, Basic Auth,
+  `Guard`, custom path, construction rejections, the raw-mux caveat, and a
+  static guard that no core route bypasses the seam).
+
+### Changed
+
+- **A rejected framework route is a construction error, not a panic.**
+  `NewService` used to let `http.ServeMux` panic on a malformed
+  `Metrics.Path`; the registry translates the mux's panic into an error, so
+  `NewService` now returns a Rejection (`appkit.route_rejected`) naming the
+  pattern. No behavior change for valid configurations (pinned by
+  `TestMetrics_MalformedPathRejectedAtConstruction`).
+- The metrics Basic Auth guard moved behind a shared `basicAuth` helper that
+  the endpoint listing reuses (realm `metrics` unchanged; the listing answers
+  `Basic realm="endpoints"`).
+
 ## [0.13.1] - 2026-11-24
 
 Patch re-tag with zero API delta: the core module differs from v0.13.0 by

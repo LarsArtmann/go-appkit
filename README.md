@@ -292,7 +292,7 @@ svc, err := appkit.NewService(appkit.ServiceConfig{
 })
 // ...
 err = svc.HandleFunc("GET /users/{id}", getUser, "Fetch one user")
-err = svc.Handle("POST /users", createUser, "Create a user")
+err = svc.Handle("POST /users", http.HandlerFunc(createUser), "Create a user")
 ```
 
 `GET /endpoints` then serves the whole table, the framework's own routes
