@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/log v1.0.0
 	github.com/larsartmann/go-error-family v0.12.0
 	github.com/larsartmann/httputil v1.8.0
+	github.com/larsartmann/httputil/endpoints v0.1.0
 	github.com/larsartmann/httputil/server_timing v1.0.3
 )
 
@@ -22,7 +23,6 @@ require (
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
 	github.com/larsartmann/go-etag/server v0.6.1 // indirect
-	github.com/larsartmann/httputil/endpoints v0.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect

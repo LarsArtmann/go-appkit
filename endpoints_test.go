@@ -395,7 +395,8 @@ func TestService_HandleRejectsDuplicateRoute(t *testing.T) {
 
 	svc := testkit.NewService(t, appkit.DefaultServiceConfig())
 
-	err := svc.HandleFunc("GET /health", func(http.ResponseWriter, *http.Request) {}, "a duplicate of the framework route")
+	err := svc.HandleFunc("GET /health", func(http.ResponseWriter, *http.Request) {},
+		"a duplicate of the framework route")
 	if err == nil {
 		t.Fatal("registering a pattern twice must be rejected")
 	}
@@ -411,6 +412,7 @@ func TestService_HandleRejectsDuplicateRoute(t *testing.T) {
 	// The rejected route left nothing behind: the framework's own row is
 	// the only one for that pattern.
 	count := 0
+
 	for _, route := range svc.Routes.Routes() {
 		if route.Pattern == "GET /health" {
 			count++
@@ -470,8 +472,12 @@ func TestCoreModule_RegistersOnlyThroughTheRegistry(t *testing.T) {
 			}
 
 			if rawMuxRegistration.MatchString(trimmed) {
-				t.Errorf("%s:%d registers directly on the mux (%s) — framework routes go through Service.Handle/HandleFunc",
-					name, lineNo+1, trimmed)
+				t.Errorf(
+					"%s:%d registers directly on the mux (%s) — framework routes go through Service.Handle/HandleFunc",
+					name,
+					lineNo+1,
+					trimmed,
+				)
 			}
 		}
 	}

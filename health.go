@@ -8,7 +8,12 @@ import (
 
 // RegisterHealth registers /health, /health/live, and /health/ready on the given mux
 // using httputil's default handlers. This is a convenience wrapper around
-// httputil.RegisterHealth.
+// httputil.RegisterHealth for services that build their own mux.
+//
+// It mounts directly on the mux, so the routes are absent from a
+// [Service] endpoint listing ([ServiceConfig.Endpoints]): appkit services
+// get the same three routes through the registry by leaving
+// [ServiceConfig.RegisterHealth] at its default.
 func RegisterHealth(mux *http.ServeMux) {
 	httputil.RegisterHealth(mux)
 }
