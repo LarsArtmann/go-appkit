@@ -43,6 +43,7 @@ type commandAuditor struct {
 }
 
 func newCommandAuditor(logger *slog.Logger) *commandAuditor {
+	//art-dupl:accept nil-logger fallback to slog.Default is a cross-module idiom (otel/diagnostics.go); sharing would couple two independently versioned modules
 	if logger == nil {
 		logger = slog.Default()
 	}
