@@ -10,6 +10,7 @@ import (
 
 	"github.com/larsartmann/go-appkit"
 	"github.com/larsartmann/go-appkit/testkit"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // getURL issues a ctx-aware GET (delegates to testkit; the request uses
@@ -117,6 +118,29 @@ func TestMetrics_UnauthenticatedConstructionRejected(t *testing.T) {
 	_, err := appkit.NewService(cfg)
 	if err == nil {
 		t.Fatal("unauthenticated metrics must be rejected at construction")
+	}
+}
+
+// TestMetrics_MalformedPathRejectedAtConstruction: a Metrics.Path that is
+// not a valid ServeMux pattern used to panic inside NewService; the route
+// registry turns the mux's panic into a Rejection naming the pattern.
+func TestMetrics_MalformedPathRejectedAtConstruction(t *testing.T) {
+	t.Parallel()
+
+	cfg := appkit.DefaultServiceConfig()
+	cfg.Metrics = &appkit.MetricsConfig{
+		Path:          "/{x", // starts with '/', so it passes the config check; not a valid ServeMux pattern
+		BasicAuthUser: "metrics",
+		BasicAuthPass: "secret",
+	}
+
+	_, err := appkit.NewService(cfg)
+	if err == nil {
+		t.Fatal("a malformed metrics path must be rejected at construction")
+	}
+
+	if code := errorfamily.Code(err); code != "appkit.route_rejected" {
+		t.Errorf("error code = %q, want appkit.route_rejected; err: %v", code, err)
 	}
 }
 
