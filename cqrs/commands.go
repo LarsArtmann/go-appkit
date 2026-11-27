@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/larsartmann/go-cqrs-lite/command/v4" // cqrs-lint:ignore(F032) framework wrapper, not a domain app: consumers derive their catalog from their own DomainConfig (systemcatalog; F032 policy 2026-11-03)
+	"github.com/larsartmann/go-cqrs-lite/command/v4"
 	"github.com/larsartmann/go-cqrs-lite/decider/v4"
 	"github.com/larsartmann/go-cqrs-lite/middleware/v4"
 	cqrsotel "github.com/larsartmann/go-cqrs-lite/otel/v4"

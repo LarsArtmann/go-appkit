@@ -12,8 +12,8 @@
       // appkit/cqrs is a framework wrapper: consumers get Bundle()/dispatch
       // seams and wire their own domain. No module in this repo is a
       // go-cqrs-lite domain app, so "decorative event sourcing" can never be
-      // the right verdict here (same class as the F032 suppression at the
-      // command/v4 import and the A018 disable in cqrs/.cqrs-lint.json).
+      // the right verdict here (same class as the F032 disable below and
+      // the A018 disable in cqrs/.cqrs-lint.json).
       "A024",
       // Delivery is realtime's job (SSE) plus consumer wiring (cqrs-htmx);
       // the cqrs module is transport-free by design (WebSocket removed
@@ -27,6 +27,13 @@
       // package line including comments (proven 2026-10-13 and re-proven
       // 2026-11-13), so the suppression lives here instead.
       "E014",
+      // Catalog-driven documentation is the consumer's job: this wrapper has
+      // no domain of its own, and consumers derive their catalog from their
+      // own DomainConfig (systemcatalog; F032 policy 2026-11-03). The rule
+      // anchors on the package's FIRST go-cqrs-lite import, so an inline
+      // directive moved from commands.go to audit.go the moment audit.go
+      // became that file (2026-11-26 CI red); a config disable cannot drift.
+      "F032",
       // Idempotency changes command semantics and needs a DURABLE, consumer-
       // owned store (memory.MemoryStore is deprecated upstream; go-idempotency
       // ADR-001 ships no production backend). Deliberately appended by
