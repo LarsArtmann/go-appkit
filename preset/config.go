@@ -42,6 +42,16 @@ type Config struct {
 	// credentials. Nil disables the metrics surface.
 	Metrics *appkit.MetricsConfig
 
+	// Endpoints passes through verbatim — the preset never invents
+	// credentials and no env switch turns the listing on (the grammar is
+	// frozen), so it is enabled in code only. Nil mounts no listing.
+	//
+	// Known gap: the health surface and the error-pages catch-all register
+	// on the mux through their own modules, so they are served but absent
+	// from the listing; core routes, the realtime stream, and every consumer
+	// route registered through the Service are listed.
+	Endpoints *appkit.EndpointsConfig
+
 	// ReadyCheck passes through to /health/ready.
 	ReadyCheck func() bool
 

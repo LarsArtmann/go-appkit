@@ -23,6 +23,9 @@ const defaultBodyLimitBytes int64 = 1 << 20
 // it empty.
 const defaultRealtimePattern = "GET /events"
 
+// realtimeRouteSummary is the listing's description of the SSE stream.
+const realtimeRouteSummary = "Server-sent events: the realtime hub's live event stream"
+
 // New assembles the service: the always-on spine (core Service, sd_notify,
 // health probe + dashboard, error classification, version stamp) plus every
 // leg the grammar resolves to on. The consumer registers routes on
@@ -55,6 +58,7 @@ func New(cfg Config) (*appkit.Service, error) {
 		LogFormat:         cfg.LogFormat,
 		Version:           cfg.Version,
 		Metrics:           cfg.Metrics,
+		Endpoints:         cfg.Endpoints,
 		ReadyCheck:        cfg.ReadyCheck,
 		ReadTimeout:       cfg.Timeouts.ReadTimeout,
 		ReadHeaderTimeout: cfg.Timeouts.ReadHeaderTimeout,
@@ -118,7 +122,10 @@ func New(cfg Config) (*appkit.Service, error) {
 	}
 
 	if legs.realtime {
-		hub = mountRealtime(svc.Mux, &cfg)
+		hub, err = mountRealtime(svc, &cfg)
+		if err != nil {
+			return nil, bootFail(provider, err)
+		}
 	}
 
 	return svc, nil
@@ -190,8 +197,10 @@ func setupProvider(cfg Config, enabled bool) (*appkitotel.Provider, error) {
 }
 
 // mountRealtime mounts the SSE hub at the configured pattern (default
-// /events) and hands the hub to the config's out-field when set.
-func mountRealtime(mux *http.ServeMux, cfg *Config) *realtime.Hub {
+// /events) through the service's route registry — so the endpoint listing
+// carries the stream like every other route — and hands the hub to the
+// config's out-field when set.
+func mountRealtime(svc *appkit.Service, cfg *Config) (*realtime.Hub, error) {
 	hub := realtime.NewHub()
 
 	pattern := defaultRealtimePattern
@@ -204,13 +213,16 @@ func mountRealtime(mux *http.ServeMux, cfg *Config) *realtime.Hub {
 		mountOpts = cfg.Realtime.Options
 	}
 
-	realtime.Mount(mux, pattern, hub, mountOpts...)
+	err := svc.Handle(pattern, realtime.Handler(hub, mountOpts...), realtimeRouteSummary)
+	if err != nil {
+		return nil, err
+	}
 
 	if cfg.Realtime != nil && cfg.Realtime.Hub != nil {
 		*cfg.Realtime.Hub = hub
 	}
 
-	return hub
+	return hub, nil
 }
 
 // applySecurity resolves the profile's middlewares onto the service config.
