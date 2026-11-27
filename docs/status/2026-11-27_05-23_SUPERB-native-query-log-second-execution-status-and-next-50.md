@@ -161,6 +161,19 @@ and the go-cqrs-lite module row). T22 for the tracking work. The plan file close
     committed them before judging the tip CI.
 50. Close this report's rows into TODO_LIST (docs-health HARVEST) before the next session.
 
+## Addendum, 2026-11-27 05:25 CET
+
+The tracker test suite landed after section b was written. Verified by me, not only reported:
+`cd /home/lars/.cache/ch-tracking/wt && node --test --test-reporter=tap ./tracking/jstests/tracker.test.js`
+gives 23 tests, 23 pass, 0 fail; `node --check tracking/tracker.js` passes;
+`tracking/jstests/tracker.test.js` is 824 lines. T16's JS-test row (cases a to s plus four
+extras) is therefore done. Still open and unchanged: nobody has read `tracker.js` against the
+spec yet (520 lines, over the 450 target), the Go wrapper, the API pins, and every real-browser
+check. The subagent named its deviations from the spec; they are unreviewed: `enable()` emits a
+page view, `disable()` ends a page view without an engagement signal, bfcache `pageshow` starts
+a new page view, `pagehide` counts as hidden for the shim, and engagement signals carry the
+page view's referrer. Item 2 of section f is now "review", not "read first time".
+
 ## g) Questions only the owner can answer
 
 1. **go-cqrs-lite surface.** `scripts/check-package-surface.sh` fails on ANY growth of
