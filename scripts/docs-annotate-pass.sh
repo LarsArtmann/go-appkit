@@ -33,7 +33,14 @@ if [ -n "${ANNOTATE_BIN:-}" ]; then
 	exit 2
 fi
 
+# The read-only row gate is the judge's: `docs-gates rows` (parity with
+# the writer's check-rows proven 2026-11-27 on clean, PARTIAL and missing
+# files). The writer source stays as the fallback where no judge is installed.
 annotate() {
+	if [ "$1" = check-rows ] && command -v docs-gates >/dev/null 2>&1; then
+		docs-gates rows "${@:2}"
+		return $?
+	fi
 	if [ ! -f "$ANNOTATE_GO" ]; then
 		echo "docs-annotate-pass: helper missing at $ANNOTATE_GO — the gate did NOT run (install the docs-health skill or set ANNOTATE_GO)" >&2
 		exit 2
