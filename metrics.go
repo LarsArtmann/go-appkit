@@ -306,22 +306,18 @@ func escapeLabelValue(v string) string {
 	return v
 }
 
-// metricsAuth wraps the exposition handler with the configured Basic Auth.
-// Both sides are hashed before comparison so the comparison is
+// basicAuth wraps next with HTTP Basic Auth for the given credentials and
+// realm. Both sides are hashed before comparison so the comparison is
 // constant-time regardless of input length.
-func metricsAuth(cfg *MetricsConfig, next http.Handler) http.Handler {
-	if cfg.BasicAuthUser == "" && cfg.BasicAuthPass == "" {
-		return next
-	}
-
-	expectedHash := sha256.Sum256([]byte(cfg.BasicAuthUser + ":" + cfg.BasicAuthPass))
+func basicAuth(user, pass, realm string, next http.Handler) http.Handler {
+	expectedHash := sha256.Sum256([]byte(user + ":" + pass))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, pass, ok := r.BasicAuth()
 		presentedHash := sha256.Sum256([]byte(user + ":" + pass))
 
 		if !ok || subtle.ConstantTimeCompare(presentedHash[:], expectedHash[:]) != 1 {
-			w.Header().Set("WWW-Authenticate", `Basic realm="metrics"`)
+			w.Header().Set("WWW-Authenticate", `Basic realm="`+realm+`"`)
 			w.WriteHeader(http.StatusUnauthorized)
 
 			return
@@ -329,4 +325,13 @@ func metricsAuth(cfg *MetricsConfig, next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// metricsAuth wraps the exposition handler with the configured Basic Auth.
+func metricsAuth(cfg *MetricsConfig, next http.Handler) http.Handler {
+	if cfg.BasicAuthUser == "" && cfg.BasicAuthPass == "" {
+		return next
+	}
+
+	return basicAuth(cfg.BasicAuthUser, cfg.BasicAuthPass, "metrics", next)
 }

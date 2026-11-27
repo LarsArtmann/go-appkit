@@ -14,6 +14,7 @@ import (
 
 	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/httputil"
+	"github.com/larsartmann/httputil/endpoints"
 )
 
 // activeServe is the current serve's delegated http.Server ownership: appkit
@@ -38,6 +39,14 @@ type Service struct {
 
 	Logger *slog.Logger
 	Mux    *http.ServeMux
+
+	// Routes is the mount-and-record seam behind [Service.Handle] and
+	// [Service.HandleFunc]: every route registered through them (the
+	// framework's own included) is recorded here, and [ServiceConfig.Endpoints]
+	// serves this registry as the GET /endpoints listing. Register routes
+	// through the service rather than directly on Mux: a route mounted on Mux
+	// is served but absent from the listing.
+	Routes *endpoints.Registry
 
 	handler    http.Handler
 	ln         net.Listener
@@ -73,31 +82,14 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 		cfg:    cfg,
 		Logger: logger,
 		Mux:    mux,
+		Routes: endpoints.NewRegistry(),
 	}
 
 	svc.readyProbe.Store(true)
 
-	if cfg.RegisterHealth == nil || *cfg.RegisterHealth {
-		mux.HandleFunc("GET /health", httputil.HealthHandler())
-		mux.HandleFunc("GET /health/live", httputil.LiveHandler())
-		mux.HandleFunc("GET /health/ready", httputil.ReadyHandlerWithProbe(svc.ready))
-	}
-
-	var collector *metricsCollector
-
-	if cfg.Metrics != nil {
-		cfg.Metrics.applyMetricsDefaults()
-
-		if err := cfg.Metrics.validate(); err != nil {
-			return nil, err
-		}
-
-		collector = newMetricsCollector(cfg.Version)
-		mux.Handle("GET "+cfg.Metrics.Path, metricsAuth(cfg.Metrics, collector.handler()))
-	}
-
-	if cfg.Version != "" {
-		mux.HandleFunc("GET /version", versionHandler(cfg.Version))
+	collector, err := svc.registerCoreRoutes()
+	if err != nil {
+		return nil, err
 	}
 
 	mws := buildMiddleware(logger, cfg)

@@ -148,6 +148,16 @@ type ServiceConfig struct {
 	// or an explicit AllowUnauthenticated). Optional; nil disables it.
 	Metrics *MetricsConfig
 
+	// Endpoints, when set, enables the opt-in route listing: GET /endpoints
+	// serves every route registered through [Service.Handle] /
+	// [Service.HandleFunc] — the framework's own included — as JSON or an
+	// HTML table (negotiated on Accept). http.ServeMux cannot enumerate its
+	// patterns, so this registry-backed table is the only route list that
+	// cannot drift from what the service serves. Authentication is mandatory
+	// by default (see EndpointsConfig). Optional; nil mounts no listing, and
+	// the registry still records routes for [Service.Routes].
+	Endpoints *EndpointsConfig
+
 	// Version stamps the service build (e.g. the GoReleaser-injected
 	// version). When non-empty, GET /version serves it as JSON and the
 	// appkit_build_info metric carries it as a label. Optional; "" (the
