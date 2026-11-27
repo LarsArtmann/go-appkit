@@ -62,6 +62,8 @@ That gives you:
 - HTTP server with graceful drain + shutdown on SIGINT/SIGTERM
 - Middleware: ServerTiming → Recovery → RequestID → Logging → Timeout → SecurityHeaders (W3C `Server-Timing` header via the family's [httputil/server_timing](https://github.com/LarsArtmann/httputil) — every appkit service exposes request timings to DevTools/APMs out of the box; replace `Middlewares` to drop it)
 - Health endpoints: `GET /health`, `GET /health/live`, `GET /health/ready`
+- A route registry: register through `svc.HandleFunc` / `svc.Handle` instead of
+  `svc.Mux` and `GET /endpoints` can list every route (see "Endpoint listing")
 - Pretty structured logging via charmbracelet/log
 - Error classification via go-error-family
 
@@ -123,14 +125,15 @@ svc, err := preset.New(preset.Config{
 })
 // spine: core Service + systemd sd_notify + health dashboard + pretty error
 // pages + fleet error classifications; legs via APPKIT_* env switches.
-svc.Mux.HandleFunc("GET /hello", func(w http.ResponseWriter, _ *http.Request) {
+_ = svc.HandleFunc("GET /hello", func(w http.ResponseWriter, _ *http.Request) {
     _, _ = w.Write([]byte("hello"))
-})
+}, "Say hello")
 _ = svc.Run(context.Background())
 ```
 
 **2. The bare core** — the Quick start above, when you want zero composition
-opinion: `appkit.NewService(cfg)` + routes on `svc.Mux` + `svc.Run(ctx)`.
+opinion: `appkit.NewService(cfg)` + routes through `svc.HandleFunc` (or
+`svc.Mux`) + `svc.Run(ctx)`.
 
 **3. Scaffolding — the [go-service-template](https://github.com/LarsArtmann/go-service-template)
 repo**: preset spine + `cmd/<name>` + internal layers + flake/CI/systemd
@@ -173,6 +176,7 @@ with precedence flag > env > file > default and typed field errors.
 | security middleware battery   | the [security](security/) module: CSRF, keyed rate limits, body limits, sanitization, CSP — all opt-in                                |
 | `httptest.NewServer(svc.Mux)` | `testkit.NewService(t, cfg)` — the REAL chain, test-safe defaults, leak-checked teardown (raw-mux tests miss the bugs)                |
 | shutdown orchestration        | nothing to write: SIGINT/SIGTERM → ready-flip → DrainHooks → drain wait → listener close → ShutdownHooks, one grep-able log line each |
+| a hand-maintained route list  | `svc.HandleFunc(pattern, h, summary)` + `Endpoints` → `GET /endpoints`, the live route table (JSON or HTML) — it cannot drift from what is served |
 
 ## Configuration
 
@@ -200,6 +204,7 @@ All config is via `ServiceConfig`. Zero-value fields get production defaults:
 | `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                                                                              |
 | `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`)                                                              |
 | `Metrics`          | `*MetricsConfig`        | `nil`     | Opt-in Prometheus surface: `GET /metrics` text exposition + request histogram, response totals, in-flight and build-info gauges (see below) |
+| `Endpoints`        | `*EndpointsConfig`      | `nil`     | Opt-in route listing: `GET /endpoints` serves every route registered through `svc.Handle`/`svc.HandleFunc` as JSON or HTML; auth mandatory by default (see below) |
 | `Version`          | `string`                | `""`      | Build version: serves `GET /version` (JSON) and labels the `appkit_build_info` metric                                                       |
 
 ### Metrics (opt-in Prometheus surface)
@@ -267,6 +272,52 @@ The OTEL `_ratio` exporter trap: OTEL's Prometheus exporter appends `_ratio`
 to unit-1 metrics — names from the otel module's exporter do NOT match this
 surface's names, and vice versa. Diff metric names when migrating between
 the two.
+
+### Endpoint listing (opt-in route registry)
+
+`http.ServeMux` cannot enumerate the patterns registered on it, so a route
+table is usually a second, hand-maintained list that drifts. The core
+service carries a route registry instead
+([httputil/endpoints](https://github.com/LarsArtmann/httputil/tree/master/endpoints),
+stdlib-only): register routes through the service and the mount and the
+listing entry are one declaration:
+
+```go
+svc, err := appkit.NewService(appkit.ServiceConfig{
+    Addr: ":8080",
+    Endpoints: &appkit.EndpointsConfig{
+        BasicAuthUser: "ops",
+        BasicAuthPass: os.Getenv("ENDPOINTS_PASS"),
+    },
+})
+// ...
+err = svc.HandleFunc("GET /users/{id}", getUser, "Fetch one user")
+err = svc.Handle("POST /users", createUser, "Create a user")
+```
+
+`GET /endpoints` then serves the whole table, the framework's own routes
+(`/health`, `/metrics`, `/version`) included, as JSON for API clients or an
+HTML table for browsers (negotiated on `Accept`; `Vary: Accept`,
+`Cache-Control: no-store`). `curl -u ops:$ENDPOINTS_PASS :8080/endpoints` is
+the one-command answer to "what does this service serve?".
+
+A pattern the mux rejects (malformed, or already registered) comes back as
+an error from `Handle`/`HandleFunc` (code `appkit.route_rejected`) instead of
+the panic `http.ServeMux` raises. Routes added after construction still
+appear: every request reads a fresh snapshot.
+
+Two things to know:
+
+- **Authentication is mandatory by default.** The listing IS the route
+  topology. Set `BasicAuthUser`/`BasicAuthPass`, hand the service's own auth
+  middleware to `Guard`, or set `AllowUnauthenticated: true` explicitly
+  (loopback-only, or a proxy that enforces auth in front). An unprotected
+  config is rejected at construction (`appkit.endpoints_config_invalid`).
+- **Only routes registered through the service are listed.** `svc.Mux` stays
+  public for libraries that mount their own route table (Huma, a framework
+  UI); such routes are served but absent from the listing. The registry is
+  always populated, listing enabled or not: `svc.Routes.Routes()` returns
+  the recorded rows.
 
 ### Log volume
 

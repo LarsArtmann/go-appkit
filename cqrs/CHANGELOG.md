@@ -39,6 +39,15 @@
   policy record: docs/planning/2026-11-23_go-directive-floor-policy.md).
   Consumers on go 1.27.2+ can now resolve this module without the 1.27.4
   demand this tag's predecessor carried.
+- cqrs-lint F032 is disabled in this module's own `.cqrs-lint.json`, not
+  only in the repo-root config. The rule anchors on the package's first
+  go-cqrs-lite import, which moved from `commands.go` to `audit.go` when
+  the audit trail landed, so the inline directive stopped matching and
+  the `cqrs-lint` CI job was red on master from 2026-11-24. CI lints this
+  module from its own directory and reads the module config; both configs
+  now carry the disable with the recorded reason (a framework wrapper with
+  no domain of its own). A config disable cannot drift with the next file
+  that sorts first.
 
 ## [0.10.0] - 2026-11-22
 
