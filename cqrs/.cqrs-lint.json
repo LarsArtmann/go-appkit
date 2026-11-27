@@ -42,9 +42,17 @@
       //        (CheckStaleness/DispatchQueryChecked), not a post-command drain; async by design.
       // F007 — idempotency needs a durable consumer-owned store (memory.MemoryStore
       //        deprecated upstream); appended by consumers via EventConfig.CommandMiddleware.
+      // F032 — catalog-driven documentation is the consumer's job: this wrapper has no
+      //        domain of its own, and consumers derive their catalog from their own
+      //        DomainConfig (systemcatalog; F032 policy 2026-11-03). The rule anchors on
+      //        the package's FIRST go-cqrs-lite import, so an inline directive moved from
+      //        commands.go to audit.go the moment audit.go became that file. CI lints this
+      //        module from this directory with THIS config (v4.21.0 did not drop the rule
+      //        for the preset): the root config's disable alone left CI red (2026-11-27).
       "E009",
       "E014",
-      "F007"
+      "F007",
+      "F032"
     ]
   }
 }
