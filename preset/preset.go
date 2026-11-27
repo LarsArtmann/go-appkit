@@ -215,7 +215,8 @@ func mountRealtime(svc *appkit.Service, cfg *Config) (*realtime.Hub, error) {
 
 	err := svc.Handle(pattern, realtime.Handler(hub, mountOpts...), realtimeRouteSummary)
 	if err != nil {
-		return nil, err
+		return nil, errorfamily.WrapRejectionf(
+			err, "preset.realtime_mount_failed", "mount the realtime stream at %q", pattern)
 	}
 
 	if cfg.Realtime != nil && cfg.Realtime.Hub != nil {

@@ -14,6 +14,7 @@ require (
 	github.com/larsartmann/go-sse v0.6.2
 	github.com/larsartmann/go-sse/ssetest v0.5.0
 	github.com/larsartmann/httputil v1.8.0
+	github.com/larsartmann/httputil/endpoints v0.1.0
 	go.opentelemetry.io/otel/sdk v1.47.0
 )
 
