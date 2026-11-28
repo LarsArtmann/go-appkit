@@ -5,12 +5,12 @@
 **Scope of THIS report.** Everything about my own session below was re-verified
 just before writing, with the commands named per claim.
 
-| Repo           | Commit at report time | Verified, and how                                                                                                                                                                                                                                                                                                                    | Not verified, and why                                                                                               |
-| -------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| go-appkit      | `fbe3eb9`             | Module `cqrs`, tree clean: `GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1` (rc 0), `go vet ./...` (rc 0), `golangci-lint run ./...` v2.15.0 (0 issues). Run on the committed tree at 12:37.                                                                                                                 | Every other module, the integration module, `cqrs-lint`, govulncheck, `check-pin-drift.sh`: not run. Nothing there was changed.      |
-| cqrs-htmx      | `151f5079`            | Root module, tree clean: `GOEXPERIMENT=jsonv2 go test ./... -count=1 -race` (rc 0, includes the API surface compatibility test), `GOEXPERIMENT=jsonv2 golangci-lint run` (0 issues).                                                                                                                                                | The root-size, module-layers, re-export, route-posture, coverage, `check-modules` and Playwright gates: not run. Other modules: untouched. |
-| go-cqrs-lite   | `66263023f`            | Read-only: source, grep, `git status`, `git log`, `git worktree list`. I changed nothing there.                                                                                                                                                                                                                                     | No test and no gate of that repo was run. It has another active session with uncommitted edits.                      |
-| Probe          | published pins        | Five measurements against `system/v4 v4.19.0`, `sqliteengine/v4 v4.9.1`, `query/v4 v4.10.1`, recorded in the plan, section 1 (facts 10, 13, 15, 16). The scratch module is trashed.                                                                                                                                                  | Timings were taken at machine load 87 to 229 on 32 cores: they are upper bounds, not benchmarks.                        |
+| Repo         | Commit at report time | Verified, and how                                                                                                                                                                                          | Not verified, and why                                                                                                                      |
+| ------------ | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| go-appkit    | `fbe3eb9`             | Module `cqrs`, tree clean: `GOWORK=off GOTOOLCHAIN=go1.27.4 go test ./... -race -count=1` (rc 0), `go vet ./...` (rc 0), `golangci-lint run ./...` v2.15.0 (0 issues). Run on the committed tree at 12:37. | Every other module, the integration module, `cqrs-lint`, govulncheck, `check-pin-drift.sh`: not run. Nothing there was changed.            |
+| cqrs-htmx    | `151f5079`            | Root module, tree clean: `GOEXPERIMENT=jsonv2 go test ./... -count=1 -race` (rc 0, includes the API surface compatibility test), `GOEXPERIMENT=jsonv2 golangci-lint run` (0 issues).                       | The root-size, module-layers, re-export, route-posture, coverage, `check-modules` and Playwright gates: not run. Other modules: untouched. |
+| go-cqrs-lite | `66263023f`           | Read-only: source, grep, `git status`, `git log`, `git worktree list`. I changed nothing there.                                                                                                            | No test and no gate of that repo was run. It has another active session with uncommitted edits.                                            |
+| Probe        | published pins        | Five measurements against `system/v4 v4.19.0`, `sqliteengine/v4 v4.9.1`, `query/v4 v4.10.1`, recorded in the plan, section 1 (facts 10, 13, 15, 16). The scratch module is trashed.                        | Timings were taken at machine load 87 to 229 on 32 cores: they are upper bounds, not benchmarks.                                           |
 
 **Push state.** I pushed nothing. The auto-commit daemon holds go-appkit 10 commits
 and cqrs-htmx 1 commit ahead of origin at report time. All 11 are
@@ -86,13 +86,13 @@ No statement that I know to be false. Three things were stale or second-hand:
 
 I found five. All existed before this session. Two are now being integrated.
 
-| Ghost | Value of integrating it | State |
-| ----- | ----------------------- | ----- |
+| Ghost                                                                                                    | Value of integrating it                                  | State                                                  |
+| -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------ |
 | `query.AuditMiddleware` upstream, never installed by `system` (the retired `stack` presets had a helper) | Every read is recorded with its user, for every consumer | T02 done in go-appkit; T10 in go-cqrs-lite not started |
-| `System.QueryStore()`, built by default, written by nobody | Same as above | T10 not started |
-| cqrs-htmx dashboard command and query audit panels, built, not wired by `setup` | Operators see the user mapping | T05 not started |
-| `JournalSweeper` and the typed `occurred_at` column, unreachable for audit rows | Age-based retention for a log that only grows | T11, T12 not started |
-| `metaengine.LogBackend` (`LogAppend`, `LogTail`, seven engines) | Possibly a "recent signals" primitive | Noticed only. Not investigated, not used |
+| `System.QueryStore()`, built by default, written by nobody                                               | Same as above                                            | T10 not started                                        |
+| cqrs-htmx dashboard command and query audit panels, built, not wired by `setup`                          | Operators see the user mapping                           | T05 not started                                        |
+| `JournalSweeper` and the typed `occurred_at` column, unreachable for audit rows                          | Age-based retention for a log that only grows            | T11, T12 not started                                   |
+| `metaengine.LogBackend` (`LogAppend`, `LogTail`, seven engines)                                          | Possibly a "recent signals" primitive                    | Noticed only. Not investigated, not used               |
 
 ### Are we in the scope creep trap?
 
@@ -113,12 +113,12 @@ middleware lacks, the guaranteed correlation ID, is kept by
 
 Yes, one, and I found three that already existed.
 
-| # | Split brain | Origin |
-| - | ----------- | ------ |
-| S1 | Correlation minting now exists twice in `cqrs/audit.go`: inline in `commandAuditMetadata`, and in my new `auditCorrelationID` | Mine. The command side should call the shared function. |
-| S2 | The device key reaches events (`client.id`) and now queries, but not commands. A persisted command has no device key | Pre-existing. Made visible by T04. |
-| S3 | `EventConfig.Audit` says upstream ships the stores without writers. True today, false once T10 ships | Will be created by T10 unless the comment moves with it. |
-| S4 | `commands.go` says "the default-ON audit middlewares write it", `eventservice.go` now says "recorders" | Mine. Two names for one thing. |
+| #  | Split brain                                                                                                                   | Origin                                                   |
+| -- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| S1 | Correlation minting now exists twice in `cqrs/audit.go`: inline in `commandAuditMetadata`, and in my new `auditCorrelationID` | Mine. The command side should call the shared function.  |
+| S2 | The device key reaches events (`client.id`) and now queries, but not commands. A persisted command has no device key          | Pre-existing. Made visible by T04.                       |
+| S3 | `EventConfig.Audit` says upstream ships the stores without writers. True today, false once T10 ships                          | Will be created by T10 unless the comment moves with it. |
+| S4 | `commands.go` says "the default-ON audit middlewares write it", `eventservice.go` now says "recorders"                        | Mine. Two names for one thing.                           |
 
 ### How are the tests?
 
@@ -134,50 +134,50 @@ and the full suite ran only at the end.
 
 ## a) FULLY DONE
 
-| Task | What | Evidence |
-| ---- | ---- | -------- |
-| Research | The native query log mapped: 23 facts with sources | Plan section 1 |
-| Probe | Audit write 56 to 59 µs per query, about 500 bytes a row; full read 30,000 rows in 594 ms; one subject read 150 values in 489 µs; sweep removed 0 query rows and 1 event row (control) | Plan section 1 and the appendix source |
-| T04 | cqrs-htmx: every dispatched query carries the device key under `client.id` (the key events already use); the request log line carries `client_id` | `151f5079`. Root suite with `-race` rc 0, lint 0 issues |
-| T02 | go-appkit `cqrs`: native `query.AuditMiddleware` replaces the hand-rolled `queryAuditor`, correlation guarantee kept | `fbe3eb9`. Suite with `-race` rc 0, lint 0 issues |
-| T03 | go-appkit `cqrs`: `EventConfig.AuditPayload` (opt-in payload), runnable example, README section "Audit records" | Same |
+| Task     | What                                                                                                                                                                                   | Evidence                                                |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Research | The native query log mapped: 23 facts with sources                                                                                                                                     | Plan section 1                                          |
+| Probe    | Audit write 56 to 59 µs per query, about 500 bytes a row; full read 30,000 rows in 594 ms; one subject read 150 values in 489 µs; sweep removed 0 query rows and 1 event row (control) | Plan section 1 and the appendix source                  |
+| T04      | cqrs-htmx: every dispatched query carries the device key under `client.id` (the key events already use); the request log line carries `client_id`                                      | `151f5079`. Root suite with `-race` rc 0, lint 0 issues |
+| T02      | go-appkit `cqrs`: native `query.AuditMiddleware` replaces the hand-rolled `queryAuditor`, correlation guarantee kept                                                                   | `fbe3eb9`. Suite with `-race` rc 0, lint 0 issues       |
+| T03      | go-appkit `cqrs`: `EventConfig.AuditPayload` (opt-in payload), runnable example, README section "Audit records"                                                                        | Same                                                    |
 
 ## b) PARTIALLY DONE
 
-| Task | Done | Open |
-| ---- | ---- | ---- |
-| T01 | Plan v2 written and self-checked by script (23 tasks, 1475 minutes, 116 micro-tasks, citations resolve), v1 marked superseded (`1f22467`, `042a542`, `c65b1c4`) | Section 10 log and section 8 table are stale: every row still reads "pending" |
-| T05 | Read the dashboard and setup helpers | No edit. User and device on the query detail, and the two audit journals forwarded by `setup`, are not written |
-| T07 | README section | `cqrs/CHANGELOG.md` (the audit trail is undocumented, also before me), `FEATURES.md` row, `module-details.md` line |
-| T22 | The daemon committed everything | No authored commit with a detailed message. Nothing pushed. CI unknown |
+| Task | Done                                                                                                                                                            | Open                                                                                                               |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| T01  | Plan v2 written and self-checked by script (23 tasks, 1475 minutes, 116 micro-tasks, citations resolve), v1 marked superseded (`1f22467`, `042a542`, `c65b1c4`) | Section 10 log and section 8 table are stale: every row still reads "pending"                                      |
+| T05  | Read the dashboard and setup helpers                                                                                                                            | No edit. User and device on the query detail, and the two audit journals forwarded by `setup`, are not written     |
+| T07  | README section                                                                                                                                                  | `cqrs/CHANGELOG.md` (the audit trail is undocumented, also before me), `FEATURES.md` row, `module-details.md` line |
+| T22  | The daemon committed everything                                                                                                                                 | No authored commit with a detailed message. Nothing pushed. CI unknown                                             |
 
 ## c) NOT STARTED
 
-| Task | What |
-| ---- | ---- |
-| T06 | cqrs-htmx docs: root README recipe "User-mapped queries", root, `setup` and `dashboardui` CHANGELOGs |
-| T08 | go-cqrs-lite: `query.MetadataKeyClientID`, `query.WithClientID` (v4 and `core/v5` twin) |
-| T09 | go-cqrs-lite: `query.ForUser`, `query.ForActor` |
-| T10 | go-cqrs-lite: `system.WithQueryAudit`, `System.UseQueryMiddleware` |
-| T11 | go-cqrs-lite: `occurred_at` on command and query wire envelopes, SQLite typed-WAL extraction |
-| T12 | go-cqrs-lite: `System.TrimQueryLogBefore`, `System.TrimCommandLogBefore` |
-| T13 | go-cqrs-lite docs, gates, landing |
+| Task       | What                                                                                                                  |
+| ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| T06        | cqrs-htmx docs: root README recipe "User-mapped queries", root, `setup` and `dashboardui` CHANGELOGs                  |
+| T08        | go-cqrs-lite: `query.MetadataKeyClientID`, `query.WithClientID` (v4 and `core/v5` twin)                               |
+| T09        | go-cqrs-lite: `query.ForUser`, `query.ForActor`                                                                       |
+| T10        | go-cqrs-lite: `system.WithQueryAudit`, `System.UseQueryMiddleware`                                                    |
+| T11        | go-cqrs-lite: `occurred_at` on command and query wire envelopes, SQLite typed-WAL extraction                          |
+| T12        | go-cqrs-lite: `System.TrimQueryLogBefore`, `System.TrimCommandLogBefore`                                              |
+| T13        | go-cqrs-lite docs, gates, landing                                                                                     |
 | T14 to T19 | Client tracking: `TrackHandler`, `tracker.js`, script handler, JS tests, `setup` signals journal, Playwright, example |
-| T20 | cqrs-htmx gate battery |
-| T21 | Skills |
-| T23 | Plan close-out, TODO rows |
+| T20        | cqrs-htmx gate battery                                                                                                |
+| T21        | Skills                                                                                                                |
+| T23        | Plan close-out, TODO rows                                                                                             |
 
 ## d) TOTALLY FUCKED UP
 
-| # | What | Cost | State |
-| - | ---- | ---- | ----- |
-| 1 | v1 of the plan built a second activity store beside a native one that already existed | One owner review round | Superseded. No v1 code was ever written |
-| 2 | A failing test on local master for 6 minutes (12:20 to 12:26) | Could have been a red CI | Fixed. Never reached origin |
-| 3 | Six lint findings committed to local master | Repo standard is 0 | Fixed in `fbe3eb9` |
-| 4 | No authored commits | History noise; the directive's commit message requirement is unmet | Open. T22 |
-| 5 | 3 h 50 min before the first line of code | Your time, two pushes | Cannot be recovered |
-| 6 | Plan log and todo list disagree with reality | The next reader is misled | Open. T23 |
-| 7 | Another session's unreleased file rewritten without telling that session | Possible collision if it is still working | Open. Question 3 |
+| # | What                                                                                  | Cost                                                               | State                                   |
+| - | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------- |
+| 1 | v1 of the plan built a second activity store beside a native one that already existed | One owner review round                                             | Superseded. No v1 code was ever written |
+| 2 | A failing test on local master for 6 minutes (12:20 to 12:26)                         | Could have been a red CI                                           | Fixed. Never reached origin             |
+| 3 | Six lint findings committed to local master                                           | Repo standard is 0                                                 | Fixed in `fbe3eb9`                      |
+| 4 | No authored commits                                                                   | History noise; the directive's commit message requirement is unmet | Open. T22                               |
+| 5 | 3 h 50 min before the first line of code                                              | Your time, two pushes                                              | Cannot be recovered                     |
+| 6 | Plan log and todo list disagree with reality                                          | The next reader is misled                                          | Open. T23                               |
+| 7 | Another session's unreleased file rewritten without telling that session              | Possible collision if it is still working                          | Open. Question 3                        |
 
 ## e) WHAT WE SHOULD IMPROVE
 
@@ -213,48 +213,48 @@ and the full suite ran only at the end.
 
 Ordered by impact. "T" numbers are the plan's.
 
-| # | Next thing |
-| - | ---------- |
-| 1 | T05: query detail shows user and device; `setup` forwards `CommandJournal` and `QueryJournal`. Tests |
-| 2 | T07: `cqrs/CHANGELOG.md` entries (audit trail, `AuditPayload`, native middleware), `FEATURES.md` row, `module-details.md` line |
-| 3 | T06: cqrs-htmx README recipe, root and `setup` CHANGELOG rows |
-| 4 | T22: authored commits with detailed messages for everything on local master, then confirm the daemon push and CI on the tip |
-| 5 | T23, first half: plan section 10 log and section 8 table filled with this session's results |
-| 6 | e) item 6: one correlation function for both recorders |
-| 7 | e) item 7 and 8: doc comment names, README accessor rows |
-| 8 | e) item 9: device-key pipeline test |
-| 9 | go-cqrs-lite worktree on a branch, away from the active session's tree |
-| 10 | T08: `query.WithClientID`, `query.MetadataKeyClientID`, both twins |
-| 11 | T10: `system.WithQueryAudit`, `System.UseQueryMiddleware` |
-| 12 | T09: `query.ForUser`, `query.ForActor` |
-| 13 | T11: WAL `occurred_at` on audit envelopes (question 2) |
-| 14 | T12: `TrimQueryLogBefore`, `TrimCommandLogBefore` (question 2) |
-| 15 | T13: root CHANGELOG, `FEATURES.md`, skill recipe, API golden, mirror lockstep, gates, fast-forward |
-| 16 | T14: `TrackedEvent`, `TrackingSink`, `TrackHandler` with validation and the same-origin guard |
-| 17 | T15: `tracker.js`, four signals, batching, keepalive, opt-outs (load `modern-web-guidance` first) |
-| 18 | T16: embed, `TrackerScriptHandler`, JS unit tests |
-| 19 | T17: `setup` signals journal on `system.AdapterCore` (question 1) |
-| 20 | T18: Playwright spec |
-| 21 | T19: `tracking-demo` example |
-| 22 | T20: root-size baseline, dep budgets, module layers, re-export policy, route postures, coverage, `check-modules` |
-| 23 | T21: cqrs-htmx skill section (it lives in the cqrs-htmx repo, `.agents/skills/cqrs-htmx`), go-cqrs-lite module row |
-| 24 | T23, second half: TODO rows in go-appkit and cqrs-htmx, status line, hashes |
-| 25 | `cqrs-lint` from inside `cqrs/` (not run this session) |
-| 26 | `./scripts/check-pin-drift.sh` if any pin moves |
-| 27 | e) item 10: device key on commands, or a recorded decline |
-| 28 | e) item 12: `EventConfig.Audit` comment once T10 ships |
-| 29 | Subject-keyed layout for the query log when a journal passes about 100,000 rows |
-| 30 | `JournalSweeper` on engines other than SQLite and Turso |
-| 31 | e) item 11: upstream `command.AuditMiddleware` |
-| 32 | Default-on `WithQueryAudit` for v5 (owner question, after retention) |
-| 33 | Recommendation read models (popularity counters, recently viewed) when an app asks |
-| 34 | Events in a dedicated collection when folds over signals are wanted |
-| 35 | Re-pin go-appkit and cqrs-htmx onto the go-cqrs-lite tags that carry T08 to T12 |
-| 36 | Re-verify plan fact 21 (the six silent reports) and fact 17 by my own greps |
-| 37 | Question 3: tell the authoring session of `cqrs/audit.go`, or confirm it is finished |
-| 38 | A commit-time lint refusal, or a decision that CI `fleet-lint` is enough |
-| 39 | A second pass of the two module suites at quiet load before any tag |
-| 40 | Optional: a formal HTML deep-dive for the native query log |
+| #  | Next thing                                                                                                                     |
+| -- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 1  | T05: query detail shows user and device; `setup` forwards `CommandJournal` and `QueryJournal`. Tests                           |
+| 2  | T07: `cqrs/CHANGELOG.md` entries (audit trail, `AuditPayload`, native middleware), `FEATURES.md` row, `module-details.md` line |
+| 3  | T06: cqrs-htmx README recipe, root and `setup` CHANGELOG rows                                                                  |
+| 4  | T22: authored commits with detailed messages for everything on local master, then confirm the daemon push and CI on the tip    |
+| 5  | T23, first half: plan section 10 log and section 8 table filled with this session's results                                    |
+| 6  | e) item 6: one correlation function for both recorders                                                                         |
+| 7  | e) item 7 and 8: doc comment names, README accessor rows                                                                       |
+| 8  | e) item 9: device-key pipeline test                                                                                            |
+| 9  | go-cqrs-lite worktree on a branch, away from the active session's tree                                                         |
+| 10 | T08: `query.WithClientID`, `query.MetadataKeyClientID`, both twins                                                             |
+| 11 | T10: `system.WithQueryAudit`, `System.UseQueryMiddleware`                                                                      |
+| 12 | T09: `query.ForUser`, `query.ForActor`                                                                                         |
+| 13 | T11: WAL `occurred_at` on audit envelopes (question 2)                                                                         |
+| 14 | T12: `TrimQueryLogBefore`, `TrimCommandLogBefore` (question 2)                                                                 |
+| 15 | T13: root CHANGELOG, `FEATURES.md`, skill recipe, API golden, mirror lockstep, gates, fast-forward                             |
+| 16 | T14: `TrackedEvent`, `TrackingSink`, `TrackHandler` with validation and the same-origin guard                                  |
+| 17 | T15: `tracker.js`, four signals, batching, keepalive, opt-outs (load `modern-web-guidance` first)                              |
+| 18 | T16: embed, `TrackerScriptHandler`, JS unit tests                                                                              |
+| 19 | T17: `setup` signals journal on `system.AdapterCore` (question 1)                                                              |
+| 20 | T18: Playwright spec                                                                                                           |
+| 21 | T19: `tracking-demo` example                                                                                                   |
+| 22 | T20: root-size baseline, dep budgets, module layers, re-export policy, route postures, coverage, `check-modules`               |
+| 23 | T21: cqrs-htmx skill section (it lives in the cqrs-htmx repo, `.agents/skills/cqrs-htmx`), go-cqrs-lite module row             |
+| 24 | T23, second half: TODO rows in go-appkit and cqrs-htmx, status line, hashes                                                    |
+| 25 | `cqrs-lint` from inside `cqrs/` (not run this session)                                                                         |
+| 26 | `./scripts/check-pin-drift.sh` if any pin moves                                                                                |
+| 27 | e) item 10: device key on commands, or a recorded decline                                                                      |
+| 28 | e) item 12: `EventConfig.Audit` comment once T10 ships                                                                         |
+| 29 | Subject-keyed layout for the query log when a journal passes about 100,000 rows                                                |
+| 30 | `JournalSweeper` on engines other than SQLite and Turso                                                                        |
+| 31 | e) item 11: upstream `command.AuditMiddleware`                                                                                 |
+| 32 | Default-on `WithQueryAudit` for v5 (owner question, after retention)                                                           |
+| 33 | Recommendation read models (popularity counters, recently viewed) when an app asks                                             |
+| 34 | Events in a dedicated collection when folds over signals are wanted                                                            |
+| 35 | Re-pin go-appkit and cqrs-htmx onto the go-cqrs-lite tags that carry T08 to T12                                                |
+| 36 | Re-verify plan fact 21 (the six silent reports) and fact 17 by my own greps                                                    |
+| 37 | Question 3: tell the authoring session of `cqrs/audit.go`, or confirm it is finished                                           |
+| 38 | A commit-time lint refusal, or a decision that CI `fleet-lint` is enough                                                       |
+| 39 | A second pass of the two module suites at quiet load before any tag                                                            |
+| 40 | Optional: a formal HTML deep-dive for the native query log                                                                     |
 
 ## g) Three questions I cannot answer myself
 

@@ -6,6 +6,13 @@
 > AFTER the 2026-11-03 audit, which therefore could not cover it. This file closes that
 > gap (the `httputil.md` report carries a matching errata line).
 
+> **Postscript (2026-11-27, annotated in place): ADOPTED in core.** The H8 decision
+> was made by the adoption order: `Service.Routes` is an `*endpoints.Registry`,
+> `Service.Handle`/`HandleFunc` are the seam, the framework's own routes go through
+> it, and `ServiceConfig.Endpoints` mounts the opt-in listing with auth mandatory
+> by default. Direct require `github.com/larsartmann/httputil/endpoints v0.1.0`.
+> UNRELEASED (rides core's next tag); B6/B8 can now read `Routes()`.
+
 > **Note on naming:** there is no standalone `/home/lars/projects/endpoints` checkout —
 > the library lives as a subdirectory module of the httputil repo
 > (`~/projects/httputil/endpoints/`, module path

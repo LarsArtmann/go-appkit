@@ -94,11 +94,14 @@ func run(cfg appkit.ServiceConfig) error {
 
 	defer func() { _ = svc.Close() }()
 
-	svc.Mux.HandleFunc("GET /", func(w http.ResponseWriter, _ *http.Request) {
+	err = svc.HandleFunc("GET /", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 
 		_, _ = w.Write([]byte("hello"))
-	})
+	}, "Hello world: the example's only consumer route")
+	if err != nil {
+		return fmt.Errorf("register route: %w", err)
+	}
 
 	return svc.Run(context.Background()) //nolint:wrapcheck // top-level main returns the error as-is
 }

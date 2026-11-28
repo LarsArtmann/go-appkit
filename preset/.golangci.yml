@@ -217,7 +217,6 @@ linters:
         # sanctioned terminal forms (v2.15.0 wrapcheck drift, 2026-11-07).
         - Newf(
         - NewRejection(
-        - WrapRejectionf(
         - WrapInfrastructuref(
         - WrapInfrastructure(
   exclusions:

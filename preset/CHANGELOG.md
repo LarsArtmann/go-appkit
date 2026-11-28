@@ -4,29 +4,6 @@ All notable changes to this module are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-
-- **Endpoint listing passthrough.** `Config.Endpoints` passes through to
-  `appkit.ServiceConfig.Endpoints` verbatim: nil mounts no listing, and no
-  env switch turns it on (the grammar is frozen), so it is enabled in code.
-  With it set, `GET /endpoints` carries core routes, the realtime stream, and
-  every consumer route registered through `svc.HandleFunc` / `svc.Handle`.
-
-### Changed
-
-- **The realtime stream registers through the service's route registry**
-  (`svc.Handle`, previously `realtime.Mount(svc.Mux, ...)`): same pattern,
-  same handler, now listed. A rejected pattern fails the boot as
-  `preset.realtime_mount_failed` (previously a ServeMux panic).
-
-### Known gap
-
-- The health surface and the error-pages catch-all register on the mux
-  through their own modules, so they are served but absent from the listing
-  (pinned by `TestEndpoints_ListingCarriesCoreRealtimeAndConsumerRoutes`).
-
 ## [0.1.1] - 2026-11-13
 
 ### Fixed — realtime hub drains in DrainHooks, not ShutdownHooks (graceful-shutdown deadlock with open SSE streams)

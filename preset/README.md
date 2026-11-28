@@ -54,15 +54,11 @@ svc, err := preset.New(preset.Config{
 if err != nil {
     log.Fatal(err)
 }
-// Register routes through the service: the mount and the endpoint-listing
-// entry are one declaration. Specific patterns win over the error-pages
+// Register routes on svc.Mux — specific patterns win over the error-pages
 // catch-all per stdlib ServeMux precedence.
-err = svc.HandleFunc("GET /hello", func(w http.ResponseWriter, _ *http.Request) {
+svc.Mux.HandleFunc("GET /hello", func(w http.ResponseWriter, _ *http.Request) {
     w.Write([]byte("hello"))
-}, "Say hello")
-if err != nil {
-    log.Fatal(err)
-}
+})
 if err := svc.Run(ctx); err != nil {
     log.Fatal(err)
 }
@@ -76,15 +72,6 @@ APPKIT_OTEL=on APPKIT_SECURITY=standard OTEL_EXPORTER_OTLP_ENDPOINT=https://otel
 
 The preset never invents credentials: `Config.Metrics` passes through to
 `appkit.ServiceConfig.Metrics` verbatim (nil disables the metrics surface).
-
-`Config.Endpoints` passes through the same way (`appkit.ServiceConfig.Endpoints`):
-set it in code to mount `GET /endpoints`, the live route table, behind Basic
-Auth, your own `Guard`, or an explicit `AllowUnauthenticated`. No env switch
-turns it on (the grammar below is frozen). The listing carries core routes,
-the realtime stream, and every route registered through `svc.HandleFunc` /
-`svc.Handle`. Known gap: the health surface and the error-pages catch-all
-register on the mux through their own modules, so they are served but not
-listed.
 
 ## Build & verify
 
