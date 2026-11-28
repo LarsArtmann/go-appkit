@@ -8,11 +8,11 @@ The env grammar documents `APPKIT_SECURITY none|standard|strict` (`preset/doc.go
 
 Repro module on preset v0.1.1 (go-appkit v0.12.0, security v0.2.0): boot, then `GET /healthz` with `Origin: https://evil.example`.
 
-| mode | result |
-| ---- | ------ |
-| `APPKIT_SECURITY=strict`, no `Config.Security` | `200 {"status":"pass",...}` |
+| mode                                                                             | result                                         |
+| -------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `APPKIT_SECURITY=strict`, no `Config.Security`                                   | `200 {"status":"pass",...}`                    |
 | `Config.Security{Enabled: true, Profile: strict, Origins: [https://ok.example]}` | `403 {"error":{"code":"ORIGIN_REJECTED",...}}` |
-| no security leg | `200` |
+| no security leg                                                                  | `200`                                          |
 
 Same intent (strict), two wiring paths, opposite outcomes. The env path arms the leg but drops strict on the floor.
 

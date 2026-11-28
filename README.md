@@ -167,45 +167,45 @@ with precedence flag > env > file > default and typed field errors.
 
 ### One-line wins (replace your hand-rolled X)
 
-| You hand-rolled               | appkit replaces it with                                                                                                               |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| exit-code mapping             | `os.Exit(errorfamily.HandleError(err))` — classified families map to exit codes                                                       |
-| a version endpoint            | `Version: "1.2.3"` → `GET /version` (JSON) + `appkit_build_info` metric label                                                         |
-| health/diag handlers          | on by default: `GET /health`, `/health/live`, `/health/ready` (drain-aware 503s; `ReadyCheck` adds your gate)                         |
-| API description docs          | the [docs](docs/) module: OpenAPI/AsyncAPI/D2 generated from Go types                                                                 |
-| security middleware battery   | the [security](security/) module: CSRF, keyed rate limits, body limits, sanitization, CSP — all opt-in                                |
-| `httptest.NewServer(svc.Mux)` | `testkit.NewService(t, cfg)` — the REAL chain, test-safe defaults, leak-checked teardown (raw-mux tests miss the bugs)                |
-| shutdown orchestration        | nothing to write: SIGINT/SIGTERM → ready-flip → DrainHooks → drain wait → listener close → ShutdownHooks, one grep-able log line each |
+| You hand-rolled               | appkit replaces it with                                                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| exit-code mapping             | `os.Exit(errorfamily.HandleError(err))` — classified families map to exit codes                                                                   |
+| a version endpoint            | `Version: "1.2.3"` → `GET /version` (JSON) + `appkit_build_info` metric label                                                                     |
+| health/diag handlers          | on by default: `GET /health`, `/health/live`, `/health/ready` (drain-aware 503s; `ReadyCheck` adds your gate)                                     |
+| API description docs          | the [docs](docs/) module: OpenAPI/AsyncAPI/D2 generated from Go types                                                                             |
+| security middleware battery   | the [security](security/) module: CSRF, keyed rate limits, body limits, sanitization, CSP — all opt-in                                            |
+| `httptest.NewServer(svc.Mux)` | `testkit.NewService(t, cfg)` — the REAL chain, test-safe defaults, leak-checked teardown (raw-mux tests miss the bugs)                            |
+| shutdown orchestration        | nothing to write: SIGINT/SIGTERM → ready-flip → DrainHooks → drain wait → listener close → ShutdownHooks, one grep-able log line each             |
 | a hand-maintained route list  | `svc.HandleFunc(pattern, h, summary)` + `Endpoints` → `GET /endpoints`, the live route table (JSON or HTML) — it cannot drift from what is served |
 
 ## Configuration
 
 All config is via `ServiceConfig`. Zero-value fields get production defaults:
 
-| Field              | Type                    | Default   | Description                                                                                                                                 |
-| ------------------ | ----------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Addr`             | `string`                | `":8080"` | Listen address                                                                                                                              |
-| `Listener`         | `net.Listener`          | `nil`     | Serve on a pre-bound listener (unix socket, socket activation) instead of binding `Addr`; ownership + restart rules in the section below    |
-| `LogLevel`         | `LogLevel`              | `"info"`  | Log level: debug, info, warn, error                                                                                                         |
-| `LogFormat`        | `LogFormat`             | `"auto"`  | Log format: text, json, auto                                                                                                                |
-| `LogHandler`       | `slog.Handler`          | `nil`     | Replace the built-in logger entirely — every line flows through your slog.Handler; `LogLevel`/`LogFormat` ignored (see below)               |
-| `ReadTimeout`      | `time.Duration`         | `10s`     | HTTP read timeout                                                                                                                           |
-| `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                                                                                                                          |
-| `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                                                                                                           |
-| `ShutdownTimeout`  | `time.Duration`         | `15s`     | Max time to wait for shutdown                                                                                                               |
-| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown; `NoDrainDelay` sentinel skips it                                                          |
-| `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack                                                                                                        |
-| `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack                                                                                                      |
-| `OuterMiddlewares` | `[]httputil.Middleware` | `nil`     | Wrap the entire chain (default stack included), outermost — where tracing sits                                                              |
-| `ServerTiming`     | `*bool`                 | `&true`   | W3C `Server-Timing` header via the default stack's outermost middleware; set to `&false` to omit                                            |
-| `StartHooks`       | `[]Hook`                | `nil`     | Run once inside `Start`, after the listener binds but before serving (`Addr`/`Running` already live); any error fails the start             |
-| `DrainHooks`       | `[]func(ctx) error`     | `nil`     | Run once at drain start, while traffic is still served (errors joined)                                                                      |
-| `ShutdownHooks`    | `[]func(ctx) error`     | `nil`     | Run once after connections are released (e.g. telemetry flush; errors joined)                                                               |
-| `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                                                                              |
-| `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`)                                                              |
-| `Metrics`          | `*MetricsConfig`        | `nil`     | Opt-in Prometheus surface: `GET /metrics` text exposition + request histogram, response totals, in-flight and build-info gauges (see below) |
+| Field              | Type                    | Default   | Description                                                                                                                                                       |
+| ------------------ | ----------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Addr`             | `string`                | `":8080"` | Listen address                                                                                                                                                    |
+| `Listener`         | `net.Listener`          | `nil`     | Serve on a pre-bound listener (unix socket, socket activation) instead of binding `Addr`; ownership + restart rules in the section below                          |
+| `LogLevel`         | `LogLevel`              | `"info"`  | Log level: debug, info, warn, error                                                                                                                               |
+| `LogFormat`        | `LogFormat`             | `"auto"`  | Log format: text, json, auto                                                                                                                                      |
+| `LogHandler`       | `slog.Handler`          | `nil`     | Replace the built-in logger entirely — every line flows through your slog.Handler; `LogLevel`/`LogFormat` ignored (see below)                                     |
+| `ReadTimeout`      | `time.Duration`         | `10s`     | HTTP read timeout                                                                                                                                                 |
+| `WriteTimeout`     | `time.Duration`         | `30s`     | HTTP write timeout                                                                                                                                                |
+| `IdleTimeout`      | `time.Duration`         | `60s`     | HTTP idle timeout                                                                                                                                                 |
+| `ShutdownTimeout`  | `time.Duration`         | `15s`     | Max time to wait for shutdown                                                                                                                                     |
+| `DrainDelay`       | `time.Duration`         | `5s`      | Delay after flipping ready probe before shutdown; `NoDrainDelay` sentinel skips it                                                                                |
+| `Middlewares`      | `[]httputil.Middleware` | `nil`     | Replace the default middleware stack                                                                                                                              |
+| `ExtraMiddlewares` | `[]httputil.Middleware` | `nil`     | Append to the default middleware stack                                                                                                                            |
+| `OuterMiddlewares` | `[]httputil.Middleware` | `nil`     | Wrap the entire chain (default stack included), outermost — where tracing sits                                                                                    |
+| `ServerTiming`     | `*bool`                 | `&true`   | W3C `Server-Timing` header via the default stack's outermost middleware; set to `&false` to omit                                                                  |
+| `StartHooks`       | `[]Hook`                | `nil`     | Run once inside `Start`, after the listener binds but before serving (`Addr`/`Running` already live); any error fails the start                                   |
+| `DrainHooks`       | `[]func(ctx) error`     | `nil`     | Run once at drain start, while traffic is still served (errors joined)                                                                                            |
+| `ShutdownHooks`    | `[]func(ctx) error`     | `nil`     | Run once after connections are released (e.g. telemetry flush; errors joined)                                                                                     |
+| `RegisterHealth`   | `*bool`                 | `&true`   | Set to `&false` to opt out of health endpoints                                                                                                                    |
+| `ReadyCheck`       | `func() bool`           | `nil`     | Extra readiness gate for `/health/ready` (e.g. `cqrs.EventService.ReadyCheck`)                                                                                    |
+| `Metrics`          | `*MetricsConfig`        | `nil`     | Opt-in Prometheus surface: `GET /metrics` text exposition + request histogram, response totals, in-flight and build-info gauges (see below)                       |
 | `Endpoints`        | `*EndpointsConfig`      | `nil`     | Opt-in route listing: `GET /endpoints` serves every route registered through `svc.Handle`/`svc.HandleFunc` as JSON or HTML; auth mandatory by default (see below) |
-| `Version`          | `string`                | `""`      | Build version: serves `GET /version` (JSON) and labels the `appkit_build_info` metric                                                       |
+| `Version`          | `string`                | `""`      | Build version: serves `GET /version` (JSON) and labels the `appkit_build_info` metric                                                                             |
 
 ### Metrics (opt-in Prometheus surface)
 
