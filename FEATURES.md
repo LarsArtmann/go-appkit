@@ -42,7 +42,9 @@ aspirations.
 | Opt-in endpoint listing (`Endpoints`, `GET /endpoints`; auth mandatory by default)                        | FULLY_FUNCTIONAL (unreleased; Basic Auth / `Guard` / explicit `AllowUnauthenticated`) | `endpoints.go`, `endpoints_test.go`               |
 
 Unreleased (2026-11-27): the two rows above ride the next core tag (the H8
-`svc.Routes()` seam, answered by adopting `httputil/endpoints`).
+`svc.Routes()` seam, answered by adopting `httputil/endpoints`). The preset
+half is parked until that tag exists (preset resolves PUBLISHED core in
+hermetic builds; TODO_LIST P1).
 
 Shipped through core **v0.13.1** (2026-11-24; the floor re-tag — the module's
 `go` directive returned to the published `go 1.27` floor, so a consumer's own
@@ -358,7 +360,7 @@ composition module); **v0.1.1** (2026-11-13) moves the realtime hub drain to
 | Security profiles: standard (HSTS/nosniff/body-limit) and strict (origin allowlist, boot-rejects without origins)                                                                                                                | FULLY_FUNCTIONAL                                                                                    | `security_test.go`                          |
 | otel leg: provider Setup + middleware + shutdown flush; code wins over env; off by default                                                                                                                                       | FULLY_FUNCTIONAL                                                                                    | `otel_test.go`                              |
 | Metrics passthrough verbatim (never invents credentials)                                                                                                                                                                         | FULLY_FUNCTIONAL                                                                                    | `metrics_test.go`                           |
-| Endpoints passthrough verbatim (code-only, no env switch; the listing carries core routes, the realtime stream and consumer routes)                                                                                              | PARTIALLY_FUNCTIONAL (unreleased; health surface + error-pages catch-all are served but not listed) | `endpoints_test.go`                         |
+| Endpoints passthrough verbatim (code-only, no env switch; the realtime leg mounted through `svc.Handle`, so the listing carries core routes, the realtime stream and consumer routes)                                                 | PLANNED (parked 2026-11-28 until the next core tag; prepared in commits `f3338d2`..`54370ac`, re-apply recipe in TODO_LIST P1) | none yet                                    |
 | 35-LOC example app (acceptance: full production posture)                                                                                                                                                                         | FULLY_FUNCTIONAL                                                                                    | `example/main.go`, example-smoke green      |
 
 ## integration (`github.com/larsartmann/go-appkit/integration` — never released)
