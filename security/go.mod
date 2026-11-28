@@ -4,7 +4,7 @@ go 1.27.4
 
 require (
 	github.com/larsartmann/go-appkit v0.13.1
-	github.com/larsartmann/httputil v1.8.0
+	github.com/larsartmann/httputil v1.9.0
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/samber/lo v1.53.0
 )
@@ -24,8 +24,8 @@ require (
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/justinas/nosurf v1.2.0 // indirect
 	github.com/larsartmann/go-error-family v0.12.0 // indirect
-	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
-	github.com/larsartmann/go-etag/server v0.6.1 // indirect
+	github.com/larsartmann/go-etag/entitytag v0.6.2 // indirect
+	github.com/larsartmann/go-etag/server v0.6.2 // indirect
 	github.com/larsartmann/httputil/server_timing v1.0.3 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
@@ -33,7 +33,7 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v1.3.1 // indirect
-	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
 	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
