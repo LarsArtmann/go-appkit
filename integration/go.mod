@@ -33,7 +33,7 @@ require (
 	github.com/larsartmann/go-health v0.10.0
 	github.com/larsartmann/go-sse v0.6.2
 	github.com/larsartmann/go-sse/ssetest v0.5.0
-	github.com/larsartmann/httputil v1.9.0
+	github.com/larsartmann/httputil v1.9.1
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/samber/do/v2 v2.1.0
 	github.com/samber/lo v1.53.0
@@ -105,8 +105,8 @@ require (
 	github.com/larsartmann/go-cqrs-lite/watermill/v4 v4.7.0 // indirect
 	github.com/larsartmann/go-datastar v0.6.2 // indirect
 	github.com/larsartmann/go-datastar/static v0.6.1 // indirect
-	github.com/larsartmann/go-etag/entitytag v0.6.1 // indirect
-	github.com/larsartmann/go-etag/server v0.6.1 // indirect
+	github.com/larsartmann/go-etag/entitytag v0.6.2 // indirect
+	github.com/larsartmann/go-etag/server v0.6.2 // indirect
 	github.com/larsartmann/go-health-dashboard v0.13.3 // indirect
 	github.com/larsartmann/go-idempotency v0.3.2 // indirect
 	github.com/larsartmann/go-retry v0.9.0 // indirect
