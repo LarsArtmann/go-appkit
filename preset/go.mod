@@ -3,7 +3,7 @@ module github.com/larsartmann/go-appkit/preset
 go 1.27.4
 
 require (
-	github.com/larsartmann/go-appkit v0.13.0
+	github.com/larsartmann/go-appkit v0.13.1
 	github.com/larsartmann/go-appkit/errorpages v0.1.3
 	github.com/larsartmann/go-appkit/health v0.3.2
 	github.com/larsartmann/go-appkit/otel v0.4.0
@@ -11,15 +11,15 @@ require (
 	github.com/larsartmann/go-appkit/security v0.3.0
 	github.com/larsartmann/go-appkit/systemd v0.2.0
 	github.com/larsartmann/go-error-family v0.12.0
-	github.com/larsartmann/go-sse v0.6.2
+	github.com/larsartmann/go-sse v0.7.0
 	github.com/larsartmann/go-sse/ssetest v0.5.0
-	github.com/larsartmann/httputil v1.8.0
+	github.com/larsartmann/httputil v1.9.0
 	go.opentelemetry.io/otel/sdk v1.47.0
 )
 
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.3 // indirect
-	github.com/a-h/templ v0.3.1070 // indirect
+	github.com/a-h/templ v0.3.1100 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
