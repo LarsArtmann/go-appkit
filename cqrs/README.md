@@ -319,6 +319,7 @@ command handler — the drain error is now joined with the close error).
 engine-backed default:
 
 ```go
+// skip-validate
 import (
 	"database/sql"
 
@@ -492,6 +493,7 @@ system stops managed timers in `Close` phase 0 (ADR-0142 lifecycle; the
 tripwire flipped 2026-10-09).
 
 ```go
+// skip-validate
 Events: []event.Type{"task.created", "task.completed"},
 ```
 
@@ -510,6 +512,7 @@ construction, before any dispatch can happen, so the delegate is always set
 by the time the middleware first emits.
 
 ```go
+// skip-validate
 // lazyStore delegates to the real event store once the service exists.
 type lazyStore struct {
 	mu     sync.Mutex

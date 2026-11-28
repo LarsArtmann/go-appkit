@@ -19,6 +19,7 @@ condition both waiting consumers recorded.
 One config field, zero new types:
 
 ```go
+// skip-validate
 // ServiceConfig
 Listener net.Listener // when set, used as-is instead of binding Addr
 ```

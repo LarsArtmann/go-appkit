@@ -14,6 +14,7 @@ retention budget on near-identical captures. Add a cooldown combinator so a
 trigger can self-throttle, e.g.:
 
 ```go
+// skip-validate
 // OnCooldown wraps trigger and enforces a minimum interval between fires.
 // The first matching event captures; further matches inside the window are
 // dropped (and do not re-arm the window).
