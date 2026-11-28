@@ -123,6 +123,8 @@ Moved verbatim to `docs/agents/module-details.md` §core (file-by-file table: se
 
 - **Contract-string changes need a repo-wide grep of the OLD string at ship time (2026-11-03):** shipping the new default-stack order updated middleware.go/README/CHANGELOG but orphaned the old order in `config.go`'s doc comment, `docs/DOMAIN_LANGUAGE.md`, and `otel/README.md` — caught only by a later sweep. Rule: when a documented/grep-able contract changes (stack order, phase names, sentinels), `rg` the old string repo-wide BEFORE declaring done; living docs get fixed, point-in-time reports get dated errata, tag-pinned integration test comments STAY (they describe the pinned tag). Same round's sibling rule: report "How to verify" appendices are RUN as written, not transcribed — an invalid rg command shipped twice that way.
 
+- **shfmt parses unquoted associative-array subscripts as ARITHMETIC (2026-11-28):** `declare -A m=( [github.com/x/y]=v1.2.3 )` dies with the misleading `floating point arithmetic is a zsh feature; tried parsing as bash` (the `.` in the module path is read as a float) and kept BuildFlow's `shfmt` step red for six consecutive runs; quoting the key (`["github.com/x/y"]=v1.2.3`) parses and resolves identically in bash. Also audit doc code fences with `md-go-validator .` — illustrative snippets that mix declarations and statements need `// skip-validate` as the block's first line.
+
 ## Module Details
 
 Per-module code-organization tables, dependency tables, and gotchas for core, systemd, realtime, flightrecorder, flightrecorderhealth, health, otel, errorpages, integration, and cqrs live in `docs/agents/module-details.md` (moved verbatim 2026-10-12 under the ≤220-line AGENTS.md cap; this file points, that file remembers).
