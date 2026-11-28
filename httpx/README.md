@@ -31,6 +31,7 @@ a non-nil error renders through the classified error contract below.
 ## Bind + validation
 
 ```go
+// skip-validate
 // CreateThingRequest is a tagged ADAPTER type — never an untagged domain
 // struct. json/v2 matches field names case-sensitively: a camelCase wire
 // field silently misses a snake_case tag and binds the zero value. Wire

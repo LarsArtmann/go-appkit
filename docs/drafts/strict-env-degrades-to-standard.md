@@ -21,6 +21,7 @@ Same intent (strict), two wiring paths, opposite outcomes. The env path arms the
 At `5897476` (origin/master), `preset/preset.go:95-97`:
 
 ```go
+// skip-validate
 // preset/preset.go:95 (applySecurity call)
 if legs.hasSecurity {
     if err := applySecurity(&svcConfig, cfg.Security); err != nil {

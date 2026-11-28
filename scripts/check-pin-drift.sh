@@ -247,8 +247,8 @@ done <<<"$pins"
 #     then bump cqrs-htmx + go-sse + templ-components together and delete the
 #     hold entries here (keep the documentedPins comment in sync).
 declare -A held_pins=(
-	[github.com/larsartmann/cqrs-htmx/v4]=v4.15.0
-	[github.com/larsartmann/go-sse]=v0.6.2
+	["github.com/larsartmann/cqrs-htmx/v4"]=v4.15.0
+	["github.com/larsartmann/go-sse"]=v0.6.2
 )
 for mod in github.com/larsartmann/cqrs-htmx/v4 github.com/larsartmann/go-sse github.com/larsartmann/go-sse/ssetest github.com/larsartmann/httputil; do
 	want="$(awk '/^require \(/,/^\)/' "$go_mod" | awk -v m="$mod" '$1 == m && $0 !~ /\/\/ indirect/ {print $2}')"
